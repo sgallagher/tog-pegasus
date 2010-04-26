@@ -58,6 +58,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+const String PG_PROVMODULE_GROUPNAME_CIMSERVER = "CIMServer";
+
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
 Boolean ProviderManagerService::_allProvidersStopped = false;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
@@ -75,48 +77,20 @@ ProviderManagerService::ProviderManagerService(
 
     _unloadIdleProvidersBusy = 0;
 
-    _basicProviderManagerRouter = 0;
-    _oopProviderManagerRouter = 0;
-
-    // Determine which ProviderManagerRouter(s) to use
-
     _forceProviderProcesses = ConfigManager::parseBooleanValue(
         ConfigManager::getInstance()->getCurrentValue(
             "forceProviderProcesses"));
 
-#if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
-    if (_forceProviderProcesses)
-    {
-        _oopProviderManagerRouter = new OOPProviderManagerRouter(
-            indicationCallback, responseChunkCallback,
-            providerModuleFailureCallback);
-    }
-    else
-    {
-        _basicProviderManagerRouter = new BasicProviderManagerRouter(
-            indicationCallback, responseChunkCallback,
-            createDefaultProviderManagerCallback);
-    }
-#else
     _oopProviderManagerRouter = new OOPProviderManagerRouter(
-        indicationCallback, responseChunkCallback,
+        providerRegistrationManager,
+        indicationCallback,
+        responseChunkCallback,
         providerModuleFailureCallback);
 
-    if (!_forceProviderProcesses)
-    {
-        _basicProviderManagerRouter = new BasicProviderManagerRouter(
-            indicationCallback, responseChunkCallback,
-            createDefaultProviderManagerCallback);
-    }
-#endif
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-   if (!_basicProviderManagerRouter)
-   {
-       _basicProviderManagerRouter = new BasicProviderManagerRouter(
-           indicationCallback, responseChunkCallback,
-           createDefaultProviderManagerCallback);
-   }
-#endif
+    _basicProviderManagerRouter = new BasicProviderManagerRouter(
+        indicationCallback,
+        responseChunkCallback,
+        createDefaultProviderManagerCallback);
 }
 
 ProviderManagerService::~ProviderManagerService(void)
@@ -687,6 +661,14 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             providerModule.getProperty(pos).getValue().get(userContext);
         }
 
+        String moduleGroupName;
+        Uint32 idx = providerModule.findProperty(
+            PEGASUS_PROPERTYNAME_MODULE_MODULEGROUPNAME);
+        if (idx != PEG_NOT_FOUND)
+        {
+            providerModule.getProperty(idx).getValue().get(moduleGroupName);
+        }
+
         // Load proxy-provider into CIMServer, in case of remote namespace
         // requests. (ie through _basicProviderManagerRouter). -V 3913
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
@@ -707,7 +689,8 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         // Forward the request to the appropriate ProviderManagerRouter, based
         // on the CIM Server configuration and the UserContext setting.
 
-        if (_forceProviderProcesses
+        if ( (_forceProviderProcesses &&
+                   moduleGroupName != PG_PROVMODULE_GROUPNAME_CIMSERVER)
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
             || (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
             || (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)

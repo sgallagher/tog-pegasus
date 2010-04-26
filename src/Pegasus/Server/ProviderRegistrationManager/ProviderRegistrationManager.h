@@ -242,6 +242,38 @@ public:
         Array<Uint16>& outStatus);
 
     /**
+        Retrieves all the provider module names who have the given
+        moduleGroupName in common.
+
+        @param    moduleGroupName String specifying name of the provider
+                  module group.
+        @param    moduleNames OUTPUT array of string returning the provider
+                  module names for the group
+
+    */
+    void getProviderModuleNamesForGroup(
+        const String& moduleGroupName,
+        Array<String>& moduleNames);
+
+    /**
+        Sets the provider module group name for the specified provider
+        module.
+
+        @param    providerModuleName String specifying name of the provider
+                  module.
+        @param    moduleGroupName  String specifying name of the provider
+                  module group.
+        @param    errorMsg  Output arg, String containing the reason for failure
+
+        @return   True if the ModuleGroupName set successfully,
+                  Otherwise, return false.
+    */
+    Boolean setProviderModuleGroupName(
+        const String& providerModuleName,
+        const String& moduleGroupName,
+        String &errorMsg);
+
+    /**
         Determines whether specified provider is an indication provider.
 
         @param    moduleName specifies name of the provider module which

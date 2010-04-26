@@ -521,10 +521,12 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
         // If StopAllProviders, terminate the agent process.
         // If DisableModule not successful, leave agent process running.
+        // If there are any active providers after DisableModule request
+        // successful, this agent might be servicing the group of
+        // provider modules, leave agent process running.
         if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
             ((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) &&
-             (!dynamic_cast<CIMDisableModuleRequestMessage*>(request)->
-                  disableProviderOnly) &&
+             (!_providerManagerRouter.hasActiveProviders()) &&
              (respMsg->cimException.getCode() == CIM_ERR_SUCCESS)))
         {
             // Operation is successful. End the agent process.

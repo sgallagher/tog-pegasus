@@ -75,6 +75,9 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static String _GROUP_PREFIX = "grp:";
+static String _MODULE_PREFIX = "mod:";
+
 /////////////////////////////////////////////////////////////////////////////
 // OutstandingRequestTable and OutstandingRequestEntry
 /////////////////////////////////////////////////////////////////////////////
@@ -127,7 +130,7 @@ class ProviderAgentContainer
 {
 public:
     ProviderAgentContainer(
-        const String & moduleName,
+        const String & groupNameWithType,
         const String & userName,
         Uint16 userContext,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
@@ -139,7 +142,7 @@ public:
 
     Boolean isInitialized();
 
-    String getModuleName() const;
+    String getGroupNameWithType() const;
 
     CIMResponseMessage* processMessage(CIMRequestMessage* request);
     void unloadIdleProviders();
@@ -223,9 +226,15 @@ private:
     Mutex _agentMutex;
 
     /**
-        Name of the provider module served by this Provider Agent.
+        Name of the provider module or group served by this Provider Agent.
      */
-    String _moduleName;
+    String _moduleOrGroupName;
+
+    /**
+        Name of the group with type(group or module indicator)
+        served by this Provider Agent.
+     */
+    String _groupNameWithType;
 
     /**
         The user context in which this Provider Agent operates.
@@ -326,6 +335,7 @@ private:
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
     Boolean _subscriptionInitComplete;
+
 };
 
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
@@ -336,7 +346,7 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
     static_cast<CIMResponseMessage*>((void*)&_REQUEST_NOT_PROCESSED);
 
 ProviderAgentContainer::ProviderAgentContainer(
-    const String & moduleName,
+    const String & groupName,
     const String & userName,
     Uint16 userContext,
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
@@ -344,7 +354,7 @@ ProviderAgentContainer::ProviderAgentContainer(
     PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
     Boolean subscriptionInitComplete)
     :
-      _moduleName(moduleName),
+      _groupNameWithType(groupName),
       _userName(userName),
       _userContext(userContext),
       _indicationCallback(indicationCallback),
@@ -353,9 +363,12 @@ ProviderAgentContainer::ProviderAgentContainer(
       _isInitialized(false),
       _subscriptionInitComplete(subscriptionInitComplete)
 {
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::ProviderAgentContainer");
+
+    // Remove prefixes "grp" and "mod" and get actual module or group name.
+    _moduleOrGroupName = _groupNameWithType.subString(4);
+
     PEG_METHOD_EXIT();
 }
 
@@ -406,7 +419,7 @@ void ProviderAgentContainer::_startAgentProcess()
     AnonymousPipe* writePipe;
 
     int status = Executor::startProviderAgent(
-        (const char*)_moduleName.getCString(),
+        (const char*)_moduleOrGroupName.getCString(),
         ConfigManager::getPegasusHome(),
         _userName,
         pid,
@@ -421,7 +434,7 @@ void ProviderAgentContainer::_startAgentProcess()
         throw Exception(MessageLoaderParms(
             "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
             "Failed to start cimprovagt \"$0\".",
-            _moduleName));
+            _moduleOrGroupName));
     }
 
 # if defined(PEGASUS_HAS_SIGNALS)
@@ -486,7 +499,7 @@ void ProviderAgentContainer::_sendInitializationData()
             "ProviderManager.OOPProviderManagerRouter."
                 "CIMPROVAGT_COMMUNICATION_FAILED",
             "Failed to communicate with cimprovagt \"$0\".",
-            _moduleName));
+            _moduleOrGroupName));
     }
 
     // Wait for a null response from the Provider Agent indicating it has
@@ -507,7 +520,7 @@ void ProviderAgentContainer::_sendInitializationData()
             "ProviderManager.OOPProviderManagerRouter."
                 "CIMPROVAGT_COMMUNICATION_FAILED",
             "Failed to communicate with cimprovagt \"$0\".",
-            _moduleName));
+            _moduleOrGroupName));
     }
 
     PEGASUS_ASSERT(message == 0);
@@ -585,7 +598,7 @@ void ProviderAgentContainer::_initialize()
                     "ProviderManager.OOPProviderManagerRouter."
                         "CIMPROVAGT_THREAD_ALLOCATION_FAILED",
                     "Failed to allocate thread for cimprovagt \"$0\".",
-                    _moduleName));
+                    _moduleOrGroupName));
             }
         }
     }
@@ -697,7 +710,26 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
             // the failure to the Provider Manager Service.  The Provider
             // Manager Service will inform the Indication Service.
             //
-            _providerModuleFailCallback(_moduleName, _userName, _userContext);
+            Array<String> moduleNames;
+
+            // If this agent is servicing the group of modules, get all related
+            // provider module names.
+            if (!String::compare(_groupNameWithType, _GROUP_PREFIX, 4))
+            {
+                OOPProviderManagerRouter::getProviderRegistrationManager()->
+                    getProviderModuleNamesForGroup(
+                        _moduleOrGroupName, moduleNames);
+            }
+            else
+            {
+                moduleNames.append(_moduleOrGroupName);
+            }
+
+            for (Uint32 i = 0, n = moduleNames.size(); i < n; i++)
+            {
+                _providerModuleFailCallback(
+                    moduleNames[i], _userName, _userContext);
+            }
         }
     }
     catch (...)
@@ -722,9 +754,9 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
     PEG_METHOD_EXIT();
 }
 
-String ProviderAgentContainer::getModuleName() const
+String ProviderAgentContainer::getGroupNameWithType() const
 {
-    return _moduleName;
+    return _groupNameWithType;
 }
 
 CIMResponseMessage* ProviderAgentContainer::processMessage(
@@ -758,6 +790,7 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
             }
             else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
             {
+                response = request->buildResponse();
                 CIMDisableModuleResponseMessage* dmResponse =
                     dynamic_cast<CIMDisableModuleResponseMessage*>(response);
                 PEGASUS_ASSERT(dmResponse != 0);
@@ -995,7 +1028,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     "ProviderManager.OOPProviderManagerRouter."
                         "CIMPROVAGT_CONNECTION_LOST",
                     "Lost connection with cimprovagt \"$0\".",
-                    _moduleName));
+                    _moduleOrGroupName));
         }
     }
     catch (CIMException& e)
@@ -1257,7 +1290,11 @@ ProviderAgentContainer::_responseProcessor(void* arg)
 // OOPProviderManagerRouter
 /////////////////////////////////////////////////////////////////////////////
 
+ProviderRegistrationManager*
+    OOPProviderManagerRouter::_providerRegistrationManager;
+
 OOPProviderManagerRouter::OOPProviderManagerRouter(
+    ProviderRegistrationManager *providerRegistrationManager,
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback)
@@ -1269,7 +1306,7 @@ OOPProviderManagerRouter::OOPProviderManagerRouter(
     _responseChunkCallback = responseChunkCallback;
     _providerModuleFailCallback = providerModuleFailCallback;
     _subscriptionInitComplete = false;
-
+    _providerRegistrationManager = providerRegistrationManager;
     PEG_METHOD_EXIT();
 }
 
@@ -1291,6 +1328,12 @@ OOPProviderManagerRouter::~OOPProviderManagerRouter()
     catch (...) {}
 
     PEG_METHOD_EXIT();
+}
+
+ProviderRegistrationManager*
+    OOPProviderManagerRouter::getProviderRegistrationManager()
+{
+    return _providerRegistrationManager;
 }
 
 Message* OOPProviderManagerRouter::processMessage(Message* message)
@@ -1404,13 +1447,14 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     {
         // Fan out the request to all Provider Agent processes for this module
 
-        // Retrieve the provider module name
-        String moduleName;
-        _getProviderModuleName(providerModule,moduleName);
+        // Retrieve the provider group name.
+        String groupNameWithType;
+        _getGroupNameWithType(providerModule, groupNameWithType);
+
 
         // Look up the Provider Agents for this module
         Array<ProviderAgentContainer*> paArray =
-            _lookupProviderAgents(moduleName);
+            _lookupProviderAgents(groupNameWithType);
 
         for (Uint32 i=0; i<paArray.size(); i++)
         {
@@ -1472,13 +1516,13 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     {
         // Fan out the request to all Provider Agent processes for this module
 
-        // Retrieve the provider module name
-        String moduleName;
-        _getProviderModuleName(providerModule,moduleName);
+        // Retrieve the provider module group name.
+        String groupNameWithType;
+        _getGroupNameWithType(providerModule, groupNameWithType);
 
         // Look up the Provider Agents for this module
         Array<ProviderAgentContainer*> paArray =
-            _lookupProviderAgents(moduleName);
+            _lookupProviderAgents(groupNameWithType);
 
         for (Uint32 i=0; i<paArray.size(); i++)
         {
@@ -1556,9 +1600,9 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     const CIMInstance& providerModule,
     CIMRequestMessage* request)
 {
-    // Retrieve the provider module name
-    String moduleName;
-    _getProviderModuleName(providerModule,moduleName);
+    // Retrieve the provider module group name
+    String groupNameWithType;
+    _getGroupNameWithType(providerModule, groupNameWithType);
 
 #if defined(PEGASUS_OS_ZOS)
     // For z/OS we don't start an extra provider agent for
@@ -1642,43 +1686,45 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     PEG_TRACE((
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL4,
-        "Module name = %s, User context = %hd, User name = %s",
-        (const char*) moduleName.getCString(),
+        "Group name with type = %s, User context = %hd, User name = %s",
+        (const char*) groupNameWithType.getCString(),
         userContext,
         (const char*) userName.getCString()));
 #endif
 
     ProviderAgentContainer* pa = 0;
+
 #ifdef PEGASUS_OS_PASE
     String userUpper = userName;
     userUpper.toUpper();
-    String key = moduleName + ":" + userUpper;
+    String key = groupNameWithType + ":" + userUpper;
 #else
-    String key = moduleName + ":" + userName;
+    String key = groupNameWithType + ":" + userName;
 #endif
 
     AutoMutex lock(_providerAgentTableMutex);
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            moduleName, userName, userContext,
+            groupNameWithType, userName, userContext,
             _indicationCallback, _responseChunkCallback,
             _providerModuleFailCallback,
             _subscriptionInitComplete);
         _providerAgentTable.insert(key, pa);
     }
+
     return pa;
 }
 
 Array<ProviderAgentContainer*> OOPProviderManagerRouter::_lookupProviderAgents(
-    const String& moduleName)
+    const String& groupNameWithType)
 {
     Array<ProviderAgentContainer*> paArray;
 
     AutoMutex lock(_providerAgentTableMutex);
     for (ProviderAgentTable::Iterator i = _providerAgentTable.start(); i; i++)
     {
-        if (i.value()->getModuleName() == moduleName)
+        if (i.value()->getGroupNameWithType() == groupNameWithType)
         {
             paArray.append(i.value());
         }
@@ -1763,6 +1809,37 @@ void OOPProviderManagerRouter::unloadIdleProviders()
     }
 
     PEG_METHOD_EXIT();
+}
+
+void OOPProviderManagerRouter::_getGroupNameWithType(
+        const CIMInstance &providerModule,
+        String &groupNameWithType)
+{
+    Uint32 idx = providerModule.findProperty(
+            PEGASUS_PROPERTYNAME_MODULE_MODULEGROUPNAME);
+
+    String moduleName;
+    String groupName;
+
+    if (idx != PEG_NOT_FOUND)
+    {
+        providerModule.getProperty(idx).getValue().get(groupName);
+    }
+
+    // Note: If group name is not found, module name is used as group name.
+    // prefixes "grp" and "mod" is used to distinguish between the provider
+    // modules who have same group and module names.
+    if (groupName.size())
+    {
+        groupNameWithType.assign(_GROUP_PREFIX);
+        groupNameWithType.append(groupName);
+    }
+    else
+    {
+        _getProviderModuleName(providerModule, moduleName);
+        groupNameWithType.assign(_MODULE_PREFIX);
+        groupNameWithType.append(moduleName);
+    }
 }
 
 void OOPProviderManagerRouter::_getProviderModuleName(

@@ -27,55 +27,14 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = ../../..
+ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
 TEST_DIRS = \
-	AlertIndicationProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests \
-        EmbeddedInstanceProvider \
-        EmbeddedInstanceProvider/testClient \
-        TestModuleGrouping
-
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-TEST_DIRS += \
-	TestServerProfileProviders
-endif
-
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-TEST_DIRS += \
-	CMPI
-endif
+           GroupUtilLib \
+           GroupProvider1 \
+           GroupProvider2 \
+           testclient
 
 include $(ROOT)/mak/recurse.mak

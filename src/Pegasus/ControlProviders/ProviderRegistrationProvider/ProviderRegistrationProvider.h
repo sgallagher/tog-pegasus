@@ -164,6 +164,11 @@ protected:
                           Boolean disableProviderOnly,
                       const AcceptLanguageList & al);
 
+    Sint16 _setModuleGroupName(const CIMObjectPath & moduleRef,
+                          const String & moduleName,
+                          const String & moduleGroupName,
+                          const AcceptLanguageList & al);
+
     //
     // If the provider is an indication provider, return true
     // otherwise, return false

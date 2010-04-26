@@ -347,6 +347,23 @@ void AuditLogger::logInvokeMethodOperation(
     }
 }
 
+void AuditLogger::logSetProvModuleGroupName(
+    const String & moduleName,
+    const String & oldModuleGroupName,
+    const String & newModuleGroupName)
+{
+    MessageLoaderParms msgParms(
+        "Common.AuditLogger.SET_PROVIDER_MODULE_GROUP",
+        "The ModuleGroupName of provider module \"$0\" has changed from \"$1\""
+            " to \"$2\".",
+        moduleName, oldModuleGroupName, newModuleGroupName);
+
+    _writeAuditMessage(TYPE_CONFIGURATION,
+        SUBTYPE_PROVIDER_MODULE_STATUS_CHANGE,
+        EVENT_UPDATE, Logger::INFORMATION, msgParms);
+}
+
+
 void AuditLogger::logUpdateProvModuleStatus(
     const String & moduleName,
     const Array<Uint16> currentModuleStatus,

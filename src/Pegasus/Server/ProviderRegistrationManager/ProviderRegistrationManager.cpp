@@ -67,6 +67,7 @@ const CIMName _PROPERTY_PROVIDERTYPE = CIMNameCast("ProviderType");
 const CIMName _PROPERTY_SUPPORTEDPROPERTIES =CIMNameCast("SupportedProperties");
 const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMNameCast("SupportedMethods");
 const CIMName _PROPERTY_INDICATIONDESTINATIONS = CIMNameCast("Destinations");
+const CIMName _PROPERTY_MODULEGROUPNAME = CIMNameCast("ModuleGroupName");
 
 /**
     ProviderRegistration table is used to keep track of provider registration
@@ -1564,6 +1565,137 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
     _providerModuleStatus = _getProviderModuleStatus (providerModuleName);
 
     return (_providerModuleStatus);
+}
+
+void ProviderRegistrationManager::getProviderModuleNamesForGroup(
+    const String& moduleGroupName,
+    Array<String> &moduleNames)
+{
+    String name;
+
+    ReadLock lock(_registrationTableLock);
+
+    // Retrieve required provider modules from registration hash table
+    // instead of repository. This significantly decreases the time required.
+    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+    {
+        Array<CIMInstance> instances;
+        instances = i.value()->getInstances();
+        for (Uint32 j = 0; j < instances.size(); j++)
+        {
+            if (instances[j].getClassName().equal(
+                PEGASUS_CLASSNAME_PROVIDERMODULE))
+            {
+                Uint32 pos = instances[j].findProperty(
+                    _PROPERTY_MODULEGROUPNAME);
+                if (pos != PEG_NOT_FOUND)
+                {
+                    instances[j].getProperty(pos).getValue().get(name);
+                    if (String::equalNoCase(moduleGroupName, name))
+                    {
+                        pos = instances[j].findProperty(
+                            _PROPERTY_PROVIDERMODULE_NAME);
+                        if (pos != PEG_NOT_FOUND)
+                        {
+                            instances[j].getProperty(pos).getValue().get(name);
+                            moduleNames.append(name);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+Boolean ProviderRegistrationManager::setProviderModuleGroupName(
+    const String& providerModuleName,
+    const String& moduleGroupName,
+    String &errorMsg)
+{
+    WriteLock lock(_registrationTableLock);
+
+    String oldModuleGroupName;
+
+    try
+    {
+        Array <CIMKeyBinding> moduleKeyBindings;
+
+        moduleKeyBindings.append (CIMKeyBinding
+            (_PROPERTY_PROVIDERMODULE_NAME,
+             providerModuleName, CIMKeyBinding::STRING));
+        CIMObjectPath reference ("", CIMNamespaceName (),
+            PEGASUS_CLASSNAME_PROVIDERMODULE, moduleKeyBindings);
+
+        //
+        // get the old group value.
+        //
+        CIMValue groupValue =  _repository->getProperty(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference, _PROPERTY_MODULEGROUPNAME);
+        groupValue.get(oldModuleGroupName);
+
+        //
+        // update provider module with the new group name
+        //
+        _repository->setProperty(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference, _PROPERTY_MODULEGROUPNAME, moduleGroupName);
+
+        //
+        //  get instance from the repository
+        //
+        CIMInstance _instance = _repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference,
+            false,
+            false,
+            CIMPropertyList());
+        //
+        // remove old entry from table
+        //
+        String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+        ProviderRegistrationTable* _entry = 0;
+        if (_registrationTable->table.lookup(_moduleKey, _entry))
+        {
+            delete _entry;
+            _registrationTable->table.remove(_moduleKey);
+        }
+
+        //
+        // add the updated instance to the table
+        //
+        Array<CIMInstance> instances;
+        instances.append(_instance);
+        _addInstancesToTable(_moduleKey, instances);
+    }
+    catch (const Exception & e)
+    {
+        errorMsg = e.getMessage();
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Group name %s cannot be set to the provider module %s : %s",
+            (const char*)moduleGroupName.getCString(),
+            (const char*)providerModuleName.getCString(),
+            (const char*)errorMsg.getCString()));
+        return false;
+    }
+    catch (...)
+    {
+        errorMsg = "Unknown error";
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Unknown error occured while setting the group name %s"
+                " to the provider module : %s",
+            (const char*)moduleGroupName.getCString(),
+            (const char*)providerModuleName.getCString()));
+        return false;
+    }
+
+    PEG_AUDIT_LOG(
+        logSetProvModuleGroupName(
+            providerModuleName,
+            oldModuleGroupName,
+            moduleGroupName));
+
+    return (true);
 }
 
 Boolean ProviderRegistrationManager::updateProviderModuleStatus(

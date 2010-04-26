@@ -327,14 +327,25 @@ en:table {
 	Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:string {
     "Usage: cimprovider -d -m module\n"
     "                   -e -m module\n"
+    "                   -g group -m module\n"
     "                   -r -m module [ -p provider ]\n"
-    "                   -l [ -s | -m module ]\n"
+    "                   -l [ -s | -f | -m module ]\n"
     "                   -h\n"
     "                   --help\n"
     "                   --version\n"
     "  Options:\n"
     "      -d         - Disable the specified CIM provider module.\n"
     "      -e         - Enable the specified CIM provider module.\n"
+    "      -g         - Sets the CIM provider module group. Specify\n"
+    "                   empty string to remove from grouping.\n"
+    "                   If the provider module is  active, provider\n"
+    "                   module is disabled first, group is set and\n"
+    "                   enabled again. All provider modules with the same\n"
+    "                   group name are loaded into a single agent process\n"
+    "                   except when overridden by specific UserContext\n"
+    "                   values. If group name is CIMServer, provider module\n"
+    "                   is loaded into CIMServer process depending on\n"
+    "                   UserContext value.\n"
     "      -r         - Remove the registration for a provider (if specified)\n"
     "                   or for the specified provider module and all the providers\n"
     "                   it contains.\n"
@@ -342,6 +353,8 @@ en:table {
     "      -m         - Specify the provider module for the operation.\n"
     "      -p         - Specify the provider for the operation.\n"
     "      -s         - Display the status of registered provider modules.\n"
+    "      -f         - Full status, display the status of registered\n"
+    "                   provider modules and module group name.\n"
     "      -h, --help - Display this help message.\n"
     "      --version  - Display CIM Server version number.\n"
     "\n"
@@ -423,6 +436,12 @@ en:table {
 	Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"PGC00626: Failed to disable the provider module.  Provider is busy."} // 485
 
         Clients.cimprovider.CIMProviderCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}
+
+        Clients.cimprovider.CIMProviderCommand.SETTING_PROVIDERMODULE_GROUP:string {"PGC00628: Setting the provider module group..."}
+
+        Clients.cimprovider.CIMProviderCommand.SET_PROVIDERMODULE_GROUP_SUCCESS:string {"PGC00629: Provider module group set successfully."}
+
+       Clients.cimprovider.CIMProviderCommand.SET_PROVIDERMODULE_GROUP_FAILURE:string {"PGC00630: Failed to set the provider module group."}
 
 
 	// ==========================================================

@@ -460,6 +460,14 @@ void AuditLogger::logInvokeMethodOperation(
     }
 }
 
+void AuditLogger::logSetProvModuleGroupName(
+    const String & moduleName,
+    const String & oldModuleGroupName,
+    const String & newModuleGroupName)
+{
+// ATTN: Implement for z/OS.
+}
+
 void AuditLogger::logUpdateProvModuleStatus(
     const String & moduleName,
     const Array<Uint16> currentModuleStatus,

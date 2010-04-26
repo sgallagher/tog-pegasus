@@ -30,7 +30,7 @@
 // ==================================================================
 // PG_ProviderModule
 // ==================================================================
-        [Version("2.5.0"), Description ( "A ProviderModule contains "
+        [Version("2.11.0"), Description ( "A ProviderModule contains "
          "one or more Providers. ") ]
 class PG_ProviderModule : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
@@ -119,6 +119,23 @@ class PG_ProviderModule : CIM_LogicalElement {
        ModelCorrespondence {
         "CIM_ManagedSystemElement.OperationalStatus"} ]
     string OtherStatusDescription;
+
+      [Description(
+        " A string specifying a group name for the provider module."
+        " If the specified value is \"CIMServer\",  provider module"
+        " is loaded into the CIMServer process. Provider modules"
+        " having the same group name other than \"CIMServer\" are"
+        " loaded into a single agent process except when overridden"
+        " by specific UserContext values. If the value is not specified,"
+        " each provider module is loaded into different agent process."
+        " Provider modules having different UserContext values but the"
+        " same group name are loaded according to the UserContext"
+        " information")]
+   string ModuleGroupName;
+
+      [Description(
+        " Sets the module group name")]
+   sint16 setModuleGroupName([IN] string moduleGroupName);
 
       [Description ("")]
    uint32 start();

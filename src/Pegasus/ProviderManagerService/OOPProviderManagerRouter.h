@@ -41,6 +41,9 @@
 #include <Pegasus/ProviderManagerService/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManagerService/Linkage.h>
 
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 typedef void (*PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T)(const String &,
@@ -56,6 +59,7 @@ class PEGASUS_PMS_LINKAGE OOPProviderManagerRouter
 {
 public:
     OOPProviderManagerRouter(
+        ProviderRegistrationManager *providerRegistrationManager,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
         PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback);
@@ -66,6 +70,8 @@ public:
 
     virtual void unloadIdleProviders();
 
+    static ProviderRegistrationManager* getProviderRegistrationManager();
+
 private:
     //
     // Private methods
@@ -75,6 +81,17 @@ private:
     void _getProviderModuleName(
         const CIMInstance & providerModule,
         String & moduleName);
+
+    /**
+        Determine groupName from the providerModule. Function sets
+        groupName. A type prefix(grp or mod) is added to distinguish
+        between group and module names.
+        If ModuleGroupName property value is not specified, moduleName is set
+        to groupName.
+    */
+    void _getGroupNameWithType(
+        const CIMInstance &providerModule,
+        String &groupNameWithType);
 
     /** Unimplemented */
     OOPProviderManagerRouter();
@@ -138,6 +155,9 @@ private:
         _providerAgentTable is accessed.
      */
     Mutex _providerAgentTableMutex;
+
+    static ProviderRegistrationManager *_providerRegistrationManager;
+
 };
 
 PEGASUS_NAMESPACE_END

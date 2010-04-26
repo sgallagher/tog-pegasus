@@ -60,6 +60,17 @@ static const CIMName _STOP_PROVIDER = CIMNameCast("Stop");
 */
 static const CIMName _START_PROVIDER = CIMNameCast("Start");
 
+/**
+   setting provider module group method
+*/
+static const CIMName _SET_MODULEGROUPNAME = CIMNameCast("SetModuleGroupName");
+
+/**
+   input param for setModuleGroupName name method
+*/
+static const CIMName _PARAM_MODULEGROUPNAME = CIMNameCast("ModuleGroupName");
+
+
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)
 {
@@ -1067,6 +1078,7 @@ void ProviderRegistrationProvider::invokeMethod(
         }
     }
 
+
     // if _PROPERTY_PROVIDERMODULE_NAME key not found
     if( !moduleFound)
     {
@@ -1091,6 +1103,21 @@ void ProviderRegistrationProvider::invokeMethod(
         // enable module
         ret_value = _enableModule(objectReference, moduleName, al);
     }
+    else if (methodName.equal(_SET_MODULEGROUPNAME))
+    {
+        String paramName;
+        if (!inParameters.size() ||
+            ((paramName = inParameters[0].getParameterName())
+                != _PARAM_MODULEGROUPNAME))
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, paramName);
+        }
+        // set group
+        String moduleGroupName;
+        inParameters[0].getValue().get(moduleGroupName);
+        ret_value = _setModuleGroupName(
+            objectReference, moduleName, moduleGroupName, al);
+    }
     else
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
@@ -1104,6 +1131,77 @@ void ProviderRegistrationProvider::invokeMethod(
     handler.deliver(retValue);
     handler.complete();
 }
+
+Sint16 ProviderRegistrationProvider::_setModuleGroupName(
+    const CIMObjectPath & moduleRef,
+    const String & moduleName,
+    const String & moduleGroupName,
+    const AcceptLanguageList & al)
+{
+    Sint32 disableRC = _disableModule (moduleRef, moduleName, false, al);
+
+    if (disableRC == -1)
+    {
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "DISABLE_PROVIDER_FAILED",
+                "disable the provider failed."));
+    }
+
+    if (disableRC == -2)
+    {
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "DISABLE_PROVIDER_FAILED_PROVIDER_BUSY",
+                "disable the provider failed: Provider is busy."));
+    }
+
+    String errorMsg;
+
+    if (!_providerRegistrationManager->setProviderModuleGroupName(
+        moduleName, moduleGroupName, errorMsg))
+    {
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "SET_PROVIDERMODULEGROUPNAME_FAILED",
+                "Failed to set the ModuleGroupName: $0.",
+                errorMsg));
+    }
+
+    // Enable the module only if it was previously enabled.
+    if (disableRC == 0)
+    {
+        try
+        {
+            _enableModule(moduleRef, moduleName, al);
+        }
+        catch(const Exception &e)
+        {
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL1,
+                "Exception caught while enabling the provider module %s : %s",
+                (const char*)moduleName.getCString(),
+                (const char*)e.getMessage().getCString()));
+        }
+        catch(...)
+        {
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL1,
+                "Unknown error occurred while"
+                    " enabling the provider modules %s.",
+                (const char*)moduleName.getCString()));
+        }
+    }
+
+    return 0;
+}
+
 
 // get provider manager service
 MessageQueueService * ProviderRegistrationProvider::_getProviderManagerService()

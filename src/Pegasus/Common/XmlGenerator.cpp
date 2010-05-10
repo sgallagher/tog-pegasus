@@ -194,9 +194,9 @@ static const SpecialChar _specialChars[] =
 };
 
 // If _isSpecialChar7[ch] is true, then ch is a special character, which must
-// have a special encoding in XML. But only use 7-bit ASCII characters to
-// index this array.
-static const int _isSpecialChar7[] =
+// have a special encoding in XML.
+// Remaining 128 values are automatically initialised to 0 by compiler.
+static const int _isSpecialChar7[256] =
 {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,
     0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
@@ -205,14 +205,18 @@ static const int _isSpecialChar7[] =
 };
 
 // If _isSpecialChar7[ch] is true, then ch is a special character, which must
-// have a special encoding in XML. But only use 7-biat ASCII characters to
-// index this array.
+// have a special encoding in XML.
 static const int _isNormalChar7[] =
 {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,
     1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
+// remaining 128 values are used on multi-byte UTF-8 and should not be escaped
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 };
 
 

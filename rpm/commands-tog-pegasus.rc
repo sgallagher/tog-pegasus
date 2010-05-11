@@ -43,7 +43,7 @@ case "$1" in
 	if [ ! -e ${PEGASUS_SSL_CONF_FILE} ] || [ ! -e ${PEGASUS_SSL_CERT_FILE} ] ||
 	   [ ! -e ${PEGASUS_SSL_KEY_FILE} ]  || [ ! -e ${PEGASUS_SSL_TRUSTSTORE} ]; then
 	   if [ -x $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts ]; then
-	       echo -n "$(PEGASUS_FLAVOR)-pegasus: Generating cimserver SSL certificates...";
+	       echo -n "${PEGASUS_FLAVOR}-pegasus: Generating cimserver SSL certificates...";
 	       $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts;
 	       if [ $? -eq 0 ]; then
 		   echo "SSL certificates generated";

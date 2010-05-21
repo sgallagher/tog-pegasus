@@ -56,12 +56,6 @@
 
 #define CIMSERVER_COMMAND_TIMEOUT_SECONDS 240
 
-#ifdef PEGASUS_FLAVOR
-# define CIMSERVER_LOG_IDENTITY "cimserver" PEGASUS_FLAVOR
-#else
-# define CIMSERVER_LOG_IDENTITY "cimserver"
-#endif
-
 /*
 **==============================================================================
 **
@@ -153,10 +147,6 @@ void DefineExecutorMacros(void)
 
     DefineMacro("cimprovagt", CIMPROVAGT);
 
-    /* Define ${cimprovagt} */
-
-    DefineMacro("cimprovagt32", CIMPROVAGT32);
-
     /* Define ${cimshutdown} */
 
     DefineMacro("cimshutdown", CIMSHUTDOWN);
@@ -183,16 +173,6 @@ void DefineExecutorMacros(void)
             Fatal(FL, "failed to resolve cimprovagtPath");
 
         DefineMacro("cimprovagtPath", path);
-    }
-
-    /* Define ${cimprovagt32Path} */
-    {
-        char path[EXECUTOR_BUFFER_SIZE];
-
-        if (ExpandMacros("${internalBinDir}/${cimprovagt32}", path) != 0)
-            Fatal(FL, "failed to resolve cimprovagt32Path");
-
-        DefineMacro("cimprovagt32Path", path);
     }
 
     /* Define ${cimshutdownPath} */
@@ -276,10 +256,6 @@ void DefineExecutorMacros(void)
 
     if (DefineConfigPathMacro("crlStore", "crl") != 0)
         Fatal(FL, "missing \"crlStore\" configuration parameter.");
-
-    /* Define ${localAuthDir} */
-    if(DefineMacro("localAuthDir",PEGASUS_LOCAL_AUTH_DIR) != 0)
-        Fatal(FL, "missing \"localAuthDir\" configuration parameter.");
 }
 
 /*
@@ -289,7 +265,6 @@ void DefineExecutorMacros(void)
 **
 **==============================================================================
 */
-
 
 int main(int argc, char** argv)
 {
@@ -316,7 +291,7 @@ int main(int argc, char** argv)
 
     /* Open the log. */
 
-    OpenLog(CIMSERVER_LOG_IDENTITY);
+    OpenLog("cimserver");
 
     /* Define macros needed by the executor. */
 

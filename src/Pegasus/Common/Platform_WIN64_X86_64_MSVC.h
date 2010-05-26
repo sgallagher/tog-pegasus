@@ -29,20 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*****************************************************************************
-  The platform configuration files in pegasus/src/Pegasus/Common/Platform_*.h
-  are intended to normalize platform/compiler differences so that Pegasus code
-  can be written to work on all platforms without requiring platform ifdefs.
-  Since these files are part of the Pegasus SDK, their contents should be
-  the minimum that achieves the stated purpose.
-
-  Examples of differences that are normalized here are support for C++
-  namespaces, 64-bit integer type, support for C++ template specialization.
-
-  Examples of things that are not appropriate in these files are the enablement
-  of Pegasus features for a specific platform and other build configuration.
-******************************************************************************/
-
 #ifndef Pegasus_Platform_WIN64_X86_64_MSVC_h
 #define Pegasus_Platform_WIN64_X86_64_MSVC_h
 
@@ -73,7 +59,7 @@
 
 #define PEGASUS_HAVE_IOS_BINARY
 
-#define PEGASUS_MAXHOSTNAMELEN  256
+#define PEGASUS_MAXHOSTNAMELEN  64
 
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
@@ -96,13 +82,6 @@
 // for dll-interface class <YYY>
 #pragma warning( disable : 4275 )
 
-// Disable this warningBinary 'argument' : conversion from 'size_t' to
-//'Type', possible loss of data. Typically type is Uint32
-#pragma warning ( disable : 4267 )
-
-// Disable this warning 'function': was declared deprecated
-#pragma warning( disable : 4996 )
- 
 // Supresss this warning : C++ exception specification ignored except
 // to indicate a function is not __declspec(nothrow)
 #pragma warning( disable : 4290 )

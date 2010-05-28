@@ -39,7 +39,7 @@
  ++++ Status of CMGetProperty : (CMPI_RC_OK)
  n64 = 64
  GetInstance
- ++++Namespace
+ ++++Namespace 
  ++++ Status of CMGetObjectPath : (CMPI_RC_OK)
  ++++ Status of CMGetNameSpace : (CMPI_RC_OK)
  ++++ Status of CMGetClassName : (CMPI_RC_OK)
@@ -50,7 +50,7 @@
  ++++ Status of mbEncGetType with input of type CMPIResult with CMPI_ResultInstOnStack_Ftab : (CMPI_RC_OK) type(CMPIResult)
  ++++ CDIsOfType for CMPIResult with CMPI_ResultInstOnStack_Ftab status is (CMPI_RC_OK) : 1
  GetInstance
- ++++Namespace
+ ++++Namespace 
  ++++ Status of CMGetObjectPath : (CMPI_RC_OK)
  ++++ Status of CMGetNameSpace : (CMPI_RC_OK)
  ++++ Status of CMGetClassName : (CMPI_RC_OK)

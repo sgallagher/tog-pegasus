@@ -364,11 +364,24 @@ extern "C"
                 }
                 else
                 {
-                    const CIMObjectPath &ref=inst->buildPath(
-                        *(reinterpret_cast<const CIMConstClass*>(cc)));
-                    objPath.reset(new CIMObjectPath(ref));
-                    objPath->setHost(clsRef.getHost());
-                    objPath->setNameSpace(clsRef.getNameSpace());
+                    try
+                    {
+                        const CIMObjectPath &ref=inst->buildPath(
+                            *(reinterpret_cast<const CIMConstClass*>(cc)));
+                        objPath.reset(new CIMObjectPath(ref));
+                        objPath->setHost(clsRef.getHost());
+                        objPath->setNameSpace(clsRef.getNameSpace());
+                    }
+                    catch(const Exception &e)
+                    {
+                        CMSetStatusWithString(
+                            rc,
+                            CMPI_RC_ERR_FAILED,
+                            (CMPIString*)string2CMPIString(e.getMessage()));
+                        PEG_METHOD_EXIT();
+                        return NULL;
+                    }
+
                 }
             }
             else

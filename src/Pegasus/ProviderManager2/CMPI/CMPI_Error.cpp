@@ -29,15 +29,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Tracer.h>
-
-#include <Pegasus/General/CIMError.h>
-
+#include <Pegasus/Common/CIMError.h>
 #include "CMPI_Version.h"
+
 #include "CMPI_Error.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
-
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

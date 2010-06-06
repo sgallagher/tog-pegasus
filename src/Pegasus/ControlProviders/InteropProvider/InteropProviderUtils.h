@@ -42,6 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 // Enum for class selection for instance operations.
 enum TARGET_CLASS
 {
+    NOCLASS,
     PG_NAMESPACE,
     PG_OBJECTMANAGER,
     PG_CIMXMLCOMMUNICATIONMECHANISM,

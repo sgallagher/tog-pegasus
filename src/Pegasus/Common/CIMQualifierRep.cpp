@@ -125,10 +125,10 @@ Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 {
     return
         this == x ||
-        _name.equal(x->_name) &&
-        _value == x->_value &&
-        (_flavor.equal (x->_flavor)) &&
-        _propagated == x->_propagated;
+        (_name.equal(x->_name) &&
+         _value == x->_value &&
+         (_flavor.equal(x->_flavor)) &&
+         _propagated == x->_propagated);
 }
 
 PEGASUS_NAMESPACE_END

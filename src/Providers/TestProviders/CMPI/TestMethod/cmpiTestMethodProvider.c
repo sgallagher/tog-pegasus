@@ -3390,7 +3390,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         inst2->ft->release(inst2);
         inst3->ft->release(inst3);
         emInst2->ft->release(emInst2);
-        emInst3->ft->release(emInst3);        
+        emInst3->ft->release(emInst3);
     }
     else if (
         strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
@@ -3432,8 +3432,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);
-          CMSetStatusWithChars (_broker, &rc,
-                                CMPI_RC_ERR_NOT_FOUND, methodName);
+          rc.rc = CMPI_RC_ERR_NOT_FOUND;
+          rc.msg=_broker->eft->newString(_broker,methodName,0);
         }
     }
   PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

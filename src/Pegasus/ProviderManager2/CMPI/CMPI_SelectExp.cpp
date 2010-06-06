@@ -93,11 +93,11 @@ extern "C"
         CMPI_SelectExp *new_se;
         CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
 
-        if(
+        if((
 #ifdef PEGASUS_ENABLE_CQL
         !se->cql_stmt &&
 #endif
-        !se->wql_stmt || se->_context || se->hdl )
+        !se->wql_stmt) || se->_context || se->hdl )
         {
             CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
             PEG_METHOD_EXIT();

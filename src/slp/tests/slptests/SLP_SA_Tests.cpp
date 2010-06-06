@@ -95,7 +95,7 @@ const char *httpAttrs2 ="(template-url-syntax=service:wbemtest:https://127.0.0"
 
 const char *httpUrl2 = "service:wbemtest:https://127.0.0.1:5989";
 
-int find (char *str,char *t)
+int find (char *str, const char *t)
 {
 
     int len = strlen(str);
@@ -140,7 +140,7 @@ int find (char *str,char *t)
     return(-1);
 }
 
-char* replace (char *s,char *t, char *substitute)
+char* replace (char *s, const char *t, const char *substitute)
 {
     if (s == NULL)
     {

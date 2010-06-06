@@ -1038,7 +1038,7 @@ void CIMProviderCommand::setCommand(
 
     if (_operationType == OPERATION_TYPE_LIST &&
         ( (_statusSet && _moduleSet) || (_fullStatusSet && _moduleSet) ||
-            _fullStatusSet && _statusSet))
+            (_fullStatusSet && _statusSet)))
     {
         throw CommandFormatException(localizeMessage(MSG_PATH,
             UNEXPECTED_OPTION_KEY,

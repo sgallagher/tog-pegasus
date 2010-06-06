@@ -70,7 +70,7 @@ CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
   enumhdl = CWS_Begin_Enum(CWS_FILEROOT,CWS_TYPE_DIR);
 
   if (enumhdl == NULL) {
-    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
              "Could not begin file enumeration");
     return st;
   } else {
@@ -81,7 +81,7 @@ CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
             CMGetCharsPtr(CMGetNameSpace(ref,NULL),NULL),
             &filebuf);
       if (CMIsNullObject(op)) {
-    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                  "Could not construct object path");
     break;
       }
@@ -110,7 +110,7 @@ CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
   enumhdl = CWS_Begin_Enum(CWS_FILEROOT,CWS_TYPE_DIR);
 
   if (enumhdl == NULL) {
-    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
              "Could not begin file enumeration");
     return st;
   } else {
@@ -121,7 +121,7 @@ CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
             CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
             &filebuf);
       if (CMIsNullObject(in)) {
-    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                  "Could not construct instance");
     break;
       }
@@ -156,7 +156,7 @@ CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi,
               &filebuf);
 
   if (CMIsNullObject(in)) {
-    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
              "Could not find or construct instance");
   } else {
     CMReturnInstance(rslt,in);
@@ -182,10 +182,10 @@ CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi,
   if (!CMGetCharsPtr(data.value.string, NULL) ||
       strncmp(CMGetCharsPtr(data.value.string, NULL),CWS_FILEROOT,
           strlen(CWS_FILEROOT))) {
-    CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
              "Invalid path name");
   } else if (!makeFileBuf(ci,&filebuf) || !CWS_Create_Directory(&filebuf)) {
-    CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
              "Could not create instance");
   }
 
@@ -204,7 +204,7 @@ CMPIStatus CWS_DirectoryModifyInstance( CMPIInstanceMI * mi,
   if (!silentMode()) fprintf(stderr,"--- CWS_DirectorySetInstance() \n");
 
   if (!makeFileBuf(ci,&filebuf) || !CWS_Update_File(&filebuf))
-    CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
+    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
              "Could not update instance");
 
   return st;

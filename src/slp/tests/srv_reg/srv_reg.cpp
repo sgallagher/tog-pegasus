@@ -99,8 +99,8 @@ int main(int argc, char **argv)
        parsable.
     */
 
-    char * registrationType = "service:wbem.pegasus";
-    char * slpScope = "DEFAULT";
+    const char registrationType[] = "service:wbem.pegasus";
+    const char slpScope[] = "DEFAULT";
     try
     {
         if (argc > 1)
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
         else
         {
 
-            char * url1 =
+            const char url1[] =
                 "service:serviceid:98432A98-B879E8FF-80342A89-43280B89C";
             if (verbose)
             {
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
                 exit(1);
             }
 
-            char * url2 = "service:wbem.ibm://localhost";
+            const char url2[] = "service:wbem.ibm://localhost";
 
             if (verbose)
             {
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
                 exit(1);
             }
 
-            char * url3 = "service:wbem.ibm://192.168.2.100";
+            const char url3[] = "service:wbem.ibm://192.168.2.100";
 
             if (verbose)
             {
@@ -234,7 +234,7 @@ int main(int argc, char **argv)
                 exit(1);
             }
 
-            char * url4 = "service:wbem.ibm://mday&192.168.2.100:5588";
+            const char url4[] = "service:wbem.ibm://mday&192.168.2.100:5588";
 
             if (verbose)
             {

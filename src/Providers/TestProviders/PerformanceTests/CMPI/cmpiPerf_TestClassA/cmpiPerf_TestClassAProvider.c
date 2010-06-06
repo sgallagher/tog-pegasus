@@ -137,15 +137,10 @@ CMPIStatus cmpiPerf_TestClassAProviderModifyInstance(
     const CMPIInstance * ci,
     const char **properties)
 {
-    CMPIStatus rc = {CMPI_RC_OK, NULL};
-
-    CMSetStatusWithChars(
+    CMReturnWithChars(
         _broker,
-        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
-        "CIM_ERR_NOT_SUPPORTED" );
-
-    return rc;
+        "CIM_ERR_NOT_SUPPORTED");
 }
 
 CMPIStatus cmpiPerf_TestClassAProviderDeleteInstance(
@@ -154,15 +149,10 @@ CMPIStatus cmpiPerf_TestClassAProviderDeleteInstance(
     const CMPIResult * rslt,
     const CMPIObjectPath * cop)
 {
-    CMPIStatus rc = {CMPI_RC_OK, NULL};
-
-    CMSetStatusWithChars(
+    CMReturnWithChars(
         _broker,
-        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
         "CIM_ERR_NOT_SUPPORTED");
-
-    return rc;
 }
 
 CMPIStatus cmpiPerf_TestClassAProviderExecQuery(
@@ -173,15 +163,10 @@ CMPIStatus cmpiPerf_TestClassAProviderExecQuery(
     const char * lang,
     const char * query)
 {
-    CMPIStatus rc = {CMPI_RC_OK, NULL};
-
-    CMSetStatusWithChars(
+    CMReturnWithChars(
         _broker,
-        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
         "CIM_ERR_NOT_SUPPORTED");
-
-    return rc;
 }
 
 
@@ -215,19 +200,13 @@ CMPIStatus cmpiPerf_TestClassAProviderInvokeMethod(
     if (strcasecmp(CMGetCharsPtr(className, NULL), _ClassName) == 0 &&
         strcasecmp("SetPowerState",methodName) == 0)
     {
-        CMSetStatusWithChars(
-            _broker,
-            &rc,
-            CMPI_RC_ERR_NOT_SUPPORTED,
-            methodName);
+        rc.rc = CMPI_RC_ERR_NOT_SUPPORTED;
+        rc.msg=_broker->eft->newString(_broker,methodName,0);
     }
     else
     {
-        CMSetStatusWithChars(
-            _broker,
-            &rc,
-            CMPI_RC_ERR_NOT_FOUND,
-            methodName);
+        rc.rc = CMPI_RC_ERR_NOT_FOUND;
+        rc.msg=_broker->eft->newString(_broker,methodName,0);
     }
     return rc;
 }

@@ -131,12 +131,11 @@ void testAuthenticationFailure_1()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (authenticated)
-        if (verbose)
-            cout << "User " + testUser + " authenticated successfully." << endl;
-    else
-        if (verbose)
-            cout << "User " + testUser + " authentication failed." << endl;
+    if (verbose)
+    {
+        cout << "Authentication of user " + testUser + " returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 
@@ -166,13 +165,11 @@ void testAuthenticationFailure_2()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (authenticated)
-        if (verbose)
-            cout << "User " + invalidUser + " authenticated successfully."
-                 << endl;
-    else
-        if (verbose)
-            cout << "User " + invalidUser + " authentication failed." << endl;
+    if (verbose)
+    {
+        cout << "Authentication of invalidUser "+invalidUser+" returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 
@@ -199,12 +196,11 @@ void testAuthenticationFailure_3()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (authenticated)
-        if (verbose)
-            cout << "User " + testUser + " authenticated successfully." << endl;
-    else
-        if (verbose)
-            cout << "User " + testUser + " authentication failed." << endl;
+    if (verbose)
+    {
+        cout << "Authentication of user " + testUser + " returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 
@@ -231,12 +227,11 @@ void testAuthenticationFailure_4()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (authenticated)
-        if (verbose)
-            cout << "User " + testUser + " authenticated successfully." << endl;
-    else
-        if (verbose)
-            cout << "User " + testUser + " authentication failed." << endl;
+    if (verbose)
+    {
+        cout << "Authentication of user " + testUser + " returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 
@@ -265,13 +260,11 @@ void testAuthenticationSuccess()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (authenticated)
-        if (verbose)
-            cout << "User " + guestUser + " authenticated successfully."
-                 << endl;
-    else
-        if (verbose)
-            cout << "User " + guestUser + " authentication failed." << endl;
+    if (verbose)
+    {
+        cout << "Authentication of guestUser " + guestUser + " returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 

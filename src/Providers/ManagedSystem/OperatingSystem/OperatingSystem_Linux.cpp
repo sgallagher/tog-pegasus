@@ -319,7 +319,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
    const CIMDateTime NULLTIME;
 
    CIMDateTime dt;
-   char date_ascii_rep[CIM_DATE_TIME_ASCII_LEN];
+   char date_ascii_rep[CIM_DATE_TIME_ASCII_LEN+1];
    char utc_offset[20];
    struct tm broken_time;
 

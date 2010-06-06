@@ -241,15 +241,11 @@ void testLocalAuthSuccess()
     {
         FileSystem::removeFile(filePath);
     }
-
-    if (authenticated)
-        if (verbose)
-            cout << "User " + testUser + " local authenticated successfully."
-                 << endl;
-    else
-        if (verbose)
-            cout << "User " + testUser + " local authentication failed."
-                 << endl;
+    if (verbose)
+    {
+        cout << "Local Authentication of User " + testUser + " returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 
@@ -280,13 +276,11 @@ void testBasicAuthSuccess()
     authenticated =
         authManager.performHttpAuthentication(authHeader, authInfo);
 
-    if (authenticated)
-        if (verbose)
-            cout << "User " + guestUser + " authenticated successfully."
-                 << endl;
-    else
-        if (verbose)
-            cout << "User " + guestUser + " authentication failed." << endl;
+    if (verbose)
+    {
+        cout << "Authentication of user " + guestUser + " returned with: ";
+        cout << authenticated << endl;
+    }
 
     delete authInfo;
 

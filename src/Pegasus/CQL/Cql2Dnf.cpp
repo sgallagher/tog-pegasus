@@ -102,19 +102,26 @@ void eval_el::order(void)
 {
     int k;
     if ((!is_terminal1) && (!is_terminal2))
+    {
         if ((k = opn2) > opn1)
         {
             opn2 = opn1;
             opn1 =  k;
         }
-    else if ((is_terminal1) && (!is_terminal2))
-        if ((k = opn2) > opn1)
+    }
+    else
+    {
+        if ((is_terminal1) && (!is_terminal2))
         {
-            opn2 = opn1;
-            opn1 =  k;
-            is_terminal1 = false;
-            is_terminal2 = true;
+            if ((k = opn2) > opn1)
+            {
+                opn2 = opn1;
+                opn1 =  k;
+                is_terminal1 = false;
+                is_terminal2 = true;
+            }
         }
+    }
 }
 /*
 static bool operator==(const term_el& x, const term_el& y)

@@ -962,7 +962,7 @@ NOTES             :
 ================================================================================
 */
 
-int file2str(char *directory, char *myFile, char *ret, int cap) {
+int file2str(char *directory, const char *myFile, char *ret, int cap) {
     char filename[80];
     int fd, num_read;
 

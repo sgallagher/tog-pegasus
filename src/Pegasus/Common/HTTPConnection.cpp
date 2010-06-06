@@ -613,8 +613,7 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             // because we are going to send it the traditional (i.e
             // non-chunked) way
 
-            if (isChunkRequest == true && isFirst == true ||
-                    isChunkRequest == false && isLast == true)
+            if ((isChunkRequest && isFirst) || (!isChunkRequest && isLast))
             {
                 // need to find the end of the header
                 String startLine;

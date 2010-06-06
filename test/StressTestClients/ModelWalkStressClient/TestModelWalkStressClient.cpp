@@ -699,7 +699,13 @@ int main(int argc, char** argv)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
                     freopen("nul","w",stdout);
 #else
-                    freopen("/dev/null","w",stdout);
+                    FILE * file = freopen("/dev/null","w",stdout);
+                    if (0 == file)
+                    {
+                        // ignore possible error, not having stdout redirected
+                        // to /dev/null doesn't hurt the test
+                        continue;
+                    }
 #endif
                 }
 

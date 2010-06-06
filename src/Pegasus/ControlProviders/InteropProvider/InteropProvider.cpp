@@ -236,7 +236,7 @@ CIMInstance InteropProvider::localGetInstance(
 
             PEG_METHOD_EXIT();
             if (!found)
-            { 
+            {
                 throw CIMObjectNotFoundException(instanceName.toString());
             }
         }
@@ -251,7 +251,7 @@ Array<CIMInstance> InteropProvider::getReferencedInstances(
     const OperationContext & context,
     const CIMPropertyList & propertyList)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::getReferencedObjects");
 
     Array<CIMInstance> referencedInstances;
@@ -266,8 +266,8 @@ Array<CIMInstance> InteropProvider::getReferencedInstances(
             thisRef,
             targetRole);
 
-        // Test if we're looking for something outside of our namespace. This 
-        // will happen during associators calls from PG_RegisteredProfile 
+        // Test if we're looking for something outside of our namespace. This
+        // will happen during associators calls from PG_RegisteredProfile
         // instances through the PG_ElementConformsToProfile association
         CIMNamespaceName opNamespace = thisTarget.getNameSpace();
         CIMName opClass = thisTarget.getClassName();
@@ -278,7 +278,7 @@ Array<CIMInstance> InteropProvider::getReferencedInstances(
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
             || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE
 #endif
-            ) 
+            )
         {
             AutoMutex mut(interopMut);
             CIMInstance gotInstance = cimomHandle.getInstance(
@@ -534,7 +534,7 @@ bool InteropProvider::validAssocClassForObject(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::validAssocClassForObject()");
     TARGET_CLASS assocClassEnum = translateClassInput(assocClass);
-    TARGET_CLASS originClassEnum;
+    TARGET_CLASS originClassEnum = NOCLASS;
     CIMName originClass = objectName.getClassName();
     // If the association class is PG_ElementConformsToProfile, we'll have to
     // do some special processing in case the origin instance for the operation

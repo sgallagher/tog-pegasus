@@ -215,13 +215,10 @@ CMPIStatus cmpiPerf_TestClassProviderModifyInstance(
     const CMPIInstance * ci,
     const char **properties)
 {
-    CMPIStatus rc = {CMPI_RC_OK, NULL};
-
-
-    CMSetStatusWithChars( _broker, &rc,
-                          CMPI_RC_ERR_NOT_SUPPORTED, "CIM_ERR_NOT_SUPPORTED" );
-
-    return rc;
+    CMReturnWithChars(
+        _broker,
+        CMPI_RC_ERR_NOT_SUPPORTED,
+        "CIM_ERR_NOT_SUPPORTED");
 }
 
 CMPIStatus cmpiPerf_TestClassProviderDeleteInstance(

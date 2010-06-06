@@ -163,12 +163,12 @@ static void _debug_print(int dc, const char* format, ...)
 #include <ctest.h>
 
 //
-// This functions has been duplicated from 
-// src/Pegasus/Common/PegasusAssertZOS.cpp to solve 
+// This functions has been duplicated from
+// src/Pegasus/Common/PegasusAssertZOS.cpp to solve
 // a circular build dependency.
-// The library pegcommon can not be build prior pegslp_client which would 
+// The library pegcommon can not be build prior pegslp_client which would
 // be necessary to get this function.
-// 
+//
 
 void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 {
@@ -183,7 +183,7 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 
     // flush trace buffers has been leftout because the slp client does not use
     // tracing.
-   
+
     // If env vars are set, a SYSM dump is generated.
     kill(getpid(),SIGDUMP);
 }
@@ -2035,7 +2035,7 @@ static char *_slp_get_text_ip(SOCKADDR *remote)
 {
     static char buff[PEGASUS_INET6_ADDRSTR_LEN];
     int af = remote->sa_family;
-    void *addr;
+    void *addr = 0;
 
     if (af == AF_INET)
     {
@@ -7203,7 +7203,7 @@ int main(int argc, char **argv)
     lslpMsg *replies, rply;
     int i ;
     time_t now, last;
-    
+
     struct slp_client *client = create_slp_client(
         NULL,
         NULL,

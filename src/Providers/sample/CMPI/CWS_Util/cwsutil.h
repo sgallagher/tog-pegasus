@@ -38,6 +38,10 @@
 //extern "C" {
 #endif
 
+# define CWSSetStatusWithChars(rcp_,chars_) \
+    st.msg=_broker->eft->newString(_broker,(chars_),NULL); \
+    st.rc = rcp_;
+
 /* ------------------------------------------------------------------
  * Utilities for file info retrieval
  * ----------------------------------------------------------------- */

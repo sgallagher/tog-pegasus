@@ -261,7 +261,9 @@ void PG_TestPropertyTypes::getInstance(
     // ensure the InstanceId key is valid
     Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
     Uint32 i;
-    for (i=0; i<keys.size() && !keys[i].getName().equal("InstanceId"); i++);
+    for (i=0; i<keys.size() && !keys[i].getName().equal("InstanceId"); i++)
+    {
+    }
 
     if (i==keys.size())
     {

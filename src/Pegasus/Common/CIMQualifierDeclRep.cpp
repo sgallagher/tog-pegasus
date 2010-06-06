@@ -111,11 +111,11 @@ Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 {
     return
         this == x ||
-        _name.equal(x->_name) &&
-        _value == x->_value &&
-        (_scope.equal (x->_scope)) &&
-        (_flavor.equal (x->_flavor)) &&
-        _arraySize == x->_arraySize;
+        (_name.equal(x->_name) &&
+         _value == x->_value &&
+         (_scope.equal(x->_scope)) &&
+         (_flavor.equal(x->_flavor)) &&
+         _arraySize == x->_arraySize);
 }
 
 PEGASUS_NAMESPACE_END

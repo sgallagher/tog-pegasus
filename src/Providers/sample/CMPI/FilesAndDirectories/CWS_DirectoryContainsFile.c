@@ -193,7 +193,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
 
             if (enumhdl == NULL)
             {
-                CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                     "Could not begin file enumeration");
                 return st;
             }
@@ -208,7 +208,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
                         &filebuf);  CMSetHostname(op,CSName());
                     if (CMIsNullObject(op))
                     {
-                        CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                        CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                             "Could not construct object path");
                         break;
                     }
@@ -235,7 +235,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
                     &filebuf);  CMSetHostname(op,CSName());
                 if (CMIsNullObject(op))
                 {
-                    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                         "Could not construct object path");
                     return st;
                 }
@@ -310,7 +310,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 
             if (enumhdl == NULL)
             {
-                CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                     "Could not begin file enumeration");
                 return st;
             }
@@ -325,7 +325,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                         &filebuf);
                     if (CMIsNullObject(op))
                     {
-                        CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                        CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                             "Could not construct object path");
                         break;
                     }
@@ -336,7 +336,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                         NULL);  CMSetHostname(opRef,CSName());
                     if (CMIsNullObject(op))
                     {
-                        CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                        CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                             "Could not construct object path");
                         break;
                     }
@@ -365,7 +365,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                     &filebuf);
                 if (CMIsNullObject(op))
                 {
-                    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                         "Could not construct object path");
                     return st;
                 }
@@ -376,7 +376,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                     NULL);  CMSetHostname(opRef,CSName());
                 if (CMIsNullObject(op))
                 {
-                    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                    CWSSetStatusWithChars(CMPI_RC_ERR_FAILED,
                         "Could not construct object path");
                     return st;
                 }

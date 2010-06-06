@@ -332,8 +332,9 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
             HTTPMessage::skipHeaderWhitespace(line);
             for ( char* userpass = (char*)line ;
                 userpass < sep;
-                *userpass = 'X', userpass++);
-
+                *userpass = 'X', userpass++)
+            {
+            }
             break;
         }
 

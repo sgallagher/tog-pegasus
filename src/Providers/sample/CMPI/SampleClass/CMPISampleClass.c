@@ -262,15 +262,13 @@ CMPIStatus testProvDeleteInstance
    const CMPIObjectPath * cop)
 {
   CMPIString *k;
-  CMPIStatus rc;
+  CMPIStatus rc = { CMPI_RC_OK , 0};
 
   k = CMGetKey (cop, "Identifier", &rc).value.string;
-  if (remFromStore (k))
-    {
-      CMSetStatus (&rc, CMPI_RC_OK);
-    }
-  else
-    CMSetStatus (&rc, CMPI_RC_ERR_NOT_FOUND);
+  if (!remFromStore (k))
+  {
+    rc.rc = CMPI_RC_ERR_NOT_FOUND;
+  }
 
   return rc;
 }

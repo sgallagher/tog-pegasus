@@ -202,6 +202,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
     Message* response = 0;
     Boolean remoteNameSpaceRequest=false;
+    Boolean loadProviderManager=true;
 
     //
     // Retrieve the ProviderManager routing information
@@ -233,6 +234,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         CIMEnableModuleRequestMessage* emReq =
             dynamic_cast<CIMEnableModuleRequestMessage*>(request);
         providerModule = emReq->providerModule;
+        // Do not try to load the provider manager module if not already loaded.
+        loadProviderManager=false;
     }
     else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
     {
@@ -240,6 +243,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         CIMDisableModuleRequestMessage* dmReq =
             dynamic_cast<CIMDisableModuleRequestMessage*>(request);
         providerModule = dmReq->providerModule;
+        // Do not try to load the provider manager module if not already loaded.
+        loadProviderManager=false;
     }
     else if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
              (request->getType() ==
@@ -306,11 +311,6 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         CIMValue itValue = providerModule.getProperty(
             providerModule.findProperty("InterfaceType")).getValue();
         itValue.get(interfaceType);
-        // Get ProviderModule name.
-        String providerModuleName;
-        CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
-        nameValue.get(providerModuleName);
         // Get providerManager path
         String provMgrPath;
         if (request->operationContext.contains(ProviderIdContainer::NAME))
@@ -321,19 +321,28 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         }
 
         ProviderManager* pm = 0;
-        Boolean gotError = false;
         try
         {
             // Look up the appropriate ProviderManager by InterfaceType
 
-            pm = _getProviderManager(interfaceType, providerModuleName,
-                provMgrPath);
+            pm = _getProviderManager(
+                    interfaceType,
+                    provMgrPath,
+                    loadProviderManager);
         }
         catch (const CIMException& e)
         {
-            // This is not an error incase of CIMEnableModuleRequestMessage or
-            // CIMDisableModuleRequestMessage. This means there is no provider
-            // to enable or disable.
+            CIMResponseMessage *cimResponse = request->buildResponse();
+            cimResponse->cimException = e;
+            response = cimResponse;
+        }
+
+        // Incase of CIMEnableModuleRequestMessage or 
+        // CIMDisableModuleRequestMessage, there must be not necessarily 
+        // a running provider manager. This is not an error.
+        // This means there is no provider to enable or disable.
+        if (0 == pm)
+        {
             if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
             {
                 CIMEnableModuleResponseMessage* emResponse =
@@ -351,30 +360,36 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
                 dmResponse->operationalStatus.append(
                     CIM_MSE_OPSTATUS_VALUE_STOPPED);
                 response = dmResponse;
+            } 
+            else
+            {                
+                CIMResponseMessage* resp = request->buildResponse();
+                resp->cimException = 
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                        "There is no Provider Manager for interfaceType '" +
+                        interfaceType + ". The request message type is '" +
+                        String(MessageTypeToString(request->getType())) + "'");
+
+                PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,"%s",
+                    (const char*)resp->cimException.getMessage().getCString()));
+
+                response = resp;
+            }
+        } 
+        else
+        {
+            if ( remoteNameSpaceRequest && !pm->supportsRemoteNameSpaces())
+            {
+                CIMResponseMessage* resp = request->buildResponse();
+                resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                 "Remote Namespace operations not supported for interface type "
+                        + interfaceType);
+                response = resp;
             }
             else
             {
-                CIMResponseMessage *cimResponse = request->buildResponse();
-                cimResponse->cimException = e;
-                response = cimResponse;
+                response = pm->processMessage(request);
             }
-            gotError = true;
-        }
-
-        if (!gotError && remoteNameSpaceRequest &&
-            !pm->supportsRemoteNameSpaces())
-        {
-            CIMResponseMessage* resp = request->buildResponse();
-            resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                "Remote Namespace operations not supported for interface type "
-                    + interfaceType);
-            response = resp;
-            gotError = true;
-        }
-
-        if (!gotError)
-        {
-            response = pm->processMessage(request);
         }
     }
 
@@ -385,8 +400,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 // ATTN: May need to add interfaceVersion parameter to further constrain lookup
 ProviderManager* BasicProviderManagerRouter::_getProviderManager(
     const String& interfaceType,
-    const String& providerModuleName,
-    const String& providerManagerPath)
+    const String& providerManagerPath,
+    Boolean loadProviderManager)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "BasicProviderManagerRouter::_getProviderManager");
@@ -400,9 +415,25 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
         ProviderManager* pm = _lookupProviderManager(interfaceType);
         if (pm)
         {
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Provider Manager for interfaceType '%s' already loaded.",
+                (const char*)interfaceType.getCString()));
             PEG_METHOD_EXIT();
             return pm;
         }
+    }
+
+    //
+    // If requested, do not load the ProviderManger.
+    // 
+    if (!loadProviderManager)
+    {
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Requested not to load the Provider Manager "
+                "for interfaceType '%s'.",
+            (const char*)interfaceType.getCString()));
+        PEG_METHOD_EXIT();
+        return 0;
     }
 
     //
@@ -414,6 +445,9 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
         ProviderManager* pm = _lookupProviderManager(interfaceType);
         if (pm)
         {
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Provider Manager for interfaceType '%s' already loaded.",
+                (const char*)interfaceType.getCString()));
             PEG_METHOD_EXIT();
             return pm;
         }
@@ -438,6 +472,12 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
             return pmc->getProviderManager();
         }
 #endif
+
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Crating new Provider Manager for interfaceType '%s', "
+                "providerManagerPath '%s'.",
+            (const char*)interfaceType.getCString(),
+            (const char*)providerManagerPath.getCString()));
 
         ProviderManagerContainer* pmc = new ProviderManagerContainer(
             providerManagerPath,

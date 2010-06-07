@@ -76,9 +76,10 @@ private:
 
    // providerModuleName is used to report the error when ProviderManager
    // can not be found for the interfaceType.
-    ProviderManager* _getProviderManager(const String& interfaceType,
-        const String& providerModuleName,
-        const String& providerManagerPath);
+    ProviderManager* _getProviderManager(
+        const String& interfaceType,
+        const String& providerManagerPath,
+        Boolean loadProviderManager);
     ProviderManager* _lookupProviderManager(const String& interfaceType);
 
     Array<ProviderManagerContainer*> _providerManagerTable;

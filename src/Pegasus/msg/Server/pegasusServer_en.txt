@@ -6530,7 +6530,7 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager.BasicProviderManagerRouter.UNSUPPORTED_INTERFACE_TYPE:string {"PGS16801: Unsupported InterfaceType \"{0}\" in ProviderModule \"{1}\"."}
 
         // ==========================================================
-        // Messages for src.Service.ServerProcessUnix
+        // Messages for src.Service
         //  Please use message prefix "PGS17000"
         // ==========================================================
         /**
@@ -6538,6 +6538,19 @@ CIM server listening on HTTPS port {0}."}
         *     Do not translate the word 'cimserver'.
         */
         src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT:string {"PGS17000: The cimserver command timed out waiting for the CIM server to start."}
+
+        /**
+        * @note  PGS17001:
+        *     Do not translate the word 'TCP/IP' and 'CIM server'
+        */        
+        src.Service.WaitForTCPIP_zOS.WAIT_FOR_TCPIP:string {"PGS17001: CIM server startup delayed, waiting for TCP/IP to start."}
+
+        /**
+        * @note  PGS17002:
+        *     Substitutin {0} is text of message Common.System.ERROR_MESSAGE
+        *     Do not translate the word 'CIM server'
+        */        
+        src.Service.WaitForTCPIP_zOS.GETHOSTNAME_FAILED:string {"PGS17002: Stopping CIM Server startup. Failed to retrieve system's hostname: {0}"}
 
         // ==========================================================
         // Messages for Security BasicAuthenticationHandler

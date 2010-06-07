@@ -257,6 +257,10 @@ SCMOClass CIMServer::_scmoClassCache_GetClass(
 
 void CIMServer::_init()
 {
+
+    // pre-initialize the hostname.
+    System::getHostName();
+
     _monitor.reset(new Monitor());
 
 #if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \

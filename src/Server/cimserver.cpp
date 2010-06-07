@@ -99,6 +99,7 @@
 #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #include <Service/ARM_zOS.h>
 #include <Service/TimeZone_zOS.h>
+#include <Service/WaitForTCPIP_zOS.h>
 # ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
@@ -867,10 +868,13 @@ int CIMServerProcess::cimserver_run(
         return 1;
     }
 
-#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
+#if defined(PEGASUS_OS_ZOS) 
+#  if defined(PEGASUS_ZOS_SECURITY)
     startupCheckBPXServer(true);
     startupCheckProfileCIMSERVclassWBEM();
     startupEnableMSC();
+#  endif
+    startupWaitForTCPIP();
 #endif
 
 #if defined(PEGASUS_DEBUG)

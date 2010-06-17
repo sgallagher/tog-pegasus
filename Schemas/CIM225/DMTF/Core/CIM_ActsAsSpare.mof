@@ -6,7 +6,7 @@
 //  CIM_ActsAsSpare
 // ==================================================================
    [Association, Deprecated { "CIM_IsSpare" }, 
-    Version ( "2.8.1000" ), 
+    Version ( "2.25.0" ), 
     UMLPackagePath ( "CIM::Core::Redundancy" ), 
     Description ( 
        "The ActsAsSpare association indicates which elements can spare "

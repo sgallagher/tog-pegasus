@@ -209,8 +209,6 @@ private:
 */
 static CIMValue _stringToScalarValue(const char* str, CIMType type)
 {
-    Uint64 u64;
-
     switch (type)
     {
         case CIMTYPE_BOOLEAN:
@@ -386,7 +384,7 @@ Boolean _buildArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToUint(strl.next().getCString(), type));
+                a.append(strToSint(strl.next().getCString(), type));
             }
             val.set(a);
             break;

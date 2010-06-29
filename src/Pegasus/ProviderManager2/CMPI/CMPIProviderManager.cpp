@@ -175,14 +175,7 @@ SCMOInstance* CMPIProviderManager::getSCMOClassFromRequest(
         throw cimException;
     }
 
-    SCMOInstance *classPath = new SCMOInstance(*scmoClass);
-    classPath->setHostName(
-        (const char*)System::getHostName().getCString());
-
-    // Clear the KeyBindings to make this instance as class path only.
-    classPath->clearKeyBindings();
-    
-    return classPath;
+    return new SCMOInstance(*scmoClass);
 }
 
 SCMOInstance* CMPIProviderManager::getSCMOObjectPathFromRequest(
@@ -478,21 +471,6 @@ void CMPIProviderManager::_setupCMPIContexts(
         eCtx->ft->addEntry(
             eCtx,
             "CMPIRRemoteInfo",(CMPIValue*)(const char*)(*remoteInfo),
-            CMPI_chars);
-    }
-
-    // add User Role from OperationContext to CMPIRole
-
-    if (context->contains(UserRoleContainer::NAME))
-    {
-        const UserRoleContainer container=context->get(UserRoleContainer::NAME);
-
-        CString userRole = container.getUserRole().getCString();
-
-        eCtx->ft->addEntry(
-            eCtx,
-            CMPIRole,
-            (CMPIValue*)(const char*) userRole,
             CMPI_chars);
     }
 }
@@ -987,24 +965,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
-        // Note: During the CIMInstance to SCMOInstance convertion all schema
-        // defined properties are added with null/default values. This causes
-        // the provider to set null values to the properties those does not
-        // exist in the original CIMInstance. Build the property if the client
-        // specified list is empty.
-        if (request->propertyList.isNull())
-        {
-            Array<CIMName> propArry;
-            for (Uint32 i = 0, n = request->modifiedInstance.getPropertyCount();
-                i < n ; ++i)
-            {
-                CIMConstProperty prop =
-                    request->modifiedInstance.getProperty(i);
-                propArry.append(prop.getName());
-            }
-            request->propertyList = CIMPropertyList(propArry);
-        }
-
         CMPIPropertyList props(request->propertyList);
 
         CString nameSpace = request->nameSpace.getString().getCString();
@@ -1209,6 +1169,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             &ph,
             &remoteInfo,
             remote);
+
+        const char **props=NULL;
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
@@ -2096,11 +2058,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 #endif
                 indProvTab.insert(pr.getName(), indProvRec);                
             }
-            // Note that per provider subscription path - namespace
-            // MUST be unique.
-            PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                true,
-                indProvRec->addSelectExp(sPath, request->nameSpace, eSelx));
+            // Note that per provider subscription path MUST be unique.
+            Boolean ok = indProvRec->addSelectExp(sPath, eSelx);
+            PEGASUS_ASSERT(ok);
         }
 
 
@@ -2122,6 +2082,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         SCMOInstance * indClassPathSCMO =
             getSCMOClassFromRequest(nameSpace, className);
+        indClassPathSCMO->setHostName(
+            (const char*)System::getHostName().getCString());
         eSelx->classNamesSCMO.append(*indClassPathSCMO);
         delete indClassPathSCMO;
 
@@ -2175,7 +2137,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                     request->classNames[i]);
 
                 SCMOInstance * classPathSCMO =
-                    getSCMOClassFromRequest(nameSpace, subClassName);
+                    getSCMOClassFromRequest(nameSpace, className);
+                classPathSCMO->setHostName(
+                    (const char*)System::getHostName().getCString());
                 CMPI_ObjectPathOnStack eRef(classPathSCMO);
 
                 if (pr.getIndMI()->ft->ftVersion >= 100)
@@ -2255,10 +2219,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         {
             //  Remove the select expression from the cache
             WriteLock lock(rwSemProvTab);
-            PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                true,
-                indProvRec->deleteSelectExp(sPath, request->nameSpace));
-            
+            Boolean ok = indProvRec->deleteSelectExp(sPath);
+            PEGASUS_ASSERT(ok);
             delete eSelx;
             throw CIMException((CIMStatusCode)rc.rc,
                 rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
@@ -2336,7 +2298,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         {
             WriteLock lock(rwSemProvTab);
             indProvTab.lookup(pr.getName(),indProvRec);
-            if (!indProvRec->lookupSelectExp(sPath, request->nameSpace, eSelx))
+            if (!indProvRec->lookupSelectExp(sPath, eSelx))
             {
                 MessageLoaderParms parms(
                     "ProviderManager.CMPI.CMPIProviderManager."
@@ -2345,9 +2307,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                 // failed to get select expression from hash table
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
-            PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                true,
-                indProvRec->deleteSelectExp(sPath, request->nameSpace));
+            Boolean ok = indProvRec->deleteSelectExp(sPath);
+            PEGASUS_ASSERT(ok);
         }
 
         CString className = eSelx->classNames[0].getClassName().
@@ -2537,11 +2498,10 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
     for (Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         String providerName;
+        _pInstances[i].getProperty(_pInstances [i].findProperty
+            (PEGASUS_PROPERTYNAME_NAME)).getValue().get(providerName);
 
         Uint32 pos = _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME);
-
-        _pInstances[i].getProperty(pos).getValue().get(providerName);
-
 
         if (!providerManager.isProviderActive(providerName, moduleName))
         {
@@ -2550,7 +2510,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
 
         Boolean unloadOk = providerManager.unloadProvider(
             physicalName,
-            _pInstances[i].getProperty(pos).getValue().toString(),
+            _pInstances[i].getProperty(
+                _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME)
+                ).getValue ().toString (),
             moduleName);
 
         if (!unloadOk)
@@ -3053,6 +3015,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         SCMOInstance * modInst = getSCMOInstanceFromRequest(
             nameSpace, className, localModifiedInstance);
+        modInst->setPropertyFilter((const char **)props.getList());
         CMPI_InstanceOnStack eInst(modInst);
 
         // This will create a second reference for the same SCMOInstance
@@ -3225,6 +3188,7 @@ void CMPIProviderManager::_callEnableIndications
             context.insert(idContainer);
 #endif
 
+            CMPIStatus rc={CMPI_RC_OK,NULL};
             CMPI_ContextOnStack eCtx(context);
             CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
@@ -3311,6 +3275,7 @@ void CMPIProviderManager::_callDisableIndications
         if (pr.getIndMI()->ft->ftVersion >= 86)
         {
             OperationContext context;
+            CMPIStatus rc={CMPI_RC_OK,NULL};
             CMPI_ContextOnStack eCtx(context);
 
             if (remoteInfo)

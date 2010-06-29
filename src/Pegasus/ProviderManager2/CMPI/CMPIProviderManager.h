@@ -34,7 +34,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/General/SubscriptionKey.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/OperationContextInternal.h>
@@ -45,16 +44,14 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_Error.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
-
 /**
     This record is created for each indication provider to keep track of
-    CMPI_SelectExp objects they are servicing.
+   CMPI_SelectExp objects they are servicing.
 */
 class PEGASUS_CMPIPM_LINKAGE IndProvRecord
 {
@@ -63,9 +60,9 @@ public:
     {
     }
 
-    ~IndProvRecord()    
+    ~IndProvRecord()
     {
-        CMPI_SelectExp *eSelx = 0;
+        CMPI_SelectExp *eSelx;
         for (SelectExpTab::Iterator i = selectExpTab.start(); i; i++)
         {
             selectExpTab.lookup(i.key(), eSelx);
@@ -73,19 +70,17 @@ public:
         }
         delete _handler;
     }
-
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
     void setRemoteInfo(const String &remoteInfo)
     {
         _remoteInfo = remoteInfo;
     }
 
-    String getRemoteInfo()
-    {
+   String getRemoteInfo()
+   {
         return _remoteInfo;
-    }
+   }
 #endif
-
     void setHandler(EnableIndicationsResponseHandler *handler)
     {
         _handler = handler;
@@ -108,74 +103,36 @@ public:
 
     Boolean lookupSelectExp(
         const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace,
-        CMPI_SelectExp *&eSelx)
+       CMPI_SelectExp *&eSelx)
     {
-        return selectExpTab.lookup(_getKey(path, nameSpace), eSelx);
+       return selectExpTab.lookup(path, eSelx);
     }
 
     Boolean addSelectExp(
         const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace,
         CMPI_SelectExp *eSelx)
     {
-        return selectExpTab.insert(_getKey(path, nameSpace), eSelx);
+        return selectExpTab.insert(path, eSelx);
     }
 
     Boolean deleteSelectExp(
-        const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace)
+        const CIMObjectPath &path)
     {
-        return selectExpTab.remove(_getKey(path, nameSpace));
+        return selectExpTab.remove(path);
     }
-
-    struct IndProvRecKey
-    {
-        CIMNamespaceName sourceNamespace;
-        SubscriptionKey subscriptionKey;
-    };
-
-    struct IndProvRecKeyHash
-    {
-        static Uint32 hash (const IndProvRecKey &key)
-        {
-            return SubscriptionKeyHashFunc::hash(key.subscriptionKey) +
-                HashLowerCaseFunc::hash(key.sourceNamespace.getString());
-        }
-    };
-
-    struct IndProvRecKeyEqual
-    {
-        static Boolean equal (const IndProvRecKey &x, const IndProvRecKey &y)
-        {
-            return (x.sourceNamespace == y.sourceNamespace) &&
-                SubscriptionKeyEqualFunc::equal(
-                    x.subscriptionKey,
-                    y.subscriptionKey);
-        }
-    };
 
 private:
-    IndProvRecKey _getKey(
-        const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace)
-    {
-        IndProvRecKey key;
-        key.subscriptionKey = SubscriptionKey(path);
-        key.sourceNamespace = nameSpace;
-        return key;
-    }
-
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
     String _remoteInfo;
 #endif
     EnableIndicationsResponseHandler* _handler;
 
-    typedef HashTable<IndProvRecKey, CMPI_SelectExp*,
-        IndProvRecKeyEqual, IndProvRecKeyHash > SelectExpTab;
+    typedef HashTable<CIMObjectPath, CMPI_SelectExp*,
+        EqualFunc<CIMObjectPath>, HashFunc<CIMObjectPath> > SelectExpTab;
 
     SelectExpTab selectExpTab;
 };
+
 
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderManager : public ProviderManager
 {
@@ -193,29 +150,23 @@ public:
         return true;
     }
 
-    typedef HashTable<String, IndProvRecord*,
+    typedef HashTable<String,IndProvRecord*,
         EqualFunc<String>,HashFunc<String> > IndProvTab;
 
     static IndProvTab indProvTab;
-    static ReadWriteSem rwSemProvTab;
+    static ReadWriteSem  rwSemProvTab;
 protected:
     CMPILocalProviderManager providerManager;
 
     void _setupCMPIContexts(
         CMPI_ContextOnStack * eCtx,
         OperationContext * context,
-        const CString * nameSpace,
-        const CString * remoteInfo,
+        ProviderIdContainer * pidc,
+        const String & nameSpace,
         Boolean remote,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         Boolean setFlags = false);
-
-    CMPIProvider & _resolveAndGetProvider(
-        OperationContext * context,
-        OpProviderHolder * ph,
-        CString * remoteInfo,
-        Boolean & isRemote);
 
     Message * handleUnsupportedRequest(const Message * message);
 
@@ -249,7 +200,6 @@ protected:
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
     Message * handleSubscriptionInitCompleteRequest (const Message * message);
-    Message * handleIndicationServiceDisabledRequest (Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 
@@ -288,25 +238,6 @@ protected:
         CIMOMHandleQueryContext *context,
         String &query,
         String &lang);
-
-    void _throwCIMException(
-        CMPIStatus code,
-        CMPI_Error* cmpiError);
-
-    SCMOInstance* getSCMOClassFromRequest(
-        CString& nameSpace,
-        CString& className );
-
-    SCMOInstance* getSCMOObjectPathFromRequest(
-        CString& nameSpace,
-        CString& className,
-        CIMObjectPath& cimObjPath );
-    
-    SCMOInstance* getSCMOInstanceFromRequest(
-        CString& nameSpace,
-        CString& className,
-        CIMInstance& cimInstance );
-
 };
 
 PEGASUS_NAMESPACE_END

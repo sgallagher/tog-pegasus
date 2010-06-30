@@ -926,7 +926,7 @@ ifdef PEGASUS_USE_OPENSLP
   ## as defined for openslp
   ifeq ($(PEGASUS_USE_OPENSLP),true)
     ifeq ($(PEGASUS_ENABLE_SLP),true)
-      PEGASUS_USE_EXTERNAL_SLP=openslp
+      export PEGASUS_USE_EXTERNAL_SLP=openslp
       PEGASUS_USE_OPENSLP=
     else
       $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. \
@@ -1026,7 +1026,7 @@ ifdef PEGASUS_OPENSLP_HOME
     $(error Both PEGASUS_OPENSLP_HOME and PEGASUS_OPEN_EXTERNAL_SLP_HOME defined. \
       Please use PEGASUS_OPEN_EXTERNAL_SLP_HOME)
   else
-      PEGASUS_EXTERNAL_SLP_HOME=$(PEGASUS_OPENSLP_HOME)
+      export PEGASUS_EXTERNAL_SLP_HOME=$(PEGASUS_OPENSLP_HOME)
    endif
 endif
 ############################################################################

@@ -395,7 +395,9 @@ public:
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function.
     //
-    void setCommand(Uint32, char**)
+    void setCommand(
+        Uint32 argc,
+        char* argv[])
     {
         // Empty function
     }
@@ -1036,7 +1038,7 @@ void CIMProviderCommand::setCommand(
 
     if (_operationType == OPERATION_TYPE_LIST &&
         ( (_statusSet && _moduleSet) || (_fullStatusSet && _moduleSet) ||
-            (_fullStatusSet && _statusSet)))
+            _fullStatusSet && _statusSet))
     {
         throw CommandFormatException(localizeMessage(MSG_PATH,
             UNEXPECTED_OPTION_KEY,
@@ -1751,6 +1753,7 @@ void CIMProviderCommand::_printList(
     Uint32 maxModuleLength=0;
     Uint32 maxStatusLength=0;
 
+    Uint32 length=0;
     Array<Uint16> _status;
     String output;
     String statusValue;

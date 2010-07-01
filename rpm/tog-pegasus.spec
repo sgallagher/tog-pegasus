@@ -57,6 +57,9 @@ Epoch:   1
 # Use "rpmbuild --define 'JMPI_PROVIDER_REQUESTED 1'" to include JMPI support.
 %{?!JMPI_PROVIDER_REQUESTED: %define JMPI_PROVIDER_REQUESTED 0}
 
+# Use "rpmbuild --define 'EXTERNAL_SLP_REQUESTED 1'" to include External SLP support.
+%{?!EXTERNAL_SLP_REQUESTED: %define EXTERNAL_SLP_REQUESTED 0}
+
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base
@@ -77,6 +80,11 @@ BuildRequires:      openssl-devel >= 0.9.6, e2fsprogs
 BuildRequires:      gcc-java, libgcj-devel, libgcj, java-1.4.2-gcj-compat
 Requires:           libgcj, java-1.4.2-gcj-compat
 %endif
+%if %{EXTERNAL_SLP_REQUESTED}
+BuildRequires:      libslp
+Requires:           libslp
+%endif
+
 BuildRequires:      net-snmp-devel
 #
 # End of section  pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec
@@ -229,6 +237,12 @@ sed -i 's/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=.*$/PEGASUS_ENABLE_JMPI_PROVIDER_
 sed -i 's/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=.*$/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=false/' $PEGASUS_ENVVAR_FILE
 %endif
 
+%if %{EXTERNAL_SLP_REQUESTED}
+sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=true/' $PEGASUS_ENVVAR_FILE
+%else
+sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=false/' $PEGASUS_ENVVAR_FILE
+%endif
+
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
@@ -348,6 +362,12 @@ if [ $1 -eq 1 ]; then
    # Create Symbolic Links for Packaged Provider Managers
    #
    ln -sf libCMPIProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/libCMPIProviderManager.so
+   # Create Symbolic Links for SLP library and SLP Provider
+   #
+ %if %{EXTERNAL_SLP_REQUESTED}
+   ln -sf    libpegslp_client.so.1            /usr/%PEGASUS_ARCH_LIB/libpegslp_client.so
+   ln -sf    libSLPProvider.so.1            /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libSLPProvider.so
+ %endif 
 
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
@@ -516,6 +536,10 @@ fi
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so
+ %if %{EXTERNAL_SLP_REQUESTED}
+/usr/%PEGASUS_ARCH_LIB/libpegslp_client.so
+/usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libSLPProvider.so
+%endif
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/libCMPIProviderManager.so
 
 %files devel

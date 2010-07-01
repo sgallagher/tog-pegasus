@@ -10,6 +10,9 @@
 # Use "rpmbuild --define 'JMPI_PROVIDER_REQUESTED 1'" to include JMPI support.
 %{?!JMPI_PROVIDER_REQUESTED: %define JMPI_PROVIDER_REQUESTED 0}
 
+# Use "rpmbuild --define 'EXTERNAL_SLP_REQUESTED 1'" to include External SLP support.
+%{?!EXTERNAL_SLP_REQUESTED: %define EXTERNAL_SLP_REQUESTED 0}
+
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base

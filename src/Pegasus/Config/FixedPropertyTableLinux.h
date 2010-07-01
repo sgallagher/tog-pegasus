@@ -41,9 +41,6 @@
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
 #endif
-#ifdef PEGASUS_ENABLE_SLP
-    {"slp",                 "false"},
-#endif
     {"enableAuthentication", "true"},
     {"httpAuthType",        "Basic"},
     {"enableBinaryRepository", "false"},

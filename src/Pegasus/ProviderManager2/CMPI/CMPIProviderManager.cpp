@@ -2830,9 +2830,6 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
     //Set to false when provider refused to unload due to pending operations.
     Boolean disableModuleOk = true;
 
-    // get provider module name
-    Boolean disableProviderOnly = request->disableProviderOnly;
-
     //
     // Unload providers
     //
@@ -2875,31 +2872,13 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
         //
         if (_indicationProviders [i])
         {
-            if (physicalName.size () > 0)
+            // Remove from IndProvRecord table
+            IndProvRecord *rec = 0;
+            WriteLock lock(rwSemProvTab);
+            if (indProvTab.lookup(providerName, rec))
             {
-                try
-                {
-                    OpProviderHolder ph =
-                        providerManager.getProvider(
-                        physicalName,
-                        providerName);
-                    ph.GetProvider ().resetSubscriptions ();
-
-                    // Remove from IndProvRecord table
-                    IndProvRecord *rec = 0;
-                    WriteLock lock(rwSemProvTab);
-                    indProvTab.lookup(ph.GetProvider().getName(), rec);
-                    delete rec;
-                    indProvTab.remove(ph.GetProvider().getName());
-                }
-                catch (const Exception &e)
-                {
-                    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                        "Exception during reset subscriptions on indication "
-                        "provider %s: %s",
-                        (const char*)providerName.getCString(),
-                        (const char*)e.getMessage().getCString()));
-                }
+                delete rec;
+                indProvTab.remove(providerName);
             }
         }
     }

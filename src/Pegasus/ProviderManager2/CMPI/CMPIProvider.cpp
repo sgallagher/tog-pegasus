@@ -100,6 +100,8 @@ void CMPIProvider::set(
 
 void CMPIProvider::reset()
 {
+    
+    _currentSubscriptions = 0;
     _module = 0;
     _cimom_handle = 0;
     _no_unload = 0;
@@ -629,12 +631,6 @@ Boolean CMPIProvider::testSubscriptions ()
     Boolean currentSubscriptions = (_currentSubscriptions > 0);
 
     return currentSubscriptions;
-}
-
-void CMPIProvider::resetSubscriptions ()
-{
-    AutoMutex lock (_currentSubscriptionsMutex);
-    _currentSubscriptions = 0;
 }
 
 void CMPIProvider::setProviderInstance (const CIMInstance & instance)

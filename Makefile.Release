@@ -142,6 +142,11 @@ PEGASUS_LIBRARY_LINKS = \
    libDefaultProviderManager \
    libCIMxmlIndicationHandler
 
+ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+PEGASUS_LIBRARIES += \
+   libInteropProvider
+endif
+
 ifdef PEGASUS_USE_NET_SNMP
 PEGASUS_LIBRARY_LINKS += \
    libsnmpIndicationHandler
@@ -229,6 +234,13 @@ INTEROP_MOF_FILES = \
    PG_Events20.mof \
    PG_InterOpSchema20.mof \
    PG_ProviderModule20.mof
+
+ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+   INTEROP_MOF_FILES += \
+      PG_CIMXMLCommunicationMechanism20.mof \
+      PG_Namespace20.mof\
+      PG_ServerProfile20.mof
+endif
 
 MANAGEDSYSTEM_MOF_FILES = \
    PG_ComputerSystem20.mof \
@@ -523,7 +535,6 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
 	@$(ECHO-E) "#endif /* Common_Product_Directory_Structure_h */ " \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 endif
-
 
 create_ConfigProductDirectoriesInclude: FORCE
 ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS

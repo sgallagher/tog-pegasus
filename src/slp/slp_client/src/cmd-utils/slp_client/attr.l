@@ -76,11 +76,11 @@
 #include "y_attr.h"
 
 static int16 heapIndex;
-static char *heap;
-static char *buf;
+static char heap[2052];
+static char buf[2052];
 static char *_lslp_strdup(const char *s);
 void attrerror(const char *, ...);
-void attr_close_lexer(size_t handle);
+void attr_close_lexer(size_t  handle);
 size_t attr_init_lexer(const char *s);
 
 %}
@@ -114,8 +114,6 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
     attribute-value pairs for each value in the multi-val statement.
  */
 %option noyywrap prefix="attr"
-%option nounput
-%option noinput
 
 %x ATTR
 %x VALUE
@@ -187,42 +185,24 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 static char *_lslp_strdup(const char *s)
 {
   char *p = &heap[heapIndex];
-
-  while ((heap[heapIndex++] = *s++))
-      ;
-
-  return p;
+  do { heap[heapIndex++] = *s; }
+      while ((*s != 0x00) && (heapIndex < 2049) && (++s));
+  return(p);
 }
 
 void attr_close_lexer(size_t handle)
 {
-  PEGASUS_ASSERT(handle);
-  PEGASUS_ASSERT(buf);
-  PEGASUS_ASSERT(heap);
+  assert(handle != 0);
   attr_delete_buffer((YY_BUFFER_STATE)handle);
-  free(buf);
-  free(heap);
-  buf = heap = 0;
 }
 
 size_t attr_init_lexer(const char *s)
 {
-  size_t len = strlen(s) + 2;
-
-  if (!(heap = (char*)malloc(len)))
-  {
-      return 0;
-  }
-  if (!(buf = (char*)malloc(len)))
-  {
-      free (heap);
-      return 0;
-  }
+  memset(&buf[0], 0x00, 2052);
+  memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
-  strcpy(buf, s);
-  buf[len - 1] = 0;
-
-  return ((size_t) attr_scan_buffer(buf, len));
+  strncpy(&buf[0], s, 2052);
+  return((size_t) attr_scan_buffer(&buf[0], strlen(s) + 2));
 }
 
 

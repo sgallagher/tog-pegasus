@@ -26,6 +26,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
+
 //NOCHKSRC
 
 /*****************************************************************************
@@ -72,17 +73,17 @@ size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
-	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, {0}
+	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessAttr =
 {
-	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, {0}
+	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessTag =
 {
-	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, {0}
+	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -222,7 +223,7 @@ lslpAttrList *_lslpDecodeAttrString(char *s)
 {
   size_t lexer = 0;
   lslpAttrList *temp = NULL;
-  PEGASUS_ASSERT(s != NULL);
+  assert(s != NULL);
   _lslpInitInternalAttrList();
   if (s != NULL) {
     if(NULL != (temp = lslpAllocAttrList()))  {
@@ -286,11 +287,8 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	  attr->attr_len = len;
 	  switch (type)	    {
 	    case string:
-	      if ( NULL == (attr->val.stringVal = strdup((const char *)val)))
-              {
-                  lslpFreeAttr(attr);
-                  return NULL;
-              }
+	      if ( NULL != (attr->val.stringVal = strdup((const char *)val)))
+		return(attr);
 	      break;
 	    case integer:
 	      attr->val.intVal = *(const uint32 *)val;
@@ -299,15 +297,11 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	      attr->val.boolVal = *(const BOOL *)val;
 	      break;
 	    case opaque:
-	      if ( NULL == (attr->val.opaqueVal = strdup((const char *)val)))
-              {
-                  lslpFreeAttr(attr);
-                  return NULL;
-              }
+	      if ( NULL != (attr->val.opaqueVal = strdup((const char *)val)))
+		return(attr);
 	      break;
 	    default:
-                  lslpFreeAttr(attr);
-                  return NULL;
+	      break;
 	    }
 	}
     }
@@ -328,7 +322,7 @@ lslpAttrList *lslpAllocAttrList(void)
 /* attr MUST be unlinked from its list ! */
 void lslpFreeAttr(lslpAttrList *attr)
 {
-  PEGASUS_ASSERT(attr != NULL);
+  assert(attr != NULL);
   if (attr->name != NULL)
     free(attr->name);
   if(attr->attr_string != NULL)
@@ -344,8 +338,8 @@ void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag)
 {
   lslpAttrList *temp;
 
-  PEGASUS_ASSERT(list != NULL);
-  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
+  assert(list != NULL);
+  assert(_LSLP_IS_HEAD(list));
   while(! (_LSLP_IS_EMPTY(list)))
     {
       temp = list->next;

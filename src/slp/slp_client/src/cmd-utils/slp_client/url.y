@@ -579,7 +579,7 @@ lslpAtomList *lslpAllocAtomList(void)
 
 void lslpFreeAtom(lslpAtomList *a )
 {
-	PEGASUS_ASSERT(a != NULL);
+	assert(a != NULL);
 	if (a->str != NULL)
 		free(a->str);
 	free(a);
@@ -589,8 +589,8 @@ void lslpFreeAtom(lslpAtomList *a )
 void lslpFreeAtomList(lslpAtomList *l, int32 flag)
 {
 	lslpAtomList *temp;
-	PEGASUS_ASSERT(l != NULL);
-	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
+	assert(l != NULL);
+	assert(_LSLP_IS_HEAD(l));
 	while (! _LSLP_IS_EMPTY(l))
 	{
 		temp = l->next;
@@ -625,7 +625,7 @@ lslpAtomizedURL *lslpAllocAtomizedURLList(void)
 
 void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 {
-	PEGASUS_ASSERT(u != NULL);
+	assert(u != NULL);
 	if (u->url != NULL)
 		free(u->url);
 	if (! _LSLP_IS_EMPTY(&(u->srvcs)))
@@ -643,8 +643,8 @@ void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 void lslpFreeAtomizedURLList(lslpAtomizedURL *l, int32 flag)
 {
 	lslpAtomizedURL *temp;
-	PEGASUS_ASSERT(l != NULL);
-	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
+	assert(l != NULL);
+	assert(_LSLP_IS_HEAD(l));
 	while (! (_LSLP_IS_HEAD(l->next)))
 	{
 		temp = l->next;
@@ -690,7 +690,7 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 
   size_t lexer = 0;
   lslpAtomizedURL *temp = NULL;
-  PEGASUS_ASSERT(u != NULL && u[count - 1] != NULL);
+  assert(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();
   lslpInitAtomLists();
 

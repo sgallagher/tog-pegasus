@@ -84,8 +84,8 @@ extern char *lslp_logPath;
     NULL, 0, (s), __FILE__, __LINE__);
 */
 static int16 heapIndex;
-static char *heap;
-static char *buf;
+static char heap[2052];
+static char buf[2052];
 
 static char *_lslp_strdup(const char *s);
 void filter_close_lexer(size_t handle);
@@ -106,8 +106,6 @@ not_reserved            [^()\&|!=<>~\n]
 /* table size directives */
 
 %option noyywrap prefix="filter"
-%option nounput
-%option noinput
 %%
 
 "\""                { BEGIN QUOTED_STRING; filterless(0); }
@@ -170,46 +168,32 @@ not_reserved            [^()\&|!=<>~\n]
 
 %%
 
-static char *_lslp_strdup(const char *s)
-{
-  char *p = &heap[heapIndex];
-  
-  while ((heap[heapIndex++] = *s++))
-      ;
-
-  return p;
-}
-
 void filter_close_lexer(size_t handle)
 {
-  PEGASUS_ASSERT(handle);
-  PEGASUS_ASSERT(buf);
-  PEGASUS_ASSERT(heap);
+  assert(handle != 0);
   filter_delete_buffer((YY_BUFFER_STATE)handle);
-  free(buf);
-  free(heap);
-  buf = heap = 0;
 }
+
 
 size_t filter_init_lexer(const char *s)
 {
-  size_t len = strlen(s) + 2;
-
-  if (!(heap = (char*)malloc(len)))
-  {
-      return 0;
-  }
-  if (!(buf = (char*)malloc(len)))
-  {
-      free (heap);
-      return 0;
-  }
-
+  memset(&buf[0], 0x00, 2052);
+  memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
-  strcpy(buf, s);
-  buf[len - 1] = 0;
+  strncpy(&buf[0], s, 2048);
+  return((size_t) filter_scan_buffer(&buf[0], strlen(s) + 2));
+}
 
-  return ((size_t) filter_scan_buffer(buf, len));
+
+static char *_lslp_strdup(const char *s)
+{
+  char *p = &heap[heapIndex];
+  do
+  {
+    heap[heapIndex++] = *s;
+  }
+  while ((*s != 0x00) && (heapIndex < 2049) && (++s));
+  return(p);
 }
 
 /*****

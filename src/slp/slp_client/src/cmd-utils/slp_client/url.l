@@ -76,8 +76,8 @@
 void urlerror(const char *, ...);
 
 static int16 heapIndex;
-static char *heap;
-static char *buf;
+static char heap[2052];
+static char buf[2052];
 /* special counter to exit the appletalk state */
 char atalk_state = 0;
 
@@ -116,8 +116,6 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 %n    300
 %e    700
 %option noyywrap prefix="url"
-%option nounput
-%option noinput
 %%
 
  /* the ip user @ host syntax is a special state because some reserved */
@@ -240,44 +238,29 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 
 %%
 
-static char *_lslp_strdup(const char *s)
-{
-  char *p = &heap[heapIndex];
-
-  while ((heap[heapIndex++] = *s++))
-      ;
-  return p;
-}
 
 void url_close_lexer(size_t handle)
 {
-  PEGASUS_ASSERT(handle);
-  PEGASUS_ASSERT(buf);
-  PEGASUS_ASSERT(heap);
+  assert(handle != 0);
   url_delete_buffer((YY_BUFFER_STATE)handle);
-  free(buf);
-  free(heap);
-  buf = heap = 0;
 }
+
 
 size_t url_init_lexer(const char *s)
 {
-  size_t len = strlen(s) + 2;
-
-  if (!(heap = (char*)malloc(len)))
-  {
-      return 0;
-  }
-  if (!(buf = (char*)malloc(len)))
-  {
-      free (heap);
-      return 0;
-  }
+  memset(&buf[0], 0x00, 2052);
+  memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
-  strcpy(buf, s);
-  buf[len - 1] = 0;
+  strncpy(&buf[0], s, 2048);
+  return((size_t) url_scan_buffer(&buf[0], strlen(s) + 2));
+}
 
-  return ((size_t) url_scan_buffer(buf, len));
+
+static char *_lslp_strdup(const char *s)
+{
+  char *p = &heap[heapIndex];
+  do { heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
+  return(p);
 }
 
 void urlerror(const char *s, ...)

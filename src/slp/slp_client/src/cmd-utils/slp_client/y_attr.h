@@ -95,13 +95,13 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 94 "attr.y"
+#line 95 "attr.y"
 {
 	int32 _i;
 	char *_s;
 	lslpAttrList *_atl;
 }
-/* Line 1489 of yacc.c.  */
+/* Line 1529 of yacc.c.  */
 #line 75 "y_attr.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

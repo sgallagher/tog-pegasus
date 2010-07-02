@@ -208,6 +208,11 @@ Message* AsyncLegacyOperationStart::get_action()
 
 }
 
+void AsyncLegacyOperationStart::put_action(Message *act_)
+{
+    _act = act_;
+}
+
 AsyncLegacyOperationResult::AsyncLegacyOperationResult(
     AsyncOpNode* operation,
     Message* result)

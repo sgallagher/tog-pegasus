@@ -67,7 +67,7 @@ public:
      */
     Boolean hasActiveProviders();
 
-    virtual void unloadIdleProviders();
+    virtual void idleTimeCleanup();
 
 private:
     BasicProviderManagerRouter();

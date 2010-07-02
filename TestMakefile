@@ -305,6 +305,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_ExportClientSSL_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cimserver_Availability
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
 endif
@@ -777,7 +778,6 @@ run_idleConnectionTimeout1: FORCE
             TESTSUITE_CMDS="$(IDLE_CONNECTION_TIMEOUT_1_TEST_CMDS)"
 ###############################################################################
 
-
 ###############################################################################
 ##  idleConnectionTimeout Test Suite 2:  uses IdleConnectionTimeout client test
 ##
@@ -795,6 +795,22 @@ run_idleConnectionTimeout2: FORCE
             TESTSUITE_CMDS="$(IDLE_CONNECTION_TIMEOUT_2_TEST_CMDS)"
 ###############################################################################
 
+###############################################################################
+##  cimserver thread limit test:
+##
+##  Configuration Options: none
+##
+###############################################################################
+CIMSERVER_THREAD_LIMIT_TEST_CONFIG_OPTIONS = forceProviderProcesses=true
+CIMSERVER_THREAD_LIMIT_TEST_CMDS = \
+       $(MAKE)@@--directory \
+            $(PEGASUS_ROOT)/src/Providers/TestProviders/FaultyInstanceProvider/testclient \
+            -f@@Makefile@@runAvailabilityTest
+run_Cimserver_Availability: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(CIMSERVER_THREAD_LIMIT_TEST_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(CIMSERVER_THREAD_LIMIT_TEST_CMDS)"
+###############################################################################
 
 ###############################################################################
 ##  cimsub CLI Test Suite 1:  PG_InterOp Tests

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Common/CIMMessageSerializer.h>
 #include <Pegasus/Common/CIMMessageDeserializer.h>
 #include <Pegasus/Common/Tracer.h>
@@ -54,6 +55,11 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+// threadCreationFailureLogged will indicate if the thread limit related
+// msg has been logged already. This will help avoid flooding the syslog/audit
+// log with thread limit reached errors.
+static AtomicInt threadCreationFailureLogged(0);
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -565,7 +571,18 @@ Boolean ProviderAgent::_readAndProcessRequest()
                    ProviderAgent::_processRequestAndWriteResponse)) !=
                PEGASUS_THREAD_OK)
         {
-            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            // Yield only for the following request.
+            // CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
+            // CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE,
+            // CIM_DISABLE_MODULE_REQUEST_MESSAGE,
+            // CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
+            // CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
+            // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
+            // CIM_EXPORT_INDICATION_REQUEST_MESSAGE 
+            // All the above have already been handled differently
+            // except for CIM_EXPORT_INDICATION_REQUEST_MESSAGE.
+            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES &&
+                request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
             {
                 Threads::yield();
             }
@@ -573,24 +590,41 @@ Boolean ProviderAgent::_readAndProcessRequest()
             {
                 PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                     "Could not allocate thread to process agent request.");
+                MessageLoaderParms msgLoaderPrms(
+                    "ProviderManager.ProviderAgent.ProviderAgent."
+                        "THREAD_ALLOCATION_FAILED",
+                    "Failed to allocate a thread in cimprovagt \"$0\".",
+                    _agentId);
 
                 AutoPtr<CIMResponseMessage> response(request->buildResponse());
                 response->cimException = PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_FAILED,
-                    MessageLoaderParms(
-                        "ProviderManager.ProviderAgent.ProviderAgent."
-                            "THREAD_ALLOCATION_FAILED",
-                        "Failed to allocate a thread in cimprovagt \"$0\".",
-                        _agentId));
+                    CIM_ERR_FAILED,msgLoaderPrms);
 
                 // Return response to CIM Server
                 _writeResponse(response.get());
 
+                // make an entry in syslog for this behaviour.
+                if(threadCreationFailureLogged.get() == 0)
+                {
+                    threadCreationFailureLogged.inc();
+                    Logger::put_l(Logger::STANDARD_LOG,
+                        System::CIMSERVER,Logger::WARNING,msgLoaderPrms);
+                }
+                
                 delete agentRequest;
                 delete request;
 
-                break;
+                PEG_METHOD_EXIT();
+                return true;
             }
+        }
+
+        // Control will reach here only if the thread creation was successful.
+        // Hence this is the right place to reset threadCreationFailureLogged
+        // to that if the thread limit is reached again it is logged.
+        if(threadCreationFailureLogged.get() == 1)
+        {
+            threadCreationFailureLogged.dec();
         }
     }
 
@@ -819,7 +853,7 @@ ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
 
         try
         {
-            myself->_providerManagerRouter.unloadIdleProviders();
+            myself->_providerManagerRouter.idleTimeCleanup();
         }
         catch (...)
         {

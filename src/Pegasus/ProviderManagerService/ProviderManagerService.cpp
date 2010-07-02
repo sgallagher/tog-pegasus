@@ -55,7 +55,6 @@
 #include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 const String PG_PROVMODULE_GROUPNAME_CIMSERVER = "CIMServer";
@@ -75,7 +74,7 @@ ProviderManagerService::ProviderManagerService(
 
     _providerRegistrationManager = providerRegistrationManager;
 
-    _unloadIdleProvidersBusy = 0;
+    _idleTimeCleanupBusy = 0;
 
     _forceProviderProcesses = ConfigManager::parseBooleanValue(
         ConfigManager::getInstance()->getCurrentValue(
@@ -85,7 +84,8 @@ ProviderManagerService::ProviderManagerService(
         providerRegistrationManager,
         indicationCallback,
         responseChunkCallback,
-        providerModuleFailureCallback);
+        providerModuleFailureCallback,
+        asyncResponseCallback);
 
     _basicProviderManagerRouter = new BasicProviderManagerRouter(
         indicationCallback,
@@ -191,9 +191,8 @@ ProviderManagerService::handleCimOperation(void* arg)
         PEGASUS_ASSERT(request->getType() == ASYNC_ASYNC_LEGACY_OP_START);
 
         Message* legacy =
-            static_cast<AsyncLegacyOperationStart *>(request)->get_action();
-
-        AutoPtr<Message> xmessage(legacy);
+           static_cast<AsyncLegacyOperationStart *>(request)->get_action();
+        static_cast<AsyncLegacyOperationStart *>(request)->put_action(legacy);
 
         // Set the client's requested language into this service thread.
         // This will allow functions in this service to return messages
@@ -343,18 +342,12 @@ void ProviderManagerService::handleCimRequest(
             // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
             CIMEnableModuleResponseMessage * emResp =
                 dynamic_cast<CIMEnableModuleResponseMessage*>(response.get());
-            if (emResp->cimException.getCode() == CIM_ERR_SUCCESS)
+            // If the provider is not loaded then update the provider status in 
+            // this thread or else the response thread will call 
+            // asyncResponseCallback  which will update the provider status.
+            if(!emResp->isAsyncResponsePending)
             {
-                //
-                //  On a successful enable, remove Stopped status and
-                //  append OK status
-                //
-                Array<Uint16> removeStatus;
-                Array<Uint16> appendStatus;
-                removeStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPED);
-                appendStatus.append (CIM_MSE_OPSTATUS_VALUE_OK);
-                _updateProviderModuleStatus(
-                    providerModule, removeStatus, appendStatus);
+                _updateModuleStatusToEnabled(emResp, providerModule);
             }
         }
         else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
@@ -382,51 +375,16 @@ void ProviderManagerService::handleCimRequest(
             // Forward the request to the ProviderManager
             response.reset(_processMessage(request));
 
-            // Update provider module status based on success or failure
-            if (updateModuleStatus)
+            // If the provider is not initialized then update the status of the
+            // provider in this thread since there will be no response from
+            // any provider.
+            CIMDisableModuleResponseMessage * dmResp =
+                dynamic_cast<CIMDisableModuleResponseMessage*>(response.get());
+            if(!dmResp->isAsyncResponsePending)
             {
-                CIMDisableModuleResponseMessage * dmResp =
-                    dynamic_cast<CIMDisableModuleResponseMessage*>(
-                        response.get());
-                if (dmResp->cimException.getCode() != CIM_ERR_SUCCESS)
+                if (updateModuleStatus)
                 {
-                    //
-                    //  On an unsuccessful disable, remove Stopping status
-                    //
-                    Array<Uint16> removeStatus;
-                    Array<Uint16> appendStatus;
-                    removeStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPING);
-                    _updateProviderModuleStatus(
-                        providerModule, removeStatus, appendStatus);
-                }
-                else
-                {
-                    // Disable may or may not have been successful,
-                    // depending on whether there are outstanding requests.
-                    // Remove Stopping status
-                    // Append status, if any, from disable module response
-                    Array<Uint16> removeStatus;
-                    Array<Uint16> appendStatus;
-                    removeStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPING);
-                    if (dmResp->operationalStatus.size() > 0)
-                    {
-                        //
-                        //  On a successful disable, remove an OK or a Degraded
-                        //  status, if present
-                        //
-                        if (dmResp->operationalStatus[
-                            dmResp->operationalStatus.size()-1] ==
-                            CIM_MSE_OPSTATUS_VALUE_STOPPED)
-                        {
-                            removeStatus.append (CIM_MSE_OPSTATUS_VALUE_OK);
-                            removeStatus.append
-                                (CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-                        }
-                        appendStatus.append (dmResp->operationalStatus[
-                            dmResp->operationalStatus.size()-1]);
-                    }
-                    _updateProviderModuleStatus(
-                        providerModule, removeStatus, appendStatus);
+                    _updateModuleStatusToDisabled(dmResp,providerModule);
                 }
             }
         }
@@ -455,12 +413,21 @@ void ProviderManagerService::handleCimRequest(
         response.reset(cimResponse);
     }
 
-    AsyncLegacyOperationResult * async_result =
-        new AsyncLegacyOperationResult(
-        op,
-        response.release());
+    // all responses will be handled by the asyncResponseCallback 
+    // Certain requests like disable and enable module will be processed 
+    // in this thread if the module is not loaded yet.
+    CIMResponseMessage *cimResponse = dynamic_cast<CIMResponseMessage*>(
+        response.get());
 
-    _complete_op_node(op);
+    if(!cimResponse->isAsyncResponsePending)
+    {
+        AsyncLegacyOperationResult * async_result =
+            new AsyncLegacyOperationResult(
+            op,
+            response.release());
+
+        _complete_op_node(op);
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -519,6 +486,103 @@ void ProviderManagerService::responseChunkCallback(
     PEG_METHOD_EXIT();
 }
 
+
+void ProviderManagerService::asyncResponseCallback(
+    CIMRequestMessage* request,
+    CIMResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::asyncResponseCallback");
+
+    AsyncLegacyOperationStart *requestAsync =
+       dynamic_cast<AsyncLegacyOperationStart *>(request->get_async());
+    request->put_async(requestAsync);
+    PEGASUS_ASSERT(requestAsync);
+
+    AsyncOpNode *op = requestAsync->op;
+    PEGASUS_ASSERT(op);
+
+    try
+    {
+        // Only complete responses for async responses are handled
+        // here.
+        PEGASUS_ASSERT(response->isComplete() == true);
+
+        if(request->operationContext.contains(
+            AcceptLanguageListContainer::NAME))
+        {
+            Thread::setLanguages(
+                ((AcceptLanguageListContainer)request->operationContext.get(
+                AcceptLanguageListContainer::NAME)).getLanguages());
+        }
+        else
+        {
+                Thread::setLanguages(AcceptLanguageList());
+        }
+ 
+        if(request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+        {
+            _allProvidersStopped = true;
+        }
+        else if(request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
+        {
+            // Handle CIMEnableModuleRequestMessage
+            CIMEnableModuleRequestMessage * emReq =
+                dynamic_cast<CIMEnableModuleRequestMessage*>(request);
+
+            CIMInstance providerModule = emReq->providerModule;
+
+            // If successful, update provider module status to OK
+            // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
+            CIMEnableModuleResponseMessage * emResp =
+                dynamic_cast<CIMEnableModuleResponseMessage*>(response);
+            providerManagerService->_updateModuleStatusToEnabled(
+                emResp,providerModule);
+        }
+        else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+        {
+            // Handle CIMDisableModuleRequestMessage
+            CIMDisableModuleRequestMessage * dmReq =
+                dynamic_cast<CIMDisableModuleRequestMessage*>(request);
+
+            CIMInstance providerModule = dmReq->providerModule;
+            Boolean updateModuleStatus = !dmReq->disableProviderOnly;
+
+            // Update provider module status based on success or failure
+            if (updateModuleStatus)
+            {
+                CIMDisableModuleResponseMessage * dmResp =
+                    dynamic_cast<CIMDisableModuleResponseMessage*>(
+                        response);
+                providerManagerService->_updateModuleStatusToDisabled(
+                    dmResp,providerModule);
+            }
+        } 
+    }
+    catch (Exception &e)
+    {
+        response->cimException =
+            CIMException(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch (PEGASUS_STD(exception)& e)
+    {
+        response->cimException = CIMException(CIM_ERR_FAILED, e.what());
+    }
+    catch (...)
+    {
+        response->cimException = CIMException(CIM_ERR_FAILED, String());
+    }
+
+    AsyncLegacyOperationResult * async_result =
+        new AsyncLegacyOperationResult(
+            op,
+            response);
+
+    providerManagerService->_complete_op_node(op);
+ 
+    PEG_METHOD_EXIT();
+}
+
 Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
 {
     Message* response = 0;
@@ -569,11 +633,6 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             delete response;
 
             response = _oopProviderManagerRouter->processMessage(request);
-        }
-
-        if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
-        {
-            _allProvidersStopped = true;
         }
     }
     else
@@ -710,46 +769,47 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     return response;
 }
 
-void ProviderManagerService::unloadIdleProviders()
+void ProviderManagerService::idleTimeCleanup()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderManagerService::unloadIdleProviders");
+        "ProviderManagerService::idleTimeCleanup");
 
-    // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
-    _unloadIdleProvidersBusy++;
-    if (_unloadIdleProvidersBusy.get() != 1)
+    // Ensure that only one _idleTimeCleanupHandler thread runs at a time
+    _idleTimeCleanupBusy++;
+    if (_idleTimeCleanupBusy.get() != 1)
     {
-        _unloadIdleProvidersBusy--;
+        _idleTimeCleanupBusy--;
         PEG_METHOD_EXIT();
         return;
     }
 
     //
-    // Start an idle provider unload thread
+    // Start an idle time cleanup thread. 
     //
 
     if (_thread_pool->allocate_and_awaken((void*)this,
-            ProviderManagerService::_unloadIdleProvidersHandler) !=
+            ProviderManagerService::_idleTimeCleanupHandler) !=
                 PEGASUS_THREAD_OK)
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-            "Could not allocate thread for %s to unload idle providers.",
+            "Could not allocate thread for %s to cleanup idle providers \
+                and request.",
             getQueueName()));
 
         // If we fail to allocate a thread, don't retry now.
-        _unloadIdleProvidersBusy--;
+        _idleTimeCleanupBusy--;
         PEG_METHOD_EXIT();
         return;
     }
 
-    // Note: _unloadIdleProvidersBusy is decremented in
-    // _unloadIdleProvidersHandler
+    // Note: _idleTimeCleanupBusy is decremented in
+    // _idleTimeCleanupHandler 
 
     PEG_METHOD_EXIT();
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL
-ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
+ProviderManagerService::_idleTimeCleanupHandler(void* arg) throw()
 {
     ProviderManagerService* myself =
         reinterpret_cast<ProviderManagerService*>(arg);
@@ -757,20 +817,20 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
     try
     {
         PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-            "ProviderManagerService::_unloadIdleProvidersHandler");
+            "ProviderManagerService::_idleTimeCleanupHandler");
 
         if (myself->_basicProviderManagerRouter)
         {
             try
             {
-                myself->_basicProviderManagerRouter->unloadIdleProviders();
+                myself->_basicProviderManagerRouter->idleTimeCleanup();
             }
             catch (...)
             {
                 // Ignore errors
                 PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Unexpected exception from "
-                        "BasicProviderManagerRouter::_unloadIdleProviders");
+                        "BasicProviderManagerRouter::idleTimeCleanup");
             }
         }
 
@@ -778,30 +838,96 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
         {
             try
             {
-                myself->_oopProviderManagerRouter->unloadIdleProviders();
+                myself->_oopProviderManagerRouter->idleTimeCleanup();
             }
             catch (...)
             {
                 // Ignore errors
                 PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Unexpected exception from "
-                        "OOPProviderManagerRouter::_unloadIdleProviders");
+                        "OOPProviderManagerRouter::idleTimeCleanup");
             }
         }
 
-        myself->_unloadIdleProvidersBusy--;
+        myself->_idleTimeCleanupBusy--;
         PEG_METHOD_EXIT();
     }
     catch (...)
     {
         // Ignore errors
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Unexpected exception in _unloadIdleProvidersHandler");
+            "Unexpected exception in _idleTimeCleanupHandler");
 
-        myself->_unloadIdleProvidersBusy--;
+        myself->_idleTimeCleanupBusy--;
     }
 
     return ThreadReturnType(0);
+}
+
+void ProviderManagerService::_updateModuleStatusToEnabled(
+    CIMEnableModuleResponseMessage *emResp,
+    CIMInstance &providerModule)
+{
+    if (emResp->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        //
+        //  On a successful enable, remove Stopped status and
+        //  append OK status
+        //
+        Array<Uint16> removeStatus;
+        Array<Uint16> appendStatus;
+        removeStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPED);
+        appendStatus.append (CIM_MSE_OPSTATUS_VALUE_OK);
+        _updateProviderModuleStatus(
+            providerModule, removeStatus, appendStatus);
+    }
+}
+
+void ProviderManagerService::_updateModuleStatusToDisabled(
+    CIMDisableModuleResponseMessage *dmResp,
+    CIMInstance &providerModule)
+{
+    // Update provider module status based on success or failure
+    if (dmResp->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+        //
+        //  On an unsuccessful disable, remove Stopping status
+        //
+        Array<Uint16> removeStatus;
+        Array<Uint16> appendStatus;
+        removeStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPING);
+        _updateProviderModuleStatus(
+            providerModule, removeStatus, appendStatus);
+    }
+    else
+    {
+        // Disable may or may not have been successful,
+        // depending on whether there are outstanding requests.
+        // Remove Stopping status
+        // Append status, if any, from disable module response
+        Array<Uint16> removeStatus;
+        Array<Uint16> appendStatus;
+        removeStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPING);
+        if (dmResp->operationalStatus.size() > 0)
+        {
+            //
+            //  On a successful disable, remove an OK or 
+            // a Degraded status, if present
+            //
+            if (dmResp->operationalStatus[
+                dmResp->operationalStatus.size()-1] ==
+                CIM_MSE_OPSTATUS_VALUE_STOPPED)
+            {
+                removeStatus.append (CIM_MSE_OPSTATUS_VALUE_OK);
+                removeStatus.append
+                    (CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+            }
+            appendStatus.append (dmResp->operationalStatus[
+                dmResp->operationalStatus.size()-1]);
+        }
+        _updateProviderModuleStatus(
+            providerModule, removeStatus, appendStatus);
+    }
 }
 
 // Updates the providerModule instance and the ProviderRegistrationManager

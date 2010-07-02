@@ -603,11 +603,13 @@ CIMResponseMessage::CIMResponseMessage(
     MessageType type_,
     const String& messageId_,
     const CIMException& cimException_,
-    const QueueIdStack& queueIds_)
+    const QueueIdStack& queueIds_,
+    Boolean isAsyncResponsePending_)
     :
     CIMMessage(type_, messageId_),
     queueIds(queueIds_),
-    cimException(cimException_)
+    cimException(cimException_),
+    isAsyncResponsePending(isAsyncResponsePending_)
 {
 }
 

@@ -137,6 +137,11 @@ Message* MessageQueue::dequeue()
     return message;
 }
 
+Boolean MessageQueue::isActive()
+{
+    return true;
+}
+
 const char* MessageQueue::getQueueName() const
 {
     return _name;

@@ -182,12 +182,17 @@ public:
         MessageType type_,
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        Boolean isAsyncResponsePending=false);
 
     void syncAttributes(const CIMRequestMessage* request);
 
     QueueIdStack queueIds;
     CIMException cimException;
+
+    // This flag indicates if the response will arrive asynchronously.
+    Boolean isAsyncResponsePending;
+
 };
 
 //

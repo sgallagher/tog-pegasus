@@ -240,6 +240,8 @@ public:
 
     Message* get_action();
 
+    void put_action(Message *action);
+
 private:
     friend class MessageQueueService;
     friend class cimom;

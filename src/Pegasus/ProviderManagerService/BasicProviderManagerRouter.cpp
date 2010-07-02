@@ -539,10 +539,10 @@ Boolean BasicProviderManagerRouter::hasActiveProviders()
     return false;
 }
 
-void BasicProviderManagerRouter::unloadIdleProviders()
+void BasicProviderManagerRouter::idleTimeCleanup()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "BasicProviderManagerRouter::unloadIdleProviders");
+        "BasicProviderManagerRouter::idleTimeCleanup");
 
     //
     // Save pointers to the ProviderManagerContainers so we don't hold the

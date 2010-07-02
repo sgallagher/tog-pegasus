@@ -26,60 +26,43 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
+ROOT = ../../../../..
 
-ROOT = ../../..
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
+
+DIR = Providers/TestProviders/FaultyInstanceProvider/testclient
 
 include $(ROOT)/mak/config.mak
 
-TEST_DIRS = \
-	AlertIndicationProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests \
-        EmbeddedInstanceProvider \
-        EmbeddedInstanceProvider/testClient \
-        TestModuleGrouping \
-	FaultyInstanceProvider \
-	FaultyInstanceProvider/testclient \
-	TestGoodInstanceProvider
+LIBRARIES = \
+    pegclient \
+    peggeneral \
+    pegcommon
 
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-TEST_DIRS += \
-	TestServerProfileProviders
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestFaultyInstanceProviderClient
+
+SOURCES = TestFaultyInstanceProviderClient.cpp
+
+include $(ROOT)/mak/program.mak
+
+include $(ROOT)/mak/test.mak
+
+tests:
+
+poststarttests:
+
+runAvailabilityTest:
+# When tests are run through valgrind the client timeout
+# is disabled hence no point running these tests, since
+# the client will never timeout.
+ifndef PEGASUS_TEST_VALGRIND_LOG_DIR
+	@cimprovider -dm TestFaultyProviderModule
+	@cimprovider -em TestFaultyProviderModule
+	@cimprovider -dm TestGoodInstanceProviderModule
+	@cimprovider -em TestGoodInstanceProviderModule
+	$(PROGRAM)	
 endif
-
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-TEST_DIRS += \
-	CMPI
-endif
-
-include $(ROOT)/mak/recurse.mak

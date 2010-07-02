@@ -52,11 +52,12 @@ public:
     virtual Message* processMessage(Message* message) = 0;
 
     /**
-        Unload idle providers in all active ProviderManagers.
+        Cleanup idle providers and disconnected client requests in all 
+        active ProviderManagers.
         Note: This operation may take a long time to complete and should
         be called on a non-critical thread.
      */
-    virtual void unloadIdleProviders() = 0;
+    virtual void idleTimeCleanup() = 0;
 
     /**
         Sets the SubscriptionInitComplete flag indicating whether the Indication

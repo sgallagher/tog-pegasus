@@ -77,6 +77,12 @@ public:
     */
     virtual Message* dequeue();
 
+    /**
+        This function will indicate whether the MessageQueue is active or not. 
+        By default this function will return true and do nothing else.
+    */
+    virtual Boolean isActive();
+
     /** Returns true if there are no messages on the queue. */
     Boolean isEmpty() const { return  (Boolean) _messageList.is_empty(); }
 

@@ -311,7 +311,7 @@ HTTPConnection::~HTTPConnection()
     // HTTPConnection::handleEnqueue(), we are running a risk of
     // accessing a deleted object and crashing cimserver.
     AutoMutex connectionLock(_connection_mut);
-     _socket->close();
+    _socket->close();
 
     PEG_METHOD_EXIT();
 }
@@ -320,6 +320,22 @@ void HTTPConnection::enqueue(Message *message)
 {
     handleEnqueue(message);
 }
+
+Boolean HTTPConnection::isActive()
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::isActive");
+    if(needsReconnect())
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+    else
+    {
+        PEG_METHOD_EXIT();
+        return true;
+    }
+}
+
 
 void HTTPConnection::handleInternalServerError(
     Uint32 respMsgIndex,

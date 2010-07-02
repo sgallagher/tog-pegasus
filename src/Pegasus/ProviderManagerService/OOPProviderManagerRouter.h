@@ -49,6 +49,9 @@ PEGASUS_NAMESPACE_BEGIN
 typedef void (*PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T)(const String &,
     const String &, Uint16);
 
+typedef void (*PEGASUS_ASYNC_RESPONSE_CALLBACK_T)(
+    CIMRequestMessage* request, CIMResponseMessage* response);
+
 class ProviderAgentContainer;
 
 typedef HashTable<String, ProviderAgentContainer*, EqualFunc<String>,
@@ -62,13 +65,14 @@ public:
         ProviderRegistrationManager *providerRegistrationManager,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
-        PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback);
+        PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
+        PEGASUS_ASYNC_RESPONSE_CALLBACK_T asyncResponseCallback);
 
     virtual ~OOPProviderManagerRouter();
 
     virtual Message* processMessage(Message* message);
 
-    virtual void unloadIdleProviders();
+    virtual void idleTimeCleanup();
 
     static ProviderRegistrationManager* getProviderRegistrationManager();
 
@@ -144,6 +148,11 @@ private:
     PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T _providerModuleFailCallback;
 
     /**
+       Callback function to be called for all async responses.
+    */
+    PEGASUS_ASYNC_RESPONSE_CALLBACK_T _asyncResponseCallback;
+
+    /**
         The _providerAgentTable contains a ProviderAgentContainer entry for
         each of the Provider Agent processes for which a request has been
         processed.  ProviderAgentContainer objects are persistent; once one
@@ -157,6 +166,11 @@ private:
     Mutex _providerAgentTableMutex;
 
     static ProviderRegistrationManager *_providerRegistrationManager;
+
+    /**
+        Pointer to the MessageQueueService thread pool.
+    */
+    ThreadPool *_threadPool;
 
 };
 

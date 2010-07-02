@@ -58,10 +58,12 @@ public:
 
     virtual ~ProviderManagerService();
 
-    void unloadIdleProviders();
+    void idleTimeCleanup();
 
     static void indicationCallback(CIMProcessIndicationRequestMessage* request);
     static void responseChunkCallback(
+        CIMRequestMessage* request, CIMResponseMessage* response);
+    static void asyncResponseCallback(
         CIMRequestMessage* request, CIMResponseMessage* response);
 
     /**
@@ -87,7 +89,15 @@ private:
     Message* _processMessage(CIMRequestMessage* request);
 
     static ThreadReturnType PEGASUS_THREAD_CDECL
-        _unloadIdleProvidersHandler(void* arg) throw();
+        _idleTimeCleanupHandler(void* arg) throw();
+
+    void _updateModuleStatusToEnabled(
+        CIMEnableModuleResponseMessage *emResp,
+        CIMInstance &providerModule);
+
+    void _updateModuleStatusToDisabled(
+        CIMDisableModuleResponseMessage *dmResp,
+        CIMInstance &providerModule);
 
     void _updateProviderModuleStatus(
         CIMInstance& providerModule,
@@ -111,11 +121,11 @@ private:
     static Uint32 _indicationServiceQueueId;
 
     /**
-        Indicates the number of threads currently attempting to unload idle
-        providers.  This value is used to prevent multiple threads from
-        unloading idle providers at the same time.
+        Indicates the number of threads currently attempting to cleanup idle
+        providers and clean disconnected client requests.  This value is used 
+        to prevent multiple threads from initiating cleanup the same time.
      */
-    AtomicInt _unloadIdleProvidersBusy;
+    AtomicInt _idleTimeCleanupBusy;
 };
 
 PEGASUS_NAMESPACE_END

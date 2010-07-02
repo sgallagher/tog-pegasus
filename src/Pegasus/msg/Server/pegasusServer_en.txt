@@ -5156,6 +5156,12 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.OOPProviderManagerRouter.OOP_PROVIDER_MODULE_FAILURE_DETECTED:string {"PGS13606: A failure was detected in provider module {0}.  The generation of indications by providers in this module may be affected.  To ensure these providers are serving active subscriptions, disable and then re-enable this module using the cimprovider command."}
 
+        /**
+        * @note PGS13607
+        *    Substitution {0} is the provider module group name.
+        */
+        ProviderManager.OOPProviderManagerRouter.REQUEST_RETRY_THREAD_ALLOCATION_FAILED:string {"PGS13607: Failed to allocate a thread to retry a request in \"{0}\"."}
+
 
         // ==========================================================
         // Messages for ProviderManager.ProviderAgent.cimprovagt

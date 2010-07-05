@@ -247,6 +247,44 @@ void _normalizeRealValueString(char* str, Uint32& size)
 }
 #endif
 
+// On z/OS sprintf outputs NaNQ(1), INF and -INF
+// need to normalize to nan, inf and -inf
+#ifdef PEGASUS_OS_ZOS
+void _normalizeRealValueString_NANandINF(char* str, Uint32& size)
+{
+    if ((str[0]=='n' || str[0]=='N') &&
+            (str[1]=='a' || str[1]=='A') && 
+                (str[2]=='n' || str[2]=='N'))
+    {
+        str[0] = 'n';
+        str[1] = 'a';
+        str[2] = 'n';
+        str[3] = '\0';
+        size=3;
+    }
+    if ((str[0]=='i' || str[0]=='I') &&
+            (str[1]=='n' || str[1]=='N') && 
+                (str[2]=='f' || str[2]=='F'))
+    {
+        str[0] = 'i';
+        str[1] = 'n';
+        str[2] = 'f';
+        str[3] = '\0';
+        size=3;
+    }
+    if ((str[0]=='-') && (str[1]=='i' || str[1]=='I') &&
+            (str[2]=='n' || str[2]=='N') && 
+                (str[3]=='f' || str[3]=='F'))
+    {
+        str[0] = '-';
+        str[1] = 'i';
+        str[2] = 'n';
+        str[3] = 'f';
+        str[4] = '\0';
+        size=4;
+    }
+}
+#endif
 
 const char* Uint8ToString(char buffer[22], Uint8 x, Uint32& size)
 {
@@ -297,6 +335,9 @@ const char* Real32ToString(char buffer[128], Real32 x, Uint32& size)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     _normalizeRealValueString(buffer, size);
 #endif
+#ifdef PEGASUS_OS_ZOS
+    _normalizeRealValueString_NANandINF(buffer, size);
+#endif
     return buffer;
 }
 
@@ -308,6 +349,9 @@ const char* Real64ToString(char buffer[128], Real64 x, Uint32& size)
     size = sprintf(buffer, "%.16e", x);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     _normalizeRealValueString(buffer, size);
+#endif
+#ifdef PEGASUS_OS_ZOS
+    _normalizeRealValueString_NANandINF(buffer, size);
 #endif
     return buffer;
 }

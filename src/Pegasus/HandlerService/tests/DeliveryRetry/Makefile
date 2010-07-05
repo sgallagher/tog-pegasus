@@ -26,13 +26,31 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../..
+ROOT = ../../../../..
+
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
+
+DIR = Pegasus/HandlerService/tests/DeliveryRetry
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    MissingEntryPointHandler \
-    HandlerTable \
-    DeliveryRetry
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-include $(ROOT)/mak/recurse.mak
+LIBRARIES = \
+    peglistener \
+    pegclient \
+    peggeneral \
+    pegcommon
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+PROGRAM = TestDeliveryRetry
+
+SOURCES = DeliveryRetry.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+	@$(PROGRAM)

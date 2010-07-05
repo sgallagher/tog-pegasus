@@ -28,11 +28,17 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../..
 
+DIR = Providers/TestProviders/DeliveryRetryTestProvider
+
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    MissingEntryPointHandler \
-    HandlerTable \
-    DeliveryRetry
+LIBRARY = DeliveryRetryTestProvider
 
-include $(ROOT)/mak/recurse.mak
+LIBRARIES = \
+    pegprovider \
+    pegclient \
+    pegcommon
+	
+SOURCES = DeliveryRetryTestProvider.cpp
+
+include $(ROOT)/mak/dynamic-library.mak

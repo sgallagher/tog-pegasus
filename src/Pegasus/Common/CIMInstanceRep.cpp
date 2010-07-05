@@ -140,6 +140,8 @@ void CIMInstanceRep::resolve(
                 (property.getName ().equal
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS))) ||
                 (property.getName ().equal
+                    (CIMName (PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME))) ||
+                (property.getName ().equal
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS))))))
             {
                 throw NoSuchProperty(property.getName().getString ());

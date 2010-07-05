@@ -110,6 +110,16 @@ void System::getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds)
     microseconds = Uint32(tv.tv_usec);
 }
 
+Uint64 System::getCurrentTimeUsec()
+{
+    timeval tv;
+    gettimeofday(&tv, 0);
+    Uint64 microseconds = tv.tv_sec;
+    microseconds *= 1000000;
+    microseconds += Uint64(tv.tv_usec);
+    return microseconds;
+}
+
 String System::getCurrentASCIITime()
 {
     char    str[50];

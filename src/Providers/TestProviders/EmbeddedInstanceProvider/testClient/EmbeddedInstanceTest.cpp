@@ -448,7 +448,19 @@ int retrieveIndicationInstance(CIMClient& client)
             PEGASUS_STD(endl);
         return -1;
     }
-
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    Uint32 idx;
+    if ((idx=receivedIndication->findProperty("SequenceNumber"))
+        != PEG_NOT_FOUND)
+    {
+        receivedIndication->removeProperty(idx);
+    }
+    if ((idx=receivedIndication->findProperty("SequenceContext"))
+        != PEG_NOT_FOUND)
+    {
+        receivedIndication->removeProperty(idx);
+    }
+#endif
     if (!indicationInstance->identical(*receivedIndication))
     {
         PEGASUS_STD(cout)

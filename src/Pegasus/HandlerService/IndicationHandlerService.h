@@ -48,6 +48,10 @@
 #include <Pegasus/HandlerService/HandlerTable.h>
 #include <Pegasus/HandlerService/Linkage.h>
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+#include <Pegasus/HandlerService/DestinationQueue.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService :
@@ -59,7 +63,7 @@ public:
 
     IndicationHandlerService(CIMRepository* repository);
 
-    ~IndicationHandlerService() { } ;
+    ~IndicationHandlerService();
 
     virtual void _handle_async_request(AsyncRequest* req);
 
@@ -84,6 +88,109 @@ private:
     Boolean _loadHandler(
         CIMHandleIndicationRequestMessage* request,
         CIMException& cimException);
+
+    Boolean _loadHandler(
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indicationInstance,
+        CIMInstance& indicationHandlerInstance,
+        CIMInstance& indicationSubscriptionInstance,
+        CIMException& cimException);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+
+    /**
+        This method is called when HandlerService receives the
+        CIMNotifySubscriptionNotActiveRequestMessage. Indications matching the
+        subscription will be discarded from the queue and traced.
+    */
+    CIMNotifySubscriptionNotActiveResponseMessage*
+        _handleSubscriptionNotActiveRequest(
+            CIMNotifySubscriptionNotActiveRequestMessage *message);
+
+    /**
+        This method is called when HandlerService receives the
+        CIMNotifySubscriptionNotActiveRequestMessage. Queue will be deleted.
+    */
+    CIMNotifyListenerNotActiveResponseMessage* _handleListenerNotActiveRequest(
+        CIMNotifyListenerNotActiveRequestMessage *message);
+
+    /**
+        This method is called to stop dispatcher thread when HandlerService
+        receives the CimServiceStop request.
+    */
+    void _stopDispatcher();
+
+    /**
+        Tries to deliver the indication, returns true if delivery is successful
+        else false.
+    */
+    void _deliverIndication(IndicationInfo *info);
+
+    /**
+        This method is called when indication in the form of
+        CIMHandleIndicationRequestMessage arrives to HandlerService  from
+        IndicationService. This method sets the sequence-identfier to the
+        indication. Returns DestinationQueue name to which the indication
+        belongs.
+   */
+    String _setSequenceIdentifier(
+        CIMHandleIndicationRequestMessage *message);
+
+    /**
+        This method is called from _setSequenceIdentifier(). This method
+        actually sets the sequence-identfier properties SequenceContext
+        and SequenceNumber to the indication.
+   */
+    void _setSequenceIndentifierProperties(
+        CIMInstance &indication, DestinationQueue *queue);
+
+    /**
+        This method is called when indication delivery has failed.
+        This method enqueues the indication on to the DestinationQueue.
+   */
+    void _destinationQueueEnqueue(
+        CIMHandleIndicationRequestMessage *message);
+
+    CIMResponseMessage*
+        _handleEnumerateInstancesRequest(
+            CIMEnumerateInstancesRequestMessage *message);
+
+    CIMResponseMessage*
+        _handleEnumerateInstanceNamesRequest(
+            CIMEnumerateInstanceNamesRequestMessage *message);
+
+    /**
+        Gets the Queue name from either subscriptionName or handlerName,
+        constructed as follows.
+        namespace:ClassName.Name=\"HandlerName\".
+    */
+    String _getQueueName(
+        const CIMObjectPath &instancePath);
+
+    void _updateSuccessfulDeliveryTime(const String &queueName);
+
+    typedef HashTable<
+                String,
+                DestinationQueue*,
+                EqualFunc<String>,
+                HashFunc<String> > DestinationQueueTable;
+
+    DestinationQueueTable _destinationQueueTable;
+    ReadWriteSem _destinationQueueTableLock;
+
+    AtomicInt _deliveryThreadsRunningCount;
+    AtomicInt _dispatcherThreadRunning;
+    Mutex _dispatcherThreadMutex;
+    List<IndicationInfo, Mutex> _deliveryQueue;
+    ThreadPool _deliveryThreadPool;
+    Thread _dispatcherThread;
+    AtomicInt _stopDispatcherThread;
+    const Uint32 _maxDeliveryThreads;
+    static ThreadReturnType PEGASUS_THREAD_CDECL
+        _dispatcherRoutine(void *param);
+    static ThreadReturnType PEGASUS_THREAD_CDECL _deliveryRoutine(void *param);
+#endif
 };
 
 PEGASUS_NAMESPACE_END

@@ -1055,6 +1055,15 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+            Uint32 handlerServiceId = lookup(
+                PEGASUS_QUEUENAME_INDHANDLERMANAGER)->getQueueId();
+
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,
+                PEGASUS_NAMESPACENAME_INTERNAL,
+                String::EMPTY,
+                handlerServiceId);
+
             _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
                 PEGASUS_NAMESPACENAME_INTEROP,

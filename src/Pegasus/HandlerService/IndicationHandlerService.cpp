@@ -39,6 +39,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
 
+#include "IndicationHandlerConstants.h"
 #include "IndicationHandlerService.h"
 
 PEGASUS_USING_STD;
@@ -47,42 +48,126 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static struct timeval deallocateWait = { 300, 0 };
+
 IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
     : Base("IndicationHandlerService"),
       _repository(repository)
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+      ,_deliveryThreadPool(0, "IndicationHandlerService", 0, 5, deallocateWait),
+      _dispatcherThread(_dispatcherRoutine, this, true),
+      _maxDeliveryThreads(5)
+#endif
 {
+}
+
+IndicationHandlerService::~IndicationHandlerService()
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::~IndicationHandlerService");
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _stopDispatcher();
+
+    WriteLock lock(_destinationQueueTableLock);
+    // Cleanup all DestinationQueues.
+    DestinationQueueTable::Iterator i =
+        _destinationQueueTable.start();
+    DestinationQueue *queue;
+
+    for(; i; i++)
+    {
+        queue = i.value();
+        queue->shutdown();
+        delete queue;
+    }
+    _destinationQueueTable.clear();
+#endif
+
+    PEG_METHOD_EXIT();
 }
 
 void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
 {
     if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        _stopDispatcher();
+#endif
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
     else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         AutoPtr<Message> legacy(
             static_cast<AsyncLegacyOperationStart *>(req)->get_action());
-        if (legacy->getType() == CIM_HANDLE_INDICATION_REQUEST_MESSAGE)
+
+        AutoPtr<CIMResponseMessage> response;
+
+        try
         {
-            AutoPtr<Message> legacy_response(_handleIndication(
-                (CIMHandleIndicationRequestMessage*) legacy.get()));
-            legacy.release();
-            AutoPtr<AsyncLegacyOperationResult> async_result(
-                new AsyncLegacyOperationResult(
-                    req->op,
-                    legacy_response.get()));
-            legacy_response.release();
-            async_result.release();
-            _complete_op_node(req->op);
+            switch(legacy->getType())
+            {
+                case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+                    response.reset(
+                        _handleIndication(
+                            (CIMHandleIndicationRequestMessage*) legacy.get()));
+                    break;
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+               case CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE:
+                   response.reset(
+                       _handleSubscriptionNotActiveRequest(
+                           (CIMNotifySubscriptionNotActiveRequestMessage*)
+                           legacy.get()));
+                   break;
+               case CIM_NOTIFY_LISTENER_NOT_ACTIVE_REQUEST_MESSAGE:
+                   response.reset(
+                       _handleListenerNotActiveRequest(
+                           (CIMNotifyListenerNotActiveRequestMessage*)
+                           legacy.get()));
+                   break;
+               case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+                   response.reset(
+                       _handleEnumerateInstancesRequest(
+                           (CIMEnumerateInstancesRequestMessage*)
+                           legacy.get()));
+                   break;
+               case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+                   response.reset(
+                       _handleEnumerateInstanceNamesRequest(
+                           (CIMEnumerateInstanceNamesRequestMessage*)
+                           legacy.get()));
+                   break;
+#endif
+               default:
+                   PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                       "IndicationHandlerService::_handle_async_request got "
+                            "unexpected legacy message type '%u'",
+                        legacy->getType()));
+                   _make_response(req, async_results::CIM_NAK);
+                   return;
+            }
         }
-        else
+        catch (Exception& e)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "IndicationHandlerService::_handle_async_request got "
-                    "unexpected legacy message type '%u'", legacy->getType()));
-            _make_response(req, async_results::CIM_NAK);
+            response.reset(((CIMRequestMessage*)legacy.get())->buildResponse());
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
+        catch (...)
+        {
+            response.reset(((CIMRequestMessage*)legacy.get())->buildResponse());
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Exception: Unknown");
+        }
+
+        AutoPtr<AsyncLegacyOperationResult> result(
+            new AsyncLegacyOperationResult(
+                req->op,
+                response.get()));
+
+        response.release();
+        result.release();
+        _complete_op_node(req->op);
     }
     else
     {
@@ -252,7 +337,25 @@ IndicationHandlerService::_handleIndication(
             }
             else
             {
+                 // Set sequence-identfier if the indication profile enabled.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                String queueName = _setSequenceIdentifier(request);
+#endif
                 handleIndicationSuccess = _loadHandler(request, cimException);
+
+            // Note: DeliveryRetry is supported only for the following handlers.
+            // PEGASUS_CLASSNAME_INDHANDLER_CIMXML
+            // PEGASUS_CLASSNAME_LSTNRDST_CIMXML
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                if (!handleIndicationSuccess)
+                {
+                    _destinationQueueEnqueue(request);
+                }
+                else
+                {
+                    _updateSuccessfulDeliveryTime(queueName);
+                }
+#endif
             }
         }
     }
@@ -313,7 +416,6 @@ IndicationHandlerService::_handleIndication(
             request->buildResponse());
     response->cimException = cimException;
 
-    delete request;
     PEG_METHOD_EXIT();
     return response;
 }
@@ -322,27 +424,44 @@ Boolean IndicationHandlerService::_loadHandler(
     CIMHandleIndicationRequestMessage* request,
     CIMException& cimException)
 {
-    PEG_METHOD_ENTER(TRC_IND_HANDLER,
-        "IndicationHandlerService::__loadHandler()");
-
-    CIMName className = request->handlerInstance.getClassName();
-
-    try
-    {
-        CIMHandler* handlerLib = _lookupHandlerForClass(className);
-
-        if (handlerLib)
-        {
-            ContentLanguageList langs =
-                ((ContentLanguageListContainer)request->operationContext.
-                get(ContentLanguageListContainer::NAME)).getLanguages();
-
-            handlerLib->handleIndication(
+    return _loadHandler(
                 request->operationContext,
                 request->nameSpace.getString(),
                 request->indicationInstance,
                 request->handlerInstance,
                 request->subscriptionInstance,
+                cimException);
+}
+
+Boolean IndicationHandlerService::_loadHandler(
+    const OperationContext& operationContext,
+    const String nameSpace,
+    CIMInstance& indicationInstance,
+    CIMInstance& handlerInstance,
+    CIMInstance& subscriptionInstance,
+    CIMException& cimException)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_loadHandler()");
+
+
+    try
+    {
+        CIMName className = handlerInstance.getClassName();
+        CIMHandler* handlerLib = _lookupHandlerForClass(className);
+
+        if (handlerLib)
+        {
+            ContentLanguageList langs =
+                ((ContentLanguageListContainer)operationContext.
+                get(ContentLanguageListContainer::NAME)).getLanguages();
+
+            handlerLib->handleIndication(
+                operationContext,
+                nameSpace,
+                indicationInstance,
+                handlerInstance,
+                subscriptionInstance,
                 langs);
         }
         else
@@ -403,5 +522,650 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
    PEG_METHOD_EXIT();
    return handler;
 }
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+
+CIMResponseMessage*
+     IndicationHandlerService::_handleEnumerateInstancesRequest(
+         CIMEnumerateInstancesRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handleEnumerateInstancesRequest");
+
+    CIMEnumerateInstancesResponseMessage* response =
+         dynamic_cast<CIMEnumerateInstancesResponseMessage*>
+             (message->buildResponse());
+
+    CIMClass cimClass =
+        _repository->getClass(
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,
+            false,
+            true,
+            true,
+            CIMPropertyList());
+
+    Array<CIMInstance> instances;
+
+    ReadLock lock(_destinationQueueTableLock);
+    DestinationQueueTable::Iterator i =
+        _destinationQueueTable.start();
+    DestinationQueue *queue;
+
+    CIMInstance sInstance = cimClass.buildInstance(
+        true,
+        true,
+        CIMPropertyList());
+
+    Uint32 propArray[12];
+
+    propArray[0] = sInstance.findProperty(_PROPERTY_LSTNRDST_NAME);
+    propArray[1] = sInstance.findProperty(_PROPERTY_CREATIONTIME);
+    propArray[2] = sInstance.findProperty(_PROPERTY_SEQUENCECONTEXT);
+    propArray[3] = sInstance.findProperty(_PROPERTY_NEXTSEQUENCENUMBER);
+    propArray[4] = sInstance.findProperty(_PROPERTY_MAXQUEUELENGTH);
+    propArray[5] = sInstance.findProperty(_PROPERTY_SEQUENCEIDENTIFIERLIFETIME);
+    propArray[6] = sInstance.findProperty(_PROPERTY_CURRENTINDICATIONS);
+    propArray[7] = sInstance.findProperty(
+        _PROPERTY_QUEUEFULLDROPPEDINDICATIONS);
+    propArray[8] = sInstance.findProperty(_PROPERTY_LIFETIMEEXPIREDINDICATIONS);
+    propArray[9] = sInstance.findProperty(
+        _PROPERTY_RETRYATTEMPTSEXCEEDEDINDICATIONS);
+    propArray[10] = sInstance.findProperty(
+        _PROPERTY_SUBSCRIPTIONDISABLEDROPPEDINDICATIONS);
+    propArray[11] = sInstance.findProperty(
+        _PROPERTY_LASTSUCCESSFULDELIVERYTIME);
+
+    DestinationQueue::QueueInfo qinfo;
+    for(; i; i++)
+    {
+        queue = i.value();
+        queue->getInfo(qinfo);
+
+        CIMInstance instance = sInstance.clone();
+
+        instance.getProperty(propArray[0]).setValue(
+                CIMValue(_getQueueName(qinfo.handlerName)));
+
+        instance.getProperty(propArray[1]).setValue(
+                CIMValue(qinfo.queueCreationTimeUsec));
+
+        instance.getProperty(propArray[2]).setValue(
+                CIMValue(qinfo.sequenceContext));
+
+        instance.getProperty(propArray[3]).setValue(
+                CIMValue(qinfo.nextSequenceNumber));
+
+        instance.getProperty(propArray[4]).setValue(
+                CIMValue(qinfo.maxQueueLength));
+
+        instance.getProperty(propArray[5]).setValue(
+                CIMValue(qinfo.sequenceIdentifierLifetimeSeconds));
+
+        instance.getProperty(propArray[6]).setValue(
+                CIMValue(qinfo.size));
+
+        instance.getProperty(propArray[7]).setValue(
+                CIMValue(qinfo.queueFullDroppedIndications));
+
+        instance.getProperty(propArray[8]).setValue(
+                CIMValue(qinfo.lifetimeExpiredIndications));
+
+        instance.getProperty(propArray[9]).setValue(
+                CIMValue(qinfo.retryAttemptsExceededIndications));
+
+        instance.getProperty(propArray[10]).setValue(
+                CIMValue(qinfo.subscriptionDisableDroppedIndications));
+
+        instance.getProperty(propArray[11]).setValue(
+                CIMValue(qinfo.lastSuccessfulDeliveryTimeUsec));
+
+        instance.filter(
+            message->includeQualifiers,
+            message->includeClassOrigin,
+            message->propertyList);
+
+        instances.append(instance);
+    }
+
+    response->getResponseData().setInstances(instances);
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+CIMResponseMessage*
+     IndicationHandlerService::_handleEnumerateInstanceNamesRequest(
+         CIMEnumerateInstanceNamesRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handleEnumerateInstanceNamesRequest");
+
+    CIMEnumerateInstanceNamesResponseMessage* response =
+         dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>
+             (message->buildResponse());
+
+    Array<CIMObjectPath> instanceNames;
+
+    ReadLock lock(_destinationQueueTableLock);
+
+    DestinationQueueTable::Iterator i =
+        _destinationQueueTable.start();
+
+    DestinationQueue *queue;
+
+    for(; i; i++)
+    {
+        queue = i.value();
+
+        Array<CIMKeyBinding> kbArray;
+        kbArray.append(
+            CIMKeyBinding(
+                _PROPERTY_LSTNRDST_NAME,
+                _getQueueName(queue->getHandler().getPath()),
+                CIMKeyBinding::STRING));
+
+        CIMObjectPath instanceName(
+            String(),
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,
+            kbArray);
+
+        instanceNames.append(instanceName);
+    }
+
+    response->getResponseData().setInstanceNames(instanceNames);
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+CIMNotifySubscriptionNotActiveResponseMessage*
+    IndicationHandlerService::_handleSubscriptionNotActiveRequest(
+        CIMNotifySubscriptionNotActiveRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handleSubscriptionNotActiveRequest");
+
+    String queueName = _getQueueName(message->subscriptionName);
+
+    DestinationQueue *queue = 0;
+    WriteLock lock(_destinationQueueTableLock);
+    if (_destinationQueueTable.lookup(queueName, queue))
+    {
+        queue->deleteMatchedIndications(message->subscriptionName);
+    }
+
+    CIMNotifySubscriptionNotActiveResponseMessage *response =
+        dynamic_cast<CIMNotifySubscriptionNotActiveResponseMessage*>(
+            message->buildResponse());
+
+    PEG_METHOD_EXIT();
+    return response;
+}
+
+CIMNotifyListenerNotActiveResponseMessage*
+    IndicationHandlerService::_handleListenerNotActiveRequest(
+        CIMNotifyListenerNotActiveRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handleListenerNotActiveRequest");
+
+    DestinationQueue *queue = 0;
+    WriteLock lock(_destinationQueueTableLock);
+
+    String queueName = _getQueueName(message->handlerName);
+
+    if (_destinationQueueTable.lookup(queueName, queue))
+    {
+        queue->cleanup();
+        delete queue;
+        Boolean ok = _destinationQueueTable.remove(queueName);
+        PEGASUS_ASSERT(ok);
+    }
+
+    CIMNotifyListenerNotActiveResponseMessage *response =
+        dynamic_cast<CIMNotifyListenerNotActiveResponseMessage*>(
+            message->buildResponse());
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+void IndicationHandlerService::_stopDispatcher()
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_stopDispatcher");
+
+    if (!_stopDispatcherThread.get())
+    {
+        {
+            AutoMutex mtx(_dispatcherThreadMutex);
+            _stopDispatcherThread++;
+        }
+
+        while (_dispatcherThreadRunning.get())
+        {
+            Threads::yield();
+            Threads::sleep(50);
+        }
+
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER,Tracer::LEVEL4,
+            "Dispatcher thread stopped");
+    }
+    PEG_METHOD_EXIT();
+}
+
+void IndicationHandlerService::_deliverIndication(IndicationInfo *info)
+{
+    CIMException cimException;
+
+    Boolean deliveryOk =  _loadHandler(
+        info->context,
+        info->nameSpace,
+        info->indication,
+        info->queue->getHandler(),
+        info->subscription,
+        cimException);
+
+   if (deliveryOk)
+   {
+       info->queue->updateDeliveryRetrySuccess(info);
+   }
+   else
+   {
+       info->queue->updateDeliveryRetryFailure(info, cimException);
+   }
+}
+
+void IndicationHandlerService::_setSequenceIndentifierProperties(
+    CIMInstance &indication, DestinationQueue *queue)
+{
+    Uint32 idx;
+    CIMProperty prop;
+
+    if ((idx = indication.findProperty(_PROPERTY_SEQUENCECONTEXT))
+        != PEG_NOT_FOUND)
+    {
+        prop = indication.getProperty(idx);
+        prop.setValue(queue->getSequenceContext());
+        indication.removeProperty(idx);
+    }
+    else
+    {
+        prop = CIMProperty(
+            _PROPERTY_SEQUENCECONTEXT,
+            queue->getSequenceContext());
+    }
+    indication.addProperty(prop);
+
+    if ((idx = indication.findProperty(_PROPERTY_SEQUENCENUMBER))
+        != PEG_NOT_FOUND)
+    {
+        prop = indication.getProperty(idx);
+        prop.setValue(queue->getSequenceNumber());
+        indication.removeProperty(idx);
+    }
+    else
+    {
+        prop = CIMProperty(
+            _PROPERTY_SEQUENCENUMBER,
+            queue->getSequenceNumber());
+    }
+
+    indication.addProperty(prop);
+}
+
+String IndicationHandlerService::_setSequenceIdentifier(
+    CIMHandleIndicationRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_setSequenceIdentifier");
+
+    CIMInstance &indication = message->indicationInstance;
+    CIMInstance handler = message->handlerInstance;
+    String queueName = _getQueueName(
+        message->subscriptionInstance.getPath());
+
+    DestinationQueue *queue;
+
+    {
+        ReadLock lock(_destinationQueueTableLock);
+
+        if (_destinationQueueTable.lookup(queueName, queue))
+        {
+            _setSequenceIndentifierProperties(indication, queue);
+            PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+                "DestinationQueue %s already exists",
+                (const char*)queueName.getCString()));
+            PEG_METHOD_EXIT();
+            return queueName;
+        }
+    }
+
+    WriteLock lock(_destinationQueueTableLock);
+    if (_destinationQueueTable.lookup(queueName, queue))
+    {
+        _setSequenceIndentifierProperties(indication, queue);
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+            "DestinationQueue %s already exists",
+            (const char*)queueName.getCString()));
+        PEG_METHOD_EXIT();
+        return queueName;
+    }
+
+    queue = new DestinationQueue(handler);
+    Boolean ok = _destinationQueueTable.insert(queueName, queue);
+    PEGASUS_ASSERT(ok);
+    _setSequenceIndentifierProperties(indication, queue);
+    PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+        "DestinationQueue %s created",
+        (const char*)queueName.getCString()));
+    PEG_METHOD_EXIT();
+
+    return queueName;
+}
+
+void IndicationHandlerService::_updateSuccessfulDeliveryTime(
+    const String &queueName)
+{
+    DestinationQueue *queue;
+
+    ReadLock lock(_destinationQueueTableLock);
+    if (_destinationQueueTable.lookup(queueName, queue))
+    {
+        queue->updateLastSuccessfulDeliveryTime();
+    }
+}
+
+void IndicationHandlerService::_destinationQueueEnqueue(
+    CIMHandleIndicationRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_destinationQueueEnqueue");
+
+    String queueName = _getQueueName(
+        message->subscriptionInstance.getPath());
+
+    DestinationQueue *queue;
+
+    ReadLock lock(_destinationQueueTableLock);
+
+    // If queue cannot be found, listener might have been deleted.
+    if (!_destinationQueueTable.lookup(queueName, queue))
+    {
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
+            "DestinationQueue %s does not exist, Listener destination might "
+                "have been deleted",
+            (const char*)queueName.getCString()));
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    IndicationInfo *info = new IndicationInfo(
+        message->indicationInstance,
+        message->subscriptionInstance,
+        message->operationContext,
+        message->nameSpace.getString(),
+        queue);
+
+    queue->enqueue(info);
+
+    // Start dispather if not already running.
+    if (!_dispatcherThreadRunning.get() && !_stopDispatcherThread.get())
+    {
+        AutoMutex mtx(_dispatcherThreadMutex);
+        if (!_dispatcherThreadRunning.get() && !_stopDispatcherThread.get())
+        {
+            ThreadStatus tr;
+            while ((tr = _dispatcherThread.run()) != PEGASUS_THREAD_OK)
+            {
+                if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                {
+                    Threads::yield();
+                }
+                else
+                {
+                    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+                        "Failed to start DispatcherThread");
+                    break;
+                }
+            }
+            if (tr == PEGASUS_THREAD_OK)
+            {
+                _dispatcherThreadRunning++;
+                PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                    "DispatcherThread not running, started now.");
+            }
+        }
+    }
+    PEG_METHOD_EXIT();
+}
+
+String IndicationHandlerService::_getQueueName(
+    const CIMObjectPath &instancePath)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_getQueueName");
+
+    Array<CIMKeyBinding> subscriptionKB = instancePath.getKeyBindings();
+    CIMObjectPath handlerName = instancePath;
+
+    for (Uint32 i = 0, n = subscriptionKB.size(); i < n ; i++)
+    {
+        if ((subscriptionKB [i].getName() == PEGASUS_PROPERTYNAME_HANDLER) &&
+            (subscriptionKB [i].getType() == CIMKeyBinding::REFERENCE))
+        {
+            handlerName = subscriptionKB[i].getValue();
+            break;
+        }
+    }
+
+    Array<CIMKeyBinding> handlerKB = handlerName.getKeyBindings();
+    String queueName;
+
+    if (handlerName.getNameSpace().isNull())
+    {
+        queueName = instancePath.getNameSpace().getString();
+    }
+    else
+    {
+        queueName = handlerName.getNameSpace().getString();
+    }
+
+    queueName.append(Char16(':'));
+    queueName.append(handlerName.getClassName().getString());
+    queueName.append(Char16('.'));
+
+    for (Uint32 i = 0 , n = handlerKB.size(); i < n ; i++)
+    {
+        if (handlerKB [i].getName() == PEGASUS_PROPERTYNAME_NAME)
+        {
+            queueName.append(handlerKB[i].getValue());
+            break;
+        }
+    }
+
+    PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+       "Returning the queue name %s",
+       (const char*)queueName.getCString()));
+    PEG_METHOD_EXIT();
+
+    return queueName;
+}
+
+ThreadReturnType PEGASUS_THREAD_CDECL
+    IndicationHandlerService::_dispatcherRoutine(void *parm)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_dispatcherRoutine");
+
+    Thread *myself = reinterpret_cast<Thread *>(parm);
+    IndicationHandlerService *service =
+        reinterpret_cast<IndicationHandlerService*>(myself->get_parm());
+
+    const Uint32 RETRY_THREAD_MIN_WAITTIME = 100; // milliseconds
+    const Uint32 RETRY_THREAD_MAX_WAITTIME = // milliseconds
+        DestinationQueue::getDeliveryRetryIntervalSeconds() * 1000;
+
+    DestinationQueue *queue;
+    Uint64 timeNowUsec;
+    IndicationInfo *indication;
+    Uint64 idleTimeoutUsec;
+
+    // Holds the minimum of next eligible indication DeliveryRetryInterval
+    // expiration time from all DestinationQueues.
+    Uint32 nextMinIndDRIExpTime = RETRY_THREAD_MAX_WAITTIME;
+
+    idleTimeoutUsec = System::getCurrentTimeUsec();
+    service->_deliveryThreadsRunningCount = 0;
+
+    for (;;)
+    {
+        try
+        {
+            if (nextMinIndDRIExpTime < RETRY_THREAD_MIN_WAITTIME)
+            {
+                nextMinIndDRIExpTime = RETRY_THREAD_MIN_WAITTIME;
+            }
+
+            Threads::sleep(nextMinIndDRIExpTime);
+
+            // Check if we need to terminate
+            if (service->_stopDispatcherThread.get())
+            {
+                AutoMutex mtx(service->_dispatcherThreadMutex);
+                service->_dispatcherThreadRunning = 0;
+                break;
+            }
+
+            nextMinIndDRIExpTime = RETRY_THREAD_MAX_WAITTIME;
+            timeNowUsec = System::getCurrentTimeUsec();
+
+            Boolean queueTableEmpty = true;
+            Uint64 nextIndDRIExpTime;
+
+            {
+                ReadLock lock(service->_destinationQueueTableLock);
+
+                DestinationQueueTable::Iterator i =
+                    service->_destinationQueueTable.start();
+
+                for(; i; i++)
+                {
+                    queue = i.value();
+                    if ((indication = queue->getNextIndicationForDelivery(
+                        timeNowUsec, nextIndDRIExpTime)))
+                    {
+                        service->_deliveryQueue.insert_back(indication);
+                        if (service->_deliveryThreadsRunningCount.get()
+                            < service->_maxDeliveryThreads)
+                        {
+                            service->_deliveryThreadsRunningCount++;
+                            if (service->
+                                _deliveryThreadPool.allocate_and_awaken(
+                                    service, _deliveryRoutine, 0)
+                                        != PEGASUS_THREAD_OK)
+                            {
+                                service->_deliveryThreadsRunningCount--;
+                            }
+                        }
+                        queueTableEmpty = false;
+                    }
+                    else if (!queue->isIdle())
+                    {
+                        queueTableEmpty = false;
+                    }
+
+                    // convert to milliseconds
+                    nextIndDRIExpTime/= 1000;
+                    if (nextIndDRIExpTime < nextMinIndDRIExpTime)
+                    {
+                        nextMinIndDRIExpTime = nextIndDRIExpTime;
+                    }
+                }
+            }
+
+            if (queueTableEmpty)
+            {
+                // Verify again if there are indications in the table.
+                WriteLock lock(service->_destinationQueueTableLock);
+
+                DestinationQueueTable::Iterator i =
+                    service->_destinationQueueTable.start();
+                queueTableEmpty = true;
+
+                for(;i;++i)
+                {
+                    if (!i.value()->isIdle())
+                    {
+                        queueTableEmpty = false;
+                        break;
+                    }
+                }
+                if (queueTableEmpty)
+                {
+                    AutoMutex mtx(service->_dispatcherThreadMutex);
+                    PEG_TRACE_CSTRING(TRC_IND_HANDLER,Tracer::LEVEL3,
+                        "No indications in the DestinationQueueTable, Exiting "
+                            "the dispatcher thread");
+                    service->_dispatcherThreadRunning = 0;
+                    PEG_METHOD_EXIT();
+                    return 0;
+                }
+            }
+
+            // Cleanup idle threads for every 5 minutes
+            if (timeNowUsec - idleTimeoutUsec >= 300000000)
+            {
+                service->_deliveryThreadPool.cleanupIdleThreads();
+
+                PEG_TRACE_CSTRING(TRC_IND_HANDLER,Tracer::LEVEL4,
+                    "DeliveryThreadPool.cleanupIdleThreads() called");
+
+                idleTimeoutUsec = timeNowUsec;
+            }
+        }
+        catch(const Exception &e)
+        {
+            PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+                "Unexpected exception in IndicationHandlerService::"
+                    "_dispatcherRoutine() : %s",
+            (const char*)e.getMessage().getCString()));
+        }
+        catch(...)
+        {
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                "Unexpected exception in IndicationHandlerService::"
+                    "_dispatcherRoutine() : Unknown");
+        }
+    }
+    PEG_METHOD_EXIT();
+
+    return (ThreadReturnType)0;
+}
+
+ThreadReturnType PEGASUS_THREAD_CDECL
+    IndicationHandlerService::_deliveryRoutine(void *parm)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_deliveryRoutine");
+
+    IndicationHandlerService *service =
+        reinterpret_cast<IndicationHandlerService *>(parm);
+
+    IndicationInfo *indication;
+
+    while ((indication = service->_deliveryQueue.remove_front()))
+    {
+        service->_deliverIndication(indication);
+    }
+    service->_deliveryThreadsRunningCount--;
+    PEG_METHOD_EXIT();
+
+    return (ThreadReturnType)0;
+}
+
+#endif
 
 PEGASUS_NAMESPACE_END

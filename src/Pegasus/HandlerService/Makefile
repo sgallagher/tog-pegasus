@@ -36,6 +36,7 @@ INCLUDES = -I..
 LOCAL_DEFINES = -DPEGASUS_HANDLER_SERVICE_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
+    pegprovider \
     pegconfig \
     pegrepository \
     peggeneral \
@@ -47,6 +48,11 @@ LIBRARY = peghandlerservice
 
 SOURCES = \
     IndicationHandlerService.cpp \
-    HandlerTable.cpp
+    HandlerTable.cpp \
+    IndicationHandlerConstants.cpp
+
+ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    SOURCES += DestinationQueue.cpp
+endif
 
 include $(ROOT)/mak/library.mak

@@ -524,6 +524,30 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
     return response.release();
 }
 
+CIMResponseMessage*
+    CIMNotifySubscriptionNotActiveRequestMessage::buildResponse() const
+{
+    AutoPtr<CIMNotifySubscriptionNotActiveResponseMessage> response(
+        new CIMNotifySubscriptionNotActiveResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
+    response->syncAttributes(this);
+    return response.release();
+}
+
+CIMResponseMessage*
+    CIMNotifyListenerNotActiveRequestMessage::buildResponse() const
+{
+    AutoPtr<CIMNotifyListenerNotActiveResponseMessage> response(
+        new CIMNotifyListenerNotActiveResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
+    response->syncAttributes(this);
+    return response.release();
+}
+
 CIMResponseMessage* ProvAgtGetScmoClassRequestMessage::buildResponse() const
 {
     AutoPtr<ProvAgtGetScmoClassResponseMessage> response(

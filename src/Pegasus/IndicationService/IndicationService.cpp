@@ -324,7 +324,6 @@ void IndicationService::handleEnqueue(Message* message)
 
     stopWatch.start();
 #endif
-
     CIMRequestMessage* cimRequest = dynamic_cast<CIMRequestMessage *>(message);
     PEGASUS_ASSERT(cimRequest);
 
@@ -1215,6 +1214,60 @@ Boolean IndicationService::_waitForAsyncRequestsComplete(
 
     return !requestsPending;
 }
+
+void IndicationService::_sendSubscriptionNotActiveMessagetoHandlerService(
+        const CIMObjectPath &subscriptionName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_sendSubscriptionNotActiveMessagetoHandlerService");
+
+       CIMRequestMessage * notifyRequest =
+        new CIMNotifySubscriptionNotActiveRequestMessage (
+            XmlWriter::getNextMessageId (),
+            subscriptionName,
+            QueueIdStack(_handlerService));
+
+    AsyncLegacyOperationStart *req =
+        new AsyncLegacyOperationStart(
+        0,
+        _handlerService,
+        notifyRequest);
+
+    AsyncReply *reply = SendWait(req);
+    delete req;
+    delete reply;
+
+    PEG_METHOD_EXIT();
+}
+
+void IndicationService::_sendListenerNotActiveMessagetoHandlerService(
+        const CIMObjectPath &handlerName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_sendListenerNotActiveMessagetoHandlerService");
+
+    // Send notify request only to CIMXML handlers
+    {
+        CIMRequestMessage * notifyRequest =
+            new CIMNotifyListenerNotActiveRequestMessage (
+                XmlWriter::getNextMessageId (),
+                handlerName,
+                QueueIdStack(_handlerService));
+
+         AsyncLegacyOperationStart *req =
+             new AsyncLegacyOperationStart(
+             0,
+             _handlerService,
+             notifyRequest);
+
+         AsyncReply *reply = SendWait(req);
+         delete req;
+         delete reply;
+    }
+
+    PEG_METHOD_EXIT();
+}
+
 #endif
 
 void IndicationService::_updateAcceptedSubscription(
@@ -1372,6 +1425,10 @@ Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
                     (const char *) path.toString().getCString()));
 
                 _deleteExpiredSubscription(path);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                _sendSubscriptionNotActiveMessagetoHandlerService(path);
+#endif
                 // If subscription is expired delete the subscription
                 // and continue on to the next one.
                 continue;
@@ -1931,6 +1988,22 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
             instance.findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
+        // Remove CretaionTime property from CIMXML handlers
+        CIMName clsName = instance.getClassName();
+
+        if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+            clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+        {
+            Uint32 idx = instance.findProperty(
+                PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
+
+            if (idx  != PEG_NOT_FOUND)
+            {
+                instance.removeProperty(idx);
+            }
+        }
+
+
         //
         //  Remove the language properties from instance before returning
         //
@@ -2077,9 +2150,25 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 //
                 continue;
             }
+
             enumInstances[i].removeProperty(
                 enumInstances[i].findProperty(
                     PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
+
+            // Remove CretaionTime property from CIMXML handlers
+            CIMName clsName = enumInstances[i].getClassName();
+
+            if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+                clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+            {
+                Uint32 idx = enumInstances[i].findProperty(
+                    PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
+
+                if (idx  != PEG_NOT_FOUND)
+                {
+                    enumInstances[i].removeProperty(idx);
+                }
+            }
 
             propIndex = enumInstances[i].findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
@@ -2281,7 +2370,10 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                 //  Delete the subscription instance
                 //
                 _deleteExpiredSubscription(instanceReference);
-
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                _sendSubscriptionNotActiveMessagetoHandlerService(
+                    instanceReference);
+#endif
                 PEG_METHOD_EXIT();
 
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
@@ -2576,6 +2668,10 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                     //  _handleDeleteResponseAggregation
                     //
                     responseSent = true;
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                    _sendSubscriptionNotActiveMessagetoHandlerService(
+                        instanceReference);
+#endif
                 }
             }
         }
@@ -2635,6 +2731,18 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
         //
         _subscriptionRepository->deleteInstance(
             request->nameSpace, request->instanceName);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        if (request->instanceName.getClassName().equal(
+                PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
+            request->instanceName.getClassName().equal(
+               PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+        {
+            CIMObjectPath handlerName = request->instanceName;
+            handlerName.setNameSpace(request->nameSpace);
+            _sendListenerNotActiveMessagetoHandlerService(handlerName);
+        }
+#endif
 
         PEG_TRACE((
             TRC_INDICATION_SERVICE,
@@ -2704,6 +2812,10 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
                     //  _handleDeleteResponseAggregation
                     //
                     responseSent = true;
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                    _sendSubscriptionNotActiveMessagetoHandlerService(
+                        instanceReference);
+#endif
                 }
                 else
                 {
@@ -8031,6 +8143,12 @@ void IndicationService::_updatePropertyList(
             properties.append(PEGASUS_PROPERTYNAME_INDSUB_CREATOR);
         }
 
+        if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+            className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+        {
+            properties.append(PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
+        }
+
         //
         //  If a Subscription and Time Remaining is requested,
         //  Ensure Subscription Duration and Start Time are in property list
@@ -8354,6 +8472,9 @@ Boolean IndicationService::_subscriptionMatch(
             // Delete expired subscription
             CIMObjectPath path = subscription.getPath ();
             _deleteExpiredSubscription (path);
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+            _sendSubscriptionNotActiveMessagetoHandlerService(path);
+#endif
             PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
                 "%s Indication Subscription expired",
                 (const char*)(indication.getClassName().getString().
@@ -8470,11 +8591,9 @@ void IndicationService::_forwardIndToHandler(
 
     handler_request->operationContext = operationContext;
 
-    AsyncOpNode* op = this->get_op();
-
     AsyncLegacyOperationStart *async_req =
         new AsyncLegacyOperationStart(
-        op,
+        0,
         _handlerService,
         handler_request);
 
@@ -8485,12 +8604,7 @@ void IndicationService::_forwardIndToHandler(
          MessageQueue::lookup(_handlerService)->getQueueName() :
         "BAD queue name")));
 
-    SendAsync (op,
-               _handlerService,
-               IndicationService::_handleIndicationCallBack,
-               this,
-               (void *) &(matchedSubscription));
-
+    SendForget(async_req);
 
     PEG_METHOD_EXIT();
 }

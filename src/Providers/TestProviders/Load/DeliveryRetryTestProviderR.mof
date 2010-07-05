@@ -26,13 +26,35 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
+#pragma locale ("en_US")
 
-#pragma include ("PG_Authorization20.mof")
-#pragma include ("PG_ConfigSetting20.mof")
-#pragma include ("PG_User20.mof")
-#pragma include ("PG_ShutdownService20.mof")
-#pragma include ("PG_SSLCertificate20.mof")
-#pragma include ("PG_SSLCertificateRevocationList20.mof")
-#pragma include ("PG_GeneratedIndicationData20.mof")
-#pragma include ("PG_ListenerDestinationQueue20.mof")
+instance of PG_ProviderModule
+{
+    Description = "Sample Pegasus Provider for testing the delivery retry";
+    Caption = "Sample Pegasus Provider for testing the delivery retry";
+    Name = "DeliveryRetryTestProviderModule";
+    Vendor = "OpenPegasus";
+    Version = "2.5.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "DeliveryRetryTestProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "DeliveryRetryTestProviderModule";
+    Name = "DeliveryRetryTestProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "DeliveryRetryTestProviderModule";
+    ProviderName = "DeliveryRetryTestProvider";
+    CapabilityID = "1";
+    ClassName = "DeliveryRetryTestClass";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"generateIndications", "resetIdentifier"};
+};
 

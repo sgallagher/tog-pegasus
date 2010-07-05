@@ -226,7 +226,25 @@ private:
     Boolean _waitForAsyncRequestsComplete(
         struct timeval* startTime,
         Uint32 timeoutSeconds);
+    /**
+        Sends the CIMNotifySubscriptionNotActiveRequestMessage to Handler
+        service when subscription has been disabled/deleted/expired.
+
+        @param  subscriptionName          The subscription instance path
+    */
+    void _sendSubscriptionNotActiveMessagetoHandlerService(
+        const CIMObjectPath &subscriptionName);
+
+    /**
+        Sends the CIMNotifyListenerNotActiveRequestMessage to Handler
+        service when listener has been deleted.
+
+        @param  handlerName       handler/listener instance path
+    */
+    void _sendListenerNotActiveMessagetoHandlerService(
+        const CIMObjectPath &handlerName);
 #endif
+
     /**
         Handles the CIM requests when IndicationService is not enabled. Very
         few requests are handled by IndicationService when not enabled.

@@ -141,6 +141,8 @@ const CIMName PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE =
 
 const CIMName PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT =
     CIMNameCast("PG_ServiceAffectsElement");
+const CIMName PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE =
+    CIMNameCast("PG_ListenerDestinationQueue");
 #endif
 
 //
@@ -166,6 +168,13 @@ const CIMName PEGASUS_PROPERTYNAME_MODULE_MODULEGROUPNAME =
 */
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION =
     CIMNameCast("Destination");
+
+/**
+    The name of the CreationTime property for PG_ListenerDestinationQueue.
+*/
+
+const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME =
+    CIMNameCast("CreationTime");
 
 /**
     The name of the TargetHost property for SNMP Mapper Indication

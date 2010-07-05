@@ -1454,6 +1454,47 @@ public:
 
 };
 
+
+class PEGASUS_COMMON_LINKAGE CIMNotifySubscriptionNotActiveRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMNotifySubscriptionNotActiveRequestMessage(
+        const String & messageId_,
+        const CIMObjectPath &subscriptionName_,
+        const QueueIdStack& queueIds_)
+    : CIMRequestMessage(
+        CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+        subscriptionName(subscriptionName_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMObjectPath subscriptionName;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMNotifyListenerNotActiveRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMNotifyListenerNotActiveRequestMessage(
+        const String & messageId_,
+        const CIMObjectPath &handlerName_,
+        const QueueIdStack& queueIds_)
+    : CIMRequestMessage(
+        CIM_NOTIFY_LISTENER_NOT_ACTIVE_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+        handlerName(handlerName_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMObjectPath handlerName;
+};
+
 //
 // CIMResponseMessages
 //
@@ -2188,6 +2229,34 @@ public:
     }
 
     SCMOClass scmoClass;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMNotifySubscriptionNotActiveResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMNotifySubscriptionNotActiveResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
+};
+
+class PEGASUS_COMMON_LINKAGE CIMNotifyListenerNotActiveResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMNotifyListenerNotActiveResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_LISTENER_NOT_ACTIVE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

@@ -153,6 +153,22 @@ CIMObjectPath SubscriptionRepository::createInstance (
         creator.setValue (CIMValue (currentUser));
     }
 
+    // Add CreationTime to the Listener Destination instances
+    // Note: CreationTime is added only for CIMXML handlers at present.
+    CIMName className = instance.getPath().getClassName();
+
+    if ((className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) &&
+        instance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME)
+            == PEG_NOT_FOUND)
+    {
+        instance.addProperty(
+            CIMProperty(
+                PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME,
+                System::getCurrentTimeUsec()));
+    }
+
+
     // l10n
     // Add the language properties to the Instance
     // Note:  These came from the Accept-Language and Content-Language

@@ -69,7 +69,8 @@ TEST_DIRS = \
         TestModuleGrouping \
 	FaultyInstanceProvider \
 	FaultyInstanceProvider/testclient \
-	TestGoodInstanceProvider
+	TestGoodInstanceProvider \
+	DeliveryRetryTestProvider
 
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)

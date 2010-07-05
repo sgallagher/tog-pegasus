@@ -26,13 +26,14 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
+#pragma locale("en_US")
 
-#pragma include ("PG_Authorization20.mof")
-#pragma include ("PG_ConfigSetting20.mof")
-#pragma include ("PG_User20.mof")
-#pragma include ("PG_ShutdownService20.mof")
-#pragma include ("PG_SSLCertificate20.mof")
-#pragma include ("PG_SSLCertificateRevocationList20.mof")
-#pragma include ("PG_GeneratedIndicationData20.mof")
-#pragma include ("PG_ListenerDestinationQueue20.mof")
-
+[Version ("2.11.0")]
+class DeliveryRetryTestClass : CIM_Indication
+{
+  uint64 sequenceId;
+  [Static]
+  uint32 generateIndications(uint32 count);
+  [Static]
+  uint32 resetIdentifier();
+};

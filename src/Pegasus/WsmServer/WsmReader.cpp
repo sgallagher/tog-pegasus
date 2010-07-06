@@ -858,8 +858,14 @@ void WsmReader::decodeRequestSoapHeaders(
             // marked with mustUnderstand="true", it shall issue an
             // s:NotUnderstood fault.
             XmlNamespace* ns = _parser.getNamespace(nsType);
-            throw SoapNotUnderstoodFault(
-                ns ? ns->extendedName : String::EMPTY, elementName);
+            if (ns)
+            {
+                throw SoapNotUnderstoodFault(ns->extendedName, elementName);
+            }
+            else
+            {
+                throw SoapNotUnderstoodFault(String::EMPTY, elementName);
+            }
         }
         else
         {

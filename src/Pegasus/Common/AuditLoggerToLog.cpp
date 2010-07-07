@@ -354,8 +354,8 @@ void AuditLogger::logSetProvModuleGroupName(
 {
     MessageLoaderParms msgParms(
         "Common.AuditLogger.SET_PROVIDER_MODULE_GROUP",
-        "The ModuleGroupName of provider module \"$0\" has changed from \"$1\""
-            " to \"$2\".",
+        "The group of provider module \"$0\" has changed from \"$1\""
+        " to \"$2\".",
         moduleName, oldModuleGroupName, newModuleGroupName);
 
     _writeAuditMessage(TYPE_CONFIGURATION,
@@ -527,9 +527,9 @@ void AuditLogger::setAuditLogWriterCallback(
 }
 
 void AuditLogger::_writeAuditMessageToLog(
-    AuditType,
-    AuditSubType,
-    AuditEvent,
+    AuditType auditType,
+    AuditSubType auditSubType,
+    AuditEvent auditEvent,
     Uint32 logLevel,
     MessageLoaderParms & msgParms)
 {

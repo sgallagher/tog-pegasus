@@ -34,25 +34,24 @@
 
 en:table {
 
-        // ==========================================================
+	// ==========================================================
         // Messages for CIMConfigCommand
-        //  Please use message prefix "PGC00200"
+	//  Please use message prefix "PGC00200"
         // ==========================================================
 
 
         /**
-        * @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
-        *    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters,
-        *    preserves the indenting,
-        *    and ends with a newline character (\n).
-        */
-        Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
+	* @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
+	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+	*    When translating this message, make sure that each line fits in 80 characters,
+	*    preserves the indenting,
+	*    and ends with a newline character (\n).
+	*/
+	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
     "Usage: cimconfig -g name [ -c ] [ -p ] [ -d ]\n"
-    "                 -s name=value [ -c ] [ -p ] [ -t ]\n"
-    "                 -u name [ -c ] [ -p ] [ -t ]\n"
+    "                 -s name=value [ -c ] [ -p ]\n"
+    "                 -u name [ -c ] [ -p ]\n"
     "                 -l [-c | -p]\n"
-    "                 -H name\n"
     "                 -h\n"
     "                 --help\n"
     "                 --version\n"
@@ -61,20 +60,13 @@ en:table {
     "     -c          - Use the current configuration.\n"
     "     -p          - Configuration user on the next CIM server start.\n"
     "     -d          - Use the default configuration.\n"
-    "     -H          - Get help on specified configuration property\n"
-    "     -h, --help  - Display this help message.\n"
     "     -s          - Add or update configuration property value.\n"
     "     -u          - Reset the configuration property to its default value.\n"
     "     -l          - Display all the configuration properties.\n"
-    "     -t          - Timeout value in seconds for updating the current or\n"
-    "                   planned value.\n"
-    "     --version   - Display CIM server version number.\n\n"
-    "Usage note: The cimconfig command can be used to update the next planned\n"
-    "    configuration without having the CIM Server running. All other options\n"
-    "    except -h, --help and --version of the cimconfig command require that the\n"
-    "    CIM Server is running.\n"
+    "     -h, --help  - Display this help message.\n"
+    "     --version   - Display CIM server version number.\n"
     "\n"
-        }
+	}
 
         /**
         * @note PGC00200:
@@ -269,10 +261,7 @@ en:table {
 	//  Please use message prefix "PGC00400"
         // ==========================================================
 
-        /**
-        * @note PGC00400:
-        *    This message is no longer used in OpenPegasus release 2.12
-        */
+
         Clients.cimauth.CIMAuthCommand.NOT_PRIVILEGED_USER:string {"PGC00400: Superuser authority is required to run this command."}
 
         Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING:string {"PGC00401: The CIM server may not be running."}
@@ -458,10 +447,6 @@ en:table {
 	//  Please use message prefix "PGC00800"
         // ==========================================================
 
-        /**
-        * @note PGC00800:
-        *    This message is no longer used in OpenPegasus release 2.12
-        */
         Clients.cimuser.CIMUserCommand.NOT_PRIVILEGED_USER:string {"PGC00800: Superuser authority is required to run this command."}
 
         Clients.cimuser.CIMUserCommand.CIMOM_NOT_RUNNING:string {"PGC00801: The CIM server may not be running."}
@@ -712,8 +697,6 @@ en:table {
 
         Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR:string {"PGC01016: Error reading old repository dependent class {0} in namespace {1}."}
 
-        Clients.repupgrade.RepositoryUpgrade.INSTANCE_DELETION_ERROR:string {"PGC01017: Error deleting instance in namespace {0}."}
-
         // ==========================================================
         // Messages for CIMTrustCommand
         // Please use message prefix "PGC01100"
@@ -888,91 +871,34 @@ en:table {
         *    and ends with a newline character (\n).
         */
         Clients.cimsub.CIMSubCommand.MENU.STANDARD:string {
-        "Cimsub Command Line Interface is used to manage CIM Indication "
-        "Subscriptions.\n\n"
-        "Usage: cimsub -c f [fnamespace:]filtername -Q query [-L querylanguage]\n"
-        "                  [-N sourcenamespace]\n"
-        "       cimsub -c h [hnamespace:][hclassname.]handlername [-D destination]|\n"
-        "                  [-M mailto [-C mailcc] -S mailsubject]|\n"        
-        "                  [-T snmptargethost [-P snmpportnumber] -V snmpversion]\n"
-        "                      [-U snmpsecurityname] [-E snmpengineid]]\n"
-        "       cimsub -c s [-n namespace] -F [fnamespace:]filtername\n"
-        "                  -H [hnamespace:][hclassname.]handlername\n"
-        "       cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername]\n"
-        "                  [-H [hnamespace:][hclassname.]handlername]\n"
-        "       cimsub -e [-n namespace] -F [fnamespace:]filtername\n"
-        "                  -H [hnamespace:][hclassname.]handlername\n"
-        "       cimsub -d [-n namespace] -F [fnamespace:]filtername\n"
-        "                  -H [hnamespace:][hclassname.]handlername\n"
-        "       cimsub -r s|f|h|a [-n namespace] [-F [fnamespace:]filtername]\n"
-        "                  [-H [hnamespace:][hclassname.]handlername]\n"
-        "       cimsub -b batchfile [ -n namespace]\n"
-        "       cimsub --help\n"
-        "       cimsub --version\n"
+        "Usage: cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername] \n"
+        "                  [-H [hnamespace:][hclassname.]handlername] \n"
+        "cimsub -e [-n namespace] -F [fnamespace:]filtername \n"
+        "                  -H [hnamespace:][hclassname.]handlername \n"
+        "cimsub -d [-n namespace] -F [fnamespace:]filtername \n"
+        "                  -H [hnamespace:][hclassname.]handlername \n"
+        "cimsub -r s|f|h|a [-n namespace] [-F[fnamespace:]filtername] \n"
+        "                  [-H[hnamespace:][hclassname.]handlername] \n"
+        "cimsub --help \n"
+        "cimsub --version \n"
         "Options :\n"
-        "    -c         - Create specified subscription, filter,\n"
-        "                   handler(CIM_ListenerDestinationCIMXML,\n"
-        "                       if hclassname is not specified)\n"
         "    -l         - List and display information\n"
-        "    -e         - Enable specified subscription\n"
+        "    -e         - Enable specified subscription \n"
         "                   (set SubscriptionState to Enabled)\n"
-        "    -d         - Disable specified subscription\n"
+        "    -d         - Disable specified subscription \n"
         "                   (set SubscriptionState to Disabled)\n"
         "    -r         - Remove specified subscription, handler, filter\n"
-        "    -b filename\n"
-        "               - Execute cimsub batch file. Filename is path to the "
-        "batch file\n"
         "    -v         - Include verbose information\n"
         "    -F         - Specify Filter Name of subscription for the operation\n"
-        "    -Q         - Specify Query Expression of a Filter\n"
-        "    -L         - Specify Query Language of a Filter\n"
-        "    -N         - To Use SourceNamespaces property,Specify multiple "
-        "SourceNamespaces\nwith coma separated or append comma to the single"
-        " SourceNamespace.\nBy default SourceNamespace property is  populated "
-        "if the single\nSourceNamespace is specified.\n"
         "    -H         - Specify Handler Name of subscription for the operation\n"
-        "    -D         - Specify Destination of a CIM_IndicationHandlerCIMXML Handler.\n"
-        "                   Required option for CIM_IndicationHandlerCIMXML or\n"
-        "                   CIM_ListenerDestinationCIMXML Handler\n"
-        "    -M         - Specify Mailto of a PG_ListenerDestinationEmail Handler \n"
-        "                   Required option for Email Handler\n"
-        "    -C         - Specify Mailcc of a PG_ListenerDestinationEmail Handler\n"
-        "    -S         - Specify Subject of a PG_ListenerDestinationEmail Handler\n"
-        "                   Required option for Email handler\n"
-        "    -T         - Specify Target Host of PG_IndicationHandlerSNMPMapper Handler.\n"
-        "                   Required option for SNMPMapper handler\n"
-        "    -U         - Specify Security Name of PG_IndicationHandlerSNMPMapper Handler\n"
-        "    -P         - Specify Port Number of a PG_IndicationHandlerSNMPMapper Handler\n"
-        "                   (default 162)\n"
-        "    -V         - Specify SNMPVersion of a PG_IndicationHandlerSNMPMapper Handler\n"
-        "                   2 : SNMPv1 Trap\n"
-        "                   3 : SNMPv2C Trap\n"
-        "                   4 : SNMPv2C Inform\n"
-        "                   5 : SNMPv3 Trap\n"
-        "                   6 : SNMPv3 Inform\n"
-        "                   Required option for SNMPMapper Handler\n"
-        "    -E         - Specify Engine ID of a PG_IndicationHandlerSNMPMapper Handler\n"
-        "    -n         - Specify namespace of subscription\n"
-        "                   (interop namespace, if not specified)\n"
+        "    -n         - Specify namespace of subscription \n"
+        "                   (root/PG_InterOp, if not specified)\n"
         "    --help     - Display this help message\n"
         "    --version  - Display CIM Server version number\n"
         "\n"
         "Usage note: The cimsub command requires that the CIM Server is running.\n"
-        "Batch File Format\n"
-        "-----------------\n"
-        "\n"
-        "A cimsub batch file contains multiple cimsub commands, one per line.Lines\n"
-        "that start with the '#' character and blank lines are ignored.The Execution\n"
-        "of Batch file will stop when it encounters any syntax error or an exception\n"
-        "in the command.\n"
-        "\n"
-        "The namespace option (-n) when used with batch execution (-b) uses the\n"
-        "namespace to populate the namespace values of filter, handler and\n"
-        "subscription. Any namespace specified for any or all of these is specified\n"
-        "inside the batchcommand, they will be overridden.\n"
         "\n"
         }
-
 
         Clients.cimsub.CIMSubCommand.REQUIRED_OPTION_MISSING:string {"PGC01400: Required option missing."}
 
@@ -1027,14 +953,13 @@ en:table {
 
         /**
         * @note Clients.cimcli.CIMCLIClient.MENU.STANDARD:
-        *    Do not translate the cimcli command or options.  Just
+        *    Do not translate the cimconfig command or options.  Just
         *    translate the text that explains the options.
         *    When translating this message, make sure that each line fits in
         *    80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
-
         Clients.cimcli.CIMCLIClient.MENU.STANDARD:string {
         "Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>\n"
         "    -hc    for <command> set and <CimObject> for each command\n"
@@ -1045,18 +970,18 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.COUNT_OPTION_HELP:string {
         "-count count. Expected count of objects returned if summary set.\n"
-        "    Tests this count and displays difference.\n"
-        "    Return nonzero status code if test fails. Default(29346)\n"}
+        "    Tests this count and display difference.\n"
+        "    Return nonzero if test fails. Default(29346)\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_HELP:string {
-        "ni    enumerateInstanceNames Enumerate instance names of <classname>\n"}
+        "ni    enumerateInstanceNames Enumerate instancenames of <instancename>\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_EXAMPLE:string {
-        "cimcli ni -n test/TestProvider TST_Person\n"
-        "    -- Enumerate Instance Names of class TST_Person\n"}
+        "cimcli ni -n test/TestProvider TEST_Person\n"
+        "    -- enumerateinstancenames of class\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_OPTIONS:string {
-        "    -n\n"}
+        "    -n, classname\n"}
 
         Clients.cimcli.CIMCLIClient.OPTIONS_STRING:string {
         "Valid options for this command are :"}
@@ -1073,96 +998,44 @@ en:table {
         "Examples :\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP:string {
-        "niall enumallInstanceNames   Enumerate all instance names and count of\n"
-        " instances of [ <classname> ] in <namespace>.\n"
-        " Classname optional and default is to enumerate"
-        " instances of entire namespace"}
+        "niall enumallInstanceNames   Enumerate all instancenames in namespace.\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP:string {
         "ei    enumerateInstances     Enumerate instances of <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.NC_COMMAND_HELP:string {
-        "nc    enumerateClassNames    Enumerate Class Names of [ <classname> ]. Classname optional\n"}
+        "nc    enumerateClassNames    Enumerate Class Names of [ <classname> ]\n"}
 
         Clients.cimcli.CIMCLIClient.EC_COMMAND_HELP:string {
-        "ec    enumerateClasses       Enumerate classes of [ <classname> ]. ClassName optional.\n"}
+        "ec    enumerateClasses       Enumerate classes of [ <classname> ]\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_HELP:string {
         "gc    getClass               Get class of <classname>\n" }
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_HELP:string {
-        "gi    getInstance            Get instance of <objectname> |\n"
-	"                             <classname> *<keyname=value> |\n"
-	"                              <classname> (interactive mode)\n"}
-        Clients.cimcli.CIMCLIClient.TI_COMMAND_HELP:string {
-        "ti    testInstance           Test instance of <objectname> *<name=value> |\n"
-	"                             <classname> *<name=value> |\n"
-	"                             where propertyDef is:\n"
-	"                              | <propName>=<value>      //property with value\n"
-	"                              | <propName>=\"<value>\"    //string with space\n"
-	"                                                        //in string\n"
-	"                              | <propName>=             //NULL value\n"
-	"                              | <propName>!             //empty string value\n"
-        " 			       | <propName>=<arrayVal>   //Arrayinput\n"
-        "                                  where: arrayVal=<value>[,<value>]*\n"
-        "\n"
-	"                               | <propName>{<classname> [<propertyDef>]* }\n"
-	"                               | <propName>={<classname> [<propertyDef>]* }\n"	"                                 defines embedded instance where:\n"
-	"                                   -classname - embedded class name\n"
-	"                                   -propertyDef - embedded instance property"}
+        "gi    getInstance            Get instance of <objectname> | <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP:string {
-        "ci    createInstance        Create instance of a class. Input Format is:\n"
-	"                               <className> [<propertyDef>]*\n"
-	"                            where propertyDef is:\n"
-	"                              | <propName>=<value>      //property with value\n"
-	"                              | <propName>=\"<value>\"    //string with space\n"
-	"                                                        //in string\n"
-	"                              | <propName>=             //NULL value\n"
-	"                              | <propName>!             //empty string value\n"
-        " 			       | <propName>=<arrayVal>   //Arrayinput\n"
-        "                                  where: arrayVal=<value>[,<value>]*\n"
-        "\n"
-	"                               | <propName>{<classname> [<propertyDef>]* }\n"
-	"                               | <propName>={<classname> [<propertyDef>]* }\n"	"                                  defines embedded instance where:\n"
-	"                                   -classname - embedded class name\n"
-	"                                   -propertyDef - embedded instance property"}
+        "ci    createInstance         Create one Instance of <Class> *<name=param>\n"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_HELP:string {
-        "di    deleteInstance         Delete Instance of <objectname>,\n"
-	"                             <classname> *<keyname=value>, or \n"
+        "di    deleteInstance         Delete Instance of <objectname> or\n"
         "                             interactive of <className>\n"}
 
         Clients.cimcli.CIMCLIClient.CC_COMMAND_HELP:string {
         "cc    createClass            Not supported\n"}
 
         Clients.cimcli.CIMCLIClient.MI_COMMAND_HELP:string {
-	"mi    modifyInstance         Modify instance of a class. Input formats are:\n"
-	"                             <objectname> [<propertyDef>]*\n"
-	"                             | <classname> [<propertyDef>]*\n"
-	"                             where propertyDef is:\n"
-	"                               | <propName>=<value>      //property with value\n"
-	"                               | <propName>=\"<value>\"    //string with space\n"
-	"                                                         //in string\n"
-	"                               | <propName>=             //NULL value\n"
-	"                               | <propName>!             //empty string value\n"
-	"                               | <propName>=<arrayVal>   //Arrayinput\n"
-	"                                   where: arrayVal=<value>[,<value>]*\n"
-	"\n"
-	"                               | <propName>{<classname> [<propertyDef>]* }\n"
-	"                               | <propName>={<classname> [<propertyDef>]* }\n"
-	"                                  defines embedded instance where:\n"
-	"                                     -classname - embedded class name\n"
-	"                                     -propertyDef - embedded instance property"}
+        "mi    modifyInstance         Not supported\n"}
 
         Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP:string {
         "dc    deleteClass            Delete Class of <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.GP_COMMAND_HELP:string {
-        "gp    getProperty            get single property of <object name>\n"}
+        "gp    getProperty            TBD\n"}
 
         Clients.cimcli.CIMCLIClient.SP_COMMAND_HELP:string {
-        "sp    setProperty            set a single property of <object-name>\n"}
+        "sp    setProperty            TBD\n"}
 
         Clients.cimcli.CIMCLIClient.GQ_COMMAND_HELP:string {
         "gq    getQualifier           Get Qualifier of <qualifiername>\n"}
@@ -1209,33 +1082,22 @@ en:table {
         Clients.cimcli.CIMCLIClient.SOFF_COMMAND_HELP:string {
         "soff  Turn Off Statistics    Turn off CIM Server Statistics Gathering\n"}
 
-        Clients.cimcli.CIMCLIClient.CCI_COMMAND_HELP:string {
-        "cci  countInstances Count all Instances in Namespace and sort by ClassName.\n"
-        "     Warning: Could request large number of instances from Server"}
-
-        Clients.cimcli.CIMCLIClient.CT_COMMAND_HELP:string {
-        "ct  classTree    Display graphic tree of classesin a namespace\n"}
-
         Clients.cimcli.CIMCLIClient.?_COMMAND_HELP:string {
         "?     show command options   Show List of Commands\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE:string {
-        "cimcli niall\n"
-        "    -- Enumerate Instance Names and count instances of all classes\n"
-        "       in the default namespace\n"
-        "cimcli niall CIM_ComputerSystem -n root/interop\n"
-        "    -- Enumerate Instance Names and count instances of all classes\n"
-        "       in namespace root/interop starting at CIM_ComputerSystem"}
+        "cimcli niall -n root/cimv2\n"
+        "    -- Enumerate Instance Names of  all classes under\n"
+        "       the namespace root/cimv2\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS:string {
-        "    -n --sum (count only, no instanceNames output) classname\n"}
+        "    -n, -di, classname\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE:string {
         "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS:string {
-        "    -n, -di, -lo, -iq, -pl, classname, -ic\n"}
-
+        "    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE:string {
         "cimcli nc -- Enumerate class names from root/cimv2.\n"}
@@ -1248,91 +1110,50 @@ en:table {
         "    -- Enumerate classes from namespace root/cimv2.\n"}
 
         Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS:string {
-        "    -n, -di, -lo, -inq, -ic\n"}
-
+        "    -n, -di, -lo, -iq, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE:string {
         "cimcli gc CIM_door -u guest -p guest\n"
         "    -- Get class user = guest and password = guest.\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS:string {
-        "    -n, -lo, -inq, -pl, className, -ic\n"}
+        "    -n, -lo, -iq, -pl, className, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE:string {
         "cimcli gi -n test/TestProvider TEST_Person\n"
         "    -- Get Instance of class\n"}
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS:string {
-        "    -n, -lo, -iq, -pl, -ic\n"}
+        "    -n, -lo, -iq, -pl, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE:string {
-	"cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333\n"
-	"    -- Create Instance of class TST_Person with properties:\n"
-	"       Name = Mike\n"
-	"       SSN = 333\n\n"
-	"cimcli ci -n test/TestProvider C1 id=3 name=fred\\\n"
-	"    embed{C2 p1=3 p2=\"ab cd\" }\n\n"
-	"    -- Create instance of class C1 with properties:\n"
-	"         - id with value 3\n"
-	"         - name with string value \"fred\"\n"
-	"         - embed embedded instance property with instance of class\n"
-	"       C2 with properties:\n"
-	"         - p1 embedded instance property with value 3\n"
-	"         - p2 embedded instance string property with value \"ab cd\""}
+        "cimcli ci -n test/TestProvider TEST_Person Name=Michael\n"
+        "    -- Create Instance of  class \n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS:string {
         "    -n\n"}
 
-        Clients.cimcli.CIMCLIClient.TI_COMMAND_EXAMPLE:string {
-        "cimcli ti -n test/TestProvider TST_Person Name=Mike SSN=333\n"
-        "    -- Test Instance of class for equality of Name and SSN\n"
-        "       properties. Returns error code if instance in server\n"
-        "       does not have same properties and values as the\n"
-        "       instance built from input\n"}
-
-        Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS:string {
-        "    -n, -lo, -iq, -pl, -ic\n"}
-
         Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE:string {
-        "cimcli di -n test/TestProvider TST_Person\n"
-        "cimcli di -n test/TestProvider TST_Person\n"
-	"    -- Delete Instance of class TST_Person interactively\n"
-	"or\n"
-        " cimcli di -n test/TestProvider TST_Person name=Mike\n"
-	"    -- Delete Instance of class TEST_Persion with key property\n"
-	"       name equal Mike using instance builder format to\n"
-	"       define object path\n"
-	"or\n"
-        " cimcli di -n test/TestProvider TST_Person.name=\\\\\"Mike\\\\\"\n"
-	"    -- Delete Instance of class TST_Persion with object path\n"
-	"       TST_Person.name=\"Mike\" using object path input format\n"}
+        "cimcli di -n test/TestProvider TEST_Person\n"
+        "    -- Delete Instance of class interactively\n"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS:string {
         "    -n\n"}
 
-        Clients.cimcli.CIMCLIClient.MI_COMMAND_EXAMPLE:string {
-        "cimcli mi -n test/TestProvider TST_Person Name=Mike SSN=444\n"
-        "    -- Modifies the Instance if it exists using rules of DMTF \n"
-        "       modifyInstance operation.\n"}
-
-        Clients.cimcli.CIMCLIClient.MI_COMMAND_OPTIONS:string {
-        "    -n -pl (defines properties to be modified)\n"}
-
         Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE:string {
-        "cimcli dc -n test/TestProvider TST_Person\n"
-        "    -- Deletes the Class when there are no instanceS and\n"
-        "       sub-classS for this class\n"}
+        "cimcli dc -n test/TestProvider TEST_Person\n"
+        "    -- Deletes the Class when there are no instance and\n"
+        "        sub-class for this class\n"}
 
         Clients.cimcli.CIMCLIClient.DC_COMMAND_OPTIONS:string {
         "    -n\n"}
 
         Clients.cimcli.CIMCLIClient.GQ_COMMAND_EXAMPLE:string {
         "cimcli gq Association\n"
-        "    -- Get the qualifier named Association in mof output\n"
-        "       in the default namespace (normally root/cimv2)"}
+        "    -- Get the qualifiers in mof output format\n"}
 
         Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS:string {
-        "    -n\n"}
+        "    -n, qualifierName\n"}
 
         Clients.cimcli.CIMCLIClient.EQ_COMMAND_EXAMPLE:string {
         "cimcli eq -n test/TestProvider\n"
@@ -1343,7 +1164,7 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.DQ_COMMAND_EXAMPLE:string {
         "cimcli dq -n test/TestProvider ASSOCIATION\n"
-        "    -- Delete Qualifier named Association in namespace\n"
+        "    -- Delete Qualifier Association in namespace\n"
         "        test/TestProvider\n"}
 
         Clients.cimcli.CIMCLIClient.DQ_COMMAND_OPTIONS:string {
@@ -1351,17 +1172,17 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.A_COMMAND_EXAMPLE:string {
         "cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
-        "    -ac TST_Lineage"
+        "    -ac TST_Lineager"
         "\n or\n"
         "cimcli a TST_Person -n test/TestProvider -ac TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.A_COMMAND_OPTIONS:string {
-        "    -n, -ac, -rc, -r, -rr, -iq, -pl, -ic, -i\n"}
+        "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"}
 
         Clients.cimcli.CIMCLIClient.AN_COMMAND_EXAMPLE:string {
         "cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
         "    -ac TST_Lineage"
-        "\nor\n"
+        "\n or\n"
         "cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.AN_COMMAND_OPTIONS:string {
@@ -1370,16 +1191,16 @@ en:table {
         Clients.cimcli.CIMCLIClient.R_COMMAND_EXAMPLE:string {
         "cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
         "    -rc TST_Lineage"
-        "\nor\n"
+        "\n or\n"
         "cimcli r TST_Person -n test/TestProvider -rc TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.R_COMMAND_OPTIONS:string {
-        "    -n, -rc, -r, -iq, -pl, -ic, -i\n"}
+        "    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i\n"}
 
         Clients.cimcli.CIMCLIClient.RN_COMMAND_EXAMPLE:string {
         "cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
         "    -rc TST_Lineage"
-        "\nor\n"
+        "\n or\n"
         "cimcli rn TST_Person -n test/TestProvider -rc TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.RN_COMMAND_OPTIONS:string {
@@ -1409,18 +1230,6 @@ en:table {
         Clients.cimcli.CIMCLIClient.SOFF_COMMAND_EXAMPLE:string {
         "cimcli soff  -- Switch OFF's the statistical information on CIMServer\n"}
 
-        Clients.cimcli.CIMCLIClient.CCI_COMMAND_EXAMPLE:string {
-        "cimcli cci  -- Display count of instances in namespace\n"}
-
-        Clients.cimcli.CIMCLIClient.CT_COMMAND_EXAMPLE:string {
-        "cimcli ct CIM_ManagedElement  -- Displays tree of class hiearchy"
-        "    starting at CIM_ManagedElement.\n"}
-
-        Clients.cimcli.CIMCLIClient.CT_COMMAND_OPTIONS:string {
-        "    -nlo displays tree of superclasses.\n"
-        "    -di displays association information\n"
-        "    -count and output options( -o and -x) do not apply"}
-
         Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE:string {
         "cimcli ?  -- Displays help command \n"}
 
@@ -1447,12 +1256,12 @@ en:table {
         "-s  ssl. Specifies to connect over HTTPS. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.CLIENTCERT_OPTION_HELP:string {
-        "--cert  clientCert. Specifies a client certificate file path to present to the server.\n"
+        "--cert  clientCert. Specifies a client certificate to present to the server.\n"
         "    This is optional and only has an effect on connections\n"
         "    made over HTTPS using -s. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP:string {
-        "--key  clientKey. Specifies a client private keyfile path.\n"
+        "--key  clientKey. Specifies a client private key.\n"
         "    This is optional and only has an effect on connections\n"
         "    made over HTTPS using -s. Default()\n"}
 
@@ -1462,13 +1271,9 @@ en:table {
         Clients.cimcli.CIMCLIClient.NAMESPACE_OPTION_HELP:string {
         "-n  namespace. Specifies namespace to use for operation. Default(root/cimv2)\n"}
 
-        Clients.cimcli.CIMCLIClient.INCLUDECLASSORIGIN_OPTION_HELP:string{
-        "-ic  includeClassOrigin. If set includeClassOrigin parameter\n"
-        "    set true on operations that honor this parameter. Default(false)\n"}
-
         Clients.cimcli.CIMCLIClient.DEEPINHERITANCE_OPTION_HELP:string{
         "-di  deepInheritance. If set deepInheritance parameter\n"
-        "    set true. Default(false)\n"}
+        "    set true . Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP:string {
         "-lo  localOnly. DEPRECATED. This was used to set LocalOnly.\n"
@@ -1481,22 +1286,21 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERS_OPTION_HELP:
         string {"-iq  includeQualifiers. Deprecated. Sets includeQualifiers = True.\n"
-        "        Useful for instance operations where default is false. Default(false)\n"}
+        "    However, default=true. Default(true)\n"}
 
         Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP:
         string {"-niq  notIncludeQualifiers. Sets includeQualifiers = false\n"
-        "    on operations.  Useful for class operations where \n"
-	"    the default is true. Default(false)\n"}
+        "    on operations. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.PROPERTYLIST_OPTION_HELP:string {
         "-pl  propertyList. Defines a propertyNameList. Format is p1,p2,p3\n"
         "    (without spaces). Use "" for empty. Default(###!###)\n"}
 
         Clients.cimcli.CIMCLIClient.ASSOCCLASS_OPTION_HELP:string {
-        "-ac  assocClass. Defines a assocation Class string for Associator calls. Default()\n"}
+        "-ac  assocClass. Defines a assocClass string for Associator calls. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.ASSOCROLE_OPTION_HELP:string {
-        "-ar  assocRole. Defines a role string for Associatiors. AssocRole\n"
+        "-ar  assocRole. Defines a role string for Associatiors AssocRole\n"
         "    parameter. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.ROLE_OPTION_HELP:string {
@@ -1511,28 +1315,25 @@ en:table {
         "    parameter. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP:
-        string {"-ip  inputParameters. Deprecated and Removed. Replaced by use of\n"
-	    "    use of the same name/value pair syntax as properties in create\n"
-	    "    and modify instance.\n" }
+        string {"-ip  inputParameters. Defines an invokeMethod input parameter list.\n"
+        "    Format is p1=v1 p2=v2 .. pn=vn\n"
+        "    (parameters are seperated by spaces) . Default()\n"}
 
         Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP:string {
         "-f  filter. Defines a filter to use for query. Single String input. Default()\n"}
-
-        Clients.cimcli.CIMCLIClient.QUERYLANGUAGE_OPTION_HELP:string {
-        "-ql  queryLanguage. Defines a Query Language to be used with a query filter. Default(WQL)\n"}
 
         Clients.cimcli.CIMCLIClient.OUTPUTFORMATS_OPTION_HELP:string {
         "-o  outputformats. Output in xml, mof, txt. Default(mof)\n"}
 
         Clients.cimcli.CIMCLIClient.XMLOUTPUT_OPTION_HELP:string {
-        "-x  xmlOutput. Output objects in xml format . Default(false)\n"}
+        "-x  xmlOutput. Output objects in xml instead of mof format . Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.VERSION_OPTION_HELP:string {
         "--version  version. Displays software Version. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.VERBOSE_OPTION_HELP:string {
-        "-v  verbose. Verbose Display. Outputs detailed parameter input\n"
-        "    display and other request processing information . Default(false)\n"}
+        "-v  verbose. Verbose Display. Includes Detailed Param Input\n"
+        "    display . Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.SUMMARY_OPTION_HELP:string {
         "--sum  summary. Displays only summary count for enumerations,\n"
@@ -1551,31 +1352,23 @@ en:table {
         Clients.cimcli.CIMCLIClient.HELPCOMMANDS_OPTION_HELP:string {
         "-hc  help commands. Prints CIM Operation command list. Default(false)\n"}
 
-        Clients.cimcli.CIMCLIClient.CONNECTIONTIMEOUT_OPTION_HELP:string {
-	"--timeout  connecttimeout. Set the connection timeout in seconds. Default(0)\n"}
+        Clients.cimcli.CIMCLIClient.CONNECTIONTIMEOUT_OPTION_HELP:
+        string {"--timeout  connecttimeout. Set the connection timeout in seconds. Default(0)\n"}
 
         Clients.cimcli.CIMCLIClient.INTERACTIVE_OPTION_HELP:string {
         "-i  interactive. Interactively ask user to select instances.\n"
         "    Used with associator and reference operations. Default(false)\n"}
-
-        Clients.cimcli.CIMCLIClient.SETRTNHOSTNAMES_OPTION_HELP:string {
-        "-setRtnHostNames  setRtnHostNames. Set namespace component of reference and path outputs parameter.\n"
-        "    Used to allow comparison of paths and instances without"
-	    " involving the variable of host namespaces. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP:string {
         "-trace  trace. Set Pegasus Common Components Trace. Sets the Trace level.\n"
         "    0 is off. Default(0)\n"}
 
         Clients.cimcli.CIMCLIClient.REPEAT_OPTION_HELP:string {
-        "--r  repeat. Number of times to repeat the operation.\n"
+        "--r  repeat. Number of times to repeat the function.\n"
         "    Zero means one time. Default(0)\n"}
 
         Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP:string {
         "--t  time. Measure time for the operation and present results. Default(false)\n"}
-
-        Clients.cimcli.CIMCLIClient.SORT_OPTION_HELP:string {
-        "--sort sort . Sort the returned entities for multi-entity results. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.OPTIONS_HEADER:string {
         "The options for this command are:\n"}
@@ -1596,16 +1389,6 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.VERSION:string {
         "Version {0}"}
-
-	/**
-	* @note PGC01719: substitution {0} is a string with the keyword
-	* in error
- 	*/
-       
-	Clients.cimcli.CIMCLIClient.BOOLEAN_VALUE_ERR:string {
-        "Invalid keywork for boolean value = {0}. Must be \"true\" or \"false\""
-	" upper or lower case\n"}
-
         // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================

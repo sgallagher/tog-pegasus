@@ -227,11 +227,6 @@ public:
         const Array<Uint16> currentModuleStatus,
         const Array<Uint16> newModuleStatus);
 
-    /** Constructs and logs audit message of a provider module group change
-        @param moduleName - The name of the provider module
-        @param oldModuleGroupName - The old group name of the provider module
-        @param newModuleGroupName - The new group name of the provider module
-    */
     static void logSetProvModuleGroupName(
         const String & moduleName,
         const String & oldModuleGroupName,

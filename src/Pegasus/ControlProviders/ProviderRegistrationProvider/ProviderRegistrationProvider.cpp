@@ -45,9 +45,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationResponseHandler*
-    ProviderRegistrationProvider::_indicationResponseHandler;
-
 /**
    The name of the CapabilityID property for provider capabilities class
 */
@@ -73,159 +70,17 @@ static const CIMName _SET_MODULEGROUPNAME = CIMNameCast("SetModuleGroupName");
 */
 static const CIMName _PARAM_MODULEGROUPNAME = CIMNameCast("ModuleGroupName");
 
-Boolean ProviderRegistrationProvider::_enableIndications = false;
-Mutex ProviderRegistrationProvider::_indicationDeliveryMtx;
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)
 {
     _providerRegistrationManager = providerRegistrationManager;
-    _providerRegistrationManager->setPMInstAlertCallback(_PMInstAlertCallback);
 
     _controller = ModuleController::getModuleController();
-    _sentEnabledIndications = false;
 }
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)
 {
-}
-
-void ProviderRegistrationProvider::_generatePMIndications(
-    PMInstAlertCause alertCause)
-{
-    CIMObjectPath path = 
-        CIMObjectPath("", CIMNamespaceName(), PEGASUS_CLASSNAME_PROVIDERMODULE);
-
-    Array<CIMInstance> enumInstances =
-        _providerRegistrationManager->enumerateInstancesForClass(
-            path,
-            false,
-            false,
-            CIMPropertyList());
-
-    _sendIndication(enumInstances, CIMInstance(), alertCause);
-}
-
-void ProviderRegistrationProvider::_PMInstAlertCallback(
-    const CIMInstance &providerModule,
-    const CIMInstance &provider,
-    PMInstAlertCause alertCause)
-{
-    Array<CIMInstance> providerModules;
-    providerModules.append(providerModule);
-    _sendIndication(providerModules, provider, alertCause);
-}
-
-void ProviderRegistrationProvider::_sendIndication(
-    const Array<CIMInstance> &providerModules,
-    const CIMInstance &provider,
-    PMInstAlertCause alertCause)
-{
-    AutoMutex mtx(_indicationDeliveryMtx);
-
-    if (!_enableIndications)
-    {
-        return;
-    }
-    PEGASUS_ASSERT(_indicationResponseHandler);
-
-    String providerName;
-
-    try
-    {
-       // Note: The following code determines whether this indiction
-       // actually needs to be delivered. Don't deliver the indication
-       // if operationalStatus have multiple status values. For example,
-       // during the provider disable, operationalStatus is updated
-       // with "Ok,Stopping" first and later with "Stopped". providerModules
-       // array will have more than one provider module if the indication
-       // is generated during the cimserver start or stop.
-       if (providerModules.size() == 1)
-       {
-            Array<Uint16> operationalStatus;
-            providerModules[0].getProperty(providerModules[0].findProperty(
-                _PROPERTY_OPERATIONALSTATUS)).getValue().get(operationalStatus);
-
-            if (operationalStatus.size() != 1)
-            {
-                return;
-            }
-            // Not all alerts will have provider associated with them.
-            // Get the provider name if provider is involved.
-            if (!provider.isUninitialized())
-            {
-                provider.getProperty(provider.findProperty(
-                    PEGASUS_PROPERTYNAME_NAME)).getValue().get(providerName);
-            }
-        }
-
-        CIMInstance indication(
-            PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT);
-
-        Uint16 cause = 0;
-        if (alertCause == PM_CREATED || alertCause == PM_DELETED)
-        {
-            if (providerName.size())
-            {
-                cause = (alertCause == PM_CREATED) ?
-                    PM_PROVIDER_ADDED : PM_PROVIDER_REMOVED;
-
-                indication.addProperty(CIMProperty(
-                    "ProviderName",
-                    providerName));
-            }
-            else
-            {
-                cause = alertCause;
-            }
-        }
-        else
-        {
-            cause = alertCause;
-        }
-
-        indication.addProperty(
-            CIMProperty("AlertCause", Uint16(cause)));
-
-        Array<CIMObject> modules;
-        for (Uint32 i = 0, n = providerModules.size() ; i < n; ++i)
-        {
-            modules.append(CIMObject(providerModules[i]));
-        }
-
-        indication.addProperty(
-            CIMProperty("ProviderModules", modules));
-
-        CIMObjectPath path =  CIMObjectPath(
-            String(),
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT);
-        indication.setPath (path);
-        if (cause == PM_DISABLED_CIMSERVER_STOP)
-        {
-            OperationContext context;
-            // Default 20 seconds timeout to deliver the indication.
-            context.insert(TimeoutContainer(20 * 1000));
-            _indicationResponseHandler->deliver(context, indication);
-        }
-        else
-        {
-            _indicationResponseHandler->deliver(indication);
-        }
-    }
-    catch(const Exception &e)
-    {
-        PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL1,
-            "Exception in ProviderRegistrationProvider::"
-                "PMInstAlertCallback(): %s",
-            (const char*)e.getMessage().getCString()));
-    }
-    catch(...)
-    {
-        PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER,Tracer::LEVEL1,
-            "Unknown exception in ProviderRegistrationProvider::"
-                "PMInstAlertCallback()");
-    }
 }
 
 // get registered provider
@@ -530,34 +385,6 @@ void ProviderRegistrationProvider::createInstance(
                         "MISSING_VENDOR_IN_PG_PROVIDERMODULE",
                     "Missing Vendor which is required property in"
                         " PG_ProviderModule class."));
-        }
-
-        Uint32 bitnessIndx = instanceObject.findProperty(
-             PEGASUS_PROPERTYNAME_MODULE_BITNESS);
-
-        if (bitnessIndx != PEG_NOT_FOUND)
-        {
-            CIMValue value = instanceObject.getProperty(bitnessIndx).getValue();
-            if (!value.isNull())
-            {
-                if (value.getType() != CIMTYPE_UINT16)
-                {
-                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
-                        PEGASUS_PROPERTYNAME_MODULE_BITNESS.getString());
-                }
-                Uint16 bitness;
-                value.get(bitness);
-                if(bitness != PG_PROVMODULE_BITNESS_DEFAULT
-#ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
-                    && bitness != PG_PROVMODULE_BITNESS_32
-                    && bitness != PG_PROVMODULE_BITNESS_64
-#endif
-                    )
-                {
-                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                        PEGASUS_PROPERTYNAME_MODULE_BITNESS.getString());
-                }
-            }
         }
 
         if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
@@ -1250,7 +1077,7 @@ void ProviderRegistrationProvider::invokeMethod(
             moduleFound = true;
         }
     }
-
+        
 
     // if _PROPERTY_PROVIDERMODULE_NAME key not found
     if( !moduleFound)
@@ -1280,7 +1107,7 @@ void ProviderRegistrationProvider::invokeMethod(
     {
         String paramName;
         if (!inParameters.size() ||
-            ((paramName = inParameters[0].getParameterName())
+            ((paramName = inParameters[0].getParameterName()) 
                 != _PARAM_MODULEGROUPNAME))
         {
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, paramName);
@@ -1333,18 +1160,15 @@ Sint16 ProviderRegistrationProvider::_setModuleGroupName(
                 "disable the provider failed: Provider is busy."));
     }
 
-    String errorMsg;
-
     if (!_providerRegistrationManager->setProviderModuleGroupName(
-        moduleName, moduleGroupName, errorMsg))
+        moduleName, moduleGroupName))
     {
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "ControlProviders.ProviderRegistrationProvider."
                     "ProviderRegistrationProvider."
                     "SET_PROVIDERMODULEGROUPNAME_FAILED",
-                "Failed to set the ModuleGroupName: $0.",
-                errorMsg));
+                "Failed to set the module group name."));
     }
 
     // Enable the module only if it was previously enabled.
@@ -2081,31 +1905,6 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
     return (indCapInstances);
 }
 
-// CIMIndicationProvider interface
-
-void ProviderRegistrationProvider::enableIndications(
-    IndicationResponseHandler& handler)
-{
-    {
-        AutoMutex mtx(_indicationDeliveryMtx);
-        _enableIndications = true;
-        _indicationResponseHandler = &handler;
-    }
-
-    if (!_providerRegistrationManager->getInitComplete())
-    {
-        _generatePMIndications(PM_ENABLED_CIMSERVER_START);
-    }
-}
-
-void ProviderRegistrationProvider::disableIndications()
-{
-    _generatePMIndications(PM_DISABLED_CIMSERVER_STOP);
-    AutoMutex mtx(_indicationDeliveryMtx);
-    _enableIndications = false;
-    _indicationResponseHandler = 0;
-}
-
 #ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
 void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
     const OperationContext & context)
@@ -2120,28 +1919,18 @@ void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
     CIMObjectPath reference(referenceStr);
 
     Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
 
     try
     {
-        CIMInvokeMethodRequestMessage* request =
-            new CIMInvokeMethodRequestMessage(
-                XmlWriter::getNextMessageId(),
-                PEGASUS_NAMESPACENAME_INTEROP,
-                referenceStr,
-                "updateCache",
-                inParams,
-                QueueIdStack(_controller->getQueueId()));
-
-        request->operationContext = context;
-
-        AsyncModuleOperationStart* moduleControllerRequest =
-            new AsyncModuleOperationStart(
-                0,
-                _controller->getQueueId(),
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                request);
-
-        _controller->SendForget(moduleControllerRequest);
+        AutoMutex mtx(_updateMtx);
+        _cimomHandle.invokeMethod(
+            context,
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference,
+            CIMNameCast("updateCache"),
+            inParams,
+            outParams);
     }
     catch(const Exception &e)
     {

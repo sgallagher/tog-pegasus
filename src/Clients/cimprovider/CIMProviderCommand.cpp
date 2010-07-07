@@ -51,7 +51,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 #define CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT 120000
@@ -282,7 +282,7 @@ static const char SETTING_PROVIDERMODULE_GROUP_KEY[] =
 static const char SETTING_PROVIDERMODULE_GROUP[] =
     "Setting the provider module group...";
 
-static const char SET_PROVIDERMODULE_GROUP_SUCCESS_KEY[] =
+static const char SET_PROVIDERMODULE_GROUP_SUCCESS_KEY[] = 
     "Clients.cimprovider.CIMProviderCommand."
         "SET_PROVIDERMODULE_GROUP_SUCCESS";
 
@@ -352,9 +352,9 @@ static const char OPTION_HELP        = 'h';
 */
 static const char OPTION_VERSION     = 'v';
 
-/**
+/** 
     The option character used to specify the module group name.
-*/
+*/  
 static const char OPTION_GROUP     = 'g';
 
 /**
@@ -395,7 +395,9 @@ public:
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function.
     //
-    void setCommand(Uint32, char**)
+    void setCommand(
+        Uint32 argc,
+        char* argv[])
     {
         // Empty function
     }
@@ -1034,9 +1036,9 @@ void CIMProviderCommand::setCommand(
             UNEXPECTED_OPTION));
     }
 
-    if (_operationType == OPERATION_TYPE_LIST &&
+    if (_operationType == OPERATION_TYPE_LIST && 
         ( (_statusSet && _moduleSet) || (_fullStatusSet && _moduleSet) ||
-            (_fullStatusSet && _statusSet)))
+            _fullStatusSet && _statusSet))
     {
         throw CommandFormatException(localizeMessage(MSG_PATH,
             UNEXPECTED_OPTION_KEY,
@@ -1228,7 +1230,8 @@ Uint32 CIMProviderCommand::execute(
             try
             {
                 return _setProviderModuleGroupName(
-                    outPrintWriter, errPrintWriter);
+                    outPrintWriter, 
+                    errPrintWriter);
             }
             catch (CIMException& e)
             {
@@ -1392,7 +1395,7 @@ Uint32 CIMProviderCommand::_setProviderModuleGroupName(
 {
     PEGASUS_ASSERT(_moduleSet);
     PEGASUS_ASSERT(_moduleGroupSet);
-
+    
     // get the module instance
     CIMInstance moduleInstance = _getModuleInstance();
 
@@ -1751,12 +1754,13 @@ void CIMProviderCommand::_printList(
     Uint32 maxModuleLength=0;
     Uint32 maxStatusLength=0;
 
+    Uint32 length=0;
     Array<Uint16> _status;
     String output;
     String statusValue;
 
     Array<String> modulesStatus;
-
+    
     if (_statusSet || _fullStatusSet)
     {
         // get max length of module name
@@ -1927,7 +1931,7 @@ void CIMProviderCommand::_printList(
         {
             output.clear();
             output.append(moduleNames[i]);
-            for (Uint32 x =0,
+            for (Uint32 x =0, 
                 m = maxModuleLength - moduleNames[i].size() + 6;
                 x < m;  ++x)
             {
@@ -1945,7 +1949,7 @@ void CIMProviderCommand::_printList(
                 {
                     CIMValue value = instances[i].getProperty(pos).getValue();
                     value.get(groupName);
-                    for (Uint32 x =0,
+                    for (Uint32 x =0, 
                         m = maxStatusLength - modulesStatus[i].size() + 6;
                         x < m;  ++x)
                     {

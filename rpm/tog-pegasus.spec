@@ -81,8 +81,8 @@ BuildRequires:      gcc-java, libgcj-devel, libgcj, java-1.4.2-gcj-compat
 Requires:           libgcj, java-1.4.2-gcj-compat
 %endif
 %if %{EXTERNAL_SLP_REQUESTED}
-BuildRequires:      libslp
-Requires:           libslp
+BuildRequires:      openslp
+Requires:           openslp
 %endif
 
 BuildRequires:      net-snmp-devel

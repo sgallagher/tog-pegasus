@@ -13,14 +13,6 @@
 # Use "rpmbuild --define 'EXTERNAL_SLP_REQUESTED 1'" to include External SLP support.
 %{?!EXTERNAL_SLP_REQUESTED: %define EXTERNAL_SLP_REQUESTED 0}
 
-# Use "rpmbuild --define 'PEGASUS_32BIT_PROVIDER_SUPPORT 1'" to build 32 bit
-# providers for 64 bit CIMOM.
-%{?!PEGASUS_32BIT_PROVIDER_SUPPORT: %define PEGASUS_32BIT_PROVIDER_SUPPORT 0}
-
-# Use "rpmbuild --define 'PEGASUS_BUILD_WITH_CLANG 1'" to build rpm with clang.
-# This shringks disk usage by around 4%
-%{?!PEGASUS_BUILD_WITH_CLANG: %define PEGASUS_BUILD_WITH_CLANG 0}
-
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base

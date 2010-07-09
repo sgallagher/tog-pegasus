@@ -60,8 +60,7 @@
     {"crlStore",             PEGASUS_SSL_SERVER_CRL},
 #  endif
     {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
-    {"providerDir", PEGASUS_EXTRA_PROVIDER_LIB_DIR PEGASUS_PROVIDER_LIB_DIR
-                    ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
+    {"providerDir", PEGASUS_PROVIDER_LIB_DIR ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
     {"providerManagerDir",   PEGASUS_PROVIDER_MANAGER_LIB_DIR},
 # else /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
     {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},
@@ -74,12 +73,6 @@
     {"sslTrustStore",       "/etc/opt/tog-pegasus/cimserver_trust"},
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    {"webRoot",             "/var/tog-pegasus/www"},
-    {"indexFile",           "index.html"},
-    {"mimeTypesFile",       "/var/tog-pegasus/www/mimeType.txt"},
-#endif
-
 #  if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/"
                                 PEGASUS_ARCH_LIB "/cmpi"},

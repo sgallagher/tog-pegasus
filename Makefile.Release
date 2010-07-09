@@ -130,6 +130,12 @@ ifdef PEGASUS_USE_NET_SNMP
       libsnmpIndicationHandler
 endif
 
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+PEGASUS_LIBRARIES += \
+    libpegslp \
+    libpegslp_client
+endif
+
 ifeq ($(OS),HPUX)
 PEGASUS_LIBRARIES += \
    libNTPProviderSecurity
@@ -252,6 +258,11 @@ MANAGEDSYSTEM_MOF_FILES = \
    PG_UnixProcess20.mof \
    PG_UnixProcess20R.mof
 
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+   MANAGEDSYSTEM_MOF_FILES += \
+      PG_SLPProvider20R.mof
+endif
+
 prestage_verifyInstallEnabled: FORCE
 ifndef PEGASUS_ENABLE_MAKE_INSTALL
 	@$(ECHO) "Makefile.Release is not enabled."
@@ -298,15 +309,27 @@ setpermissions_PegasusLocalAuthDirectory: FORCE
 stage_PegasusLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_LIBRARIES), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
 	$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+	$(COPY) $(PEGASUS_HOME)/lib/libpegslp_client$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/libpegslp_client$(LIB_SUFFIX)
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=libpegslp_client$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/libpegslp_client$(LIB_LINK_SUFFIX)
+endif
 
 setpermissions_PegasusLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_LIBRARIES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+
 stage_PegasusProviderLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
 	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+	$(COPY) $(PEGASUS_HOME)/lib/libSLPProvider$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_SUFFIX)
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=libSLPProvider$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_LINK_SUFFIX)
+endif
 
 setpermissions_PegasusProviderLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_SUFFIX)
+endif
 
 stage_PegasusProviderManagerLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
@@ -615,6 +638,10 @@ create_ProductInstallationVerificationScript: FORCE
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(ECHO-E) \
              "ls -l $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+	@(ECHO-E) "ls -l $(PEGASUS_DEST_LIB_DIR)/libpegslp_client$(LIB_LINK_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
+endif
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PACKAGED PROVIDER MANAGER FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
@@ -631,6 +658,12 @@ create_ProductInstallationVerificationScript: FORCE
 	@$(foreach i, $(PEGASUS_PROVIDERS), $(ECHO-E) \
              "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+ifeq ($(PEGASUS_ENABLE_SLP), true)
+	@(ECHO-E) "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
+	@(ECHO-E) "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_LINK_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
+endif
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS ADMIN CMD FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_ADMIN_CMDS), $(ECHO-E) \
@@ -963,6 +996,17 @@ _append_postSectionToSpecFile_createSymbolicLinks: FORCE
             "   ln -sf $(i)$(LIB_SUFFIX)\
             $(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "   # Create Symbolic Links for SLP library and SLP Provider" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   #" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) " %if %{EXTERNAL_SLP_REQUESTED}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   ln -sf    libpegslp_client$(LIB_SUFFIX)\
+            $(PEGASUS_DEST_LIB_DIR_2)/libpegslp_client$(LIB_LINK_SUFFIX)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   ln -sf    libSLPProvider$(LIB_SUFFIX)\
+            $(PEGASUS_PROVIDER_LIB_DIR_2)/libSLPProvider$(LIB_LINK_SUFFIX)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) " %endif " >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_postSectionToSpecFile_createLog: FORCE
@@ -1115,6 +1159,12 @@ _append_filesSectionToSpecFile: FORCE
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
             $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) " %if %{EXTERNAL_SLP_REQUESTED}"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/libpegslp_client$(LIB_LINK_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/libSLPProvider$(LIB_LINK_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), \
             $(ECHO-E) "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)

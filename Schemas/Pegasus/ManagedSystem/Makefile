@@ -30,7 +30,7 @@
 # Note: For best results, ensure that the ManagedSystem namespace does not
 #       exist before calling this Makefile.
 
-ROOT = ../../..
+ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 

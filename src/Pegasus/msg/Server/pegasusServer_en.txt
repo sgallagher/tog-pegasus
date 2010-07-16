@@ -3060,7 +3060,7 @@ en:table {
         *    Substitution {0} is the name of a certificate file (a string)
         */
         Common.SSLContext.CERTIFICATE_EXPIRED:string {"PGS09211: Certificate {0} has expired."}
-    
+
        /**
         * @note  PGS09212:
         *    Substitution {0} is the name of a certificate file (a string)
@@ -3554,10 +3554,19 @@ en:table {
 
         /**
         * @note  PGS09700:
+        *    This message is no longer used as of version 2.11.0
         *    Substitution {0} is a number
         *    Do not translate UTF-8 because it is a type of character
         */
         Common.String.BAD_UTF8:string {"PGS09700: The byte sequence starting at index {0} is not valid UTF-8 encoding."}
+
+        /**
+        * @note  PGS09701:
+        *    Substitution {0} is a number
+        *    Substitution {1} is the raw data causing the error
+        *    Do not translate UTF-8 because it is a type of character
+        */
+        Common.String.BAD_UTF8_LONG:string {"PGS097001: The byte sequence starting at index {0} is not valid UTF-8 encoding: {1}"}
 
         // ==========================================================
         // Messages for src.Server.cimserver
@@ -5366,7 +5375,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14409
-        *     Substitution {0] is a error message (a string) 
+        *     Substitution {0] is a error message (a string)
         */
         Common.CIMDateTime.INVALID_TIME_ZONE:string {"PGS14409: Invalid timezone information : {0}"}
 
@@ -6548,14 +6557,14 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS17001:
         *     Do not translate the word 'TCP/IP' and 'CIM server'
-        */        
+        */
         src.Service.WaitForTCPIP_zOS.WAIT_FOR_TCPIP:string {"PGS17001: CIM server startup delayed, waiting for TCP/IP to start."}
 
         /**
         * @note  PGS17002:
         *     Substitutin {0} is text of message Common.System.ERROR_MESSAGE
         *     Do not translate the word 'CIM server'
-        */        
+        */
         src.Service.WaitForTCPIP_zOS.GETHOSTNAME_FAILED:string {"PGS17002: Stopping CIM Server startup. Failed to retrieve system's hostname: {0}"}
 
         // ==========================================================

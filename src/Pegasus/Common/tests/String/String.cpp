@@ -1264,8 +1264,8 @@ int test(int argc, char** argv)
     }
     PEGASUS_TEST_ASSERT(caught_bad_alloc);
 
-    /** Added to test funtionality of
-        String(const String& str, Uint32 n) for memory overflow. */
+    // Added to test funtionality of String(const String& str, Uint32 n)
+    // for memory overflow.
     Boolean caughtBadAlloc = false;
     try
     {
@@ -1276,8 +1276,8 @@ int test(int argc, char** argv)
         caughtBadAlloc = true;
     }
 
-    /** Added to test funtionality of
-        void reserveCapacity(Uint32 capacity) for memory overflow. */
+    // Added to test funtionality of
+    // void reserveCapacity(Uint32 capacity) for memory overflow.
     caughtBadAlloc = false;
     try
     {
@@ -1290,8 +1290,8 @@ int test(int argc, char** argv)
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
 
-    /** Added to test funtionality of
-        String& append(const char* str, Uint32 size) for memory overflow. */
+    // Added to test funtionality of
+    // String& append(const char* str, Uint32 size) for memory overflow.
     caughtBadAlloc = false;
     try
     {
@@ -1304,8 +1304,8 @@ int test(int argc, char** argv)
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
 
-    /** Added to test funtionality of
-        String& append(const Char16* str, Uint32 n) for memory overflow. */
+    // Added to test funtionality of
+    // String& append(const Char16* str, Uint32 n) for memory overflow.
     caughtBadAlloc = false;
     try
     {
@@ -1318,8 +1318,8 @@ int test(int argc, char** argv)
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
 
-    /** Added to test funtionality of
-        String& assign(const char* str, Uint32 n) for memory overflow. */
+    // Added to test funtionality of
+    // String& assign(const char* str, Uint32 n) for memory overflow.
     caughtBadAlloc = false;
     try
     {
@@ -1332,8 +1332,8 @@ int test(int argc, char** argv)
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
 
-    /** Added to test funtionality of
-        String& assign(const Char16* str, Uint32 n) for memory overflow. */
+    // Added to test funtionality of
+    // String& assign(const Char16* str, Uint32 n) for memory overflow.
     caughtBadAlloc = false;
     try
     {
@@ -1346,6 +1346,103 @@ int test(int argc, char** argv)
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
 
+    // Tests for the dump of a bad strings.
+
+    // 40 good chars, bad char, 10 trailing chars.
+    //    Testing the full range of printed data.
+
+    caughtBadAlloc = false;
+    try
+    {
+        String s1("1234567890123456789012345678901234567890""\xFF""1234567890");
+    }
+    catch ( Exception& ex )
+    {
+        char* tmp;
+        caughtBadAlloc = true;
+        tmp = strstr((const char*)ex.getMessage().getCString(),
+               ": 1234567890123456789012345678901234567890"
+               " 0xFF 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x30");
+        PEGASUS_TEST_ASSERT(tmp);
+
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    // 7 good chars, bad char, 7 trailing chars.
+    // Testing reduced number of chars arround the bad char.
+
+    caughtBadAlloc = false;
+    try
+    {
+        String s1("0123456""\xAA""0123456");
+    }
+    catch ( Exception& ex )
+    {
+        char* tmp;
+        caughtBadAlloc = true;
+        tmp = strstr((const char*)ex.getMessage().getCString(),
+               ": 0123456 0xAA 0x30 0x31 0x32 0x33 0x34 0x35 0x36");
+        PEGASUS_TEST_ASSERT(tmp);
+
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    // No good chars, bad char , 20 trailing chars
+    // Testing no good chars, bad char at beginning,
+    // more trailing chars available then printed.
+
+    caughtBadAlloc = false;
+    try
+    {
+        String s1("\xDD""0123456789012345679");
+    }
+    catch ( Exception& ex )
+    {
+        char* tmp;
+        caughtBadAlloc = true;
+        tmp = strstr((const char*)ex.getMessage().getCString(),
+               ":  0xDD 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39");
+        PEGASUS_TEST_ASSERT(tmp);
+
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    // 50 good chars ( more the printed ), bad char as last char,
+    // no trailing chars.
+
+    caughtBadAlloc = false;
+    try
+    {
+        String s1("AAAAAAAAAA0123456789012345678901234567890123456789""\xBB");
+    }
+    catch ( Exception& ex )
+    {
+        char* tmp;
+        caughtBadAlloc = true;
+        tmp = strstr((const char*)ex.getMessage().getCString(),
+               ": 0123456789012345678901234567890123456789 0xBB");
+        PEGASUS_TEST_ASSERT(tmp);
+
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    // no good chars, bad char as the only char, no trailing chars.
+
+    caughtBadAlloc = false;
+    try
+    {
+        String s1("\x80");
+    }
+    catch ( Exception& ex )
+    {
+        char* tmp;
+        caughtBadAlloc = true;
+        tmp = strstr((const char*)ex.getMessage().getCString(),
+               ":  0x80");
+        PEGASUS_TEST_ASSERT(tmp);
+
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

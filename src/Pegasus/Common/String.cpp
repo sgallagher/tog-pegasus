@@ -266,13 +266,59 @@ inline void _checkNullPointer(const void* ptr)
         throw NullPointer();
 }
 
-static void _StringThrowBadUTF8(Uint32 index)
+#define BADUTF8_MAX_CLEAR_CHAR 40
+#define BADUTF8_MAX_CHAR_TO_HEX 10
+
+static void _formatBadUTF8Chars(
+    char* buffer,
+    Uint32 index,
+    const char* q,
+    size_t n )
 {
+
+    char tmp[20];
+    const char* start;
+
+    size_t clearChar =
+        (( index < BADUTF8_MAX_CLEAR_CHAR ) ? index : BADUTF8_MAX_CLEAR_CHAR );
+    size_t charToHex =
+        ((n-index-1) < BADUTF8_MAX_CHAR_TO_HEX ?
+            (n-index-1) : BADUTF8_MAX_CHAR_TO_HEX );
+
+    if (index < BADUTF8_MAX_CLEAR_CHAR)
+    {
+        start = q;
+    } else
+    {
+        start = &(q[ index - BADUTF8_MAX_CLEAR_CHAR]);
+    }
+
+    // Intialize the buffer with the first character as '\0' to be able to use
+    // strnchat() and strcat()
+    buffer[0] = 0;
+    // Start the buffer with the valid UTF8 chars
+    strncat(buffer,start,clearChar);
+    for (size_t i = clearChar, j = 0; j <= charToHex; i++,j++ )
+    {
+        tmp[0] = 0;
+        sprintf(&(tmp[0])," 0x%02X",(Uint8)start[i]);
+        strncat(buffer,&(tmp[0]),5);
+    }
+
+}
+
+static void _StringThrowBadUTF8(Uint32 index, const char* q, size_t n)
+{
+    char buffer[1024];
+
+    _formatBadUTF8Chars(&(buffer[0]),index,q,n);
+
     MessageLoaderParms parms(
-        "Common.String.BAD_UTF8",
+        "Common.String.BAD_UTF8_LONG",
         "The byte sequence starting at index $0 "
-        "is not valid UTF-8 encoding.",
-        index);
+        "is not valid UTF-8 encoding: $1",
+        index,buffer);
+
     throw Exception(parms);
 }
 
@@ -435,7 +481,7 @@ StringRep* StringRep::create(const char* data, size_t size)
     if (rep->size == size_t(-1))
     {
         StringRep::free(rep);
-        _StringThrowBadUTF8((Uint32)utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index, data,size);
     }
 
     rep->data[rep->size] = '\0';
@@ -525,7 +571,7 @@ String::String(const String& s1, const char* s2)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index,s2,n2);
     }
 
     _rep->size = n1 + tmp;
@@ -545,7 +591,7 @@ String::String(const char* s1, const String& s2)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index,s1,n1);
     }
 
     _rep->size = n2 + tmp;
@@ -598,7 +644,7 @@ String& String::assign(const char* str, Uint32 n)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index,str,n);
     }
 
     _rep->data[_rep->size] = 0;
@@ -687,7 +733,7 @@ String& String::append(const char* str, Uint32 size)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index,str,size);
     }
 
     _rep->size += tmp;

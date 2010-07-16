@@ -212,8 +212,9 @@ void test04()
     catch(Exception& e)
     {
         String message=e.getMessage();
-        String expectedErrorMessage("The byte sequence starting at index 3 "
-                                        "is not valid UTF-8 encoding.");
+        String expectedErrorMessage(
+            "The byte sequence starting at index 3 "
+            "is not valid UTF-8 encoding: abc 0xFF 0x83");
         // check if this is the expected exception
         if (String::equalNoCase(message, expectedErrorMessage))
         {
@@ -239,8 +240,9 @@ void test05()
     catch(Exception& e)
     {
         String message=e.getMessage();
-        String expectedErrorMessage("The byte sequence starting at index 3 "
-                                        "is not valid UTF-8 encoding.");
+        String expectedErrorMessage(
+            "The byte sequence starting at index 3 "
+            "is not valid UTF-8 encoding: abc 0xC2");
         // check if this is the expected exception
         if (String::equalNoCase(message, expectedErrorMessage))
         {
@@ -351,8 +353,9 @@ void test14()
     catch(Exception& e)
     {
         String message=e.getMessage();
-        String expectedErrorMessage("The byte sequence starting at index 3 "
-                                        "is not valid UTF-8 encoding.");
+        String expectedErrorMessage(
+            "The byte sequence starting at index 3 "
+            "is not valid UTF-8 encoding: abc 0xFF 0x83");
         // check if this is the expected exception
         if (String::equalNoCase(message, expectedErrorMessage))
         {
@@ -378,8 +381,9 @@ void test15()
     catch(Exception& e)
     {
         String message=e.getMessage();
-        String expectedErrorMessage("The byte sequence starting at index 3 "
-                                        "is not valid UTF-8 encoding.");
+        String expectedErrorMessage(
+            "The byte sequence starting at index 3 "
+            "is not valid UTF-8 encoding: abc 0xC2");
         // check if this is the expected exception
         if (String::equalNoCase(message, expectedErrorMessage))
         {

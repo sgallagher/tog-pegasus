@@ -51,7 +51,7 @@ Caught Exception: The CQLValue is not a string literal while processing rule con
 Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'BertRulesbc'
 
 Caught Exception: Bad UTF8 encountered parsing rule literal_string in position 76.
-Error printing statement: The byte sequence starting at index 60 is not valid UTF-8 encoding.
+Error printing statement: The byte sequence starting at index 60 is not valid UTF-8 encoding: stPropertyTypes where PropertyString = ' 0xFF 0xFF 0xBA 0xE6 0xB0 0x97 0xE3 0x82 0xB5 0xE3 0x82
 There were 17 statements that did NOT parse.
 =========Evaluate Query==============
 =========     0     =========

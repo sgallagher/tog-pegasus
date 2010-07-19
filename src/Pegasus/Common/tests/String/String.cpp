@@ -1358,7 +1358,7 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        char* tmp;
+        const char* tmp;
         caughtBadAlloc = true;
         tmp = strstr((const char*)ex.getMessage().getCString(),
                ": 1234567890123456789012345678901234567890"
@@ -1378,7 +1378,7 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        char* tmp;
+        const char* tmp;
         caughtBadAlloc = true;
         tmp = strstr((const char*)ex.getMessage().getCString(),
                ": 0123456 0xAA 0x30 0x31 0x32 0x33 0x34 0x35 0x36");
@@ -1398,7 +1398,7 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        char* tmp;
+        const char* tmp;
         caughtBadAlloc = true;
         tmp = strstr((const char*)ex.getMessage().getCString(),
                ":  0xDD 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39");
@@ -1417,7 +1417,7 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        char* tmp;
+        const char* tmp;
         caughtBadAlloc = true;
         tmp = strstr((const char*)ex.getMessage().getCString(),
                ": 0123456789012345678901234567890123456789 0xBB");
@@ -1435,7 +1435,7 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        char* tmp;
+        const char* tmp;
         caughtBadAlloc = true;
         tmp = strstr((const char*)ex.getMessage().getCString(),
                ":  0x80");

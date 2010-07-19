@@ -1358,12 +1358,12 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        const char* tmp;
         caughtBadAlloc = true;
-        tmp = strstr((const char*)ex.getMessage().getCString(),
-               ": 1234567890123456789012345678901234567890"
-               " 0xFF 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x30");
-        PEGASUS_TEST_ASSERT(tmp);
+        PEGASUS_TEST_ASSERT(
+            strstr((const char*)ex.getMessage().getCString(),
+                ": 1234567890123456789012345678901234567890"
+                    " 0xFF 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x30")
+            != 0);
 
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
@@ -1378,11 +1378,11 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        const char* tmp;
         caughtBadAlloc = true;
-        tmp = strstr((const char*)ex.getMessage().getCString(),
-               ": 0123456 0xAA 0x30 0x31 0x32 0x33 0x34 0x35 0x36");
-        PEGASUS_TEST_ASSERT(tmp);
+        PEGASUS_TEST_ASSERT(
+            strstr((const char*)ex.getMessage().getCString(),
+                ": 0123456 0xAA 0x30 0x31 0x32 0x33 0x34 0x35 0x36")
+            != 0);
 
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
@@ -1398,11 +1398,11 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        const char* tmp;
         caughtBadAlloc = true;
-        tmp = strstr((const char*)ex.getMessage().getCString(),
-               ":  0xDD 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39");
-        PEGASUS_TEST_ASSERT(tmp);
+        PEGASUS_TEST_ASSERT(
+            strstr((const char*)ex.getMessage().getCString(),
+                ":  0xDD 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39")
+            != 0);
 
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
@@ -1417,11 +1417,11 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        const char* tmp;
         caughtBadAlloc = true;
-        tmp = strstr((const char*)ex.getMessage().getCString(),
-               ": 0123456789012345678901234567890123456789 0xBB");
-        PEGASUS_TEST_ASSERT(tmp);
+        PEGASUS_TEST_ASSERT(
+            strstr((const char*)ex.getMessage().getCString(),
+                ": 0123456789012345678901234567890123456789 0xBB")
+            != 0);
 
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
@@ -1435,12 +1435,9 @@ int test(int argc, char** argv)
     }
     catch ( Exception& ex )
     {
-        const char* tmp;
         caughtBadAlloc = true;
-        tmp = strstr((const char*)ex.getMessage().getCString(),
-               ":  0x80");
-        PEGASUS_TEST_ASSERT(tmp);
-
+        PEGASUS_TEST_ASSERT(
+            strstr((const char*)ex.getMessage().getCString(),":  0x80") != 0);
     }
     PEGASUS_TEST_ASSERT(caughtBadAlloc);
 

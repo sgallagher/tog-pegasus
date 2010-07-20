@@ -212,6 +212,28 @@ Uint32 HTTPConnection::getIdleConnectionTimeout()
     return _idleConnectionTimeoutSeconds;
 }
 
+/*
+    Note: This method is called in client code for reconnecting with the Server 
+    and can also be used in the server code to check the connection status  and 
+    take appropriate actions.it checks whether the connection is alive by 
+    attempting to read 1 byte from the socket.This method MUST not be used when 
+    incoming data is expected from the connection.
+
+    Returns TRUE when there is no data and peer has closed the connection
+    gracefully or there is an unanticipated incoming data, returns FALSE
+    otherwise. Note that this method does not consider the errors returned
+    from read().
+*/
+
+Boolean HTTPConnection::needsReconnect()
+{
+    char buffer;
+
+    int n =  _socket->read(&buffer, sizeof(buffer));
+    
+    return n >= 0;
+}
+
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
     SharedPtr<MP_Socket>& socket,

@@ -103,6 +103,11 @@ public:
 
     Boolean closeConnectionOnTimeout(struct timeval* timeNow);
 
+    // This method is called in Client code to decide reconnection with 
+    // the Server and can also be used in the server code to check if the 
+    // connection is still alive and take appropriate action.
+    Boolean needsReconnect();
+
     // This method is called in Server code when response encoders or
     // HTTPAuthenticatorDelegator runs out-of-memory. This method calls 
     // _handleWriteEvent() with a dummy HTTPMessage to maintain  response

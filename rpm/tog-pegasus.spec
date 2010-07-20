@@ -420,7 +420,7 @@ if [ $1 -eq 0 ]; then
       %PEGASUS_SBIN_DIR/cimserver -s
    fi
    /sbin/chkconfig --del %{Flavor}-pegasus;
-   rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
+   rm -f %PEGASUS_CONFIG_DIR/cimserver_current.conf;
    [ -d %PEGASUS_REPOSITORY_DIR ]  && rm -rf %PEGASUS_REPOSITORY_DIR;
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;
    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
@@ -500,7 +500,7 @@ fi
 %dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
-%config(noreplace) %attr(644,root,root) /var/lib/Pegasus/cimserver_planned.conf
+%config(noreplace) %attr(644,root,root) /etc/Pegasus/cimserver_planned.conf
 %config(noreplace) /etc/Pegasus/access.conf
 %config(noreplace) /etc/pam.d/wbem
 

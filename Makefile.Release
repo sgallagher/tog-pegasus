@@ -413,11 +413,11 @@ setpermissions_PegasusMOFDirectoryFiles: FORCE
 	$(foreach i, $(INTEROP_MOF_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 
-stage_PegasusVarDataDirectoryFiles: FORCE
-	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+stage_PegasusConfFiles: FORCE
+	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
-setpermissions_PegasusVarDataDirectoryFiles: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+setpermissions_PegasusConfFiles: FORCE
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 stage_genOpenPegasusSSLCertsFile: FORCE
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
@@ -456,7 +456,7 @@ stage_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusProviderManagerLibraryDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusAdminCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUserCmdsDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusVarDataDirectoryFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusConfFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusRepository
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUnixManPageDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDocFiles
@@ -470,7 +470,7 @@ setpermissions_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusProviderManagerLibraryDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusAdminCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUserCmdsDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusVarDataDirectoryFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusConfFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusRepository
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDocFiles
@@ -1134,7 +1134,7 @@ _append_filesSectionToSpecFile: FORCE
             "/etc/init.d/$(PEGASUS_FLAVOR)-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace)" \
             "%attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP))" \
-            "$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
+            "$(PEGASUS_CONFIG_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace) $(PEGASUS_CONFIG_DIR)/access.conf" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)

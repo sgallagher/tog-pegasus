@@ -96,7 +96,7 @@ const Uint8 _toUpperTable[256] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-// Note: this table is much faster than the system tolower(). Please do not
+// Note: this table is much faster than the system tulower(). Please do not
 // change.
 
 const Uint8 _toLowerTable[256] =
@@ -1135,10 +1135,10 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 Boolean String::equal(const String& s1, const String& s2)
 {
     return (s1._rep == s2._rep) ||
-        ((s1._rep->size == s2._rep->size) &&
-         memcmp(s1._rep->data,
-                s2._rep->data,
-                s1._rep->size * sizeof(Uint16)) == 0);
+        (s1._rep->size == s2._rep->size) &&
+        memcmp(s1._rep->data,
+               s2._rep->data,
+               s1._rep->size * sizeof(Uint16)) == 0;
 }
 
 Boolean String::equal(const String& s1, const char* s2)

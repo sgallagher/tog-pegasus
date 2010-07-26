@@ -226,7 +226,7 @@ void test04()
             throw;
         }
     }
-    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 void test05()
@@ -254,7 +254,7 @@ void test05()
             throw;
         }
     }
-    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 void test06()
@@ -269,7 +269,7 @@ void test06()
         VCOUT << " +++++ passed" << endl;
         return;
     }
-    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 void test11()
@@ -367,7 +367,7 @@ void test14()
             throw;
         }
     }
-    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 void test15()
@@ -395,7 +395,7 @@ void test15()
             throw;
         }
     }
-    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 void test16()
@@ -411,7 +411,7 @@ void test16()
         VCOUT << " +++++ passed" << endl;
         return;
     }
-    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 void runCIMNameConstructorTests()
@@ -476,7 +476,7 @@ void runCIMNameCastTests()
 #endif
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

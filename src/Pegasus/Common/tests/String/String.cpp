@@ -42,7 +42,7 @@ PEGASUS_USING_STD;
 
 static Boolean verbose;
 
-int test(char** argv)
+int test(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
@@ -1449,7 +1449,7 @@ int test(char** argv)
     return 0;
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-    return test(argv);
+    return test(argc, argv);
 }

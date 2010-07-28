@@ -33,6 +33,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include "AuthenticationInfoRep.h"
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Executor.h>
 
 PEGASUS_USING_STD;
 
@@ -57,6 +59,23 @@ AuthenticationInfoRep::~AuthenticationInfoRep()
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::~AuthenticationInfoRep");
 
+    // initiate the deletion of _localAuthFilePath.
+    if(FileSystem::exists(_localAuthFilePath))
+    {
+        // No response was received from the local client for the 
+        // authentication challenge. Hence deleting the file here.
+
+        // Use executor, if present.
+        if (Executor::detectExecutor() == 0)
+        {
+            Executor::removeFile(_localAuthFilePath.getCString());
+        }
+        else
+        {
+            FileSystem::removeFile(_localAuthFilePath);
+        }
+    }
+       
     PEG_METHOD_EXIT();
 }
 

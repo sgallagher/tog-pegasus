@@ -262,6 +262,10 @@ void DefineExecutorMacros(void)
 
     if (DefineConfigPathMacro("crlStore", "crl") != 0)
         Fatal(FL, "missing \"crlStore\" configuration parameter.");
+
+    /* Define ${localAuthDir} */
+    if(DefineMacro("localAuthDir",PEGASUS_LOCAL_AUTH_DIR) != 0)
+        Fatal(FL, "missing \"localAuthDir\" configuration parameter.");
 }
 
 /*

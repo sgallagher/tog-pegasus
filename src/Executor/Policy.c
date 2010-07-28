@@ -192,6 +192,13 @@ static struct Policy _staticPolicyTable[] =
         NULL,
         0, /* flags */
     },
+    {
+        EXECUTOR_REMOVE_FILE_MESSAGE,
+        "${localAuthDir}/*",
+        NULL,
+        0, /* flags */
+    },
+
 };
 
 static const size_t _staticPolicyTableSize =

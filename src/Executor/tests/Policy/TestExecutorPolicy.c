@@ -182,6 +182,7 @@ void testDumpPolicy(void)
             "RemoveFile(\"${sslTrustStore}/*\")\n"
             "OpenFile(\"${crlStore}/*\", \"w\")\n"
             "RemoveFile(\"${crlStore}/*\")\n"
+            "RemoveFile(\"${localAuthDir}/*\")\n"
             "\n";
 
         dumpFile = fopen(TEST_DUMP_FILE, "a");

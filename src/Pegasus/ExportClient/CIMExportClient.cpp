@@ -174,6 +174,9 @@ void CIMExportClient::_disconnect()
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
 
+    // Reset the challenge status
+    _authenticator.resetChallengeStatus();
+
     PEG_METHOD_EXIT();
 }
 
@@ -547,7 +550,6 @@ Message* CIMExportClient::_doRequest(
         "Connection to the listener timed out.");
 
     _disconnect();
-    _authenticator.resetChallengeStatus();
     _doReconnect = true;
 
     //

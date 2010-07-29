@@ -54,6 +54,7 @@
 #endif
 
 #define _IndClassName "TestCMPI_IndicationStressTestClass"
+#define _IndSubClassName "TestCMPI_IndicationStressTestSubClass"
 
 #ifdef CMPI_VER_100
 static const CMPIBroker *_broker;
@@ -70,6 +71,8 @@ static CMPIUint32 _nextUID = 1;
 static CMPIUint32 _numSubscriptions = 0;
 static CMPIArray *correlatedIndications = NULL;
 static char *namespaceName;
+static CMPIBoolean _baseClassActivated = CMPI_false;
+static CMPIBoolean _subClassActivated = CMPI_false;
 
 
 /* ------------------------------------------------------------------------ */
@@ -140,7 +143,20 @@ CMPIStatus TestCMPIIndicationStressTestProviderActivateFilter(
                                           const CMPIObjectPath * op,
                                           CMPIBoolean firstActivation)
 {
-    _numSubscriptions++;
+
+    CMPIString *str = CMGetClassName(op, 0);
+    const char *className = CMGetCharsPtr(str, 0);
+
+    if (!strcmp(className, _IndClassName))
+    {
+        _baseClassActivated = CMPI_true;
+        _numSubscriptions++;
+    }
+    else if(!strcmp(className, _IndSubClassName))
+    {
+        _subClassActivated = CMPI_true;
+        _numSubscriptions++;
+    }
 
     CMReturn (CMPI_RC_OK);
 }
@@ -153,7 +169,19 @@ CMPIStatus TestCMPIIndicationStressTestProviderDeActivateFilter(
                                             const CMPIObjectPath * op,
                                             CMPIBoolean lastActivation)
 {
-    _numSubscriptions--;
+    CMPIString *str = CMGetClassName(op, 0);
+    const char *className = CMGetCharsPtr(str, 0);
+
+    if (!strcmp(className, _IndClassName))
+    {
+        _baseClassActivated = CMPI_false;
+        _numSubscriptions--;
+    }
+    else if(!strcmp(className, _IndSubClassName))
+    {
+        _subClassActivated = CMPI_false;
+        _numSubscriptions--;
+    }
 
     if (_numSubscriptions == 0)
     {
@@ -168,7 +196,10 @@ CMPIStatus TestCMPIIndicationStressTestProviderEnableIndications(
                                               CMPIIndicationMI * mi,
                                               const CMPIContext * ctx)
 {
-    _enabled = CMPI_true;
+    if (_baseClassActivated && _subClassActivated && _numSubscriptions == 2)
+    {
+        _enabled = CMPI_true;
+    }
 
     CMReturn (CMPI_RC_OK);
 }
@@ -177,7 +208,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderDisableIndications(
                                                CMPIIndicationMI * mi,
                                                const CMPIContext * ctx)
 {
-    if (_numSubscriptions == 0)
+    if (!_baseClassActivated && !_subClassActivated && !_numSubscriptions)
     {
         _enabled = CMPI_false;
     }
@@ -237,11 +268,16 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
     {
         CMReturn (CMPI_RC_ERR_FAILED);
     }
+
     if (_enabled)
     {
         value.uint32 = 0;
         CMReturnData (rslt, &value, CMPI_sint32);
         CMReturnDone (rslt);
+    }
+    else
+    {
+        CMReturn (CMPI_RC_ERR_FAILED);
     }
 
     objPath = CMNewObjectPath (_broker, namespaceName, _IndClassName, NULL);

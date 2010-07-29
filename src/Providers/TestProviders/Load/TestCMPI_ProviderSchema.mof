@@ -203,3 +203,8 @@ class TestCMPI_IndicationStressTestClass : CIM_Indication
   [Static]
   uint32 getSubscriptionCount();
 };
+
+class TestCMPI_IndicationStressTestSubClass : TestCMPI_IndicationStressTestClass
+{
+};
+

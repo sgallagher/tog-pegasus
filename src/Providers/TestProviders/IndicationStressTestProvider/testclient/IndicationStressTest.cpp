@@ -502,7 +502,7 @@ static Uint32  _getCount(CIMClient&  client)
         outParams);
 
     retValue.get(result);
-    PEGASUS_TEST_ASSERT (result == 2);
+    PEGASUS_TEST_ASSERT (result == 4);
 
     return result;
 }

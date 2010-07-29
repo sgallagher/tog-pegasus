@@ -2137,7 +2137,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                     request->classNames[i]);
 
                 SCMOInstance * classPathSCMO =
-                    getSCMOClassFromRequest(nameSpace, className);
+                    getSCMOClassFromRequest(nameSpace, subClassName);
                 classPathSCMO->setHostName(
                     (const char*)System::getHostName().getCString());
                 CMPI_ObjectPathOnStack eRef(classPathSCMO);

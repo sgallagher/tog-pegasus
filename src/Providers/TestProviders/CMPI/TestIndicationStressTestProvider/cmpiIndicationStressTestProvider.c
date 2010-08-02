@@ -73,47 +73,11 @@ static CMPIArray *correlatedIndications = NULL;
 static char *namespaceName;
 static CMPIBoolean _baseClassActivated = CMPI_false;
 static CMPIBoolean _subClassActivated = CMPI_false;
-static int _namespaceIndex = 0;
-static CMPI_MUTEX_TYPE subCntMutex;
 
-static char *_sourceNamespaces[] = {
-    "test/TestProvider",
-    "test/testIndSrcNS1",
-    "test/testIndSrcNS2"
-};
-    
 
 /* ------------------------------------------------------------------------ */
 /*                            Helper functions.                             */
 /* ------------------------------------------------------------------------ */
-
-static void _createMutex()
-{
-  subCntMutex = _broker->xft->newMutex (0);
-}
-
-static void _incSubCount()
-{
-  _broker->xft->lockMutex(subCntMutex);
-  _numSubscriptions++;
-  _broker->xft->unlockMutex(subCntMutex);
-}
-
-static void _decSubCount()
-{
-  _broker->xft->lockMutex(subCntMutex);
-  _numSubscriptions--;
-  _broker->xft->unlockMutex(subCntMutex);
-}
-
-static CMPIUint32 _getSubCount()
-{
-    CMPIUint32 count; 
-    _broker->xft->lockMutex (subCntMutex);
-    count =  _numSubscriptions;
-    _broker->xft->unlockMutex (subCntMutex);
-    return count;
-}
 
 CMPIInstance *getIndicationInstance(CMPIUint64 seqNum, char *UIDbuffer)
 {
@@ -186,12 +150,12 @@ CMPIStatus TestCMPIIndicationStressTestProviderActivateFilter(
     if (!strcmp(className, _IndClassName))
     {
         _baseClassActivated = CMPI_true;
-        _incSubCount();
+        _numSubscriptions++;
     }
     else if(!strcmp(className, _IndSubClassName))
     {
         _subClassActivated = CMPI_true;
-        _incSubCount();
+        _numSubscriptions++;
     }
 
     CMReturn (CMPI_RC_OK);
@@ -211,12 +175,12 @@ CMPIStatus TestCMPIIndicationStressTestProviderDeActivateFilter(
     if (!strcmp(className, _IndClassName))
     {
         _baseClassActivated = CMPI_false;
-        _decSubCount();
+        _numSubscriptions--;
     }
     else if(!strcmp(className, _IndSubClassName))
     {
         _subClassActivated = CMPI_false;
-        _decSubCount();
+        _numSubscriptions--;
     }
 
     if (_numSubscriptions == 0)
@@ -232,7 +196,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderEnableIndications(
                                               CMPIIndicationMI * mi,
                                               const CMPIContext * ctx)
 {
-    if (_baseClassActivated && _subClassActivated)
+    if (_baseClassActivated && _subClassActivated && _numSubscriptions == 2)
     {
         _enabled = CMPI_true;
     }
@@ -244,7 +208,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderDisableIndications(
                                                CMPIIndicationMI * mi,
                                                const CMPIContext * ctx)
 {
-    if (!_baseClassActivated && !_subClassActivated)
+    if (!_baseClassActivated && !_subClassActivated && !_numSubscriptions)
     {
         _enabled = CMPI_false;
     }
@@ -282,7 +246,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
 
     if (!strcmp(methodName, "getSubscriptionCount"))
     {
-        value.uint32 = _getSubCount();
+        value.uint32 = _numSubscriptions;
         CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone(rslt);
         CMReturn (CMPI_RC_OK);
@@ -294,7 +258,18 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
         indicationSendCount = data.value.uint32;
     }
 
-    if (_enabled && _getSubCount() == 12)
+    // Get the Namespace to deliver the indication.
+    data = CMGetArgAt (in, 1, NULL, NULL);
+    if (data.type == CMPI_string)
+    {
+        namespaceName = strdup(CMGetCharsPtr (data.value.string,NULL));
+    }
+    else
+    {
+        CMReturn (CMPI_RC_ERR_FAILED);
+    }
+
+    if (_enabled)
     {
         value.uint32 = 0;
         CMReturnData (rslt, &value, CMPI_sint32);
@@ -305,16 +280,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
         CMReturn (CMPI_RC_ERR_FAILED);
     }
 
-    objPath = CMNewObjectPath (
-        _broker,
-        _sourceNamespaces[_namespaceIndex++],
-        _IndClassName,
-        NULL);
-
-    if (_namespaceIndex == 3)
-    {
-        _namespaceIndex = 0;
-    }
+    objPath = CMNewObjectPath (_broker, namespaceName, _IndClassName, NULL);
 
     if (indicationSendCount > 0)
     {
@@ -337,7 +303,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
 /* ---------------------------------------------------------------------------*/
 
 CMIndicationMIStub (TestCMPIIndicationStressTestProvider,
-                    TestCMPIIndicationStressTestProvider,_broker,_createMutex())
+                    TestCMPIIndicationStressTestProvider, _broker, CMNoHook )
 
 
 CMMethodMIStub (TestCMPIIndicationStressTestProvider,

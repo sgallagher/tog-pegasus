@@ -50,7 +50,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-Array<String> sourceNamespaces;
+CIMNamespaceName sourceNamespace;
 String indicationClassName;
 Boolean Ipv6Test;
 
@@ -456,8 +456,8 @@ CIMObjectPath _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("Query"), query));
     filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
         String (qlang)));
-    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespaces"),
-        sourceNamespaces));
+    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
+        sourceNamespace.getString ()));
 
     return(client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -495,14 +495,14 @@ static Uint32  _getCount(CIMClient&  client)
     objPath.setClassName("TestCMPI_IndicationStressTestClass");
 
     CIMValue retValue = client.invokeMethod(
-        CIMNamespaceName("test/TestProvider"),
+        sourceNamespace,
         objPath,
         "getSubscriptionCount",
         inParams,
         outParams);
 
     retValue.get(result);
-    PEGASUS_TEST_ASSERT (result == 12);
+    PEGASUS_TEST_ASSERT (result == 4);
 
     return result;
 }
@@ -524,12 +524,14 @@ void _sendTestIndication(
     inParams.append(
         CIMParamValue(String("indicationSendCount"),
         CIMValue(indicationSendCount)));
+    inParams.append(CIMParamValue(String("namespace"),
+                 CIMValue(sourceNamespace.getString () ) ) );
 
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName (indicationClassName), keyBindings);
 
-    CIMValue retValue = client->invokeMethod(
-        "test/TestProvider",
+    CIMValue retValue = client->invokeMethod
+        (sourceNamespace,
         className,
         methodName,
         inParams,
@@ -1507,7 +1509,6 @@ int main (int argc, char** argv)
 {
     // This client connection is used soley to create subscriptions.
     CIMClient workClient;
-    CIMNamespaceName sourceNamespace;
     try
     {
         workClient.connectLocal();
@@ -1567,10 +1568,6 @@ int main (int argc, char** argv)
          << " and Namespace " << sourceNamespace.getString () << endl;
 
     int rc = 0;
-
-    sourceNamespaces.append("test/testProvider");
-    sourceNamespaces.append("test/testIndSrcNS1");
-    sourceNamespaces.append("test/testIndSrcNS2");
 
     try
     {

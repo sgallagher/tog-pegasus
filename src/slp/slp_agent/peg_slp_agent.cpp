@@ -577,11 +577,12 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 
     lslpMsg msg_list;
 
-#ifdef PEGASUS_SLP_REG_TIMEOUT
+#if defined(PEGASUS_SLP_REG_TIMEOUT)
     Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60;
+#elif !defined(PEGASUS_USE_EXTERNAL_SLP_TYPE)
+    agent->_using_das = agent->_find_das(agent->_rep, NULL, "DEFAULT");
 #endif
 
-    agent->_using_das = agent->_find_das(agent->_rep, NULL, "DEFAULT");
     agent->_should_listen = 1;
 
     while (agent->_should_listen.get())

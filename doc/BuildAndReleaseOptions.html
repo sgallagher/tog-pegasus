@@ -518,6 +518,23 @@ additional information.</p>
      platforms.<br>
 </ul>
 
+<h5>PEGASUS_EXTRA_PROVIDER_LIB_DIR</h5>
+<ul>
+  <b>Description:&nbsp;</b>Specifies the location of the extra provider
+     libraries which are part of the release builds.<br>
+  <b>Default Value:&nbsp;</b>Not Set<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>
+     No Specific Recommendation<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>
+     No Specific Recommendation<br>
+  <b>Required:&nbsp;</b> No.<br>
+  <b>Considerations:&nbsp;</b> Since providerDir config property is fixed
+     and hidden in release builds, this build time option provides facilty
+     to include the extra provider directories without any security problems.
+     This build time option is useful only when PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
+     is set.
+</ul>
+
 <h5>PEGASUS_EMANATE_INCLUDE_DIR</h5>
 <ul>
   <b>Description:&nbsp;</b>Specifies the location of the EMANATE

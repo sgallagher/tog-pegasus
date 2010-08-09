@@ -62,7 +62,8 @@
     {"crlStore",             PEGASUS_SSL_SERVER_CRL},
 #  endif
     {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
-    {"providerDir", PEGASUS_PROVIDER_LIB_DIR ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
+    {"providerDir", PEGASUS_EXTRA_PROVIDER_LIB_DIR PEGASUS_PROVIDER_LIB_DIR
+                    ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
     {"providerManagerDir",   PEGASUS_PROVIDER_MANAGER_LIB_DIR},
 # else /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
     {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},

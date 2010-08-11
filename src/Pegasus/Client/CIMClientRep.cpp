@@ -210,6 +210,9 @@ void CIMClientRep::_disconnect()
 
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
+
+    // Reset the challenge status
+    _authenticator.resetChallengeStatus();
 }
 
 void CIMClientRep::connect(
@@ -1254,7 +1257,6 @@ Message* CIMClientRep::_doRequest(
     //
 
     _disconnect();
-    _authenticator.resetChallengeStatus();
     _doReconnect = true;
 
     //

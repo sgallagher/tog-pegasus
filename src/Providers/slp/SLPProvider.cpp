@@ -1415,6 +1415,10 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
 
     Boolean getByAssociator = false;
 
+    // clear existing instances
+    _instanceNames.clear();
+    _instances.clear();
+
     // get the PG communication mechanism class.  Used as part of the populate
     // An exception here is caught in the facade.
     CIMClass pg_CIMXMLClass = _cimomHandle.getClass(

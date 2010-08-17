@@ -719,8 +719,17 @@ int main(int argc, char** argv)
                            "Usage: cli setproperty instancename propertyname"
                                 " value "
                            << endl;
+                        exit(CIMCLI_INPUT_ERR);
                     }
-                    setProperty(opts);
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                    {
+                        exit(CIMCLI_INPUT_ERR);
+                    }
+                    opts.propertyName = argv[3];
+                    opts.newValue = String(argv[4]);
+                    opts.valueParams.clear();
+
+                    opts.termCondition = setProperty(opts);
                     break;
 
                 case ID_EnumerateQualifiers :

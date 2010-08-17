@@ -806,11 +806,13 @@ int execQuery(Options& opts)
     This function is used by all of the action functions that require
     cimObjectPath input BUT do not utilize the -i (interactive option) to
     make the decision.
-    @return Returns a CIMObjectPath which either contains the path to be used
-    or an empty path if there is no path for the operation.
+    @param opts -  Input arg, options specified by the user
+    @param thisPath - Output arg,  CIMObjectPath which either contains the path
+    to be used or an empty path if there is no path for the operation.
+    @return Returns true if CIMObjectPath returned have keybindings else false.
 */
 
-CIMObjectPath _getObjectPath(Options& opts)
+Boolean _getObjectPath(Options& opts, CIMObjectPath &thisPath)
 {
     // try to build path from input objectName property
     // Uses try block because this input generates an exception based on
@@ -818,7 +820,7 @@ CIMObjectPath _getObjectPath(Options& opts)
     // what the issue is than the text of the standard malformed object
     // exception
 
-    CIMObjectPath thisPath = opts.getTargetObjectName();
+    thisPath = opts.getTargetObjectName();
 
     // If there are no keybindings and there are extra input parameters,
     // build path from input arguments. If there are no keybindings
@@ -843,11 +845,12 @@ CIMObjectPath _getObjectPath(Options& opts)
             if (!_selectInstance(opts, opts.getTargetObjectNameClassName(),
                                 thisPath))
             {
-                return CIMObjectPath();
+                thisPath = CIMObjectPath();
             }
         }
     }
-    return thisPath;
+
+    return thisPath.getKeyBindings().size() > 0;
 }
 
 
@@ -872,13 +875,14 @@ int deleteInstance(Options& opts)
 
     // build or get path based in info in opts.  This function returns NULL
     // cimobject path if there is an error.
-    CIMObjectPath thisPath = _getObjectPath(opts);
 
-    _startCommandTimer(opts);
-
-    opts.client.deleteInstance(opts.nameSpace, thisPath);
-
-    _stopCommandTimer(opts);
+    CIMObjectPath thisPath;
+    if (_getObjectPath(opts, thisPath))
+    {
+        _startCommandTimer(opts);
+        opts.client.deleteInstance(opts.nameSpace, thisPath);
+        _stopCommandTimer(opts);
+    }
 
     return CIMCLI_RTN_CODE_OK;
 }
@@ -916,20 +920,19 @@ int getInstance(Options& opts)
 
     // build or get path based in info in opts.  This function returns NULL
     // cimobject path if there is an error.
-    CIMObjectPath thisPath = _getObjectPath(opts);
-
-    _startCommandTimer(opts);
-
-    CIMInstance cimInstance = opts.client.getInstance(opts.nameSpace,
-                                                 thisPath,
-                                                 opts.localOnly,
-                                                 opts.includeQualifiers,
-                                                 opts.includeClassOrigin,
-                                                 opts.propertyList);
-
-    _stopCommandTimer(opts);
-
-    CIMCLIOutput::displayInstance(opts, cimInstance);
+    CIMObjectPath thisPath;
+    if (_getObjectPath(opts, thisPath))
+    {
+        _startCommandTimer(opts);
+        CIMInstance cimInstance = opts.client.getInstance(opts.nameSpace,
+            thisPath,
+            opts.localOnly,
+            opts.includeQualifiers,
+            opts.includeClassOrigin,
+            opts.propertyList);
+        _stopCommandTimer(opts);
+        CIMCLIOutput::displayInstance(opts, cimInstance);
+    }
 
     return CIMCLI_RTN_CODE_OK;
 }
@@ -1355,27 +1358,28 @@ int getProperty(Options& opts)
 
     // build or get path based in info in opts.  This function returns NULL
     // cimobject path if there is an error.
-    CIMObjectPath thisPath = _getObjectPath(opts);
+    CIMObjectPath thisPath;
 
-    CIMValue cimValue;
-
-    _startCommandTimer(opts);
-
-    cimValue = opts.client.getProperty( opts.nameSpace,
-                                   thisPath,
-                                   opts.propertyName);
-    _stopCommandTimer(opts);
-
-    if (opts.summary)
+    if (_getObjectPath(opts, thisPath))
     {
-        if (opts.time)
+        CIMValue cimValue;
+        _startCommandTimer(opts);
+        cimValue = opts.client.getProperty(
+            opts.nameSpace,
+            thisPath,
+            opts.propertyName);
+        _stopCommandTimer(opts);
+        if (opts.summary)
         {
-            cout << opts.saveElapsedTime << endl;
+            if (opts.time)
+            {
+                cout << opts.saveElapsedTime << endl;
+            }
         }
-    }
-    else
-    {
-        cout << opts.propertyName << " = " << cimValue.toString() << endl;
+        else
+        {
+            cout << opts.propertyName << " = " << cimValue.toString() << endl;
+        }
     }
 
     return CIMCLI_RTN_CODE_OK;
@@ -1401,16 +1405,17 @@ int setProperty(Options& opts)
 
     // build or get path based in info in opts.  This function returns NULL
     // cimobject path if there is an error.
-    CIMObjectPath thisPath = _getObjectPath(opts);
-
-    _startCommandTimer(opts);
-
-    opts.client.setProperty( opts.nameSpace,
-                                   thisPath,
-                                   opts.propertyName,
-                                   opts.newValue);
-
-    _stopCommandTimer(opts);
+    CIMObjectPath thisPath;
+    if (_getObjectPath(opts, thisPath))
+    {
+        _startCommandTimer(opts);
+        opts.client.setProperty(
+            opts.nameSpace,
+            thisPath,
+            opts.propertyName,
+            opts.newValue);
+        _stopCommandTimer(opts);
+    }
 
     return CIMCLI_RTN_CODE_OK;
 }

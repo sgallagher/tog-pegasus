@@ -690,6 +690,12 @@ enumerateClasses:
 
 	@$(ECHO) 22. +++++ Test enumerateClasses
 
+testEmptyKeyBindings:
+	@cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderEmpty
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderEmpty
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderEmpty id
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderEmpty name Dummy
+
 ## Test executeQuery Operation. This test should 
 ## return a single instance.  We just test the response count to avoid
 ## the issue of variable information in the result file
@@ -736,6 +742,7 @@ poststarttests:
 	$(MAKE) SortInstancesTest
 	$(MAKE) enumerateClasses
 	$(MAKE) testExecQuery
+	$(MAKE) testEmptyKeyBindings
 
 	@$(ECHO) +++++ Compare Result files
 ##      diffsort used because there is at least one instance where

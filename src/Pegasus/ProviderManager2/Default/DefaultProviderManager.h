@@ -45,6 +45,7 @@
 
 #include <Pegasus/ProviderManager2/Default/ProviderMessageHandler.h>
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
+#include <Pegasus/Common/AsyncRequestExecutor.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -98,6 +99,15 @@ private:
     Sint16 _disableProvider(
         const String& moduleFileName,
         const String& providerName);
+
+    /*
+        Handler method invoked on a seperate thread per provider through
+        a request executor to process an incoming request meant for all 
+        providers simultaneously.
+    */
+    static CIMException _asyncRequestCallback(
+        void *callbackPtr,
+        AsyncRequestExecutor::AsyncRequestMsg* request); 
 
     void _unloadProvider(ProviderMessageHandler* provider);
 

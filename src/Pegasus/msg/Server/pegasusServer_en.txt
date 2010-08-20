@@ -647,6 +647,16 @@ en:table {
         */
         Common.XmlParser.UNDECLARED_NAMESPACE:string {"PGS00617: Undeclared namespace on line {0}. {1}"}
 
+        // ==========================================================
+        // Messages for AsyncRequestExecutor
+        //  Please use message prefix "PGS00700 "
+        // ==========================================================
+
+        /**
+        * @note  PGS00700:
+        */
+        Common.AsyncRequestExecutor.ASYNCREQUEST_THREAD_ALLOCATION_FAILED:string {"PGS00700: Failed to allocate a thread for processing a request"}
+
 
         // ==========================================================
         // Messages for Repository InheritanceTree

@@ -49,6 +49,19 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+// A request class to hold the provider info passed to the 
+// AsyncRequestExecutor for processing on different threads.
+class UnloadProviderRequest : public AsyncRequestExecutor::AsyncRequestMsg
+{
+public:
+    UnloadProviderRequest(ProviderMessageHandler* provider)
+        :_provider(provider) {}
+
+public:
+    ProviderMessageHandler* _provider;
+};
+
 //
 // Default Provider Manager
 //
@@ -748,31 +761,35 @@ void DefaultProviderManager::_shutdownAllProviders()
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_shutdownAllProviders");
 
-    try
+    AutoMutex lock(_providerTableMutex);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "providers in cache = %d", _providers.size()));
+
+    //create an array of UnloadProviderRequest requests one per 
+    //provider to process shutdown of providers simultaneously.
+    Array<AsyncRequestExecutor::AsyncRequestMsg*> ProviderRequests;
+    for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
     {
-        AutoMutex lock(_providerTableMutex);
-
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "providers in cache = %d", _providers.size()));
-
-        for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
-        {
-            ProviderMessageHandler* provider = i.value();
-            PEGASUS_ASSERT(provider != 0);
-
-            AutoMutex lock2(provider->status.getStatusMutex());
-
-            if (provider->status.isInitialized())
-            {
-                _unloadProvider(provider);
-            }
+        AutoMutex lock(i.value()->status.getStatusMutex());
+        if(i.value()->status.isInitialized())
+        { 
+            ProviderRequests.append(
+                new UnloadProviderRequest(i.value()));
         }
     }
-    catch (...)
-    {
+
+    //run the stop request on all providers on multiple threads using
+    //the request executor. This will invoke _asyncRequestCallback() on a
+    //seperate thread for each provider which in turn will unload that
+    //provider.
+ 
+    CIMException exception =
+        AsyncRequestExecutor(&_asyncRequestCallback,this).executeRequests(
+            ProviderRequests);
+
+    if(exception.getCode() != CIM_ERR_SUCCESS)
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected Exception in _shutdownAllProviders().");
-    }
 
     PEG_METHOD_EXIT();
 }
@@ -906,6 +923,74 @@ void DefaultProviderManager::_unloadProvider(ProviderMessageHandler* provider)
 ProviderManager* DefaultProviderManager::createDefaultProviderManagerCallback()
 {
     return new DefaultProviderManager();
+}
+
+//async request handler method invoked on a seperate thread per provider
+//through the async request executor.
+CIMException DefaultProviderManager::_asyncRequestCallback(
+    void *callbackPtr,
+    AsyncRequestExecutor::AsyncRequestMsg* request)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_asyncRequestCallback");
+
+    CIMException responseException;
+
+    //extract the parameters
+    UnloadProviderRequest* my_request =
+        dynamic_cast<UnloadProviderRequest*>(request);
+    if(my_request != NULL)
+    {
+        PEGASUS_ASSERT(0 != callbackPtr);
+
+        DefaultProviderManager *dpmPtr = 
+            static_cast<DefaultProviderManager*>(callbackPtr);
+
+        ProviderMessageHandler* provider =
+            dynamic_cast<ProviderMessageHandler*>(my_request->_provider);
+        try 
+        {
+            AutoMutex lock(provider->status.getStatusMutex());
+            //unload the provider
+            if (provider->status.isInitialized())
+            {
+                dpmPtr->_unloadProvider(provider);
+            }
+            else
+            {
+                PEGASUS_ASSERT(0);
+            }
+       }
+        catch (CIMException& e)
+        {
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s",
+                (const char*)e.getMessage().getCString()));
+            responseException = e;
+        }
+        catch (Exception& e)
+        {
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s",
+                (const char*)e.getMessage().getCString()));
+            responseException = CIMException(CIM_ERR_FAILED, e.getMessage());
+        }
+        catch (PEGASUS_STD(exception)& e)
+        {
+            responseException = CIMException(CIM_ERR_FAILED, e.what());
+        }
+        catch (...)
+        {
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                "Exception: Unknown");
+            responseException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, "Unknown error.");
+        }
+    }
+
+    // delete the UnloadProviderRequest.
+    delete request;
+ 
+    PEG_METHOD_EXIT();
+    return responseException;
 }
 
 PEGASUS_NAMESPACE_END

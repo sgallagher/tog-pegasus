@@ -189,7 +189,8 @@ SOURCES2 = \
     BinaryCodec.cpp \
     CIMBuffer.cpp \
     CIMInternalXmlEncoder.cpp \
-    SCMOInternalXmlEncoder.cpp
+    SCMOInternalXmlEncoder.cpp \
+    AsyncRequestExecutor.cpp
 
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)

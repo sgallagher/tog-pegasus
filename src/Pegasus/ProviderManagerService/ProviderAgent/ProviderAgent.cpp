@@ -371,9 +371,10 @@ Boolean ProviderAgent::_readAndProcessRequest()
         if (pidc.getModule().isUninitialized())
         {
             // Provider module is optimized out.  Fill it in from the cache.
-            request->operationContext.set(ProviderIdContainer(
-                _providerModuleCache, pidc.getProvider(),
-                pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
+           ProviderIdContainer newpidc(_providerModuleCache, pidc.getProvider(),
+                pidc.isRemoteNameSpace(), pidc.getRemoteInfo());
+            newpidc.setProvMgrPath(pidc.getProvMgrPath());
+            request->operationContext.set(newpidc);
         }
         else
         {

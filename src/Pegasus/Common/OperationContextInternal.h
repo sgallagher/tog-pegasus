@@ -98,7 +98,7 @@ public:
     Boolean isRemoteNameSpace() const;
     String getRemoteInfo() const;
     String getProvMgrPath() const;
-    void setProvMgrPath(String &path);
+    void setProvMgrPath(const String &path);
 
 protected:
     CIMInstance _module;

@@ -191,7 +191,7 @@ String ProviderIdContainer::getProvMgrPath() const
     return _provMgrPath;
 }
 
-void ProviderIdContainer::setProvMgrPath(String &path)
+void ProviderIdContainer::setProvMgrPath(const String &path)
 {
     _provMgrPath = path;
 }

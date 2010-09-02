@@ -1099,9 +1099,12 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     // Replace the provider module in the ProviderIdContainer
                     // with an uninitialized instance.  We'll need to put the
                     // original one back after the message is sent.
-                    request->operationContext.set(ProviderIdContainer(
+                    ProviderIdContainer newpidc(
                         CIMInstance(), pidc.getProvider(),
-                        pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
+                        pidc.isRemoteNameSpace(), pidc.getRemoteInfo());
+                    newpidc.setProvMgrPath(pidc.getProvMgrPath());
+                    request->operationContext.set(newpidc);
+
                     doProviderModuleOptimization = true;
                 }
             }

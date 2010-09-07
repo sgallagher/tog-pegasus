@@ -45,6 +45,7 @@ TestGroupingProvider1::~TestGroupingProvider1()
 void TestGroupingProvider1::initialize(CIMOMHandle& cimom)
 {
     _cimom = cimom;
+    _subscriptionCount = 0;
 }
 
 void TestGroupingProvider1::terminate()
@@ -68,11 +69,15 @@ void TestGroupingProvider1::invokeMethod(
     handler.processing();
     if (methodName.equal("getNextIdentifier"))
     {
-        handler.deliver(CIMValue(getNextIdentifier()));
+        handler.deliver(CIMValue(Uint32(getNextIdentifier())));
+    }
+    if (methodName.equal("getSubscriptionCount"))
+    {
+        handler.deliver(CIMValue(_subscriptionCount));
     }
     else if (methodName.equal("resetIdentifier"))
     {
-        handler.deliver(CIMValue(resetIdentifier()));
+        handler.deliver(CIMValue(Uint32(resetIdentifier())));
     }
     else if (methodName.equal("testFail"))
     {
@@ -97,6 +102,7 @@ void TestGroupingProvider1::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
+    _subscriptionCount++;
 }
 
 void TestGroupingProvider1::modifySubscription (
@@ -114,6 +120,7 @@ void TestGroupingProvider1::deleteSubscription (
     const CIMObjectPath & subscriptionName,
     const Array <CIMObjectPath> & classNames)
 {
+    _subscriptionCount--;
 }
 
 PEGASUS_NAMESPACE_END

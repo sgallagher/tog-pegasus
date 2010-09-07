@@ -127,6 +127,7 @@ void _checkStatus(
     PEGASUS_TEST_ASSERT(expectedStatusObserved);
 }
 
+
 void _createModuleInstance(
     CIMClient& client,
     const String& name,
@@ -470,7 +471,7 @@ void _deleteFilterInstance(
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
-Sint32 _getValue(
+Uint32 _getValue(
     CIMClient &client,
     const String &className,
     const CIMName &methodName)
@@ -487,10 +488,35 @@ Sint32 _getValue(
         methodName,
         inParams,
         outParams);
-    Sint32 rc;
+    Uint32 rc;
     returnValue.get(rc);
 
     return rc;
+}
+
+void _validateValue(
+    CIMClient &client,
+    const String &className,
+    const CIMName &methodName,
+    Uint32 expectedValue)
+{
+    Uint32 iteration = 0;
+    Boolean expectedValueObserved = false;
+    while (iteration < 300)
+    {
+        iteration++;
+        if (_getValue(client, className, methodName) == expectedValue)
+        {
+            expectedValueObserved = true;
+            break;
+        }
+        else
+        {
+            System::sleep(1);
+        }
+    }
+
+    PEGASUS_TEST_ASSERT(expectedValueObserved);
 }
 
 void _setup(CIMClient& client)
@@ -697,7 +723,7 @@ static void _testGroupingWithProviderDisabled(CIMClient &client)
     }
 }
 
-static void _testIndications(CIMClient &client)
+static void _testIndications(CIMClient &client, Boolean moduleRestart)
 {
     try
     {
@@ -709,10 +735,10 @@ static void _testIndications(CIMClient &client)
         _registerProviders(client, 2);
         _createSubscription(client, String("OOPFilter01"));
         _createSubscription(client, String("OOPFilter02"));
+        Array<CIMParamValue> outParams;
+        Array<CIMParamValue> inParams;
         try
         {
-            Array<CIMParamValue> outParams;
-            Array<CIMParamValue> inParams;
             client.invokeMethod(
                 NAMESPACE,
                 CIMObjectPath("Test_GroupingClass1"),
@@ -724,6 +750,51 @@ static void _testIndications(CIMClient &client)
         {
         }
 
+        if (moduleRestart)
+        {
+            _checkStatus(
+                client,
+                "TestGroupingProviderModule1",
+                CIM_MSE_OPSTATUS_VALUE_OK);
+
+            _checkStatus(
+                client,
+                "TestGroupingProviderModule2",
+                CIM_MSE_OPSTATUS_VALUE_OK);
+
+            Boolean enabled = false;
+            while (!enabled)
+            {
+                try
+                {
+                    _validateValue(
+                        client,
+                        "Test_GroupingClass1",
+                        "getSubscriptionCount",
+                        1);
+
+                    _validateValue(
+                        client,
+                        "Test_GroupingClass2",
+                        "getSubscriptionCount",
+                        1);
+
+                    client.invokeMethod(
+                        NAMESPACE,
+                        CIMObjectPath("Test_GroupingClass1"),
+                        "testFail",
+                        inParams,
+                        outParams);
+                }
+                catch(const CIMException&e)
+                {
+                    if (e.getCode() != CIM_ERR_NOT_SUPPORTED)
+                    {
+                        enabled = true;
+                    }
+                }
+            }
+        }
         _checkStatus(
             client,
             "TestGroupingProviderModule1",
@@ -776,7 +847,12 @@ int main(int argc, char** argv)
         else if (!strcmp(argv[1], "testIndications"))
         {
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
-            _testIndications(client);
+            Boolean moduleRestart = false;
+            if (argv[2] && !strcmp(argv[2], "restart"))
+            {
+                moduleRestart = true;
+            }
+            _testIndications(client, moduleRestart);
 #else
             cout << argv [0] <<
                 ": Grouping indication providers tests skipped because"

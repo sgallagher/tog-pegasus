@@ -221,7 +221,7 @@ private:
     */
     AutoArrayPtr<struct ConfigProperty> _configProperties;
 
-    mutable Mutex _maxProviderProcessesMutex;
+    mutable Mutex _dynamicConfigPropertyMutex;
 };
 
 

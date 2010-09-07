@@ -196,6 +196,31 @@ resetting the system clock may cause unexpected timeout behavior.
 .BR Dynamic: \0No
 .PD
 .PP 
+.B maxFailedProviderModuleRestarts
+.IP
+.BR Description: " If set to a positive integer, this value specifies the number
+of times the failed provider module with indications enabled are restarted
+automatically before being moved to Degraded state. If set to zero, failed
+provider module is not restarted with indications enabled automatically and
+will be moved to Degraded state immediately.
+.BR "This option controls the automatic re-enabling of the failed provider module
+with indications enabled. If the provider module with indications enabled fails
+very frequently, it affects the CIMServer normal operations because CIMServer would
+be busy with reloading the provider module every time it fails. This option would be
+helpful if the long running indication provider crashes and the management
+application want to receive the indications from the provider while provider fix
+is being delivered.
+.BR "In case of provider module grouping, if one of the indication provider crashes,
+it affects all indication providers in the provider modules of the group.
+.BR "Note that this is the facility provided by the CIMServer for temporary
+recovery of the provider and the ultimate goal SHALL be fixing the faulty provider.
+.PD 0
+.IP
+.BR "Default Value: " 3
+.IP
+.BR Dynamic: \0Yes
+.PD
+.PP
 .B shutdownTimeout
 .IP 
 .BR Description: " When a

@@ -35,12 +35,15 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/ModuleController.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -62,6 +65,63 @@ const String PG_PROVMODULE_GROUPNAME_CIMSERVER = "CIMServer";
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
 Boolean ProviderManagerService::_allProvidersStopped = false;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
+
+/**
+    Hashtable for the failed provider modules. This table maintains the
+    failure count for each provider module.
+*/
+static HashTable <String, Uint32, EqualFunc <String>,
+    HashFunc <String> > _failedProviderModuleTable;
+
+static Mutex _failedProviderModuleTableMutex;
+
+//
+// This method is called when the provider module is failed and
+// maxFailedProviderModuleRestarts config value is specified.
+//
+void  ProviderManagerService::_invokeProviderModuleStartMethod(
+    const CIMObjectPath &ref)
+{
+    try
+    {
+        ModuleController *controller = ModuleController::getModuleController();
+        PEGASUS_ASSERT(controller);
+
+        CIMInvokeMethodRequestMessage* request =
+            new CIMInvokeMethodRequestMessage(
+                XmlWriter::getNextMessageId(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                ref,
+                "Start",
+                Array<CIMParamValue>(),
+                QueueIdStack(controller->getQueueId()));
+
+        request->operationContext.insert(
+            IdentityContainer(String()));
+
+        AsyncModuleOperationStart* moduleControllerRequest =
+            new AsyncModuleOperationStart(
+                0,
+                controller->getQueueId(),
+                PEGASUS_MODULENAME_PROVREGPROVIDER,
+                request);
+        // We are not intersted in the response.
+        controller->SendForget(moduleControllerRequest);
+    }
+    catch(const Exception &e)
+    {
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+            "Exception caught while invoking PG_ProviderModule.start"
+                " method: %s",
+        (const char*)e.getMessage().getCString()));
+    }
+    catch(...)
+    {
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+            "Unknown exception caught while invoking PG_ProviderModule.start"
+                " method");
+    }
+}
 
 ProviderManagerService::ProviderManagerService(
         ProviderRegistrationManager * providerRegistrationManager,
@@ -370,6 +430,16 @@ void ProviderManagerService::handleCimRequest(
                 appendStatus.append (CIM_MSE_OPSTATUS_VALUE_STOPPING);
                 _updateProviderModuleStatus(
                     providerModule, removeStatus, appendStatus);
+
+                String providerModuleName;
+                Uint32 pos = providerModule.findProperty(
+                    PEGASUS_PROPERTYNAME_NAME);
+                PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+                providerModule.getProperty(pos).getValue().get(
+                    providerModuleName);
+                // Remove from failedProviderModuleTable.
+                AutoMutex mtx(_failedProviderModuleTableMutex);
+                _failedProviderModuleTable.remove(providerModuleName);
             }
 
             // Forward the request to the ProviderManager
@@ -1187,6 +1257,41 @@ void ProviderManagerService::providerModuleFailureCallback
                     kbArray.append(keyBinding);
                     CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
                         PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
+
+                    Boolean startProviderModule = false;
+                    // Get the maxFailedProviderModuleRestarts value. Note that
+                    // this is a dynamic property.
+                    Uint64 maxFailedProviderModuleRestarts = 0;
+                    Uint32 moduleFailureCount  = 1;
+                    String value =
+                        ConfigManager::getInstance()->getCurrentValue(
+                            "maxFailedProviderModuleRestarts");
+                    StringConversion::decimalStringToUint64(value.getCString(),
+                        maxFailedProviderModuleRestarts);
+
+                    if (maxFailedProviderModuleRestarts)
+                    {
+                        startProviderModule = true;
+                        Uint32 *failedCount;
+
+                        AutoMutex mtx(_failedProviderModuleTableMutex);
+                        if (_failedProviderModuleTable.lookupReference(
+                            moduleName, failedCount))
+                        {
+                            if ((moduleFailureCount = ++(*failedCount)) >
+                                maxFailedProviderModuleRestarts)
+                            {
+                                startProviderModule = false;
+                                _failedProviderModuleTable.remove(moduleName);
+                            }
+                        }
+                        else
+                        {
+                            _failedProviderModuleTable.insert(
+                                moduleName, moduleFailureCount);
+                        }
+                    }
+
                     providerModule =
                         providerManagerService->_providerRegistrationManager->
                             getInstance(
@@ -1194,10 +1299,67 @@ void ProviderManagerService::providerModuleFailureCallback
 
                     Array<Uint16> removeStatus;
                     Array<Uint16> appendStatus;
+
                     removeStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
-                    appendStatus.append(CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
+                    // If the provider module needs to be restarted set the
+                    // module OpertionalStatus to the STOPPED and send the
+                    // module start request.
+                    appendStatus.append(startProviderModule ?
+                        CIM_MSE_OPSTATUS_VALUE_STOPPED :
+                        CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
                     providerManagerService->_updateProviderModuleStatus(
                         providerModule, removeStatus, appendStatus);
+
+                    if (startProviderModule)
+                    {
+                        _invokeProviderModuleStartMethod(modulePath);
+                       //
+                       // Log a information message since provider module
+                       // is restarted automatically
+                       //
+                       Logger::put_l(
+                           Logger::STANDARD_LOG,
+                           System::CIMSERVER,
+                           Logger::INFORMATION,
+                           MessageLoaderParms(
+                               "ProviderManager.OOPProviderManagerRouter."
+                                  "OOP_PROVIDER_MODULE_RESTARTED_AFTER_FAILURE",
+                               "The indication providers in the module"
+                                  " $0 have been restarted with subscriptions"
+                                  " enabled after $1 failure(s). After $2"
+                                  " such attempts the provider will not be"
+                                  " restarted automatically with subscriptions"
+                                  " enabled. To ensure these providers continue"
+                                  " to service active subscriptions please fix"
+                                  " the problem in the provider.",
+                                moduleName,
+                                moduleFailureCount,
+                                Uint32(maxFailedProviderModuleRestarts)));
+                    }
+                    else
+                    {
+                        //
+                        //  Log a warning message since subscriptions
+                        //  were affected
+                        //
+                        Logger::put_l(
+                            Logger::STANDARD_LOG,
+                            System::CIMSERVER,
+                            Logger::WARNING,
+                            MessageLoaderParms(
+                                "ProviderManager.OOPProviderManagerRouter."
+                                   "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
+                                 "The generation of indications by providers"
+                                     " in module $0 may be affected. To ensure"
+                                     " these providers are serving active "
+                                     "subscriptions, disable and then re-enable"
+                                     " this module using the cimprovider "
+                                     "command.",
+                                moduleName));
+                    }
+
                 }
                 catch (const Exception & e)
                 {
@@ -1205,21 +1367,6 @@ void ProviderManagerService::providerModuleFailureCallback
                         "Failed to update provider module status: %s",
                         (const char*)e.getMessage().getCString()));
                 }
-
-                //
-                //  Log a warning message since subscriptions were affected
-                //
-                Logger::put_l(
-                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    MessageLoaderParms(
-                        "ProviderManager.OOPProviderManagerRouter."
-                            "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
-                        "The generation of indications by providers in module "
-                            "$0 may be affected.  To ensure these providers "
-                            "are serving active subscriptions, disable and "
-                            "then re-enable this module using the cimprovider "
-                            "command.",
-                        moduleName));
             }
         }
     }

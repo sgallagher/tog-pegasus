@@ -1922,18 +1922,28 @@ void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
     CIMObjectPath reference(referenceStr);
 
     Array<CIMParamValue> inParams;
-    Array<CIMParamValue> outParams;
 
     try
     {
-        AutoMutex mtx(_updateMtx);
-        _cimomHandle.invokeMethod(
-            context,
-            PEGASUS_NAMESPACENAME_INTEROP,
-            reference,
-            CIMNameCast("updateCache"),
-            inParams,
-            outParams);
+        CIMInvokeMethodRequestMessage* request =
+            new CIMInvokeMethodRequestMessage(
+                XmlWriter::getNextMessageId(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                referenceStr,
+                "updateCache",
+                inParams,
+                QueueIdStack(_controller->getQueueId()));
+
+        request->operationContext = context;
+
+        AsyncModuleOperationStart* moduleControllerRequest =
+            new AsyncModuleOperationStart(
+                0,
+                _controller->getQueueId(),
+                PEGASUS_MODULENAME_INTEROPPROVIDER,
+                request);
+
+        _controller->SendForget(moduleControllerRequest);
     }
     catch(const Exception &e)
     {

@@ -32,6 +32,7 @@ class Test_GroupingClass : CIM_Indication
     [key]
     uint32 id;
     uint32 getNextIdentifier();
+    uint32 getSubscriptionCount();
 };
 
 class Test_GroupingClass1 : Test_GroupingClass

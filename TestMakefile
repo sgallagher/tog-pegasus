@@ -429,8 +429,8 @@ run_IndInit_TS1:
 ##  authentication enabled.
 ##
 ###############################################################################
-OOPProvFail_TS1a_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true
-OOPProvFail_TS1b_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=false
+OOPProvFail_TS1a_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true maxFailedProviderModuleRestarts=0
+OOPProvFail_TS1b_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=false maxFailedProviderModuleRestarts=0
 OOPProvFail_TS1_TEST_CMDS = \
 	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS1
 
@@ -492,7 +492,7 @@ endif
 ##  to exit and the test suite to fail.
 ##
 ###############################################################################
-OOPProvFail_TS3_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true
+OOPProvFail_TS3_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true maxFailedProviderModuleRestarts=0
 OOPProvFail_TS3a_TEST_CMDS = \
 	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS3a
 OOPProvFail_TS3b_TEST_CMDS = \

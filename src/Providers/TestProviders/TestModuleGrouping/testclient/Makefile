@@ -80,4 +80,11 @@ poststarttests:
 	@$(ECHO) "Deregistering the providers ...."
 	@$(PROGRAM) deregisterProviders
 	@$(ECHO) "Testing the indication providers with grouping enabled...."
+	@$(ECHO) "Setting maxFailedProviderModuleRestarts to 0...."
+	@cimconfig -s maxFailedProviderModuleRestarts=0
 	@$(PROGRAM) testIndications
+	@$(ECHO) "Testing with maxFailedProviderModuleRestarts=1...."
+	@cimconfig -s maxFailedProviderModuleRestarts=1
+	@$(PROGRAM) testIndications restart
+	@$(ECHO) "Setting maxFailedProviderModuleRestarts to 3...."
+	@cimconfig -s maxFailedProviderModuleRestarts=3

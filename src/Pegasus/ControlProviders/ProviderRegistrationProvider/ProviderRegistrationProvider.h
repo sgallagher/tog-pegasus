@@ -197,8 +197,6 @@ protected:
 private:
 
 #ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
-    CIMOMHandle _cimomHandle;
-    Mutex _updateMtx;
     void _sendUpdateCacheMessagetoInteropProvider(
         const OperationContext & context);
 #endif

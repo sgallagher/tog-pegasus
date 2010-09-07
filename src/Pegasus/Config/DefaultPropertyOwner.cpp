@@ -162,9 +162,10 @@ String DefaultPropertyOwner::getCurrentValue(const String& name) const
     {
         if (String::equal(_configProperties.get()[i].propertyName, name))
         {
-            if (String::equal(name, "maxProviderProcesses"))
+            if (String::equalNoCase(name, "maxProviderProcesses") ||
+                String::equalNoCase(name, "maxFailedProviderModuleRestarts"))
             {
-                AutoMutex lock(_maxProviderProcessesMutex);
+                AutoMutex lock(_dynamicConfigPropertyMutex);
                 return _configProperties.get()[i].currentValue;
             }
             else
@@ -213,9 +214,10 @@ void DefaultPropertyOwner::initCurrentValue(
             _configProperties.get()[index].propertyName,
             name))
         {
-            if (String::equal(name, "maxProviderProcesses"))
+            if (String::equalNoCase(name, "maxProviderProcesses") ||
+                String::equalNoCase(name, "maxFailedProviderModuleRestarts"))
             {
-                AutoMutex lock(_maxProviderProcessesMutex);
+                AutoMutex lock(_dynamicConfigPropertyMutex);
                 _configProperties.get()[index].currentValue = value;
             }
             else
@@ -365,7 +367,8 @@ Boolean DefaultPropertyOwner::isValid(
             (v != 0);
     }
     if (String::equal(name, "maxProviderProcesses") ||
-        String::equal(name, "idleConnectionTimeout"))
+        String::equal(name, "idleConnectionTimeout") ||
+        String::equal(name, "maxFailedProviderModuleRestarts"))
     {
         Uint64 v;
         return

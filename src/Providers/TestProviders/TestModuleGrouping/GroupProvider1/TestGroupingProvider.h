@@ -81,6 +81,7 @@ public:
 
 private:
     CIMOMHandle _cimom;
+    Uint32 _subscriptionCount;
 };
 
 PEGASUS_NAMESPACE_END

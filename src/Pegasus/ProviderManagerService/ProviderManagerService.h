@@ -104,6 +104,9 @@ private:
         const Array<Uint16>& removeStatus,
         const Array<Uint16>& appendStatus);
 
+    static void _invokeProviderModuleStartMethod(
+        const CIMObjectPath &ref);
+
     static ProviderManagerService* providerManagerService;
 
     CIMRepository* _repository;
@@ -116,6 +119,7 @@ private:
     ProviderManagerRouter* _oopProviderManagerRouter;
 
     ProviderRegistrationManager* _providerRegistrationManager;
+
 
     static Boolean _allProvidersStopped;
     static Uint32 _indicationServiceQueueId;

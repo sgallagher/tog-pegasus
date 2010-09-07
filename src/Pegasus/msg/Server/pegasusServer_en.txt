@@ -1586,6 +1586,13 @@ en:table {
         */
         ProviderManager.ProviderManagerService.PROVIDERMANAGER_LOOKUP_FAILED:string {"PGS04011: Provider interface type ''{0}'' version ''{1}'' is not recognized."}
 
+      /**
+        * @note  PGS04012
+        *    Substitution {0} is the name of a provider module (a string)
+        *    Substitution {1} is a module failure count
+        *    Substitution {2} is maxFailedProviderModuleRestarts value
+        */
+       ProviderManager.OOPProviderManagerRouter.OOP_PROVIDER_MODULE_RESTARTED_AFTER_FAILURE:string{"PGS04012: The indication providers in the module {0} have been restarted with subscriptions enabled after {1} failure(s). After {2} such attempts the provider will not be restarted automatically with subscriptions enabled. To ensure these providers continue to service active subscriptions please fix the problem in the provider."}
 
         // ==========================================================
         // Messages for ProviderModule

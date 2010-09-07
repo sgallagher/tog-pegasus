@@ -1099,7 +1099,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     // Replace the provider module in the ProviderIdContainer
                     // with an uninitialized instance.  We'll need to put the
                     // original one back after the message is sent.
-                    ProviderIdContainer newpidc(
+                    ProviderIdContainer newpidc = ProviderIdContainer(
                         CIMInstance(), pidc.getProvider(),
                         pidc.isRemoteNameSpace(), pidc.getRemoteInfo());
                     newpidc.setProvMgrPath(pidc.getProvMgrPath());

@@ -33,10 +33,10 @@ DIR = Pegasus/ProviderManagerService/ProviderAgent
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegpmservice \
+    pegpmrouter \
     pegprovidermanager \
     DefaultProviderManager \
-    pegpmservice \
+    pegpmrouter \
     pegprovidermanager \
     pegprovider \
     pegconfig \

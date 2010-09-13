@@ -47,8 +47,8 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
-#include <Pegasus/ProviderManagerService/OOPProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerRouter/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerRouter/OOPProviderManagerRouter.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
 
@@ -65,6 +65,8 @@ const String PG_PROVMODULE_GROUPNAME_CIMSERVER = "CIMServer";
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
 Boolean ProviderManagerService::_allProvidersStopped = false;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
+ProviderRegistrationManager*
+    ProviderManagerService::_providerRegistrationManager;
 
 /**
     Hashtable for the failed provider modules. This table maintains the
@@ -141,10 +143,9 @@ ProviderManagerService::ProviderManagerService(
             "forceProviderProcesses"));
 
     _oopProviderManagerRouter = new OOPProviderManagerRouter(
-        providerRegistrationManager,
         indicationCallback,
         responseChunkCallback,
-        providerModuleFailureCallback,
+        providerModuleGroupFailureCallback,
         asyncResponseCallback);
 
     _basicProviderManagerRouter = new BasicProviderManagerRouter(
@@ -1153,13 +1154,47 @@ static Boolean indicationThresholdReported = false;
 
 }
 
-void ProviderManagerService::providerModuleFailureCallback
-    (const String & moduleName,
+void ProviderManagerService::providerModuleGroupFailureCallback(
+     const String &groupName,
+     const String & userName,
+     Uint16 userContext,
+     Boolean isGroup)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+        "ProviderManagerService::providerModuleFailureCallback");
+
+    Array<String> moduleNames;
+
+    // If this agent is servicing the group of modules, get all related
+    // provider module names.
+    if (isGroup)
+    {
+        _providerRegistrationManager->getProviderModuleNamesForGroup(
+            groupName, moduleNames);
+    }
+    else
+    {
+        moduleNames.append(groupName);
+    }
+
+    for (Uint32 i = 0, n = moduleNames.size() ; i < n ; ++i)
+    {
+        _reconcileProviderModuleFailure(
+            moduleNames[i],
+            userName,
+            userContext);
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+void ProviderManagerService::_reconcileProviderModuleFailure(
+     const String & moduleName,
      const String & userName,
      Uint16 userContext)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "ProviderManagerService::providerModuleFailureCallback");
+        "ProviderManagerService::_reconcileProviderModuleFailure");
 
     if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
     {

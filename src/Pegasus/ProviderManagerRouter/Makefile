@@ -28,29 +28,30 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../..
 
-DIR = Pegasus/ProviderManager2
+DIR = Pegasus/ProviderManagerRouter
 
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_PMR_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
 
 STATIC=1
-LIBRARY = pegprovidermanager
+LIBRARY = pegpmrouter
 
 LIBRARIES = \
+    pegprovidermanager \
     pegprovider \
     pegwql \
     pegconfig \
     pegclient \
+    peggeneral \
     pegcommon
 
 SOURCES = \
-	ProviderManager.cpp \
-	ProviderName.cpp \
-	OperationResponseHandler.cpp \
-	SimpleResponseHandler.cpp \
-	CIMOMHandleContext.cpp
+    ProviderManagerRouter.cpp \
+    BasicProviderManagerRouter.cpp \
+    OOPProviderManagerRouter.cpp \
+    ProviderManagerModule.cpp
 
 include $(ROOT)/mak/library.mak

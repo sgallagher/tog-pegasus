@@ -145,6 +145,7 @@ ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 endif
 
 DIRS += \
+    ProviderManagerRouter \
     ProviderManagerService \
     ProviderManagerService/ProviderAgent
 

@@ -34,13 +34,14 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_PMS_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
+LOCAL_DEFINES = -DPEGASUS_PMS_INTERNAL -DPEGASUS_INTERNALONLY
 
 STATIC=1
 LIBRARY = pegpmservice
 
 LIBRARIES = \
     pegprovidermanager \
+    pegpmrouter \
     pegprovider \
     pegprm \
     pegwql \
@@ -50,11 +51,6 @@ LIBRARIES = \
     pegcommon \
     peggeneral
 
-SOURCES = \
-    ProviderManagerService.cpp \
-    ProviderManagerRouter.cpp \
-    BasicProviderManagerRouter.cpp \
-    OOPProviderManagerRouter.cpp \
-    ProviderManagerModule.cpp
+SOURCES =  ProviderManagerService.cpp
 
 include $(ROOT)/mak/library.mak

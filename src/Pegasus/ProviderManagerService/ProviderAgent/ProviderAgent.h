@@ -39,7 +39,7 @@
 #include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/SCMOClassCache.h>
-#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerRouter/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

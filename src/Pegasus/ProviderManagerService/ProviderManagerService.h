@@ -43,7 +43,7 @@
 #include \
     <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
-#include <Pegasus/ProviderManagerService/ProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerRouter/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManagerService/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -70,8 +70,11 @@ public:
         Callback function to be called upon detection of failure of a
         provider module.
      */
-    static void providerModuleFailureCallback (const String & moduleName,
-        const String & userName, Uint16);
+    static void providerModuleGroupFailureCallback(
+        const String &groupName,
+        const String & userName,
+        Uint16 userContext,
+        Boolean isGroup);
 
 private:
     ProviderManagerService();
@@ -107,6 +110,11 @@ private:
     static void _invokeProviderModuleStartMethod(
         const CIMObjectPath &ref);
 
+    static void _reconcileProviderModuleFailure(
+        const String &moduleName,
+        const String & userName,
+        Uint16 userContext);
+
     static ProviderManagerService* providerManagerService;
 
     CIMRepository* _repository;
@@ -118,7 +126,7 @@ private:
     ProviderManagerRouter* _basicProviderManagerRouter;
     ProviderManagerRouter* _oopProviderManagerRouter;
 
-    ProviderRegistrationManager* _providerRegistrationManager;
+    static ProviderRegistrationManager* _providerRegistrationManager;
 
 
     static Boolean _allProvidersStopped;

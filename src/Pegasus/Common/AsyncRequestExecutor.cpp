@@ -44,7 +44,7 @@ ResponseAggregationCallback::ResponseAggregationCallback()
     _responseException(CIM_ERR_SUCCESS),
     _expectedResponseCount(0),
     _currResponseCount(0),
-    _mutex(),
+    _mutex(Mutex::NON_RECURSIVE),
     _pollingCond()
 {
 

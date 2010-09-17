@@ -91,6 +91,7 @@ endif
 LIBRARIES += \
     pegprovidermanager \
     pegpmservice \
+    pegpmrouter \
     pegprovider \
     pegexportserver \
     pegrepository \

@@ -333,6 +333,10 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_ContextArgs:contextAddEntry()");
+
+        Boolean invalidType = false;
+        Boolean invalidContext = false;
+
         if (!name || !data)
         {
             PEG_TRACE_CSTRING(
@@ -343,46 +347,106 @@ extern "C"
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
+
         if (strcmp(name,SnmpTrapOidContainer::NAME.getCString()) == 0)
         {
             OperationContext *ctx = ((CMPI_Context*)eCtx)->ctx;
             if (!ctx)
             {
-                PEG_TRACE_CSTRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Invalid Handle - eCtx->ctx in \
-                    CMPI_ContextArgs:contextAddEntry");
-                PEG_METHOD_EXIT();
-                CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+                invalidContext = true;
             }
-            if (type == CMPI_chars)
+            else if (type == CMPI_chars)
             {
-                ctx->insert(SnmpTrapOidContainer((char*)data));
+                if (ctx->contains(SnmpTrapOidContainer::NAME))
+                {
+                    ctx->set(SnmpTrapOidContainer((char*)data));
+                }
+                else
+                {
+                    ctx->insert(SnmpTrapOidContainer((char*)data));
+                }
                 PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else if (type == CMPI_string)
             {
-                ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
+                if (ctx->contains(SnmpTrapOidContainer::NAME))
+                {
+                    ctx->set(SnmpTrapOidContainer((char*)data->string->hdl));
+                }
+                else
+                {
+                    ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
+                }
                 PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else
             {
-                PEG_TRACE_CSTRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Received Invalid Data Type in \
-                    CMPI_COntextArgs:contextAddEntry");
-                // Only CMPITypes CMPI_chars and CMPI_string are supported
-                // for SnmpTrapOidContainer.
-                PEG_METHOD_EXIT();
-                CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE);
+                invalidType = true;
             }
         }
+        else if (!strcmp(name,
+            SubscriptionInstanceNamesContainer::NAME.getCString()))
+        {
+            OperationContext *ctx = ((CMPI_Context*)eCtx)->ctx;
+            if (!ctx)
+            {
+                invalidContext = true;
+            }
+            else if (type == CMPI_refA)
+            {
+                Array<CIMObjectPath> names;
+                CMPI_Array *arr = (CMPI_Array*)data->array->hdl;
+                CMPIData* dta=(CMPIData*)arr->hdl;
+                for (Uint32 i = 1 ; i <= dta->value.uint32 ; i++)
+                {
+                    SCMOInstance *ref = (SCMOInstance*)(dta[i].value.ref->hdl);
+                    CIMObjectPath path;
+                    ref->getCIMObjectPath(path);
+                    names.append(path);
+                }
+                if (ctx->contains(SubscriptionInstanceNamesContainer::NAME))
+                {
+                    ctx->set(SubscriptionInstanceNamesContainer(names));
+                }
+                else
+                {
+                    ctx->insert(SubscriptionInstanceNamesContainer(names));
+                }
+                PEG_METHOD_EXIT();
+                CMReturn(CMPI_RC_OK);
+            }
+            else
+            {
+                invalidType = true;
+            }
+        }
+
+        if (invalidType)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Received Invalid Data Type in"
+                    " CMPI_COntextArgs:contextAddEntry");
+                PEG_METHOD_EXIT();
+                CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE);
+        }
+        else if (invalidContext)
+        {
+            PEG_TRACE_CSTRING(
+               TRC_CMPIPROVIDERINTERFACE,
+               Tracer::LEVEL1,
+               "Invalid Handle - eCtx->ctx in"
+                   " CMPI_ContextArgs:contextAddEntry");
+            PEG_METHOD_EXIT();
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
+
         CMPIStatus stat = argsAddArg(
             reinterpret_cast<const CMPIArgs*>(eCtx), name, data, type);
+
         PEG_METHOD_EXIT();
         return stat;
     }

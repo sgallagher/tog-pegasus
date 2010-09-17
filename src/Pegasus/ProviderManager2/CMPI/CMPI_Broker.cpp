@@ -941,15 +941,9 @@ extern "C"
         {
             if (indProvRec->isEnabled())
             {
-                try
+                if (!context->contains(
+                    SubscriptionInstanceNamesContainer::NAME))
                 {
-                    context->get(SubscriptionInstanceNamesContainer::NAME);
-                }
-                catch (const Exception &e)
-                {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: %s",
-                        (const char*)e.getMessage().getCString()));
                     Array<CIMObjectPath> subscriptionInstanceNames;
                     context->insert(
                         SubscriptionInstanceNamesContainer(

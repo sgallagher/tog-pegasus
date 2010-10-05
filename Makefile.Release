@@ -151,6 +151,11 @@ PEGASUS_LIBRARIES += \
     libpegslp_client
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+PEGASUS_LIBRARIES += \
+    libpegwsmserver
+endif
+
 ifeq ($(OS),HPUX)
 PEGASUS_LIBRARIES += \
    libNTPProviderSecurity

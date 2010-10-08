@@ -85,27 +85,45 @@ SCMOClass _scmoClassCache_GetClass(
         (const char*)nameSpace.getString().getCString());
 }
 
-void structureSizes()
+void structureSizesTest()
 {
-    cout << endl << "Sizes of structures:" << endl;
-    cout << "=====================" << endl << endl;
-    cout << "SCMBUnion           : " << sizeof(SCMBUnion) << endl;
-    cout << "SCMBDataPtr         : " << sizeof(SCMBDataPtr) << endl;
-    cout << "SCMBValue           : " << sizeof(SCMBValue) << endl;
-    cout << "SCMBKeyBindingValue : " << sizeof(SCMBKeyBindingValue) << endl;
-    cout << "SCMBUserKeyBindingElement : "
+    // All SCMO structures have been aligned on 64bit memory adresses in a way
+    // that they will be compatible between 32bit and 64bit adressing.
+    // At the same time this alignment now causes the size of SCMO structures
+    // to be equal across all platforms.
+    VCOUT << endl << "Testing sizes of structures..." << endl;
+    VCOUT << "SCMBUnion           : " << sizeof(SCMBUnion) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBUnion) == 16);
+    VCOUT << "SCMBDataPtr         : " << sizeof(SCMBDataPtr) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBDataPtr) == 16);
+    VCOUT << "SCMBValue           : " << sizeof(SCMBValue) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBValue) == 32);
+    VCOUT << "SCMBKeyBindingValue : " << sizeof(SCMBKeyBindingValue) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBKeyBindingValue) == 24);
+    VCOUT << "SCMBUserKeyBindingElement : "
          << sizeof(SCMBUserKeyBindingElement) << endl;
-    cout << "SCMBQualifier       : " << sizeof(SCMBQualifier) << endl;
-    cout << "SCMBMgmt_Header     : " << sizeof(SCMBMgmt_Header) << endl;
-    cout << "SCMBClassProperty   : " << sizeof(SCMBClassProperty) << endl;
-    cout << "SCMBClassPropertySet_Header : "
+    PEGASUS_TEST_ASSERT(sizeof(SCMBUserKeyBindingElement) == 64);
+    VCOUT << "SCMBQualifier       : " << sizeof(SCMBQualifier) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBQualifier) == 64);
+    VCOUT << "SCMBMgmt_Header     : " << sizeof(SCMBMgmt_Header) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBMgmt_Header) == 56);
+    VCOUT << "SCMBClassProperty   : " << sizeof(SCMBClassProperty) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBClassProperty) == 112);
+    VCOUT << "SCMBClassPropertySet_Header : "
          << sizeof(SCMBClassPropertySet_Header) << endl;
-    cout << "SCMBClassPropertyNode : " << sizeof(SCMBClassPropertyNode) << endl;
-    cout << "SCMBKeyBindingNode  : " << sizeof(SCMBKeyBindingNode) << endl;
-    cout << "SCMBKeyBindingSet_Header : "
+    PEGASUS_TEST_ASSERT(sizeof(SCMBClassPropertySet_Header) == 280);
+    VCOUT << "SCMBClassPropertyNode : " << sizeof(SCMBClassPropertyNode) <<endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBClassPropertyNode) == 120);
+    VCOUT << "SCMBKeyBindingNode  : " << sizeof(SCMBKeyBindingNode) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBKeyBindingNode) == 32);
+    VCOUT << "SCMBKeyBindingSet_Header : "
          << sizeof(SCMBKeyBindingSet_Header) << endl;
-    cout << "SCMBClass_Main      : " << sizeof(SCMBClass_Main) << endl;
-    cout << "SCMBInstance_Main   : " << sizeof(SCMBInstance_Main) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBKeyBindingSet_Header) == 152);
+    VCOUT << "SCMBClass_Main      : " << sizeof(SCMBClass_Main) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBClass_Main) == 600);
+    VCOUT << "SCMBInstance_Main   : " << sizeof(SCMBInstance_Main) << endl;
+    PEGASUS_TEST_ASSERT(sizeof(SCMBInstance_Main) == 216);
+    VCOUT << endl << "Testing sizes of structures...Done." << endl;
 }
 
 void CIMClassToSCMOClass()
@@ -1878,10 +1896,7 @@ int main (int argc, char *argv[])
     try
     {
 
-        if (verbose)
-        {
-            structureSizes();
-        }
+        structureSizesTest();
 
         CIMClassToSCMOClass();
 

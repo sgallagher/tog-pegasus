@@ -453,12 +453,12 @@ void SCMOXmlWriter::appendPropertyElement(
                 out << STRLIT(" EmbeddedObject=\"object\""
                               " EMBEDDEDOBJECT=\"object\"");
             }
-            else if (propertyType == CIMTYPE_INSTANCE)
-            {
-                out << STRLIT(" TYPE=\"string\""
-                              " EmbeddedObject=\"instance\""
-                              " EMBEDDEDOBJECT=\"instance\"");
-            }
+        }
+        else if (propertyType == CIMTYPE_INSTANCE)
+        {
+            out << STRLIT(" TYPE=\"string\""
+                          " EmbeddedObject=\"instance\""
+                          " EMBEDDEDOBJECT=\"instance\"");
         }
         else
         {

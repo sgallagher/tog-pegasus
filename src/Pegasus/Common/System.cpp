@@ -668,6 +668,8 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
 
 Boolean System::isLocalHost(const String &hostName)
 {
+    // shortcut if hostname == localhost
+    if (String::equalNoCase(hostName,String("localhost"))) return true;
 // Get all ip addresses on the node and compare them with the given hostname.
 #ifdef PEGASUS_ENABLE_IPV6
     CString csName = hostName.getCString();
@@ -808,8 +810,6 @@ Boolean System::isLocalHost(const String &hostName)
 
     if (!hostNameIsIPNotation)  // if hostname is not an IP address
     {
-        // localhost ?
-        if (String::equalNoCase(hostName,String("localhost"))) return true;
         char localHostName[PEGASUS_MAXHOSTNAMELEN];
         CString cstringLocalHostName = System::getHostName().getCString();
         strcpy(localHostName, (const char*) cstringLocalHostName);

@@ -473,12 +473,26 @@ BadQualifierOverride::~BadQualifierOverride()
 // BadQualifierType
 //
 //==============================================================================
-
-BadQualifierType::BadQualifierType(const String& qualifierName)
-    : Exception(MessageLoaderParms(KEY, MSG, qualifierName))
+BadQualifierType::BadQualifierType(
+    const String& qualifierName, const String& className):
+        Exception(
+            MessageLoaderParms(
+                KEY,
+                MSG,
+                className.size()==0?qualifierName:
+                    qualifierName+"(\""+className+"\")")),
+        _qualifierName(qualifierName),
+        _className(className)
 {
 }
-
+const String& BadQualifierType:: getQualifierName() const
+{
+    return _qualifierName;
+}
+const String& BadQualifierType:: getClassName() const
+{
+    return _className;
+}
 BadQualifierType::~BadQualifierType()
 {
 }

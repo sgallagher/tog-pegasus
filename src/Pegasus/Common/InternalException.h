@@ -137,9 +137,14 @@ public:
 
     static const char MSG[];
     static const char KEY[];
-
-    BadQualifierType(const String& qualifierName);
+    BadQualifierType(const String& qualifierName,
+        const String& className = String());
     virtual ~BadQualifierType();
+    const String _qualifierName;
+    const String _className;
+    const String& getQualifierName() const;
+    const String& getClassName() const;
+
 };
 
 // ATTN: P3  KS documentation Required

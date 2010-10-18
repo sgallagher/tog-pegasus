@@ -181,13 +181,13 @@ void CIMQualifierList::resolve(
             String className;
             q.getValue().get(className);
             CIMClass classDef = declContext->lookupClass(nameSpace,
-                    CIMName(className));
+                CIMName(className));
             if (classDef.isUninitialized())
             {
-                String embeddedInstType("EmbeddedInstance(\"");
-                embeddedInstType = embeddedInstType + className + "\")";
                 PEG_METHOD_EXIT();
-                throw BadQualifierType(embeddedInstType);
+                throw BadQualifierType(
+                     PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE.getString(),
+                     className);
             }
         }
 

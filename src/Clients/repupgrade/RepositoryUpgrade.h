@@ -431,6 +431,23 @@ private:
                                   const Array<CIMName>    existingClasses);
 
     //
+    // Check if the class exists in the old repository.
+    //
+    // @param namespaceName     namespace to which the class belongs
+    //
+    // @param className         name of the class to be added.
+    //
+    // @param dependenClassName class on which className is dependent on.
+
+    // @return   true           if dependenClassName exists.
+    //
+    //           exception      if the dependentClassName does not exist.
+    CIMClass _checkIfDependentClassExists(
+        const CIMNamespaceName& namespaceName,
+        const CIMName&          className,
+        const CIMName&          dependentClassName);
+
+    //
     // Adds instances from the old repository into the new repository.
     // If an instance already exists in the new repository then it
     // is not imported from the old repository.

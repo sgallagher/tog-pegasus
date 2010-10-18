@@ -1777,6 +1777,36 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
 #ifdef REPUPGRADE_DEBUG
             cout << "Class created : " << className.getString() << endl;
 #endif
+
+        }
+        catch(BadQualifierType& bqe)
+        {
+            if(bqe.getQualifierName() == "EmbeddedInstance" )
+            {
+                CIMName dependentClassName(bqe.getClassName());
+                if (! Contains( existingClasses, dependentClassName))
+                {
+                    oldClass = _checkIfDependentClassExists(namespaceName,
+                        className,
+                        dependentClassName);
+
+                    retCode = 1;
+                }
+                else
+                {
+                    _logCreateClassError (namespaceName,
+                                          oldClass,
+                                          (bqe.getMessage()+". "));
+                }
+            }
+            //BadQualifierType exception occured not because of 
+            //embedded instance repupgrade    
+            else 
+            {
+                 _logCreateClassError (namespaceName,
+                                       oldClass,
+                                       (bqe.getMessage()+". "));
+            }
         }
         catch (CIMException& ce)
         {
@@ -1792,48 +1822,10 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 //
                 if (! Contains( existingClasses, dependentClassName))
                 {
-                    //
-                    // Check if the class that we depend on exists in
-                    // the old repository.
-                    // If it doesn't exist, error out.
-                    //
-                    try
-                    {
-                        oldClass = _oldRepository->getClass(
-                                            namespaceName,
-                                            dependentClassName,
-                                            true,
-                                            true,
-                                            true);
+                    oldClass = _checkIfDependentClassExists(namespaceName,
+                        className,
+                        dependentClassName);
 
-                    }
-                    catch (const CIMException&)
-                    {
-                        //
-                        // We have an exception case here.
-                        //
-                        String message = localizeMessage (MSG_PATH,
-                               REPOSITORY_UPGRADE_FAILURE_KEY,
-                               REPOSITORY_UPGRADE_FAILURE) + " " +
-
-                              localizeMessage ( MSG_PATH,
-                              CLASS_CREATION_ERROR_KEY,
-                              CLASS_CREATION_ERROR,
-                              className.getString(),
-                              namespaceName.getString()) + " " +
-
-                               localizeMessage (MSG_PATH,
-                               OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY,
-                               OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR,
-                               dependentClassName.getString(),
-                               namespaceName.getString());
-
-                         throw RepositoryUpgradeException(message);
-                    }
-#ifdef REPUPGRADE_DEBUG
-                    cout << "Adding to retry list Class name : "
-                         << ce.getMessage() << endl;
-#endif
                     retCode = 1;
                 }
                 else
@@ -1868,6 +1860,55 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
 
     return retCode;
 }
+
+CIMClass RepositoryUpgrade::_checkIfDependentClassExists(
+                      const CIMNamespaceName& namespaceName,
+                      const CIMName&          className,
+                      const CIMName&          dependentClassName)
+{
+    // Check if the class that we depend on exists in
+    // the old repository.
+    // If it doesn't exist, error out.
+    try
+    {
+        CIMClass oldClass = _oldRepository->getClass(
+            namespaceName,
+            dependentClassName,
+            true,
+            true,
+            true);
+
+#ifdef REPUPGRADE_DEBUG
+        cout << "Adding to retry list Class name : "
+            << (const char *) className.getString().getCString()<< endl;
+#endif
+        return oldClass;
+
+    }
+    //Embedded instance is not in old repository
+    catch (const CIMException& c) 
+    {
+        // We have an exception case here.
+        String message = localizeMessage (MSG_PATH,
+                             REPOSITORY_UPGRADE_FAILURE_KEY,
+                             REPOSITORY_UPGRADE_FAILURE) + " " +
+                              
+                         localizeMessage ( MSG_PATH,
+                             CLASS_CREATION_ERROR_KEY,
+                             CLASS_CREATION_ERROR,
+                             className.getString(),
+                             namespaceName.getString()) + " " +
+
+                         localizeMessage (MSG_PATH,
+                             OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY,
+                             OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR,
+                             dependentClassName.getString(),
+                             namespaceName.getString());
+
+        throw RepositoryUpgradeException(message);
+    }
+}
+ 
 
 void RepositoryUpgrade::_addInstances(void)
 {

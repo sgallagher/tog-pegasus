@@ -1427,6 +1427,11 @@ private:
         const Array<CIMName> &indicationSubclasses,
         const CIMNamespaceName &sourceNameSpace);
 
+    void _deliverWaitingIndications();
+    void _beginCreateSubscription(const CIMObjectPath &objPath);
+    void _cancelCreateSubscription(const CIMObjectPath &objPath);
+    void _commitCreateSubscription(const CIMObjectPath &objPath);
+
     static Uint16 _enabledState;
     static Uint16 _healthState;
 
@@ -1452,6 +1457,12 @@ private:
 
     AutoPtr<IndicationServiceConfiguration> _indicationServiceConfiguration;
 #endif
+
+    /**
+        Indications waiting for completion of pending create subscription
+        requests.
+    */
+    List<Message, Mutex> _deliveryWaitIndications;
 
     /**
         Handle to Provider Registration Manager

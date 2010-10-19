@@ -379,6 +379,7 @@ public:
     void beginCreateSubscription(const CIMObjectPath &subPath);
     void cancelCreateSubscription(const CIMObjectPath &subPath);
     void commitCreateSubscription(const CIMObjectPath &subPath);
+    Uint32 getUncommittedCreateSubscriptionRequests();
 private:
 
     /**
@@ -409,6 +410,7 @@ private:
 
     AutoPtr<NormalizedSubscriptionTable> _normalizedSubscriptionTable;
     Mutex _normalizedSubscriptionTableMutex;
+    Uint32 _uncommittedCreateSubscriptionRequests;
 };
 
 PEGASUS_NAMESPACE_END

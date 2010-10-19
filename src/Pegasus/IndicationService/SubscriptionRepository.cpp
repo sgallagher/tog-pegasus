@@ -52,7 +52,6 @@ PEGASUS_NAMESPACE_BEGIN
 */
 #define PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE 50
 
-
 static ObjectCache<CIMInstance>
     _handlerFilterCache(PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE);
 static Mutex _handlerFilterCacheMutex;
@@ -75,12 +74,18 @@ SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
 {
+    _uncommittedCreateSubscriptionRequests = 0;
     _normalizedSubscriptionTable.reset(
         new NormalizedSubscriptionTable(getAllSubscriptions()));
 }
 
 SubscriptionRepository::~SubscriptionRepository ()
 {
+}
+
+Uint32 SubscriptionRepository::getUncommittedCreateSubscriptionRequests()
+{
+    return _uncommittedCreateSubscriptionRequests;
 }
 
 void SubscriptionRepository::beginCreateSubscription(
@@ -104,6 +109,7 @@ void SubscriptionRepository::beginCreateSubscription(
                 subPath.toString()));
     }
     _normalizedSubscriptionTable->add(subPath, false);
+    _uncommittedCreateSubscriptionRequests++;
 }
 
 void SubscriptionRepository::cancelCreateSubscription(
@@ -111,6 +117,7 @@ void SubscriptionRepository::cancelCreateSubscription(
 {
     AutoMutex mtx(_normalizedSubscriptionTableMutex);
     _normalizedSubscriptionTable->remove(subPath);
+    _uncommittedCreateSubscriptionRequests--;
 }
 
 void SubscriptionRepository::commitCreateSubscription(
@@ -119,6 +126,7 @@ void SubscriptionRepository::commitCreateSubscription(
     AutoMutex mtx(_normalizedSubscriptionTableMutex);
     _normalizedSubscriptionTable->remove(subPath);
     _normalizedSubscriptionTable->add(subPath, true);
+    _uncommittedCreateSubscriptionRequests--;
 }
 
 CIMObjectPath SubscriptionRepository::createInstance (

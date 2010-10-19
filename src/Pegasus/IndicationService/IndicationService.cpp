@@ -1745,6 +1745,36 @@ void IndicationService::_checkNonprivilegedAuthorization(
 #endif
 }
 
+void IndicationService::_deliverWaitingIndications()
+{
+    // Deliver indications if any waiting for pending Create Subscription
+    // requests.
+    Message *message;
+    while(!_subscriptionRepository->
+         getUncommittedCreateSubscriptionRequests() &&
+            (message = _deliveryWaitIndications.remove_front()))
+    {
+        handleEnqueue(message);
+    }
+}
+
+void IndicationService::_beginCreateSubscription(const CIMObjectPath &objPath)
+{
+    _subscriptionRepository->beginCreateSubscription(objPath);
+}
+
+void IndicationService::_cancelCreateSubscription(const CIMObjectPath &objPath)
+{
+    _subscriptionRepository->cancelCreateSubscription(objPath);
+    _deliverWaitingIndications();
+}
+
+void IndicationService::_commitCreateSubscription(const CIMObjectPath &objPath)
+{
+    _subscriptionRepository->commitCreateSubscription(objPath);
+    _deliverWaitingIndications();
+}
+
 void IndicationService::_handleCreateInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
@@ -1793,8 +1823,7 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
             (instance.getClassName().equal(
                  PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
         {
-            _subscriptionRepository->
-                beginCreateSubscription(instance.getPath());
+            _beginCreateSubscription(instance.getPath());
 
             try
             {
@@ -1857,12 +1886,12 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
                     instanceRef = _subscriptionRepository->createInstance(
                         instance, request->nameSpace, userName,
                         acceptLangs, contentLangs, false);
+                    _commitCreateSubscription(subscriptionPath);
                 }
             }
             catch (...)
             {
-                _subscriptionRepository->cancelCreateSubscription(
-                    subscriptionPath);
+                _cancelCreateSubscription(subscriptionPath);
                 throw;
             }
         }
@@ -2890,6 +2919,27 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
                    getCString())));
 
+        // If there are subscription requests pending with the providers,
+        // deliver the indication later when all create subscription
+        // requests are completed.
+        // It is possible that indication arrives after provider's
+        // enableIndication() method is called and before create
+        // subscription request is completed by IndicationService.
+        // This casuses the indications to be lost because of no matching
+        // subscriptions exists.
+        if (_subscriptionRepository->getUncommittedCreateSubscriptionRequests())
+        {
+            PEG_TRACE_CSTRING(TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                "Pending Create subscription requets exists, indication"
+                   " will be delivered after all pending create"
+                   " subscription requets are completed");
+             CIMProcessIndicationRequestMessage * requestCopy =
+                    new CIMProcessIndicationRequestMessage(*request);
+            _deliveryWaitIndications.insert_back(requestCopy);
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         //
         // Get supported properties by the indication provider
         // Get Indication class properties
@@ -2919,6 +2969,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
         //
         Array<CIMInstance> subscriptions;
         Array<String> subscriptionKeys;
+
         _getRelevantSubscriptions(
             request->subscriptionInstanceNames,
             indication.getClassName(),
@@ -7714,11 +7765,11 @@ void IndicationService::_handleCreateResponseAggregation(
     {
         if (cimException.getCode() != CIM_ERR_SUCCESS)
         {
-            _subscriptionRepository->cancelCreateSubscription(instanceRef);
+            _cancelCreateSubscription(instanceRef);
         }
         else
         {
-            _subscriptionRepository->commitCreateSubscription(instanceRef);
+            _commitCreateSubscription(instanceRef);
         }
     }
 

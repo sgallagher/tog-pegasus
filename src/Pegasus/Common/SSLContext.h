@@ -204,7 +204,6 @@ public:
     /** OpenSSL error code X509_V_ERR_APPLICATION_VERIFICATION. */
     static const int V_ERR_APPLICATION_VERIFICATION;
 
-
     /** Constructor for an SSLCertificateInfo object.
         Note: Do not use this constructor, instead use the private constructor.
         The constructor is not for client applications use, it is intended to be
@@ -299,6 +298,13 @@ public:
         @return a string containing the certificate fields
     */
     String toString() const;
+
+    /** Returns the peer certificate in PEM form.
+        @return a string containing the certificate
+    */
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    const String &getPeerCertificate() const;
+#endif
 
 private:
 

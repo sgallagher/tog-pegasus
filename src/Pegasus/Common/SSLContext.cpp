@@ -77,6 +77,24 @@ PEGASUS_NAMESPACE_BEGIN
 
 const int SSLCallbackInfo::SSL_CALLBACK_INDEX = 0;
 
+class SSLCertificateInfoRep
+{
+public:
+    String    subjectName;
+    String    issuerName;
+    Uint32    depth;
+    Uint32    errorCode;
+    Uint32    respCode;
+    String    errorString;
+    Uint32    versionNumber;
+    long      serialNumber;
+    CIMDateTime    notBefore;
+    CIMDateTime    notAfter;
+#ifdef  PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    String    peerCertificate;
+#endif
+};
+
 //
 // use the following definitions only if SSL is available
 //
@@ -407,9 +425,46 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
 
     // insert at the beginning of the array so that the peer certificate is
     // first and the root CA is last
-    exData->_rep->peerCertificate.insert(0, new SSLCertificateInfo(
-        subjectName, issuerName, version, serialNumber,
-        notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk));
+    SSLCertificateInfo *certInfo = new SSLCertificateInfo(
+        subjectName,
+        issuerName,
+        version,
+        serialNumber,
+        notBefore,
+        notAfter,
+        depth,
+        errorCode,
+        errorStr,
+        preVerifyOk);
+
+    String peerCertificate;
+#ifdef  PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    //
+    // Get Base64 encoded DER (PEM) certificate
+    //
+    char *data = 0;
+    long length = 0;
+
+    BIO *bio = BIO_new(BIO_s_mem());
+    if (bio)
+    {
+        if (PEM_write_bio_X509(bio, currentCert) == 0)
+        {
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+                "PEM converion failed.");
+        }
+        else
+        {
+            length = BIO_get_mem_data(bio, &data);
+            peerCertificate.assign(data, (Uint32)length);
+        }
+        BIO_free_all(bio);
+    }
+    certInfo->_rep->peerCertificate = peerCertificate;
+#endif
+
+    exData->_rep->peerCertificate.insert(0, certInfo);
+
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "Created SSLCertificateInfo");
 
@@ -1376,22 +1431,6 @@ const int    SSLCertificateInfo::V_ERR_KEYUSAGE_NO_CERTSIGN                = 32;
 
 const int    SSLCertificateInfo::V_ERR_APPLICATION_VERIFICATION            = 50;
 
-class SSLCertificateInfoRep
-{
-public:
-    String    subjectName;
-    String    issuerName;
-    Uint32    depth;
-    Uint32    errorCode;
-    Uint32    respCode;
-    String    errorString;
-    Uint32    versionNumber;
-    long      serialNumber;
-    CIMDateTime    notBefore;
-    CIMDateTime    notAfter;
-};
-
-
 SSLCertificateInfo::SSLCertificateInfo(
     const String subjectName,
     const String issuerName,
@@ -1451,6 +1490,9 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep->errorCode = certificateInfo._rep->errorCode;
     _rep->errorString = certificateInfo._rep->errorString;
     _rep->respCode = certificateInfo._rep->respCode;
+#ifdef  PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    _rep->peerCertificate = certificateInfo._rep->peerCertificate;
+#endif
 }
 
 // Dummy constructor made private to disallow default construction
@@ -1522,6 +1564,13 @@ void SSLCertificateInfo::setResponseCode(const int respCode)
 {
     _rep->respCode = respCode;
 }
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+const String &SSLCertificateInfo::getPeerCertificate() const
+{
+    return _rep->peerCertificate;
+}
+#endif
 
 String SSLCertificateInfo::toString() const
 {

@@ -27,122 +27,23 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cstdlib>
 #include <cstdio>
 #include <Pegasus/Common/SCMOXmlWriter.h>
-#include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
-void SCMOXmlWriter::buildPropertyFilterNodesArray(
-     Array<Uint32> & nodes,
-     const SCMOClass * classPtr,
-     const CIMPropertyList & propertyList)
-{
-    for (Uint32 i=0,k=propertyList.size(); i<k; i++)
-    {
-        Uint32 node = 0;
-        const CIMName & name = propertyList[i];
-        SCMO_RC rc =
-            classPtr->_getProperyNodeIndex(
-                node,
-                (const char *)name.getString().getCString());
-        if(rc == SCMO_OK)
-        {
-            nodes.append(node);
-        }
-    }
-}
-
-const Array<Uint32> & SCMOXmlWriter::getFilteredNodesArray(
-     Array<propertyFilterNodesArray_t> & propFilterNodesArrays,
-     const SCMOInstance& scmoInstance,
-     const CIMPropertyList & propertyList)
-{
-    //First see if the class ptr is already stored in the propFilterNodesArrays
-    const SCMOClass * classPtr = scmoInstance.inst.hdr->theClass.ptr;
-    SCMBClass_Main * classPtrMemBlock = classPtr->cls.hdr;
-    for (int i=0, k=propFilterNodesArrays.size(); i < k; i++)
-    {
-        if (classPtrMemBlock == propFilterNodesArrays[i].classPtrMemBlock)
-        {
-            return propFilterNodesArrays[i].nodes;
-        }
-    }
-
-    // Could not find the class pointer of this SCMOInstance in the
-    // property filter nodes array
-    // --> need to create the new entry and return that
-    propertyFilterNodesArray_t newEntry;
-    newEntry.classPtrMemBlock = classPtrMemBlock;
-    SCMOXmlWriter::buildPropertyFilterNodesArray(
-        newEntry.nodes,
-        classPtr,
-        propertyList);
-    propFilterNodesArrays.append(newEntry);
-
-    // return the new nodes entry, but as a reference into the array
-    return propFilterNodesArrays[propFilterNodesArrays.size()-1].nodes;
-}
-
-void SCMOXmlWriter::appendValueSCMOInstanceElements(
-     Buffer& out,
-     const Array<SCMOInstance> & _scmoInstances,
-     const CIMPropertyList & propertyList)
-{
-    if (propertyList.isNull())
-    {
-        Array<Uint32> emptyNodes;
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
-        {
-            SCMOXmlWriter::appendValueSCMOInstanceElement(
-                out,
-                _scmoInstances[i],
-                false,
-                emptyNodes);
-        }
-    }
-    else
-    {
-        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
-        {
-            // This searches for an already created array of nodes,
-            // if not found, creates it inside propFilterNodesArrays
-            const Array<Uint32> & nodes=
-                SCMOXmlWriter::getFilteredNodesArray(
-                    propFilterNodesArrays,
-                    _scmoInstances[i],
-                    propertyList);
-
-            SCMOXmlWriter::appendValueSCMOInstanceElement(
-                out,
-                _scmoInstances[i],
-                true,
-                nodes);
-        }
-    }
-}
 
 void SCMOXmlWriter::appendValueSCMOInstanceElement(
     Buffer& out,
-    const SCMOInstance& scmoInstance,
-    bool filtered,
-    const Array<Uint32> & nodes)
-
+    const SCMOInstance& scmoInstance)
 {
     out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
 
     appendInstanceNameElement(out, scmoInstance);
-    appendInstanceElement(out, scmoInstance,filtered,nodes);
+    appendInstanceElement(out, scmoInstance);
 
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
@@ -217,9 +118,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
 //------------------------------------------------------------------------------
 void SCMOXmlWriter::appendInstanceElement(
     Buffer& out,
-    const SCMOInstance& scmoInstance,
-    bool filtered,
-    const Array<Uint32> & nodes)
+    const SCMOInstance& scmoInstance)
 {
     // Class opening element:
 
@@ -246,19 +145,13 @@ void SCMOXmlWriter::appendInstanceElement(
     }
 
     // Append Properties:
-    if(!filtered)
+    // getPropertyCount() returns number of properties, only non-filtered ones
+    for (Uint32 i=0,k=scmoInstance.getPropertyCount();i<k;i++)
     {
-        for (Uint32 i=0,k=scmoInstance.inst.hdr->numberProperties;i<k;i++)
-        {
-            SCMOXmlWriter::appendPropertyElement(out,scmoInstance,i);
-        }
-    }
-    else
-    {
-        for (Uint32 i=0,k=nodes.size();i<k;i++)
-        {
-            SCMOXmlWriter::appendPropertyElement(out,scmoInstance,nodes[i]);
-        }
+        // function _getPropertyAt() used by appendPropertyElement
+        // translates the filter position of a property into the real one
+        // for us
+        SCMOXmlWriter::appendPropertyElement(out,scmoInstance,i);
     }
     // Instance closing element:
     out << STRLIT("</INSTANCE>\n");
@@ -738,58 +631,18 @@ void SCMOXmlWriter::appendInstancePathElement(
     appendInstanceNameElement(out, instancePath);
     out << STRLIT("</INSTANCEPATH>\n");
 }
-void SCMOXmlWriter::appendValueObjectWithPathElement(
-    Buffer& out,
-    const Array<SCMOInstance> & objectWithPath,
-    const CIMPropertyList& propertyList)
-{
-    if (propertyList.isNull())
-    {
-        Array<Uint32> emptyNodes;
-        for (Uint32 i = 0, n = objectWithPath.size(); i < n; i++)
-        {
-            SCMOXmlWriter::appendValueObjectWithPathElement(
-                out,
-                objectWithPath[i],
-                false,
-                emptyNodes);
-        }
-    }
-    else
-    {
-        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-        for (Uint32 i = 0, n = objectWithPath.size(); i < n; i++)
-        {
-            // This searches for an already created array of nodes,
-            // if not found, creates it inside propFilterNodesArrays
-            const Array<Uint32> & nodes=
-                SCMOXmlWriter::getFilteredNodesArray(
-                    propFilterNodesArrays,
-                    objectWithPath[i],
-                    propertyList);
-            SCMOXmlWriter::appendValueObjectWithPathElement(
-                out,
-                objectWithPath[i],
-                true,
-                nodes);
-
-        }
-    }
-}
 
 // appendValueObjectWithPathElement()
 //     <!ELEMENT VALUE.OBJECTWITHPATH
 //         ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
 void SCMOXmlWriter::appendValueObjectWithPathElement(
     Buffer& out,
-    const SCMOInstance& objectWithPath,
-    bool filtered,
-    const Array<Uint32> & nodes)
+    const SCMOInstance& objectWithPath)
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
     appendValueReferenceElement(out, objectWithPath, false);
-    appendObjectElement(out, objectWithPath,filtered,nodes);
+    appendObjectElement(out, objectWithPath);
 
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
 }
@@ -798,9 +651,7 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
 // May refer to a CLASS or an INSTANCE
 void SCMOXmlWriter::appendObjectElement(
     Buffer& out,
-    const SCMOInstance& object,
-    bool filtered,
-    const Array<Uint32> & nodes)
+    const SCMOInstance& object)
 {
     if (object.inst.hdr->flags.isClassOnly)
     {
@@ -808,7 +659,7 @@ void SCMOXmlWriter::appendObjectElement(
     }
     else
     {
-        appendInstanceElement(out, object,filtered,nodes);
+        appendInstanceElement(out, object);
     }
 }
 
@@ -1305,7 +1156,6 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 arr++;
             }
             out << STRLIT("</VALUE.REFARRAY>\n");
-            break;
         }
         case CIMTYPE_OBJECT:
         case CIMTYPE_INSTANCE:

@@ -799,8 +799,16 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                             CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE ||
                         msgType == CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE)
                     {
-                        response = i.value()->requestMessage->buildResponse();
-                        sendResponseNow = true;
+                        CIMException ce;
+                        if(i.value()->respAggregator == NULL ||
+                            i.value()->respAggregator->isComplete(ce))
+                        {
+                            response = 
+                                i.value()->requestMessage->buildResponse();
+                            response->messageId = i.value()->originalMessageId;
+                            response->cimException = ce;
+                            sendResponseNow = true;
+                        }
                     }
                     else
                     {

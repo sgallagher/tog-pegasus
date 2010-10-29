@@ -50,7 +50,7 @@ TEST_DIRS = test
 # Define the inclusion of the recurse.mak file to execute the next
 # level of makefiles defined by the DIRS variable
 
-defaultrule: all setupdevserver
+defaultrule: cimprovagt32 all setupdevserver
 
 include $(ROOT)/mak/recurse.mak
 
@@ -154,7 +154,7 @@ depend: buildmu
 #-----------------------
 # build target: builds all source
 #
-build: depend all setupdevserver
+build: cimprovagt32depend cimprovagt32 depend all setupdevserver
 
 #------------------------
 # rebuild target is being deprecated instead use "make new build"
@@ -177,7 +177,7 @@ rebuild: rebuild_msg shortsleep new build s_unittests repository
 # make new build
 # make new world
 
-new: clean repositoryclean
+new: cimprovagt32clean clean repositoryclean
 
 #-----------------------
 # world targets: builds everything and dependent on which target may do testing
@@ -186,6 +186,23 @@ new: clean repositoryclean
 
 world: build s_unittests servertests
 
+############################
+#
+# rules for building 32 bit provider agent
+#
+cimprovagt32depend: FORCE
+ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
+	$(MAKE) --directory=$(ROOT) -f Makefile.cimprovagt32 depend
+endif
+cimprovagt32: FORCE
+ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
+	$(MAKE) --directory=$(ROOT) -f Makefile.cimprovagt32
+endif
+
+cimprovagt32clean: FORCE
+ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
+	$(MAKE) --directory=$(ROOT) -f Makefile.cimprovagt32 clean
+endif
 
 ############################
 #

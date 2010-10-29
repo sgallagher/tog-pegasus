@@ -1730,6 +1730,23 @@ additional information.</p>
   <br>
 </ul>
 
+<h5>PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT</h5>
+<ul>
+  <b>Description:&nbsp;</b> Builds the Pegasus with 32-bit provider support for the specified platform.
+    If this option is set, the value MUST be one of the 32-bit supported platforms by Pegasus.
+  <br>
+  <b>Default Value:&nbsp;</b>Not set<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>Not set<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>Not set<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>
+     This option is used to run the 32-bit providers under 64-bit CIMserver.
+     To register the 32-bit providers, register the provider module by setting the
+     Bitness property value to "2". 32-bit Providers are always loaded out of process
+     irrespective of forceProviderProcesses config option.
+  <br>
+</ul>
+
 <h5>PEGASUS_USE_SQLITE_REPOSITORY</h5>
 <ul>
   <b>Description:&nbsp;</b>If true, new repository stores are created

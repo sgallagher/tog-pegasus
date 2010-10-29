@@ -142,7 +142,7 @@ public:
 
     /** Start a provider agent as the given user. The provider agent will
         load the given provider module.
-
+        @param type of provider module (32 or 64 bit)
         @param module name of provider module to be loaded.
         @param pegasusHome the Pegasus home directory to use to find the
             cimprovagt executable.
@@ -154,6 +154,7 @@ public:
         @return 0=success, -1=failure
     */
     static int startProviderAgent(
+        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,

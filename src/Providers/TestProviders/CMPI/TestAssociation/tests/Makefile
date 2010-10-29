@@ -32,10 +32,7 @@ DIR = Providers/TestProviders/CMPI/TestAssociation/tests
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-     pegserver \
      pegclient \
-     pegrepository \
-     pegconfig \
      pegcommon
 
 

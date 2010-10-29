@@ -137,6 +137,22 @@ class PG_ProviderModule : CIM_LogicalElement {
         " Sets the module group name")]
    sint16 setModuleGroupName([IN] string moduleGroupName);
 
+      [Description(
+        " Uint16 value indicating the provider module bitness."
+        " This option is useful when the CIMServer is compiled"
+        " to support different types of (bitness) provider modules. For"
+        " example: 64 bit CIMServer supporting the 32 bit provider"
+        " modules. \"Default\" indicates both provider module and"
+        " CIMServer have same bitness."
+        " \"32\" indicates that the provider module is 32/31-bit type."
+        " \"64\" indicates that the provider module is 64-bit type."
+        " If the specified bitness is different from CIMServer bitness,"
+        " the provider module is always loaded into out of process"
+        " irrespective of forceProviderProcesses option value."),
+      ValueMap {"1", "2", "3", "4"},
+      Values {"Default", "32", "64" }]
+   uint16 Bitness;
+
       [Description ("")]
    uint32 start();
       [Description ("")]

@@ -370,6 +370,9 @@
 # undef PEGASUS_DEFAULT_MESSAGE_SOURCE      /* Not defined */
 #endif
 
+#define PEGASUS_PROVIDER_AGENT32_PROC_NAME \
+    PEGASUS_PROVIDER_AGENT_PROC_NAME "32"
+
 /* Use the PID file as a semaphore for repository access */
 /* Use the configuration file instead of the PID file on Windows*/
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -405,6 +408,11 @@
 #define PG_PROVMODULE_USERCTXT_DESIGNATED 3
 #define PG_PROVMODULE_USERCTXT_PRIVILEGED 4
 #define PG_PROVMODULE_USERCTXT_CIMSERVER 5
+
+/* Constants defining Bitness values in a PG_ProviderModule */
+#define PG_PROVMODULE_BITNESS_DEFAULT 1
+#define PG_PROVMODULE_BITNESS_32 2
+#define PG_PROVMODULE_BITNESS_64 3
 
 /* Constant defining Server truststore type value in a PG_SSLCertificate */
 #define PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER Uint16(2)
@@ -657,6 +665,8 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_MODULE_MODULEGROUPNAME;
+PEGASUS_COMMON_LINKAGE
+    extern const CIMName PEGASUS_PROPERTYNAME_MODULE_BITNESS;
 
 /**
     The name of the Destination property for CIM XML Indication Handler

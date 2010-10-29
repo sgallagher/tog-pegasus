@@ -60,6 +60,10 @@ Epoch:   1
 # Use "rpmbuild --define 'EXTERNAL_SLP_REQUESTED 1'" to include External SLP support.
 %{?!EXTERNAL_SLP_REQUESTED: %define EXTERNAL_SLP_REQUESTED 0}
 
+# Use "rpmbuild --define 'PEGASUS_32BIT_PROVIDER_SUPPORT 1'" to build 32 bit
+# providers for 64 bit CIMOM.
+%{?!PEGASUS_32BIT_PROVIDER_SUPPORT: %define PEGASUS_32BIT_PROVIDER_SUPPORT 0}
+
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base
@@ -152,6 +156,34 @@ sources.
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
 
+# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec
+# This is required only when PEGASUS_32BIT_PROVIDER_SUPPORT is set
+
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+
+%ifarch x86_64
+%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_GNU
+%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -Wno-unused -m32"
+%global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+%else
+%ifarch ppc64 pseries
+%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_PPC_GNU
+%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -fmessage-length=0 -D_FORTIFY_SOURCE=2 -m32 -Wno-unused"
+%global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -m32"
+%else
+%ifarch s390x zseries
+%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_ZSERIES_GNU
+%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m31 -Wno-unused"
+%global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m31"
+%endif
+%endif
+%endif
+
+%endif
+
+#
+# End of section pegasus/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec
+
 %global PEGASUS_ARCH_LIB %{_lib}
 %global OPENSSL_HOME /usr
 %global OPENSSL_BIN /usr/bin
@@ -243,12 +275,28 @@ sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=true/' $PEGASUS_ENVVAR_FILE
 sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=false/' $PEGASUS_ENVVAR_FILE
 %endif
 
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+sed -i 's/#PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=.*$/PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT/' $PEGASUS_ENVVAR_FILE
+%endif
+
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
 make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.Release all
 chmod 777 %PEGASUS_RPM_HOME
 make -f $PEGASUS_ROOT/Makefile.Release repository
+
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+
+export PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT
+export PEGASUS_EXTRA_C_FLAGS=%PEGASUS_EXTRA_CXX_FLAGS_32BIT 
+export PEGASUS_EXTRA_CXX_FLAGS="$PEGASUS_EXTRA_C_FLAGS"
+export PEGASUS_EXTRA_LINK_FLAGS=%PEGASUS_EXTRA_LINK_FLAGS_32BIT
+
+make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.cimprovagt32 all
+
+%endif
+
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec
 
@@ -274,6 +322,14 @@ make -f $PEGASUS_ROOT/Makefile.Release stage \
 %else
 make -f $PEGASUS_ROOT/Makefile.Release stage \
     PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
+%endif
+
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+export PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT
+export LD_LIBRARY_PATH=$PEGASUS_HOME/lib32
+make -f $PEGASUS_ROOT/Makefile.cimprovagt32 stage \
+    PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
+
 %endif
 
 [ "$PEGASUS_HOME" != "/" ] && [ -d $PEGASUS_HOME ] && rm -rf $PEGASUS_HOME;
@@ -519,6 +575,18 @@ fi
 %endif
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/*.so.1
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+%dir /usr/lib/Pegasus
+%dir /usr/lib/Pegasus/providers
+%dir /usr/lib/Pegasus/providerManagers
+%attr(755,root,pegasus) /usr/lib/*.so.1
+%attr(755,root,pegasus) /usr/lib/Pegasus/providerManagers/*.so.1
+/usr/lib/libpegclient.so
+/usr/lib/libpegcommon.so
+/usr/lib/libpegprovider.so
+/usr/lib/libDefaultProviderManager.so
+/usr/lib/Pegasus/providerManagers/libCMPIProviderManager.so
+%endif
 %attr(750,root,pegasus) /usr/share/Pegasus/scripts/*
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(644,root,pegasus) /usr/share/man/man8/*

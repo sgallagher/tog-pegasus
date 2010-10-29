@@ -70,7 +70,7 @@ void testExecutorLoopbackImpl()
     AnonymousPipe* readPipe;
     AnonymousPipe* writePipe;
     PEGASUS_TEST_ASSERT(Executor::startProviderAgent(
-        "MyModule", "HomeDir", "me", pid, readPipe, writePipe) == -1);
+        1, "MyModule", "HomeDir", "me", pid, readPipe, writePipe) == -1);
 
     PEGASUS_TEST_ASSERT(Executor::reapProviderAgent(123) == -1);
 #endif
@@ -110,7 +110,7 @@ void testExecutorSocketImpl()
     AnonymousPipe* readPipe;
     AnonymousPipe* writePipe;
     PEGASUS_TEST_ASSERT(Executor::startProviderAgent(
-        "MyModule", "HomeDir", "me", pid, readPipe, writePipe) == -1);
+        1, "MyModule", "HomeDir", "me", pid, readPipe, writePipe) == -1);
 
     PEGASUS_TEST_ASSERT(Executor::reapProviderAgent(123) == 0);
 

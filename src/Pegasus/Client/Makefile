@@ -47,12 +47,14 @@ LIBRARY = pegclient
 LIBRARIES = \
     pegcommon
 
+ifndef PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT
 ifeq ($(PEGASUS_ENABLE_SLP),true)
     ifneq ($(OS_TYPE),windows)
         LIBRARIES += pegslp_client
     else
         SYS_LIBS = $(PEGASUS_HOME)/lib/pegslp_client.lib
     endif
+endif
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends
@@ -70,8 +72,10 @@ SOURCES = \
 SOURCES_SLP = \
     CIMServerDiscovery.cpp
 
+ifndef PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT
 ifeq ($(PEGASUS_ENABLE_SLP),true)
     SOURCES += $(SOURCES_SLP)
+endif
 endif
 
 include $(ROOT)/mak/dynamic-library.mak

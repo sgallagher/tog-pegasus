@@ -47,14 +47,17 @@ class PEGASUS_PRM_LINKAGE ProviderManagerMap
     public:
         static ProviderManagerMap& instance();
         bool isValidProvMgrIfc(String &ifcType, String &ifcVersion);
-        bool getProvMgrPathForIfcType(String &ifcType,
-            String &ifcVersion,
+        bool getProvMgrPathForIfcType(
+            const String &ifcType,
+            const String &ifcVersion,
+            Uint16 bitness,
             String &path);
 
     private:
         typedef struct __PROV_MGR_IFC_INFO_S
         {
             String path;
+            String path32;
             String ifcName;
             Array<String> ifcVersions;
         } ProvMgrIfcInfo;

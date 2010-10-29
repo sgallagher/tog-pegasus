@@ -163,6 +163,7 @@ struct ExecutorRenameFileResponse
 
 struct ExecutorStartProviderAgentRequest
 {
+    unsigned short moduleBitness;
     char module[EXECUTOR_BUFFER_SIZE];
     char userName[EXECUTOR_BUFFER_SIZE];
 };

@@ -32,10 +32,7 @@ DIR = Providers/TestProviders/CMPI/TestCMPIBrokerEnc/tests
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-     pegserver \
      pegclient \
-     pegrepository \
-     pegconfig \
      pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

@@ -111,6 +111,7 @@ public:
         const char* path) = 0;
 
     virtual int startProviderAgent(
+        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,
@@ -217,6 +218,7 @@ public:
 
 
     virtual int startProviderAgent(
+        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,
@@ -231,7 +233,10 @@ public:
         // Resolve full path of "cimprovagt" program.
 
         String path = FileSystem::getAbsolutePath(
-            pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
+            pegasusHome.getCString(),
+            bitness == PG_PROVMODULE_BITNESS_32 ?
+                PEGASUS_PROVIDER_AGENT32_PROC_NAME :
+                    PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
         // Create CString handles for cimprovagt arguments
 
@@ -779,6 +784,7 @@ public:
     }
 
     virtual int startProviderAgent(
+        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,
@@ -818,6 +824,7 @@ public:
         memset(&request, 0, sizeof(request));
         memcpy(request.module, module, moduleNameLength);
         memcpy(request.userName, userNameCString, userNameLength);
+        request.moduleBitness = bitness;
 
         if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
@@ -1138,6 +1145,7 @@ int Executor::removeFile(
 }
 
 int Executor::startProviderAgent(
+    unsigned short bitness,
     const char* module,
     const String& pegasusHome,
     const String& userName,
@@ -1146,7 +1154,7 @@ int Executor::startProviderAgent(
     AnonymousPipe*& writePipe)
 {
     once(&_executorImplOnce, _initExecutorImpl);
-    return _executorImpl->startProviderAgent(
+    return _executorImpl->startProviderAgent(bitness,
         module, pegasusHome, userName, pid, readPipe, writePipe);
 }
 

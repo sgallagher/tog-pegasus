@@ -32,10 +32,7 @@ DIR = Providers/TestProviders/CMPI/TestIndications/tests
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-     pegserver \
      pegclient \
-     pegrepository \
-     pegconfig \
      pegcommon
 
 LOGFILES = TestCMPIIndication

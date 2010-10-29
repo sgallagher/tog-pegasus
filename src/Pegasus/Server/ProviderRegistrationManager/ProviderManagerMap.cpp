@@ -87,8 +87,10 @@ bool ProviderManagerMap::isValidProvMgrIfc(String &ifcType, String &ifcVersion)
 }
 
 
-bool ProviderManagerMap::getProvMgrPathForIfcType(String &ifcType,
-    String &ifcVersion,
+bool ProviderManagerMap::getProvMgrPathForIfcType(
+    const String &ifcType,
+    const String &ifcVersion,
+    Uint16 bitness,
     String &path)
 {
     path.clear();
@@ -98,14 +100,16 @@ bool ProviderManagerMap::getProvMgrPathForIfcType(String &ifcType,
         {
             if (ifcVersion.size()==0)
             {
-                path = _pmArray[ifc].path;
+                path = bitness == PG_PROVMODULE_BITNESS_32 ?
+                    _pmArray[ifc].path32 :  _pmArray[ifc].path;
                 return true;
             }
             else for (Uint32 ver=0; ver<_pmArray[ifc].ifcVersions.size(); ver++)
             {
                 if (_pmArray[ifc].ifcVersions[ver] == ifcVersion)
                 {
-                    path = _pmArray[ifc].path;
+                    path = bitness == PG_PROVMODULE_BITNESS_32 ?
+                        _pmArray[ifc].path32 : _pmArray[ifc].path;
                     return true;
                 }
             }
@@ -157,6 +161,12 @@ void ProviderManagerMap::initialize()
                  FileSystem::buildLibraryFileName("pegprovidermanager")))
         {
             String fullPath = dirName + "/" + filename;
+#ifdef PEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR
+            String fullPath32 = PEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR;
+            fullPath32 = fullPath32 + "/" + filename;
+#else
+            String fullPath32 = dirName + "32/" + filename;
+#endif
             // found a file... assume it's a ProviderManager library
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Found file %s. Checking to see if it is a ProviderManager.",
@@ -243,6 +253,7 @@ void ProviderManagerMap::initialize()
 
                     ProvMgrIfcInfo entry;
                     entry.path = fullPath;
+                    entry.path32 = fullPath32;
                     entry.ifcName = ifcName;
 
                     // now get the versions

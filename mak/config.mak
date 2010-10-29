@@ -105,9 +105,17 @@ endif
 ##
 
 ifndef ALT_OBJ_DIR
+  ifeq ($(PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT),true)
+    OBJ_DIR = $(HOME_DIR)/obj32/$(DIR)
+  else
     OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
+  endif
 else
+  ifeq ($(PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT),true)
+    OBJ_DIR = $(HOME_DIR)/obj/$(ALT_OBJ_DIR)32
+  else
     OBJ_DIR = $(HOME_DIR)/obj/$(ALT_OBJ_DIR)
+  endif
 endif
 
 #############################################################################
@@ -118,7 +126,12 @@ ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
 else
     BIN_DIR = $(HOME_DIR)/bin
 endif
-LIB_DIR = $(HOME_DIR)/lib
+
+ifeq ($(PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT),true)
+  LIB_DIR = $(HOME_DIR)/lib32
+else
+  LIB_DIR = $(HOME_DIR)/lib
+endif
 
 # l10n
 # define the location for the compiled messages
@@ -525,6 +538,19 @@ ifdef PEGASUS_REMOVE_TRACE
     DEFINES += -DPEGASUS_REMOVE_TRACE
 endif
 
+
+ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
+   PLATFORM_FILE_32 = $(ROOT)/mak/platform_$(PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT).mak
+   ifeq ($(wildcard $(PLATFORM_FILE_32)), )
+      $(error  PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT  environment variable must be set to one of\
+        the following:$(VALID_PLATFORMS))
+   endif
+     DEFINES += -DPEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
+   ifdef PEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR
+       DEFINES += -DPEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR=\"$(PEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR)\"
+   endif
+endif
+  
 # PEP 315
 # Control whether compile with or without method entertexit trace code.
 # A value other than 'true' or 'false' will cause a make error.

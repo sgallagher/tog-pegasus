@@ -38,7 +38,6 @@ LIBRARY = PG_DefaultInstanceProvider
 
 LIBRARIES = \
     pegprovider \
-    pegrepository \
     pegclient \
     pegconfig \
     pegcommon

@@ -363,6 +363,32 @@ endif
 
 	cimprovider -r -m EmbeddedInstanceProviderModule
 
+setup32bittestproviders:
+	$ $(MAKE) unregister32bittestproviders
+	@ cimmof "-n$(INTEROPNS)" TestCPP_ProviderRegistration32Bit.mof
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	@ cimmof "-n$(INTEROPNS)" TestCMPI_ProviderRegistration32Bit.mof
+endif
+
+unsetup32bittestproviders:
+	$ $(MAKE) unregister32bittestproviders
+	@ cimmof "-n$(INTEROPNS)" MethodTestProviderR.mof
+	@ cimmof "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	@ cimmof "-n$(INTEROPNS)" TestCMPI_AssociationProviderR.mof
+	@ cimmof "-n$(INTEROPNS)" CMPIPerf_TestProviderRegistration.mof
+endif
+
+unregister32bittestproviders:
+	-cimprovider -r -m MethodTestProviderModule
+	-cimprovider -r -m TestInstanceProviderModule
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	-cimprovider -r -m TestCMPIAssociationProviderModule
+	-cimprovider -r -m cmpiPerf_TestAssocClassProviderModule
+	-cimprovider -r -m cmpiPerf_TestClassAProviderModule
+	-cimprovider -r -m cmpiPerf_TestClassProviderModule
+endif
+
 depend:
 
 sub:

@@ -26,43 +26,16 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../../../../
-DIR = Providers/TestProviders/CMPI/TestExecQuery/tests
+
+ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
-LIBRARIES = \
-     pegclient \
-     pegcommon
+cimprovagt32tests:
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/Load setup32bittestproviders
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/MethodTestProvider/testclient poststarttests
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/InstanceProvider/testclient poststarttests
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/CMPI/TestAssociation/tests poststarttests
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/PerformanceTests poststarttests
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/Load unsetup32bittestproviders
 
-EXTRA_INCLUDES = $(SYS_INCLUDES)
-
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
-
-SOURCES = TestCMPIInstanceExecQuery.cpp
-
-PROGRAM = TestCMPIInstanceExecQuery
-
-include $(ROOT)/mak/program.mak
-include $(ROOT)/test/config.mak
-
-LOGFILES = TestCMPIExecQuery
-
-tests:
-
-poststarttests: 
-	@$(RM) $(LOGFILES).log
-	$(PROGRAM) test test/TestProvider
-	@$(DIFF) $(LOGFILES).loggood $(LOGFILES).log
-	@$(ECHO) $(PROGRAM) "+++++ passed all tests"
-	@$(RM) $(LOGFILES).log
-ifdef PEGASUS_ENABLE_REMOTE_CMPI
-	@$(ECHO)  Testing with remote namespace
-	$(PROGRAM) test test/Remote/Localhost
-	@$(ECHO) $(PROGRAM) "+++++ passed all tests"
-	@$(RM) $(LOGFILES).log
-else
-	@$(ECHO) "+++++ PEGASUS_ENABLE_REMOTE_CMPI is NOT defined: Skipping remote CMPI tests"
-endif
-
-install:

@@ -709,6 +709,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     else
     {
         CIMInstance providerModule;
+        Uint16 bitness = PG_PROVMODULE_BITNESS_DEFAULT;
 
         if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
         {
@@ -739,10 +740,22 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             itValue.get(interfaceType);
             ivValue.get(interfaceVersion);
 
+            Uint32  idx = providerModule.findProperty(
+                PEGASUS_PROPERTYNAME_MODULE_BITNESS);
+
+            if (idx != PEG_NOT_FOUND)
+            {
+                CIMValue value = providerModule.getProperty(idx).getValue();
+                if (!value.isNull())
+                {
+                    value.get(bitness);
+                }
+            }
+
             String provMgrPath;
 
             if (!ProviderManagerMap::instance().getProvMgrPathForIfcType(
-                    interfaceType, interfaceVersion, provMgrPath))
+                    interfaceType, interfaceVersion, bitness, provMgrPath))
             {
                 MessageLoaderParms parms(
                     "ProviderManager.ProviderManagerService."
@@ -820,7 +833,8 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         // on the CIM Server configuration and the UserContext setting.
 
         if ( (_forceProviderProcesses &&
-                   moduleGroupName != PG_PROVMODULE_GROUPNAME_CIMSERVER)
+                   (moduleGroupName != PG_PROVMODULE_GROUPNAME_CIMSERVER))||
+                      bitness == PG_PROVMODULE_BITNESS_32
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
             || (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
             || (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)

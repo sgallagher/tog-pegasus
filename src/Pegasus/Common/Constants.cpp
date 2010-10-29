@@ -161,6 +161,8 @@ const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER =
     CIMNameCast("DesignatedUserContext");
 const CIMName PEGASUS_PROPERTYNAME_MODULE_MODULEGROUPNAME =
     CIMNameCast("ModuleGroupName");
+const CIMName PEGASUS_PROPERTYNAME_MODULE_BITNESS =
+    CIMNameCast("Bitness");
 
 /**
     The name of the Destination property for CIM XML Indication Handler

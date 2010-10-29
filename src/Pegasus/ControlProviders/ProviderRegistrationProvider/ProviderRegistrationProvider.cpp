@@ -387,6 +387,34 @@ void ProviderRegistrationProvider::createInstance(
                         " PG_ProviderModule class."));
         }
 
+        Uint32 bitnessIndx = instanceObject.findProperty(
+             PEGASUS_PROPERTYNAME_MODULE_BITNESS);
+
+        if (bitnessIndx != PEG_NOT_FOUND)
+        {
+            CIMValue value = instanceObject.getProperty(bitnessIndx).getValue();
+            if (!value.isNull())
+            {
+                if (value.getType() != CIMTYPE_UINT16)
+                {
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
+                        PEGASUS_PROPERTYNAME_MODULE_BITNESS.getString());
+                }
+                Uint16 bitness;
+                value.get(bitness);
+                if(bitness != PG_PROVMODULE_BITNESS_DEFAULT
+#ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
+                    && bitness != PG_PROVMODULE_BITNESS_32
+                    && bitness != PG_PROVMODULE_BITNESS_64
+#endif
+                    )
+                {
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                        PEGASUS_PROPERTYNAME_MODULE_BITNESS.getString());
+                }
+            }
+        }
+
         if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
         {
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,

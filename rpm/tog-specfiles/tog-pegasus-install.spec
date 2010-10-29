@@ -21,6 +21,14 @@ make -f $PEGASUS_ROOT/Makefile.Release stage \
     PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
 %endif
 
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+export PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT
+export LD_LIBRARY_PATH=$PEGASUS_HOME/lib32
+make -f $PEGASUS_ROOT/Makefile.cimprovagt32 stage \
+    PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
+
+%endif
+
 [ "$PEGASUS_HOME" != "/" ] && [ -d $PEGASUS_HOME ] && rm -rf $PEGASUS_HOME;
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-install.spec

@@ -838,6 +838,9 @@ endif
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch.spec \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_ARCH_LIB %{_lib}" >> \
             $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global OPENSSL_HOME $(OPENSSL_HOME)" >> \
@@ -1182,6 +1185,27 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir /usr/lib/Pegasus" \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir /usr/lib/Pegasus/providers" \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir /usr/lib/Pegasus/providerManagers" \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
+           "/usr/lib/*$(LIB_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
+           "/usr/lib/Pegasus/providerManagers/*$(LIB_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "/usr/lib/libpegclient.so"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "/usr/lib/libpegcommon.so"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "/usr/lib/libpegprovider.so"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "/usr/lib/libDefaultProviderManager.so" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "/usr/lib/Pegasus/providerManagers/libCMPIProviderManager.so" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \

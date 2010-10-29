@@ -309,6 +309,7 @@ serversuite: FORCE
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
 endif
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimprovagt32tests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout2
 
@@ -856,6 +857,21 @@ run_Cmpi_Sub: FORCE
 ##############################################################################
 
 
+#############################################################################
+##
+## 32-bit provider tests on 64-bit CIMServer
+##
+#############################################################################
+
+TEST_32BIT_CONFIG_OPTIONS = providerDir=lib32:lib
+TEST_32BIT_CMDS = \
+       $(MAKE)@@--directory \
+            $(PEGASUS_ROOT)/src/Providers/TestProviders -f@@Makefile.cimprovagt32tests@@cimprovagt32tests
+cimprovagt32tests: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(TEST_32BIT_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(TEST_32BIT_CMDS)"
+
 ##############################################################################
 ##
 ## TestXMLRepository rule is used to run the poststarttests suite on
@@ -1083,7 +1099,6 @@ TestRegBuild: FORCE
 	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
 	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend
 	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository
-
 
 ###############################################################################
 ##

@@ -176,6 +176,7 @@ class ProviderAgentContainer
 {
 public:
     ProviderAgentContainer(
+        Uint16 bitness,
         const String & groupNameWithType,
         const String & userName,
         Uint16 userContext,
@@ -304,6 +305,8 @@ private:
      */
     Mutex _agentMutex;
 
+    Uint16 _bitness;
+
     /**
         Name of the provider module or group served by this Provider Agent.
      */
@@ -420,6 +423,7 @@ private:
      */
     Boolean _subscriptionInitComplete;
 
+
     /**
         OOPProviderManagerRouter ThreadPool pointer.
     */
@@ -435,6 +439,7 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
     static_cast<CIMResponseMessage*>((void*)&_REQUEST_NOT_PROCESSED);
 
 ProviderAgentContainer::ProviderAgentContainer(
+    Uint16 bitness,
     const String & groupName,
     const String & userName,
     Uint16 userContext,
@@ -445,6 +450,7 @@ ProviderAgentContainer::ProviderAgentContainer(
     Boolean subscriptionInitComplete,
     ThreadPool* threadPool)
     :
+      _bitness(bitness),
       _groupNameWithType(groupName),
       _userName(userName),
       _userContext(userContext),
@@ -510,8 +516,8 @@ void ProviderAgentContainer::_startAgentProcess()
     int pid;
     AnonymousPipe* readPipe;
     AnonymousPipe* writePipe;
-
     int status = Executor::startProviderAgent(
+        (unsigned short)_bitness,
         (const char*)_moduleOrGroupName.getCString(),
         ConfigManager::getPegasusHome(),
         _userName,
@@ -1900,6 +1906,20 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
         }
     }
 
+    Uint16 bitness = PG_PROVMODULE_BITNESS_DEFAULT;
+    pos = providerModule.findProperty(
+        PEGASUS_PROPERTYNAME_MODULE_BITNESS);
+
+    if (pos != PEG_NOT_FOUND)
+    {
+        CIMValue value =
+            providerModule.getProperty(pos).getValue();
+        if (!value.isNull())
+        {
+            value.get(bitness);
+        }
+    }
+
     if (userContext == 0)
     {
         // PASE has a default user context "QYCMCIMOM",
@@ -1978,6 +1998,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
+            bitness,
             groupNameWithType, userName, userContext,
             _indicationCallback, _responseChunkCallback,
             _providerModuleGroupFailCallback,

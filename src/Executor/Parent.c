@@ -291,9 +291,21 @@ static void HandleStartProviderAgentRequest(int sock)
 
         const char* path;
 
-        if ((path = FindMacro("cimprovagtPath")) == NULL)
-            Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
-
+        if (request.moduleBitness == BITNESS_DEFAULT)
+        {
+            if ((path = FindMacro("cimprovagtPath")) == NULL)
+                Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
+        }
+        else if (request.moduleBitness == BITNESS_32)
+        {
+            if ((path = FindMacro("cimprovagt32Path")) == NULL)
+                Fatal(FL, "Failed to locate %s program", CIMPROVAGT32);
+        }
+        else
+        {
+            status = -1;
+            break;
+        }
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
         /* Look up the user ID and group ID of the specified user. */

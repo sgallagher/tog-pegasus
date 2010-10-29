@@ -153,6 +153,10 @@ void DefineExecutorMacros(void)
 
     DefineMacro("cimprovagt", CIMPROVAGT);
 
+    /* Define ${cimprovagt} */
+
+    DefineMacro("cimprovagt32", CIMPROVAGT32);
+
     /* Define ${cimshutdown} */
 
     DefineMacro("cimshutdown", CIMSHUTDOWN);
@@ -179,6 +183,16 @@ void DefineExecutorMacros(void)
             Fatal(FL, "failed to resolve cimprovagtPath");
 
         DefineMacro("cimprovagtPath", path);
+    }
+
+    /* Define ${cimprovagt32Path} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (ExpandMacros("${internalBinDir}/${cimprovagt32}", path) != 0)
+            Fatal(FL, "failed to resolve cimprovagt32Path");
+
+        DefineMacro("cimprovagt32Path", path);
     }
 
     /* Define ${cimshutdownPath} */

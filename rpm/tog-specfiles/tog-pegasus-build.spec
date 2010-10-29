@@ -33,11 +33,27 @@ sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=true/' $PEGASUS_ENVVAR_FILE
 sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=false/' $PEGASUS_ENVVAR_FILE
 %endif
 
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+sed -i 's/#PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=.*$/PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT/' $PEGASUS_ENVVAR_FILE
+%endif
+
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
 make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.Release all
 chmod 777 %PEGASUS_RPM_HOME
 make -f $PEGASUS_ROOT/Makefile.Release repository
+
+%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
+
+export PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT
+export PEGASUS_EXTRA_C_FLAGS=%PEGASUS_EXTRA_CXX_FLAGS_32BIT 
+export PEGASUS_EXTRA_CXX_FLAGS="$PEGASUS_EXTRA_C_FLAGS"
+export PEGASUS_EXTRA_LINK_FLAGS=%PEGASUS_EXTRA_LINK_FLAGS_32BIT
+
+make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.cimprovagt32 all
+
+%endif
+
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec

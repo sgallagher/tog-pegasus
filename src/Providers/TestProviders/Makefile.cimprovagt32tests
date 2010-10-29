@@ -32,10 +32,13 @@ ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
 cimprovagt32tests:
+ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
 	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/Load setup32bittestproviders
 	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/MethodTestProvider/testclient poststarttests
 	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/InstanceProvider/testclient poststarttests
 	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/CMPI/TestAssociation/tests poststarttests
 	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/PerformanceTests poststarttests
 	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/Load unsetup32bittestproviders
-
+else
+	@$(ECHO) "PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT not defined, skipping 32-bit tests..."
+endif

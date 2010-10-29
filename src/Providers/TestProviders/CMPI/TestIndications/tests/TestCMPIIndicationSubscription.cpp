@@ -76,8 +76,8 @@ const char *queries_WQL[] = {
     "SELECT * FROM TestCMPI_Indication",
     "SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (c IS NULL)",
     "SELECT n32,r64 FROM TestCMPI_Indication WHERE n32=42 AND r64>=2.2",
-    "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1",
-    "SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c",
+    "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=true",
+    "SELECT * FROM TestCMPI_Indication WHERE b!=true AND c=c",
     "SELECT n8,n16,n32,n64 FROM TestCMPI_Indication WHERE "
         "n8=8 AND n16=16 AND n32=32 AND n64>32",
     "SELECT s8,s16,s32,s64 FROM TestCMPI_Indication WHERE "

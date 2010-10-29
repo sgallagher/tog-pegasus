@@ -1243,7 +1243,7 @@
  ---- CMNewDateTime
  --- _setProperty: b -> b
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: c)
        -- Instance_accessor (Property: c)

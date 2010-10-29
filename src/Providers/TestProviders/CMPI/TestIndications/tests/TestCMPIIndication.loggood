@@ -687,7 +687,7 @@
  -- #5.5 CMNewSelectExp with WQL
  ---    #A No projection list, meaning it is SELECT * .... 
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: c)
@@ -1174,7 +1174,6 @@
  ----       type is : 5632
  ----       s64 (string)
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s8)
        -- Instance_accessor (Property: s16)
@@ -1936,7 +1935,7 @@
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #5.0 Evaluate instance with passed in CMPISelectExp 
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: c)
@@ -1972,7 +1971,7 @@
  -- #5.5 CMNewSelectExp with WQL
  ---    #A No projection list, meaning it is SELECT * .... 
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: c)
@@ -2192,18 +2191,18 @@
  -- 14: s8(CMPI_sint8: CMPI_goodValue: -1) [CMPI_RC_OK]
  -- 15: b(CMPI_boolean: CMPI_goodValue: TRUE) [CMPI_RC_OK]
  -- #3 CMGetSelExpString
- -- #3.1 Query is [SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1]
+ -- #3.1 Query is [SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=true]
  -- #3.2 Class is [TestCMPI_Indication]
  -- #4 Clone of CMPISelectExp
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #5.0 Evaluate instance with passed in CMPISelectExp 
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: c)
        -- Instance_accessor (Property: c)
        -- Instance_accessor (Property: b)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  ---   #A CMGetSubCondCountAndType 
  ---- Number of disjunctives: 2, Type: 0
@@ -2212,7 +2211,7 @@
  ---- Number of predicates in the conjuctives: 1
  --- #D CMGetPredicateAt, 0
  --- #E CMGetPredicateData
- ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: b, RS: 1
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: b, RS: true
  --- #F Evaluate using predicate
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  ---    #B CMGetSubCondAt @ 1 
@@ -2225,6 +2224,7 @@
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ Instance evaluated to true. Delievering indication.
  -- #5.1 CMNewSelectExp with wrong query (CQL)
  !!!! CMPI_RC_ERR_INVALID_QUERY []
  -- #5.2 CMNewSelectExp with wrong query (WQL)
@@ -2241,12 +2241,12 @@
  ----       type is : 5632
  ----       b (string)
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: c)
        -- Instance_accessor (Property: c)
        -- Instance_accessor (Property: b)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  ---   #A CMGetSubCondCountAndType 
  ---- Number of disjunctives: 2, Type: 0
@@ -2255,7 +2255,7 @@
  ---- Number of predicates in the conjuctives: 1
  --- #D CMGetPredicateAt, 0
  --- #E CMGetPredicateData
- ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: b, RS: 1
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: b, RS: true
  --- #F Evaluate using predicate
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  ---    #B CMGetSubCondAt @ 1 
@@ -2268,6 +2268,7 @@
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ Instance evaluated to true. Delievering indication.
  -- #5.6 CMNewSelectExp with CQL
  ---    #A Projection list is: 
  ---    #B CMGetArrayCount, 2
@@ -2299,7 +2300,7 @@
  ---- Number of predicates in the conjuctives: 1
  --- #D CMGetPredicateAt, 0
  --- #E CMGetPredicateData
- ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.b, RS: 1
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.b, RS: TRUE
  --- #F Evaluate using predicate
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
@@ -2339,16 +2340,16 @@
  -- 14: s8(CMPI_sint8: CMPI_goodValue: -1) [CMPI_RC_OK]
  -- 15: b(CMPI_boolean: CMPI_goodValue: TRUE) [CMPI_RC_OK]
  -- #3 CMGetSelExpString
- -- #3.1 Query is [SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c]
+ -- #3.1 Query is [SELECT * FROM TestCMPI_Indication WHERE b!=true AND c=c]
  -- #3.2 Class is [TestCMPI_Indication]
  -- #4 Clone of CMPISelectExp
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #5.0 Evaluate instance with passed in CMPISelectExp 
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #B Evalute using accessor
        -- Instance_accessor (Property: b)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: c)
+       -- Instance_accessor (Property: c)
  -- #C Continue evaluating using GetDOC
  ---   #A CMGetSubCondCountAndType 
  ---- Number of disjunctives: 1, Type: 0
@@ -2362,7 +2363,7 @@
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- #D CMGetPredicateAt, 1
  --- #E CMGetPredicateData
- ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: b, RS: 1
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: b, RS: true
  --- #F Evaluate using predicate
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
@@ -2376,10 +2377,10 @@
  -- #5.5 CMNewSelectExp with WQL
  ---    #A No projection list, meaning it is SELECT * .... 
  -- #A Evaluate using instance
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #B Evalute using accessor
        -- Instance_accessor (Property: b)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: c)
+       -- Instance_accessor (Property: c)
  -- #C Continue evaluating using GetDOC
  ---   #A CMGetSubCondCountAndType 
  ---- Number of disjunctives: 1, Type: 0
@@ -2393,7 +2394,7 @@
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- #D CMGetPredicateAt, 1
  --- #E CMGetPredicateData
- ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: b, RS: 1
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: b, RS: true
  --- #F Evaluate using predicate
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD

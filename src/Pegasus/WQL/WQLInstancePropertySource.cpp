@@ -121,7 +121,21 @@ Boolean WQLInstancePropertySource::getValue(
           break;
 
        case CIMTYPE_CHAR16:
+       {
+          Char16 char16Value;
+          val.get(char16Value);
+          String str;
+          str.append(char16Value);
+          value=WQLOperand(str, WQL_STRING_VALUE_TAG);
+          break;
+       }
        case CIMTYPE_DATETIME :
+       {
+          CIMDateTime datetimeValue;
+          val.get(datetimeValue);
+          value=WQLOperand(datetimeValue.toString(),WQL_STRING_VALUE_TAG);
+          break;
+       }
        case CIMTYPE_STRING :
        {
           String strValue;

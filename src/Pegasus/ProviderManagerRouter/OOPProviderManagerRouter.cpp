@@ -1882,6 +1882,20 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     String groupNameWithType;
     _getGroupNameWithType(providerModule, groupNameWithType);
 
+    Uint16 bitness = PG_PROVMODULE_BITNESS_DEFAULT;
+    Uint32 bIndex = providerModule.findProperty(
+        PEGASUS_PROPERTYNAME_MODULE_BITNESS);
+
+    if (bIndex != PEG_NOT_FOUND)
+    {
+        CIMValue value =
+            providerModule.getProperty(bIndex).getValue();
+        if (!value.isNull())
+        {
+            value.get(bitness);
+        }
+    }
+
 #if defined(PEGASUS_OS_ZOS)
     // For z/OS we don't start an extra provider agent for
     // each user, since the userid is switched at the thread
@@ -1903,20 +1917,6 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
         if (!userContextValue.isNull())
         {
             userContextValue.get(userContext);
-        }
-    }
-
-    Uint16 bitness = PG_PROVMODULE_BITNESS_DEFAULT;
-    pos = providerModule.findProperty(
-        PEGASUS_PROPERTYNAME_MODULE_BITNESS);
-
-    if (pos != PEG_NOT_FOUND)
-    {
-        CIMValue value =
-            providerModule.getProperty(pos).getValue();
-        if (!value.isNull())
-        {
-            value.get(bitness);
         }
     }
 

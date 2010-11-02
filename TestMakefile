@@ -868,9 +868,13 @@ TEST_32BIT_CMDS = \
        $(MAKE)@@--directory \
             $(PEGASUS_ROOT)/src/Providers/TestProviders -f@@Makefile.cimprovagt32tests@@cimprovagt32tests
 cimprovagt32tests: FORCE
+ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(TEST_32BIT_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(TEST_32BIT_CMDS)"
+else
+	@$(ECHO) "PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT not defined, skipping 32-bit tests..."
+endif
 
 ##############################################################################
 ##

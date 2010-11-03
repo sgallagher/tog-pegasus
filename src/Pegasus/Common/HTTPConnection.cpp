@@ -1713,8 +1713,11 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         chunkLineEnd += chunkLineTerminatorLength;
         Uint32 chunkLineLength = (Uint32)(chunkLineEnd - chunkLineStart);
         Uint32 chunkMetaLength = chunkLineLength;
-        if (chunkLengthParsed > 0)
-            chunkMetaLength += chunkTerminatorLength;
+
+        // Always add chunkTerminatorLength since last-chunk should also
+        // contain chunkTerminator (CRLF)
+        chunkMetaLength += chunkTerminatorLength;
+
         Uint32 chunkTerminatorOffset = _transferEncodingChunkOffset +
             chunkLineLength + chunkLengthParsed;
 
@@ -1727,14 +1730,14 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         // Also, if this is the last chunk, then we have to know if there
         // is enough data in here to be able to verify that meta crlf for
         // the end of the whole chunked message is present.
-        // If chunkLengthParsed + chunkMetaLenght == reminderLength, it
+        // If chunkLengthParsed + chunkMetaLenght > reminderLength, it
         // means that there is a space only for meta crlf of the last chunk.
         // Therefore go back and re-read socket until you get enough data
         // for at least 2 crlfs.  One for the end of the last chunk or
         // the end of the optional trailer, and one for the end of whole
         // message.
 
-        if (chunkLengthParsed + chunkMetaLength >= remainderLength)
+        if (chunkLengthParsed + chunkMetaLength > remainderLength)
             break;
 
         // at this point we have a complete chunk. proceed and strip out

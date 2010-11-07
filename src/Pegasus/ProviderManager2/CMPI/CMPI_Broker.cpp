@@ -913,7 +913,12 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbDeliverIndication()");
+        // If no valid broker was passed in we try the use the broker
+        // that was stored in the local thread context
+        if (eMb==NULL)
+        {
         eMb = CM_BROKER;
+        }
         CMPI_Broker *mb = (CMPI_Broker*)eMb;
         IndProvRecord *indProvRec;
         OperationContext* context = CM_Context(ctx);

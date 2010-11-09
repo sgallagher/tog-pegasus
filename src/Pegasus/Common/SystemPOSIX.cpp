@@ -875,30 +875,22 @@ Array<String> System::getInterfaceAddrs()
     for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
     {
         ipFound = false;
-        if (addrs->ifa_addr == NULL)
+
+        if (addrs->ifa_addr == NULL || (addrs->ifa_flags & IFF_LOOPBACK) ||
+            (addrs->ifa_flags & IFF_UP) == 0)
         {
            continue;
         }
+
         switch(addrs->ifa_addr->sa_family)
         {
             case AF_INET :
-                // Don't gather loop back addrs.
-                if (System::isLoopBack(AF_INET,
-                    &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr))
-                {
-                    continue;
-                }
                 HostAddress::convertBinaryToText(AF_INET,
                     &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr,
                     buff, sizeof(buff));
                 ipFound = true;
                 break;
             case AF_INET6 :
-                if (System::isLoopBack(AF_INET6,
-                    &((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr))
-                {
-                    continue;
-                }
                 HostAddress::convertBinaryToText(AF_INET6,
                     &((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr,
                     buff, sizeof(buff));

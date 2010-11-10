@@ -1944,7 +1944,6 @@ CIMMessageDeserializer::_deserializeCIMIndicationServiceDisabledRequestMessage(
     CIMIndicationServiceDisabledRequestMessage* message =
         new CIMIndicationServiceDisabledRequestMessage(
             String(),         // messageId
-            String::EMPTY,         // messageId
             QueueIdStack());       // queueIds
 
     return message;

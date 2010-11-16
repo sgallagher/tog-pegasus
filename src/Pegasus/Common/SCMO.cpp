@@ -227,6 +227,38 @@ inline void _deleteArrayExtReference(
     }
 }
 
+static void _deleteExternalReferenceInternal(
+    SCMBMgmt_Header* memHdr, SCMOInstance *extRefPtr)
+{
+    Uint32 nuExtRef = memHdr->numberExtRef;
+    char * base = ((char*)memHdr);
+    Uint64* array =
+        (Uint64*)&(base[memHdr->extRefIndexArray.start]);
+    Uint32 extRefIndex = PEG_NOT_FOUND;
+
+    for (Uint32 i = 0; i < nuExtRef; i++)
+    {
+         if (((SCMBUnion*)(&(base[array[i]])))->extRefPtr == extRefPtr)
+         {
+             extRefIndex = i;
+             break;
+         }
+    }
+    PEGASUS_ASSERT (extRefIndex != PEG_NOT_FOUND);
+
+   // Shrink extRefIndexArray
+
+    for (Uint32 i = extRefIndex + 1; i < nuExtRef; i++)
+    {
+        array[i-1] = array[i];
+    }
+
+    array[nuExtRef-1] = 0;
+    memHdr->numberExtRef--;
+
+    delete extRefPtr;
+}
+
 /*****************************************************************************
  * The SCMOClass methods
  *****************************************************************************/
@@ -1508,7 +1540,9 @@ void SCMOInstance::_destroyExternalKeyBindings()
             // only references can be a key binding
             if (theClassKeyBindNodeArray[i].type == CIMTYPE_REFERENCE)
             {
-               delete theInstanceKeyBindingNodeArray[i].data.extRefPtr;
+               _deleteExternalReferenceInternal(
+                   inst.mem,
+                   theInstanceKeyBindingNodeArray[i].data.extRefPtr);
             }
         }
     }// for all key bindings
@@ -1527,7 +1561,9 @@ void SCMOInstance::_destroyExternalKeyBindings()
                 // only references can be a key binding.
                 if (theUserDefKBElement->type == CIMTYPE_REFERENCE)
                 {
-                    delete theUserDefKBElement->value.data.extRefPtr;
+                   _deleteExternalReferenceInternal(
+                       inst.mem,
+                       theUserDefKBElement->value.data.extRefPtr);
                 }
             }
 

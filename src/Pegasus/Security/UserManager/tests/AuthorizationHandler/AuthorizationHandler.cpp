@@ -53,6 +53,9 @@ static const CIMNamespaceName GOOD_NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 static const CIMNamespaceName BAD_NAMESPACE = CIMNamespaceName ("root/cimvx99");
 
+static const CIMNamespaceName GOOD_CIMV2_NAMESPACE = 
+    CIMNamespaceName ("root/CIMV2");
+
 
 //
 // main
@@ -106,6 +109,10 @@ int main(int argc, char** argv)
             PEGASUS_TEST_ASSERT(
                 String::equal(temp, "rw") || String::equal(temp, "wr"));
 
+        temp = userManager->getAuthorization("root", nameSpace);
+        PEGASUS_TEST_ASSERT(String::equal(temp, "w"));
+
+        nameSpace = GOOD_CIMV2_NAMESPACE; // upper case namespace name
         temp = userManager->getAuthorization("root", nameSpace);
         PEGASUS_TEST_ASSERT(String::equal(temp, "w"));
 

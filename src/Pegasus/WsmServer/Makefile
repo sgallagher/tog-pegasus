@@ -46,6 +46,7 @@ LIBRARIES = \
     pegcommon
 
 SOURCES = \
+    WsmFilter.cpp \
     WsmConstants.cpp \
     WsmUtils.cpp \
     WsmEndpointReference.cpp \

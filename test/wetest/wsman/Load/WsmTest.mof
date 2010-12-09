@@ -42,6 +42,13 @@ class WsmBase
     string prop2;
 };
 
+    [Association, Version("1.0.0"), Description (" WsmBase Association ")]
+class WsmAssociation
+{
+    [key] WsmBase ref parent;
+    [key] WsmBase ref child;
+};
+
     [Version("1.0.0"), Description (" Sub Level Class ")]
 class WsmDerived : WsmBase
 {
@@ -74,32 +81,51 @@ class WsmHuge
 };
 
 
-instance of WsmBase
+instance of WsmBase as $WSMBASE_KEY1
 {
     keyProperty = "key1";
     prop1 = "prop1 value1";
     prop2 = "prop2 value1";
 };
 
-instance of WsmBase
+instance of WsmBase as $WSMBASE_KEY2
 {
     keyProperty = "key2";
     prop1 = "prop1 value2";
     prop2 = "prop2 value2";
 };
 
-instance of WsmBase
+instance of WsmBase as $WSMBASE_KEY3
 {
     keyProperty = "key3";
     prop1 = "prop1 value3";
     prop2 = "prop2 value3";
 };
 
-instance of WsmBase
+instance of WsmBase as $WSMBASE_KEY4
 {
     keyProperty = "key4";
     prop1 = "prop1 value4";
     prop2 = "prop2 value4";
+};
+
+// define associations between WsmBase instances
+instance of WsmAssociation
+{
+    child = $WSMBASE_KEY1;
+    parent = $WSMBASE_KEY2;
+};
+
+instance of WsmAssociation
+{
+    child = $WSMBASE_KEY1;
+    parent = $WSMBASE_KEY3;
+};
+
+instance of WsmAssociation
+{
+    child = $WSMBASE_KEY1;
+    parent = $WSMBASE_KEY4;
 };
 
 instance of WsmDerived

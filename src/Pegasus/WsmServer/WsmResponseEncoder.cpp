@@ -323,6 +323,9 @@ SoapResponse* WsmResponseEncoder::encodeWsenEnumerateResponse(
     WsenEnumerateResponse* response,
     Uint32& numDataItemsEncoded)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmResponseEncoder::encodeWsenEnumerateResponse");
+
     AutoPtr<SoapResponse> soapResponse(new SoapResponse(response));
     Buffer headers;
 
@@ -348,6 +351,7 @@ SoapResponse* WsmResponseEncoder::encodeWsenEnumerateResponse(
         soapResponse.reset(_buildEncodingLimitFault(response));
     }
 
+    PEG_METHOD_EXIT();
     return soapResponse.release();
 }
 
@@ -384,6 +388,8 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     Uint32& numDataItemsEncoded,
     const String& resourceUri)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmResponseEncoder::_encodeEnumerationData");
     Buffer bodyHeader, bodyTrailer;
 
     PEGASUS_ASSERT(operation == WS_ENUMERATION_ENUMERATE ||
@@ -407,6 +413,9 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         bodyHeader, WsmNamespaces::WS_ENUMERATION,
         STRLIT("EnumerationContext"));
     Uint32 ecSize = bodyHeader.size() - ecPos;
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+               "Encoder data size %u ",data.getSize()));
 
     if (data.getSize() > 0)
     {
@@ -605,7 +614,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
             }
         }
     }
-
+    PEG_METHOD_EXIT();
     return true;
 }
 

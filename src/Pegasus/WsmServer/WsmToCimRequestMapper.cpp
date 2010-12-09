@@ -80,6 +80,7 @@ WsmToCimRequestMapper::~WsmToCimRequestMapper()
 CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
     WsmRequest* request)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmToCimRequestMapper::mapToCimRequest");
     AutoPtr<CIMOperationRequestMessage> cimRequest;
 
     switch (request->getType())
@@ -105,23 +106,78 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
             break;
 
         case WS_ENUMERATION_ENUMERATE:
-            if (((WsenEnumerateRequest*) request)->enumerationMode ==
-                WSEN_EM_OBJECT ||
-                ((WsenEnumerateRequest*) request)->enumerationMode ==
-                WSEN_EM_OBJECT_AND_EPR)
+
+            // Test for no association filter
+            if (((WsenEnumerateRequest*)request)->wsmFilter.filterDialect !=
+                WsmFilter::ASSOCIATION)
             {
-                cimRequest.reset(mapToCimEnumerateInstancesRequest(
-                    (WsenEnumerateRequest*) request));
+                if (((WsenEnumerateRequest*) request)->enumerationMode ==
+                    WSEN_EM_OBJECT ||
+                    ((WsenEnumerateRequest*) request)->enumerationMode ==
+                    WSEN_EM_OBJECT_AND_EPR)
+                {
+                    cimRequest.reset(mapToCimEnumerateInstancesRequest(
+                        (WsenEnumerateRequest*) request));
+                }
+                else if (((WsenEnumerateRequest*) request)->enumerationMode ==
+                         WSEN_EM_EPR)
+                {
+                    cimRequest.reset(mapToCimEnumerateInstanceNamesRequest(
+                        (WsenEnumerateRequest*) request));
+                }
+                else
+                {
+                    PEGASUS_ASSERT(0);
+                }
             }
-            else if (((WsenEnumerateRequest*) request)->enumerationMode ==
-                     WSEN_EM_EPR)
+            else // association filter dialect
             {
-                cimRequest.reset(mapToCimEnumerateInstanceNamesRequest(
-                    (WsenEnumerateRequest*) request));
-            }
-            else
-            {
-                PEGASUS_ASSERT(0);
+                // decision on use of association or associated
+                // associated calls the CIMAssociator functions
+                if (((WsenEnumerateRequest*)request)->
+                    wsmFilter.AssocFilter.assocFilterType ==
+                        WsmFilter::ASSOCIATED_INSTANCES)
+                {
+                    if (((WsenEnumerateRequest*) request)->enumerationMode ==
+                        WSEN_EM_OBJECT ||
+                        ((WsenEnumerateRequest*) request)->enumerationMode ==
+                        WSEN_EM_OBJECT_AND_EPR)
+                    {
+                        cimRequest.reset(mapToCimAssociatorsRequest(
+                            (WsenEnumerateRequest*) request));
+                    }
+                    else if (((WsenEnumerateRequest*) request)->
+                             enumerationMode == WSEN_EM_EPR)
+                    {
+                        cimRequest.reset(mapToCimAssociatorNamesRequest(
+                            (WsenEnumerateRequest*) request));
+                    }
+                    else
+                    {
+                        PEGASUS_ASSERT(0);
+                    }
+                }
+                else // association calls the Reference Functions
+                {
+                    if (((WsenEnumerateRequest*) request)->enumerationMode ==
+                        WSEN_EM_OBJECT ||
+                        ((WsenEnumerateRequest*) request)->enumerationMode ==
+                        WSEN_EM_OBJECT_AND_EPR)
+                    {
+                        cimRequest.reset(mapToCimReferencesRequest(
+                            (WsenEnumerateRequest*) request));
+                    }
+                    else if (((WsenEnumerateRequest*) request)->
+                             enumerationMode == WSEN_EM_EPR)
+                    {
+                        cimRequest.reset(mapToCimReferenceNamesRequest(
+                            (WsenEnumerateRequest*) request));
+                    }
+                    else
+                    {
+                        PEGASUS_ASSERT(0);
+                    }
+                }
             }
             break;
 
@@ -155,7 +211,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
         cimRequest->binaryRequest = true;
         cimRequest->binaryResponse = true;
     }
-
+    PEG_METHOD_EXIT();
     return cimRequest.release();
 }
 
@@ -298,6 +354,9 @@ CIMEnumerateInstancesRequestMessage*
     WsmToCimRequestMapper::mapToCimEnumerateInstancesRequest(
         WsenEnumerateRequest* request)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmToCimRequestMapper::mapToCimEnumerateInstancesRequest");
+
     CIMObjectPath objPath;
     convertEPRToObjectPath(request->epr, objPath);
 
@@ -314,7 +373,7 @@ CIMEnumerateInstancesRequestMessage*
             request->authType,
             request->userName);
     cimRequest->ipAddress = request->ipAddress;
-
+    PEG_METHOD_EXIT();
     return cimRequest;
 }
 
@@ -322,6 +381,8 @@ CIMEnumerateInstanceNamesRequestMessage*
     WsmToCimRequestMapper::mapToCimEnumerateInstanceNamesRequest(
         WsenEnumerateRequest* request)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmToCimRequestMapper::mapToCimEnumerateInstanceNamesRequest");
     CIMObjectPath objPath;
     convertEPRToObjectPath(request->epr, objPath);
 
@@ -334,7 +395,214 @@ CIMEnumerateInstanceNamesRequestMessage*
             request->authType,
             request->userName);
     cimRequest->ipAddress = request->ipAddress;
+    PEG_METHOD_EXIT();
+    return cimRequest;
+}
 
+CIMReferencesRequestMessage*
+    WsmToCimRequestMapper::mapToCimReferencesRequest(
+        WsenEnumerateRequest* request)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmToCimRequestMapper::mapToCimReferencesRequest");
+
+    _disallowAllClassesResourceUri(
+        request->wsmFilter.AssocFilter.object.resourceUri);
+
+    CIMObjectPath  instanceName;
+    convertEPRToObjectPath(request->wsmFilter.AssocFilter.object, instanceName);
+
+    CIMNamespaceName ns = request->wsmFilter.AssocFilter.object.getNamespace();
+    instanceName.setNameSpace(CIMNamespaceName());
+    instanceName.setHost(String::EMPTY);
+
+    // We check for instance in the filter parser so there should be no
+    // need for another check here.  However, should we do a double check
+    // in the maptoWsm return just in case?
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+               "References Request "
+               "Namespace=%s "
+               "instanceName=%s "
+               "resultClassName=%s "
+               "role=%s",
+               (const char*)ns.getString().getCString(),
+               (const char*)instanceName.toString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.resultClassName.getString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.role.getCString()));
+
+    CIMReferencesRequestMessage* cimRequest =
+        new CIMReferencesRequestMessage(
+            XmlWriter::getNextMessageId(),
+            ns,
+            instanceName,
+            request->wsmFilter.AssocFilter.resultClassName,
+            request->wsmFilter.AssocFilter.role,
+            false, // includeQualifiers
+            false, // includeClassOrigin
+            CIMPropertyList(),
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+    PEG_METHOD_EXIT();
+    return cimRequest;
+}
+
+CIMReferenceNamesRequestMessage*
+    WsmToCimRequestMapper::mapToCimReferenceNamesRequest(
+        WsenEnumerateRequest* request)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmToCimRequestMapper::mapToCimReferenceNamesRequest");
+
+    _disallowAllClassesResourceUri(
+        request->wsmFilter.AssocFilter.object.resourceUri);
+
+    CIMObjectPath  instanceName;
+    convertEPRToObjectPath(request->wsmFilter.AssocFilter.object, instanceName);
+
+    CIMNamespaceName ns = request->wsmFilter.AssocFilter.object.getNamespace();
+    instanceName.setNameSpace(CIMNamespaceName());
+    instanceName.setHost(String::EMPTY);
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+               "ReferenceNames Request "
+               "Namespace=%s "
+               "instanceName=%s "
+               "resultClassName=%s "
+               "role=%s",
+               (const char*)ns.getString().getCString(),
+               (const char*)instanceName.toString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.resultClassName.getString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.role.getCString()));
+
+    CIMReferenceNamesRequestMessage* cimRequest =
+        new CIMReferenceNamesRequestMessage(
+            XmlWriter::getNextMessageId(),
+            ns,
+            instanceName,
+            request->wsmFilter.AssocFilter.resultClassName,
+            request->wsmFilter.AssocFilter.role,
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+    PEG_METHOD_EXIT();
+    return cimRequest;
+}
+
+CIMAssociatorsRequestMessage*
+    WsmToCimRequestMapper::mapToCimAssociatorsRequest(
+        WsenEnumerateRequest* request)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmToCimRequestMapper::mapToCimAssociatorsRequest");
+
+    _disallowAllClassesResourceUri(
+        request->wsmFilter.AssocFilter.object.resourceUri);
+
+    CIMObjectPath  instanceName;
+    convertEPRToObjectPath(request->wsmFilter.AssocFilter.object, instanceName);
+
+    CIMNamespaceName ns = request->wsmFilter.AssocFilter.object.getNamespace();
+    instanceName.setNameSpace(CIMNamespaceName());
+    instanceName.setHost(String::EMPTY);
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+               "Associators Request "
+               "Namespace=%s "
+               "instanceName=%s "
+               "assocClasName=%s "
+               "resultClassName=%s "
+               "role=%s "
+               "resultRole=%s",
+               (const char*)ns.getString().getCString(),
+               (const char*)instanceName.toString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.assocClassName.getString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.resultClassName.getString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.role.getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.resultRole.getCString()));
+
+    CIMAssociatorsRequestMessage* cimRequest =
+        new CIMAssociatorsRequestMessage(
+            XmlWriter::getNextMessageId(),
+            ns,
+            instanceName,
+            request->wsmFilter.AssocFilter.assocClassName,
+            request->wsmFilter.AssocFilter.resultClassName,
+            request->wsmFilter.AssocFilter.role,
+            request->wsmFilter.AssocFilter.resultRole,
+            false, // includeQualifiers
+            false, // includeClassOrigin
+            CIMPropertyList(),
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+    PEG_METHOD_EXIT();
+    return cimRequest;
+}
+
+CIMAssociatorNamesRequestMessage*
+    WsmToCimRequestMapper::mapToCimAssociatorNamesRequest(
+        WsenEnumerateRequest* request)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmToCimRequestMapper::mapToCimAssociatorNamesRequest");
+
+    _disallowAllClassesResourceUri(
+        request->wsmFilter.AssocFilter.object.resourceUri);
+
+    CIMObjectPath  instanceName;
+    convertEPRToObjectPath(
+        request->wsmFilter.AssocFilter.object, instanceName);
+
+    CIMNamespaceName ns = request->wsmFilter.AssocFilter.object.getNamespace();
+    instanceName.setNameSpace(CIMNamespaceName());
+    instanceName.setHost(String::EMPTY);
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+               "AssociatorNames Request "
+               "Namespace=%s "
+               "instanceName=%s "
+               "assocClasName=%s "
+               "resultClassName=%s "
+               "role=%s "
+               "resultRole=%s",
+               (const char*)ns.getString().getCString(),
+               (const char*)instanceName.toString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.assocClassName.getString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.resultClassName.getString().getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.role.getCString(),
+               (const char*)request->
+               wsmFilter.AssocFilter.resultRole.getCString()));
+
+    CIMAssociatorNamesRequestMessage* cimRequest =
+        new CIMAssociatorNamesRequestMessage(
+            XmlWriter::getNextMessageId(),
+            ns,
+            instanceName,
+            request->wsmFilter.AssocFilter.assocClassName,
+            request->wsmFilter.AssocFilter.resultClassName,
+            request->wsmFilter.AssocFilter.role,
+            request->wsmFilter.AssocFilter.resultRole,
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+    PEG_METHOD_EXIT();
     return cimRequest;
 }
 

@@ -78,6 +78,14 @@
 // WSMAN_FILTER_DIALECT_WQL without the host URI prefix.
 #define WSMAN_FILTER_DIALECT_WQL_SUFFIX "/wbem/wsman/1/WQL"
 
+// The Association Filter dialect URI per DSP0027 Section 8.2
+#define WSMAN_ASSOCIATION_FILTER_DIALECT \
+    "http://schemas.dmtf.org/wbem/wsman/1/cimbinding/associationFilter"
+
+// Association Filter without the host URI prefix.
+#define WSMAN_ASSOCIATION_FILTER_SUFFIX \
+    "/wbem/wsman/1/cimbinding/associationFilter"
+
 //
 // Action URIs
 //

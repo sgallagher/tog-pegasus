@@ -39,6 +39,7 @@
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/Common/Tracer.h>
 #include "CimToWsmResponseMapper.h"
 
 #ifdef PEGASUS_OS_VMS
@@ -66,6 +67,7 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
     const WsmRequest* wsmRequest,
     const CIMResponseMessage* message)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER, "CimToWsmResponseMapper::mapToWsmResponse");
     AutoPtr<WsmResponse> wsmResponse;
 
     if (message->cimException.getCode() != CIM_ERR_SUCCESS)
@@ -101,31 +103,105 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                 break;
 
             case WS_ENUMERATION_ENUMERATE:
-                if (((WsenEnumerateRequest*) wsmRequest)->enumerationMode ==
-                    WSEN_EM_OBJECT)
+                // Test for no association filter
+                if (((WsenEnumerateRequest*)wsmRequest)->
+                    wsmFilter.filterDialect != WsmFilter::ASSOCIATION)
                 {
-                    wsmResponse.reset(_mapToWsenEnumerateResponseObject(
-                        (WsenEnumerateRequest*) wsmRequest,
-                        (CIMEnumerateInstancesResponseMessage*) message));
+                    if (((WsenEnumerateRequest*) wsmRequest)->enumerationMode ==
+                        WSEN_EM_OBJECT)
+                    {
+                        wsmResponse.reset(_mapToWsenEnumerateResponseObject(
+                            (WsenEnumerateRequest*) wsmRequest,
+                            (CIMEnumerateInstancesResponseMessage*) message));
+                    }
+                    else if (((WsenEnumerateRequest*)wsmRequest)->
+                             enumerationMode ==
+                                 WSEN_EM_OBJECT_AND_EPR)
+                    {
+                        wsmResponse.reset(
+                            _mapToWsenEnumerateResponseObjectAndEPR(
+                              (WsenEnumerateRequest*) wsmRequest,
+                              (CIMEnumerateInstancesResponseMessage*) message));
+                    }
+                    else if (((WsenEnumerateRequest*) wsmRequest)->
+                             enumerationMode == WSEN_EM_EPR)
+                    {
+                        wsmResponse.reset(_mapToWsenEnumerateResponseEPR(
+                            (WsenEnumerateRequest*) wsmRequest,
+                            (CIMEnumerateInstanceNamesResponseMessage*)
+                                message));
+                    }
+                    else
+                    {
+                        PEGASUS_ASSERT(0);
+                    }
                 }
-                else if (((WsenEnumerateRequest*)
-                              wsmRequest)->enumerationMode ==
-                         WSEN_EM_OBJECT_AND_EPR)
+                else // association or reference response expected
                 {
-                    wsmResponse.reset(_mapToWsenEnumerateResponseObjectAndEPR(
-                        (WsenEnumerateRequest*) wsmRequest,
-                        (CIMEnumerateInstancesResponseMessage*) message));
-                }
-                else if (((WsenEnumerateRequest*) wsmRequest)->
-                         enumerationMode == WSEN_EM_EPR)
-                {
-                    wsmResponse.reset(_mapToWsenEnumerateResponseEPR(
-                        (WsenEnumerateRequest*) wsmRequest,
-                        (CIMEnumerateInstanceNamesResponseMessage*) message));
-                }
-                else
-                {
-                    PEGASUS_ASSERT(0);
+                    if (((WsenEnumerateRequest*)wsmRequest)->
+                        wsmFilter.AssocFilter.assocFilterType ==
+                           WsmFilter::ASSOCIATED_INSTANCES)
+                    {
+                        // Association responses
+                        if (((WsenEnumerateRequest*) wsmRequest)->
+                            enumerationMode == WSEN_EM_OBJECT)
+                        {
+                            wsmResponse.reset(
+                                _mapToWsenEnumerateResponseObject(
+                                    (WsenEnumerateRequest*) wsmRequest,
+                                    (CIMAssociatorsResponseMessage*) message));
+                        }
+                        else if (((WsenEnumerateRequest*)
+                                      wsmRequest)->enumerationMode ==
+                                 WSEN_EM_OBJECT_AND_EPR)
+                        {
+                            wsmResponse.reset(
+                                _mapToWsenEnumerateResponseObjectAndEPR(
+                                    (WsenEnumerateRequest*) wsmRequest,
+                                    (CIMAssociatorsResponseMessage*) message));
+                        }
+                        else if (((WsenEnumerateRequest*) wsmRequest)->
+                                 enumerationMode == WSEN_EM_EPR)
+                        {
+                            wsmResponse.reset(_mapToWsenEnumerateResponseEPR(
+                                (WsenEnumerateRequest*) wsmRequest,
+                                (CIMAssociatorNamesResponseMessage*) message));
+                        }
+                        else
+                        {
+                            PEGASUS_ASSERT(0);
+                        }
+                    }
+                    else // references responses
+                    {
+                        if (((WsenEnumerateRequest*)
+                             wsmRequest)->enumerationMode == WSEN_EM_OBJECT)
+                        {
+                            wsmResponse.reset(_mapToWsenEnumerateResponseObject(
+                                (WsenEnumerateRequest*) wsmRequest,
+                                (CIMReferencesResponseMessage*) message));
+                        }
+                        else if (((WsenEnumerateRequest*)
+                                      wsmRequest)->enumerationMode ==
+                                 WSEN_EM_OBJECT_AND_EPR)
+                        {
+                            wsmResponse.reset(
+                                _mapToWsenEnumerateResponseObjectAndEPR(
+                                    (WsenEnumerateRequest*) wsmRequest,
+                                    (CIMReferencesResponseMessage*) message));
+                        }
+                        else if (((WsenEnumerateRequest*) wsmRequest)->
+                                 enumerationMode == WSEN_EM_EPR)
+                        {
+                            wsmResponse.reset(_mapToWsenEnumerateResponseEPR(
+                                (WsenEnumerateRequest*) wsmRequest,
+                                (CIMReferenceNamesResponseMessage*) message));
+                        }
+                        else
+                        {
+                            PEGASUS_ASSERT(0);
+                        }
+                    }
                 }
                 break;
 
@@ -142,6 +218,7 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                 break;
         }
     }
+    PEG_METHOD_EXIT();
     return wsmResponse.release();
 }
 
@@ -217,7 +294,7 @@ WsmFault CimToWsmResponseMapper::mapCimExceptionToWsmFault(
 
         case CIM_ERR_NOT_FOUND:
             // DSP0226 Table 10 of master faults calls for
-            // DestinationUnreachable in cases when the resource is no found.
+            // DestinationUnreachable in cases when the resource is not found.
             subcode = WsmFault::wsa_DestinationUnreachable;
             break;
 
@@ -315,12 +392,18 @@ WsenEnumerateResponse*
     const WsenEnumerateRequest* wsmRequest,
     CIMEnumerateInstancesResponseMessage* response)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject");
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> EPRs;
     Array<CIMInstance>& namedInstances =
         response->getResponseData().getInstances();
 
-    if (wsmRequest->selectStatement)
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "EnumerateInstances Returned %u instances",namedInstances.size() ));
+
+    // if WQLFilter type
+    if (wsmRequest->wsmFilter.filterDialect == WsmFilter::WQL)
     {
         // Filter out unwanted instances:
 
@@ -328,8 +411,11 @@ WsenEnumerateResponse*
         {
             try
             {
-                if (!wsmRequest->selectStatement->evaluate(namedInstances[i]))
+                if (!wsmRequest->wsmFilter.WQLFilter.selectStatement->
+                        evaluate(namedInstances[i]))
+                {
                     continue;
+                }
             }
             catch (...)
             {
@@ -342,7 +428,8 @@ WsenEnumerateResponse*
 
             try
             {
-                wsmRequest->selectStatement->applyProjection(instance, false);
+                wsmRequest->wsmFilter.WQLFilter.selectStatement->
+                    applyProjection(instance, false);
             }
             catch (...)
             {
@@ -365,7 +452,7 @@ WsenEnumerateResponse*
                 instances.size(),
                 wsmRequest,
                 _getContentLanguages(response->operationContext));
-
+        PEG_METHOD_EXIT();
         return wsmResponse;
     }
     else
@@ -388,6 +475,7 @@ WsenEnumerateResponse*
                 wsmRequest,
                 _getContentLanguages(response->operationContext));
 
+        PEG_METHOD_EXIT();
         return wsmResponse;
     }
 }
@@ -397,10 +485,17 @@ WsenEnumerateResponse*
     const WsenEnumerateRequest* wsmRequest,
     CIMEnumerateInstancesResponseMessage* response)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR");
+
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> EPRs;
     Array<CIMInstance>& namedInstances =
         response->getResponseData().getInstances();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "EnumerateInstances Returned %u instances ",namedInstances.size() ));
+
     for (Uint32 i = 0; i < namedInstances.size(); i++)
     {
         WsmInstance wsmInstance;
@@ -427,18 +522,32 @@ WsenEnumerateResponse*
             instances.size(),
             wsmRequest,
             _getContentLanguages(response->operationContext));
-
+    PEG_METHOD_EXIT();
     return wsmResponse;
 }
 
+/****************************************************************************
+**
+**       _mapToWsenEnumerateResponse for enumerateInstances and
+**           EnumerateInstanceNames responses
+**
+******************************************************************************/
 WsenEnumerateResponse*
 CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
     const WsenEnumerateRequest* wsmRequest,
     CIMEnumerateInstanceNamesResponseMessage* response)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR");
+
     Array<WsmEndpointReference> EPRs;
     Array<CIMObjectPath>& instanceNames =
         response->getResponseData().getInstanceNames();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "EnumerateInstanceNames Returned %u instanceNames ",
+               instanceNames.size() ));
+
     for (Uint32 i = 0; i < instanceNames.size(); i++)
     {
         WsmEndpointReference epr;
@@ -456,7 +565,258 @@ CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
             EPRs.size(),
             wsmRequest,
             _getContentLanguages(response->operationContext));
+    PEG_METHOD_EXIT();
+    return wsmResponse;
+}
 
+/****************************************************************************
+**
+**       _mapToWsenEnumerateResponse for CIM Reference and ReferenceNames
+**           responses
+**
+******************************************************************************/
+WsenEnumerateResponse*
+    CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject(
+    const WsenEnumerateRequest* wsmRequest,
+    CIMReferencesResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject");
+
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> EPRs;
+    Array<CIMObject>& objects =
+        response->getResponseData().getObjects();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "References Returned %u objects ",objects.size() ));
+
+    for (Uint32 i = 0; i < objects.size(); i++)
+    {
+        WsmInstance wsmInstance;
+        convertCimToWsmInstance(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            (CIMInstance)objects[i],
+            wsmInstance,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        instances.append(wsmInstance);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            instances,
+            instances.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    PEG_METHOD_EXIT();
+    return wsmResponse;
+}
+
+WsenEnumerateResponse*
+    CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR(
+    const WsenEnumerateRequest* wsmRequest,
+    CIMReferencesResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR");
+
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> EPRs;
+    Array<CIMObject>& objects =
+        response->getResponseData().getObjects();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "Returned %u objects from References ",objects.size() ));
+
+    for (Uint32 i = 0; i < objects.size(); i++)
+    {
+        WsmInstance wsmInstance;
+
+        convertCimToWsmInstance(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            (CIMInstance)objects[i],
+            wsmInstance,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        instances.append(wsmInstance);
+
+        WsmEndpointReference epr;
+        convertObjPathToEPR(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            objects[i].getPath(),
+            epr,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        EPRs.append(epr);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            instances,
+            EPRs,
+            instances.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+    PEG_METHOD_EXIT();
+    return wsmResponse;
+}
+
+WsenEnumerateResponse*
+CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
+    const WsenEnumerateRequest* wsmRequest,
+    CIMReferenceNamesResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR");
+
+    Array<WsmEndpointReference> EPRs;
+    Array<CIMObjectPath>& instanceNames =
+        response->getResponseData().getInstanceNames();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "Returned %u names from ReferenceNames ",instanceNames.size() ));
+
+    for (Uint32 i = 0; i < instanceNames.size(); i++)
+    {
+        WsmEndpointReference epr;
+
+        convertObjPathToEPR(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            instanceNames[i],
+            epr,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        EPRs.append(epr);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            EPRs,
+            EPRs.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+    PEG_METHOD_EXIT();
+    return wsmResponse;
+}
+
+/****************************************************************************
+**
+**       _mapToWsenEnumerateResponse for Associator and AssociatorNames
+**           responses
+**
+******************************************************************************/
+WsenEnumerateResponse*
+    CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject(
+    const WsenEnumerateRequest* wsmRequest,
+    CIMAssociatorsResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject");
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> EPRs;
+    Array<CIMObject>& objects =
+        response->getResponseData().getObjects();
+
+    for (Uint32 i = 0; i < objects.size(); i++)
+    {
+        WsmInstance wsmInstance;
+        convertCimToWsmInstance(
+            wsmRequest->epr.resourceUri,
+            (CIMInstance)objects[i],
+            wsmInstance,
+            wsmRequest->epr.getNamespace());
+        instances.append(wsmInstance);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            instances,
+            instances.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+    PEG_METHOD_EXIT();
+    return wsmResponse;
+}
+
+WsenEnumerateResponse*
+    CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR(
+    const WsenEnumerateRequest* wsmRequest,
+    CIMAssociatorsResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR");
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> EPRs;
+    Array<CIMObject>& objects =
+        response->getResponseData().getObjects();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "Returned %u objects from Associators",objects.size() ));
+
+    for (Uint32 i = 0; i < objects.size(); i++)
+    {
+        WsmInstance wsmInstance;
+
+        convertCimToWsmInstance(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            (CIMInstance)objects[i],
+            wsmInstance,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        instances.append(wsmInstance);
+
+        WsmEndpointReference epr;
+        convertObjPathToEPR(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            objects[i].getPath(),
+            epr,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        EPRs.append(epr);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            instances,
+            EPRs,
+            instances.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    PEG_METHOD_EXIT();
+    return wsmResponse;
+}
+
+WsenEnumerateResponse*
+CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
+    const WsenEnumerateRequest* wsmRequest,
+    CIMAssociatorNamesResponseMessage* response)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR");
+
+    Array<WsmEndpointReference> EPRs;
+    Array<CIMObjectPath>& instanceNames =
+        response->getResponseData().getInstanceNames();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
+        "Returned %u instanceNames",instanceNames.size() ));
+
+    for (Uint32 i = 0; i < instanceNames.size(); i++)
+    {
+        WsmEndpointReference epr;
+
+        convertObjPathToEPR(
+            wsmRequest->wsmFilter.AssocFilter.object.resourceUri,
+            instanceNames[i],
+            epr,
+            wsmRequest->wsmFilter.AssocFilter.object.getNamespace());
+        EPRs.append(epr);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            EPRs,
+            EPRs.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+    PEG_METHOD_EXIT();
     return wsmResponse;
 }
 
@@ -464,6 +824,9 @@ WsInvokeResponse* CimToWsmResponseMapper::_mapToWsInvokeResponse(
     const WsInvokeRequest* wsmRequest,
     const CIMInvokeMethodResponseMessage* response)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "CimToWsmResponseMapper::_mapToWsInvokeResponse");
+
     WsmInstance wsmInstance;
     String nameSpace = wsmRequest->epr.getNamespace();
 
@@ -482,7 +845,7 @@ WsInvokeResponse* CimToWsmResponseMapper::_mapToWsInvokeResponse(
             wsmInstance,
             wsmRequest,
             _getContentLanguages(response->operationContext));
-
+    PEG_METHOD_EXIT();
     return wsmResponse;
 }
 

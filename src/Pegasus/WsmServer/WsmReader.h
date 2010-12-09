@@ -41,6 +41,7 @@
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
 #include <Pegasus/WsmServer/WsmUtils.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/WsmServer/WsmFilter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -133,9 +134,7 @@ public:
         WsenEnumerationMode& enumerationMode,
         Boolean& optimized,
         Uint32& maxElements,
-        String& queryLanguage,
-        String& query,
-        SharedPtr<WQLSelectStatement>& selectStatement);
+        WsmFilter& wsmFilter);
 
     void decodePullBody(
         Uint64& enumerationContext,
@@ -157,11 +156,27 @@ public:
         WsmValue& propValue);
     void getValueElement(WsmValue& value, int nsType, const char* propNameTag);
 
-    void decodeFilter(
-        String& queryLanguage,
-        String& query,
-        SharedPtr<WQLSelectStatement>& selectStatement);
+    void decodeFilter(WsmFilter& wsmFilter);
+//      Uint32& filterDialect,
+//      String& queryLanguage,
+//      String& query,
+//      SharedPtr<WQLSelectStatement>& selectStatement,
+//      Boolean& associated,
+//      WsmEndpointReference& object,
+//      CIMName& assocClassName,
+//      CIMName& resultClassName,
+//      String& role,
+//      String& resultRole,
+//      CIMPropertyList& propertyList);
 
+    void decodeAssociationFilter(WsmFilter& wsmFilter);
+//      Boolean& associated,
+//      WsmEndpointReference& object,
+//      CIMName& assocClassName,
+//      CIMName& resultClassName,
+//      String& role,
+//      String& resultRole,
+//      CIMPropertyList& propertyList);
 private:
 
     XmlParser _parser;

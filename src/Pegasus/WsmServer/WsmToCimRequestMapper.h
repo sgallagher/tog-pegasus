@@ -63,6 +63,17 @@ public:
         WsenEnumerateRequest* request);
     CIMEnumerateInstanceNamesRequestMessage*
         mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
+
+    // Support Associated filter
+    CIMReferencesRequestMessage* mapToCimReferencesRequest(
+        WsenEnumerateRequest* request);
+    CIMReferenceNamesRequestMessage* mapToCimReferenceNamesRequest(
+        WsenEnumerateRequest* request);
+    CIMAssociatorsRequestMessage* mapToCimAssociatorsRequest(
+        WsenEnumerateRequest* request);
+    CIMAssociatorNamesRequestMessage* mapToCimAssociatorNamesRequest(
+        WsenEnumerateRequest* request);
+
     CIMInvokeMethodRequestMessage* mapToCimInvokeMethodRequest(
         WsInvokeRequest* request);
 

@@ -7219,6 +7219,32 @@ CIM server listening on HTTPS port {0}."}
         */
         WsmServer.WsmReader.INVALID_ENUMERATION_CONTEXT:string {"PGS20016: Enumeration context ''{0}'' is not valid."}
 
+        /**
+        * @note PGS20017:
+        */
+        WsmServer.WsmReader.INVALID_OBJECT_SELECTOR:string {"PGS20017: Invalid Selector. No Instance Keys."}
+
+        /**
+        * @note PGS20018:
+        */
+        WsmServer.WsmReader.INCLUDERESULTPROPERTY_INVALID:string {"PGS20018: IncludeResultProperty not allowed."}
+
+        /**
+        * @note PGS20019:
+	*     Substitution {0} is the received Invalid Filter Type Element
+        */
+        WsmServer.WsmReader.INVALID_ASSOCIATED FILTER ELEMENT:string {"PGS20019: Invalid Association Filter Type Element: ''{$0}''"}
+
+        /**
+        * @note PGS20020:
+        */
+        WsmServer.WsmReader.FILTER_OBJECT_EPR_RQD:string {"PGS20020: Unsupported filter dialect"}
+
+        /**
+        * @note PGS20021:
+        */
+        WsmServer.WsmReader.FILTER_OBJECT_NAMESPACE_RQD:string {"PGS20021: Filter Object EPR __namespace element required"}
+
         // ==========================================================
         // Messages for WsmRequestDecoder
         //  Please use message prefix "PGS20200 - PGS20399"

@@ -43,6 +43,7 @@
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/WsmServer/WsmFilter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -191,9 +192,8 @@ public:
         Uint32 maxElements_,
         WsenEnumerationMode enumerationMode_,
         WsmbPolymorphismMode polymorphismMode_,
-        const String& queryLanguage_,
-        const String& query_,
-        SharedPtr<WQLSelectStatement> selectStatement_)
+        WsmFilter wsmFilter_
+        )
         : WsmRequest(WS_ENUMERATION_ENUMERATE, messageId),
           epr(epr_),
           expiration(expiration_),
@@ -202,9 +202,7 @@ public:
           maxElements(maxElements_),
           enumerationMode(enumerationMode_),
           polymorphismMode(polymorphismMode_),
-          queryLanguage(queryLanguage_),
-          query(query_),
-          selectStatement(selectStatement_)
+          wsmFilter(wsmFilter_)
     {
     }
 
@@ -219,9 +217,7 @@ public:
     Uint32 maxElements;
     WsenEnumerationMode enumerationMode;
     WsmbPolymorphismMode polymorphismMode;
-    const String queryLanguage;
-    const String query;
-    SharedPtr<WQLSelectStatement> selectStatement;
+    WsmFilter wsmFilter;
 };
 
 class WsenPullRequest : public WsmRequest

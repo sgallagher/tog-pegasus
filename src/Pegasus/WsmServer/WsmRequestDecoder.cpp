@@ -847,6 +847,9 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     const WsmEndpointReference& epr,
     Boolean requestItemCount)
 {
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmRequestDecoder::_decodeWSEnumerationEnumerate()");
+
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
     _checkNoSelectorsEPR(epr);
 
@@ -855,9 +858,7 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
     Boolean optimized = false;
     Uint32 maxElements = 0;
-    String queryLanguage;
-    String query;
-    SharedPtr<WQLSelectStatement> selectStatement;
+    WsmFilter wsmFilter;
 
     XmlEntry entry;
     wsmReader.expectStartOrEmptyTag(
@@ -865,8 +866,8 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
         wsmReader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, queryLanguage, query,
-            selectStatement);
+            enumerationMode, optimized, maxElements, wsmFilter);
+
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
 
@@ -893,6 +894,7 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         if (strcmp(suffix, WSM_RESOURCEURI_ALLCLASSES_SUFFIX) == 0 &&
             polymorphismMode != WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES)
         {
+            PEG_METHOD_EXIT();
             throw WsmFault(
                 WsmFault::wsmb_PolymorphismModeNotSupported,
                 MessageLoaderParms(
@@ -925,9 +927,9 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         maxElements,
         enumerationMode,
         polymorphismMode,
-        queryLanguage,
-        query,
-        selectStatement);
+        wsmFilter);
+
+    PEG_METHOD_EXIT();
 }
 
 WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(

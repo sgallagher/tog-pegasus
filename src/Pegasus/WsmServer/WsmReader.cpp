@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
@@ -573,6 +574,8 @@ void WsmReader::skipElement(XmlEntry& entry)
     XmlReader::expectEndTag(_parser, elementName);
 }
 
+// checkDuplicateHeader.  It is a duplicate if the isDuplicate parameter
+// is true
 inline void checkDuplicateHeader(
     const char* elementName,
     Boolean isDuplicate)
@@ -670,11 +673,12 @@ void WsmReader::decodeRequestSoapHeaders(
                 WsmNamespaces::WS_ADDRESSING, "Address", wsaFaultTo, true);
         }
         else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-            (strcmp(elementName, "Action") == 0))
+           (strcmp(elementName, "Action") == 0))
         {
             checkDuplicateHeader(entry.text, wsaAction.size());
             wsaAction = getElementContent(entry);
         }
+
         else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
             (strcmp(elementName, "MessageID") == 0))
         {
@@ -690,6 +694,7 @@ void WsmReader::decodeRequestSoapHeaders(
         else if ((nsType == WsmNamespaces::WS_MAN) &&
             (strcmp(elementName, "SelectorSet") == 0))
         {
+
             checkDuplicateHeader(entry.text, wsmSelectorSet.selectors.size());
             _parser.putBack(entry);
             getSelectorSetElement(wsmSelectorSet);
@@ -1070,10 +1075,9 @@ void WsmReader::decodeEnumerateBody(
     WsenEnumerationMode& enumerationMode,
     Boolean& optimized,
     Uint32& maxElements,
-    String& queryLanguage,
-    String& query,
-    SharedPtr<WQLSelectStatement>& selectStatement)
+    WsmFilter& wsmFilter)
 {
+   PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmReader::decodeEnumerateBody()");
     XmlEntry entry;
     expectStartOrEmptyTag(
         entry, WsmNamespaces::WS_ENUMERATION, "Enumerate");
@@ -1098,6 +1102,7 @@ void WsmReader::decodeEnumerateBody(
                 // code:
                 //     http://schemas.dmtf.org/wbem/wsman/1/wsman/
                 //         faultDetail/AddressingMode
+                PEG_METHOD_EXIT();
                 throw WsmFault(
                     WsmFault::wsman_UnsupportedFeature,
                     MessageLoaderParms(
@@ -1115,8 +1120,17 @@ void WsmReader::decodeEnumerateBody(
             else if ((nsType == WsmNamespaces::WS_MAN) &&
                 (strcmp(elementName, "Filter") == 0))
             {
+                // R8.2.1-3: The wsman:Filter element (see 8.3) in the
+                // Enumerate body shall be either simple text or a single
+                // complex XML element. A conformant service shall not accept
+                // mixed content of both text and elements, or multiple peer
+                // XML elements under the wsman:Filter element.
+                // Duplicate if filter type already set
+                checkDuplicateHeader(entry.text,
+                    wsmFilter.filterDialect != WsmFilter::NONE);
+
                 _parser.putBack(entry);
-                decodeFilter(queryLanguage, query, selectStatement);
+                decodeFilter(wsmFilter);
                 needEndTag = false;
             }
             else if ((nsType == WsmNamespaces::WS_MAN) &&
@@ -1147,6 +1161,7 @@ void WsmReader::decodeEnumerateBody(
                 }
                 else
                 {
+                    PEG_METHOD_EXIT();
                     throw WsmFault(
                         WsmFault::wsman_UnsupportedFeature,
                         MessageLoaderParms(
@@ -1173,6 +1188,7 @@ void WsmReader::decodeEnumerateBody(
                 }
                 else
                 {
+                    PEG_METHOD_EXIT();
                     throw WsmFault(
                         WsmFault::wsmb_PolymorphismModeNotSupported,
                         MessageLoaderParms(
@@ -1188,6 +1204,7 @@ void WsmReader::decodeEnumerateBody(
                 // marked with mustUnderstand="true", it shall issue an
                 // s:NotUnderstood fault.
                 XmlNamespace* ns = _parser.getNamespace(nsType);
+                PEG_METHOD_EXIT();
                 throw SoapNotUnderstoodFault(
                     ns ? ns->extendedName : String::EMPTY, elementName);
             }
@@ -1211,6 +1228,7 @@ void WsmReader::decodeEnumerateBody(
 
         expectEndTag(WsmNamespaces::WS_ENUMERATION, "Enumerate");
     }
+    PEG_METHOD_EXIT();
 }
 
 void WsmReader::decodePullBody(
@@ -1396,13 +1414,11 @@ void WsmReader::decodeInvokeInputBody(
     _parser.setHideEmptyTags(false);
 }
 
-void WsmReader::decodeFilter(
-    String& queryLanguage,
-    String& query,
-    SharedPtr<WQLSelectStatement>& selectStatement)
+void WsmReader::decodeFilter(WsmFilter& wsmFilter)
 {
     // Expect "Filter" element.
     _parser.setHideEmptyTags(true);
+
     XmlEntry entry;
     expectStartTag(entry, WsmNamespaces::WS_MAN, "Filter");
 
@@ -1420,7 +1436,46 @@ void WsmReader::decodeFilter(
 
         const char* suffix = WsmUtils::skipHostUri(value);
 
-        if (strcmp(suffix, WSMAN_FILTER_DIALECT_WQL_SUFFIX) != 0)
+        // Process for each acceptable dialect attribute
+
+        // If WQL filter dialect found. Parse for WQL Statement
+        if (strcmp(suffix, WSMAN_FILTER_DIALECT_WQL_SUFFIX) == 0)
+        {
+            wsmFilter.filterDialect = WsmFilter::WQL;
+            // Expect query expression (contains the query text).
+
+            expectContentOrCData(entry);
+            wsmFilter.WQLFilter.query = entry.text;
+
+            // Compile the query filter.
+
+            try
+            {
+                wsmFilter.WQLFilter.selectStatement.reset(
+                    new WQLSelectStatement);
+                WQLParser::parse(wsmFilter.WQLFilter.query,
+                    *wsmFilter.WQLFilter.selectStatement.get());
+            }
+            catch (ParseError& e)
+            {
+                MessageLoaderParms parms(
+                    "WsmServer.WsmReader.INVALID_FILTER_QUERY_EXPRESSION",
+                    "Invalid filter query expression: \"$0\".",
+                    entry.text);
+                throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
+            }
+
+            // Set the queryLanguage
+            wsmFilter.WQLFilter.queryLanguage = "WQL";
+        }
+
+        // else if AssociatedFilter Dialect per DSP227, Section 8.2
+        else if (strcmp(suffix, WSMAN_ASSOCIATION_FILTER_SUFFIX) == 0)
+        {
+            wsmFilter.filterDialect = WsmFilter::ASSOCIATION;
+            decodeAssociationFilter(wsmFilter);
+        }
+        else
         {
             MessageLoaderParms parms(
                 "WsmServer.WsmReader.UNSUPPORTED_FILTER_DIALECT",
@@ -1430,35 +1485,236 @@ void WsmReader::decodeFilter(
                 WsmFault::wsen_FilterDialectRequestedUnavailable, parms);
         }
 
-        // We only support "WQL" so far.
-        queryLanguage = "WQL";
-    }
-
-    // Expect query expression (contains the query text).
-
-    expectContentOrCData(entry);
-    query = entry.text;
-
-    // Compile the query filter.
-
-    try
-    {
-        selectStatement.reset(new WQLSelectStatement);
-        WQLParser::parse(query, *selectStatement.get());
-    }
-    catch (ParseError& e)
-    {
-        MessageLoaderParms parms(
-            "WsmServer.WsmReader.INVALID_FILTER_QUERY_EXPRESSION",
-            "Invalid filter query expression: \"$0\".",
-            entry.text);
-        throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
     }
 
     // Expect </Filter>
 
     expectEndTag(WsmNamespaces::WS_MAN, "Filter");
     _parser.setHideEmptyTags(false);
+}
+
+void WsmReader::decodeAssociationFilter(WsmFilter& wsmFilter)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,"WsmReader::decodeAssociationFilter");
+    XmlEntry entry;
+
+    // The next entry must be  either associated or association tag
+
+    wsmFilter.AssocFilter.assocFilterType =
+            WsmFilter::ASSOCIATION_INSTANCES;
+    if (testStartTag(entry, WsmNamespaces::WS_CIM_BINDING,
+        "AssociatedInstances"))
+    {
+        wsmFilter.AssocFilter.assocFilterType =
+            WsmFilter::ASSOCIATED_INSTANCES;
+    }
+    else if (!testStartTag(entry, WsmNamespaces::WS_CIM_BINDING,
+        "AssociationInstances"))
+    {
+        MessageLoaderParms parms(
+            "WsmServer.WsmReader.INVALID_ASSOCIATED FILTER ELEMENT",
+            "Invalid Association Filter Type Element: \"$0\".",
+            entry.text);
+        PEG_METHOD_EXIT();
+        throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
+    }
+
+    const char* associatedStartTag = entry.localName;
+
+    // get the entires for object, AssociationClassName Role ResultClassName
+    // ResultRole, etc. Only the object is required.
+    Boolean seenObject = false;
+    Boolean gotEntry;
+
+    // Commented out because the propertyList feature not supported
+    // Array<CIMName> propertyListArray;
+
+    _parser.setHideEmptyTags(false);
+
+    while ((gotEntry = _parser.next(entry)) &&
+           ((entry.type == XmlEntry::START_TAG) ||
+            (entry.type == XmlEntry::EMPTY_TAG)))
+    {
+        int nsType = entry.nsType;
+        const char* elementName = entry.localName;
+        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+
+        // Test all entires that are in namespace WS_CIM_BINDING
+        if (nsType == WsmNamespaces::WS_CIM_BINDING)
+        {
+            if (strcmp(elementName, "Object") == 0)
+            {
+                checkDuplicateHeader(entry.text,
+                    wsmFilter.AssocFilter.object.getNamespace().size());
+                seenObject = true;
+                if (!getInstanceEPRElement(wsmFilter.AssocFilter.object))
+                {
+                    PEG_METHOD_EXIT();
+                    MessageLoaderParms parms(
+                        "WsmServer.WsmReader.FILTER_OBJECT_EPR_RQD",
+                        "Filter Object EPR required");
+                    throw WsmFault(
+                        WsmFault::wsa_DestinationUnreachable, parms);
+                }
+
+                // Namespace required
+                if (wsmFilter.AssocFilter.object.getNamespace().size() == 0)
+                {
+                    PEG_METHOD_EXIT();
+                    MessageLoaderParms parms(
+                        "WsmServer.WsmReader.FILTER_OBJECT_NAMESPACE_RQD",
+                        "Filter Object EPR __namespace element required");
+                    throw WsmFault(
+                        WsmFault::wsa_DestinationUnreachable, parms);
+                }
+
+                //R8.2.1-4: If the EPR of the source object does not reference
+                // exactly one valid CIM instance, the service shall respond
+                // with a wsen:CannotProcessFilter fault. Services should
+                // include a textual description of the problem.
+                // Selector must include namespace and at least one key.
+                // This required because the Pegasus calls would map this
+                // to a class operation without a key property in the
+                // CIMObjectPath. We already know that there is a __nameSpacce
+                // selector.
+                if (wsmFilter.AssocFilter.object.selectorSet->selectors.size()
+                    < 2)
+                {
+                    MessageLoaderParms parms(
+                        "WsmServer.WsmReader.INVALID_OBJECT_SELECTOR",
+                        "Invalid Selector. No Instance Keys.");
+                    PEG_METHOD_EXIT();
+                    throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
+                }
+            }
+
+            // get AssociationClassName. Do not test if this is part of
+            // filter (i.e. not in association filter) since this is extra
+            // parameter.
+            if (strcmp(elementName, "AssociationClassName") == 0)
+            {
+                checkDuplicateHeader(entry.text,
+                    wsmFilter.AssocFilter.assocClassName.getString().size());
+
+                wsmFilter.AssocFilter.assocClassName =
+                    CIMName(getElementContent(entry));
+            }
+
+            else if (strcmp(elementName, "ResultClassName") == 0)
+            {
+                checkDuplicateHeader(entry.text,
+                    wsmFilter.AssocFilter.resultClassName.getString().size());
+                wsmFilter.AssocFilter.resultClassName =
+                    CIMName(getElementContent(entry));
+            }
+
+            else if (strcmp(elementName, "Role") == 0)
+            {
+                checkDuplicateHeader(entry.text,
+                    wsmFilter.AssocFilter.role.size());
+                wsmFilter.AssocFilter.role = getElementContent(entry);
+            }
+
+            else if (strcmp(elementName, "ResultRole") == 0)
+            {
+                checkDuplicateHeader(entry.text,
+                    wsmFilter.AssocFilter.resultRole.size());
+                wsmFilter.AssocFilter.resultRole = getElementContent(entry);
+            }
+
+        }   // any entries in other namespaces
+        else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
+            (strcmp(elementName, "IncludeResultProperty") == 0))
+        {
+            /* Error because we do not support fragments.
+            R8.2.1-10: If the query includes one or more IncludeResultProperty
+                 elements, the service shall return each instance representation
+                 using the wsman:XmlFragment element. Within the
+                 wsman:XmlFragment element, the service shall return property
+                 values using the property GEDs defined in the
+                 WS-CIM Mapping Specification. If the query includes one or
+                 more IncludeResultProperty elements, the service shall not
+                 return any IncludeResultProperty elements not specified.
+                 The service shall ignore any IncludeResultProperty elements
+                 that describe properties not defined by the target class. If
+                 the service does not support fragment-level access, it shall
+                 return a wsman:UnsupportedFeature fault with the following
+                 detail code:
+                http://schemas.dmtf.org/wbem/wsman/1/wsman/
+                     //faultDetail/FragmentLevelAccess
+            */
+            PEG_METHOD_EXIT();
+                MessageLoaderParms parms(
+                    "WsmServer.WsmReader.INCLUDERESULTPROPERTY_INVALID",
+                    "IncludeResultProperty not allowed.");
+            throw WsmFault(
+                    WsmFault::wsman_UnsupportedFeature,
+                    parms,
+                    WSMAN_FAULTDETAIL_FRAGMENTLEVELACCESS);
+            // Implementation code when we support fragments.
+            //          String s1;
+            //          s1 = getElementContent(entry);
+            //          propertyListArray.append(s1);
+
+        }
+
+        else
+        {
+            skipElement(entry);
+            // The end tag, if any, has already been consumed.
+            needEndTag = false;
+        }
+
+        if (needEndTag)
+        {
+            expectEndTag(nsType, elementName);
+        }
+    }
+
+    if (gotEntry)
+    {
+        _parser.putBack(entry);
+    }
+
+    // object is required; return a fault if it is missing.
+    if (!seenObject)
+    {
+        expectStartTag(
+            entry, WsmNamespaces::WS_CIM_BINDING, "Object");
+    }
+
+    // if there were propertyList entries and we support fragments,
+    // set into the propertyList parameter and we support fragments.
+    //  if (propertyListArray.size() != 0)
+    //  {
+    //      propertyList.set(propertyListArray);
+    //  }
+
+    // Expect the end tag for AssociatedInstances or AssociationInstances
+    expectEndTag(WsmNamespaces::WS_CIM_BINDING, associatedStartTag);
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,  // KS_TEMP
+               "Association Filter "
+               "Object Namespace=%s Address=%s resourceUri=%s "
+               "assocFilterType=%u "
+               "assocClassName=%s "
+               "resultClassName=%s "
+               "role=%s "
+               "resultRole=%s",
+               (const char*)
+                   wsmFilter.AssocFilter.object.getNamespace().getCString(),
+               (const char*)wsmFilter.AssocFilter.object.address.getCString(),
+               (const char*)
+                   wsmFilter.AssocFilter.object.resourceUri.getCString(),
+
+               wsmFilter.AssocFilter.assocFilterType,
+               (const char*)
+                 wsmFilter.AssocFilter.assocClassName.getString().getCString(),
+               (const char*)
+                 wsmFilter.AssocFilter.resultClassName.getString().getCString(),
+               (const char*)wsmFilter.AssocFilter.role.getCString(),
+               (const char*)wsmFilter.AssocFilter.resultRole.getCString()));
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

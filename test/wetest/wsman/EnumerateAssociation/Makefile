@@ -27,27 +27,24 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = ../../..
-
+ROOT = ../../../..
 include $(ROOT)/mak/config.mak
+include $(ROOT)/test/config.mak
 
-DIRS =
+XMLSCRIPTS = \
+    EnumerateAssociation_InvalidClass \
+    EnumerateAssociation_InvalidNamespace \
+    EnumerateAssociation_NoNamespace \
+    EnumerateAssociation_BadAssocTag \
+    EnumerateAssociation_NoObjectTag \
+    EnumerateAssociation_Success01 \
+    EnumerateAssociation_Success02 \
+    EnumerateAssociation_Success03 \
+    EnumerateAssociation_Success04 \
+    EnumerateAssociation_Success06 \
+    EnumerateAssociation_Success07 \
+    EnumerateAssociation_Success08 \
+    EnumerateAssociation_Success09 \
+    EnumerateAssociation_Success10
 
-# Note: These tests require wbemexec to be built with PEGASUS_DEBUG set, so it
-# replaces the response MessageID with a fixed value for static comparison.
-
-ifdef PEGASUS_DEBUG
-    DIRS += \
-        HttpHeader \
-        SoapHeader \
-        Create \
-        Get \
-        Put \
-        Delete \
-        Enumerate \
-        Pull \
-        Release \
-        EnumerateAssociation
-endif
-
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/test/configend.mak

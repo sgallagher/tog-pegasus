@@ -918,6 +918,8 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         maxElements = 1;
     }
 
+    PEG_METHOD_EXIT();
+
     return new WsenEnumerateRequest(
         messageId,
         epr,
@@ -928,8 +930,6 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         enumerationMode,
         polymorphismMode,
         wsmFilter);
-
-    PEG_METHOD_EXIT();
 }
 
 WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(

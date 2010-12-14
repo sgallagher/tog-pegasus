@@ -248,6 +248,9 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
         case CIMTYPE_DATETIME:
             return CIMValue(_getDateTime(str));
 
+        case CIMTYPE_REFERENCE:
+            return CIMValue(CIMObjectPath(str));
+        
         default:
             cerr << "Error: Parser Error. Data type " << cimTypeToString(type)
                  << " not allowed" << endl;
@@ -416,6 +419,17 @@ Boolean _buildArrayValue(
             while(strl.more())
             {
                 a.append(_getDateTime(strl.next()));
+            }
+            val.set(a);
+            break;
+        }
+        case CIMTYPE_REFERENCE:
+        {
+            Array<CIMObjectPath> a;
+            val.get(a);
+            while(strl.more())
+            {
+                 a.append(CIMObjectPath(strl.next()));
             }
             val.set(a);
             break;

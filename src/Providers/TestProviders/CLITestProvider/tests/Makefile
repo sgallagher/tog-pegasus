@@ -277,6 +277,13 @@ testInvokeMethod:
 	    scalDateTime=19991224120000.000000+360 \
 	    arrayDateTime=19991224120000.000000+360,19991224120000.000000+360 \
 	    >>$(RESULTFILE)
+	    
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    ReferenceParamTest \
+	    InParam1="test/TestProvider:class.key1=\"aaa\",key2=0" \
+	    InParam2="test/TestProvider:class.key1=\\\"aaa01\\\"\,key2=1","test/TestProvider:class.key1=\\\"aaa02\\\"\,key2=2" \
+	    >>$(RESULTFILE)
+	    
 	@$(ECHO) +++++ Test invoke method Passed.
 
 ### Test cimcli output with the table output format

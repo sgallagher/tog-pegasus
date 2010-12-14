@@ -87,8 +87,12 @@ class Test_CLITestProviderClass
    Datetime arrayDateTime[];
 
    uint32 ReferenceParamTest(
-        [in] uint32 InParam1,
-        [out] uint32 OutParam2);
+        [in] Test_CLITestProviderClass REF InParam1,
+        [in] Test_CLITestProviderClass REF InParam2[],
+        [out] Test_CLITestProviderClass REF OutParam1,
+        [out] Test_CLITestProviderClass REF OutParam2[]);
+
+        
 
    [ Description("Method to test input and output of all "
         "parameter types. Provider is expected to return "

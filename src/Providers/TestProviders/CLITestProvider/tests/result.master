@@ -53,8 +53,9 @@ real32 arrayReal32[];
 real64 arrayReal64[];
 string arrayString[];
 datetime arrayDateTime[];
-uint32 ReferenceParamTest([in : DisableOverride] uint32 InParam1, [out 
-    : DisableOverride] uint32 OutParam2);
+uint32 ReferenceParamTest([in : DisableOverride] reference InParam1, 
+    [in : DisableOverride] reference InParam2[], [out : DisableOverride] 
+    reference OutParam1, [out : DisableOverride] reference OutParam2[]);
     [Description ("Method to test input and output of all parameter types. "
         "Provider is expected to return all parameters input.") : Translatable]
 uint32 InOutParamTest([in : DisableOverride, 
@@ -719,6 +720,7 @@ Returned Path  Test_CLITestProviderClass.Id="ScalarTest"
 test instance Test_CLITestProviderClass.Id="ScalarTest" OK
 6. +++++ Test invokeMethod
 Return Value= 0
+Return Value= 0
 10. +++++ testPropertyListOptions
 
 //    Class CIM_ManagedElement
@@ -1012,7 +1014,8 @@ real32 arrayReal32[];
 real64 arrayReal64[];
 string arrayString[];
 datetime arrayDateTime[];
-uint32 ReferenceParamTest(uint32 InParam1, uint32 OutParam2);
+uint32 ReferenceParamTest(reference InParam1, reference InParam2[], 
+    reference OutParam1, reference OutParam2[]);
 uint32 InOutParamTest(boolean scalBool, uint8 scalUint8, sint8 scalSint8, 
     uint16 scalUint16, sint16 scalSint16, uint32 scalUint32, sint32 
     scalSint32, uint64 scalUint64, real32 scalReal32, real64 scalReal64, 

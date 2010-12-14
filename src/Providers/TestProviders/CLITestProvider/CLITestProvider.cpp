@@ -227,40 +227,25 @@ void CLITestProvider::invokeMethod(
             {
                 for(Uint32 i = 0; i < inParameters.size(); ++i)
                 {
-                    CIMValue paramVal = inParameters[i].getValue();
-                    if (!paramVal.isNull())
+                    CIMParamValue param = inParameters[i];
+                    CIMValue paramVal = param.getValue();
+                    String paramName = param.getParameterName();
+                    String outParamName;
+                    if(String::equalNoCase(paramName,"InParam1"))
                     {
-                        if(paramVal.getType() == CIMTYPE_REFERENCE)
-                        {
-                            CIMObjectPath cop,cop1(
-                                "test/Testprovider:class.k1="
-                                "\"v1\",k2=\"v2\",k3=\"v3\"");
-                            paramVal.get(cop);
-                            PEGASUS_TEST_ASSERT(cop.identical(cop1) == true);
-                            outString.append(
-                                "\n Passed Reference params Test1 ");
-                            PEGASUS_TEST_ASSERT(!cop.identical(cop1) == false);
-                            outString.append(
-                                "\n Passed Reference params Test2    ");
-                        }
-                        else
-                        {
-                            //This code gets excuted for non reference
-                            //parameters.
-                            String replyName;
-                            paramVal.get(replyName);
-                            if (replyName != String::EMPTY)
-                            {
-                                outString.append(replyName);
-                                outString.append("\n");
-                                outString.append("Passed String Param Test\n");
-                            }
-                        }
-                        outString.append("\n");
+                        outParamName = "OutParam1";
+                        PEGASUS_ASSERT(paramVal.getType() == CIMTYPE_REFERENCE
+                            && !paramVal.isArray());
+                        param.setParameterName(outParamName);
+                        handler.deliverParamValue(param);
                     }
-                    else
+                    else if(String::equalNoCase(paramName,"InParam2"))
                     {
-                        outString.append("Param Value is NULL");
+                        outParamName = "OutParam2";
+                        PEGASUS_ASSERT(paramVal.getType() == CIMTYPE_REFERENCE
+                            && paramVal.isArray());
+                        param.setParameterName(outParamName);
+                        handler.deliverParamValue(param);
                     }
                 }
 
@@ -269,8 +254,9 @@ void CLITestProvider::invokeMethod(
             else
             {
                 outString.append("Empty Parameters");
-                handler.deliver(CIMValue(outString));
+                handler.deliver(CIMValue(Uint32(0xFFffFFff)));
             }
+            handler.deliver(Uint32(0));
         }
 
         // This simply returns all parameters and

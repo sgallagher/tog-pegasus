@@ -233,6 +233,8 @@ void CQL_Bison_Cleanup(){
 %type <_node> optional_where
 %type <_node> select_statement
 
+%destructor {CQL_Bison_Cleanup(); }  TOK_SELECT
+
 %start select_statement
 
 %%

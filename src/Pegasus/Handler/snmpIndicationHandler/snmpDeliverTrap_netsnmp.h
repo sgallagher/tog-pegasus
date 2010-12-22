@@ -58,7 +58,8 @@ static const char _MSG_PDU_CREATE_FAILED_KEY[] =
         "_MSG_PDU_CREATE_FAILED";
 
 static const char _MSG_VERSION_NOT_SUPPORTED[] =
-    "SNMPv1 Trap and SNMPv2C Trap are the only supported SNMPVersion values.";
+    "SNMPv1 Trap, SNMPv2C Trap and SNMPV3 are the only supported SNMPVersion "
+         "values.";
 static const char _MSG_VERSION_NOT_SUPPORTED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_VERSION_NOT_SUPPORTED";
@@ -146,6 +147,11 @@ public:
         const Uint32& portNumber,
         const Uint16& snmpVersion,
         const String& engineID,
+        const Uint8& snmpSecLevel,
+        const Uint8& snmpSecAuthProto,
+        const Array<Uint8>& snmpSecAuthKey,
+        const Uint8& snmpSecPrivProto,
+        const Array<Uint8>& snmpSecPrivKey,
         const Array<String>& vbOids,
         const Array<String>& vbTypes,
         const Array<String>& vbValues);
@@ -164,6 +170,14 @@ private:
         @param targetHostFormat the format of the targetHost
         @param portNumber       the port number to receive a trap
         @param securityName     the human readable community name
+        @param snmpVersion      the snmp version
+        @param engineID         the engine ID
+        @param snmpSecLevel     the security level
+                                (authNoPriv,authPriv,noAuthNoPriv)
+        @param snmpSecAuthProto MD5 or SHA
+        @param snmpSecAuthKey   encoded authentication key
+        @param snmpSecPrivProto AES or DES
+        @param snmpSecPrivKey   encoded privacy key
         @param sessionHandle    an opaque pointer of the SNMP session
         @param sessionPtr       the SNMP session pointer to its associated
                                 struct snmp_session
@@ -173,8 +187,26 @@ private:
         Uint16 targetHostFormat,
         Uint32 portNumber,
         const String& securityName,
+        Uint16 snmpVersion,
+        const String& engineID,
+        const Uint8& snmpSecLevel,
+        const Uint8& snmpSecAuthProto,
+        const Array<Uint8>& snmpSecAuthKey,
+        const Uint8& snmpSecPrivProto,
+        const Array<Uint8>& snmpSecPrivKey,
         void*& sessionHandle,
         struct snmp_session*& sessionPtr);
+
+    /**
+        Add the community string to the snmp session for V1 and V2C
+
+        @param sessionPtr    the SNMP session pointer to its associated
+                             struct snmp_session
+        @param securityName     the human readable community name
+    */
+    void _addCommunity(
+        struct snmp_session*& sessionPtr,
+        const String& securityName);
 
     /**
         Creates a SNMP session.

@@ -242,6 +242,20 @@ const CIMName _PROPERTY_SNMPSECURITYNAME = CIMNameCast("SNMPSecurityName");
  */
 const CIMName _PROPERTY_SNMPENGINEID = CIMNameCast("SNMPEngineID");
 
+const CIMName _PROPERTY_SNMPSECURITYLEVEL = CIMNameCast("SNMPSecurityLevel");
+
+const CIMName _PROPERTY_SNMPSECURITYAUTHPROTOCOL = 
+    CIMNameCast("SNMPSecurityAuthProtocol");
+
+const CIMName _PROPERTY_SNMPSECURITYAUTHKEY = 
+    CIMNameCast("SNMPSecurityAuthKey");
+
+const CIMName _PROPERTY_SNMPSECURITYPRIVPROTO = 
+    CIMNameCast("SNMPSecurityPrivProtocol");
+
+const CIMName _PROPERTY_SNMPSECURITYPRIVKEY = 
+    CIMNameCast("SNMPSecurityPrivKey");
+
 /**
     The name of the Alert Type property for Alert Indication class
  */

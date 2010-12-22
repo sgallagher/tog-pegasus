@@ -266,6 +266,35 @@ extern const CIMName _PROPERTY_SNMPSECURITYNAME;
 extern const CIMName _PROPERTY_SNMPENGINEID;
 
 /**
+    The SNMP Security Level for SNMP Mapper Indication Handle subclass.
+*/
+extern const CIMName _PROPERTY_SNMPSECURITYLEVEL;
+
+/**
+    The SNMP Security Authentication protocol for SNMP Mapper Indication Handle 
+    subclass
+ */
+extern const CIMName _PROPERTY_SNMPSECURITYAUTHPROTOCOL;
+
+/**
+    The SNMP Security Authentication key for SNMP Mapper Indication Handle
+    subclass
+ */
+extern const CIMName _PROPERTY_SNMPSECURITYAUTHKEY;
+
+/**
+    The SNMP Security privacy protocol for SNMP Mapper Indication Handle
+    subclass
+ */
+extern const CIMName _PROPERTY_SNMPSECURITYPRIVPROTO;
+
+/**
+    The SNMP Security privacy key for SNMP Mapper Indication Handle
+    subclass
+ */
+extern const CIMName _PROPERTY_SNMPSECURITYPRIVKEY;
+
+/**
     The name of the Alert Type property for Alert Indication class
  */
 extern const CIMName _PROPERTY_ALERTTYPE;

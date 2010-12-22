@@ -88,6 +88,33 @@ class PG_IndicationHandlerSNMPMapper: CIM_IndicationHandler
       "The Engine ID of the Target Host is required when "
       "sending an SNMPV3 inform.") ]
     string SNMPEngineID;
+
+    [Description (
+      "The user security level."),
+      ValueMap {"1", "2", "3", "4..255"},
+      Values {"noAuthnoPriv", "AuthNoPriv", "AuthPriv", "Pegasus Reserved"} ]
+    uint8 SNMPSecurityLevel;
+
+    [Description (
+      "The authentication protocol used for SNMP v3 traps."),
+      ValueMap {"1", "2", "3..255"},
+      Values {"MD5", "SHA", "Pegasus Reserved"} ]
+    uint8 SNMPSecurityAuthProtocol;
+
+    [Description (
+      "The encoded authentication pass phrase needed for SNMP v3 traps.") ]
+    Uint8 SNMPSecurityAuthKey [];
+
+    [Description (
+      "The privacy protocal needed for SNMP v3 traps"),
+      ValueMap {"1", "2", "3..255"},
+      Values {"DES", "AES", "Pegasus Reserved"} ]
+    uint8 SNMPSecurityPrivProtocol;
+
+    [Description (
+      "The encoded privacy pass phrase needed for SNMP v3 traps") ]
+    Uint8 SNMPSecurityPrivKey [];
+
 };
 
 // ====================================================================

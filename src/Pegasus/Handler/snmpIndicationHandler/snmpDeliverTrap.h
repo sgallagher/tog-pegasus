@@ -76,6 +76,11 @@ public:
         const Uint32& portNumber,
         const Uint16& snmpVersion,
         const String& engineID,
+        const Uint8& snmpSecLevel,
+        const Uint8& snmpSecAuthProto,
+        const Array<Uint8>& snmpSecAuthKey,
+        const Uint8& snmpSecPrivProto,
+        const Array<Uint8>& snmpSecPrivKey,
         const Array<String>& vbOids,
         const Array<String>& vbTypes,
         const Array<String>& vbValues) = 0;

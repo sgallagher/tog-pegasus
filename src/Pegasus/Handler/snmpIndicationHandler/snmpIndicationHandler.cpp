@@ -222,6 +222,16 @@ void snmpIndicationHandler::handleIndication(
         Uint32 securityNamePos =
             handler.findProperty(CIMName("SNMPSecurityName"));
         Uint32 engineIDPos = handler.findProperty(CIMName("SNMPEngineID"));
+        Uint32 snmpSecLevelPos = 
+            handler.findProperty(CIMName("SNMPSecurityLevel"));
+        Uint32 snmpSecAuthProtoPos = 
+            handler.findProperty(CIMName("SNMPSecurityAuthProtocol"));
+        Uint32 snmpSecAuthKeyPos =
+            handler.findProperty(CIMName("SNMPSecurityAuthKey"));
+        Uint32 snmpSecPrivProtoPos =
+            handler.findProperty(CIMName("SNMPSecurityPrivProtocol"));
+        Uint32 snmpSecPrivKeyPos =
+            handler.findProperty(CIMName("SNMPSecurityPrivKey"));
 
         if (targetHostPos == PEG_NOT_FOUND)
         {
@@ -272,6 +282,11 @@ void snmpIndicationHandler::handleIndication(
             Uint16 targetHostFormat = 0;
             Uint16 snmpVersion = 0;
             Uint32 portNumber;
+            Uint8 snmpSecLevel = 1; // noAuthnoPriv
+            Uint8 snmpSecAuthProto = 0; 
+            Array<Uint8> snmpSecAuthKey;// no key
+            Uint8 snmpSecPrivProto = 0; 
+            Array<Uint8> snmpSecPrivKey ;// no key
 
             String trapOid;
             Boolean trapOidAvailable = false;
@@ -388,6 +403,36 @@ void snmpIndicationHandler::handleIndication(
                 handler.getProperty(engineIDPos).getValue().get(engineID);
             }
 
+            if(snmpVersion == 5) // SNMPv3 Trap
+            {
+                //fetch the security data
+                if(snmpSecLevelPos != PEG_NOT_FOUND)
+                {
+                    handler.getProperty(snmpSecLevelPos).getValue(). \
+                        get(snmpSecLevel);
+                }
+                if(snmpSecAuthProtoPos != PEG_NOT_FOUND)
+                {
+                    handler.getProperty(snmpSecAuthProtoPos).getValue(). \
+                        get(snmpSecAuthProto);
+                }
+                if(snmpSecAuthKeyPos != PEG_NOT_FOUND)
+                {
+                    handler.getProperty(snmpSecAuthKeyPos).getValue(). \
+                        get(snmpSecAuthKey);
+                }
+                if(snmpSecPrivProtoPos != PEG_NOT_FOUND)
+                {
+                    handler.getProperty(snmpSecPrivProtoPos).getValue(). \
+                        get(snmpSecPrivProto);
+                }
+                if(snmpSecPrivKeyPos!= PEG_NOT_FOUND)
+                {
+                    handler.getProperty(snmpSecPrivKeyPos).getValue(). \
+                        get(snmpSecPrivKey);
+                }
+            }
+
             PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
                "snmpIndicationHandler sending %s Indication trap %s to target"
                " host %s target port %d",
@@ -404,6 +449,11 @@ void snmpIndicationHandler::handleIndication(
                 portNumber,
                 snmpVersion,
                 engineID,
+                snmpSecLevel,
+                snmpSecAuthProto,
+                snmpSecAuthKey,
+                snmpSecPrivProto,
+                snmpSecPrivKey,
                 propOIDs,
                 propTYPEs,
                 propVALUEs);

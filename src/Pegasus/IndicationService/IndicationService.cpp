@@ -632,6 +632,7 @@ void IndicationService::_initialize()
     _validSNMPVersion.append(SNMPV3_INFORM);
     _supportedSNMPVersion.append(SNMPV1_TRAP);
     _supportedSNMPVersion.append(SNMPV2C_TRAP);
+    _supportedSNMPVersion.append(SNMPV3_TRAP);
 
     //
     //  Set arrays of names of supported properties for each class
@@ -720,6 +721,11 @@ void IndicationService::_initialize()
     _supportedSNMPHandlerProperties.append(PEGASUS_PROPERTYNAME_SNMPVERSION);
     _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYNAME);
     _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPENGINEID);
+    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYLEVEL);
+    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYAUTHPROTOCOL);
+    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYAUTHKEY);
+    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYPRIVPROTO);
+    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYPRIVKEY);
 
     _supportedSyslogListenerDestinationProperties =
         commonListenerDestinationProperties;
@@ -2013,11 +2019,29 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
                 _MSG_INVALID_INSTANCES);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
+
+        // check if this is SNMP Handler
+        if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_SNMP))
+        {
+            if(String::compare(creator,userName) != 0)
+            {
+                // only the creator of the handler has access to 
+                // the handler deata.
+                MessageLoaderParms parms(
+                "IndicationService.IndicationService."
+                    "_MSG_NON_PRIVILEGED_ACCESS_DISABLED",
+                "User ($0) is not authorized to perform this operation.",
+                userName);
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
+            }
+        }
+
         instance.removeProperty(
             instance.findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
-        // Remove CretaionTime property from CIMXML handlers
+        // Remove Creation Time property from CIMXML handlers
         CIMName clsName = instance.getClassName();
 
         if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
@@ -2180,12 +2204,24 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 continue;
             }
 
+            CIMName clsName = enumInstances[i].getClassName();
+
+            // check if this is SNMP Handler
+            if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_SNMP))
+            {
+                if(String::compare(creator,userName) != 0)
+                {
+                    // only the creator of the handler has access to 
+                    // the handler deata.
+                    continue;
+                }
+            }
+
             enumInstances[i].removeProperty(
                 enumInstances[i].findProperty(
                     PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
-            // Remove CretaionTime property from CIMXML handlers
-            CIMName clsName = enumInstances[i].getClassName();
+            // Remove CreationTime property from CIMXML handlers
 
             if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
                 clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
@@ -4654,6 +4690,16 @@ Boolean IndicationService::_canCreate (
                     CIMTYPE_STRING);
                 _checkProperty(instance, _PROPERTY_SNMPENGINEID,
                     CIMTYPE_STRING);
+                _checkProperty(instance, _PROPERTY_SNMPSECURITYLEVEL,
+                    CIMTYPE_UINT8);
+                _checkProperty(instance, _PROPERTY_SNMPSECURITYAUTHPROTOCOL,
+                    CIMTYPE_UINT8);
+                _checkProperty(instance, _PROPERTY_SNMPSECURITYAUTHKEY,
+                    CIMTYPE_UINT8,1);
+                _checkProperty(instance, _PROPERTY_SNMPSECURITYPRIVPROTO,
+                    CIMTYPE_UINT8);
+                _checkProperty(instance, _PROPERTY_SNMPSECURITYPRIVKEY,
+                    CIMTYPE_UINT8,1);
             }
 
             if (instance.getClassName().equal

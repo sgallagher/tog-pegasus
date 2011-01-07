@@ -151,9 +151,14 @@ public:
         _encoding |= RESP_ENC_SCMO;
     }
 
-    // Binary data is just a data stream
     Array<Uint8>& getBinary();
-    bool setBinary(CIMBuffer& in, bool hasLen=true);
+
+    // Set the binary stream in the CIMBuffer into the CIMResponseData
+    bool setBinary(CIMBuffer& in);
+
+    // Set any data from the CIMBuffer remaining after the current CIMBuffer
+    // position pointer into the CIMResponseData Object.
+    bool setRemainingBinaryData(CIMBuffer& in);
 
     // Xml data is unformatted, no need to differentiate between instance
     // instances and object paths or objects

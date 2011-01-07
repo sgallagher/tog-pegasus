@@ -46,7 +46,6 @@
 #include "StringRep.h"
 #include "StringInline.h"
 #include "Buffer.h"
-#include "BinaryCodec.h"
 #include "SCMOStreamer.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
@@ -268,7 +267,7 @@ bool CIMBuffer::getNamespaceName(CIMNamespaceName& x)
 
     if (_validate)
     {
-        // Get string without validation since we will validate namespace below.
+        // Get string without validation and validate namespace below.
 
         _validate = false;
 

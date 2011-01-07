@@ -459,7 +459,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
 
     if (binaryResponse)
     {
-        // Note: this may throw an excpetion which will be caught by caller.
+        // Note: this may throw an exception which will be caught by caller.
 
         CIMBuffer in((char*)content, contentLength);
         CIMBufferReleaser buf_(in);

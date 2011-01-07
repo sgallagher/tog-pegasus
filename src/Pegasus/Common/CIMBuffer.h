@@ -60,14 +60,25 @@ PEGASUS_NAMESPACE_BEGIN
     protocols since it sacrifices size for performance; Whereas the Packer
     class is more suitable for disk storage since it favors size over
     performance.
+    
+    For serialization, the CIMBuffer is constructed empty with
+    a defined allocation and the data is inserted with put...(...) methods.
+    
+    For deserailization, the CIMBuffer is constructed with the definition of
+    the stream to be deserialized and the get...(...) methods get
+    data from the buffer into C++ objects.
 
     CIMBuffer handles network byte ordering. It uses a "reader makes right"
     policy whereby the writing process sends data in his own endianess,
-    which he comminicates to the reading process (using a mechanism defined
+    which he communicates to the reading process (using a mechanism defined
     outside of this class). The reader checks to see if that endianess is
     the same as his own. If so, the data is used as is. Otherwise, the
     reader calls CIMBuffer::setSwap(true) to cause subsequent get calls to
     swap data ordering.
+    
+    Validation (see SetValidation()) is an optional function that validates
+    Strings, CIM_Names, and CIM_Namespaces for validity as part of the
+    deserialization process. Normally this is only a Server debugging tool.
 */
 class PEGASUS_COMMON_LINKAGE CIMBuffer
 {
@@ -75,8 +86,23 @@ public:
 
     CIMBuffer();
 
+    /**
+       Serialization constructor. Constructs a CIMBuffer object by 
+       allocating memory defined by size parameter. 
+       @param size size_t defining size to allocate the CIMBuffer 
+    */
     CIMBuffer(size_t size);
 
+    /**
+       Deserialiazation constructor. Constructs a CIMBuffer object that 
+       references the data defined by the data and size parameters. 
+       This constructor does NOT allocate memory for the CIMBuffer. 
+       Normally used to create a buffer with serialized data that is to 
+       be decoded. 
+       @param data char* to serialized data for the CIMBuffer. 
+       @param size size_t size of the data in bytes. This defines the 
+       end of the buffer 
+    */
     CIMBuffer(char* data, size_t size)
     {
         _data = data;
@@ -88,6 +114,10 @@ public:
 
     ~CIMBuffer();
 
+    /**
+       Set the swap flag. for this serialization process. 
+       @param x bool - True if  subsequent get calls are to swap data ordering 
+    */
     void setSwap(bool x)
     {
         _swap = x ? 1 : 0;
@@ -102,32 +132,78 @@ public:
     {
         return _ptr != _end;
     }
-
+    
+    /**
+       Reset the pointer to the data back to the beginning of the 
+       serialized data. 
+    */
     void rewind()
     {
         _ptr = _data;
     }
 
+    /**
+       Return the capacity of the CIMBuffer which is the total space between 
+       the start of data and the _end of the buffer.  Note that in the 
+       case of CIMBuffer objects constructed with defined serialized 
+       data on input this is the data in the buffer since these 
+       objects are defined with the end of the data equal to the end of 
+       the input CIMBuffer object.  If the buffer was constructed to serialize 
+       data the capacity represents the end of the currently allocated space. 
+       @return size_t representing either the total data size of a CIMBuffer 
+       constructed to serialize data or the ttotal length of the serial stream 
+       of data data in a CIMBuffer constructed to deserialize data. 
+    */
     size_t capacity()
     {
         return _end - _data;
     }
 
+    /**
+      Return the size of the serialized data in the CIMBuffer. for a 
+      serialize CIMBuffer and position in the CIMBuffer where where 
+      the next deserailize will occur for a deserialize buffer. 
+    */
     size_t size()
     {
         return _ptr - _data;
     }
 
+    /**
+       Return the size of the data remaining in a deserialize CIMBuffer 
+       beyond what has already been deserialized. This represents valid 
+       serialized data only in a deserialize CIMBuffer. 
+     */
+    size_t remainingDataLength()
+    {
+        // return capacity() - size()
+        return _end - _ptr;
+    }
+
+    /**
+       Returns pointer to the start of the serialized data in the CIMBuffer
+     */
     const char* getData() const
     {
         return _data;
     }
 
+    /**
+       Return pointer to the current position in the CIMBuffer where data 
+       will next be set for a serialize buffer and where the data will next 
+       be read for a deserialize buffer. 
+     */
     const char* getPtr() const
     {
         return _ptr;
     }
 
+    /**
+       Clear the pointers to the serialized data in the CIMBuffer and return 
+       the pointer to the start of the serialized data. 
+       @return char* to start of serialized data defined by the CIMBuffer 
+       constructor 
+     */
     char* release()
     {
         char* data = _data;
@@ -143,6 +219,10 @@ public:
         return (size + 7) & ~7;
     }
 
+    /**
+       Serialize a single Boolean variable into the CIMBuffer. The buffer 
+       size is expanded if required. 
+     */
     void putBoolean(Boolean x)
     {
         if (_end - _ptr < 8)
@@ -251,6 +331,10 @@ public:
         _ptr += 8;
     }
 
+    /**
+       Insert the data defined by data and size directly into a CIMBuffer. 
+       If necessary the buffer is grown to allow this insertion. 
+     */
     void putBytes(const void* data, size_t size)
     {
         size_t r = round(size);
@@ -262,6 +346,10 @@ public:
         _ptr += r;
     }
 
+    /**
+       Insert a Pegasus String into the Buffer converting it to char16 
+       data. 
+     */
     void putString(const String& x)
     {
         Uint32 n = x.size();
@@ -1374,17 +1462,28 @@ private:
             *p = _swapChar16(*p);
     }
 
+    // pointer to the start of data in the CIMBuffer
     char* _data;
+    // pointer to end of the buffer.  For a serialize CIMBuffer where the
+    // data is inserted through put functions this represents the end of
+    // the allocated data. For a deserialize CIMBuffer where the serialized
+    // data is defined in the constructor this represents the end of the
+    // data.
     char* _end;
+    // pointer to next place to put  serialized data in the CIMBuffer for
+    // a serialize CIMBuffer and the next read (get) position for a
+    // deseralize CIMBuffer
     char* _ptr;
+
     // If non-zero, the endianess of reads is swapped (big-endian is changed
     // to little-endian and visa versa).
-
     int _swap;
     int _validate;
 };
 
 
+// structure to provide for release of a CIMBuffer object when the 
+// releaser object is destructed.
 struct CIMBufferReleaser
 {
     CIMBufferReleaser(CIMBuffer& buf) : _buf(buf)

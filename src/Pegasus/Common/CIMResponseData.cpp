@@ -103,26 +103,33 @@ Array<Uint8>& CIMResponseData::getBinary()
     return _binaryData;
 }
 
-bool CIMResponseData::setBinary(CIMBuffer& in, bool hasLen)
+bool CIMResponseData::setBinary(CIMBuffer& in)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMResponseData::setBinary");
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setBinary");
 
-    if (hasLen)
+    // Append all serial data from the CIMBuffer to the local data store.
+    // Returns error if input not a serialized Uint8A
+    if (!in.getUint8A(_binaryData))
     {
-        if (!in.getUint8A(_binaryData))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get binary object path data!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to get binary input data!");
+        PEG_METHOD_EXIT();
+        return false;
     }
-    else
-    {
-        size_t remainingDataLength = in.capacity() - in.size();
-        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
-    }
+    _encoding |= RESP_ENC_BINARY;
+    PEG_METHOD_EXIT();
+    return true;
+}
+
+bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setRemainingBinaryData");
+
+    // Append any data that has not been deserialized already from
+    // the CIMBuffer.
+    size_t remainingDataLength = in.remainingDataLength();
+    _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
+
     _encoding |= RESP_ENC_BINARY;
     PEG_METHOD_EXIT();
     return true;

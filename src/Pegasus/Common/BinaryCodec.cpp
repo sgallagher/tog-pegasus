@@ -372,7 +372,7 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest=true;
     return msg;
@@ -440,7 +440,7 @@ _decodeEnumerateInstanceNamesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
     return msg;
@@ -554,7 +554,7 @@ static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
     return msg;
@@ -1071,7 +1071,7 @@ static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
     return msg;
@@ -1218,7 +1218,7 @@ static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
     return msg;
@@ -1369,7 +1369,7 @@ static CIMReferencesResponseMessage* _decodeReferencesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
     return msg;
@@ -1496,7 +1496,7 @@ static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
 
@@ -3013,7 +3013,7 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
-    responseData.setBinary(in,false);
+    responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest = true;
     return msg;
@@ -3201,7 +3201,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
 CIMResponseMessage* BinaryCodec::decodeResponse(
     CIMBuffer& buf)
 {
-    // Turn on validation:
+    // Turn on validation: This is a debugging tool
 #if defined(ENABLE_VALIDATION)
     buf.setValidate(true);
 #endif

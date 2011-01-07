@@ -34,7 +34,6 @@
 #include <Pegasus/Common/System.h>
 
 #include "CIMBinMsgDeserializer.h"
-#include "BinaryCodec.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

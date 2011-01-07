@@ -295,6 +295,7 @@ void snmpDeliverTrap_netsnmp::_createSession(
                 _addCommunity(sessionPtr,securityName);
                 break;
             }
+#ifdef PEGASUS_ENABLE_NET_SNMPV3 
             case _SNMPv3_TRAP:
             {
                 sessionPtr->version = SNMP_VERSION_3;
@@ -398,6 +399,7 @@ void snmpDeliverTrap_netsnmp::_createSession(
                 }
                 break;
             }
+#endif // ifdef PEGASUS_ENABLE_NET_SNMPV3 
             default:
             {
                 PEG_METHOD_EXIT();

@@ -731,7 +731,27 @@ endif
 
 # Controls snmp indication handler to use NET-SNMP to deliver trap
 ifdef PEGASUS_USE_NET_SNMP
-  DEFINES += -DPEGASUS_USE_NET_SNMP
+    DEFINES += -DPEGASUS_USE_NET_SNMP
+endif
+
+# Controls snmp indication handler to use NET-SNMP V3 features. 
+ifndef PEGASUS_ENABLE_NET_SNMPV3
+    ifdef PEGASUS_USE_NET_SNMP
+        PEGASUS_ENABLE_NET_SNMPV3=true
+    else
+        PEGASUS_ENABLE_NET_SNMPV3=false
+    endif
+endif
+
+ifeq ($(PEGASUS_ENABLE_NET_SNMPV3),true)
+    ifndef PEGASUS_USE_NET_SNMP
+        $(error PEGASUS_USE_NET_SNMP should be set when PEGASUS_ENABLE_NET_SNMPV3 is true)
+    endif
+    DEFINES += -DPEGASUS_ENABLE_NET_SNMPV3
+else
+    ifneq ($(PEGASUS_ENABLE_NET_SNMPV3),false)
+        $(error PEGASUS_ENABLE_NET_SNMPV3 ($(PEGASUS_ENABLE_NET_SNMPV3)) invalid, must be true or false)
+    endif
 endif
 
 ifdef PEGASUS_HAS_SSL

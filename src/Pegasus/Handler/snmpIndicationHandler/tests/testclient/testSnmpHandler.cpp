@@ -36,8 +36,10 @@
 #include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HostAddress.h>
-#include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-includes.h>
+#ifdef PEGASUS_USE_NET_SNMP
+# include <net-snmp/net-snmp-config.h>
+# include <net-snmp/net-snmp-includes.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -157,6 +159,8 @@ CIMObjectPath _createHandlerInstance(
         CIMValue ((Uint16) snmpVersion)));
     handlerInstance.addProperty (CIMProperty (CIMName ("PortNumber"),
         CIMValue ((Uint32) PORT_NUMBER)));
+
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
     if(snmpVersion == _SNMPV3_TRAP)
     {
 
@@ -267,6 +271,7 @@ CIMObjectPath _createHandlerInstance(
             free(encryptedSecurityPrivKey);
         }  
     }
+#endif // ifdef PEGASUS_ENABLE_NET_SNMPV3
 
     return client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
@@ -569,6 +574,7 @@ void _setup (CIMClient & client, const String& qlang)
     }
 #endif
 
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
     // create a snmp V3 trap handler.
     try
     {
@@ -625,7 +631,7 @@ void _setup (CIMClient & client, const String& qlang)
             throw;
         }
     }
-#
+#endif // ifdef PEGASUS_ENABLE_NET_SNMPV3
 }
 
 void _cleanup (CIMClient & client)
@@ -676,6 +682,7 @@ void _cleanup (CIMClient & client)
     }
 #endif
 
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
     try
     {
         _deleteSubscriptionInstance (client, FILTER_NAME,
@@ -690,6 +697,7 @@ void _cleanup (CIMClient & client)
             throw;
         }
     }
+#endif
 
     try
     {
@@ -743,6 +751,7 @@ void _cleanup (CIMClient & client)
     }
 #endif
 
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
     try
     {
         _deleteHandlerInstance (client, SNMPV3_HANDLER_NAME);
@@ -755,6 +764,7 @@ void _cleanup (CIMClient & client)
             throw;
         }
     }
+#endif
 }
 
 static void _testEnd(const String& uniqueID, const double elapsedTime)
@@ -845,10 +855,12 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion, const String& logFile)
         {
             receivedTrap2Count++;
         }
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
         if (String::compare(line, trap3) == 0)
         {
             receivedTrap3Count++;
         }
+#endif
     }
 
     ifs.close();
@@ -863,10 +875,12 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion, const String& logFile)
         {
             return (receivedTrap2Count);
         }
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
         case _SNMPV3_TRAP:
         {
             return (receivedTrap3Count);
         }
+#endif
         default:
         {
             return (0);
@@ -1001,8 +1015,10 @@ void _receiveExpectedTraps(
     indicationTrapV2SendCount = indicationTrapV1SendCount;
 #endif
 
+#ifdef PEGASUS_ENABLE_NET_SNMPV3
     indicationTrapV3SendCount =
         indicationSendCount * runClientThreadCount;
+#endif
 
     // calculate the timeout based on the total send count allowing
     // using the MSG_PER_SEC rate

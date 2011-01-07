@@ -42,6 +42,7 @@ LIBRARY = pegwsmserver
 LIBRARIES = \
     pegrepository \
     pegwql \
+    pegquerycommon \
     pegconfig \
     pegcommon
 

@@ -31,6 +31,7 @@
 
 #include <cctype>
 #include <cstdio>
+#include <errno.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -49,8 +50,8 @@ static bool _isInputParameter(const CIMParameter& cp)
     // Check to see if the given parameter is an input parameter (whether
     // it bears a true "In" qualifier).
 
-    static const CIMName IN("In");
-    Uint32 pos = cp.findQualifier(IN);
+    static const CIMName inQualifier("In");
+    Uint32 pos = cp.findQualifier(inQualifier);
 
     if (pos != PEG_NOT_FOUND)
     {

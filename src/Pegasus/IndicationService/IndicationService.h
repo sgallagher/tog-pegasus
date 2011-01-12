@@ -100,8 +100,6 @@ public:
      */
     void sendSubscriptionInitComplete();
 
-    static Uint16 getHealthState();
-    static Uint16 getEnabledState();
 
     AtomicInt dienow;
 
@@ -1432,8 +1430,6 @@ private:
     void _cancelCreateSubscription(const CIMObjectPath &objPath);
     void _commitCreateSubscription(const CIMObjectPath &objPath);
 
-    static Uint16 _enabledState;
-    static Uint16 _healthState;
 
     AutoPtr<SubscriptionRepository> _subscriptionRepository;
 

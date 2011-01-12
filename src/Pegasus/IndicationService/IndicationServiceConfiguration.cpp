@@ -41,12 +41,13 @@ IndicationServiceConfiguration::IndicationServiceConfiguration(
     CIMRepository * repository)
     : _cimRepository (repository)
 {
+   _enabledState = _ENABLEDSTATE_DISABLED;
+   _healthState = _HEALTHSTATE_OK;
 }
 
 IndicationServiceConfiguration::~IndicationServiceConfiguration()
 {
 }
-
 
 CIMInstance IndicationServiceConfiguration::getInstance(
     const CIMNamespaceName & nameSpace,
@@ -210,7 +211,7 @@ void IndicationServiceConfiguration::_setIntervalPropertyValues(
         {
             // New CIM Schema 2.22 and up with final classes
             p2.setValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE);
-        }        
+        }
     }
 }
 
@@ -293,12 +294,12 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
     _setPropertyValue(
         instance,
         _PROPERTY_ENABLEDSTATE,
-        CIMValue(IndicationService::getEnabledState()));
+        CIMValue(_enabledState));
 
     _setPropertyValue(
         instance,
         _PROPERTY_HEALTHSTATE,
-        CIMValue(IndicationService::getHealthState()));
+        CIMValue(_healthState));
 
     CIMObjectPath path = instance.buildPath(returnedClass);
     path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);

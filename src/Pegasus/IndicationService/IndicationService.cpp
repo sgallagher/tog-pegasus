@@ -150,8 +150,6 @@ Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
 }
 
 Mutex IndicationService::_mutex;
-Uint16 IndicationService::_enabledState = _ENABLEDSTATE_DISABLED;
-Uint16 IndicationService::_healthState = _HEALTHSTATE_OK;
 
 /**
     See CIM_EnabledLogicalElement.RequestStateChange() method for return codes
@@ -259,7 +257,8 @@ IndicationService::IndicationService(
            "Exception caught in attempting to "
            "initialize Indication Service: %s",
            (const char*)e.getMessage().getCString()));
-        _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+        _indicationServiceConfiguration->setHealthState(
+             _HEALTHSTATE_DEGRADEDWARNING);
     }
 
 }
@@ -268,15 +267,6 @@ IndicationService::~IndicationService()
 {
 }
 
-Uint16 IndicationService::getHealthState()
-{
-    return _healthState;
-}
-
-Uint16 IndicationService::getEnabledState()
-{
-    return _enabledState;
-}
 
 void IndicationService::_handle_async_request(AsyncRequest *req)
 {
@@ -334,7 +324,8 @@ void IndicationService::handleEnqueue(Message* message)
 
     try
     {
-        if (_enabledState != _ENABLEDSTATE_ENABLED)
+        if (_indicationServiceConfiguration->getEnabledState() !=
+                 _ENABLEDSTATE_ENABLED)
         {
             _handleCimRequestWithServiceNotEnabled(message);
         }
@@ -555,7 +546,8 @@ void IndicationService::_handleCimRequestWithServiceNotEnabled(
                     "CANNOT_EXECUTE_REQUEST",
                 "The requested operation cannot be executed."
                     " IndicationService EnabledState : $0.",
-                _getEnabledStateString(_enabledState)));
+                _getEnabledStateString(
+                     _indicationServiceConfiguration->getEnabledState())));
 
         CIMResponseMessage* response = cimRequest->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_L(
@@ -565,7 +557,8 @@ void IndicationService::_handleCimRequestWithServiceNotEnabled(
                     "CANNOT_EXECUTE_REQUEST",
                 "The requested operation cannot be executed."
                     " IndicationService EnabledState : $0.",
-                _getEnabledStateString(_enabledState)));
+                _getEnabledStateString(
+                     _indicationServiceConfiguration->getEnabledState())));
         _enqueueResponse(cimRequest, response);
     }
 }
@@ -744,8 +737,8 @@ void IndicationService::_initialize()
     if (ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableIndicationService")))
     {
-        _enabledState = _ENABLEDSTATE_ENABLED;
-        _initializeActiveSubscriptionsFromRepository(0);
+     _indicationServiceConfiguration->setEnabledState(_ENABLEDSTATE_ENABLED);
+     _initializeActiveSubscriptionsFromRepository(0);
     }
 
     PEG_METHOD_EXIT();
@@ -780,7 +773,8 @@ void IndicationService::_sendIndicationServiceDisabled()
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_sendIndicationServiceDisabled");
 
-    if (_enabledState == _ENABLEDSTATE_ENABLED)
+    if (_indicationServiceConfiguration->getEnabledState() ==
+             _ENABLEDSTATE_ENABLED)
     {
         PEG_METHOD_EXIT();
         return;
@@ -893,7 +887,7 @@ void IndicationService::_handleInvokeMethodRequest(Message *message)
     {
         if (requestedState == _ENABLEDSTATE_ENABLED)
         {
-            retCode = _enableIndicationService(timeoutSeconds);
+           retCode = _enableIndicationService(timeoutSeconds);
         }
         else if (requestedState == _ENABLEDSTATE_DISABLED)
         {
@@ -924,10 +918,12 @@ Uint32 IndicationService::_enableIndicationService(Uint32 timeoutSeconds)
     AutoMutex mtx(_mutex);
 
     // Check if the service is already enabled.
-    if (_enabledState == _ENABLEDSTATE_ENABLED)
+    if (_indicationServiceConfiguration->getEnabledState() ==
+             _ENABLEDSTATE_ENABLED)
     {
         // Check if the service is in degraded state.
-        if (_healthState == _HEALTHSTATE_DEGRADEDWARNING)
+        if (_indicationServiceConfiguration->getHealthState() ==
+                 _HEALTHSTATE_DEGRADEDWARNING)
         {
             struct timeval startTime;
             Time::gettimeofday(&startTime);
@@ -950,14 +946,15 @@ Uint32 IndicationService::_enableIndicationService(Uint32 timeoutSeconds)
             else
             {
                 // No async requests pending.
-                _healthState = _HEALTHSTATE_OK;
+                _indicationServiceConfiguration->setHealthState(
+                     _HEALTHSTATE_OK);
             }
         }
         PEG_METHOD_EXIT();
         return retCode;
     }
 
-    _enabledState = _ENABLEDSTATE_STARTING;
+    _indicationServiceConfiguration->setEnabledState(_ENABLEDSTATE_STARTING);
 
     String exceptionMsg;
 
@@ -966,11 +963,12 @@ Uint32 IndicationService::_enableIndicationService(Uint32 timeoutSeconds)
         if (_initializeActiveSubscriptionsFromRepository(
             timeoutSeconds))
         {
-            _healthState = _HEALTHSTATE_OK;
+            _indicationServiceConfiguration->setHealthState(_HEALTHSTATE_OK);
         }
         else
         {
-            _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+            _indicationServiceConfiguration->setHealthState(
+                 _HEALTHSTATE_DEGRADEDWARNING);
             retCode = _RETURNCODE_TIMEOUT;
         }
     }
@@ -983,7 +981,7 @@ Uint32 IndicationService::_enableIndicationService(Uint32 timeoutSeconds)
         exceptionMsg = "Unknown error";
     }
 
-    _enabledState = _ENABLEDSTATE_ENABLED;
+    _indicationServiceConfiguration->setEnabledState(_ENABLEDSTATE_ENABLED);
     sendSubscriptionInitComplete();
 
     if (exceptionMsg.size())
@@ -992,7 +990,8 @@ Uint32 IndicationService::_enableIndicationService(Uint32 timeoutSeconds)
             "Exception while enabling the indication Service : %s",
             (const char*)exceptionMsg.getCString()));
 
-        _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+        _indicationServiceConfiguration->setHealthState(
+             _HEALTHSTATE_DEGRADEDWARNING);
     }
 
     PEG_METHOD_EXIT();
@@ -1010,13 +1009,15 @@ Uint32 IndicationService::_disableIndicationService(Uint32 timeoutSeconds,
     AutoMutex mtx(_mutex);
 
     // Check if the service is already disabled.
-    if (_enabledState == _ENABLEDSTATE_DISABLED)
+    if (_indicationServiceConfiguration->getEnabledState() ==
+             _ENABLEDSTATE_DISABLED)
     {
         PEG_METHOD_EXIT();
         return retCode;
     }
 
-    _enabledState = _ENABLEDSTATE_SHUTTINGDOWN;
+    _indicationServiceConfiguration->setEnabledState(
+         _ENABLEDSTATE_SHUTTINGDOWN);
 
     // Wait for threads running other than indication threads.
     while (_threads.get() - _processIndicationThreads.get() > 1)
@@ -1031,21 +1032,26 @@ Uint32 IndicationService::_disableIndicationService(Uint32 timeoutSeconds,
         if (_deleteActiveSubscriptions(timeoutSeconds))
         {
             _sendIndicationServiceDisabled();
-            _enabledState = _ENABLEDSTATE_DISABLED;
-            _healthState = _HEALTHSTATE_OK;
+            _indicationServiceConfiguration->setEnabledState(
+                  _ENABLEDSTATE_DISABLED);
+            _indicationServiceConfiguration->setHealthState(_HEALTHSTATE_OK);
         }
         else
         {
-            _enabledState = _ENABLEDSTATE_ENABLED;
+            _indicationServiceConfiguration->setEnabledState(
+                 _ENABLEDSTATE_ENABLED);
             retCode = _RETURNCODE_TIMEOUT;
-            _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+            _indicationServiceConfiguration->setHealthState(
+                 _HEALTHSTATE_DEGRADEDWARNING);
             cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(
                     _MSG_STATE_CHANGE_FAILED_KEY,
                     _MSG_STATE_CHANGE_FAILED,
                     _getReturnCodeString(_RETURNCODE_TIMEOUT),
-                    _getEnabledStateString(_enabledState),
-                    _getHealthStateString(_healthState)));
+                    _getEnabledStateString(
+                         _indicationServiceConfiguration->getEnabledState()),
+                    _getHealthStateString(
+                         _indicationServiceConfiguration->getHealthState())));
         }
     }
     catch (const Exception &e)
@@ -1063,16 +1069,20 @@ Uint32 IndicationService::_disableIndicationService(Uint32 timeoutSeconds,
             "Exception while disabling the indication Service : %s",
             (const char*)exceptionMsg.getCString()));
 
-        _enabledState = _ENABLEDSTATE_ENABLED;
+        _indicationServiceConfiguration->setEnabledState(
+             _ENABLEDSTATE_ENABLED);
         retCode = _RETURNCODE_FAILED;
-        _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+        _indicationServiceConfiguration->setHealthState(
+             _HEALTHSTATE_DEGRADEDWARNING);
         cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 _MSG_STATE_CHANGE_FAILED_KEY,
                 _MSG_STATE_CHANGE_FAILED,
                 exceptionMsg,
-                _getEnabledStateString(_enabledState),
-                _getHealthStateString(_healthState)));
+                _getEnabledStateString(
+                     _indicationServiceConfiguration->getEnabledState()),
+                _getHealthStateString(
+                     _indicationServiceConfiguration->getHealthState())));
     }
     PEG_METHOD_EXIT();
 
@@ -8095,7 +8105,8 @@ void IndicationService::sendSubscriptionInitComplete()
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::sendSubscriptionInitComplete");
 
-    if (_enabledState == _ENABLEDSTATE_DISABLED)
+    if (_indicationServiceConfiguration->getEnabledState() ==
+             _ENABLEDSTATE_DISABLED)
     {
         PEG_METHOD_EXIT();
         return;

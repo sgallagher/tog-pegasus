@@ -1554,3 +1554,19 @@ else
    DEFINES += -DPEGASUS_EXTRA_PROVIDER_LIB_DIR=\"\"
 endif
 
+################################################################################
+##
+## PEGASUS_INITIAL_THREADSTACK_SIZE
+##
+##     This environment variable sets the initial size of the stack on new threads.
+##     When it is undefined, the size defaults to something relatively small
+##     (see src/Pegasus/Common/Config.h or if overridden by platform see
+##      src/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h).
+##     Value is specified in number of bytes.
+##
+################################################################################
+
+ifdef PEGASUS_INITIAL_THREADSTACK_SIZE
+DEFINES += -DPEGASUS_INITIAL_THREADSTACK_SIZE=$(PEGASUS_INITIAL_THREADSTACK_SIZE)
+endif
+

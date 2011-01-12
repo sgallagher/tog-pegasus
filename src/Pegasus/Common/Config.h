@@ -299,5 +299,18 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_FORMAT(A1, A2) /* not implemented */
 #endif
 
+/* 
+** PEGASUS_INITIAL_THREADSTACK_SIZE
+**
+** This macro is used to restrict the maximal stack size used per thread.
+** Since OpenPegasus makes heavy use of multi-threading reducing the system
+** default is espescially important on embedded systems.
+**
+** This value can be overridden platform specific by defining the macro in
+** the corresponding PEGASUS_PLATFORM_*.h file.
+*/
+#ifndef PEGASUS_INITIAL_THREADSTACK_SIZE
+# define PEGASUS_INITIAL_THREADSTACK_SIZE 256*1024
+#endif
 
 #endif  /* Pegasus_Config_h */

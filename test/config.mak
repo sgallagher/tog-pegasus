@@ -42,6 +42,14 @@ XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 XMLREQUESTS_DS = $(foreach i, $(XMLSCRIPTS_DS), $i.xml)
 XMLRESPONSES_DS = $(XMLREQUESTS_DS:.xml=.rsp_ds)
 
+XMLREQUESTS_STRIPPED = $(foreach i, $(XMLSCRIPTS_STRIPPED), $i.xml)
+XMLRESPONSES_STRIPPED = $(XMLREQUESTS_STRIPPED:.xml=.rsp_stripped)
+XMLGOODRESPONSE_STRIPPED = $(XMLREQUESTS_STRIPPED:.xml=rspgood.xml.stripped)
+
+XMLREQUESTS_DS_STRIPPED = $(foreach i, $(XMLSCRIPTS_DS_STRIPPED), $i.xml)
+XMLRESPONSES_DS_STRIPPED = $(XMLREQUESTS_DS_STRIPPED:.xml=.rsp_ds_stripped)
+XMLGOODRESPONSE_DS_STRIPPED = $(XMLREQUESTS_DS_STRIPPED:.xml=rspgood.xml.stripped)
+
 
 WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PASSWORD) $(SSL)
 
@@ -60,3 +68,23 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(ECHO) +++ $* passed successfully +++
 
 
+%.rsp_stripped: %.xml
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp_stripped || cd .
+	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(STRIPL) $(STRIPLINES) $(TMP_DIR)/$*.rsp_stripped
+	@ $(STRIPL) $(STRIPLINES) $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(DIFF) $*rspgood.xml.stripped $(TMP_DIR)/$*.rsp_stripped
+	@ $(RM) $(TMP_DIR)/$*.rsp_stripped
+	@ $(RM) $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(ECHO) +++ $* passed successfully +++
+
+
+%.rsp_ds_stripped: %.xml
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp_ds_stripped || cd .
+	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(STRIPL) $(STRIPLINES_DS) $(TMP_DIR)/$*.rsp_ds_stripped
+	@ $(STRIPL) $(STRIPLINES_DS) $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(call DIFFSORT,$*rspgood.xml.stripped,$(TMP_DIR)/$*.rsp_ds_stripped)
+	@ $(RM) $(TMP_DIR)/$*.rsp_ds_stripped
+	@ $(RM) $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(ECHO) +++ $* passed successfully +++

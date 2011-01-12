@@ -27,13 +27,13 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 clean:
-	$(RM) $(XMLRESPONSES) $(XMLRESPONSES_DS)
+	$(RM) $(XMLRESPONSES) $(XMLRESPONSES_DS) $(XMLGOODRESPONSE_DS_STRIPPED) $(XMLGOODRESPONSE_STRIPPED)
 
 depend:
 
 tests:
 
-poststarttests: $(XMLRESPONSES) $(XMLRESPONSES_DS)
+poststarttests: $(XMLRESPONSES) $(XMLRESPONSES_DS) $(XMLRESPONSES_STRIPPED) $(XMLRESPONSES_DS_STRIPPED)
 
 general:
 

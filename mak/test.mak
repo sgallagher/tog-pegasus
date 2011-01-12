@@ -86,6 +86,8 @@ else
     endif
 endif
 
+STRIPL = stripline
+
 REDIRECTERROR = 2>&1
 
 

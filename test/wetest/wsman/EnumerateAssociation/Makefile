@@ -29,7 +29,11 @@
 
 ROOT = ../../../..
 include $(ROOT)/mak/config.mak
+
+STRIPLINES = "http://" "/wsman"
+
 include $(ROOT)/test/config.mak
+
 
 XMLSCRIPTS = \
     EnumerateAssociation_InvalidClass \
@@ -37,6 +41,8 @@ XMLSCRIPTS = \
     EnumerateAssociation_NoNamespace \
     EnumerateAssociation_BadAssocTag \
     EnumerateAssociation_NoObjectTag \
+
+XMLSCRIPTS_STRIPPED = \
     EnumerateAssociation_Success01 \
     EnumerateAssociation_Success02 \
     EnumerateAssociation_Success03 \

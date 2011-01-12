@@ -26,16 +26,16 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT=../..
-
+ROOT= ../../..
+DIR = utils/stripline
 include $(ROOT)/mak/config.mak
 
-DIRS = stripcrs \
-       insertcrs \
-       chksrc \
-       cnv2rootbundle \
-       stripline
+PROGRAM = stripline
+SOURCES = stripline.cpp
 
-TEST_DIRS = stripcrs
+include $(ROOT)/mak/program.mak
 
-include $(ROOT)/mak/recurse.mak
+tests:
+
+poststarttests:
+

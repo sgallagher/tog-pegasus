@@ -243,6 +243,9 @@ private:
         const CIMObjectPath &handlerName);
 #endif
 
+    Uint16  _getEnabledState();
+    void  _setEnabledState(Uint16 state);
+
     /**
         Handles the CIM requests when IndicationService is not enabled. Very
         few requests are handled by IndicationService when not enabled.
@@ -1452,6 +1455,8 @@ private:
     AtomicInt _processIndicationThreads;
 
     AutoPtr<IndicationServiceConfiguration> _indicationServiceConfiguration;
+#else
+    Uint32 _enabledState;
 #endif
 
     /**

@@ -247,6 +247,8 @@ IndicationService::IndicationService(
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         _indicationServiceConfiguration.reset(
             new IndicationServiceConfiguration(_cimRepository));
+#else
+        _enabledState = _ENABLEDSTATE_DISABLED;
 #endif
         // Initialize the Indication Service
         _initialize();
@@ -257,8 +259,10 @@ IndicationService::IndicationService(
            "Exception caught in attempting to "
            "initialize Indication Service: %s",
            (const char*)e.getMessage().getCString()));
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         _indicationServiceConfiguration->setHealthState(
              _HEALTHSTATE_DEGRADEDWARNING);
+#endif
     }
 
 }
@@ -267,6 +271,23 @@ IndicationService::~IndicationService()
 {
 }
 
+Uint16  IndicationService::_getEnabledState()
+{
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    return _indicationServiceConfiguration->getEnabledState();
+#else
+    return _enabledState;
+#endif
+}
+
+void IndicationService::_setEnabledState(Uint16 state)
+{
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _indicationServiceConfiguration->setEnabledState(state);
+#else
+    _enabledState = state;
+#endif
+}
 
 void IndicationService::_handle_async_request(AsyncRequest *req)
 {
@@ -324,8 +345,7 @@ void IndicationService::handleEnqueue(Message* message)
 
     try
     {
-        if (_indicationServiceConfiguration->getEnabledState() !=
-                 _ENABLEDSTATE_ENABLED)
+        if (_getEnabledState() != _ENABLEDSTATE_ENABLED)
         {
             _handleCimRequestWithServiceNotEnabled(message);
         }
@@ -546,8 +566,7 @@ void IndicationService::_handleCimRequestWithServiceNotEnabled(
                     "CANNOT_EXECUTE_REQUEST",
                 "The requested operation cannot be executed."
                     " IndicationService EnabledState : $0.",
-                _getEnabledStateString(
-                     _indicationServiceConfiguration->getEnabledState())));
+                _getEnabledStateString(_getEnabledState())));
 
         CIMResponseMessage* response = cimRequest->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_L(
@@ -557,8 +576,7 @@ void IndicationService::_handleCimRequestWithServiceNotEnabled(
                     "CANNOT_EXECUTE_REQUEST",
                 "The requested operation cannot be executed."
                     " IndicationService EnabledState : $0.",
-                _getEnabledStateString(
-                     _indicationServiceConfiguration->getEnabledState())));
+                _getEnabledStateString(_getEnabledState())));
         _enqueueResponse(cimRequest, response);
     }
 }
@@ -737,7 +755,7 @@ void IndicationService::_initialize()
     if (ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableIndicationService")))
     {
-     _indicationServiceConfiguration->setEnabledState(_ENABLEDSTATE_ENABLED);
+     _setEnabledState(_ENABLEDSTATE_ENABLED);
      _initializeActiveSubscriptionsFromRepository(0);
     }
 
@@ -8105,8 +8123,7 @@ void IndicationService::sendSubscriptionInitComplete()
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::sendSubscriptionInitComplete");
 
-    if (_indicationServiceConfiguration->getEnabledState() ==
-             _ENABLEDSTATE_DISABLED)
+    if (_getEnabledState() ==  _ENABLEDSTATE_DISABLED)
     {
         PEG_METHOD_EXIT();
         return;

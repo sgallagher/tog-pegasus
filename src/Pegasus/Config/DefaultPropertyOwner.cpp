@@ -375,6 +375,13 @@ Boolean DefaultPropertyOwner::isValid(
             StringConversion::decimalStringToUint64(value.getCString(), v) &&
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }
+    else if (String::equal(name, "httpsPort") ||
+            String::equal(name, "httpPort"))
+    {
+        Uint64 v;
+        return StringConversion::decimalStringToUint64(value.getCString(), v) &&
+                StringConversion::checkUintBounds(v, CIMTYPE_UINT16) && (v!=0);
+    }
     else if (String::equal(name, "enableHttpConnection") ||
         String::equal(name, "enableHttpsConnection") ||
         String::equal(name, "daemon") ||

@@ -1140,11 +1140,8 @@ int testInstance(Options& opts)
     cim object path, the logic uses that as the instance name and the
     extra parameters to build the instance.
 
-    Note that there is NO mode in this function to interactively input the
-    object path except use of the interactive flag similar to the reference
-    and association functions because the extra parameters are used to
-    actually build an instance rather than building a path as in the
-    getInstance, etc. commands.
+    If only the classname is provided or not provide any key property, 
+    an interactive operation is executed
 ***/
 int modifyInstance(Options& opts)
 {
@@ -1177,13 +1174,16 @@ int modifyInstance(Options& opts)
 
     const CIMClass thisClass = ob.getTargetClass();
 
+    opts.targetObjectName = ob.buildCIMObjectPath();
+    
     // If the objectName keybindings are zero create the path from the
-    // built instance unless the interactive bit is set. Then ask the
-    // user to select from existing instances.
-    // Else use the path built above from the objectName
+    // built instance,then ask the user to select from existing instances.
 
     if (opts.targetObjectNameClassOnly())
     {
+        //Force enter to interactive mode,
+        //if the objectName keybindings are zero.
+        opts.interactive = 1;
         if (!_conditionalSelectInstance(opts, opts.targetObjectName))
         {
             opts.targetObjectName = modifiedInstance.buildPath(thisClass);
@@ -1398,7 +1398,7 @@ int setProperty(Options& opts)
             << "Namespace= " << opts.nameSpace
             << ", InstanceName= " << opts.getTargetObjectNameStr()
             << ", propertyName= " << opts.propertyName
-            << ", newValue= " << opts.newValue.toString()
+            << ", newValue= " << opts.newValue
             << endl;
         _showValueParameters(opts);
     }
@@ -1408,12 +1408,23 @@ int setProperty(Options& opts)
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {
+        ObjectBuilder ob(opts.valueParams,
+                opts.client,
+                opts.nameSpace,
+                thisPath.getClassName(),
+                CIMPropertyList(),
+                opts.verboseTest);
+        
+        CIMValue cimValue = 
+            ob.buildPropertyValue(opts.propertyName,opts.newValue);
+        
         _startCommandTimer(opts);
-        opts.client.setProperty(
-            opts.nameSpace,
-            thisPath,
-            opts.propertyName,
-            opts.newValue);
+
+        opts.client.setProperty( opts.nameSpace,
+                                       thisPath,
+                                       opts.propertyName,
+                                       cimValue);
+
         _stopCommandTimer(opts);
     }
 

@@ -78,6 +78,10 @@ public:
                               Boolean includeClassOrigin,
                               const CIMPropertyList& propertyList);
 
+    //Create a cimvalue for a specify property
+    CIMValue buildPropertyValue(const CIMName& name,
+        const String& value);
+    
     //Create a CIMParamValue for the defined parameter name
     Array<CIMParamValue> buildMethodParameters();
 

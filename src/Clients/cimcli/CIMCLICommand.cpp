@@ -706,18 +706,23 @@ int main(int argc, char** argv)
                         exit(CIMCLI_INPUT_ERR);
                     }
 
-                    opts.propertyName = argv[3];
-                    opts.valueParams.remove(0);
-
+                    // The current CLI operation
+                    //  cimcli gp Test_CLITestProviderClass.Id=\"Mike\"  Name
+                    // could be input as 
+                    //  cimcli gp Test_CLITestProviderClass Id="Mike"  Name
+                    //So we assume the last paramter is for propertyName
+                    opts.propertyName = argv[argc-1];
+                    opts.valueParams.remove(opts.valueParams.size()-1);
+                    
                     opts.termCondition = getProperty(opts);
                     break;
 
                 case ID_SetProperty :
-                    if (argc < 5)
+                    if (argc < 4)
                     {
                         cout <<
-                           "Usage: cli setproperty instancename propertyname"
-                                " value "
+                           "Usage: cli setproperty instancename "
+                           "propertyname=value "
                            << endl;
                         exit(CIMCLI_INPUT_ERR);
                     }
@@ -725,11 +730,35 @@ int main(int argc, char** argv)
                     {
                         exit(CIMCLI_INPUT_ERR);
                     }
-                    opts.propertyName = argv[3];
-                    opts.newValue = String(argv[4]);
-                    opts.valueParams.clear();
-
-                    opts.termCondition = setProperty(opts);
+                    else
+                    // The current CLI operation
+                    //  cimcli sp 
+                    //    Test_CLITestProviderClass.Id=\"PropertyOpTest\"  
+                    //    scalSint8=-99
+                    // could be input as 
+                    //  cimcli sp Test_CLITestProviderClass Id="PropertyOpTest"
+                    //    scalSint8=-99
+                    //So we assume the last paramter is for propertyName=value
+                    {
+                        String property = argv[argc-1];
+                        Uint32 pos = property.find('=');
+                        if (PEG_NOT_FOUND == pos)
+                        {
+                            cout <<
+                               "Usage: cli setproperty instancename "
+                               "propertyname=value "
+                               << endl;
+                            exit(CIMCLI_INPUT_ERR);
+                        }
+                        
+                        opts.propertyName = property.subString(0,pos);
+                        opts.newValue = 
+                            property.subString(opts.propertyName.size() + 1, 
+                                               PEG_NOT_FOUND);
+                        opts.valueParams.remove(opts.valueParams.size()-1);
+                        
+                        opts.termCondition = setProperty(opts);
+                    }
                     break;
 
                 case ID_EnumerateQualifiers :

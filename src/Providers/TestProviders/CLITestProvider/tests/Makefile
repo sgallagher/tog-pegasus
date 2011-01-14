@@ -126,14 +126,421 @@ testPropertyOperations:
 	@$(ECHO) 2. +++++ Test Getproperty and setProperty
 	@$(ECHO) 2. +++++ Test Getproperty and setProperty >> $(RESULTFILE)
 
-##@cimcli sp  -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" Name John
-	@cimcli gp  -n "$(PROVIDERNS)"  \
-	    Test_CLITestProviderClass.Id=\"Mike\" Name >> $(RESULTFILE)
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
 
-##      Test property values for the predefined instance
-	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
-	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
-	@$(ECHO) 2. +++++ Test_CLITestProviderClass Instances
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=12 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint8=99
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint8 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint8=-99
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint8 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint16=999
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint16 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint16=-999
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint16 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=-999 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint32=99999999
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint32 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=-999 scalUint32=99999999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint32=-99999999
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint32 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=-999 scalUint32=99999999 scalSint32=-99999999 \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint64=9999999999999999
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalUint64 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=-999 scalUint32=99999999 scalSint32=-99999999 \
+	    scalUint64=9999999999999999 scalSint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint64=-9999999999999999
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalSint64 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=-999 scalUint32=99999999 scalSint32=-99999999 \
+	    scalUint64=9999999999999999 scalSint64=-9999999999999999 scalString="testString" \
+	    >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalString="setProperty"
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalString >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest" \
+	    scalBool=false scalUint8=99 scalSint8=-99 scalUint16=999 \
+	    scalSint16=-999 scalUint32=99999999 scalSint32=-99999999 \
+	    scalUint64=9999999999999999 scalSint64=-9999999999999999 scalString="setProperty" \
+	    >> $(RESULTFILE)
+
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest"
+
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id="PropertyArrayOpTest" \
+	    arrayBool=true,true,true,false,true \
+	    arrayUint8=0,128,255 \
+	    arraySint8=-128,-1,0,127 \
+	    arrayUint16=0,128,256,65535 \
+	    arraySint16=-32768,-1,0,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass Id="PropertyArrayOpTest" \
+	    arrayBool=true,true,true,false,true \
+	    arrayUint8=0,128,255 \
+	    arraySint8=-128,-1,0,127 \
+	    arrayUint16=0,128,256,65535 \
+	    arraySint16=-32768,-1,0,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=0,128,255 \
+	    arraySint8=-128,-1,0,127 \
+	    arrayUint16=0,128,256,65535 \
+	    arraySint16=-32768,-1,0,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint8=1,127,254
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint8 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-128,-1,0,127 \
+	    arrayUint16=0,128,256,65535 \
+	    arraySint16=-32768,-1,0,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint8=-127,-2,0,127
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint8 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=0,128,256,65535 \
+	    arraySint16=-32768,-1,0,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint16=1,127,255,65534
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint16 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32768,-1,0,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint16=-32767,-2,1,32767
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint16 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,128,256,65536,4294967295 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint32=0,127,255,65535,4294967294
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint32 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483648,-1,0,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint32=-2147483647,-2,1,2147483647
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint32 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483647,-2,1,2147483647 \
+	    arrayUint64=0,128,256,65536,4294967296,18446744073709551615 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint64 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483647,-2,1,2147483647 \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayUint64 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483647,-2,1,2147483647 \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614 \
+	    arraySint64=-9223372036854775808,-1,0,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint64=-9223372036854775807,-2,1,9223372036854775807
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arraySint64 >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483647,-2,1,2147483647 \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614 \
+	    arraySint64=-9223372036854775807,-2,1,9223372036854775807 \
+	    arrayDateTime=19780627121816.332624+480,19771025120042.420605+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayDateTime=20080928000000.000000+480,00000397000000.000000:000,20091030145800.110114+480
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayDateTime >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483647,-2,1,2147483647 \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614 \
+	    arraySint64=-9223372036854775807,-2,1,9223372036854775807 \
+	    arrayDateTime=20080928000000.000000+480,00000397000000.000000:000,20091030145800.110114+480 \
+	    arrayString="testSting01","testSting02" >> $(RESULTFILE)
+
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayString="testSting03","testSting04"
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayString >> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest" \
+	    arrayBool=false,false,false,true,false \
+	    arrayUint8=1,127,254 \
+	    arraySint8=-127,-2,0,127 \
+	    arrayUint16=1,127,255,65534 \
+	    arraySint16=-32767,-2,1,32767 \
+	    arrayUint32=0,127,255,65535,4294967294 \
+	    arraySint32=-2147483647,-2,1,2147483647 \
+	    arrayUint64=0,127,255,65535,4294967295,18446744073709551614 \
+	    arraySint64=-9223372036854775807,-2,1,9223372036854775807 \
+	    arrayDateTime=20080928000000.000000+480,00000397000000.000000:000,20091030145800.110114+480 \
+	    arrayString="testSting03","testSting04" >> $(RESULTFILE)
+
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyArrayOpTest"
 
 ### test create instance operations
 testCreateInstanceOperation:
@@ -145,7 +552,7 @@ testCreateInstanceOperation:
 	    Id="ScalarTest" \
 	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
 	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
-	    scalUint64=99999 scalUint64=99999 scalString="testString" \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
 	    >> $(RESULTFILE)
 
 ##      Test the creation. Will do error exit if this fails
@@ -153,7 +560,7 @@ testCreateInstanceOperation:
 	    Id="ScalarTest" \
 	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
 	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
-	    scalUint64=99999 scalUint64=99999 scalString="testString" \
+	    scalUint64=99999 scalSint64=99999 scalString="testString" \
 	    >> $(RESULTFILE)
 
 ##      Test Instance Creation with arrays
@@ -192,13 +599,13 @@ testModifyInstanceOperation:
 	    Id="ScalarTest" \
 	    scalBool=false scalUint8=14 scalSint8=-12 scalUint16=501 \
 	    scalSint16=501 scalUint32=9998 scalSint32=9999 \
-	    scalUint64=888 scalUint64=1 >> $(RESULTFILE)   
+	    scalUint64=888 scalSint64=1 >> $(RESULTFILE)
 	     
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id="ScalarTest" \
 	    scalBool=false scalUint8=14 scalSint8=-12 scalUint16=501 \
 	    scalSint16=501 scalUint32=9998 scalSint32=9999 \
-	    scalUint64=888 scalUint64=1 scalString=testString >> $(RESULTFILE)
+	    scalUint64=888 scalSint64=1 scalString=testString >> $(RESULTFILE)
 
 #####   NOTE: This test reflects a possible error in Pegasus today.  The
 #####       key property should not be required in the input.
@@ -207,13 +614,13 @@ testModifyInstanceOperation:
 	    Id=ScalarTest \
 	    scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
 	    scalSint16=502 scalUint32=9997 scalSint32=9998 \
-	    scalUint64=888 scalUint64=1 >> $(RESULTFILE)
+	    scalUint64=888 scalSint64=1 >> $(RESULTFILE)
 
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id=ScalarTest \
 	    scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
 	    scalSint16=502 scalUint32=9997 scalSint32=9998 \
-	    scalUint64=888 scalUint64=1 >> $(RESULTFILE)
+	    scalUint64=888 scalSint64=1 >> $(RESULTFILE)
 
 	@$(ECHO) +++++ Test modify instance Passed.
 
@@ -237,7 +644,7 @@ testDeleteInstanceOperation:
 	    scalUint8=12 scalSint8=12 \
 	    scalUint16=500 scalSint16=500 \
 	    scalUint32=9999 scalSint32=9999 \
-	    scalUint64=99999 scalUint64=99999 \
+	    scalUint64=99999 scalSint64=99999 \
 	    scalString="testString" \
 	    >> $(RESULTFILE)
 
@@ -248,7 +655,7 @@ testDeleteInstanceOperation:
 	    scalUint8=12 scalSint8=12 \
 	    scalUint16=500 scalSint16=500 \
 	    scalUint32=9999 scalSint32=9999 \
-	    scalUint64=99999 scalUint64=99999 \
+	    scalUint64=99999 scalSint64=99999 \
 	    scalString="testString" \
 	    >> $(RESULTFILE)
 
@@ -701,7 +1108,7 @@ testEmptyKeyBindings:
 	@cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderEmpty
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderEmpty
 	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderEmpty id
-	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderEmpty name Dummy
+	@cimcli sp -n "$(PROVIDERNS)" Test_CLITestProviderEmpty name=Dummy
 
 ## Test executeQuery Operation. This test should 
 ## return a single instance.  We just test the response count to avoid

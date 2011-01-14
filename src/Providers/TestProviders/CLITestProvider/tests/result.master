@@ -536,65 +536,54 @@ string ElementName;
 </CLASS>
 1. +++++ Test For Reference params
 2. +++++ Test Getproperty and setProperty
-Name = Bob
-Test_CLITestProviderClass.Id="Mike"
-path= Test_CLITestProviderClass.Id="Mike"
-
-//Instance of Test_CLITestProviderClass
-instance of Test_CLITestProviderClass
-{
-Id = "Mike";
-Name = "Bob";
-requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
-    "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
-    "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, "
-    "scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, "
-    "defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, "
-    "defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, "
-    "arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, "
-    "arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, "
-    "arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false";
-scalBool = TRUE;
-scalUint8 = 220;
-scalSint8 = 124;
-scalUint16 = 100;
-scalSint16 = 100;
-scalUint32 = 100;
-scalSint32 = 100;
-scalUint64 = 100;
-scalSint64 = NULL;
-scalReal32 = 1.0000000000000000e+02;
-scalReal64 = 1.0000000000000000e+02;
-scalString = "teststring";
-scalDateTime = "19991224120000.000000+360";
-defaultBool = TRUE;
-defaultUint8 = 4;
-defaultSint8 = 4;
-defaultUint16 = 4;
-defaultSint16 = 4;
-defaultUint32 = 4;
-defaultSint32 = 4;
-defaultUint64 = 4;
-defaultSint64 = 4;
-defaultReal32 = NULL;
-defaultReal64 = NULL;
-defaultString = "test\"embedded\"quote";
-defaultDateTime = NULL;
-arrayBool = {TRUE, FALSE, TRUE};
-arrayUint8 = {4, 128, 240};
-arraySint8 = {4, 126, -126};
-arrayUint16 = {4, 128, 240};
-arraySint16 = {4, 126, -126};
-arrayUint32 = {4, 128, 240};
-arraySint32 = {4, 126, -126};
-arrayUint64 = {4, 128, 240};
-arraySint64 = NULL;
-arrayReal32 = {4.0000000000000000e+00, 1.2800000000000000e+02, 2.4000000000000000e+02};
-arrayReal64 = {4.0000000000000000e+00, 1.2800000000000000e+02, 2.4000000000000000e+02};
-arrayString = {"First", "Second", "Third"};
-arrayDateTime = {"19991224120000.000000+360", "19991224120000.000000+360", 
-    "19991224120000.000000+360"};
-};
+Returned Path  Test_CLITestProviderClass.Id="PropertyOpTest"
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalBool = FALSE
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalUint8 = 99
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalSint8 = -99
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalUint16 = 999
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalSint16 = -999
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalUint32 = 99999999
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalSint32 = -99999999
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalUint64 = 9999999999999999
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalSint64 = -9999999999999999
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+scalString = setProperty
+test instance Test_CLITestProviderClass.Id="PropertyOpTest" OK
+Returned Path  Test_CLITestProviderClass.Id="PropertyArrayOpTest"
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayBool = FALSE FALSE FALSE TRUE FALSE 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayUint8 = 1 127 254 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arraySint8 = -127 -2 0 127 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayUint16 = 1 127 255 65534 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arraySint16 = -32767 -2 1 32767 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayUint32 = 0 127 255 65535 4294967294 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arraySint32 = -2147483647 -2 1 2147483647 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayUint64 = 0 127 255 65535 4294967295 18446744073709551614 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayUint64 = 0 127 255 65535 4294967295 18446744073709551614 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arraySint64 = -9223372036854775807 -2 1 9223372036854775807 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayDateTime = 20080928000000.000000+480 00000397000000.000000:000 20091030145800.110114+480 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
+arrayString = testSting03 testSting04 
+test instance Test_CLITestProviderClass.Id="PropertyArrayOpTest" OK
 3. +++++ Tests Instances create Instance
 Returned Path  Test_CLITestProviderClass.Id="ScalarTest"
 test instance Test_CLITestProviderClass.Id="ScalarTest" OK
@@ -674,6 +663,7 @@ scalSint16 = 500;
 scalUint32 = 9999;
 scalSint32 = 9999;
 scalUint64 = 99999;
+scalSint64 = 99999;
 scalString = "testString";
 requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
     "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "

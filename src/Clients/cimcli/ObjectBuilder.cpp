@@ -802,6 +802,42 @@ void ObjectBuilder::setMethod(CIMName& name)
     _methodName = name;
 }
 
+
+CIMValue ObjectBuilder::buildPropertyValue(
+    const CIMName& name,
+    const String& value)
+{
+    // Find Property
+    Uint32 propertyPos;
+    CIMProperty thisClassProperty;
+
+    if ((propertyPos = _thisClass.findProperty(name)) == PEG_NOT_FOUND)
+    {
+        cerr << "Error: property " << name.getString()
+            << " Not property in the class " << _className.getString()
+            <<  endl;
+        exit(CIMCLI_INPUT_ERR);
+    }
+    else
+    {
+        thisClassProperty = _thisClass.getProperty(propertyPos);
+    }
+
+    CIMType type = thisClassProperty.getType();
+    CIMValue vp(type,thisClassProperty.isArray());
+
+    if (vp.isArray())
+    {
+        _buildArrayValue(value.getCString(), vp );
+        return vp;
+    }
+    else
+    {   // scalar
+        return _stringToScalarValue(value.getCString(), vp.getType());
+    }
+    
+}
+
 PEGASUS_NAMESPACE_END
 
 // END_OF_FILE

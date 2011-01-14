@@ -142,7 +142,7 @@ struct  OptionStruct
     Boolean notIncludeQualifiersRequested;    // -niq parameter supplied
     Boolean includeQualifiers;                // parameter used for call
     Boolean includeClassOrigin;
-    CIMValue newValue;
+    String  newValue;
 
     CIMQualifierDecl qualifierDeclaration;
 

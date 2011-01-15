@@ -53,10 +53,24 @@ public:
 
     ~CIMOperationResponseEncoder();
 
+    void sendPullResponse(
+        CIMResponseMessage* response,
+        const String& name,
+        Boolean isImplicit,
+        Buffer* bodyParams,
+        Buffer* bodygiven = 0);
+
     void sendResponse(
         CIMResponseMessage* response,
         const String& name,
         Boolean isImplicit,
+        Buffer* bodygiven = 0);
+
+    void sendResponsePull(
+        CIMResponseMessage* response,
+        const String& name,
+        Boolean isImplicit,
+        Buffer* bodyParams,
         Buffer* bodygiven = 0);
 
     virtual void enqueue(Message*);
@@ -97,6 +111,39 @@ public:
 
     void encodeEnumerateInstancesResponse(
         CIMEnumerateInstancesResponseMessage* response);
+
+//KS_PULL_BEGIN
+//KS_PULL_TBD Rename INSTANCESWITHPATH
+    void encodeOpenEnumerateInstancesResponse(
+        CIMOpenEnumerateInstancesResponseMessage* response);
+
+    void encodeOpenEnumerateInstancePathsResponse(
+        CIMOpenEnumerateInstancePathsResponseMessage* response);
+
+    void encodeOpenReferenceInstancesResponse(
+        CIMOpenReferenceInstancesResponseMessage* response);
+
+    void encodeOpenReferenceInstancePathsResponse(
+        CIMOpenReferenceInstancePathsResponseMessage* response);
+
+    void encodeOpenAssociatorInstancesResponse(
+        CIMOpenAssociatorInstancesResponseMessage* response);
+
+    void encodeOpenAssociatorInstancePathsResponse(
+        CIMOpenAssociatorInstancePathsResponseMessage* response);
+
+    void encodePullInstancesWithPathResponse(
+        CIMPullInstancesWithPathResponseMessage* response);
+
+    void encodePullInstancePathsResponse(
+        CIMPullInstancePathsResponseMessage* response);
+
+    void encodeCloseEnumerationResponse(
+        CIMCloseEnumerationResponseMessage* response);
+
+    void encodeEnumerationCountResponse(
+        CIMEnumerationCountResponseMessage* response);
+//KS_PULL_END
 
     void encodeDeleteInstanceResponse(
         CIMDeleteInstanceResponseMessage* response);

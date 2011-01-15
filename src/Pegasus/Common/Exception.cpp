@@ -284,6 +284,14 @@ ConnectionTimeoutException::ConnectionTimeoutException()
           "connection timed out"))
 {
 }
+// EXP_PULL_BEGIN
+InvalidEnumerationContextException::InvalidEnumerationContextException()
+    : Exception(MessageLoaderParms(
+          "Common.Exception.INVALID_ENUMERATION_CONTEXT_EXCEPTION",
+          "Invalid Enumeration Context, uninitilialized"))
+{
+}
+// EXP_PULL_END
 
 SSLException::SSLException(const String& message)
     : Exception(MessageLoaderParms(

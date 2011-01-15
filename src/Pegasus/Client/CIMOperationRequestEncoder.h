@@ -58,6 +58,7 @@ public:
         MessageQueue* outputQueue,
         const String& hostName,
         ClientAuthenticator* authenticator,
+        Uint32 showOutput,
         bool binaryRequest = false,
         bool binaryResponse = false);
 
@@ -148,12 +149,49 @@ private:
     void _encodeInvokeMethodRequest(
         CIMInvokeMethodRequestMessage* message);
 
+ // KS_PULL_BEGIN
+    void _encodeOpenEnumerateInstancesRequest(
+        CIMOpenEnumerateInstancesRequestMessage* message);
+
+    void _encodeOpenEnumerateInstancePathsRequest(
+        CIMOpenEnumerateInstancePathsRequestMessage* message);
+
+    void _encodeOpenReferenceInstancePathsRequest(
+        CIMOpenReferenceInstancePathsRequestMessage* message);
+
+    void _encodeOpenReferenceInstancesRequest(
+        CIMOpenReferenceInstancesRequestMessage* message);
+
+    void _encodeOpenAssociatorInstancePathsRequest(
+        CIMOpenAssociatorInstancePathsRequestMessage* message);
+
+    void _encodeOpenAssociatorInstancesRequest(
+        CIMOpenAssociatorInstancesRequestMessage* message);
+
+    void _encodePullInstancesWithPathRequest(
+        CIMPullInstancesWithPathRequestMessage* message);
+
+    void _encodePullInstancePathsRequest(
+        CIMPullInstancePathsRequestMessage* message);
+
+    void _encodeCloseEnumerationRequest(
+        CIMCloseEnumerationRequestMessage* message);
+
+/**
+    void _encodeOpenQueryInstancesRequest(
+        CIMOpenQueryInstancesMessage* message);
+*/
+    void _encodeEnumerationCountRequest(
+        CIMEnumerationCountRequestMessage* message);
+ //KS_PULL_END
+
     void _sendRequest(Buffer& buffer);
 
     MessageQueue* _outputQueue;
     CString _hostName;
     ClientAuthenticator* _authenticator;
-
+    // Controls client trace output. 1 = con, 2 == log
+    Uint32 _showOutput;
     ClientPerfDataStore* dataStore_prt;
     bool _binaryRequest;
     bool _binaryResponse;

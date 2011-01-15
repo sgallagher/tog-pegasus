@@ -36,43 +36,17 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include "CIMOperationRequestEncoder.h"
-#include "CIMClientRep.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// append either ClassPath or InstancePath based IParameter.
-// This function local to client to clean up use of the getKeyBindings test
-// in the common code.  It is used by the associators, etc. requests
-// because the path can be either a class or instance.
-void _appendObjectNameIParameter(
-    Buffer& out,
-    const char* name,
-    const CIMObjectPath& objectName)
-{
-    //
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings. See BUG_3302
-    //
-    if (objectName.getKeyBindings ().size () == 0)
-    {
-        XmlWriter::appendClassNameIParameter(
-            out, name, objectName.getClassName());
-    }
-    else
-    {
-        XmlWriter::appendInstanceNameIParameter(
-            out, name, objectName);
-    }
-}
 
 CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     MessageQueue* outputQueue,
     const String& hostName,
     ClientAuthenticator* authenticator,
+    Uint32 showOutput,
     bool binaryRequest,
     bool binaryResponse)
     :
@@ -80,6 +54,7 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     _outputQueue(outputQueue),
     _hostName(hostName.getCString()),
     _authenticator(authenticator),
+    _showOutput(showOutput),
     _binaryRequest(binaryRequest),
     _binaryResponse(binaryResponse)
 {
@@ -244,10 +219,62 @@ void CIMOperationRequestEncoder::handleEnqueue()
             _encodeInvokeMethodRequest(
                 (CIMInvokeMethodRequestMessage*)message);
             break;
+ // EXP_PULL
+
+        case CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+            _encodeOpenEnumerateInstancesRequest(
+                (CIMOpenEnumerateInstancesRequestMessage*)message);
+            break;
+
+        case CIM_OPEN_ENUMERATE_INSTANCE_PATHS_REQUEST_MESSAGE:
+            _encodeOpenEnumerateInstancePathsRequest(
+                (CIMOpenEnumerateInstancePathsRequestMessage*)message);
+            break;
+
+        case CIM_OPEN_REFERENCE_INSTANCES_REQUEST_MESSAGE:
+            _encodeOpenReferenceInstancesRequest(
+                (CIMOpenReferenceInstancesRequestMessage*)message);
+            break;
+
+        case CIM_OPEN_REFERENCE_INSTANCE_PATHS_REQUEST_MESSAGE:
+            _encodeOpenReferenceInstancePathsRequest(
+                (CIMOpenReferenceInstancePathsRequestMessage*)message);
+            break;
+
+        case CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE:
+            _encodeOpenAssociatorInstancesRequest(
+                (CIMOpenAssociatorInstancesRequestMessage*)message);
+            break;
+
+        case CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_REQUEST_MESSAGE:
+            _encodeOpenAssociatorInstancePathsRequest(
+                (CIMOpenAssociatorInstancePathsRequestMessage*)message);
+            break;
+
+        case CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE:
+            _encodePullInstancesWithPathRequest(
+                (CIMPullInstancesWithPathRequestMessage*)message);
+            break;
+
+        case CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE:
+            _encodePullInstancePathsRequest(
+                (CIMPullInstancePathsRequestMessage*)message);
+            break;
+
+    case CIM_CLOSE_ENUMERATION_REQUEST_MESSAGE:
+        _encodeCloseEnumerationRequest(
+            (CIMCloseEnumerationRequestMessage*)message);
+        break;
+
+    case CIM_ENUMERATION_COUNT_REQUEST_MESSAGE:
+        _encodeEnumerationCountRequest(
+            (CIMEnumerationCountRequestMessage*)message);
+        break;
+// EXP_PULL_END
 
         default:
             // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -731,7 +758,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
 {
     Buffer params;
 
-    _appendObjectNameIParameter(
+    XmlWriter::appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -765,7 +792,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
 {
     Buffer params;
 
-    _appendObjectNameIParameter(
+    XmlWriter::appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -809,7 +836,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
 {
     Buffer params;
 
-    _appendObjectNameIParameter(
+    XmlWriter::appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -856,7 +883,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 {
     Buffer params;
 
-    _appendObjectNameIParameter(
+    XmlWriter::appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -948,25 +975,430 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
     _sendRequest(buffer);
 }
 
+// EXP_PULL_BEGIN
+/*
+    encode those parameters that are common to all open operations.
+    These are defined as common to these operations in DSP200
+*/
+void _encodeOpenCommonParameters(
+    Boolean continueOnError,
+    const Uint32Arg& maxObjectCount,
+    const Uint32Arg& operationTimeout,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    Buffer& params)
+{
+    XmlWriter::appendBooleanIParameter(
+        params, "ContinueOnError", continueOnError);
+
+    XmlWriter::appendUint32IParameter(
+        params, "MaxObjectCount", maxObjectCount,false);
+
+    XmlWriter::appendUint32IParameter(
+        params, "OperationTimeout", operationTimeout,false);
+
+    XmlWriter::appendStringIParameterIfNotEmpty(
+        params, "FilterQueryLanguage", filterQueryLanguage);
+
+    XmlWriter::appendStringIParameterIfNotEmpty(
+        params, "filterQuery", filterQuery);
+}
+
+void CIMOperationRequestEncoder::_encodeOpenEnumerateInstancesRequest(
+    CIMOpenEnumerateInstancesRequestMessage* message)
+{
+    Buffer params;
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ClassName", message->className);
+
+    if (message->deepInheritance != true)
+        XmlWriter::appendBooleanIParameter(
+            params, "DeepInheritance", false);
+
+    if (message->includeClassOrigin != false)
+        XmlWriter::appendBooleanIParameter(
+            params, "IncludeClassOrigin", true);
+
+    if (!message->propertyList.isNull())
+        XmlWriter::appendPropertyListIParameter(
+            params, message->propertyList);
+
+    _encodeOpenCommonParameters(message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenEnumerateInstances"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+
+void CIMOperationRequestEncoder::_encodeOpenEnumerateInstancePathsRequest(
+    CIMOpenEnumerateInstancePathsRequestMessage* message)
+{
+    Buffer params;
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ClassName", message->className);
+
+    _encodeOpenCommonParameters(message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenEnumerateInstancePaths"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodeOpenReferenceInstancesRequest(
+    CIMOpenReferenceInstancesRequestMessage* message)
+{
+    Buffer params;
+
+    XmlWriter::appendObjectNameIParameter(
+        params, "InstanceName", message->objectName);
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ResultClass", message->resultClass);
+
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+            params, "Role", message->role);
+    }
+
+    if (message->includeClassOrigin != false)
+        XmlWriter::appendBooleanIParameter(params, "IncludeClassOrigin", true);
+
+    if (!message->propertyList.isNull())
+        XmlWriter::appendPropertyListIParameter(
+            params, message->propertyList);
+
+    _encodeOpenCommonParameters(message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenReferenceInstances"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+
+void CIMOperationRequestEncoder::_encodeOpenReferenceInstancePathsRequest(
+    CIMOpenReferenceInstancePathsRequestMessage* message)
+{
+    Buffer params;
+
+    XmlWriter::appendObjectNameIParameter(
+        params, "InstanceName", message->objectName);
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ResultClass", message->resultClass);
+
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+            params, "Role", message->role);
+    }
+
+    _encodeOpenCommonParameters(message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenReferenceInstancePaths"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodeOpenAssociatorInstancesRequest(
+    CIMOpenAssociatorInstancesRequestMessage* message)
+{
+    Buffer params;
+
+    XmlWriter::appendObjectNameIParameter(
+        params, "InstanceName", message->objectName);
+
+    XmlWriter::appendClassNameIParameter(
+        params, "AssocClass", message->assocClass);
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ResultClass", message->resultClass);
+
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+            params, "Role", message->role);
+    }
+    //
+    //  The Client API has no way to represent a NULL resultRole;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->resultRole != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+            params, "ResultRole", message->resultRole);
+    }
+
+    if (message->includeClassOrigin != false)
+        XmlWriter::appendBooleanIParameter(params, "IncludeClassOrigin", true);
+
+    if (!message->propertyList.isNull())
+        XmlWriter::appendPropertyListIParameter(
+            params, message->propertyList);
+
+    _encodeOpenCommonParameters(message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenAssociatorInstances"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodeOpenAssociatorInstancePathsRequest(
+    CIMOpenAssociatorInstancePathsRequestMessage* message)
+{
+    Buffer params;
+
+    XmlWriter::appendObjectNameIParameter(
+        params, "InstanceName", message->objectName);
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ResultClass", message->resultClass);
+
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+            params, "Role", message->role);
+    }
+
+    _encodeOpenCommonParameters(message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenAssociatorInstancePaths"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+/*
+    Encoder for input parameters common to all of the PullOperations
+*/
+void _encodeCommonPullOperationParameters(
+    const Uint32Arg& maxObjectCount,
+    const String enumerationContext,
+    Buffer& params)
+{
+    XmlWriter::appendUint32IParameter(
+        params, "MaxObjectCount", maxObjectCount,false);
+
+    XmlWriter::appendStringIParameter(
+        params, "EnumerationContext", enumerationContext);
+}
+
+
+void CIMOperationRequestEncoder::_encodePullInstancesWithPathRequest(
+    CIMPullInstancesWithPathRequestMessage* message)
+{
+    Buffer params;
+
+    _encodeCommonPullOperationParameters(message->maxObjectCount,
+        message->enumerationContext,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("PullInstancesWithPath"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodePullInstancePathsRequest(
+    CIMPullInstancePathsRequestMessage* message)
+{
+    Buffer params;
+
+    _encodeCommonPullOperationParameters(message->maxObjectCount,
+        message->enumerationContext,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("PullInstancePaths"), message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodeCloseEnumerationRequest(
+    CIMCloseEnumerationRequestMessage* message)
+{
+    Buffer params;
+
+    // EXP_PULL ISSUE what is default and case of empty msg here.
+    // DMTF unclear if empty is legal.
+    if (message->enumerationContext != String::EMPTY)
+        XmlWriter::appendStringIParameter(
+            params, "EnumerationContext", message->enumerationContext);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("CloseEnumeration"), message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodeEnumerationCountRequest(
+    CIMEnumerationCountRequestMessage* message)
+{
+    Buffer params;
+
+    if (message->enumerationContext != String::EMPTY)
+        XmlWriter::appendStringIParameter(
+            params, "EnumerationContext", message->enumerationContext);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("EnumerationCount"), message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+// EXP_PULL_END
+
+// 
 // Enqueue the buffer to the ouptut queue with a conditional display.
 // This function is only enabled if the Pegasus Client trace is enabled.
 // Uses parameter to determine whether to send to console to log.
 void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 {
-    if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    if (_showOutput & 1)
     {
         XmlWriter::indentedPrint(cout, buffer.getData());
         cout << endl;
     }
-    if (ClientTrace::displayOutput(ClientTrace::TRACE_LOG))
+    if (_showOutput & 2)
     {
         Logger::put(
             Logger::STANDARD_LOG,
-            "CimClient",
+            System::CIMSERVER,
             Logger::INFORMATION,
-            "CIMOperationRequestEncoder::SendRequest, XML content: $0",
+            "CIMOperationRequestEncoder::SendRequest, XML content: $1",
             buffer.getData());
     }
+#endif
 
 
     HTTPMessage * http_request = new HTTPMessage(buffer);

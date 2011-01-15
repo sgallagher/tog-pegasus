@@ -54,10 +54,7 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP" ,
-    "Enumerate all instance names and count of"
-        " instances of [ <classname> ] in <namespace>."
-        " Classname optional and default is to enumerate instances of"
-        " entire namespace"},
+    "Enumerate all instance names in <namespace>."},
 
     {ID_EnumerateInstances,      "enumerateInstances",2 ,   "ei",
     "Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP" ,
@@ -78,48 +75,16 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     {ID_GetInstance,             "getInstance",   2 ,       "gi",
     "Clients.cimcli.CIMCLIClient.GI_COMMAND_HELP",
     "Get instance of <objectname> | <classname> (interactive) |"
-    " <classname>  *<PropertyName=value> defining key property values."},
+    " <classname>  *<PropertyName=value> for equal property values."},
 
     {ID_CreateInstance,          "createInstance",2 ,       "ci",
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP",
-                        "Create instance of a class. Input Format is:\n"
-                        "   <className> [<propertyDef>]*\n"
-                        "where propertyDef is:\n"
-                        "  | <propName>=<value>      //property with value\n"
-                        "  | <propName>=\"<value>\"    //string with space\n"
-                        "                            //in string\n"
-                        "  | <propName>=             //NULL value\n"
-                        "  | <propName>!             //empty string value\n"
-                        "  | <propName>=<arrayVal>   //Arrayinput\n"
-                        "      where: arrayVal=<value>[,<value>]*\n"
-                        "\n"
-                        "  | <propName>{<classname> [<propertyDef>]* }\n"
-                        "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance or \n"
-                        "              embedded objectPath  where:\n"
-                        "       -classname - embedded class\n"
-                        "       -propertyDef - embedded instance property"},
+    "Create Instance of <Class> *<name=param> with defined properties"},
 
     {ID_TestInstance,             "testInstance",   2 ,      "ti",
     "Clients.cimcli.CIMCLIClient.TI_COMMAND_HELP",
-                        "Test instance  of <objectname>  [<propertyDef>]* |"
-                        " <classname>  [<propertyDef>]* for equal property"
-                             " values."
-                        "where propertyDef is:\n"
-                        "  | <propName>=<value>      //property with value\n"
-                        "  | <propName>=\"<value>\"    //string with space\n"
-                        "                            //in string\n"
-                        "  | <propName>=             //NULL value\n"
-                        "  | <propName>!             //empty string value\n"
-                        "  | <propName>=<arrayVal>   //Arrayinput\n"
-                        "      where: arrayVal=<value>[,<value>]*\n"
-                        "\n"
-                        "  | <propName>{<classname> [<propertyDef>]* }\n"
-                        "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance or \n"
-                        "              embedded objectPath  where:\n"
-                        "       -classname - embedded class\n"
-                        "       -propertyDef - embedded instance property"},
+    "Test instance  of <objectname>  *<name=value> |"
+    " <classname>  *<PropertyName=value> for equal property values." },
 
     {ID_DeleteInstance,          "deleteInstance",2 ,       "di",
     "Clients.cimcli.CIMCLIClient.DI_COMMAND_HELP",
@@ -133,24 +98,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_ModifyInstance,          "modifyInstance",2 ,       "mi",
     "Clients.cimcli.CIMCLIClient.MI_COMMAND_HELP",
-                        "Modify Instance of a class. Input formats are:\n"
-                        "<objectname> [<propertyDef>]*\n"
-                        "| <classname> [<propertyDef>]*\n"
-                        "where propertyDef is:\n"
-                        "  | <propName>=<value>      //property with value\n"
-                        "  | <propName>=\"<value>\"    //string with space\n"
-                        "                            //in string\n"
-                        "  | <propName>=             //NULL value\n"
-                        "  | <propName>!             //empty string value\n"
-                        "  | <propName>=<arrayVal>   //Arrayinput\n"
-                        "      where: arrayVal=<value>[,<value>]*\n"
-                        "\n"
-                        "  | <propName>{<classname> [<propertyDef>]* }\n"
-                        "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance or \n"
-                        "              embedded objectPath  where:\n"
-                        "       -classname - embedded class\n"
-                        "       -propertyDef - embedded instance property"},
+    "Modify Instance of <objectname> *<name=value> "
+    "| <classname> *<name=value>"},
 
     {ID_DeleteClass,             "deleteClass",   2 ,       "dc",
     "Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP",
@@ -198,39 +147,63 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_InvokeMethod,            "invokeMethod",  2 ,       "im",
     "Clients.cimcli.CIMCLIClient.IM_COMMAND_HELP",
-                    "Invoke Method for <object> <method> {*<inputParam>} "
-                    "where inputParms can be defined as:\n"
-                    "  <paramName>=<value>\n"
-                    "  <paramName>{<embeddedClassName> *[<paramName> }"},
+    "Invoke Method for <object> <method> {<inputParams>}"},
 
     {ID_ExecQuery,               "execQuery",     2 ,       "xq",
     "Clients.cimcli.CIMCLIClient.XQ_COMMAND_HELP",
-    "ExecQuery <query-expresssion> [<query-language>]"},
+    " ExecQuery <query-expresssion> [<query-language>]"},
 
     {ID_EnumerateNamespaces,     "enumerateNamespaces",2 ,  "ns",
     "Clients.cimcli.CIMCLIClient.NS_COMMAND_HELP",
     "Enumerate all namespaces on the server."},
 
-    {ID_StatisticsOn,            "StatisticsOn",2 ,   "son",
+    {ID_StatisticsOn,            "Turn On Statistics",2 ,   "son",
     "Clients.cimcli.CIMCLIClient.SON_COMMAND_HELP",
     "Turn on CIM Server Statistics Gathering"},
 
-    {ID_StatisticsOff,           "StatisticsOff",2 ,  "soff",
+    {ID_StatisticsOff,           "Turn Off Statistics",2 ,  "soff",
     "Clients.cimcli.CIMCLIClient.SOFF_COMMAND_HELP",
     "Turn off CIM Server Statistics Gathering"},
 
-    {ID_CountInstances,          "countInstances",2, "cci",
-    "Clients.cimcli.CIMCLIClient.CCI_COMMAND_HELP",
-        "Count all Instances in Namespace and sort by ClassName.\n"
-        " Warning: Could request large number of instances from Server"},
-
-    {ID_ClassTree,               "classTree",2, "ct",
-    "Clients.cimcli.CIMCLIClient.CT_COMMAND_HELP",
-        "Display graphic tree of classes in a namespace"},
-
-    {ID_ShowOptions,             "showOptions",2 ,  "?",
+    {ID_ShowOptions,             "show command options",2 ,  "?",
     "Clients.cimcli.CIMCLIClient.?_COMMAND_HELP",
     "Show List of Commands"},
+
+    {ID_PullEnumerateInstances,   "EunumerateInstances with Pull",2, "pei",
+    "Clients.cimcli.CIMCLIClient.PEI_COMMAND_HELP",
+        "Execute EnumerateInstances using the Pull Operations"},
+
+    {ID_PullEnumerateInstancePaths,
+        "EunumerateInstance paths with Pull",2, "pni",
+    "Clients.cimcli.CIMCLIClient.PEIP_COMMAND_HELP",
+        "Execute EnumerateInstances Paths using the Pull Operations"},
+
+    {ID_PullReferenceInstances,   "ReferenceInstances with Pull",2, "pr",
+    "Clients.cimcli.CIMCLIClient.PRI_COMMAND_HELP",
+        "Execute Open and Pull References"},
+
+    {ID_PullReferenceInstancePaths,
+        "ReferencesInstances with Pull",2, "prn",
+    "Clients.cimcli.CIMCLIClient.PRIP_COMMAND_HELP",
+        "Execute Open,Pull ReferenceInstancePaths using the Pull Operations"},
+
+    {ID_PullAssociatorInstances,   "AssociatorInstances with Pull",2, "pa",
+    "Clients.cimcli.CIMCLIClient.PAK_COMMAND_HELP",
+        "Execute Open and Pull Associations"},
+
+    {ID_PullAssociatorInstancePaths,
+        "AssociatorInstance paths with Pull",2, "pan",
+    "Clients.cimcli.CIMCLIClient.PAIP_COMMAND_HELP",
+        "Execute Open,Pull AssociatorInstancePaths using the Pull Operations"},
+
+    {ID_CountInstances,   "Count All instances in Namespace",2, "cci",
+    "Clients.cimcli.CIMCLIClient.CntInst_COMMAND_HELP",
+        "Counts all Instances in Namespace and sorts by ClassName"},
+// FUTURE
+//  ,
+//  {ID_Profile,             "show profiles",2 ,  "?",
+//  "Clients.cimcli.CIMCLIClient.?_PROFILE_HELP",
+//  "Show List of Commands"}
 };
 
 const Uint32 NUM_OPERATIONS =
@@ -253,14 +226,11 @@ OperationExampleEntry OperationExamples[] = {
     "    -n\n"},
 
     {"Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE",
-    "cimcli niall\n"
-        "    -- Enumerate Instance Names and count instances of all classes\n"
-        "       in the default namespace\n"
-    "cimcli niall CIM_ComputerSystem -n root/interop\n"
-        "    -- Enumerate Instance Names and count instances of all classes\n"
-        "       in namespace root/interop starting at CIM_ComputerSystem",
+    "cimcli niall -n root/cimv2\n"
+        "    -- Enumerate Instance Names of  all classes under\n"
+        "       the namespace root/cimv2\n",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS",
-    "    -n --sum (count only, no instanceNames output) classname\n"},
+    "    -n, -di\n"},
 
     {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
     "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",
@@ -272,7 +242,6 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli nc -- Enumerate class names from root/cimv2.\n",
     "Clients.cimcli.CIMCLIClient.NC_COMMAND_OPTIONS",
     "    -n, -di\n"},
-
 
     {"Clients.cimcli.CIMCLIClient.EC_COMMAND_EXAMPLE",
     "cimcli ec -n root/cimv2\n"
@@ -297,27 +266,10 @@ OperationExampleEntry OperationExamples[] = {
 
     {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
     "cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333\n"
-        "    -- Create Instance of  class TST_Person with properties:\n"
-        "       Name = Mike\n"
-        "       SSN = 333\n\n"
-    "cimcli ci -n test/TestProvider C1 id=3 name=fred \\\n"
-        "    embed{C2 p1=3 p2=\"ab cd\" }\n\n"
-        "    -- Create instance of class C1 with properties:\n"
-        "       id with value 3\n"
-        "       name with string value \"fred\"\n"
-        "       embed embedded instance property with instance of class\n",
-        "        C2 with properties:\n"
-        "           p1 embedded instance property with value 3\n"
-        "           p2 embedded instance string property with value \"ab cd\""
-    "cimcli ci -n test/TestProviderAssoc assoc1\\\n"
-        "    child={{C2 id=3 } parent={C2.id=4 }\n\n"
-        "    -- Create instance of class assoc1with properties:\n"
-        "       child - reference to class C2 with key property = 3\n"
-        "       parent ref to class C2 with key property id = 4\n"
-
+        "    -- Create Instance of  class TST_Person with properties\n"
+        "       Name= Mike and SSN= 333\n",
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
     "    -n\n"},
-
 
     {"Clients.cimcli.CIMCLIClient.TI_COMMAND_EXAMPLE",
     "cimcli ti -n test/TestProvider TST_Person Name=Mike SSN=333\n"
@@ -327,7 +279,6 @@ OperationExampleEntry OperationExamples[] = {
         "       instance built from input\n",
     "Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS",
     "    -n -nlo -iq -pl\n"},
-
 
     {"Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE",
     "cimcli di -n test/TestProvider TST_Person\n"
@@ -344,7 +295,6 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS",
     "    -n\n"},
 
-
     // Create Class Not Supported
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "Operation Not supported..\n",
@@ -357,8 +307,7 @@ OperationExampleEntry OperationExamples[] = {
     "    -- Modifies the Instance if it exists using rules of DMTF \n"
     "       modifyInstance operation.\n",
     "Clients.cimcli.CIMCLIClient.MI_COMMAND_OPTIONS",
-    "-n -pl(define properties to be modified) -i (interactive)\n "},
-
+    "-n -pl (define properties to be modified)\n "},
 
     {"Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE",
     "cimcli dc -n test/TestProvider TST_Person\n"
@@ -366,7 +315,6 @@ OperationExampleEntry OperationExamples[] = {
         "       sub-classes for this class\n",
     "Clients.cimcli.CIMCLIClient.DC_COMMAND_OPTIONS",
     "    -n\n"},
-
 
     // getProperty
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
@@ -376,7 +324,6 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "\n"},
 
-
     // setProperty
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
         "cimcli sp -n test/TestProvider TST_Person.Id=\\\\\"Mike\\\\\""
@@ -385,7 +332,6 @@ OperationExampleEntry OperationExamples[] = {
             "       defined by TST_Person.Id=\"Mike\")",
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "\n"},
-
 
     {"Clients.cimcli.CIMCLIClient.GQ_COMMAND_EXAMPLE",
     "cimcli gq Association\n"
@@ -400,7 +346,6 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "\n"},
 
-
     {"Clients.cimcli.CIMCLIClient.EQ_COMMAND_EXAMPLE",
     "cimcli eq -n test/TestProvider\n"
         "    -- Enumerate Qualifiers of namespace test/TestProvider\n",
@@ -413,7 +358,6 @@ OperationExampleEntry OperationExamples[] = {
         "       test/TestProvider\n",
     "Clients.cimcli.CIMCLIClient.DQ_COMMAND_OPTIONS",
     "    -n, qualifierName\n"},
-
 
     {"Clients.cimcli.CIMCLIClient.A_COMMAND_EXAMPLE",
     "cimcli a TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider"
@@ -507,25 +451,104 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
     " No options Required\n"},
 
-    {"Clients.cimcli.CIMCLIClient.CCI_COMMAND_EXAMPLE",
-    "cimcli cci  -- Display count of instances in namespace\n",
-    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
-    "    No options Required\n"
-    "    -count and output options( -o and -x) do not apply"},
-
-    {"Clients.cimcli.CIMCLIClient.CT_COMMAND_EXAMPLE",
-    "cimcli ct CIM_ManagedElement -- Displays tree of class hiearchy\n"
-    "     Starting at CIM_ManagedElement.\n",
-    "Clients.cimcli.CIMCLIClient.CT_COMMAND_OPTIONS",
-    "    -nlo displays tree of superclasses.\n"
-    "    -di displays association information\n"
-    "    -count and output options( -o and -x) do not apply"},
-
     {"Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE",
     "cimcli ?  -- Displays help command\n",
     "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
     "    No options Required"},
+
+    {"Clients.cimcli.CIMCLIClient.PEI_COMMAND_EXAMPLE",
+    "cimcli pei PG_ComputerSystem   -- Pull Enumerate Instances of class\n",
+    "Clients.cimcli.CIMCLIClient.PEI_COMMAND_OPTIONS",
+    "    -n, -di, -lo, -iq, -pl\n"},
+
+    // PULL_OPERATION_EXTENSIONS
+    {"Clients.cimcli.CIMCLIClient.PNI_COMMAND_EXAMPLE",
+    "cimcli pni -n test/TestProvider TST_Person\n"
+        "    -- Pull Enumerate Instance Names of class TST_Person\n",
+    "Clients.cimcli.CIMCLIClient.PNI_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PR_COMMAND_EXAMPLE",
+    "cimcli pr TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider"
+        " -rc TST_Lineage\n"
+        "    -- get references for instances association class TST_Lineage\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+    " cimcli pr TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider\n"
+        "    -- get references for all instances of classes\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+        " cimcli pr TST_Person -n test/TestProvider -rc TST_Lineage\n"
+        "    -- get reference classes for TST_Lineage association class and\n"
+        "       subclasses in namespace test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.PR_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -iq, -pl, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PRN_COMMAND_EXAMPLE",
+    "cimcli prn TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider "
+        "-rc TST_Lineage\n"
+        "    -- get referenceNames for instances association class\n"
+        "       TST_Lineage associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+    " cimcli prn TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider\n"
+        "    -- get referenceNames for all instances of classes\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+        " cimcli prn TST_Person -n test/TestProvider -rc TST_Lineage\n"
+        "    -- get referenceNames for Class TST_Lineage in namespace\n"
+        "       test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.PRN_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PA_COMMAND_EXAMPLE",
+    "cimcli pa TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider"
+        "  -ac TST_Lineage\n -rc TST_Person\n"
+        "    -- get associations for instances of association class\n"
+        "       TST_Lineage and result class TST_Person\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+        " cimcli pa TST_Person -n test/TestProvider -ac TST_Lineage\n"
+        "    -- get associated classes for all instances of classes\n"
+        "       associated with class TST_person and with\n"
+        "       association class TST_Lineage\n"
+        "or\n"
+        " cimcli pa TST_Person -n test/TestProvider -ac TST_Lineage -i\n"
+        "    -- get associated instances by selecting interactively for\n"
+        "       classes  associated with class TST_person and with\n"
+        "       association class TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.PA_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PAN_COMMAND_EXAMPLE",
+    "cimcli an TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider "
+        "-ac TST_Lineage\n"
+        "or\n"
+        " cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.PAN_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
+    "cimcli cci TST_Person",
+    "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -i\n"}
+
+
+    // END_PULL_OPERATION_EXTENSIONS
+//  ,
+//
+//  {"Clients.cimcli.CIMCLIClient.?_PROFILE_EXAMPLE",
+//  "cimcli profiles  -- Displays registered profiles\n",
+//  "Clients.cimcli.CIMCLIClient.PROFILE_COMMAND_OPTIONS",
+//  "     -n"}
 };
+
+const Uint32 NUM_EXAMPLES = sizeof(OperationExamples) /
+                            sizeof(OperationExamples[0]);
 
 
 /*

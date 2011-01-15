@@ -169,13 +169,6 @@ CIMInstance CIMClient::getInstance(
         p.setClassName(cls);
 
     }
-#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-    if (rep->_binaryResponse)
-    {
-        inst.instanceFilter(includeQualifiers,includeClassOrigin,propertyList);
-    }
-#endif
 
     return inst;
 }
@@ -275,7 +268,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
+
     Array<CIMInstance> a = _rep->enumerateInstances(
             nameSpace,
             className,
@@ -284,32 +277,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
             includeQualifiers,
             includeClassOrigin,
             propertyList).getInstances();
-#else
-    CIMResponseData respData = _rep->enumerateInstances(
-        nameSpace,
-        className,
-        deepInheritance,
-        localOnly,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList);
 
-    Array<CIMInstance> a = respData.getInstances();
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-
-    if (rep->_binaryResponse)
-    {
-        CIMPropertyList returnedPropList = respData.getPropertyList();
-        for (Uint32 i = 0, n = a.size(); i < n ; i++)
-        {
-            CIMInstance & inst = a[i];
-            inst.instanceFilter(
-                includeQualifiers,
-                includeClassOrigin,
-                returnedPropList);
-        }
-    }
-#endif
     // remove name space and host name to be instance names
     for (Uint32 i = 0, n = a.size(); i < n ; i++)
     {
@@ -320,6 +288,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
             p.setHost(String());
         }
     }
+
 
     return a;
 }
@@ -367,7 +336,7 @@ Array<CIMObject> CIMClient::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    CIMResponseData respData = _rep->associators(
+    return _rep->associators(
         nameSpace,
         objectName,
         assocClass,
@@ -376,28 +345,7 @@ Array<CIMObject> CIMClient::associators(
         resultRole,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
-
-    Array<CIMObject> a = respData.getObjects();
-#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-    if (rep->_binaryResponse)
-    {
-        CIMPropertyList returnedPropList = respData.getPropertyList();
-        if ((a.size() > 0) && (a[0].isInstance()))
-        {
-            for (Uint32 i = 0, n = a.size(); i < n ; i++)
-            {
-                CIMObject & obj = a[i];
-                obj.instanceFilter(
-                    includeQualifiers,
-                    includeClassOrigin,
-                    propertyList);
-            }
-        }
-    }
-#endif
-    return a;
+        propertyList).getObjects();
 }
 
 Array<CIMObjectPath> CIMClient::associatorNames(
@@ -426,35 +374,14 @@ Array<CIMObject> CIMClient::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    CIMResponseData respData = _rep->references(
+    return _rep->references(
         nameSpace,
         objectName,
         resultClass,
         role,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
-    Array<CIMObject> a = respData.getObjects();
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-    if (rep->_binaryResponse)
-    {
-        CIMPropertyList returnedPropList = respData.getPropertyList();
-        if ((a.size() > 0) && (a[0].isInstance()))
-        {
-            for (Uint32 i = 0, n = a.size(); i < n ; i++)
-            {
-                CIMObject & obj = a[i];
-                obj.instanceFilter(
-                    includeQualifiers,
-                    includeClassOrigin,
-                    propertyList);
-            }
-        }
-    }
-#endif
-    return a;
+        propertyList).getObjects();
 }
 
 Array<CIMObjectPath> CIMClient::referenceNames(
@@ -542,6 +469,228 @@ CIMValue CIMClient::invokeMethod(
         inParameters,
         outParameters);
 }
+
+// KS_PULL_BEGIN
+
+Array<CIMInstance> CIMClient::openEnumerateInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    const Uint32Arg& maxObjectCount)
+{
+    return _rep->openEnumerateInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        className,
+        deepInheritance,
+        includeClassOrigin,
+        propertyList,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstances();
+}
+
+Array<CIMObjectPath> CIMClient::openEnumerateInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount)
+{
+
+    return _rep->openEnumerateInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        className,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstanceNames();
+}
+
+Array<CIMInstance> CIMClient::openReferenceInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount
+    )
+{
+    return _rep->openReferenceInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        resultClass,
+        role,
+        includeClassOrigin,
+        propertyList,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+Array<CIMObjectPath> CIMClient::openReferenceInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount
+    )
+{
+    return _rep->openReferenceInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        resultClass,
+        role,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstanceNames();
+}
+
+Array<CIMInstance> CIMClient::openAssociatorInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount
+    )
+{
+    return _rep->openAssociatorInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+        includeClassOrigin,
+        propertyList,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+Array<CIMObjectPath> CIMClient::openAssociatorInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount
+    )
+{
+    return _rep->openAssociatorInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstanceNames();
+}
+
+Array<CIMInstance> CIMClient::pullInstancesWithPath(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const Uint32Arg& maxObjectCount)
+{
+    return _rep->pullInstancesWithPath(
+        enumerationContext,
+        endOfSequence,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+Array<CIMObjectPath> CIMClient::pullInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const Uint32Arg& maxObjectCount)
+{
+
+    return _rep->pullInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        maxObjectCount).getInstanceNames();
+}
+
+void CIMClient::closeEnumeration(
+    CIMEnumerationContext& enumerationContext)
+{
+    return _rep->closeEnumeration(
+        //nameSpace,
+        enumerationContext);
+}
+
+Uint64Arg CIMClient::enumerationCount(
+    CIMEnumerationContext& enumerationContext)
+{
+    return _rep->enumerationCount(
+        enumerationContext);
+}
+// KS_PULL_END
 
 void CIMClient::registerClientOpPerformanceDataHandler(
     ClientOpPerformanceDataHandler& handler)

@@ -399,15 +399,23 @@ CIMName XmlReader::getCimNameAttribute(
 
     if (!CIMName::legal(name))
     {
-        char buffer[MESSAGE_SIZE];
-        sprintf(buffer, "%s.NAME", elementName);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // In testing, replace illegal CIMName with this value to avoid the
+    // exception and let xml parsing continue.  THIS IS TEMP.
+    name = "BADNAMESUBSTITUTEDBYPEGASUSCLIENT";
+#else
 
-        MessageLoaderParms mlParms(
-            "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
-            "Illegal value for $0 attribute",
-            buffer);
+    char buffer[MESSAGE_SIZE];
+    sprintf(buffer, "%s.NAME", elementName);
 
-        throw XmlSemanticError(lineNumber, mlParms);
+    MessageLoaderParms mlParms(
+        "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+        "Illegal value for $0 attribute",
+        buffer);
+
+    throw XmlSemanticError(lineNumber, mlParms);
+
+#endif
     }
 
     return CIMNameCast(name);
@@ -572,6 +580,11 @@ CIMName XmlReader::getReferenceClassAttribute(
 
     if (!CIMName::legal(name))
     {
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+        name = "PEGASUS_SUBSTITUED_THIS_FOR_BAD_NAME";
+        return name;
+#endif
+
         char buffer[MESSAGE_SIZE];
         sprintf(buffer, "%s.REFERENCECLASS", elementName);
 
@@ -1011,10 +1024,14 @@ CIMValue XmlReader::stringToValue(
 
             try
             {
+                // KS 20021002 - Exception if no datetime value. Test for
+                // zero length and leave the NULL value in the variable
+                // Bugzilla 137  Adds the following if line.
+                // Expect this to become permanent but test only for now
+#ifdef PEGASUS_SNIA_INTEROP_TEST
                 if (valueStringLen != 0)
-                {
+#endif
                     tmp.set(valueString);
-                }
             }
             catch (InvalidDateTimeFormatException&)
             {
@@ -1203,7 +1220,18 @@ Boolean XmlReader::getValueElement(
 
         expectEndTag(parser, "VALUE");
     }
-    value = stringToValue(parser.getLine(),valueString,valueStringLen,type);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // KS 20021004 - tries to put value in even if empty.
+    // Think this is general problem with empty value
+    // Need to check meaning of (#PCDATA) - Does it allow empty.
+    // Bugzilla tbd
+    if (!empty)
+#endif
+        value = stringToValue(
+            parser.getLine(),
+            valueString,
+            valueStringLen,
+            type);
 
     return true;
 }
@@ -1254,6 +1282,145 @@ Boolean XmlReader::getStringValueElement(
     str = String(valueString, valueStringLen);
     return true;
 }
+
+// PULL_OP_BEGIN
+//------------------------------------------------------------------------------
+//
+// getUint32ValueElement()
+//
+//     <!ELEMENT VALUE (#PCDATA)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getUint32ValueElement(
+    XmlParser& parser,
+    Uint32Arg& val,
+    Boolean required)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    {
+        if (required)
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+                "Expected VALUE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+        return false;
+    }
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    const char* valueString = "";
+
+    if (!empty)
+    {
+        if (testContentOrCData(parser, entry))
+            valueString = entry.text;
+
+        expectEndTag(parser, "VALUE");
+    }
+    else
+    {
+        // create the arg object with the NULL value in it.
+        val = Uint32Arg();
+        return true;
+    }
+
+    //convert to Uint32. Note error if overflow.
+
+    Uint64 x;
+    if (!StringConversion::stringToUnsignedInteger(valueString, x))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.INVALID_UI_VALUE",
+            "Invalid unsigned integer value");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+
+    if (!StringConversion::checkUintBounds(x, CIMTYPE_UINT32))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.U32_VALUE_OUT_OF_RANGE",
+            "Uint32 value out of range");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+    // create the arg object with the value in it.
+    val = Uint32Arg(x);
+
+    return true;
+}
+//------------------------------------------------------------------------------
+//
+// getUint64ValueElement()
+//
+//     <!ELEMENT VALUE (#PCDATA)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getUint64ValueElement(
+    XmlParser& parser,
+    Uint64Arg& val,
+    Boolean required)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    {
+        if (required)
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+                "Expected VALUE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+        return false;
+    }
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    const char* valueString = "";
+
+    if (!empty)
+    {
+        if (testContentOrCData(parser, entry))
+            valueString = entry.text;
+
+        expectEndTag(parser, "VALUE");
+    }
+    else
+    {
+        // create the arg object with the NULL value in it.
+        val = Uint64Arg();
+        return true;
+    }
+
+    Uint64 x;
+    // EXP_PULL clean this up
+    if (!StringConversion::stringToUnsignedInteger(valueString, x))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.INVALID_UI_VALUE",
+            "Invalid unsigned integer value");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+    //EXP_PULL_QUESTION- Is there even a check for 64 bit too large
+
+    if (!StringConversion::checkUintBounds(x, CIMTYPE_UINT64))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.U64_VALUE_OUT_OF_RANGE",
+            "Uint64 value out of range");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+    // create the arg object with the value in it.
+    val = Uint64Arg(x);
+
+    return true;
+}
+//PULLOP_END
 
 //----------------------------------------------------------------------------
 //
@@ -2047,6 +2214,22 @@ Boolean XmlReader::getHostElement(
 
     if (!testStartTag(parser, entry, "HOST"))
         return false;
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // Temp code to allow empty HOST field.
+    // SNIA CIMOMs return empty field particularly on enumerateinstance.
+    // Simply substitute a string for the empty.
+    if (!parser.next(entry))
+        throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
+
+    if (entry.type == XmlEntry::CONTENT)
+        host = String(entry.text);
+    else
+    {
+        parser.putBack(entry);
+        host = "HOSTNAMEINSERTEDBYPEGASUSCLIENT";
+    }
+
+#else
 
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
@@ -2057,6 +2240,7 @@ Boolean XmlReader::getHostElement(
     }
 
     host = String(entry.text);
+#endif
     expectEndTag(parser, "HOST");
     return true;
 }
@@ -2389,18 +2573,7 @@ Boolean XmlReader::getInstanceNameElement(
     else
     {
         while (getKeyBindingElement(parser, name, value, type))
-        {
             keyBindings.append(CIMKeyBinding(name, value, type));
-            if (keyBindings.size() > PEGASUS_MAXELEMENTS_NUM)
-            {
-                MessageLoaderParms mlParms(
-                    "Common.XmlReader.TOO_MANY_KEYBINDINGS",
-                    "More than $0 key-value pairs per object path"
-                        " are not supported.",
-                    PEGASUS_MAXELEMENTS_NUM);
-                throw XmlValidationError(parser.getLine(), mlParms);
-            }
-        }
     }
 
     expectEndTag(parser, "INSTANCENAME");
@@ -2608,10 +2781,7 @@ Boolean XmlReader::getLocalClassPathElement(
 //
 //
 //------------------------------------------------------------------------------
-//
-// Parses the input to a CIMObjectPath.  Note that today the differences
-// between ClassPath and InstancePath are lost in this mapping because
-// Pegasus uses the existence of keys as separator . See BUG_3302
+
 Boolean XmlReader::getValueReferenceElement(
     XmlParser& parser,
     CIMObjectPath& reference)
@@ -3078,7 +3248,7 @@ Boolean XmlReader::getQualifierDeclElement(
     // Get ARRAYSIZE attribute:
 
     Uint32 arraySize = 0;
-    getArraySizeAttribute(parser.getLine(),
+    Boolean gotArraySize = getArraySizeAttribute(parser.getLine(),
         entry, "QUALIFIER.DECLARATION", arraySize);
 
     // Get flavor oriented attributes:
@@ -3337,6 +3507,55 @@ Boolean XmlReader::getNamedInstanceElement(
     return true;
 }
 
+
+//EXP_PULL
+//------------------------------------------------------------------------------
+// getInstanceWithPathElement()
+//
+//     <!ELEMENT VALUE.NAMEDINSTANCE (INSTANCENAME,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getInstanceWithPathElement(
+    XmlParser& parser,
+    CIMInstance& namedInstance)
+{
+    XmlEntry entry;
+    if (!testStartTag(parser, entry, "VALUE.INSTANCEWITHPATH"))
+        return false;
+
+    CIMObjectPath instanceName;
+
+    // Get INSTANCENAME elements:
+//EXP_PULL_ISSUE Should we have new getInstancePathElement???
+    if (!getInstancePathElement(parser, instanceName))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.EXPECTED_INSTANCEPATH_ELEMENT",
+            "expected INSTANCEPATH element");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
+    // Get INSTANCE elements:
+
+    if (!getInstanceElement(parser, namedInstance))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.EXPECTED_INSTANCE_ELEMENT",
+            "expected INSTANCE element");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    // Get VALUE.NAMEDINSTANCE end tag:
+
+    expectEndTag(parser, "VALUE.INSTANCEWITHPATH");
+
+    namedInstance.setPath (instanceName);
+
+    return true;
+}
+
+//EXP_PULL_END
+
 //------------------------------------------------------------------------------
 //
 // getObject()
@@ -3521,6 +3740,68 @@ Boolean XmlReader::getIParamValueTag(
     return true;
 }
 
+//EXP_PULL
+//------------------------------------------------------------------------------
+//
+// getIParamValueTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getParamValueTag(
+    XmlParser& parser,
+    const char*& name,
+    Boolean& isEmptyTag)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "PARAMVALUE"))
+    {
+
+        return false;
+    }
+
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
+
+    // Get PARAMVALUE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.MISSING_PARAMVALUE_ATTRIBUTE",
+            "Missing PARAMVALUE.NAME attribute");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    return true;
+}
+//------------------------------------------------------------------------------
+//
+// getIReturnValueTag()
+//
+//------------------------------------------------------------------------------
+////EXP_PULL Think we can get rid of this TBD
+Boolean XmlReader::getIReturnValueTag(
+    XmlParser& parser,
+    const char*& name,
+    Boolean& isEmptyTag)
+{
+    XmlEntry entry;
+    if (!testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        return false;
+    //entry.print();
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
+
+    if (!entry.getAttributeValue("NAME", name))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.MISSING_IRETURNVALUE_ATTRIBUTE",
+            "Missing IRETURNVALUE.NAME attribute");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+// EXP_PULL_TBD Add new msg above to msg bundle.
+    return true;
+}
+
+//EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // rejectNullIParamValue()
@@ -3541,6 +3822,41 @@ void XmlReader::rejectNullIParamValue(
     }
 }
 
+// EXP_PULL
+//------------------------------------------------------------------------------
+//
+// rejectNullIReturnParamValue()
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::rejectNullIReturnValue(
+    XmlParser& parser,
+    Boolean isEmptyTag,
+    const char* paramName)
+{
+    if (isEmptyTag)
+    {
+        MessageLoaderParms mlParms("Common.XmlReader.INVALID_NULL_IRETURNVALUE",
+            "A null value is not valid for IRETURNVALUE \"$0\".",
+            paramName);
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+}
+void XmlReader::rejectNullParamValue(
+    XmlParser& parser,
+    Boolean isEmptyTag,
+    const char* paramName)
+{
+    if (isEmptyTag)
+    {
+        MessageLoaderParms mlParms("Common.XmlReader.INVALID_NULL_PARAMVALUE",
+            "A null value is not valid for PARAMVALUE \"$0\".",
+            paramName);
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+}
+// EXP_PULL_TBD add above message to bundle
+// EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // getBooleanValueElement()
@@ -3865,8 +4181,6 @@ void XmlReader::getObjectArray(
 //
 //------------------------------------------------------------------------------
 
-// Returns true if ClassNameElement or false if InstanceNameElement
-// Parse errors always throw exception
 Boolean XmlReader::getObjectNameElement(
     XmlParser& parser,
     CIMObjectPath& objectName)
@@ -3876,8 +4190,6 @@ Boolean XmlReader::getObjectNameElement(
     if (getClassNameElement(parser, className, false))
     {
         objectName.set(String(), CIMNamespaceName(), className);
-
-        // Return flag indicating this is ClassNameElement
         return true;
     }
 
@@ -3889,8 +4201,7 @@ Boolean XmlReader::getObjectNameElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    // Return flag indicating this is InstanceNameElement
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------

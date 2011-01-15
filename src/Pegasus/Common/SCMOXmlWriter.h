@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SCMOXmlWriter_h
@@ -46,39 +41,24 @@
 #include <Pegasus/Common/CIMDateTimeInline.h>
 
 PEGASUS_NAMESPACE_BEGIN
-typedef struct propertyFilterNodesArray_s
-{
-    SCMBClass_Main* classPtrMemBlock;
-    Array<Uint32> nodes;
-}propertyFilterNodesArray_t;
 
 class PEGASUS_COMMON_LINKAGE SCMOXmlWriter : public XmlWriter
 {
 public:
-    //This function is used to build the propertyFilter node array.
-    //this node array can be build once per class and reused for all
-    //instances.
-    static void buildPropertyFilterNodesArray(
-        Array<Uint32> & nodes,
-        const SCMOClass * classPtr,
-        const CIMPropertyList & propertyList);
-
-    //This function is used to get the propertyFilter node array.
-    static const Array<Uint32> & getFilteredNodesArray(
-        Array<propertyFilterNodesArray_t> & propFilterNodesArrays,
-        const SCMOInstance& scmoInstance,
-        const CIMPropertyList & propertyList);
 
     static void appendValueSCMOInstanceElement(
         Buffer& out,
-        const SCMOInstance& scmoInstance,
-        bool filtered,
-        const Array<Uint32> & nodes);
+        const SCMOInstance& scmoInstance);
 
-    static void appendValueSCMOInstanceElements(
+    // KS_PULL Added to support Pull Operation Xml Differences
+    static void appendValueSCMOInstanceWithPathElement(
         Buffer& out,
-        const Array<SCMOInstance> & _scmoInstances,
-        const CIMPropertyList & propertyList);
+        const SCMOInstance& scmoInstance);
+
+    // KS_PULL Added to support Pull Operation Xml Differences
+    static void appendInstanceNameSpaceElement(
+        Buffer& out,
+        const SCMOInstance& scmoInstance);
 
     static void appendInstanceNameElement(
         Buffer& out,
@@ -86,9 +66,7 @@ public:
 
     static void appendInstanceElement(
         Buffer& out,
-        const SCMOInstance& scmoInstance,
-        bool filtered,
-        const Array<Uint32> & nodes);
+        const SCMOInstance& scmoInstance);
 
     static void appendQualifierElement(
         Buffer& out,
@@ -118,22 +96,17 @@ public:
         Buffer& out,
         const SCMOInstance& instancePath);
 
-    static void appendValueObjectWithPathElement(
+    static void appendValueInstanceWithPathElement(
         Buffer& out,
-        const Array<SCMOInstance> & objectWithPath,
-        const CIMPropertyList& propertyList);
+        const SCMOInstance& namedInstance);
 
     static void appendValueObjectWithPathElement(
         Buffer& out,
-        const SCMOInstance& objectWithPath,
-        bool filtered = false ,
-        const Array<Uint32> & nodes = Array<Uint32> (0));
+        const SCMOInstance& objectWithPath);
 
     static void appendObjectElement(
         Buffer& out,
-        const SCMOInstance& object,
-        bool filtered = false ,
-        const Array<Uint32> & nodes = Array<Uint32> (0));
+        const SCMOInstance& object);
 
     static void appendClassElement(
         Buffer& out,

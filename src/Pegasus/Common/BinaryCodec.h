@@ -49,6 +49,9 @@ class PEGASUS_COMMON_LINKAGE BinaryCodec
 {
 public:
 
+    // Peform hex dump of the given data.
+    static void hexDump(const void* data, size_t size);
+
     static bool encodeRequest(
         Buffer& out,
         const char* host,
@@ -65,12 +68,19 @@ public:
        Decode a serialized CIMOperationRequestMessage received in a Buffer.
     */
     static CIMOperationRequestMessage* decodeRequest(
-        CIMBuffer& in,
+        const Buffer& in,
         Uint32 queueId,
         Uint32 returnQueueId);
 
     /**
-       Decode an input CIMBuffer containing a serialized message stream
+       Decode an input Buffer containing a serialized message stream into 
+       a single CIMResponseMessage. 
+    */
+    static CIMResponseMessage* decodeResponse(
+        const Buffer& in);
+
+    /**
+       Decode an input CIMBuffer containing a serialized message stream 
        into a singe CIMResponseMessage.
     */
     static CIMResponseMessage* decodeResponse(
@@ -81,6 +91,7 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguageList& httpContentLanguages,
+        const Buffer& rtnParams,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst,

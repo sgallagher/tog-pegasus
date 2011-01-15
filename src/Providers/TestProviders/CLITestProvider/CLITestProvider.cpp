@@ -31,18 +31,12 @@
 
 /*
 Test Provider for cimcli. This provider is intended to be used as a
-test driver only for cimcli.  It provides implementation of classes and
-operations that allow cimcli to exercise all of it operations and options
-with known results.
+test driver only for cimcli.
 
-This provider is based on the Test_CLITestProviderClass class the
-Test_CLITestProviderLinkClass and the Test_CLITestEmbeddedClass.
-The Test_CLITestProviderClass class includes all of the CIM Data types in both
-scalar and array form. The Test_CLITestProviderLinkClass allows testing
-association operations and the TestCLITestEmbeddedClass allows testing
-operations involving embedded instances.
-
-The provider handles the following CIM operations:
+This provider is based on the Test_CLITestProviderClass class and the
+Test_CLITestProviderLinkClass. The Test_CLITestProviderClass class
+includes all of the CIM Data types in both scalar and array form
+and provides the following operations:
 
 1. Initialize - Creates a single instance of the class with all of the
 properties initialized. this is placed in an array.
@@ -52,57 +46,37 @@ properties initialized. this is placed in an array.
 3. GetInstance - Returns the single instance found in the array with the
 input object path if found
 
-4. Create instance - Creates a new instance of any of the classes supported
-by the provider and puts it into the a local cache (array if instances).
+4. Create instance - Creates a new instance of the target class and puts it
+into the array
 
 5. ModifyInstance - Attempts to modify an instance of the target class if one
-is found in the instances array. Supports all of the classes defined for
-the provider.
+is found in the instances array.
 
 6. DeleteInstance - Delete an instance of the test class if found in the
 instances array.
 
 6. Invoke method: Includes several methods as follows:
-   -InOutParamTest - Returns input parameters to the caller
-   -setProviderParameters - Single method to allow setting parameters that
+   InOutParamTest - Returns input parameters to the caller
+   setProviderParameters - Single method to allow setting parameters that
    would be used to modify the provider capabilities for testing.
    Parameters:
       substituteHostName - String parameter that provides an alternate name
       to be used as host name on all responses that include host name.
-   -resetProviderParameters - resets all parameters set by the
-   -reset - resets the provider parameters and clears the cache restoring
-    the provider to it original initialized state.
+   resetProviderParameters - resets all parameters set by the
+   setProviderParamters method.
 
 The Test_CLITestProviderLinkClassProvides a means to test the reference and
 associator operations.  Note that the instances do not really represent
 understandable associations, simply syntatically correct associations.
 
-The first operation after the provider is initialized builds a set of instances
-that can be used as the basis for tests.  These instances may be deleted.
-
-LIMITATIONS:
-1. The provider is intended to be used in a single namespace and so
-does not include the namespace in the instances placed in the local cache.
-Therefore if it is enabled for multiple namespaces, a user from some
-namespace could remove, get, or enumerate an instance created in another
-namespace.
-
-2. It does not check the validity of any association create or modify instance
-requests received (i.e. the references can be to non-existent instances.
-
-3. modifyInstance rejects if includeQualifier parameter == true.
-
-4. createInstance is weak and does not completely validate instances input.
-The user can add non-existent properties and change property types without
-the provider figuring it out.
-
-5. Provider uses a mixture of Provider exceptions and the general Server
-exceptions (CIMException) rather than all provider exceptions.
+LIMITATIONS: The provider is intended to be used in a single namespace and so
+does not include the namespace in the instances placed in the array. Therefore
+if it is enabled for multiple namespaces, a user from some other namespace could
+remove, get, or enumerate an instance created in another namespace.
 
 It is intended to run a set of tests fairly rapidly so does not hold itself in
-memory.  Therefore, if instances are put into the array after the normal
-Pegasus timeout of providers for unload, they will be discarded.
-
+memory.  Therefore, if instances are put into the array after the normal Pegasus
+timeout of providers for unload, they will be discarded.
 */
 
 #include "CLITestProvider.h"
@@ -112,8 +86,6 @@ Pegasus timeout of providers for unload, they will be discarded.
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/CIMQualifierNames.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -148,7 +120,6 @@ static String _toString(const CIMPropertyList& pl)
     }
     return s;
 }
-
 /*
     Add the name value pair to the String target.  The result is the pair
     added to target in the form
@@ -163,9 +134,7 @@ void _addParam(String& target, const String& name, const String& value)
     target.append(name);
     target.append("=");
     target.append(value);
-}
-
-/*
+}/*
     Complete the host and namespace fields of an object path if there are
     empty.
 */
@@ -191,7 +160,6 @@ CIMObjectPath _localPath(const CIMObjectPath& inputPath)
         inputPath.getKeyBindings());
     return localPath;
 }
-
 // Gets a host name, either the real host name or a substitute for testing.
 // The substitute name  option allows CLI test program to get a dependable
 // host name for result comparisons.
@@ -213,9 +181,6 @@ static Mutex instanceArrayMutex;
 CLITestProvider::CLITestProvider()
 {
     _initialized = false;
-    _debugMode = false;
-    _useSubstituteHostName = false;
-    _propertyList = CIMPropertyList();
 }
 
 CLITestProvider::~CLITestProvider()
@@ -229,8 +194,6 @@ void CLITestProvider::initialize(CIMOMHandle & cimom)
 
 void CLITestProvider::terminate()
 {
-    _instances.clear();
-    _classes.clear();
     delete this;
 }
 
@@ -241,20 +204,6 @@ void CLITestProvider::invokeMethod(
     const Array<CIMParamValue> & inParameters,
     MethodResultResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "invokeMethod Method Name = " << methodName.getString()
-             << " Input parameters = ";
-        for (Uint32 i = 0 ; i < inParameters.size(); i++)
-        {
-            CIMParamValue param = inParameters[i];
-            CIMValue paramVal = param.getValue();
-            String paramName = param.getParameterName();
-            cout << paramName << " ";
-        }
-        cout << endl;
-    }
-
     initializeProvider(objectReference.getNameSpace());
 
     // convert a fully qualified reference into a local reference
@@ -268,7 +217,7 @@ void CLITestProvider::invokeMethod(
 
     handler.processing();
 
-    String outString = "CLITestProvider Tests : ";
+    String outString = "CLITestProvider  Tests : ";
 
     if (objectReference.getClassName().equal("Test_CLITestProviderClass"))
     {
@@ -285,20 +234,16 @@ void CLITestProvider::invokeMethod(
                     if(String::equalNoCase(paramName,"InParam1"))
                     {
                         outParamName = "OutParam1";
-                        PEGASUS_TEST_ASSERT(
-                            paramVal.getType() == CIMTYPE_REFERENCE
+                        PEGASUS_ASSERT(paramVal.getType() == CIMTYPE_REFERENCE
                             && !paramVal.isArray());
-
                         param.setParameterName(outParamName);
                         handler.deliverParamValue(param);
                     }
                     else if(String::equalNoCase(paramName,"InParam2"))
                     {
                         outParamName = "OutParam2";
-                        PEGASUS_TEST_ASSERT(
-                            paramVal.getType() == CIMTYPE_REFERENCE
+                        PEGASUS_ASSERT(paramVal.getType() == CIMTYPE_REFERENCE
                             && paramVal.isArray());
-
                         param.setParameterName(outParamName);
                         handler.deliverParamValue(param);
                     }
@@ -311,7 +256,6 @@ void CLITestProvider::invokeMethod(
                 outString.append("Empty Parameters");
                 handler.deliver(CIMValue(Uint32(0xFFffFFff)));
             }
-
             handler.deliver(Uint32(0));
         }
 
@@ -325,7 +269,7 @@ void CLITestProvider::invokeMethod(
                 //Returns all input parameters
                 handler.deliverParamValue(inParameters);
             }
-            handler.deliver(Uint32(0));
+        handler.deliver(Uint32(0));
         }
 
         // This simply returns all parameters and
@@ -361,135 +305,26 @@ void CLITestProvider::invokeMethod(
                         }
                         else
                         {
-                            String errMsg = "Incorrect in parameter type ";
-                            errMsg.append(paramName);
-                            errMsg.append( " for method ");
-                            errMsg.append(methodName.getString());
-                            throw CIMOperationFailedException(errMsg);
+                            // return error. Incorrect type on parameter
+                            rtnCode = 1;
                         }
                     }
                     // NOTE: Add new parameters here with else if
                     // not a valid parameter. Return error
                     else
                     {
-                            String errMsg = "Incorrect in parameter ";
-                            errMsg.append(paramName);
-                            errMsg.append( " for method ");
-                            errMsg.append(methodName.getString());
-                            throw CIMOperationFailedException(errMsg);
+                        rtnCode = 1;
                     }
                 }
             }
             handler.deliver(rtnCode);
         }
-
-        // Reset the parameters used to modify operations.  Note that
-        // this does not reset the debugMode parameter
         else if(methodName.equal("resetProviderParameters"))
         {
             _useSubstituteHostName = false;
             _substituteHostName = String();
             handler.deliver(0);
         }
-
-        // Restore provider to its post initialized state.  remvoes
-        // any instances in cache, sets cache to initialized instances,
-        // and sets parameters to initial state. Does not reset the
-        // debugMode parameter.
-        else if (methodName.equal("reset"))
-        {
-            // If the provider has been initialized (at least - one operation
-            // call clear and reinit the instance repository.
-            if (_initialized)
-            {
-                AutoMutex autoMut(instanceArrayMutex);
-                _instances.clear();
-                _initialized = false;
-            }
-            _useSubstituteHostName = false;
-            _substituteHostName = String();
-            handler.deliver(0);
-        }
-        else if (methodName.equal("debugMode"))
-        {
-            Boolean oldMode = _debugMode;
-            Uint32 rtnCode = 0;
-            if (inParameters.size() > 0)
-            {
-                for(Uint32 i = 0; i < inParameters.size(); ++i)
-                {
-                    String paramName = inParameters[i].getParameterName();
-                    CIMValue paramVal = inParameters[i].getValue();
-
-                    if (paramName == "newState")
-                    {
-                        if (paramVal.getType() == CIMTYPE_BOOLEAN)
-                        {
-                            paramVal.get(_debugMode);
-                        }
-                        else
-                        {
-                            // return error. Incorrect type on parameter
-                            String errMsg = "Incorrect in parameter type ";
-                            errMsg.append(paramName);
-                            errMsg.append( " for method ");
-                            errMsg.append(methodName.getString());
-
-                            throw CIMOperationFailedException(errMsg);
-                        }
-                    }
-                    // invalid parameter for this method. Throw error
-                    else
-                    {
-                        String errMsg = "Incorrect in parameter ";
-                        errMsg.append(paramName);
-                        errMsg.append( " for method ");
-                        errMsg.append(methodName.getString());
-
-                        throw CIMOperationFailedException(errMsg);
-                    }
-                }
-            }
-            if (rtnCode == 0)
-            {
-                rtnCode = (oldMode != _debugMode)? 0: 1;
-            }
-            handler.deliver(rtnCode);
-        }
-
-        else
-        {
-            String errMsg = "Incorrect method name ";
-            errMsg.append(methodName.getString());
-
-            throw CIMOperationFailedException(errMsg);
-        }
-    }
-
-    else if (objectReference.getClassName().equal("Test_CLITestEmbeddedClass"))
-    {
-        if (methodName.equal("embeddedInstParamMethod"))
-        {
-            if (inParameters.size() > 0)
-            {
-                //Returns all input parameters
-                handler.deliverParamValue(inParameters);
-            }
-            handler.deliver(Uint32(0));
-        }
-        else
-        {
-            cout << "Invalid method name= "
-                << methodName.getString()
-                << " ignored" << endl;
-        }
-    }
-    else
-    {
-            String errMsg = "Incorrect className on invokeMethod ";
-            errMsg.append(objectReference.getClassName().getString());
-
-            throw CIMOperationFailedException(errMsg);
     }
     handler.complete();
 }
@@ -502,10 +337,6 @@ void CLITestProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "getInstance ref=" << instanceReference.toString() << endl;
-    }
     initializeProvider(instanceReference.getNameSpace());
 
     handler.processing();
@@ -522,6 +353,8 @@ void CLITestProvider::getInstance(
         _addParam(text, "includeQualifiers", _toString(includeQualifiers));
         _addParam(text, "includeClassOrigin", _toString(includeClassOrigin));
 
+        // clone and filter the returned instance. Clone so the original
+        // not modified by filter.
         try
         {
             CIMInstance temp = _instances[index].clone();
@@ -541,6 +374,7 @@ void CLITestProvider::getInstance(
             temp.getProperty(temp.findProperty("requestInputParameters"))
                 .setValue(text);
 
+            temp.filter(includeQualifiers,includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
@@ -566,11 +400,6 @@ void CLITestProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "Enter EnumerateInstances "
-             << ref.toString() << endl;
-    }
     initializeProvider(ref.getNameSpace());
 
     handler.processing();
@@ -610,6 +439,8 @@ void CLITestProvider::enumerateInstances(
                     temp.findProperty("requestInputParameters"))
                     .setValue(text);
 
+                temp.filter(includeQualifiers,includeClassOrigin,
+                            propertyList);
                 handler.deliver(temp);
             }
             catch(CIMException& e)
@@ -628,11 +459,6 @@ void CLITestProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "Enter EnumerateInstanceNames "
-             << classReference.toString() << endl;
-    }
     initializeProvider(classReference.getNameSpace());
 
     handler.processing();
@@ -660,70 +486,6 @@ void CLITestProvider::enumerateInstanceNames(
     handler.complete();
 }
 
-// modifyInstance - Helper function for modifyInstance operation.
-// Modify the property in existingInst with the value of modifiedProperty
-// if they have different values. If modifiedProperty does not exist in
-// existingInstance, add it from propertyInClass.
-
-void modifyProperty(CIMInstance& existingInst,
-    CIMConstProperty& modifiedProperty,
-    CIMConstProperty& propertyInClass)
-{
-    CIMName pName = modifiedProperty.getName();
-    try
-    {
-        Uint32 pos;
-        if ((pos = existingInst.findProperty(pName)) != PEG_NOT_FOUND)
-        {
-            // If values are different, move value to existing property
-            CIMProperty existingProp = existingInst.getProperty(pos);
-            CIMValue vExisting = existingProp.getValue();
-            if (vExisting != modifiedProperty.getValue())
-            {
-                existingProp.setValue(modifiedProperty.getValue());
-            }
-        }
-        else   // add the property since not in instance
-        {
-            // Get property from Class
-            CIMProperty addProp = propertyInClass.clone();
-
-            // Do we have to do these tests if property NULL??
-            if ((modifiedProperty.getValue().getType()
-                != addProp.getValue().getType()) ||
-                (modifiedProperty.getValue().isArray() !=
-                addProp.getValue().isArray())
-                )
-            {
-                throw CIMException(CIM_ERR_INVALID_PARAMETER,
-                      "modifyInstance inputInstance Property Value type"
-                      " mismatch: " +
-                      pName.getString());
-            }
-
-            addProp.setValue(modifiedProperty.getValue());
-            existingInst.addProperty(addProp);
-        }
-    }
-    catch(CIMException& e)
-    {
-        throw CIMException(CIM_ERR_FAILED,
-            " modify Instance " + e.getMessage());
-    }
-}
-
-Uint32 testPropertyInClass(CIMName& name, CIMConstClass& mc)
-{
-    Uint32 pos;
-    if ((pos = mc.findProperty(name)) ==  PEG_NOT_FOUND)
-    {
-        throw CIMException(CIM_ERR_INVALID_PARAMETER,
-              "modifyInstance: Property"
-              " Not in class: " +
-             name.getString());
-    }
-    return pos;
-}
 
 void CLITestProvider::modifyInstance(
     const OperationContext & context,
@@ -733,161 +495,76 @@ void CLITestProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "Enter modify Instance. instanceRef = "
-            << instanceReference.toString()
-            << " includeQualifiers = "
-            << (includeQualifiers? "true" : "false")
-            << " property List = " << _toString(propertyList) << endl;
-    }
-
     initializeProvider(instanceReference.getNameSpace());
 
     handler.processing();
 
-    // Reject includeQualifiers = true
-    if (includeQualifiers)
-    {
-        throw CIMException(CIM_ERR_FAILED,
-            " modifyInstance rejected by provider."
-            " includeQualifiers=true not allowed");
-    }
-
-    // get the class for this operation.  Used several times in process.
-    CIMConstClass mc = _getClass(instanceReference.getClassName(),
-                            instanceReference.getNameSpace());
-
     // convert a fully qualified reference into a local reference
     // (class name and keys only).
 
-    // Ref must be correct
-    CIMObjectPath localRef = _localPath(instanceReference);
+    CIMClass mc = _getClass(instanceReference.getClassName(),
+                            instanceReference.getNameSpace());
+
+    // TODO confirm the correctness of allowing either the input path or
+    //      the build of the path from the instance to get the instance name
+    //      to modify.  Works but need to check DMTF specs.
+
+    // Get path from input instanceReference OR build it
+
+    CIMObjectPath localRef = (instanceReference.getKeyBindings().size() == 0)?
+                                instanceObject.buildPath(mc)
+                                :
+                                _localPath(instanceReference);
 
     AutoMutex autoMut(instanceArrayMutex);
 
-    // Find the proper instance in the cache
+    // Find the proper instance.
     Uint32 index;
     if ((index = findInstance(localRef)) != PEG_NOT_FOUND)
     {
-        // Clone the instance to be modified so we do not modify unless
-        // completely successful.
-        CIMInstance instToModify = _instances[index].clone();
-
-        // If the PropertyList is NULL, the set of properties to be modified
-        // consists of those of ModifiedInstance with values different from
-        // the current values in the instance to be modified.
-        if (propertyList.isNull())
+        // Modify the existing instance
+        Uint32 pos;
+        for (Uint32 j = 0 ;  j < instanceObject.getPropertyCount() ; j++)
         {
-            // for all properties in the input instance
-            Uint32 propertyCount = instanceObject.getPropertyCount();
-            for (Uint32 j = 0 ;  j < propertyCount ; j++)
+            CIMConstProperty r1 = instanceObject.getProperty(j);
+            CIMProperty r2 = r1.clone();
+            Uint32 pos;
+            try
             {
-                CIMConstProperty inputProperty = instanceObject.getProperty(j);
-                CIMName pName = inputProperty.getName();
-
-                // reject if input property not in class
-                Uint32 pos = testPropertyInClass(pName, mc);
-
-                CIMConstProperty propertyInClass = mc.getProperty(pos);
-
-                modifyProperty(instToModify,
-                    inputProperty,
-                    propertyInClass);
-            }  // for loop processing properties if propertyList isNull
-        }  // end propertyList.isNull()
-
-        else if (propertyList.size() != 0)
-        {
-            /*
-            If the PropertyList input parameter is not NULL, the members of the
-            array define one or more property names.  Only properties specified
-            in the PropertyList are modified.  Properties of the
-            ModifiedInstance that are missing from the PropertyList are
-            ignored.
-
-            If a property is not specified in the ModifiedInstance but is
-            specified in the PropertyList, then the class-defined default
-            value (or NULL if none is defined) becomes its new value in
-            the instance to be modified.
-            */
-            for (Uint32 i = 0 ; i < propertyList.size() ; i++)
+                if ((pos = _instances[index].findProperty(r2.getName()))
+                     != PEG_NOT_FOUND)
+                {
+                    _instances[index].removeProperty(pos);
+                    _instances[index].addProperty(r2);
+                }
+                else   // simply add the property since not in instance
+                {
+                    // test if property is in class
+                    if (mc.findProperty(r2.getName()) != PEG_NOT_FOUND)
+                    {
+                        _instances[index].addProperty(r2);
+                    }
+                    else
+                    {
+                        throw CIMException(CIM_ERR_INVALID_PARAMETER,
+                              "Property Not in class " +
+                              r2.getName().getString());
+                    }
+                }
+            }  // end try block
+            catch(CIMException& e)
             {
-                CIMName plName = propertyList[i];
-
-                // test if property in propertyList is in class
-                Uint32 posInClass = testPropertyInClass(plName, mc);
-
-                // If property not found in input instance, get from the class
-                // including value
-                Uint32 pos;
-                if ((pos = instanceObject.findProperty(plName)) ==
-                     PEG_NOT_FOUND)
-                {
-                    CIMProperty addProp = mc.getProperty(posInClass).clone();
-                    instToModify.addProperty(addProp);
-                }
-
-                else  // else modify existing property
-                {
-                    CIMConstProperty inputProperty =
-                        instanceObject.getProperty(pos);
-
-                    CIMConstProperty propertyInClass =
-                         mc.getProperty(posInClass);
-
-                    modifyProperty(instToModify,
-                        inputProperty,
-                        propertyInClass);
-                }
-            }  // for propertyList[] loop
-        }   // end propertyList.size() != 0
-
-        // if propertyList empty exit without updating existingInst
-        else
-        {
-            handler.complete();
-            return;
-        }
-
-        // Test for no modifications to key. This allows key properties
-        // in instanceObject if they do not change the CIMValue.
-        CIMObjectPath p = instToModify.buildPath(mc);
-        if (p != localRef)
-        {
-            throw CIMException(CIM_ERR_INVALID_PARAMETER,
-                  "modifyInstance input instance modifies keys.");
-        }
-
-        // Complete successful, replace the existing instance.
-        _instances.remove(index);
-        _instances.append(instToModify);
+                throw CIMException(CIM_ERR_FAILED,
+                                   " Updating Property " + e.getMessage());
+            }
+        }  // for loop processing properties
 
         handler.complete();
     } // end if found
-
-    else // Instance not found in cache
+    else
     {
-        throw CIMObjectNotFoundException(
-            "Instance not found: " + instanceReference.toString());    }
-}
-
-// Determine if a property is a key property
-static Boolean isKey(const CIMConstProperty& p)
-{
-    Uint32 index = p.findQualifier(CIMQualifierNames::KEY);
-
-    if (index == PEG_NOT_FOUND)
-        return false;
-
-    Boolean flag;
-    const CIMValue& value = p.getQualifier(index).getValue();
-
-    if (value.getType() != CIMTYPE_BOOLEAN)
-        return false;
-
-    value.get(flag);
-    return flag;
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
 }
 
 void CLITestProvider::createInstance(
@@ -896,11 +573,6 @@ void CLITestProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "Enter createInstance "
-             << instanceReference.toString() << endl;
-    }
     initializeProvider(instanceReference.getNameSpace());
 
     handler.processing();
@@ -908,52 +580,36 @@ void CLITestProvider::createInstance(
     CIMObjectPath newInstanceRef = _localPath(instanceReference);
 
     AutoMutex autoMut(instanceArrayMutex);
-
-    CIMClass c = _getClass(instanceObject.getClassName(),
-        instanceReference.getNameSpace());
-
-    // Test the instance against class for key Properties existence
-    for (Uint32 i = 0 ; i < c.getPropertyCount() ; i++)
+    // If there are no properties in the reference, try to get the
+    // key properties and their values from the instanceObject
+    if (instanceReference.getKeyBindings().size() == 0)
     {
-        CIMConstProperty p = c.getProperty(i);
-        if (isKey(p))
+        Array<CIMKeyBinding> keys;
+
+        Uint32 pos = instanceObject.findProperty("Id");
+
+        if (pos != PEG_NOT_FOUND)
         {
-            if (instanceObject.findProperty(p.getName()) == PEG_NOT_FOUND)
-            {
-                throw CIMOperationFailedException(
-                    "Key Property(s) Required: " + p.getName().getString());
-            }
-        }
-    }
+            CIMConstProperty cimProperty = instanceObject.getProperty(pos);
 
-    // Test to assure that all properties in instance are in the class
-    for (Uint32 i = 0 ; i < instanceObject.getPropertyCount() ; i++)
-    {
-        CIMConstProperty p = instanceObject.getProperty(i);
-        if (c.findProperty(p.getName()) == PEG_NOT_FOUND)
+            keys.append(CIMKeyBinding(cimProperty.getName(),
+                                      cimProperty.getValue()));
+
+            newInstanceRef.setKeyBindings(keys);
+        }
+        else
         {
-            throw CIMPropertyNotFoundException(
-                "Property " + p.getName().getString());
+            throw CIMPropertyNotFoundException("Id");
         }
-        // To be completely valid we should also check type, etc.
-    }
-
-    // determine that key properties exist in the instance.  Do we
-    // really need to do this or simply take whatever is there?
-
-    newInstanceRef = instanceObject.buildPath(c);
-
-    if (newInstanceRef.getKeyBindings().size() == 0)
-    {
-        throw CIMOperationFailedException("Key Property(s) Required");
     }
 
     // If the instance exists, throw already_exists exception
+    // Note: instances in the array do not have path component
 
     Uint32 index;
     if ((index = findInstance(newInstanceRef)) == PEG_NOT_FOUND)
     {
-        // add the instance to the set of instances saved in the cache.
+        // add the instance to the set of instances saved in the provider.
         CIMInstance myInstance = instanceObject.clone();
         myInstance.setPath(newInstanceRef);
         _instances.append(myInstance);
@@ -974,11 +630,6 @@ void CLITestProvider::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler & handler)
 {
-    if (_debugMode)
-    {
-        cout << "Enter deleteInstance "
-             << instanceReference.toString() << endl;
-    }
     initializeProvider(instanceReference.getNameSpace());
 
     handler.processing();
@@ -995,8 +646,7 @@ void CLITestProvider::deleteInstance(
     }
     else
     {
-        throw CIMObjectNotFoundException(
-            "Instance not found: " + instanceReference.toString());
+        throw CIMException(CIM_ERR_NOT_FOUND);
     }
 
     handler.complete();
@@ -1006,7 +656,7 @@ void CLITestProvider::deleteInstance(
 /*
     Processing of associator/Reference Operation Requests
 
-    NOTE: This association code is not based on any definition of the
+    NOTE: This code is not based on any clear definition of the
     relationship between objects but simply returning information
     on instances that exist in the repository. Thus typically it returns
     the target instance itself (i.e. association of an instance with
@@ -1030,16 +680,6 @@ void CLITestProvider::associators(
     const CIMPropertyList& propertyList,
     ObjectResponseHandler& handler)
 {
-    if (_debugMode)
-    {
-        cout << "Enter associators "
-             << objectName.toString()
-             << "associationClass " << associationClass.getString()
-             << "resultClass " << resultClass.getString()
-             << "role " << role
-             << "resultRole " << resultRole << endl;
-    }
-
     initializeProvider(objectName.getNameSpace());
 
     // Get the namespace and host names to create the CIMObjectPath
@@ -1049,7 +689,7 @@ void CLITestProvider::associators(
     handler.processing();
     // complete processing the request
     // Puts input parameters into the requestInputParameters property so that
-    // they can be tested on by the client.
+    // they can be tested by the client.
     String text;
     _addParam(text, "role", role);
     _addParam(text, "resultRole", resultRole);
@@ -1085,11 +725,13 @@ void CLITestProvider::associators(
                 rtnObjectName.setHost(_getHostName());
             }
             temp.setPath(rtnObjectName);
+            temp.filter(includeQualifiers,
+                        includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
         {
-            cerr << "CIMCLITestProvider:Exception Occured : "
+            cerr << "CIMCLITestProvider:Exception Occurred : "
                 << e.getMessage() << endl;
             throw CIMException(e);
         }
@@ -1117,6 +759,7 @@ void CLITestProvider::associatorNames(
     // currently in the local list. Simple since we just return the
     // input path if the instance exists.
     Uint32 index;
+
     if ((index = findInstance(objectName)) != PEG_NOT_FOUND)
     {
         try
@@ -1217,6 +860,10 @@ void CLITestProvider::references(
 
         assocInstance.setPath(objectPath);
 
+        // complete processing the request
+        assocInstance.filter(includeQualifiers,
+                    includeClassOrigin, propertyList);
+
         handler.deliver(assocInstance);
     }
     handler.complete();
@@ -1284,8 +931,7 @@ void CLITestProvider::referenceNames(
 }
 
 
-/* get the defined class from the repository. Classes once acquired
-   are saved in an array so that future references get the local copy
+/* get the defined class from the repository.
     @param className CIMName name of the class to get
     @return CIMClass with the class or unitialized if
     there was an error in the getClass
@@ -1293,16 +939,6 @@ void CLITestProvider::referenceNames(
 CIMClass CLITestProvider::_getClass(const CIMName& className,
                                     const CIMNamespaceName& ns)
 {
-    // try to get from array of already acquired classess
-    for (Uint32 i = 0; i < _classes.size() ; i++)
-    {
-        if (_classes[i].getClassName() == className)
-        {
-            return _classes[i];
-        }
-    }
-
-    // Not in array yet, get this class from the cim server.
     CIMClass c;
     try
     {
@@ -1314,8 +950,6 @@ CIMClass CLITestProvider::_getClass(const CIMName& className,
             true,
             true,
             CIMPropertyList());
-
-        _classes.append(c);
     }
     catch (CIMException& e)
     {
@@ -1325,7 +959,6 @@ CIMClass CLITestProvider::_getClass(const CIMName& className,
             (const char*) e.getMessage().getCString()));
         throw CIMException(CIM_ERR_FAILED);
     }
-
     return c;
 }
 
@@ -1346,7 +979,6 @@ Uint32 CLITestProvider::findInstance(const CIMObjectPath& path)
     }
     return PEG_NOT_FOUND;
 }
-
 // Create the instances that will be considered inherently part of the
 // provider for these tests.  This includes one instance of each class
 // This was done with namespace input so that we could build association
@@ -1354,22 +986,13 @@ Uint32 CLITestProvider::findInstance(const CIMObjectPath& path)
 // to build them on the fly so that the namespace parameter and the
 // corresponding dynamic initialization of the provider (initializeProvider)
 // are not really necessary.
-// NOTE: Uses the namespace of the initial operation to determine the
-// namespace in which these instances are created and where it looks for
-// the class definitions.
 
 void CLITestProvider::createInstances(const CIMNamespaceName& ns)
 {
-    if (_debugMode)
-    {
-        cout << "Enter createInstances function" << endl;
-    }
 
-    // Create instances of Test_CLITestProviderClass class
     CIMClass theClass = _getClass(
         CIMName("Test_CLITestProviderClass"),
         ns);
-
     // Create a single instance with all properties and with path
     // independent of namespace or hostname
 
@@ -1473,118 +1096,8 @@ void CLITestProvider::createInstances(const CIMNamespaceName& ns)
     instance.setPath(p);
 
     _instances.append(instance);
-
-    // Create instance of Test_CLITestEmbedded1 Class
-
-    // Create an embedded instance
-    CIMClass embeddedClass1 = _getClass(CIMName("Test_CLITestEmbedded1"), ns);
-
-    CIMInstance embedded1 = embeddedClass1.buildInstance(
-        true, true, CIMPropertyList());
-
-    embedded1.getProperty(embedded1.findProperty("Id")).setValue(
-        CIMValue(String("100")));
-
-    embedded1.getProperty(embedded1.findProperty("name")).setValue(
-        CIMValue(String("Ronald")));
-
-    embedded1.getProperty(embedded1.findProperty("comment")).setValue(
-        CIMValue(String("Instance created by provider.")));
-
-    CIMObjectPath p1("Test_CLITestEmbedded1.Id=100");
-    embedded1.setPath(p1);
-
-    if (_debugMode)
-    {
-        cout << "Created Test_CLITestEmbedded1 instance " << endl;
-    }
-
-    // Create instance of Test_CLITestEmbedded3 Class
-
-    CIMClass embedded3Class = _getClass(CIMName("Test_CLITestEmbedded3"), ns);
-
-    CIMInstance embedded3 = embedded3Class.buildInstance(
-        true, true, CIMPropertyList());
-
-    embedded3.getProperty(embedded3.findProperty("Id")).setValue(
-        CIMValue(String("103")));
-
-    embedded3.getProperty(embedded3.findProperty("name")).setValue(
-        CIMValue(String("McDonald")));
-
-    embedded3.getProperty(embedded3.findProperty("comment")).setValue(
-        CIMValue(String("Instance created by provider.")));
-
-    CIMObjectPath p3("Test_CLITestEmbedded3.Id=100");
-    embedded3.setPath(p3);
-
-    if (_debugMode)
-    {
-        cout << "Created Test_CLITestEmbedded3 instance " << endl;
-    }
-
-    // Create instance of Test_CLITestEmbedded2 Class
-    CIMClass embedded2Class = _getClass(CIMName("Test_CLITestEmbedded2"), ns);
-
-    CIMInstance embedded2 = embedded2Class.buildInstance(
-        true, true, CIMPropertyList());
-
-    embedded2.getProperty(embedded2.findProperty("Id")).setValue(
-        CIMValue(String("102")));
-
-    embedded2.getProperty(embedded2.findProperty("name")).setValue(
-        CIMValue(String("Ronald")));
-
-    embedded2.getProperty(embedded2.findProperty("comment")).setValue(
-        CIMValue(String("Instance created by provider.")));
-
-    embedded2.getProperty(
-        embedded2.findProperty("recursiveEmbeddedInst")).setValue(
-        CIMValue(CIMInstance(embedded3)));
-
-    CIMObjectPath p2("Test_CLITestEmbedded2.Id=102");
-    embedded2.setPath(p2);
-
-    if (_debugMode)
-    {
-        cout << "Created Test_CLITestEmbedded2 instance " << endl;
-    }
-
-    // build the instance that embedds the above instance
-    CIMClass embeddingClass = _getClass(
-        CIMName("Test_CLITestEmbeddedClass"), ns);
-
-   CIMInstance embeddedingClassInst =
-       embeddingClass.buildInstance(true, true, CIMPropertyList());
-
-    embeddedingClassInst.getProperty(
-        embeddedingClassInst.findProperty("Id")).setValue(
-        CIMValue(String("101")));
-
-    embeddedingClassInst.getProperty(
-        embeddedingClassInst.findProperty("embeddedInst")).setValue(
-        CIMValue(CIMInstance(embedded1)));
-
-    embeddedingClassInst.getProperty(
-        embeddedingClassInst.findProperty("embeddedInst2")).setValue(
-        CIMValue(CIMInstance(embedded2)));
-
-    if (_debugMode)
-    {
-        cout << "Created Embedding instance " << endl;
-    }
-
-    CIMObjectPath p4("Test_CLITestEmbeddedClass.Id=101");
-
-    embeddedingClassInst.setPath(p4);
-
-    _instances.append(embeddedingClassInst);
 }
 
-// initialze the provider by creating the instances that will exist
-// in the instances array at startup.   The namespace parameter is the
-// namespace that will be set in any paths built when instances
-// are created.
 void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
 {
     if (!_initialized)
@@ -1594,8 +1107,8 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
         {
             createInstances(ns);
             _initialized = true;
+            _useSubstituteHostName = false;
         }
     }
 }
-
 

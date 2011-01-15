@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/BinaryCodec.h>
 #include "CIMOperationResponseDecoder.h"
-#include "CIMClientRep.h"
 
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -52,12 +51,14 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     MessageQueue* outputQueue,
     MessageQueue* encoderQueue,
-    ClientAuthenticator* authenticator)
+    ClientAuthenticator* authenticator,
+    Uint32 showInput)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPRESPDECODER),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
-    _authenticator(authenticator)
+    _authenticator(authenticator),
+    _showInput(showInput)
 {
 }
 
@@ -87,7 +88,7 @@ void CIMOperationResponseDecoder::handleEnqueue()
         }
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -175,18 +176,21 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-    if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))    {
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    if (_showInput & 1)
+    {
         cout << "CIMOperatonResponseDecoder";
         httpMessage->printAll(cout);
     }
-    if (ClientTrace::displayOutput(ClientTrace::TRACE_LOG))
+    if (_showInput & 2)
     {
         Logger::put(Logger::STANDARD_LOG,
-            "CIMCLient",
+            System::CIMSERVER,
             Logger::INFORMATION,
-            "CIMOperationRequestDecoder::Response, XML content: $0",
+            "CIMOperationRequestDecoder::Response, XML content: $1",
             httpMessage->message.getData());
     }
+#endif
 
     try
     {
@@ -319,8 +323,10 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             (((!String::equalNoCase(type, "application/xml") &&
               !String::equalNoCase(type, "text/xml")) ||
              !String::equalNoCase(charset, "utf-8"))
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
             && !(binaryResponse=String::equalNoCase(
                 type, "application/x-openpegasus"))
+#endif
         ))
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new
@@ -403,22 +409,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Calculate the beginning of the content from the message size and
     // the content length.
-    if (binaryResponse)
-    {
-        // binary the "Content" also contains a few padding '\0' to align
-        // data structures to 8byte boundary
-        // the padding '\0' are also part of the counted contentLength
-        Uint32 headerEnd = httpMessage->message.size() - contentLength;
-        Uint32 binContentStart = CIMBuffer::round(headerEnd);
 
-        contentLength = contentLength - (binContentStart - headerEnd);
-        content = httpMessage->message.getData() + binContentStart;
-    }
-    else
-    {
-        content = httpMessage->message.getData() +
-            httpMessage->message.size() - contentLength;
-    }
+    content = httpMessage->message.getData() +
+        httpMessage->message.size() - contentLength;
 
     //
     // If it is a method response, then dispatch it to be handled:
@@ -657,6 +650,69 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             else if (System::strcasecmp(iMethodResponseName, "ExecQuery") == 0)
                 response = _decodeExecQueryResponse(
                     parser, messageId, isEmptyTag);
+ // EXP_PULL_BEGIN
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenEnumerateInstances") == 0)
+            {
+                response = _decodeOpenEnumerateInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenEnumerateInstancePaths") == 0)
+            {
+                response = _decodeOpenEnumerateInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenReferenceInstances") == 0)
+            {
+                response = _decodeOpenReferenceInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenReferenceInstancePaths") == 0)
+            {
+                response = _decodeOpenReferenceInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenAssociatorInstances") == 0)
+            {
+                response = _decodeOpenAssociatorInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenAssociatorInstancePaths") == 0)
+            {
+                response = _decodeOpenAssociatorInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "PullInstancesWithPath") == 0)
+            {
+                response = _decodePullInstancesWithPathResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "PullInstancePaths") == 0)
+            {
+                response = _decodePullInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "CloseEnumeration") == 0)
+            {
+                response = _decodeCloseEnumerationResponse(
+                    parser, messageId, isEmptyTag);
+            }
+
+            else if (System::strcasecmp(
+                iMethodResponseName, "EnumerationCount") == 0)
+            {
+                response = _decodeEnumerationCountResponse(
+                    parser, messageId, isEmptyTag);
+            }
+ //EXP_PULL_END
             else
             {
                 MessageLoaderParms mlParms(
@@ -710,6 +766,10 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
     {
         if (response)
         {
+//#ifdef PEGASUS_SNIA_INTEROP_TEST
+//         httpMessage->printAll(cout);
+//#endif
+
             delete response;
         }
 
@@ -1799,5 +1859,698 @@ CIMInvokeMethodResponseMessage*
         outParameters,
         methodName);
 }
+
+// EXP_PULL_BEGIN
+/**************************************************************************
+**
+**   Common Functions to support the decode of Pull Operation Responses
+**
+***************************************************************************/
+
+/*
+    Decode the instancePath portion of all of the open an pull instancepaths
+    operations.  This function is common to all of the pull decode operations.
+*/
+
+// KS_EXP_TBD - Can we combine what we do here with the function in 
+// enumerateinstancenames that uses getInstanceNameElement????
+void _decodeInstancePathElements(
+    XmlParser& parser,
+    Array<CIMObjectPath>& instancePaths)
+{
+    XmlEntry entry;
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMObjectPath instancePath;
+
+            while (XmlReader::getInstancePathElement(parser, instancePath))
+            {
+                instancePaths.append(instancePath);
+            }
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+}
+
+/*
+    decode returned instancesWithPathElement into an array
+    of instances. This function is common to all of the Pull decoder
+    operations.
+*/
+void _decodeGetInstancesWithPathElement(
+    XmlParser& parser,
+    Array<CIMInstance>& namedInstances)
+{
+    XmlEntry entry;
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMInstance namedInstance;
+
+            /// KS_TBD _QUESTION. Diff of this getNameInstances Function
+            while (XmlReader::getInstanceWithPathElement(
+                       parser, namedInstance))
+            {
+                namedInstances.append(namedInstance);
+            }
+
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+}
+
+/*  Common Function for Open, Pull Parm Value processing.
+    Parse the output parameters from the  responses that
+    have two parameters (endOfSequence and enumerationContext). These
+    parameters are common across all of the Open* operations and the
+    pull operations.
+    This function returns the parsed values of these parameters or, if
+    there is an error, generates an exception.
+*/
+void _decodeOpenResponseParamValues(XmlParser& parser,
+       Boolean& endOfSequence,
+       String& enumerationContext)
+{
+    Boolean duplicateParameter = false;
+    Boolean gotEndOfSequence = false;
+    Boolean gotEnumerationContext = false;
+
+    Boolean emptyTag;
+    for (const char* name;
+         XmlReader::getParamValueTag(parser, name, emptyTag); )
+    {
+        if (System::strcasecmp(name, "EndOfSequence") == 0)
+        {
+            XmlReader::rejectNullParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, endOfSequence, true);
+            duplicateParameter = gotEndOfSequence;
+            gotEndOfSequence = true;
+        }
+
+        else if (System::strcasecmp(name, "EnumerationContext") == 0)
+        {
+            XmlReader::getStringValueElement(parser, enumerationContext,
+                false);
+            duplicateParameter = gotEnumerationContext;
+            gotEnumerationContext = true;
+        }
+        else
+        {
+            /// EXP_PULL_TBD
+            // We probably simply want to ignore this as an extra tag
+        }
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "PARAMVALUE");
+        }
+        // Stop on the first duplicate found
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER,
+                    "Duplicate EndOfSequence or EnumerationContext received");
+        }
+    }
+
+
+    // KS_TODO -Should the error be INVALID_PARAMETER since it is
+    // really MISSING.
+    if (!gotEndOfSequence)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "EndOfSequence is a Required Parameter");
+    }
+
+    if (!gotEnumerationContext)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "EnumerationContext is a Required Parameter");
+    }
+    if (!endOfSequence)
+    {
+        if(enumerationContext.size() == 0)
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+                "Expected VALUE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+    }
+}
+
+/******************************************************************************
+**
+** Open and Pull Operation Response Decoders
+**
+******************************************************************************/
+CIMOpenEnumerateInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenEnumerateInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    //XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenEnumerateInstancesResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenEnumerateInstancesResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenEnumerateInstancesResponseMessage* msg;
+
+    msg = new CIMOpenEnumerateInstancesResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstances(namedInstances);
+    return msg;
+}
+
+CIMOpenEnumerateInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenEnumerateInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    Boolean duplicateParameter = false;
+    Boolean gotEndOfSequence = false;
+    Boolean gotEnumerationContext = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenEnumerateInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenEnumerateInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    _decodeInstancePathElements(parser, instancePaths);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenEnumerateInstancePathsResponseMessage* msg;
+
+    msg = new CIMOpenEnumerateInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+    return msg;
+}
+
+
+CIMOpenReferenceInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenReferenceInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    // KS_PULL _CHANGE NAME TO MATCH XML TAG
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenReferenceInstancesResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenReferenceInstancesResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenReferenceInstancesResponseMessage* msg;
+
+    msg = new CIMOpenReferenceInstancesResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    // set response data type to Instances.  The default for this
+    // message is OBJECTS since that is what we use in the server.
+    msg->getResponseData().setDataType(CIMResponseData::RESP_INSTANCES);
+    msg->getResponseData().setInstances(namedInstances);
+
+    return msg;
+}
+
+CIMOpenReferenceInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenReferenceInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenReferenceInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenReferenceInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    _decodeInstancePathElements(parser, instancePaths);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenReferenceInstancePathsResponseMessage* msg;
+
+    msg = new CIMOpenReferenceInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+ 
+    return msg;
+}
+
+CIMOpenAssociatorInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenAssociatorInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenAssociatorInstancesResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenAssociatorInstancesResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+ 
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenAssociatorInstancesResponseMessage* msg;
+
+    msg = new CIMOpenAssociatorInstancesResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+    msg->getResponseData().setDataType(CIMResponseData::RESP_INSTANCES);
+    msg->getResponseData().setInstances(namedInstances);
+ 
+    return msg; 
+}
+
+CIMOpenAssociatorInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenAssociatorInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenAssociatorInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenAssociatorInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMObjectPath instancePath;
+
+            while (XmlReader::getInstancePathElement(parser, instancePath))
+                instancePaths.append(instancePath);
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+  
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    // 
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+ 
+    CIMOpenAssociatorInstancePathsResponseMessage* msg;
+     
+    msg = new CIMOpenAssociatorInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+
+    return msg;
+}
+
+CIMPullInstancesWithPathResponseMessage*
+    CIMOperationResponseDecoder::_decodePullInstancesWithPathResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    Boolean duplicateParameter = false;
+    Boolean gotEndOfSequence = false;
+    Boolean gotEnumerationContext = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMPullInstancesWithPathResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMPullInstancesWithPathResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMPullInstancesWithPathResponseMessage* msg;
+
+    msg = new CIMPullInstancesWithPathResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstances(namedInstances);
+    return msg;
+}
+
+CIMPullInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodePullInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    //Boolean duplicateParameter = false;
+    //Boolean gotEndOfSequence = false;
+    //Boolean gotEnumerationContext = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMPullInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMPullInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    _decodeInstancePathElements(parser, instancePaths);
+
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+ 
+    CIMPullInstancePathsResponseMessage* msg;
+
+    msg = new CIMPullInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+    return msg;
+}
+
+CIMCloseEnumerationResponseMessage*
+    CIMOperationResponseDecoder::_decodeCloseEnumerationResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instanceNames;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    Boolean duplicateParameter = false;
+    Boolean gotEndOfSequence = false;
+    Boolean gotEnumerationContext = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMCloseEnumerationResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack());
+    }
+ 
+    return new CIMCloseEnumerationResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack());
+}
+
+CIMEnumerationCountResponseMessage*
+    CIMOperationResponseDecoder::_decodeEnumerationCountResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Uint64Arg count;
+
+    Boolean duplicateParameter = false;
+    Boolean gotCount = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMEnumerationCountResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            0);
+    }
+
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMEnumerationCountResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            0);
+    }
+
+    // Extract the parameter count from the message
+    
+    Boolean emptyTag;
+    for (const char* name;
+         XmlReader::getIReturnValueTag(parser, name, emptyTag); )
+    {
+        if (System::strcasecmp(name, "Count") == 0)
+        {
+            XmlReader::getUint64ValueElement(parser, count, true);
+            //duplicateParameter = gotCount;
+            gotCount = true;
+        }
+
+        else
+        {
+            /// EXP_PULL_TBD
+            // We probably simply want to ignore this as an extra tag
+        }
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
+
+        // EXP_PULL_TBD add test here for the required parameters
+        // NOT sure from the spec if the parameter is required or not.
+
+        if (!gotCount)
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+                                        "Return value missing");
+        }
+    }
+    return new CIMEnumerationCountResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        count);
+}
+//EXP_PULL_END
 
 PEGASUS_NAMESPACE_END

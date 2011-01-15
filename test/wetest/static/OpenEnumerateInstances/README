@@ -1,0 +1,7 @@
+This list of static tests only tests error responses and largely those
+that might result from parameter errors.  We do not test good
+responses in general because That would mean generating multple
+requests (i.e. Pull, etc.) which is significantly more complex in this
+static environment.  That is more easily accomplished with the dynamic
+tools. Further since the new operations return host information in the
+path, fixed good responses do not really work.

@@ -36,6 +36,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+// test uint32 get and put
 void test1()
 {
     CIMBuffer cb(1024);
@@ -56,6 +57,7 @@ void test1()
     }
 }
 
+// test put and get String
 void test2()
 {
     CIMBuffer cb(1024);
@@ -80,6 +82,7 @@ void test2()
     }
 }
 
+// test array of Uint32
 void test3()
 {
     CIMBuffer cb(1024);
@@ -106,6 +109,7 @@ void test3()
     }
 }
 
+// test CIMValue puts and gets
 void test4()
 {
     CIMBuffer cb(1024);
@@ -135,6 +139,7 @@ void test4()
     PEGASUS_TEST_ASSERT(a3 == b3);
 }
 
+// test CIMOBjectPath Puts and Gets.
 void test5()
 {
     CIMBuffer cb(1024);
@@ -236,6 +241,7 @@ void test9()
     PEGASUS_TEST_ASSERT(cb.getUint32(y) && y == 1234);
 }
 
+// test dateTime puts and gets.
 void test10()
 {
     CIMBuffer cb;
@@ -250,7 +256,36 @@ void test10()
     PEGASUS_TEST_ASSERT(dateTime1.toString() == dateTime2.toString());
 }
 
-int main(int, char** argv)
+// test Uing32Arg Puts and gets
+void test11()
+{
+    CIMBuffer cb;           
+    Uint32Arg a1;           // default init - Null
+    Uint32Arg a2(2300);     // known value
+    Uint32Arg a3;           // used to set value
+    Uint32Arg a4(9000);     // Used to setNullValue
+    a4.setNullValue();
+    a3.setValue(2300);
+
+    cb.putUint32Arg(a1);
+    cb.putUint32Arg(a2);
+    cb.putUint32Arg(a3);
+    cb.putUint32Arg(a4);
+
+    cb.rewind();
+    Uint32Arg ra1;
+    Uint32Arg ra2;
+    Uint32Arg ra3;
+    Uint32Arg ra4;
+    PEGASUS_ASSERT(a1 == ra1);
+    PEGASUS_ASSERT(a2 == ra2);
+    PEGASUS_ASSERT(a3 == ra3);
+    PEGASUS_ASSERT(a4 == ra4);
+
+    PEGASUS_ASSERT(!(a3 == ra4));
+}
+
+int main(int argc, char** argv)
 {
     test1();
     test2();

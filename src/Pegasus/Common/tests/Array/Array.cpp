@@ -98,6 +98,7 @@ void test02(STR*)
     PEGASUS_TEST_ASSERT(arr.size() == 2);
 }
 
+/* test for numeric arrays*/
 template<class T>
 void test03(const T*)
 {
@@ -142,6 +143,7 @@ void test03(const T*)
 
     arr.remove(0);
     PEGASUS_TEST_ASSERT(arr.size() == 0);
+
 }
 
 void test04()
@@ -305,7 +307,51 @@ void test06()
     }
 }
 
-int main(int, char** argv)
+// Test the append with count function with multiple CIM data types
+void test07()
+{
+    // Test for the array append by count function.
+    Array<String> Arr1;
+    Array<String> Arr2;
+    Array<String> Arr3;
+
+    Arr1.append("100");
+    Arr1.append("2000");
+
+    Arr2.append("30000");
+    Arr2.append("400000");
+    // append from the above two arrays specific counts of objects.
+    Arr3.append(Arr1.getData() ,1);
+
+    Arr3.append(Arr2.getData() ,2);
+
+    PEGASUS_TEST_ASSERT(Arr3.size() == 3);
+    PEGASUS_TEST_ASSERT(Arr3[0] == "100");
+    PEGASUS_TEST_ASSERT(Arr3[1] == "30000");
+    PEGASUS_TEST_ASSERT(Arr3[2] == "400000");
+
+    // Test for the array append by count function with Integers
+    Array<Uint32> Arr4;
+    Array<Uint32> Arr5;
+    Array<Uint32> Arr6;
+
+    Arr4.append(1);
+    Arr4.append(2);
+
+    Arr5.append(3);
+    Arr5.append(4);
+    // append from the above two arrays specific counts of objects.
+    Arr6.append(Arr4.getData() ,1);
+    Arr6.append(Arr5.getData() ,2);
+
+    PEGASUS_TEST_ASSERT(Arr6.size() == 3);
+    PEGASUS_TEST_ASSERT(Arr6[0] == 1);
+    PEGASUS_TEST_ASSERT(Arr6[1] == 3);
+    PEGASUS_TEST_ASSERT(Arr6[2] == 4);
+
+}
+
+int main(int argc, char** argv)
 {
     try
     {

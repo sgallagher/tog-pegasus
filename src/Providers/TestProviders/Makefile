@@ -71,11 +71,8 @@ TEST_DIRS = \
 	FaultyInstanceProvider/testclient \
 	TestGoodInstanceProvider \
 	DeliveryRetryTestProvider \
-        TestProviderLifecycleIndications \
-	TestCIM_ErrorProvider \
-	TestCIM_ErrorProvider/tests \
-        TestProviderLifecycleIndications/testclient \
-        TestProviderLifecycleIndications/testconsumer
+	ResponseStressTestProvider \
+        ResponseStressTestProvider/testclient
 
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
@@ -86,11 +83,6 @@ endif
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 TEST_DIRS += \
 	CMPI
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-TEST_DIRS += \
-	IndicationTestProvider/wsmanTestClient
 endif
 
 include $(ROOT)/mak/recurse.mak

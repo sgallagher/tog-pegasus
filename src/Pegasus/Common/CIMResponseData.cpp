@@ -27,13 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Class CIMResponseData encapsulates the possible types of response data
-// representations and supplies conversion methods between these types.
-// PEP#348 - The CMPI infrastructure using SCMO (Single Chunk Memory Objects)
-// describes its usage in the server flow.
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMResponseData.h"
@@ -48,6 +41,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define LOCAL_MIN(a, b) ((a < b) ? a : b)
 // C++ objects interface handling
 
 // Instance Names handling
@@ -60,7 +54,11 @@ Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
     return _instanceNames;
 }
 
-// Instance handling
+// Get a single instance as a CIM instance.
+// This converts all of the objects in the response data to
+// CIM form as part of the conversion.
+// If there are no instances in the object, returns CIMInstance(),
+// an empty instance.
 CIMInstance& CIMResponseData::getInstance()
 {
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCE);
@@ -80,6 +78,33 @@ Array<CIMInstance>& CIMResponseData::getInstances()
     return _instances;
 }
 
+// Instances handling specifically for the client where the call may
+// get either instances or objects and must convert them to instances
+// NOTE: This is a temporary solution to satisfy the BinaryCodec passing
+// of data to the client where the data could be either instances or
+// objects.  The correct solution is to convert back when the provider, etc.
+// returns the data to the server.  We must convert to that solution but
+// this keeps it working for the moment.
+Array<CIMInstance>& CIMResponseData::getInstancesFromInstancesOrObjects()
+{
+    if (_dataType == RESP_INSTANCES)
+    {
+        _resolveToCIM();
+        return _instances;
+    }
+    else if (_dataType == RESP_OBJECTS)
+    {
+        _resolveToCIM();
+        for (Uint32 i = 0 ; i < _objects.size() ; i++)
+        {
+            _instances.append((CIMInstance)_objects[i]);
+        }
+        return _instances;
+
+    }
+    PEGASUS_DEBUG_ASSERT(false);
+}
+
 // Objects handling
 Array<CIMObject>& CIMResponseData::getObjects()
 {
@@ -90,29 +115,19 @@ Array<CIMObject>& CIMResponseData::getObjects()
 
 // SCMO representation, single instance stored as one element array
 // object paths are represented as SCMOInstance
-// Resolve all of the information in the CIMResponseData container to
-// SCMO  and return all scmoInstances.
-// Note that since the SCMO representation,
-// a is single instance stored as one element array and object paths are
-// represented as SCMOInstance this returns array of SCMOInstance.
 Array<SCMOInstance>& CIMResponseData::getSCMO()
 {
-    // This function resolves to instances and so cannot handle responses to
-    // the associators,etc.requests that return classes (input object path with
-    // no keys). That issue is resolved however, since CIMResponseData uses the
-    // _isClassOperation variable (set by the request) to determine whether
-    // the responses are classpaths or instancepaths and the default is
-    // false(instancePaths) so that this should always produce instance paths.
     _resolveToSCMO();
     return _scmoInstances;
 }
 
+// set an array of SCMOInstances into the response data object
 void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 {
     _scmoInstances=x;
     _encoding |= RESP_ENC_SCMO;
+    _size += x.size();
 }
-
 
 // Binary data is just a data stream
 Array<Uint8>& CIMResponseData::getBinary()
@@ -191,6 +206,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
                 return false;
             }
             _nameSpacesData.insert(0,ns);
+            _size++;
             break;
         }
         case RESP_INSTANCES:
@@ -237,6 +253,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
                 _hostsData.append(host);
                 _nameSpacesData.append(ns);
             }
+            _size += count;
             break;
         }
         case RESP_OBJECTS:
@@ -283,6 +300,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
                 _hostsData.append(host);
                 _nameSpacesData.append(ns);
             }
+            _size += count;
             break;
         }
         // internal xml encoding of instance names and object paths not
@@ -298,26 +316,272 @@ bool CIMResponseData::setXml(CIMBuffer& in)
     return true;
 }
 
+// Move the number of objects defined by the input parameter from
+// one CIMResponse Object to another CIMResponse Object.
+Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
+{
+    PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "CIMResponseData::move(%u)", count));
+
+    PEGASUS_ASSERT(valid());                 // KS_TEMP
+    if (_dataType != from._dataType)         // KS_TEMP
+    {
+        printf("ERROR moveObjects _dataType %u. from._dataType %u\n",
+        _dataType, from._dataType);
+    }
+    PEGASUS_DEBUG_ASSERT(_dataType == from._dataType);
+    Uint32 rtnSize = 0;
+    Uint32 toMove = count;
+//  printf("count to move = %u encoding %u from.size %u to.size %u\n",
+//          count, from._encoding, from._size, _size);
+
+    if (RESP_ENC_XML == (from._encoding & RESP_ENC_XML))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTPATHS:
+            case RESP_INSTNAMES:
+                break;
+            case RESP_INSTANCE:
+                {
+                    Uint32 moveCount = toMove;
+                    if (from._instanceData.size() > 0)
+                    {
+                        // temp test to assure all sizes are the same.
+                        PEGASUS_ASSERT(from._hostsData.size() ==
+                                        from._instanceData.size());
+                        PEGASUS_ASSERT(from._referencesData.size() ==
+                                        from._instanceData.size());
+                        PEGASUS_ASSERT(from._nameSpacesData.size() ==
+                                        from._instanceData.size());
+                        _instanceData.append(from._instanceData.getData(),1);
+                        from._instanceData.remove(0, 1);
+                        _referencesData.append(
+                            from._referencesData.getData(),1);
+                        from._referencesData.remove(0, 1);
+                        if (_hostsData.size())
+                        {
+                            _hostsData.append(from._hostsData.getData(),1);
+                            from._hostsData.remove(0, 1);
+                        }
+                        if (_nameSpacesData.size())
+                        {
+                            _nameSpacesData.append(
+                                from._nameSpacesData.getData(),1);
+                            from._nameSpacesData.remove(0, 1);
+                        }
+                        rtnSize += 1;
+                        toMove--;
+                        _encoding |= RESP_ENC_XML;
+                    }
+                }
+                break;
+
+            // The above should probably be folded into the following.
+            // Need something like an assert if there is ever more than
+            // one instance in _instanceData for type RESP_INSTANCE
+            case RESP_INSTANCES:
+            case RESP_OBJECTS:
+                {
+                    Uint32 moveCount = LOCAL_MIN(toMove,
+                                                 from._instanceData.size());
+
+                    PEGASUS_ASSERT(from._referencesData.size() ==
+                                    from._instanceData.size());
+                    _instanceData.append(from._instanceData.getData(),
+                                         moveCount);
+                    from._instanceData.remove(0, moveCount);
+                    _referencesData.append(from._referencesData.getData(),
+                                           moveCount);
+                    from._referencesData.remove(0, moveCount);
+                    rtnSize += moveCount;
+                    toMove -= moveCount;
+                    _encoding |= RESP_ENC_XML;
+                }
+                break;
+        }
+    }
+    if (RESP_ENC_BINARY == (from._encoding & RESP_ENC_BINARY))
+    {
+        // KS_PULL TBD Add binary move function
+        // Cannot resolve this one without actually processing
+        // the data since it is a stream.
+        rtnSize += 0;
+        PEGASUS_ASSERT(false);
+    }
+
+    if (RESP_ENC_SCMO == (from._encoding & RESP_ENC_SCMO))
+    {
+        Uint32 moveCount = LOCAL_MIN(toMove, from._scmoInstances.size());
+
+        _scmoInstances.append(from._scmoInstances.getData(), moveCount);
+        from._scmoInstances.remove(0, moveCount);
+        rtnSize += moveCount;
+        toMove -= moveCount;
+        _encoding |= RESP_ENC_SCMO;
+    }
+
+    if (RESP_ENC_CIM == (from._encoding & RESP_ENC_CIM))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTPATHS:
+            case RESP_INSTNAMES:
+                {
+                    Uint32 moveCount = LOCAL_MIN(toMove,
+                                                 from._instanceNames.size());
+
+                    _instanceNames.append(
+                        from._instanceNames.getData(), moveCount);
+                    from._instanceNames.remove(0, moveCount);
+                    rtnSize += moveCount;
+                    toMove -= moveCount;
+                    _encoding |= RESP_ENC_CIM;
+                }
+                break;
+            case RESP_INSTANCE:
+            case RESP_INSTANCES:
+                {
+
+                    Uint32 moveCount = LOCAL_MIN(toMove,
+                                                 from._instances.size());
+
+                    _instances.append(from._instances.getData(), moveCount);
+                    from._instances.remove(0, moveCount);
+                    rtnSize += moveCount;
+                    toMove -= moveCount;
+                    _encoding |= RESP_ENC_CIM;
+                }
+                break;
+            case RESP_OBJECTS:
+                {
+                    Uint32 moveCount = LOCAL_MIN(toMove,
+                                                 from._objects.size());
+                    _objects.append(from._objects.getData(), moveCount);
+                    from._objects.remove(0, moveCount);
+                    rtnSize += moveCount;
+                    toMove -= moveCount;
+                    _encoding |= RESP_ENC_CIM;
+                }
+                break;
+        }
+    }
+    PEGASUS_ASSERT(rtnSize == (count - toMove));
+
+    _size += rtnSize;
+    from._size -= rtnSize;
+    PEGASUS_ASSERT(rtnSize == _size);
+
+    return rtnSize;
+}
+
+// Return the number of CIM objects in the CIM Response data object
+//
+Uint32 CIMResponseData::size()
+{
+    PEG_METHOD_ENTER(TRC_XML,"CIMResponseData::size()");
+
+// If debug mode, add up all the individual size components to
+// determine overall size of this object.  Then compare this with
+// the _size variable.  this is a good check on the completeness of the
+// size computations.  We should be able to remove this at some point
+// but there are many sources of size info and we need to be sure we
+// have covered them all.
+#ifdef PEGASUS_DEBUG
+    PEGASUS_ASSERT(valid());            //KS_TEMP
+
+    Uint32 rtnSize = 0;
+    if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTPATHS:
+            case RESP_INSTNAMES:
+                break;
+            case RESP_INSTANCE:
+                rtnSize +=1;
+                break;
+            case RESP_INSTANCES:
+            case RESP_OBJECTS:
+                rtnSize += _instanceData.size();
+                break;
+        }
+    }
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+    {
+        // KS_PULL_TODO
+        // Cannot resolve this one without actually processing
+        // the data since it is a stream.
+        rtnSize += 0;
+        //PEGASUS_ASSERT(false);
+    }
+
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
+    {
+        rtnSize += _scmoInstances.size();
+    }
+
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTPATHS:
+            case RESP_INSTNAMES:
+                rtnSize += _instanceNames.size();
+                break;
+            case RESP_INSTANCE:
+            case RESP_INSTANCES:
+                rtnSize += _instances.size();
+                break;
+            case RESP_OBJECTS:
+                rtnSize += _objects.size();
+                break;
+        }
+    }
+    // Test of actual count against _size variable.
+    if (rtnSize != _size)
+    {
+        PEG_TRACE((TRC_XML, Tracer::LEVEL1,
+        "CIMResponseData::size ERROR. debug size mismatch."
+            "Computed = %u. variable = %u",rtnSize, _size ));
+    }
+    PEGASUS_TEST_ASSERT(rtnSize == _size);
+#endif
+    PEG_METHOD_EXIT();
+    return _size;
+}
+
 // function used by OperationAggregator to aggregate response data in a
-// single ResponseData object
+// single ResponseData object. Adds all data in the from ResponseData object
+// input variable to the target ResponseData object
+// target array
 void CIMResponseData::appendResponseData(const CIMResponseData & x)
 {
-    // as the Messages set the data types, this should be impossible
+    // Confirm that the CIMResponseData type matches the type
+    // of the data being appended
+
+    PEGASUS_ASSERT(valid());            // KS_TEMP
     PEGASUS_DEBUG_ASSERT(_dataType == x._dataType);
     _encoding |= x._encoding;
 
     // add all binary data
     _binaryData.appendArray(x._binaryData);
+    // KS_TBD TODO PULL Add the counter incrementer for binary
 
     // add all the C++ stuff
     _instanceNames.appendArray(x._instanceNames);
+    _size += x._instanceNames.size();
     _instances.appendArray(x._instances);
+    _size += x._instances.size();
     _objects.appendArray(x._objects);
+    _size += x._objects.size();
 
     // add the SCMO instances
     _scmoInstances.appendArray(x._scmoInstances);
+    _size += x._scmoInstances.size();
 
-    // add Xml encodings too
+    // add Xml encodings
+    // KS_TBD - FIX _Size stuff here also.
     _referencesData.appendArray(x._referencesData);
     _instanceData.appendArray(x._instanceData);
     _hostsData.appendArray(x._hostsData);
@@ -329,14 +593,17 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeBinaryResponse");
+
     // Need to do a complete job here by transferring all contained data
     // into binary format and handing it out in the CIMBuffer
+    // KS_TODO
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
         // Binary does NOT need a marker as it consists of C++ and SCMO
         const Array<Uint8>& data = _binaryData;
         out.putBytes(data.getData(), data.size());
     }
+
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
         out.putTypeMarker(BIN_TYPE_MARKER_CPPD);
@@ -419,7 +686,6 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
                         p.setNameSpace(nsName);
                     }
                 }
-                break;
             }
             case RESP_INSTANCES:
             {
@@ -481,11 +747,15 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
     }
 }
 
-
 void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
     const CIMNamespaceName & ns)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::completeHostNameAndNamespace");
+
+    PEGASUS_ASSERT(valid());            // KS_TEMP
+
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
         // On binary need remember hostname and namespace in case someone
@@ -514,6 +784,23 @@ void CIMResponseData::completeHostNameAndNamespace(
     {
         switch (_dataType)
         {
+            // Instances added to account for namedInstance in Pull operations.
+            case RESP_INSTANCES:
+
+                for (Uint32 j = 0, n = _instances.size(); j < n; j++)
+                {
+                    const CIMInstance& instance = _instances[j];
+                    CIMObjectPath& p =
+                        const_cast<CIMObjectPath&>(instance.getPath());
+                    if (p.getHost().size()==0)
+                    {
+                        p.setHost(hn);
+                    }
+                    if (p.getNameSpace().isNull())
+                    {
+                        p.setNameSpace(ns);
+                    }
+                }
             case RESP_OBJECTS:
             {
                 for (Uint32 j = 0, n = _objects.size(); j < n; j++)
@@ -532,6 +819,9 @@ void CIMResponseData::completeHostNameAndNamespace(
                 }
                 break;
             }
+            // INSTNAMES added to account for instance paths in pull name
+            // operations
+            case RESP_INSTNAMES:
             case RESP_OBJECTPATHS:
             {
                 for (Uint32 j = 0, n = _instanceNames.size(); j < n; j++)
@@ -560,17 +850,24 @@ void CIMResponseData::completeHostNameAndNamespace(
         Uint32 nsLen = strlen(nsChars);
         switch (_dataType)
         {
+            // KS_PULL add Instances and InstNames to cover pull operations
+            // KS_PULL - Confirm that this OK.
+            case RESP_INSTNAMES:
+            case RESP_INSTANCES:
             case RESP_OBJECTS:
             case RESP_OBJECTPATHS:
             {
                 for (Uint32 j = 0, n = _scmoInstances.size(); j < n; j++)
                 {
                     SCMOInstance & scmoInst=_scmoInstances[j];
-                    scmoInst.completeHostNameAndNamespace(
-                        hnChars,
-                        hnLen,
-                        nsChars,
-                        nsLen);
+                    if (0 == scmoInst.getHostName())
+                    {
+                        scmoInst.setHostName_l(hnChars,hnLen);
+                    }
+                    if (0 == scmoInst.getNameSpace())
+                    {
+                        scmoInst.setNameSpace_l(nsChars,nsLen);
+                    }
                 }
                 break;
             }
@@ -580,9 +877,13 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
         }
     }
+    PEG_METHOD_EXIT();
 }
 
-void CIMResponseData::encodeXmlResponse(Buffer& out)
+// NOTE: The reason for the isPullResponse variable is that there are
+// some variations in ouput to Xml depending on whether the responses
+// are one of the pull responses or the original responsed
+void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
 {
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)",
@@ -596,6 +897,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
     {
         _resolveBinary();
     }
+
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         switch (_dataType)
@@ -613,10 +915,24 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 
                 for (Uint32 i = 0, n = a.size(); i < n; i++)
                 {
-                    out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
+                    if (isPullResponse)
+                    {
+                        out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
+                    }
+                    else
+                    {
+                        out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
+                    }
                     out.append((char*)b[i].getData(), b[i].size() - 1);
                     out.append((char*)a[i].getData(), a[i].size() - 1);
-                    out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
+                    if (isPullResponse)
+                    {
+                        out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
+                    }
+                    else
+                    {
+                        out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
+                    }
                 }
                 break;
             }
@@ -664,7 +980,17 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 for (Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
                 {
-                    XmlWriter::appendInstanceNameElement(out,_instanceNames[i]);
+                    // Element type is different for Pull responses
+                    if (isPullResponse)
+                    {
+                        XmlWriter::appendInstancePathElement(out,
+                            _instanceNames[i]);
+                    }
+                    else
+                    {
+                        XmlWriter::appendInstanceNameElement(out,
+                            _instanceNames[i]);
+                    }
                 }
                 break;
             }
@@ -672,12 +998,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 if (_instances.size() > 0)
                 {
-                    XmlWriter::appendInstanceElement(
-                        out,
-                        _instances[0],
-                        _includeQualifiers,
-                        _includeClassOrigin,
-                        _propertyList);
+                    XmlWriter::appendInstanceElement(out, _instances[0]);
                 }
                 break;
             }
@@ -685,12 +1006,16 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 for (Uint32 i = 0, n = _instances.size(); i < n; i++)
                 {
-                    XmlWriter::appendValueNamedInstanceElement(
-                        out,
-                        _instances[i],
-                        _includeQualifiers,
-                        _includeClassOrigin,
-                        _propertyList);
+                    if (isPullResponse)
+                    {
+                        XmlWriter::appendValueInstanceWithPathElement(
+                            out, _instances[i]);
+                    }
+                    else
+                    {
+                        XmlWriter::appendValueNamedInstanceElement(
+                            out, _instances[i]);
+                    }
                 }
                 break;
             }
@@ -698,13 +1023,18 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 for (Uint32 i = 0; i < _objects.size(); i++)
                 {
-                    XmlWriter::appendValueObjectWithPathElement(
-                        out,
-                        _objects[i],
-                        _includeQualifiers,
-                        _includeClassOrigin,
-                        _isClassOperation,
-                        _propertyList);
+                    // If pull, map to instances
+                    if (isPullResponse)
+                    {
+                        CIMInstance x = (CIMInstance)_objects[i];
+                        XmlWriter::appendValueInstanceWithPathElement(
+                            out, x);
+                    }
+                    else
+                    {
+                        XmlWriter::appendValueObjectWithPathElement(
+                            out,_objects[i]);
+                    }
                 }
                 break;
             }
@@ -712,13 +1042,23 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 for (Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
                 {
-                    out << "<OBJECTPATH>\n";
-                    XmlWriter::appendValueReferenceElement(
-                        out,
-                        _instanceNames[i],
-                        _isClassOperation,
-                        false);
-                    out << "</OBJECTPATH>\n";
+                    // ObjectPaths come from providers for pull operations
+                    // but are encoded as instancePathElements
+                    if (isPullResponse)
+
+                    {
+                        XmlWriter::appendInstancePathElement(out,
+                           _instanceNames[i]);
+                    }
+                    else
+                    {
+                        out << "<OBJECTPATH>\n";
+                        XmlWriter::appendValueReferenceElement(
+                            out,
+                            _instanceNames[i],
+                            false);
+                        out << "</OBJECTPATH>\n";
+                    }
                 }
                 break;
             }
@@ -739,7 +1079,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                     SCMOXmlWriter::appendInstanceNameElement(
                         out,
                         _scmoInstances[i]);
-
                 }
                 break;
             }
@@ -747,60 +1086,61 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 if (_scmoInstances.size() > 0)
                 {
-                    if(_propertyList.isNull())
-                    {
-                        Array<Uint32> emptyNodes;
-                        SCMOXmlWriter::appendInstanceElement(
-                            out,
-                            _scmoInstances[0],
-                            false,
-                            emptyNodes);
-                    }
-                    else
-                    {
-                        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-                        // This searches for an already created array of nodes,
-                        //if not found, creates it inside propFilterNodesArrays
-                        const Array<Uint32> & nodes=
-                            SCMOXmlWriter::getFilteredNodesArray(
-                                propFilterNodesArrays,
-                                _scmoInstances[0],
-                                _propertyList);
-                        SCMOXmlWriter::appendInstanceElement(
-                            out,
-                            _scmoInstances[0],
-                            true,
-                            nodes);
-                    }
+                    SCMOXmlWriter::appendInstanceElement(out,_scmoInstances[0]);
                 }
                 break;
             }
             case RESP_INSTANCES:
             {
-                SCMOXmlWriter::appendValueSCMOInstanceElements(
-                    out,
-                    _scmoInstances,
-                    _propertyList);
+                for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                {
+                    if (isPullResponse)
+                    {
+                        SCMOXmlWriter::appendValueSCMOInstanceWithPathElement(
+                            out, _scmoInstances[i]);
+                    }
+                    else
+                    {
+                        SCMOXmlWriter::appendValueSCMOInstanceElement(
+                            out, _scmoInstances[i]);
+                    }
+                }
                 break;
             }
             case RESP_OBJECTS:
             {
-                SCMOXmlWriter::appendValueObjectWithPathElement(
-                    out,
-                   _scmoInstances,
-                  _propertyList);
+                for (Uint32 i = 0; i < _scmoInstances.size(); i++)
+                {
+                    if (isPullResponse)
+                    {
+                        SCMOXmlWriter::appendValueSCMOInstanceWithPathElement(
+                            out,_scmoInstances[i]);
+                    }
+                    else
+                    {
+                        SCMOXmlWriter::appendValueObjectWithPathElement(
+                            out, _scmoInstances[i]);
+                    }
+                }
                 break;
             }
             case RESP_OBJECTPATHS:
             {
                 for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
                 {
-                    out << "<OBJECTPATH>\n";
-                    SCMOXmlWriter::appendValueReferenceElement(
-                        out,
-                        _scmoInstances[i],
-                        false);
-                    out << "</OBJECTPATH>\n";
+                    if (isPullResponse)
+                    {
+                        SCMOXmlWriter::appendInstancePathElement(out,
+                            _scmoInstances[i]);
+                    }
+                    else
+                    {
+                        out << "<OBJECTPATH>\n";
+                        SCMOXmlWriter::appendValueReferenceElement(
+                            out, _scmoInstances[i],
+                            false);
+                        out << "</OBJECTPATH>\n";
+                    }
                 }
                 break;
             }
@@ -820,6 +1160,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
         "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
+
     // For mixed (CIM+SCMO) responses, we need to tell the receiver the
     // total number of instances. The totalSize variable is used to keep track
     // of this.
@@ -842,17 +1183,8 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 if (0 == _instances.size())
                 {
                     _instances.append(CIMInstance());
-                    CIMInternalXmlEncoder::_putXMLInstance(
-                        out,
-                        _instances[0]);
-                    break;
                 }
-                CIMInternalXmlEncoder::_putXMLInstance(
-                    out,
-                    _instances[0],
-                    _includeQualifiers,
-                    _includeClassOrigin,
-                    _propertyList);
+                CIMInternalXmlEncoder::_putXMLInstance(out, _instances[0]);
                 break;
             }
             case RESP_INSTANCES:
@@ -864,10 +1196,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     CIMInternalXmlEncoder::_putXMLNamedInstance(
                         out,
-                        _instances[i],
-                        _includeQualifiers,
-                        _includeClassOrigin,
-                        _propertyList);
+                        _instances[i]);
                 }
                 break;
             }
@@ -878,12 +1207,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 out.putUint32(totalSize);
                 for (Uint32 i = 0; i < n; i++)
                 {
-                    CIMInternalXmlEncoder::_putXMLObject(
-                        out,
-                        _objects[i],
-                        _includeQualifiers,
-                        _includeClassOrigin,
-                        _propertyList);
+                    CIMInternalXmlEncoder::_putXMLObject(out, _objects[i]);
                 }
                 break;
             }
@@ -907,10 +1231,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     _scmoInstances.append(SCMOInstance());
                 }
-                SCMOInternalXmlEncoder::_putXMLInstance(
-                    out,
-                    _scmoInstances[0],
-                    _propertyList);
+                SCMOInternalXmlEncoder::_putXMLInstance(out, _scmoInstances[0]);
                 break;
             }
             case RESP_INSTANCES:
@@ -921,10 +1242,12 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     out.putUint32(n);
                 }
-                SCMOInternalXmlEncoder::_putXMLNamedInstance(
-                    out,
-                    _scmoInstances,
-                    _propertyList);
+                for (Uint32 i = 0; i < n; i++)
+                {
+                    SCMOInternalXmlEncoder::_putXMLNamedInstance(
+                            out,
+                            _scmoInstances[i]);
+                }
                 break;
             }
             case RESP_OBJECTS:
@@ -935,10 +1258,12 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     out.putUint32(n);
                 }
-                SCMOInternalXmlEncoder::_putXMLObject(
-                    out,
-                    _scmoInstances,
-                    _propertyList);
+                for (Uint32 i = 0; i < n; i++)
+                {
+                    SCMOInternalXmlEncoder::_putXMLObject(
+                        out,
+                        _scmoInstances[i]);
+                }
                 break;
             }
             // internal xml encoding of instance names and object paths not
@@ -951,7 +1276,6 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             }
         }
     }
-
 }
 
 void CIMResponseData::_resolveToCIM()
@@ -1116,105 +1440,6 @@ void CIMResponseData::_resolveBinary()
     PEG_METHOD_EXIT();
 }
 
-
-void CIMResponseData::_deserializeObject(Uint32 idx,CIMObject& cimObject)
-{
-    // Only start the parser when instance data is present.
-    if (0 != _instanceData[idx].size())
-    {
-        CIMInstance cimInstance;
-        CIMClass cimClass;
-
-        XmlParser parser((char*)_instanceData[idx].getData());
-
-        if (XmlReader::getInstanceElement(parser, cimInstance))
-        {
-            cimObject = CIMObject(cimInstance);
-            return;
-        }
-
-        if (XmlReader::getClassElement(parser, cimClass))
-        {
-            cimObject = CIMObject(cimClass);
-            return;
-        }
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to resolve XML object data, parser error!");
-    }
-}
-
-void CIMResponseData::_deserializeInstance(Uint32 idx,CIMInstance& cimInstance)
-{
-    // Only start the parser when instance data is present.
-    if (0 != _instanceData[idx].size())
-    {
-        XmlParser parser((char*)_instanceData[idx].getData());
-        if (XmlReader::getInstanceElement(parser, cimInstance))
-        {
-            return;
-        }
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to resolve XML instance, parser error!");
-    }
-    // reset instance when parsing may not be successfull or
-    // no instance is present.
-    cimInstance = CIMInstance();
-}
-
-Boolean CIMResponseData::_deserializeReference(
-    Uint32 idx,
-    CIMObjectPath& cimObjectPath)
-{
-    // Only start the parser when reference data is present.
-    if (0 != _referencesData[idx].size())
-    {
-        XmlParser parser((char*)_referencesData[idx].getData());
-        if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
-        {
-            if (_hostsData[idx].size())
-            {
-                cimObjectPath.setHost(_hostsData[idx]);
-            }
-            if (!_nameSpacesData[idx].isNull())
-            {
-                cimObjectPath.setNameSpace(_nameSpacesData[idx]);
-            }
-            return true;
-        }
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to resolve XML reference, parser error!");
-
-    }
-    return false;
-}
-
-Boolean CIMResponseData::_deserializeInstanceName(
-    Uint32 idx,
-    CIMObjectPath& cimObjectPath)
-{
-    // Only start the parser when instance name data is present.
-    if (0 != _referencesData[idx].size())
-    {
-        XmlParser parser((char*)_referencesData[idx].getData());
-        if (XmlReader::getInstanceNameElement(parser, cimObjectPath))
-        {
-            if (_hostsData[idx].size())
-            {
-                cimObjectPath.setHost(_hostsData[idx]);
-            }
-            if (!_nameSpacesData[idx].isNull())
-            {
-                cimObjectPath.setNameSpace(_nameSpacesData[idx]);
-            }
-            return true;
-        }
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to resolve XML instance name, parser error!");
-
-    }
-    return false;
-}
-
 void CIMResponseData::_resolveXmlToCIM()
 {
     switch (_dataType)
@@ -1228,15 +1453,37 @@ void CIMResponseData::_resolveXmlToCIM()
         case RESP_INSTANCE:
         {
             CIMInstance cimInstance;
-            CIMObjectPath cimObjectPath;
-
-            _deserializeInstance(0,cimInstance);
-            if (_deserializeReference(0,cimObjectPath))
+            // Deserialize instance:
             {
-                cimInstance.setPath(cimObjectPath);
-                // A single CIMInstance has to have an objectpath.
-                // So only add it when an objectpath exists.
-                _instances.append(cimInstance);
+                XmlParser parser((char*)_instanceData[0].getData());
+
+                if (!XmlReader::getInstanceElement(parser, cimInstance))
+                {
+                    cimInstance = CIMInstance();
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to resolve XML instance, parser error!");
+                }
+            }
+            // Deserialize path:
+            {
+                XmlParser parser((char*)_referencesData[0].getData());
+                CIMObjectPath cimObjectPath;
+
+                if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
+                {
+                    if (_hostsData.size())
+                    {
+                        cimObjectPath.setHost(_hostsData[0]);
+                    }
+                    if (!_nameSpacesData[0].isNull())
+                    {
+                        cimObjectPath.setNameSpace(_nameSpacesData[0]);
+                    }
+                    cimInstance.setPath(cimObjectPath);
+                    // only if everything works we add the CIMInstance to the
+                    // array
+                    _instances.append(cimInstance);
+                }
             }
             break;
         }
@@ -1245,14 +1492,36 @@ void CIMResponseData::_resolveXmlToCIM()
             for (Uint32 i = 0; i < _instanceData.size(); i++)
             {
                 CIMInstance cimInstance;
-                CIMObjectPath cimObjectPath;
-
-                _deserializeInstance(i,cimInstance);
-                if (_deserializeInstanceName(i,cimObjectPath))
+                // Deserialize instance:
                 {
-                    cimInstance.setPath(cimObjectPath);
+                    XmlParser parser((char*)_instanceData[i].getData());
+
+                    if (!XmlReader::getInstanceElement(parser, cimInstance))
+                    {
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to resolve XML instance."
+                                " Creating empty instance!");
+                        cimInstance = CIMInstance();
+                    }
                 }
-                // enumarate instances can be without name
+
+                // Deserialize path:
+                {
+                    XmlParser parser((char*)_referencesData[i].getData());
+                    CIMObjectPath cimObjectPath;
+
+                    if (XmlReader::getInstanceNameElement(parser,cimObjectPath))
+                    {
+                        if (!_nameSpacesData[i].isNull())
+                            cimObjectPath.setNameSpace(_nameSpacesData[i]);
+
+                        if (_hostsData[i].size())
+                            cimObjectPath.setHost(_hostsData[i]);
+
+                        cimInstance.setPath(cimObjectPath);
+                    }
+                }
+
                 _instances.append(cimInstance);
             }
             break;
@@ -1262,12 +1531,46 @@ void CIMResponseData::_resolveXmlToCIM()
             for (Uint32 i=0, n=_instanceData.size(); i<n; i++)
             {
                 CIMObject cimObject;
-                CIMObjectPath cimObjectPath;
 
-                _deserializeObject(i,cimObject);
-                if (_deserializeReference(i,cimObjectPath))
+                // Deserialize Objects:
                 {
-                    cimObject.setPath(cimObjectPath);
+                    XmlParser parser((char*)_instanceData[i].getData());
+
+                    CIMInstance cimInstance;
+                    CIMClass cimClass;
+
+                    if (XmlReader::getInstanceElement(parser, cimInstance))
+                    {
+                        cimObject = CIMObject(cimInstance);
+                    }
+                    else if (XmlReader::getClassElement(parser, cimClass))
+                    {
+                        cimObject = CIMObject(cimClass);
+                    }
+                    else
+                    {
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to get XML object data!");
+                    }
+                }
+
+                // Deserialize paths:
+                {
+                    XmlParser parser((char*)_referencesData[i].getData());
+                    CIMObjectPath cimObjectPath;
+
+                    if (XmlReader::getValueReferenceElement(
+                            parser,
+                            cimObjectPath))
+                    {
+                        if (!_nameSpacesData[i].isNull())
+                            cimObjectPath.setNameSpace(_nameSpacesData[i]);
+
+                        if (_hostsData[i].size())
+                            cimObjectPath.setHost(_hostsData[i]);
+
+                        cimObject.setPath(cimObjectPath);
+                    }
                 }
                 _objects.append(cimObject);
             }
@@ -1431,8 +1734,10 @@ void CIMResponseData::_resolveCIMToSCMO()
                     _instanceNames[i],
                     _defNamespace,
                     _defNamespaceLen);
-                if (_isClassOperation)
+                // TODO: More description about this.
+                if (0 == _instanceNames[i].getKeyBindings().size())
                 {
+                    // if there is no keybinding, this is a class
                     addme.setIsClassOnly(true);
                 }
                 _scmoInstances.append(addme);
@@ -1452,19 +1757,16 @@ void CIMResponseData::_resolveCIMToSCMO()
     _encoding |=RESP_ENC_SCMO;
 }
 
-void CIMResponseData::setRequestProperties(
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+/**
+ * Validate the magic object for this CIMResponseData. This
+ * compiles only in debug mode and can be use to validate the
+ * CIMResponseData object
+ *
+ * @return Boolean True if valid object.
+ */
+Boolean CIMResponseData::valid()
 {
-    _includeQualifiers = includeQualifiers;
-    _includeClassOrigin = includeClassOrigin;
-    _propertyList = propertyList;
-}
-
-void CIMResponseData::setIsClassOperation(Boolean b)
-{
-    _isClassOperation = b;
+    return _magic;
 }
 
 PEGASUS_NAMESPACE_END

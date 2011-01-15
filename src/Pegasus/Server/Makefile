@@ -43,10 +43,11 @@ LIBRARIES = \
 	pegrepository \
 	pegprovider \
 	pegexportserver \
-	pegpmrouter \
+        pegpmrouter \
 	pegpmservice \
 	pegprovidermanager \
 	pegconfig \
+	peguser \
 	pegauthentication \
 	peghandlerservice \
 	pegindicationservice \
@@ -56,16 +57,13 @@ LIBRARIES = \
 	pegprm \
 	DefaultProviderManager \
 	ConfigSettingProvider \
+	UserAuthProvider \
 	ProviderRegistrationProvider\
 	NamespaceProvider \
-	peggeneral \
-	pegcommon \
-	cimrsserver
+        peggeneral \
+	pegcommon
 
-ifndef PEGASUS_PAM_AUTHENTICATION
-    LIBRARIES += peguser \
-		 UserAuthProvider
-endif
+
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 LIBRARIES += \
@@ -84,7 +82,6 @@ endif
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
 LIBRARIES += \
-        pegcql \
 	CIMQueryCapabilitiesProvider
 endif
 
@@ -97,13 +94,10 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
     LIBRARIES += pegwsmserver
 endif
 
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-    LIBRARIES += pegwebserver
-endif
-
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
+	EnumerationContext.cpp \
 	CIMOperationRequestDecoder.cpp \
 	CIMOperationResponseEncoder.cpp \
 	CIMOperationRequestDispatcher.cpp \
@@ -121,12 +115,6 @@ ifeq ($(OS),zos)
 SOURCES += \
 	ConsoleManager_zOS.cpp
 endif
-
-ifeq ($(PEGASUS_ENABLE_CQL),true)
-SOURCES += \
-        CQLOperationRequestDispatcher.cpp
-endif
-
 
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib

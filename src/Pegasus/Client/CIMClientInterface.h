@@ -48,6 +48,8 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/NumericArg.h>                     // PEP 317
+#include <Pegasus/Client/CIMEnumerationContext.h>
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h> //PEP# 128
 
@@ -244,6 +246,116 @@ public:
         const CIMName& methodName,
         const Array<CIMParamValue>& inParameters,
         Array<CIMParamValue>& outParameters) = 0;
+
+// EXP_PULL_BEGIN
+    virtual CIMResponseData openEnumerateInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& EndOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const Boolean deepInheritance,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String::EMPTY,
+        const String& filterQuery = String::EMPTY,
+        const Uint32Arg& operationTimeout = Uint32Arg(),    // Default is NULL
+        const Boolean continueOnError = false,
+        const Uint32Arg& maxObjectCount = Uint32Arg(0)) = 0;
+
+    virtual CIMResponseData openEnumerateInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& EndOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),    // Default is NULL
+        const Boolean continueOnError = false,
+        const Uint32Arg& maxObjectCount = Uint32Arg(0)) = 0;
+
+    virtual CIMResponseData openReferenceInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& EndOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
+        const Boolean continueOnError = false,
+        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        ) = 0;
+
+    virtual CIMResponseData openReferenceInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& EndOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
+        const Boolean continueOnError = false,
+        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        ) = 0;
+
+    virtual CIMResponseData openAssociatorInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& EndOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
+        const Boolean continueOnError = false,
+        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        ) = 0;
+
+    virtual CIMResponseData openAssociatorInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& EndOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY,
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
+        const Boolean continueOnError = false,
+        const Uint32Arg& maxObjectCount = Uint32Arg(0)     // Default is 0
+        ) = 0;
+
+    virtual CIMResponseData pullInstancesWithPath(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const Uint32Arg& MaxObjectCount = Uint32Arg(0)) = 0;
+
+    virtual CIMResponseData pullInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const Uint32Arg& MaxObjectCount = Uint32Arg(0)) = 0;
+
+    virtual void closeEnumeration(
+        CIMEnumerationContext& enumerationContext
+        ) = 0;
+
+    virtual Uint64Arg enumerationCount(
+        CIMEnumerationContext& enumerationContext
+        ) = 0;
+// KS_PULL_END
+
 };
 
 PEGASUS_NAMESPACE_END

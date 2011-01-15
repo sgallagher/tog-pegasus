@@ -78,15 +78,6 @@ public:
         const CIMException& cimException,
         Boolean closeConnect = false);
 
-    void sendUserAccountExpired(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        const String& methodName,
-        Boolean closeConnect,
-        Boolean isIMethod);
-
-
     void sendHttpError(
         Uint32 queueId,
         const String& status,
@@ -110,10 +101,6 @@ public:
         const String& cimObjectInHeader,
         const String& authType,
         const String& userName,
-        const String& userRole,
-        const String& userPass,
-        Boolean isExpiredPassword,
-        Boolean updateExpiredPassword,
         const String& ipAddress,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
@@ -267,25 +254,80 @@ public:
         const CIMObjectPath& reference,
         const String& cimMethodName);
 
+// EXP_PULL_BEGIN
+    CIMOpenEnumerateInstancesRequestMessage* 
+        decodeOpenEnumerateInstancesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenReferenceInstancePathsRequestMessage* 
+        decodeOpenReferenceInstancePathsRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenAssociatorInstancesRequestMessage* 
+        decodeOpenAssociatorInstancesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenAssociatorInstancePathsRequestMessage* 
+        decodeOpenAssociatorInstancePathsRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenReferenceInstancesRequestMessage* 
+        decodeOpenReferenceInstancesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+    CIMOpenEnumerateInstancePathsRequestMessage* 
+        decodeOpenEnumerateInstancePathsRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+    CIMPullInstancesWithPathRequestMessage* decodePullInstancesWithPathRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMPullInstancePathsRequestMessage* decodePullInstancePathsRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMCloseEnumerationRequestMessage* decodeCloseEnumerationRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+// EXP_PULL_TBD Should we carry namespace for Pull an close operations
+ 
+    CIMEnumerationCountRequestMessage* decodeEnumerationCountRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+// EXP_PULL_END
+
     /** Sets the flag to indicate whether or not the CIMServer is
         shutting down.
     */
     void setServerTerminating(Boolean flag);
 
 private:
-
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-    void _updateExpiredPassword(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        Boolean closeConnect,
-        const ContentLanguageList& httpContentLanguages,
-        CIMMessage* request,
-        const String& userName,
-        const String& oldPass,
-        const String& ipAddress);
-#endif
 
     // Do not make _outputQueue an AutoPtr.
     MessageQueue* _outputQueue;

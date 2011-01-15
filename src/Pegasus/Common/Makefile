@@ -130,8 +130,7 @@ SOURCES1 = \
     AsyncQueue.cpp \
     IDFactory.cpp \
     AuditLogger.cpp \
-    Magic.cpp \
-    UintArgs.cpp
+    Magic.cpp
 
 SOURCES2 = \
     Exception.cpp \
@@ -187,14 +186,13 @@ SOURCES2 = \
     Constants.cpp \
     HostAddress.cpp \
     HostLocator.cpp \
+	NumericArg.cpp \
     BinaryCodec.cpp \
     CIMBuffer.cpp \
     CIMInternalXmlEncoder.cpp \
     SCMOInternalXmlEncoder.cpp \
-    AsyncRequestExecutor.cpp \
-    CIMBinMsgSerializer.cpp \
-    CIMBinMsgDeserializer.cpp \
-    IndicationRouter.cpp
+    AsyncRequestExecutor.cpp
+
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp
@@ -207,20 +205,16 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
     SOURCES2 += $(SOURCES_SLP)
 endif
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC) 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 
-# Special code calling pam_end in class AuthHandle only required
-# with session based authentication mechanism
-ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
-    SOURCES2 += AuthHandle.cpp
-endif
-
-# LoadAndClearWord_HPUX_PARISC_ACC.s will be compiled using aCC
-# in order to use the native assembler to create the object
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
-    SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
+    SOURCES2 += CIMBinMsgSerializer.cpp
+    SOURCES2 += CIMBinMsgDeserializer.cpp
+else
+    SOURCES2 += CIMMessageSerializer.cpp
+    SOURCES2 += CIMMessageDeserializer.cpp
 endif
 
 SOURCES = $(SOURCES1) $(SOURCES2)
@@ -254,10 +248,6 @@ endif
 ifeq ($(OS),zos)
     SOURCES2 += Audit_zOS_SMF.cpp \
         PegasusAssertZOS.cpp
-endif
-
-ifeq ($(OS),HPUX)
-    EXTRA_LIBRARIES += -lipv6
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)

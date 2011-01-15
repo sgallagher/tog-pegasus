@@ -84,10 +84,53 @@ void showExamples()
     while(operations.more())
     {
         OperationExampleEntry example = operations.getExampleEntry();
+
         cout << loadMessage(example.msgKey, example.Example) << endl;
 
-        operations.next();
+        OperationTableEntry thisOperation = operations.next();
     }
+}
+
+
+/* Remap a long string into a multi-line string that can be positioned on a
+   line starting at pos and with length defined for each line.
+   Each output line consists of fill parameter to pos and max line length
+   defined by length parameter.
+
+   The input string is recreated by tokenizing on the space character
+   and filled from the left so that the returned string can be output
+   as a multiline string starting at pos.
+*/
+
+String formatLongString (const char * input, Uint32 pos, Uint32 lineLength)
+{
+    String output;
+    String work = input;
+    Array<String> list;
+    Uint32 textLength = lineLength - pos;
+    // create the fill string starting with the newline character
+    String fill;
+    fill.append("\n");
+    for (Uint32 i = 0; i < pos; i++)
+        fill.append (" ");
+
+    list = _tokenize(work, ' ', true);
+
+    for (Uint32 i = 0 ; i < list.size() ; i++)
+    {
+        // move a single word and either a space or create new line
+        if (((output.size() % (textLength)) + list[i].size()) >= (textLength))
+        {
+            output.append(fill);
+        }
+        else
+        {
+            output.append(" ");
+        }
+
+        output.append(list[i]);
+    }
+    return(output);
 }
 
 /* showOperations - Display the list of operations possible based
@@ -97,30 +140,33 @@ void showExamples()
 
 void showOperations(const char* pgmName, Uint32 lineLength)
 {
-    Uint32 indent = 27;
+    Uint32 indent = 28;
     Operations operations;
 
     while(operations.more())
     {
         OperationTableEntry thisOperation = operations.next();
 
-        cout << endl;
-        String opString = stringPrintf(
-            "%-5s %-21s ",
+        char * opStr= new char[500];
+        String txtFormat = formatLongString(
+            thisOperation.UsageText,
+            indent,
+            lineLength);
+        CString ctxtFormat=txtFormat.getCString();
+
+        sprintf(
+            opStr,
+            "\n%-5s %-21s",
             thisOperation.ShortCut,
             thisOperation.OperationName);
 
-        opString.append(thisOperation.UsageText);
-
-        String opStringFormatted = foldString(
-            opString,
-            indent,
-            lineLength);
+        opStr = strcat(opStr, (const char*)ctxtFormat);
 
         cout << loadMessage(
             thisOperation.msgKey,
-            opStringFormatted.getCString());
+            const_cast<const char*>(opStr));
 
+        delete[] opStr;
     }
     cout << loadMessage(
         "Clients.cimcli.CIMCLIClient.HELP_SUMMARY",
@@ -130,12 +176,14 @@ void showOperations(const char* pgmName, Uint32 lineLength)
 
 void showVersion(const char* pgmName, OptionManager& om)
 {
-    String str = "Version ";
+    String str = "";
+    str.append("Version ");
     str.append(PEGASUS_PRODUCT_VERSION);
 
+    CString cstr = str.getCString();
     MessageLoaderParms parms(
         "Clients.cimcli.CIMCLIClient.VERSION",
-        str.getCString(),
+        (const char*)cstr,
         PEGASUS_PRODUCT_VERSION);
     parms.msg_src_path = MSG_PATH;
     cout << MessageLoader::getMessage(parms) << endl;
@@ -143,6 +191,7 @@ void showVersion(const char* pgmName, OptionManager& om)
 
 void showOptions(const char* pgmName, OptionManager& om)
 {
+
     String optionsTrailer = loadMessage(
         "Clients.cimcli.CIMCLIClient.OPTIONS_TRAILER",
         "Options vary by command consistent with CIM Operations");
@@ -159,7 +208,8 @@ void showOptions(const char* pgmName, OptionManager& om)
 
 void showUsage()
 {
-    String usageText =
+    String usageText;
+    usageText =
         "Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>\n"
         "    -hc    for <command> set and <CimObject> for each command\n"
         "    -ho    for <Options> set\n"
@@ -202,7 +252,7 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
 {
     // indent for subsequent lines for help output
     // This value is an arbitary decision.
-    Uint32 indent = 27;
+    Uint32 indent = 28;
 
     if (cmd)
     {
@@ -211,29 +261,32 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
         if (operations.find(cmd))
         {
             OperationTableEntry thisOperation = operations.get();
+            Uint32 index = operations.getIndex();
 
             OperationExampleEntry example = operations.getExampleEntry();
+
             // format the shortcut and
             // command string into a single output string.
-            String opString = stringPrintf(
-                "%-5s %-21s ",
+            char * opStr= new char[1000];
+            sprintf(
+                opStr,
+                "\n%-5s %-21s",
                 thisOperation.ShortCut,
                 thisOperation.OperationName);
-
-            opString.append(thisOperation.UsageText);
-
             // Append formatted usage text to the command information
-            String txtFormat = foldString(
-                opString,
-                indent,
-                lineLength);
+            String txtFormat = formatLongString(
+                thisOperation.UsageText, indent ,lineLength);
+
+            CString ctxtFormat=txtFormat.getCString();
+            opStr = strcat(opStr, (const char*)ctxtFormat);
 
             // output the command and usage information
             cout << loadMessage(
                 thisOperation.msgKey,
-                txtFormat.getCString());
+                const_cast<const char*>(opStr))
+                << endl;
 
-            cout << endl;
+            delete[] opStr;
 
             // Output the corresponding Example and Options information
             cout << loadMessage("Clients.cimcli.CIMCLIClient.EXAMPLE_STRING",
@@ -248,16 +301,14 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
                 << endl;
 
             // Output the common Options information
-            String commonOpStr =
-                 stringPrintf("%s", "Common Options are : \n");
-
-            commonOpStr.append(commonOptions);
-
+            char * commonOptStr = new char[800];
+            sprintf(commonOptStr, "%s", "Common Options are : \n");
+            commonOptStr = strcat(commonOptStr, commonOptions);
             cout << loadMessage("Clients.cimcli.CIMCLIClient."
                         "COMMON_OPTIONS_STRING",
-                        commonOpStr.getCString())
+                        commonOptStr)
                 << endl;
-
+            delete[] commonOptStr;
             return true;
         }
         else
@@ -275,8 +326,15 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
     }
     else
     {
-        showUsage();
-        return true;
+        cerr << "Error: Input Parameter with Operation Name required.\n"
+             << "     ex. cimcli -h di. or \n"
+             << "         cimcli -h deleteinstance"
+             << endl;
+        cout << loadMessage(
+            "Clients.cimcli.CIMCLIClient.HELP_SUMMARY",
+            " -h for all help, -hc for commands, -ho for options")
+            << endl;
+            return false;
     }
 }
 

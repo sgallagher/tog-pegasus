@@ -41,6 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/StringRep.h>
 #include <Pegasus/Common/SCMOInstance.h>
+#include <Pegasus/Common/NumericArg.h>
 
 #define PEGASUS_USE_MAGIC
 
@@ -372,7 +373,7 @@ public:
             Uint16 * p = (Uint16*) malloc(x_size << 1);
             size_t utf8_error_index;
             size_t new_size = _convert(p, x, x_size, utf8_error_index);
-            putUint32((Uint32)new_size);
+            putUint32(new_size);
             putBytes(p, new_size << 1);
             free(p);
         }
@@ -484,7 +485,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putString(x[i]);
     }
 
@@ -493,7 +494,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putDateTime(x[i]);
     }
 
@@ -594,6 +595,7 @@ public:
         _ptr += 8;
         return true;
     }
+
 
     bool getUint64(Uint64& x)
     {
@@ -1091,7 +1093,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putName(x[i]);
     }
 
@@ -1122,7 +1124,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putObjectPath(x[i], includeHostAndNamespace);
     }
 
@@ -1183,7 +1185,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putClass(x[i]);
     }
 
@@ -1215,7 +1217,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putObject(x[i], includeHostAndNamespace, includeKeyBindings);
     }
 
@@ -1244,7 +1246,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putParamValue(x[i]);
     }
 
@@ -1273,7 +1275,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (Uint32 i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             putQualifierDecl(x[i]);
     }
 
@@ -1309,6 +1311,74 @@ public:
     bool getTypeMarker(Uint32& typeMarker)
     {
         return getUint32(typeMarker);
+    }
+
+    void putUint32Arg(Uint32Arg& x)
+    {
+        putBoolean(x.isNull());
+        if (!x.isNull())
+        {
+            putUint32(x.getValue());
+        }
+    }
+
+    bool getUint32Arg(Uint32Arg& x)
+    {
+        bool NullValue;
+        Uint32 value;
+
+        if (!getBoolean(NullValue))
+            return false;
+
+        if (!NullValue)
+        {
+            if (!getUint32(value))
+                return false;
+            else
+            {
+                x.setValue(value);
+            }
+            
+        }
+        else
+        {
+            x.setNullValue();
+        }
+        return true;
+    }
+
+    void putUint64Arg(Uint64Arg& x)
+    {
+        putBoolean(x.isNull());
+        if (!x.isNull())
+        {
+            putUint64(x.getValue());
+        }
+    }
+
+    bool getUint64Arg(Uint64Arg& x)
+    {
+        bool NullValue;
+        Uint64 value;
+
+        if (!getBoolean(NullValue))
+            return false;
+
+        if (!NullValue)
+        {
+            if (!getUint64(value))
+                return false;
+            else
+            {
+                x.setValue(value);
+            }
+            
+        }
+        else
+        {
+            x.setNullValue();
+        }
+        return true;
     }
 
 private:
@@ -1400,12 +1470,12 @@ private:
 
     Real32 _swapReal32(Real32 x)
     {
-        return (Real32)_swapUint32(*((Uint32*)(void*)&x));
+        return _swapUint32(*((Uint32*)(void*)&x));
     }
 
     Real64 _swapReal64(Real64 x)
     {
-        return (Real64)_swapSint64(*((Sint64*)(void*)&x));
+        return _swapSint64(*((Sint64*)(void*)&x));
     }
 
     void _swapUint16Data(Uint16* p, Uint32 n)

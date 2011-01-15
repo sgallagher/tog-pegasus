@@ -40,9 +40,6 @@ include $(ROOT)/mak/configschema.mak
 
 TESTPROVIDERNS=test/TestProvider
 
-TESTINDSRCNS1=test/TestIndSrcNS1
-TESTINDSRCNS2=test/TestINdSrcNS2
-
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 CREATE_REMOTE_NAMESPACE = CreateExtNS2
 REMOTE_TESTPROVIDERNS = test/Remote/Localhost
@@ -98,8 +95,6 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" IndicationStressTestProviderR.mof
 	@ $(ECHO) +++++ Registering IndicationStressTestConsumer Provider  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" IndicationStressTestConsumerR.mof
-	@ $(ECHO) +++++ Registering ProviderLifecycleIndicationConsumer Provider  ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" ProviderLifecycleIndicationConsumerR.mof
 	@ $(ECHO) +++++ Registering TestFaultyProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestFaultyProviderRegistration.mof
 	@ $(ECHO) +++++ Registering TestGoodInstanceProvider ...
@@ -121,20 +116,12 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" MethodTestProvider.mof
 	@ $(ECHO) +++++ Loading GroupMethodProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" GroupMethodProvider.mof
-	@ $(ECHO) +++++ Loading ProviderLifecycleIndicationProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" ProviderLifecycleIndicationProvider.mof
 	@ $(ECHO) +++++ Registering MethodTestProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" MethodTestProviderR.mof
-
 	@ $(ECHO) +++++ Loading CLITestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" CLITestProvider.mof
 	@ $(ECHO) +++++ Registering CLITestProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CLITestProviderR.mof
-
-	@ $(ECHO) +++++ Loading TestCIM_ErrorProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestCIM_ErrorProvider.mof
-	@ $(ECHO) +++++ Registering TestCIM_ErrorProvider ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCIM_ErrorProviderR.mof
 
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TST_Family.mof
@@ -155,6 +142,11 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" LocalizedProvider.mof
 	@ $(ECHO) +++++ Registering LocalizedProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" LocalizedProviderR.mof
+
+	@ $(ECHO) +++++ Loading ResponseStressTest class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" ResponseStressTest.mof
+	@ $(ECHO) +++++ Registering ResponseStressTestProvider ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" ResponseStressTestProviderRegistration.mof
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
@@ -223,36 +215,6 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
 endif
 
 ##
-##  Indication filter source namespaces testing
-##
-	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS1) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(TESTINDSRCNS1) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS1) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS1)" IndicationStressTestProviderSchema.mof
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS1) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS1)" TestCMPI_ProviderSchema.mof
-endif
-	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS2) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(TESTINDSRCNS2) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS2) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS2)" IndicationStressTestProviderSchema.mof
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS2) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS2)" TestCMPI_ProviderSchema.mof
-endif
-
-
-
-##
 ## Load the test MOF with cimmof.
 ##
 repositoryServer:
@@ -276,8 +238,6 @@ repositoryServer:
 	@ cimmof "-n$(INTEROPNS)" IndicationStressTestProviderR.mof
 	@ $(ECHO) +++++ Registering IndicationStressTestConsumer Provider  ...
 	@ cimmof "-n$(INTEROPNS)" IndicationStressTestConsumerR.mof
-	@ $(ECHO) +++++ Registering ProviderLifecycleIndicationConsumer Provider  ...
-	@ cimmof "-n$(INTEROPNS)" ProviderLifecycleIndicationConsumerR.mof
 
 	@ $(ECHO) +++++ Loading DeliveryRetryTest class definition into $(TESTPROVIDERNS) namespace ...
 	@ cimmof "-n$(TESTPROVIDERNS)" DeliveryRetryTestProviderSchema.mof
@@ -293,8 +253,6 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" MethodTestProvider.mof
 	@ $(ECHO) +++++ Loading GroupMethodProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof "-n$(TESTPROVIDERNS)" GroupMethodProvider.mof
-	@ $(ECHO) +++++ Loading ProviderLifecycleIndicationProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmof "-n$(TESTPROVIDERNS)" ProviderLifecycleIndicationProvider.mof
 	@ $(ECHO) +++++ Registering MethodTestProvider ...
 	@ cimmof "-n$(INTEROPNS)" MethodTestProviderR.mof
 
@@ -302,11 +260,6 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" CLITestProvider.mof
 	@ $(ECHO) +++++ Registering CLITestProvider ...
 	@ cimmof "-n$(INTEROPNS)" CLITestProviderR.mof
-
-	@ $(ECHO) +++++ Loading TestCIM_ErrorTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmof "-n$(TESTPROVIDERNS)" TestCIM_ErrorTestProvider.mof
-	@ $(ECHO) +++++ Registering TestCIM_ErrorTestProvider ...
-	@ cimmof "-n$(INTEROPNS)" TestCIM_ErrorTestProviderR.mof
 
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmof "-n$(TESTPROVIDERNS)" TST_Family.mof
@@ -322,6 +275,11 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" LocalizedProvider.mof
 	@ $(ECHO) +++++ Registering LocalizedProvider ...
 	@ cimmof "-n$(INTEROPNS)" LocalizedProviderR.mof
+
+	@ $(ECHO) +++++ Loading ResponseStress class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" ResponseStressTest.mof
+	@ $(ECHO) +++++ Registering ResponseStressTestProvider ...
+	@ cimmof "-n$(INTEROPNS)" ResponseStressTestProviderRegistration.mof
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
@@ -381,34 +339,6 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_DIR)/$(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
 endif
 
-##
-##  Indication filter source namespaces testing
-##
-	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS1) namespace ...
-	@ cimmof -n$(TESTINDSRCNS1) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS1) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS1)" IndicationStressTestProviderSchema.mof
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS1) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS1)" TestCMPI_ProviderSchema.mof
-endif
-	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS2) namespace ...
-	@ cimmof -n$(TESTINDSRCNS2) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS2) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS2)" IndicationStressTestProviderSchema.mof
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS2) namespace ...
-	@ cimmof "-n$(TESTINDSRCNS2)" TestCMPI_ProviderSchema.mof
-endif
-
 
 unregister:
 	$(MAKE) -i unregisterproviders
@@ -420,7 +350,6 @@ unregisterproviders:
 	cimprovider -r -m IndicationTestProviderModule
 	cimprovider -r -m MethodTestProviderModule
 	cimprovider -r -m CLITestProviderModule
-	cimprovider -r -m TestCIM_ErrorProviderModule
 	cimprovider -r -m TestLocalizedProviderModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIIndicationProviderModule

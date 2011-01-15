@@ -27,13 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Class CIMResponseData encapsulates the possible types of response data
-// representations and supplies conversion methods between these types.
-// PEP#348 - The CMPI infrastructure using SCMO (Single Chunk Memory Objects)
-// describes its usage in the server flow.
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMResponseData_h
@@ -45,9 +38,11 @@
 #include <Pegasus/Common/CIMBuffer.h>
 #include <Pegasus/Common/SCMOClass.h>
 #include <Pegasus/Common/SCMOInstance.h>
+#include <Pegasus/Common/SCMODump.h>
+#include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+PEGASUS_USING_STD;
 typedef Array<Sint8> ArraySint8;
 #define PEGASUS_ARRAY_T ArraySint8
 # include <Pegasus/Common/ArrayInter.h>
@@ -72,21 +67,15 @@ public:
         RESP_OBJECTS = 4,
         RESP_OBJECTPATHS = 5
     };
-    //includeClassOrigin & _includeQualifiers are set to true by default.
-    //_propertyList is initialized to an empty propertylist to enable
-    // sending all properties by default. _isClassOperation set false and
-    // only reset by selected operations (ex. associator response builder)
+
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content),_includeQualifiers(true),
-        _includeClassOrigin(true),
-        _isClassOperation(false),
-        _propertyList(CIMPropertyList())
-    {
-    }
+        _encoding(0),_dataType(content),_size(0)
+    {};
 
     CIMResponseData(const CIMResponseData & x):
         _encoding(x._encoding),
         _dataType(x._dataType),
+        _size(x._size),
         _referencesData(x._referencesData),
         _instanceData(x._instanceData),
         _hostsData(x._hostsData),
@@ -97,18 +86,58 @@ public:
         _instanceNames(x._instanceNames),
         _instances(x._instances),
         _objects(x._objects),
-        _scmoInstances(x._scmoInstances),
-        _includeQualifiers(x._includeQualifiers),
-        _includeClassOrigin(x._includeClassOrigin),
-        _isClassOperation(x._isClassOperation),
-        _propertyList(x._propertyList)
-    {
-    }
+        _scmoInstances(x._scmoInstances)
+    {};
+
+    // Construct an empty object.  Issue here in that we would like to
+    // assure that this is invalid but if we add the _dataType parameter
+    // it must be a valid one.  The alternative would be to define an
+    // invalid enum but that would cost us in all case/if statements.
+    CIMResponseData():
+        _encoding(0),_size(0)
+    {};
+
+    /**
+     * Move CIM objects from another CIMResponse data object to this
+     * CIMResponseData object. Moves the number of objects defined
+     * in the count parameter from one to another. They are removed
+     * from the from object and inserted into the to object.
+     *
+     * @param CIMResponseData from which the objects are moved
+     * @param count Uint32 count of objects to move
+     * @return - Actual number of objects moved.
+     */
+    Uint32 moveObjects(CIMResponseData & x, Uint32 count);
+
+    /**
+     * Return count of the number of CIM objects in the
+     * CIMResponseData object
+     * @return Uint32 The count of the number of CIM objects
+     * (instances, paths, or objects)in the CIMResponsedata object
+     */
+    Uint32 size();
 
     ~CIMResponseData()
     {
     }
 
+    // This one may be a hack but we have issue with pull and other operations
+    // in that the other assoc operations return objects and objectPaths
+    // and the pulls return instances and instancePaths). The pull operation
+    // must be able to handle either so we use this to reset the datatype
+    // KS_TODO -- This should check size and only allow if nothing in the
+    // object.
+    Boolean setDataType(ResponseDataContent content)
+    {
+        _dataType = content;
+        return true;
+    }
+
+    // get the datatype property
+    ResponseDataContent getResponseDataContent()
+    {
+        return _dataType;
+    }
     // C++ objects interface handling
 
     // Instance Names handling
@@ -118,6 +147,7 @@ public:
     {
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
+        _size += x.size();
     }
 
     // Instance handling
@@ -127,21 +157,42 @@ public:
     {
         _instances.clear();
         _instances.append(x);
+        _size++;
         _encoding |= RESP_ENC_CIM;
     }
 
     // Instances handling
     Array<CIMInstance>& getInstances();
 
+    // Get an array of CIMInstances from the CIMResponseData converting from
+    // any of the internal forms to the C++ format.  This will also convert
+    // CIMObjects to CIMInstances if there are any CIMObjects.
+    // NOTE: This is a temporary solution to satisfy the BinaryCodec passing
+    // of data to the client where the data could be either instances or
+    // objects.  The correct solution is to convert back when the provider, etc.
+    // returns the data to the server.  We must convert to that solution but
+    // this keeps the BinaryCodec working for the moment.
+    // Expect that this will be used only in CIMCLient.cpp
+    Array<CIMInstance>& getInstancesFromInstancesOrObjects();
+
     void setInstances(const Array<CIMInstance>& x)
     {
         _instances=x;
         _encoding |= RESP_ENC_CIM;
+        _size += x.size();
     }
     void appendInstance(const CIMInstance& x)
     {
         _instances.append(x);
         _encoding |= RESP_ENC_CIM;
+        _size += 1;
+    }
+
+    void appendInstances(const Array<CIMInstance>& x)
+    {
+        _instances.appendArray(x);
+        _encoding |= RESP_ENC_CIM;
+        _size += x.size();
     }
 
     // Objects handling
@@ -150,11 +201,13 @@ public:
     {
         _objects=x;
         _encoding |= RESP_ENC_CIM;
+        _size += x.size();
     }
     void appendObject(const CIMObject& x)
     {
         _objects.append(x);
         _encoding |= RESP_ENC_CIM;
+        _size += 1;
     }
 
     // SCMO representation, single instance stored as one element array
@@ -167,6 +220,7 @@ public:
     {
         _scmoInstances.appendArray(x);
         _encoding |= RESP_ENC_SCMO;
+        _size += x.size();
     }
 
     Array<Uint8>& getBinary();
@@ -199,36 +253,21 @@ public:
 
     // Encoding responses
 
-    // binary format used with Provider Agents and OP Clients
+    // Encode the CIMResponse data into binary format used with Provider Agents
+    // and OP Clients in the provider CIMBuffer
     void encodeBinaryResponse(CIMBuffer& out);
-    // Xml format used with Provider Agents only
+
+    // Encode the CIMResponse data into Xml format used with Provider Agents
+    //  only in the provided CIMBuffer
     void encodeInternalXmlResponse(CIMBuffer& out);
-    // official Xml format(CIM over Http) used to communicate to clients
-    void encodeXmlResponse(Buffer& out);
 
-    //This function is called from buildResponce to set CIMResponcedata
-    //with respective values of IncludeQualifiers,IncludeClassOrigin and
-    //propertyFilter.
-    void setRequestProperties(
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList);
+    // Encode the CIMResponse data into official Xml format(CIM over Http)
+    // used to communicate to clients in the provided CIMBuffer.
+    //Note that the pull responses requires a flag.
+    void encodeXmlResponse(Buffer& out, Boolean isPull);
 
-    // Used with association and reference operations (i.e. operations that
-    // return CIMObject or CIMObjectPath to set a parameter to define whether
-    // responseData is for operation on a class or instance.
-    // Allows building the correct path (classPath or instancePath) and
-    // object type (Class or Instance) on response.
-    void setIsClassOperation(Boolean b);
-
-    void setPropertyList(const CIMPropertyList& propertyList)
-    {
-        _propertyList = propertyList;
-    }
-    CIMPropertyList & getPropertyList()
-    {
-        return _propertyList;
-    }
+    // diagnostic tests magic number in context to see if valid object
+    Boolean valid();
 
 private:
 
@@ -252,17 +291,23 @@ private:
     SCMOInstance _getSCMOFromCIMObject(const CIMObject& cimObj);
     SCMOInstance _getSCMOFromCIMObjectPath(const CIMObjectPath& cimPath);
     SCMOClass* _getSCMOClass(const char* ns,const char* cls);
-    void _deserializeInstance(Uint32 idx,CIMInstance& cimInstance);
-    void _deserializeObject(Uint32 idx,CIMObject& cimObject);
-    Boolean _deserializeReference(Uint32 idx,CIMObjectPath& cimObjectPath);
-    Boolean _deserializeInstanceName(Uint32 idx,CIMObjectPath& cimObjectPath);
 
     // Bitflags in this integer will reflect what data representation types
     // are currently stored in this CIMResponseData object
     Uint32 _encoding;
 
+    // Special flag to handle the case where binary data in passed through the
+    // system but must be mapped to instances in the getInstances.  This
+    // accounts for only one case today, binary data in the BinaryCodec
+    Boolean _mapObjectsToIntances;
+
     // Storing type of data in this enumeration
     ResponseDataContent _dataType;
+
+    // Count of objects stored in this CIMResponseData object.  This is the
+    // accumulated count of objects stored in all of the data
+    // representations
+    Uint32 _size;
 
     // unused arrays are represented by ArrayRepBase _empty_rep
     // which is a 16 byte large static shared across all of them
@@ -274,7 +319,6 @@ private:
     Array<ArraySint8> _instanceData;
     Array<String> _hostsData;
     Array<CIMNamespaceName> _nameSpacesData;
-
 
     // For binary encoding.
     Array<Uint8> _binaryData;
@@ -289,17 +333,9 @@ private:
     // SCMO encoding
     Array<SCMOInstance> _scmoInstances;
 
-    // Request characteristics that are carried through operation for
-    // modification of response generation.
-    Boolean _includeQualifiers;
-    Boolean _includeClassOrigin;
-    // Defines whether response CIMObjects or ObjectPaths are class or instance.
-    // because associators, etc. operations provide both class and instance
-    // responses. Default is false and should only be set to true by
-    // operation requests such as associators (which could return either
-    // instances or classes) when the operation is to return class information.
-    Boolean _isClassOperation;
-    CIMPropertyList _propertyList;
+    // magic number to use with valid function to confirm validity
+    // of response data.
+    Magic<0x57D11323> _magic;
 
 };
 

@@ -61,66 +61,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 /******************************************************************************
 **
-**            OutputType defines the type of input.  Normally input
-**            as a parameter, it defines one of several types
-**            from an enum based on the input string
-**
-******************************************************************************/
-
-// static table of valid output types relating the enum type to the string.
-// should only be accessed through functions in OputTypeStruct
-// Remember to modify the CIMCLIOptions entry for help if this is modified.
-static OutputTypeStruct OutputTypeTable[] =
-{
-    // Output Type      OutputName
-    {   OUTPUT_XML,     "xml"   },
-    {   OUTPUT_MOF,     "mof"   },
-    {   OUTPUT_TEXT,    "txt"   },
-    {   OUTPUT_TABLE,   "table" }
-};
-
-static const Uint32 NUM_OUTPUTS = sizeof(OutputTypeTable) /
-                                  sizeof(OutputTypeTable[0]);
-
-
-OutputType OutputTypeStruct::getOutputType(String& outputTypeName)
-{
-    for(Uint32 i = 0 ; i < NUM_OUTPUTS; i++ )
-    {
-        if (String::equalNoCase(outputTypeName,OutputTypeTable[i].OutputName))
-        {
-            return OutputTypeTable[i].OutputTypeValue;
-        }
-    }
-    return OUTPUT_TYPE_ILLEGAL;
-}
-
-String OutputTypeStruct::listOutputTypes()
-{
-    String rtn;
-    for(Uint32 i = 0 ; i < NUM_OUTPUTS; i++ )
-    {
-        if(i != 0)
-        {
-            rtn.append(", ");
-        }
-        rtn.append(OutputTypeTable[i].OutputName);
-    }
-    return rtn;
-}
-
-String OutputTypeStruct:: getTypeStr(OutputType x)
-{
-    if(x == 0)
-    {
-        return "Error. Illegal Type";
-    }
-    return OutputTypeTable[x].OutputName;
-}
-
-
-/******************************************************************************
-**
 **             Option Structure object. Initialization and any other
 **             used Function Definitions
 **
@@ -128,6 +68,7 @@ String OutputTypeStruct:: getTypeStr(OutputType x)
 
 // Constructor - Instantiate the variables of the Option structure
 OptionStruct::OptionStruct():
+    isXmlOutput(false),
 
     deepInheritance(false),
     localOnly(true),
@@ -150,7 +91,10 @@ OptionStruct::OptionStruct():
     termCondition(0),
     connectionTimeout(0),
     interactive(false),
-    setRtnHostNames(false)
+    setRtnHostNames(false),
+    continueOnError(false),
+    maxObjectsToReceive(0),
+    pullDelay(0)
 {
         // Initialize the option structure values
         location =  String();
@@ -158,14 +102,12 @@ OptionStruct::OptionStruct():
         ssl = false;
         clientCert = String();
         clientKey = String();
-        clientTruststore = String();
 #endif
         nameSpace = String();
         cimCmd = "unknown";
         targetObjectName = CIMObjectPath();
 
-        // insure that default is MOF for output
-        outputType = OUTPUT_MOF;
+        outputFormatType = OUTPUT_MOF;
 
         user = String();
         password = String();

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Test Simple Single Object Response with MaxObjectCout and Timeout. Successful return empty -->
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+  <MESSAGE ID="61000" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+      <IMETHODCALL NAME="OpenEnumerateInstances">
+        <LOCALNAMESPACEPATH>
+          <NAMESPACE NAME="test"/>
+          <NAMESPACE NAME="static"/>
+        </LOCALNAMESPACEPATH>
+        <IPARAMVALUE NAME="ClassName">
+          <CLASSNAME NAME="CIM_ConcreteJob"/>
+        </IPARAMVALUE>
+        <IPARAMVALUE NAME="MaxObjectCount">
+          <VALUE>
+            12
+          </VALUE>
+        </IPARAMVALUE>
+        <IPARAMVALUE NAME="OperationTimeout">
+          <VALUE>
+             0
+          </VALUE>
+        </IPARAMVALUE>
+      </IMETHODCALL>
+    </SIMPLEREQ>
+  </MESSAGE>
+</CIM>

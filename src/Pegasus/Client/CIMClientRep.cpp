@@ -38,7 +38,6 @@
 #include <iostream>
 #include <fstream>
 #include <Pegasus/Common/Network.h>
-#include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_STD;
 
@@ -54,11 +53,11 @@ PEGASUS_NAMESPACE_BEGIN
 CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
-    _binaryResponse(false),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _doReconnect(false),
     _binaryRequest(false),
+    _binaryResponse(false),
     _localConnect(false)
 {
     //
@@ -80,16 +79,62 @@ void CIMClientRep::handleEnqueue()
 {
 }
 
+Uint32 _getShowType(String& s)
+{
+    String log = "log";
+    String con = "con";
+    String both = "both";
+    if (s == log)
+        return 2;
+    if (s == con)
+        return 1;
+    if (s == both)
+        return 3;
+    return 0;
+}
+
 void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 {
-    ClientTrace::setup();
+    //
+    // Test for Display optons of the form
+    // Use Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
+    // intrace = "con" | "log" | "both"
+    // outtrace = intrace
+    // ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
+    // to console and log
+    // Keywords are case insensitive.
+    // PEP 90
+    //
+    Uint32 showOutput = 0;
+    Uint32 showInput = 0;
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    String input;
+    if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
+    {
+        input = envVar;
+        input.toLower();
+        String io;
+        Uint32 pos = input.find(':');
+        if (pos == PEG_NOT_FOUND)
+            pos = 0;
+        else
+            io = input.subString(0,pos);
+
+        // some compilers do not allow temporaries to be passed to a
+        // reference argument - so break into 2 lines
+        String out = input.subString(pos + 1);
+        showOutput = _getShowType(out);
+
+        showInput = _getShowType(io);
+    }
+#endif
 
     //
     // Create response decoder:
     //
     AutoPtr<CIMOperationResponseDecoder> responseDecoder(
         new CIMOperationResponseDecoder(
-            this, _requestEncoder.get(), &_authenticator ));
+            this, _requestEncoder.get(), &_authenticator, showInput));
 
     //
     // Attempt to establish a connection:
@@ -114,7 +159,7 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 
     AutoPtr<CIMOperationRequestEncoder> requestEncoder(
         new CIMOperationRequestEncoder(
-            httpConnection.get(), connectHost, &_authenticator,
+            httpConnection.get(), connectHost, &_authenticator, showOutput,
             binaryRequest,
             binaryResponse));
 
@@ -134,7 +179,7 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
-void CIMClientRep::_disconnect(bool keepChallengeStatus)
+void CIMClientRep::_disconnect()
 {
     if (_connected)
     {
@@ -167,11 +212,8 @@ void CIMClientRep::_disconnect(bool keepChallengeStatus)
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
 
-    if (keepChallengeStatus == false)
-    {
     // Reset the challenge status
     _authenticator.resetChallengeStatus();
-}
 }
 
 void CIMClientRep::connect(
@@ -266,21 +308,12 @@ void CIMClientRep::connect(
 void CIMClientRep::connectLocal()
 {
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    _connectLocal(true);
+    bool binaryRequest = true;
+    bool binaryResponse = true;
 #else
-    _connectLocal(false);
+    bool binaryRequest = false;
+    bool binaryResponse = false;
 #endif
-}
-
-void CIMClientRep::connectLocalBinary()
-{
-    _connectLocal(true);
-}
-
-void CIMClientRep::_connectLocal(bool binary)
-{
-    bool binaryRequest = binary;
-    bool binaryResponse = binary;
 
     //
     // If already connected, bail out!
@@ -353,6 +386,7 @@ void CIMClientRep::_connectLocal(bool binary)
     }
 #endif
 }
+
 
 void CIMClientRep::disconnect()
 {
@@ -982,8 +1016,418 @@ CIMValue CIMClientRep::invokeMethod(
     outParameters = response->outParameters;
 
     return response->retValue;
-
 }
+
+// KS_PULL_BEGIN
+CIMResponseData CIMClientRep::openEnumerateInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount)
+{
+    // Save requied information in enumerationContext
+    enumerationContext.setNameSpace(nameSpace);
+
+    // Create/send the request message
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenEnumerateInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            className,
+            deepInheritance,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    Message* message =
+        _doRequest(request, CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
+
+    // When Response received, get response message, get output parameters
+    // and return data
+    CIMOpenEnumerateInstancesResponseMessage* response =
+        (CIMOpenEnumerateInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenEnumerateInstancesResponseMessage> destroyer(response);
+
+    // set endOfSequence and context return parameters
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+
+CIMResponseData CIMClientRep::openEnumerateInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenEnumerateInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            className,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+    CIMOpenEnumerateInstancePathsResponseMessage* response =
+        (CIMOpenEnumerateInstancePathsResponseMessage*)message;
+
+    AutoPtr<CIMOpenEnumerateInstancePathsResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData  CIMClientRep::openReferenceInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        const String& filterQueryLanguage,
+        const String& filterQuery,
+        const Uint32Arg& operationTimeout,
+        const Boolean continueOnError,
+        const Uint32Arg& maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenReferenceInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            resultClass,
+            role,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE);
+
+    CIMOpenReferenceInstancesResponseMessage* response =
+        (CIMOpenReferenceInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenReferenceInstancesResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+
+CIMResponseData CIMClientRep::openReferenceInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenReferenceInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            resultClass,
+            role,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+    CIMOpenReferenceInstancePathsResponseMessage* response =
+        (CIMOpenReferenceInstancePathsResponseMessage*)message;
+
+    AutoPtr<CIMOpenReferenceInstancePathsResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::openAssociatorInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount
+    )
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenAssociatorInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+
+    Message* message =
+        _doRequest(request, CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE);
+
+    CIMOpenAssociatorInstancesResponseMessage* response =
+        (CIMOpenAssociatorInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenAssociatorInstancesResponseMessage> destroyer(response);
+
+    // set parameters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::openAssociatorInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    const Boolean continueOnError,
+    const Uint32Arg& maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenAssociatorInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, 
+                   CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+    CIMOpenAssociatorInstancePathsResponseMessage* response =
+        (CIMOpenAssociatorInstancePathsResponseMessage*)message;
+
+    AutoPtr<CIMOpenAssociatorInstancePathsResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::pullInstancesWithPath(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const Uint32Arg& maxObjectCount)
+{
+    // Issue local exception if the context is invalid
+    // KS_TODO - Why not just let server do this.
+//  if (endOfSequence == false &&
+//      enumerationContext.getContextString().size())
+//  {
+//      throw InvalidEnumerationContextException();
+//  }
+    AutoPtr<CIMRequestMessage> request(
+        new CIMPullInstancesWithPathRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            maxObjectCount,
+            QueueIdStack() ));
+
+        Message* message =
+            _doRequest(request, CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE);
+
+        CIMPullInstancesWithPathResponseMessage* response =
+            (CIMPullInstancesWithPathResponseMessage*)message;
+
+        AutoPtr<CIMPullInstancesWithPathResponseMessage> destroyer(response);
+
+        // set paramters to be returned to caller
+        endOfSequence = response->endOfSequence;
+        enumerationContext.setContextString(response->enumerationContext);
+
+        return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::pullInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const Uint32Arg& maxObjectCount)
+{
+    // Issue local exception of context is invalid
+//  if (endOfSequence == false &&
+//      enumerationContext.getContextString().size())
+//  {
+//      throw InvalidEnumerationContextException();
+//  }
+    AutoPtr<CIMRequestMessage> request(
+        new CIMPullInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            maxObjectCount,
+            QueueIdStack()
+            ));
+
+        Message* message =
+            _doRequest(request, CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+        CIMPullInstancePathsResponseMessage* response =
+            (CIMPullInstancePathsResponseMessage*)message;
+
+        AutoPtr<CIMPullInstancePathsResponseMessage> destroyer(response);
+
+        // set paramters to be returned to caller
+        endOfSequence = response->endOfSequence;
+        enumerationContext.setContextString(response->enumerationContext);
+
+        return response->getResponseData();
+}
+
+void CIMClientRep::closeEnumeration(
+    CIMEnumerationContext& enumerationContext)
+{
+    // Issue local exception of context invalid
+    // KS_TODO - Why even getting enumerationContext???
+//  if (enumerationContext.getContextString().size())
+//  {
+//      throw InvalidEnumerationContextException();
+//  }
+    AutoPtr<CIMRequestMessage> request(
+        new CIMCloseEnumerationRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            QueueIdStack()
+            ));
+
+        Message* message =
+            _doRequest(request, CIM_CLOSE_ENUMERATION_RESPONSE_MESSAGE);
+
+        CIMCloseEnumerationResponseMessage* response =
+            (CIMCloseEnumerationResponseMessage*)message;
+
+        AutoPtr<CIMCloseEnumerationResponseMessage> destroyer(response);
+
+        // KS_PULL_QUESTION - Should we touch the enumeration context??
+
+        return;
+}
+
+Uint64Arg CIMClientRep::enumerationCount(
+    CIMEnumerationContext& enumerationContext)
+{
+
+    if (enumerationContext.getContextString().size())
+    {
+        throw InvalidEnumerationContextException();
+    }
+    AutoPtr<CIMRequestMessage> request(
+        new CIMEnumerationCountRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            QueueIdStack()
+            ));
+
+        Message* message =
+            _doRequest(request, CIM_ENUMERATION_COUNT_RESPONSE_MESSAGE);
+
+        CIMEnumerationCountResponseMessage* response =
+            (CIMEnumerationCountResponseMessage*)message;
+
+        AutoPtr<CIMEnumerationCountResponseMessage> destroyer(response);
+
+        return response->count ;
+}
+// KS_PULL_END
 
 Message* CIMClientRep::_doRequest(
     AutoPtr<CIMRequestMessage>& request,
@@ -1073,7 +1517,7 @@ Message* CIMClientRep::_doRequest(
             //
             if (response->getCloseConnect() == true)
             {
-                _disconnect(true);
+                _disconnect();
                 _doReconnect = true;
                 response->setCloseConnect(false);
             }
@@ -1256,93 +1700,4 @@ void CIMClientRep::deregisterClientOpPerformanceDataHandler()
     perfDataStore.setClassRegistered(false);
 }
 
-
-/*
-    Implementation of the Trace mechanism
-*/
-
-// static variables to store the display state for input and output.
-Uint32 ClientTrace::inputState;
-Uint32 ClientTrace::outputState;
-
-ClientTrace::TraceType ClientTrace::selectType(const String& str)
-{
-    if (str == "con")
-    {
-        return TRACE_CON;
-    }
-    if (str == "log")
-    {
-        return TRACE_LOG;
-    }
-    if (str == "both")
-    {
-        return TRACE_BOTH;
-    }
-    return TRACE_NONE;
-}
-
-Boolean ClientTrace::displayOutput(TraceType tt)
-{
-    return (tt & outputState);
-}
-
-Boolean ClientTrace::displayInput(TraceType tt)
-{
-    return (tt & inputState);
-}
-
-// Set up the input and output state variables from the input
-// environment variable.
-void ClientTrace::setup()
-{
-    String input;
-    if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
-    {
-        input = envVar;
-        input.toLower();
-        String in;
-        String out;
-        Uint32 pos = input.find(':');
-
-        // if no colon found, input and output have same mask
-        if (pos == PEG_NOT_FOUND)
-        {
-            in = input;
-            out = input;
-        }
-        else
-        {
-            // if string starts with colon, input empty, else
-            // either both or output empty
-            if (input[0] == ':')
-            {
-                in = "";
-                out = input.subString(1);
-            }
-            else
-            {
-                in = input.subString(0,pos);
-                if (pos == (input.size() - 1))
-                {
-                    out = "";
-                }
-                else
-                {
-                    out =input.subString(pos + 1);
-                }
-            }
-        }
-
-        // set the state variables
-        outputState = ClientTrace::selectType(out);
-        inputState = ClientTrace::selectType(in);
-
-        // Test for logging requested and if so set log parameters
-        if (((outputState| inputState) & TRACE_LOG) != 0)
-        {
-            Logger::setlogLevelMask("");
-        }
-    }
-}
 PEGASUS_NAMESPACE_END

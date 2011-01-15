@@ -57,6 +57,7 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
 #include <Pegasus/Common/XmlGenerator.h>
+#include <Pegasus/Common/NumericArg.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -111,31 +112,26 @@ public:
 
     static void appendValueObjectWithPathElement(
         Buffer& out,
-        const CIMObject& objectWithPath,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        Boolean isClassObject = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMObject& objectWithPath);
 
-    // Appends classPath or instancePath based on isClassPath param
     static void appendValueReferenceElement(
         Buffer& out,
         const CIMObjectPath& reference,
-        Boolean isClassPath,
         Boolean putValueWrapper);
 
     static void printValueReferenceElement(
         const CIMObjectPath& reference,
-        Boolean isClassPath,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
         Buffer& out,
-        const CIMInstance& namedInstance,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMInstance& namedInstance);
 
+//EXP_PULL
+    static void appendValueInstanceWithPathElement(
+        Buffer& out,
+        const CIMInstance& namedInstance);
+//EXP_PULL_END
     static void appendClassElement(
         Buffer& out,
         const CIMConstClass& cimclass);
@@ -146,11 +142,7 @@ public:
 
     static void appendInstanceElement(
         Buffer& out,
-        const CIMConstInstance& instance,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
-
+        const CIMConstInstance& instance);
 
     static void printInstanceElement(
         const CIMConstInstance& instance,
@@ -158,16 +150,11 @@ public:
 
     static void appendObjectElement(
         Buffer& out,
-        const CIMConstObject& object,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMConstObject& object);
 
     static void appendPropertyElement(
         Buffer& out,
-        const CIMConstProperty& property,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true);
+        const CIMConstProperty& property);
 
     static void printPropertyElement(
         const CIMConstProperty& property,
@@ -250,7 +237,6 @@ public:
 
     static void appendUnauthorizedResponseHeader(
         Buffer& out,
-        const String& errorDetail,
         const String& content);
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
@@ -272,11 +258,52 @@ public:
         const char* name,
         Boolean flag);
 
+    static void appendBooleanParameter(
+        Buffer& out,
+        const char* name,
+        Boolean flag);
+
+    static void appendBooleanIReturnValue(
+        Buffer& out,
+        const char* name,
+        Boolean flag);
+
+    static void appendUint32IParameter(
+        Buffer& out,
+        const char* name,
+        const Uint32Arg& val,
+        const Boolean required);
+/* KS_PULL DELETE
+    static void appendUint64Parameter(
+        Buffer& out,
+        const char* name,
+        const Uint64 val);
+*/
+    static void appendUint64ReturnValue(
+        Buffer& out,
+        const char* name,
+        const Uint64Arg& val);
+
     static void appendStringIParameter(
         Buffer& out,
         const char* name,
         const String& str);
 
+//EXP_PULL
+    static void appendStringIParameterIfNotEmpty(
+        Buffer& out,
+        const char* name,
+        const String& str);
+
+    static void appendStringParameter(
+        Buffer& out,
+        const char* name,
+        const String& str);
+    static void appendStringIReturnValue(
+        Buffer& out,
+        const char* name,
+        const String& str);
+//EXP_PULL_END
     static void appendClassNameIParameter(
         Buffer& out,
         const char* name,
@@ -286,6 +313,11 @@ public:
         Buffer& out,
         const char* name,
         const CIMObjectPath& instanceName);
+
+    static void appendObjectNameIParameter(
+        Buffer& out,
+        const char* name,
+        const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
         Buffer& out,
@@ -343,6 +375,7 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguageList& httpContentLanguages,
+        const Buffer& bodyParams,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst = true,
@@ -371,6 +404,7 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguageList& httpContentLanguages,
+        const Buffer& rtnParams,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst = true,
@@ -460,10 +494,18 @@ private:
         static void _appendIMethodCallElementEnd(
         Buffer& out);
 
+    static void _appendParamValueElementBegin(
+        Buffer& out,
+        const char* name);
+
+    static void _appendParamValueElementEnd(
+        Buffer& out);
+
     static void _appendIParamValueElementBegin(
         Buffer& out,
         const char* name);
-        static void _appendIParamValueElementEnd(
+
+    static void _appendIParamValueElementEnd(
         Buffer& out);
 
     static void _appendSimpleRspElementBegin(Buffer& out);
@@ -488,6 +530,12 @@ private:
     static void _appendIReturnValueElementBegin(Buffer& out);
     static void _appendIReturnValueElementEnd(Buffer& out);
 
+    //EXP_PULL
+
+    static void _appendIReturnValueElementWithNameBegin(
+        Buffer& out,
+        const char* name);
+    // EXP_PULL_END
     static void _appendSimpleExportReqElementBegin(Buffer& out);
     static void _appendSimpleExportReqElementEnd(Buffer& out);
 
@@ -513,14 +561,6 @@ private:
 
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
-
-    static void appendValueInstancePathElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
-
-    static void appendValueClassPathElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
 
     XmlWriter();
 };

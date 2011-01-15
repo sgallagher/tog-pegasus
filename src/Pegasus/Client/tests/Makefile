@@ -38,8 +38,8 @@ DIRS =	AssociationClient \
 	DeleteNamespace \
 	ClientStatistics \
 	TestStaticClient \
-        BinaryClient \
-        SSLCipherVerification
+	BinaryClient \
+	pullop
 
 DIRS_SLP = \
     slp

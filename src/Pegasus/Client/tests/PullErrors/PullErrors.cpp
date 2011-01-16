@@ -961,11 +961,13 @@ int main(int argc, char** argv)
     tc.setCIMException(CIM_ERR_NOT_SUPPORTED);
     tc.setCIMExceptionMessage("*ContinueOnError Not supported");
     tc.executeAllOpenCalls();
-
+    cout << argv[0] <<" +++++ passed some tests" << endl;
+    return 0;
     // Pull with no open. NOTE: This does not really work for us becuase
     // the client generates Pegasus::InvalidNamespaceNameException since
     // there is no namespace from an open operation.  Probably the only way
     // to really test this is with the wbemexec tool.
+    // KS_TODO - Create a corresponding test with static tests.
 
 //  testCalls tc1(client, "test/TestProvider");
 //  tc1.setTestName("Pull with no open");

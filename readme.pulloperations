@@ -1,0 +1,229 @@
+        Using the CIM/XML Pull Operations
+
+STATUS
+
+<<< This section is being maintained during the review and checkin process
+to keep track of problems, errors, notes, etc.  Must be deleted before
+checkin to head of tree. Please feel free to add notes, etc in this
+section as you review/test.>>>>>>
+
+16 Jan 2011
+
+Issues  - KS
+1. have not installed the binary move in CIMResponseData. Please run
+with OPP off.
+2. Some problem in the processing so we are getting server crashes.
+Right no I am guessing that this is in the binaryCodec and am going to
+expand the test tools to allow testing through the localhost.
+
+3. Still way to many TODO and KS comments and KS_TEMPS.  Removing bit by bit.
+
+4. Env variable connection for the config parameters not installed.
+
+5. Issue with the threaded timer.  For some reason during tests it
+eventually calls the timer thread with trash for the parm (which is
+pointer to the EnumerationTable object). Caught because we do a valid
+test at beginning of the function.
+
+===========================================
+
+OVERVIEW:
+
+The operation extensions for pull operations defined in the DMTF specification
+DSP0200 V 1.4 were implemented in Pegasus effective Pegasus version 2.11
+including Client and Server.
+
+These operations extend the CIM/XML  individual operations to operation
+sequences where the server must maintain state between operations in a
+sequence and the client must execute multiple operations to get the full
+set of instances or instance paths.
+
+The following new CIM/XML operations as defined in DSP0200 are included;
+
+    -OpenEnumerateInstances
+    -openEnumerateInstancePaths
+    -OpenReferenceInstances
+    -OpenReferenceInstancePaths
+    -OpenAssociatiorInstances
+    -OpenAssociatorInstancePaths
+    -PullInstancesWithPath
+    -PullInstancePaths
+    -CloseEnumeration
+    -EnumerationCount
+
+The following  operations have not been implemented in this version of Pegasus:
+
+    -OpenQueryInstances
+
+The following limitations on the implementation exist;
+
+1. The filterQueryLanguage and filterQuery parameters are processed by
+   the Pegasus client but the server returns error if there is any data in
+   either parameter.  This is because the definition of query language has not
+   been clarified to date by the DMTF.
+
+2. The input parameter continueOnError is processed correctly by the client
+   but the Pegasus server only provides for false since the server does not
+   include logic to continue processing responses after an error is
+   encountered. 
+   This is consistent with the statement in the specification that use of 
+   this functionality is optional and the fact that the DMTF agrees that all 
+   of the issues of continuing after errors have not been clarified.  
+
+3. The operation enumerationCount is not processed by the server today since
+   a) really getting the count would be the same cost as the corresponding
+   enumeration, b) the server does not include a history or estimating
+   mechanism for this to date.
+   KS_TBD_ confirm this
+
+Since the concept of sequences of operations linked together (open, pull, close)
+is a major extension to the original CIM/XML operation concept of completely
+independent operations several new pieces of functionality are implemented
+to control interOperationTimeouts, counts of objects to be returned, etc.
+
+TBD - Review this
+
+CLIENT
+
+The new operations follow the same pattern as the APIs for existing operations
+in that:
+
+1. All errors are handled as CIMException and Exception
+
+2. The means of inputting parameters are the same except that there are
+   significantly more input parameters with the open operations and for the 
+   first time operations return parameters as well as objects in the 
+   response.  Specifically the open and pull operations return values for 
+   enumerationContext which is the identity for a pull sequence and 
+   endOfSequence which is the marker the server sends in open and pull 
+   responses when it has no more objects to send.
+
+The significant differences include:
+
+1. Processing of parameters on responses (i.e. the endOfSequence and
+   enumerationContext parameters are returned for open and pull operations).
+
+2. Numeric arguments (Uint32 and Uint64 include the option of NULL in some
+   cases so they are packaged inside classes Uint32Arg and Uint64Arg in the
+   client api.
+
+3. The association and reference operations ONLY process instances.  They do
+   not include the capability to return classes like reference and associator
+   do and therefore return CIMInstance rather than CIMObject.
+
+4. Paths are returned in all cases (i.e OpenEnumerateInstances and
+   PullInstancesWithPath where they were not with EnumeratInstances.
+
+5. The client must maintain state between operations in a sequence (using
+   the enumerationContext parameter).
+
+TBD- Are there more differences.
+
+
+SERVER
+
+The Pegasus server attempts to always deliver the requested number of objects
+for any open or pull request (the specification allows for the server to
+deliver less than the requested number of objects and specifically to return
+zero objects on open).  We felt that it was worth any extra cost in processing
+to provide the client with exactly what it had requested.
+
+continueOnError Parameter
+The pegasus server always closes an enumeration sequence upon receipt of any
+error from the providers, repository, etc. Therefore the server will reject
+and request that has continueOnError = true;
+
+PROVIDERS
+
+This implementation requires NO changes to the existing providers.  The
+provider APIs operate just as they do with the original operations.
+
+Because the server processing is different however, there may be some
+behavior differences primarily because the client now controls the speed of
+delivery of objects.
+
+In previous versions of Pegasus, the server attempts to deliver objects as
+rapidly as then can be put on the network.  In the case of HTTP chunked requests
+they are delivered in chunks of about 100 objects. The primary delay for the
+providers was the processing of each segment through the server.  The server
+is blocked so that no other segment can proceed through the server until that
+segment is processed and sent on the network.
+In the case of non-chunkedresponses, they are completely gathered in the serve
+and then delivered as one non-chunked response. There were no delays for the
+providers, just lots of possible memory use in the server.
+
+The responses from providers (delivered through the deliver(...) interface are
+gathered into segments of about 100 objects and this group of objects is moved
+through the server to be delivered to the client.
+
+However with the inclusion of the pull operations,   The segments of objects
+from the providers are cached in the server response path until the 
+maxObjectCount for that request (open or pull) and that number returned in a
+non-chunked response. Thus, if the client is slow to issue pull requests,
+the providers might be delayed at some point to reduce memory usage in the
+server (the delay appears as slow response tothe deliver operation).
+
+In other words, the time to process large sets of responses from the provider
+now depends on the speed of handling the client.
+
+It is important to remember in developing providers that the Pegasus server
+can most efficiently process responses if they are passed from the provider
+to the server individually or in small arrays of objects rather than the
+provider gathering very large arrays of objects and sending them to the
+server.
+
+CONFIGURATION PARAMETERS
+
+The server includes several configuration parameters to set limits on the
+processing of pull operations.  All of these configuration parameters are
+compile time parameters rather than runtime.
+
+1. Maximum value of minimum interoperation time.  This parameter defines the
+maximum time allowed between the return of an open or pull response and 
+the receipt of the next pull or a close operation before the server may 
+close the enumeration.  The specification allows the server to set a 
+maximum interoperation time and refuse open requests that with requested 
+operationTimeout greater than that time.  
+CIM_ERR_INVALID_OPERATION_TIMEOUT
+
+This value is set with the Pegasus environment variable
+PEGASUS_PULL....
+
+2. Maximum objects returned in a single open or pull operation.  The server
+can set a maximum limit on the number of objects that can be returned in
+a single open or pull oepration with the maxObjectCount parameter.
+
+3. Whether the server allows 0 as an interoperation timeout value. The value
+zero is s special value for the interoperationTimeout in that it tells the
+server to not timeout any enumeration sequence.
+
+With this value for interoperationTimeout, the only way to close an 
+enumeration sequence is to complete all of the pulls or issue the close.  
+If for some reason the sequence is not completed, that enumeration context 
+would remain open indefinitly.  Since in Pegasus any open enumeration 
+context uses resources (the context object and any provider resposnes that 
+have not yet been issued in a response) it would appear that most 
+platforms would not want to allow the existence of enumeration contexts 
+that cannot be closed by the server.  
+
+4, maximum consecutive pull requests with 0 maxObjectCount.  The use of the
+pull operation with maxObjectCount set to zero could be used to keep an
+enumeration context open indefinitly (this tells the server to restart the
+interoperationTimeout but not send any objects in the response). Therefore the
+specification allows for the server setting maximum limits on this behavior
+and returning the error CIM_ERR_SERVER_LIMITS_EXCEEDED if this limit is
+exceeded.
+Note that this is maximum CONSECUTIVE pulls so that issuing a pull with
+a non-zero count resets this counter.
+
+KS-TBD - Is this really logical since we can still block by just issuing
+lots of zero request and an occansional request for one object.
+
+Pegaus sets the value of this limit to 1000 and allows the implementer to
+modify it with the PEGASUS_MAXIMUM_ZERO_OBJECTCOUNT environment variable.
+
+5. Default operationTimeout - 
+
+The default of this parameter is to refuse operat
+
+In the current release of Pegasus these are all compile time parameters.

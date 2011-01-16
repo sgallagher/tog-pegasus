@@ -137,6 +137,7 @@ EnumerationContext::EnumerationContext(
 
     // set start time for this enumeration sequence
     _startTime = TimeValue::getCurrentTime().toMicroseconds();
+
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
                "Create EnumerationContext operationTimeoutSec %u"
                " responseCacheDataType %u StartTime %lu",
@@ -155,9 +156,6 @@ EnumerationContext::EnumerationContext(const EnumerationContext& x)
     _active = x._active;
     _closed = x._closed;
     _error = x._error;
-
-    //// KS_TBD THIS GENERATES ERROR, MUTEX no copy 
-    ///  allowed._responseCache = x._responseCache;
 }
 
 /*
@@ -178,7 +176,10 @@ void EnumerationContext::startTimer()
     // KS_TODO - Regularize the _operationTimeoutSec. Should this just be
     // microsec???
 #ifdef PEGASUS_USE_PULL_TIMEOUT_THREAD
-    _enumerationTable->dispatchTimerThread((_operationTimeoutSec));
+// KS_TODO - Temporarily disabled the timer test thread to determine if this
+// is causing the problem with crashes.  Right not it appears not because
+// the problem occurred in testing 16 Jan.  Will leave this in for one day.
+//    _enumerationTable->dispatchTimerThread((_operationTimeoutSec));
 #endif
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
@@ -268,16 +269,6 @@ Boolean EnumerationContext::setErrorState(CIMException x)
     _cimException = x;
     return true;
 }
-
-//void EnumerationContext::setState(enumerationState newState)
-//{
-//    _enumerationState = newState;
-//}
-
-//Boolean EnumerationContext::isCurrentState(enumerationState state)
-//{
-//    return (_enumerationState == state)? true : false;
-//}
 
 void EnumerationContext::trace()
 {
@@ -408,11 +399,6 @@ void EnumerationContext::putCache(OperationAggregate*& poA,
             to.appendResponseData(from);
             break;
         }
-
-//
-//      case CIM_EXEC_QUERY_REQUEST_MESSAGE :
-//          //handleExecQueryResponseAggregation(poA);
-//          break;
 
         default:
             static const char failMsg[] =
@@ -620,7 +606,6 @@ Boolean EnumerationContext::incPullOperationCounter(Boolean isZeroLength)
 
 // set providers complete flag and signal the CacheSizeCondition.
 // This could awaken any wait at the cacheWait.
-
 void EnumerationContext::setProvidersComplete()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -694,6 +679,8 @@ Boolean EnumerationContext::setActiveState(Boolean state)
 //      as cheaper way to execute timeouts.
 //
 ************************************************************************/
+
+// KS_TODO Remove this
 //class Timer : public Linkable
 //{
 //public:
@@ -1017,7 +1004,6 @@ void EnumerationTable::removeExpiredContexts()
 void EnumerationTable::dispatchTimerThread(Uint32 interval)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::dispatchTimerThread");
-//  cout <<"Enter disptchTimerThread " << size() << endl;  // KS_TEMP
 
     AutoMutex autoMut(tableLock);
     if (timerThreadIdle())
@@ -1039,9 +1025,6 @@ void EnumerationTable::dispatchTimerThread(Uint32 interval)
         // This thread runs until the timer is cleared or there are
         // no more contexts.
 
-//      cout <<"Calling Dispatch timer Thread " 
-//           << _timeoutInterval << endl;  // KS_TEMP
-
         PEGASUS_ASSERT(valid());   // KS_TEMP
 
         Thread thread(operationContextTimerThread, this, true);
@@ -1059,7 +1042,6 @@ void EnumerationTable::dispatchTimerThread(Uint32 interval)
     }
     PEG_METHOD_EXIT();
 }
-
 
 Boolean EnumerationTable::isTimedOut() const
 {

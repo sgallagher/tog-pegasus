@@ -5259,7 +5259,6 @@ bool BinaryCodec::encodeRequest(
                 (CIMCloseEnumerationRequestMessage*)msg, name);
             break;
         }
-        // KS_TODO Implement these functions.
         case CIM_ENUMERATION_COUNT_REQUEST_MESSAGE:
         {
             _encodeEnumerationCountRequest(buf,

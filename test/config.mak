@@ -73,7 +73,7 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped
 	@ $(STRIPL) $(STRIPLINES) $(TMP_DIR)/$*.rsp_stripped
 	@ $(STRIPL) $(STRIPLINES) $(TMP_DIR)/$*rspgood.xml.stripped
-	@ $(DIFF) $*rspgood.xml.stripped $(TMP_DIR)/$*.rsp_stripped
+	@ $(DIFF) $(TMP_DIR)/$*rspgood.xml.stripped $(TMP_DIR)/$*.rsp_stripped
 	@ $(RM) $(TMP_DIR)/$*.rsp_stripped
 	@ $(RM) $(TMP_DIR)/$*rspgood.xml.stripped
 	@ $(ECHO) +++ $* passed successfully +++
@@ -84,7 +84,7 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped
 	@ $(STRIPL) $(STRIPLINES_DS) $(TMP_DIR)/$*.rsp_ds_stripped
 	@ $(STRIPL) $(STRIPLINES_DS) $(TMP_DIR)/$*rspgood.xml.stripped
-	@ $(call DIFFSORT,$*rspgood.xml.stripped,$(TMP_DIR)/$*.rsp_ds_stripped)
+	@ $(call DIFFSORT,$(TMP_DIR)/$*rspgood.xml.stripped,$(TMP_DIR)/$*.rsp_ds_stripped)
 	@ $(RM) $(TMP_DIR)/$*.rsp_ds_stripped
 	@ $(RM) $(TMP_DIR)/$*rspgood.xml.stripped
 	@ $(ECHO) +++ $* passed successfully +++

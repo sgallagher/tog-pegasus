@@ -1000,8 +1000,10 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,className_),
+            authType_, userName_,
+            nameSpace_,className_),
+        deepInheritance(deepInheritance_),
+        includeClassOrigin(includeClassOrigin_),
         propertyList(propertyList_),
         filterQueryLanguage(filterQueryLanguage_),
         filterQuery(filterQuery_), 
@@ -1041,9 +1043,9 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_OPEN_ENUMERATE_INSTANCE_PATHS_REQUEST_MESSAGE,
-         messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,className_),
+            messageId_, queueIds_,
+            authType_, userName_,
+            nameSpace_,className_),
         filterQueryLanguage(filterQueryLanguage_),
         filterQuery(filterQuery_), 
         operationTimeout(operationTimeout_),
@@ -1083,9 +1085,9 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_OPEN_REFERENCE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,objectName_.getClassName(),
-         TYPE_ASSOCIATION),
+            authType_, userName_,
+            nameSpace_,objectName_.getClassName(),
+            TYPE_ASSOCIATION),
         objectName(objectName_),
         resultClass(resultClass_),
         role(role_),
@@ -1133,10 +1135,10 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_OPEN_REFERENCE_INSTANCE_PATHS_REQUEST_MESSAGE,
-         messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,objectName_.getClassName(),
-         TYPE_ASSOCIATION),
+            messageId_, queueIds_,
+            authType_, userName_,
+            nameSpace_,objectName_.getClassName(),
+            TYPE_ASSOCIATION),
         objectName(objectName_),
         resultClass(resultClass_),
         role(role_),
@@ -1184,9 +1186,9 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,objectName_.getClassName(),
-         TYPE_ASSOCIATION),
+            authType_, userName_,
+            nameSpace_,objectName_.getClassName(),
+            TYPE_ASSOCIATION),
         objectName(objectName_),
         assocClass(assocClass_),
         resultClass(resultClass_),
@@ -1240,10 +1242,10 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_REQUEST_MESSAGE,
-         messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,objectName_.getClassName(),
-        TYPE_ASSOCIATION),
+            messageId_, queueIds_,
+            authType_, userName_,
+            nameSpace_,objectName_.getClassName(),
+            TYPE_ASSOCIATION),
         objectName(objectName_),
         assocClass(assocClass_),
         resultClass(resultClass_),
@@ -1286,8 +1288,8 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-          nameSpace_,CIMName()),
+            authType_, userName_,
+            nameSpace_,CIMName()),
         enumerationContext(enumerationContext_),
         maxObjectCount(maxObjectCount_)
     {
@@ -1312,8 +1314,8 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,CIMName()),
+            authType_, userName_,
+            nameSpace_,CIMName()),
         enumerationContext(enumerationContext_),
         maxObjectCount(maxObjectCount_)
     {
@@ -1338,8 +1340,8 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_CLOSE_ENUMERATION_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,CIMName()),
+            authType_, userName_,
+            nameSpace_,CIMName()),
         enumerationContext(enumerationContext_)
     {
     }
@@ -1347,8 +1349,6 @@ public:
 
     String enumerationContext;
 };
-// EXP_PULL_END
-
 
 class PEGASUS_COMMON_LINKAGE CIMEnumerationCountRequestMessage
     : public CIMOperationRequestMessage
@@ -1363,8 +1363,8 @@ public:
         const String& userName_ = String::EMPTY)
     : CIMOperationRequestMessage(
         CIM_ENUMERATION_COUNT_REQUEST_MESSAGE, messageId_, queueIds_,
-         authType_, userName_,
-         nameSpace_,CIMName()),
+            authType_, userName_,
+            nameSpace_,CIMName()),
         enumerationContext(enumerationContext_)
     {
     }
@@ -1372,7 +1372,6 @@ public:
 
     String enumerationContext;
 };
-
 // EXP_PULL_END
 
 class PEGASUS_COMMON_LINKAGE CIMProcessIndicationRequestMessage

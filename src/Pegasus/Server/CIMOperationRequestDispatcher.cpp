@@ -48,6 +48,7 @@
 #include <Pegasus/Server/QuerySupportRouter.h>
 
 #include <Pegasus/Server/EnumerationContext.h>
+#include <Pegasus/Server/EnumerationTable.h>
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,34 +58,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-
 #define CSTRING(ARG) (const char*) ARG.getCString()
-///////////////////////////////////////////////////////////////////////////
-//     DIAGNOSTICS THAT WE WILL HIDE LATER
 
-//// The following is support for viewing backtrace specific to GNU compilers.
-//#include <execinfo.h>
-//#include <stdio.h>
-//#include <stdlib.h>     
- /* Obtain a backtrace and print it to stdout. */
-//
-//void print_trace (void)
-//{
-//    void *array[20];
-//    size_t size;
-//    char **strings;
-//    size_t i;
-//
-//    size = backtrace (array, 20);
-//    strings = backtrace_symbols (array, size);
-//
-//    printf ("Obtained %zd stack frames.\n", size);
-//
-//    for (i = 0; i < size; i++)
-//        printf ("%s\n", strings[i]);
-//
-//    free (strings);
-//}
 // EXP_PULL_TEMP
 // 
 const char * _toCharP(Boolean x)
@@ -99,19 +74,38 @@ const char * _toCharP(Boolean x)
 ******************************************************************************/
 
 // Define the variable that controls the default pull operation timeout
-// when NULL is received with a request.
+// when NULL is received with a request. This sets the time in seconds between
+// the completion of one operation of an enumeration sequence and the
+// recipt of another.  The server must maintain the context for at least
+// the time defined in this value.
 #ifdef PEGASUS_PULL_OPERATION_DEFAULT_TIMEOUT
     Uint32 _pullOperationDefaultTimeout =
         PEGASUS_PULL_OPERATION_DEFAULT_TIMEOUT;
 #else
     Uint32 _pullOperationDefaultTimeout = 15;
 #endif
+
+// Sets the default maximum size for the response cache in each
+// enumerationContext.  As responses are returned from providers this is the
+// maximum number that can be placed in the CIMResponseData cache waiting
+// for pull operations to move send them as responses before responses 
+// start backing up the providers (i.e. delaying return from the provider
+// deliver calls.
+// FUTURE: As we develop more flexible resource management this value should
+// be modified for each context creation in terms of the object sizes expected
+// and the memory usage of the CIMServer.  Thus, it would be logical to
+// allow caching many more path responses than instance responses because
+// they are probably much smaller.
+// This variableis not externalized to a #define because we are not sure
+// pif that is logical.
+Uint32 responseCacheDefaultMaximumSize = 1000;
 //
 // Define the table that will contain enumeration contexts for Open, Pull,
 // Close, and countEnumeration operaitons.  The default interoperation 
 // timeout is set as part of creating the table.
 //
-static EnumerationTable enumerationTable(_pullOperationDefaultTimeout);
+static EnumerationTable enumerationTable(_pullOperationDefaultTimeout,
+                                         responseCacheDefaultMaximumSize);
 
 // Local save for host name. save host name here.  NOTE: Problem if hostname
 // changes. Set by object init. Used by aggregator.
@@ -555,7 +549,6 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     _maximumEnumerateBreadth = 1000;
 #endif
 
-
     // Define the maximum number of objects that the server will return for a
     // single pull... or open... operation. (Objects can be instances or
     // CIMObjectPaths  depending on the operation.
@@ -573,13 +566,20 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // error CIM_ERR_INVALID_OPERATION_TIMEOUT.
 
     _systemMaxOperationTimeout = 15;
-//// KS_TODO. Make this more flexible
 
     // define the variable that controls whether we allow 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
     // that the server maintains no timer for the context, it may be the 
     // decision of some implementors to not allow this value.
+    // Define the maximum number of objects that the server will return for a
+    // single pull... or open... operation. (Objects can be instances or
+    // CIMObjectPaths  depending on the operation.
+#ifdef PEGASUS_PULL_OPERATION_REJECT_ZERO_TIMEOUT_VALUE
+    _rejectZeroOperationTimeoutValue = true
+#else
+    // Default setting if nothing supplied externally
     _rejectZeroOperationTimeoutValue = false;
+#endif
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     String moduleList =
@@ -1043,9 +1043,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
             else     // not closed. Put data into cache
             {
                 // This function may wait and block providers
-                // KS_TODO Should we set exception before putcache or
-                // even part of same function
-                en->putCache(poA, response, isComplete);
+                en->putCache(poA->getRequestType(), response, isComplete);
                 if (response->cimException.getCode())
                 {
                     en->setErrorState(response->cimException);
@@ -3198,7 +3196,6 @@ struct ProviderRequests
         EnumerationContext* enumerationContext =
              enumerationTable.find(request->enumerationContext);
 
-        enumerationContext->trace();          // KS_TEMP
            
         // If enumeration Context not found, return invalid exception
         if (dispatcher->_rejectInValidEnumerationContext(request,
@@ -3207,6 +3204,9 @@ struct ProviderRequests
             PEG_METHOD_EXIT();
             return;        
         }
+
+        enumerationContext->trace();          // KS_TEMP
+
         // reject if this is a not valid request for the originating Operation
         if (dispatcher->_rejectInvalidPullRequest(request,
             enumerationContext->isValidPullRequestType(request->getType())))
@@ -3295,7 +3295,6 @@ struct ProviderRequests
         // Set type per the to datatype
         CIMResponseData from(enumerationContext->getCIMResponseDataType());
     
-        // KS_TODO - We do not yet use the rtn variable.
         Boolean rtn = enumerationContext->getCacheResponseData(
             localMaxObjectCount, from);
     
@@ -3358,7 +3357,7 @@ struct ProviderRequests
 ****************************************************************************/
 
 // Test to determine if Association traversal is enabled.
-// KS_TODO - This test is an obsolete artifact of the time when we were first
+// FUTURE - This test is an obsolete artifact of the time when we were first
 // using association operations and should probably be dropped as an option
 // of pegasus and as a test.
 // returns true if Not Enabled, false if enabled
@@ -3409,7 +3408,6 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
    Generate error if it exists and is not a valid CIMName.
    @return true if invalid and false if valid
 */
-// KS_TODO - Add the name of the parameter to the output.
 Boolean CIMOperationRequestDispatcher::_rejectInvalidRoleParameter(
     CIMRequestMessage* request,
     const String& roleParameter,
@@ -5957,9 +5955,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     poA->setPullOperation((void *)enumerationContext,
         enContextIdStr, request->nameSpace);
 
-    // KS_TBD - Not sure we need this any more.
-    //poA->setCountToDeliver(request->maxObjectCount);
-
     /// KS_TODO - Why this as a special.  Should be able to do this in more
     // protective way.
     poA->_nameSpace = request->nameSpace;
@@ -5970,7 +5965,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // If repository as instance provider is enabled, get instances
     // from the repository
     //
-
     PEGASUS_ASSERT(poA->valid());   // KS_TEMP
     if (_repository->isDefaultInstanceProvider())
     {
@@ -6130,9 +6124,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
                operationMaxObjectCount ));
 
     // Create a temporary response data with correct type.
-    // KS_TODO - Should be able to allocate this object in the
-    // getCacheResponseData function.
-    CIMResponseData from(CIMResponseData::RESP_INSTANCES);
+   CIMResponseData from(CIMResponseData::RESP_INSTANCES);
 
     // get response data from the cache up to maxObjectCount and return
     // it in a new CIMResponseData object. This function waits for
@@ -6336,9 +6328,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     //
     poA->setPullOperation((void *)enumerationContext,
         enContextIdStr, request->nameSpace);
-
-    // KS_PULL_TODO Think this can go away in future
-    //poA->setCountToDeliver(request->maxObjectCount);
 
     Uint32 numClasses = providerInfos.size();
     Uint32 totalIssued = 0;
@@ -6635,7 +6624,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     // if there are no providers and nothing from repository
     // return not supported exception.
-    // KS_TODO We should be able tos imply drop through to normal code
+    // KS_TODO We should be able to imply drop through to normal code
     // and drop this completely by cleaning up the exception setting.
 
     if (providerInfos.providerCount == 0 && cimObjects.size() == 0)
@@ -7081,9 +7070,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     poA->setPullOperation((void *)enumerationContext,
         enContextIdStr, request->nameSpace);
 
-    // KS_TODO Think this is all obsolete.
-    //poA->setCountToDeliver(request->maxObjectCount);
-
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
     "OpenReferenceInstancePaths 7a. ProviderCount = %u repository count = %u",
     providerInfos.providerCount, instanceNames.size()));
@@ -7177,8 +7163,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     // Create a Response data based on what is in the cache now.
     // Create a temporary response data with correct type.
-    // KS_TODO - Should be able to allocate this object in the
-    // getCacheResponseData function.
 
     CIMResponseData from(CIMResponseData::RESP_OBJECTPATHS);
 
@@ -7237,11 +7221,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 /**$********************************************************
     handlePullInstancesWithPath
 ************************************************************/
-
-// KS_TODO - Testsingle template function that will process both
-// pullInstancePaths and PullInstancesWithPath. This is now built and
-// usage is enabled with the PULL_TEMPLATE_TEST flag below.
-// Right now the template code causes errors.
 
 void CIMOperationRequestDispatcher::handlePullInstancesWithPath(
     CIMPullInstancesWithPathRequestMessage* request)
@@ -7604,7 +7583,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // If the providers are complete close the enumeration. Else
     // prepare for the next operation by setting the inactive state
     // and starting the timer.
-    // KS_TODO - WOuld like to move the close and remove to the
+    // KS_TODO - Would like to move the close and remove to the
     // function also.
     if ((openResponse->endOfSequence =
          enumerationContext->ifEnumerationComplete()))
@@ -7934,8 +7913,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 
     // Create a Response data based on what is in the cache now.
     // Create a temporary response data with correct type.
-    // KS_TODO - Should be able to allocate this object in the
-    // getCacheResponseData function.
 
     CIMResponseData from(CIMResponseData::RESP_OBJECTPATHS);
 

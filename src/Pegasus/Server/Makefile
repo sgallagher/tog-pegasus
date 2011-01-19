@@ -98,6 +98,7 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
 	EnumerationContext.cpp \
+    EnumerationTable.cpp \
 	CIMOperationRequestDecoder.cpp \
 	CIMOperationResponseEncoder.cpp \
 	CIMOperationRequestDispatcher.cpp \

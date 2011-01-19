@@ -39,6 +39,7 @@ DIRS =	AssociationClient \
 	ClientStatistics \
 	TestStaticClient \
 	BinaryClient \
+    PullErrors \
 	pullop
 
 DIRS_SLP = \

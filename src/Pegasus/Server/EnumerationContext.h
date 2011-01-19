@@ -45,7 +45,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 #include <Pegasus/Common/Magic.h>
 #include <Pegasus/Common/Condition.h>
 
@@ -67,13 +66,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 /******************************************************************************
 **
-**    Class that caches each outstanding enumeration. Contains
+**    Class that caches each outstanding enumeration sequence. Contains
 **    the parameters and current status of existing enumerations
 **    that the server is processing.  Enumerations are those 
 **    sequences of operations starting with an Open... operation
-**    and proceeding through Pull... and possible closeEnumeration
+**    and proceeding through Pull... and possible close Enumeration
 **    operations.  The enumerationContext is the glue information
-**    that ties the sequence of operations together.  This struc
+**    that ties the sequence of operations together.  This struct
 **    defines the information that is maintained througout the
 **    life of the sequence.
 **    This structure also contains the queue of CIMOperationData objects
@@ -130,16 +129,6 @@ class EnumerationTable;
 class PEGASUS_SERVER_LINKAGE EnumerationContext
 {
 public:
-    // KS_TODO move from the individual binary state indicators to a
-    // single state variable and state test/change function.
-//  enum enumerationState { ENUM_OPENING = 1,
-//      ENUM_ACTIVE = 2,
-//      ENUM_TIMER = 3,
-//      ENUM_CLOSING = 4,
-//      ENUM_CLOSED = 5,
-//      ENUM_ERROR = 6
-//  };
-
     // KS_TODO want this to be protected and available only to its friend
     // class.  We do not want others to create contexts.
     EnumerationContext(const CIMNamespaceName& nameSpace,
@@ -151,10 +140,9 @@ public:
     ~EnumerationContext();
 
     /**
-     * get the name of this enumeration context. The id is the key to 
-     * access the enumeration table.
-     * // KS TODO - This string must be immutable 
-     * @return Context name String. 
+       Get the name of this enumeration context. The id is the key to 
+       access the enumeration table.
+       @return Context name String. 
      */
     String& getContextName()
     {
@@ -162,10 +150,10 @@ public:
     }
 
     /**
-     * get the Type of the CIMResponseData object in the enumeration 
-     * context. 
-     * @paran return Type 
-     */
+       Get the Type of the CIMResponseData object in the enumeration 
+       context. 
+       @paran return Type 
+    */
     CIMResponseData::ResponseDataContent getCIMResponseDataType()
     {
         return _responseCache.getResponseDataContent();
@@ -184,7 +172,7 @@ public:
     Boolean isTimedOut();
 
     // diagnostic tests magic number in context to see if valid
-    // Diagnostic tool
+    // Diagnostic tool only. 
     Boolean valid();
 
     Boolean isClosed();
@@ -193,58 +181,55 @@ public:
 
     Boolean setErrorState(CIMException cimException);
 
-    // Sets next state for Enumeration context
-    // NOTE: The following two are not used now.  We want to move from
-    // the bunch of flags approach to changing state.
-    //void setState(enumerationState newState);
-
-    //Boolean isCurrentState(enumerationState state);
-
     /**
         Test the Message type for the open message saved in the
         context against the type parameter.  This provides a test
         that insures that Pull message types match the open type.
         Ex. PullPaths can only be used with OpenPath contexts
-        @paran type MessageType for (for pull operation)
+        @param type MessageType for (for pull operation)
         @return Returns true if type match is correct. Returns false
         if not
      */
     Boolean isValidPullRequestType(MessageType type);
 
-    // Test this context to determine if it is active
+    /** Test this context to determine if it is active (i.e an
+        operation is in process.
+    */
     Boolean isActive();
 
     Uint32 getCurrentObjectCount(Uint32Arg& x);
+
     // Diagnostic to display the current context into the
     // trace file
     void trace();
 
     /**
-       Put the CIMResponseDatae from the response message into the 
+       Put the CIMResponseData from the response message into the 
        enumerationContext cache and if isComplete is true, set the 
        enumeration state to providersComplete. This function signals 
-       the getCache function conditional variable. 
-       KS_TODO - Why is poA necessary here?? 
+       the getCache function conditional variable. This function may also 
+       wait if the cache is full. 
      */
-    void putCache(OperationAggregate*& poA,
-                  CIMResponseMessage*& response, Boolean isComplete);
+    void putCache(MessageType type,
+                  CIMResponseMessage*& response,
+                  Boolean isComplete);
 
     /**
-     * Get up to the number of objects defined by count from the 
-     * CIMResponseData cache in the enumerationContext.  This function 
-     * waits for a number of possible events as defined below and 
-     * returns only when one of these events is true. 
-     *  
-     * REMEMBER: This function gives up control while waiting. 
-     *  
-     * Wait events: 
-     *     a. the number of objects to match or exceed count
-     *     b. the _providersComplete flag to be set.
-     *     c. Future - The errorState to be set KS_TODO
-     * @param - count - Uint32 count of max number of objects to return 
-     * @param rtn CIMResponseData containing the objects returned 
-     * @return Returns true except if the  errorState 
-     * has been set. 
+       Get up to the number of objects defined by count from the 
+       CIMResponseData cache in the enumerationContext.  This function 
+       waits for a number of possible events as defined below and 
+       returns only when one of these events is true. 
+  
+       REMEMBER: This function gives up control while waiting. 
+
+       Wait events: 
+           a. the number of objects to match or exceed count
+           b. the _providersComplete flag to be set.
+           c. Future - The errorState to be set KS_TODO
+       @param - count - Uint32 count of max number of objects to return 
+       @param rtn CIMResponseData containing the objects returned 
+       @return Returns true except if the  errorState 
+       has been set. 
      */
     Boolean getCacheResponseData(Uint32 count, CIMResponseData& rtn);
 
@@ -258,22 +243,24 @@ public:
     }
     
     /**
-       Returns count of objects in the EnumerationContext CIMResponseData 
-       cache. 
-       @return  Uint32 count of objects currently in the cache 
-     */
+        Returns count of objects in the EnumerationContext CIMResponseData 
+        cache. 
+        @return  Uint32 count of objects currently in the cache 
+    */
     Uint32 cacheSize();
 
      /**
-     * Set the ProvidersComplete state.  This should be set from provider 
-     * responses when all responses processed. 
-     */
+        Set the ProvidersComplete state.  This should be set from provider 
+        responses when all responses processed. 
+    */
     void setProvidersComplete();
 
-    // Determine if the aggregation can be closed and if so close it.
-    // Should be done before it is removed from the table. Closed means
-    // providers complete and either we are not going to deliver more.
-    // When closed it is considered unusable
+    /** 
+        Determine if the aggregation can be closed and if so close it.
+        Should be done before it is removed from the table. Closed means
+        providers complete and either we are not going to deliver more.
+        When closed it is considered unusable.
+    */
     Boolean setClosed();
 
     /**
@@ -305,10 +292,12 @@ public:
     // copy constructor
     EnumerationContext(const EnumerationContext& x);
 
-    /*
+    /**
         Increment the count of the number of pull operations executed
-        for this context. This method also controls the zero
-        @isZeroLength Boolean indicating if this operation is a request
+        for this context. This method also controls the counting
+        of operations with zero length through the input parameter
+        
+        @param isZeroLength Boolean indicating if this operation is a request
         for zero objects which is used to count consecutive zero length
         pull operations.
         @return true if the count of consecutive zero length pull operations
@@ -320,10 +309,19 @@ public:
     // aggregate with any CIMException recieved from providers.  Note that
     // Only one is allowed.
     CIMException _cimException;
+
 private:
+
     friend class EnumerationTable;
 
-    Mutex contextLock;
+    /**
+       Private function to actually add new response to CIMResponseData 
+       in the EnumerationContext cache 
+       @param Message type 
+       @param response CIMResponseMessage to be inserted
+    */
+    void _insertResponseIntoCache(MessageType type,
+        CIMResponseMessage*& response);
 
     // Name of this EnumerationContext. Used to find the context by
     // pull and close operations.
@@ -333,7 +331,8 @@ private:
     // interopertion timeout value in seconds.  From operation request
     // parameters.
     Uint32 _operationTimeoutSec;
-    // ContinueONError request flag. Currently always FALSE since we do not
+
+    // ContinueOnError request flag. Currently always FALSE since we do not
     // allow it in this version of Pegasus
     Boolean _continueOnError;
 
@@ -345,8 +344,6 @@ private:
     // Request Type for pull operations for this pull sequence.
     // Set by open and all pulls must match this type.
     MessageType _pullRequestType;
-
-    Magic<0x57D11474> _magic;
 
     // status flags.
     Boolean _closed;
@@ -364,9 +361,9 @@ private:
     // Condition variable and mutex for the  cache size tests. This condition
     // variable is used by getCache(..) to force a wait until specific
     // conditions have been met by the EnumerationContext.
-    Condition CacheTestCondition;
-    Mutex CacheTestCondMutex;
-    Uint32 conditionCounter;
+    Condition _cacheTestCondition;
+    Mutex _cacheTestCondMutex;
+    Uint32 _conditionCounter;
     /**
         Tests the cache to determine if we are ready to send a response.
         The test is two parts, a) enough objects (i.e. GE size input parameter)
@@ -388,8 +385,8 @@ private:
     // reaches a defined limit that is cleared when the cache level drops
     // to below the defined level (See functions waitProviderLimitCondition and
     // signalProviderLimitCondition)
-    Condition providerLimitCondition;
-    Mutex providerLimitConditionMutex;
+    Condition _providerLimitCondition;
+    Mutex _providerLimitConditionMutex;
 
     // Functions for using providerLimitCondition.  Wait executes a wait
     // until the conditions of the condition variable are met.
@@ -400,7 +397,6 @@ private:
     // it should test the wait conditions.
     void signalProviderLimitCondition();
 
-    // statistics for the context
     // Count Of pull operations executed in this context.  Used for statistics
     Uint32 _pullOperationCounter;
 
@@ -408,179 +404,19 @@ private:
     // stalling by executing excessive number of zero return pull opreations.
     Uint32 _zeroRtnPullOperationCounter;
 
+    // Maximum number of objects that can be placed in the response Cache
+    // before blocking providers.
+    Uint32 _responseCacheMaximumSize;
+
     Uint64 _startTime;
     // Max number of objects in the cache.
     Uint32 _cacheHighWaterMark;
-    
-    Uint32 _cacheProviderWaitHighWaterMark;
-    Uint32 _cacheProviderWaitAvg;
-    Uint32 _cacheProviderWaitCount;
-    
-    Uint32 _cacheGeyHighWaterMark;
-    Uint32 _cacheGetAvg;
-    Uint32 _cacheGetCount;
-
+ 
     // Pointer to enumeration table.
     EnumerationTable* _enumerationTable;
-};
-
-
-/****************************************************************************
-**
-**   EnumerationTable Class
-
-**  This Class defines a table contains all active EnumerationContext
-**  elements (structs). It is organized as a list and includes
-**  methods to create new contexts, find a context by name, manage
-**  the information in a context amd remove a context.
-**  Each context element is represented by the EnumerationContext
-**  structure.
-**  This class is expected to be used only within the Operation
-**  Dispatcher.
-*****************************************************************************/
-
-class PEGASUS_SERVER_LINKAGE EnumerationTable
-{
-public:
-
-    EnumerationTable(Uint32 defaultInteroperationTimeoutValue);
-
-    ~EnumerationTable();
-
-    /**
-      Create a new EnumerationContext object and return a pointer to
-      the object. 
-     @param nameSpace - Namespace for this sequence.
-     @param Uint32 value of operation timeout.
-     @param continueOnError Boolean containing the continueOnError flag for 
-          this context.  (CURRENT MUST BE FALSE) 
-     @param pullOpenRequestType - Type for the Pull request message so 
-         tests can be made when pull received.  Used to prevent trying
-         to pullpaths when instances required, etc.
-     @param contentType - Content type for the CIMResponseData cache container
-     @param enumerationContextName  - Output parameter containing the 
-         string which is the enumerationContext name that is used with
-         the find command and as the context in the operations
- 
-     @return EnumerationContext* 
-     */
-    EnumerationContext* createContext(
-        const CIMNamespaceName& nameSpace,
-        Uint32Arg&  operationTimeOutParam,
-        Boolean continueOnError,
-        MessageType pullRequestType,
-        CIMResponseData::ResponseDataContent contentType,
-        String& enumerationContextName);
-
-    /** Find and remove the enumeration context from the table
-    */
-    Boolean remove(const String& enumerationContextName);
-
-    Boolean remove(EnumerationContext* en);
-
-    /**
-     * Returns the number of enumeration context entries in the 
-     * enumeration context table 
-     * 
-     * @return Uint32 
-     */
-    Uint32 size() const;
-
-    void clear();
-
-    /**
-     * Remove any contexts that have expired inteoperation timers
-     */
-    void removeExpiredContexts();
-
-    EnumerationContext* find(const String& enumerationContextName);
-
-    /**
-     * Diagnostic to output info on all entries in table to trace log
-     */
-    void trace();
-
-    /**
-     * Dispatch the Timer thread if it is not already dispatched.  
-
-     * @param interval Uint32 interval defines the interval for this context 
-     *        in seconds. 
-     */
-    void dispatchTimerThread(Uint32 interval);
-
-    Uint32 getMinPullDefaultTimeout() const;
-
-    /**
-     * Return true if the Timer Thread is idle (i.e. not running
-     */
-    Boolean timerThreadIdle()
-    {
-
-        return _nextTimeout == 0;
-    }
-
-    /**
-     * Set the Timer Thread Idle (i.e. Not running)
-     */
-    void setTimerThreadIdle()
-    {
-        _nextTimeout = 0;
-    }
-
-    void updateNextTimeout()
-    {
-        _nextTimeout += _timeoutInterval;
-    }
-
-    Uint32 timoutInterval()
-    {
-        return _timeoutInterval;
-    }
-
-    // Test if the timeout thread next timeout has passed.
-    Boolean isTimedOut() const;
-
-
-    // diagnostic tests magic number in context to see if valid
-    // Diagnostic tool
-    Boolean valid();
-protected:
-    // timers for timer thread in seconds
-    // Current minimum timeout time for active pull sequences
-    Uint32 _timeoutInterval;
-    // next time the test for timed out pull sequences will be activated.
-    // KS_TODO - This is incorrect since it will be the minimum for all
-    // time.  How can we keep minimum for the active ones?
-    Uint64 _nextTimeout;
-private:
-    // Enumeration Context objects are maintained in the following
-    // Pegasus hash table
-    typedef HashTable<String,
-        EnumerationContext* ,
-        EqualFunc<String>,
-        HashFunc<String> > HT;
-    HT ht;
-
-    // Private remove.  This is function that actually executes the remove
-    // Not protected by mutex.
-    Boolean _remove(EnumerationContext* en);
-
-    // monolithic increasing counter forms part of context id string
-    Uint64 _enumContextCounter;
-
-    Mutex tableLock;
-
-    // systemwide highwater mark of number of objects in context cache
-    // maintained from max of each context close/removal.
-    Uint32 _cacheHighWaterMark;
-
-    // default interoperationTimeout
-    Uint32 _pullOperationDefaultTimeout;
 
     Magic<0x57D11474> _magic;
 };
-
-//KS_PULL_END
 
 PEGASUS_NAMESPACE_END
 

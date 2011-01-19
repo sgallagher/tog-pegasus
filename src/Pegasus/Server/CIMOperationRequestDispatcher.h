@@ -50,7 +50,6 @@
     <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Server/reg_table.h>
-//#include <Pegasus/Server/EnumerationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -251,10 +250,6 @@ public:
 
     void decObjectCount();
 
-//  Uint32 getCountToDeliver();
-//
-//  void setCountToDeliver(const Uint32Arg& x, Uint32 max = 1000);
-
     MessageType getRequestType() const;
 
     void resequenceResponse(CIMResponseMessage& response);
@@ -285,7 +280,6 @@ public:
     QueryExpressionRep* _query;
     String _queryLanguage;
     Uint64 _objectCount;
-    //Uint32 _countToDeliver;
     Boolean _pullOperation;
     Boolean _enumerationFinished;
     Boolean _closeReceived;

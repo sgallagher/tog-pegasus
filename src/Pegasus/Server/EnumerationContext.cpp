@@ -339,7 +339,13 @@ void EnumerationContext::putCache(MessageType type,
         _toCharP(isComplete), to.getResponseDataContent() ));
 
     _insertResponseIntoCache(type, response);
-    
+
+    // test and set the high water mark for this cache.
+    if (cacheSize() > _cacheHighWaterMark)
+    {
+        _cacheHighWaterMark = cacheSize();
+    }
+        
     // Signal that we have added to the CIMResponseData cache. Do this
     // before waiting to be sure any cache size wait is terminated.
     signalCacheSizeCondition();
@@ -362,9 +368,9 @@ void EnumerationContext::putCache(MessageType type,
 void EnumerationContext::_insertResponseIntoCache(MessageType type,
                                   CIMResponseMessage*& response)
 {
-    AutoMutex autoMut(_cacheBlock);
-
     CIMResponseData& to = _responseCache;
+
+    AutoMutex autoMut(_cacheBlock);
 
     // Append the new Response to the CIMResponseData in the cache
     switch(type)
@@ -432,16 +438,6 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
             PEGASUS_ASSERT(0);
             break;
     } // switch
-
-    // test and set the high water mark for this cache.
-    if (cacheSize() > _cacheHighWaterMark)
-    {
-        _cacheHighWaterMark = cacheSize();
-    }
-    
-    // signal that we have added to the CIMResponseData cache. Do this
-    // before waiting to be sure any cache size wait is terminated.
-    signalCacheSizeCondition();
 }
 
 /***************************************************************************** 
@@ -518,8 +514,9 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     Stopwatch waitTimer;        // KS_TEMP I think
     waitTimer.start();
 
+    // condition variable wait loop. waits on cache size or
+    // providers complete
     _cacheTestCondMutex.lock();
-    // condition variable wait loop
     while (!_providersComplete && (cacheSize() < size)) 
     {
         _cacheTestCondition.wait(_cacheTestCondMutex);

@@ -6162,7 +6162,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
          enumerationContext->ifEnumerationComplete()))
     {
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            "Close Enumeration");
+            "Close OpenInstancesWithPath Enumeration");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
         enumerationTable.remove(enumerationContext);

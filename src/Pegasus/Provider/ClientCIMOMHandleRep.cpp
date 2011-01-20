@@ -140,7 +140,7 @@ public:
             //
             try
             {
-                client->connectLocal();
+                client->connectLocalBinary();
             }
             catch(...)
             {

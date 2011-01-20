@@ -299,10 +299,13 @@ public:
 
     void setBinaryRequest(bool x) { _binaryRequest = x; }
 
+    void connectLocalBinary();
+
 private:
 
     void _connect(bool binaryRequest, bool binaryResponse);
     void _disconnect();
+    void _connectLocal(bool binary);
 
     Message* _doRequest(
         AutoPtr<CIMRequestMessage>& request,

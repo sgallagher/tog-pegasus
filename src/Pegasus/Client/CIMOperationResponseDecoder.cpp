@@ -323,10 +323,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             (((!String::equalNoCase(type, "application/xml") &&
               !String::equalNoCase(type, "text/xml")) ||
              !String::equalNoCase(charset, "utf-8"))
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
             && !(binaryResponse=String::equalNoCase(
                 type, "application/x-openpegasus"))
-#endif
         ))
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new

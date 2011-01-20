@@ -898,13 +898,62 @@ struct testCalls{
 
 }; // End of Class testCalls
 
+// Parse Hostname input into name and port number
+Boolean parseHostName(char* arg, String& hostName, Uint32& port)
+{
+    port = 5988;
+    String argv = arg;
+    hostName = argv;
+
+    Uint32 pos;
+    if (!((pos = argv.reverseFind(':')) == PEG_NOT_FOUND))
+    {
+        Uint64 temp;
+        if (StringConversion::decimalStringToUint64(
+            hostName.subString(pos+1).getCString(), temp)
+            &&
+            StringConversion::checkUintBounds(temp,CIMTYPE_UINT32))
+        {
+            hostName.remove(pos);
+            port = (Uint32)temp;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     CIMClient client;
+
+    // Try to connect.  If there is an optional argument use it as the
+    // hostname, optional(port) to connect.
     try
     {
-        client.connectLocal();
+        if (argc == 2)
+        {
+            Uint32 port;
+            String hostName;
+            if (!parseHostName(argv[1], hostName, port))
+            {
+                cerr << "Invalid hostName input " << argv[1]
+                     << "format is hostname[:port]" << endl;
+                return 1;
+            }
+
+            VCOUT << "Connect hostName = " << hostName << " port = " 
+                  << port << endl;
+            client.connect(hostName, port, "", "");
+        }
+        else
+        {
+            VCOUT << "connectLocal" << endl;
+            client.connectLocal();
+        }
     }
 
     catch (CIMException& e)

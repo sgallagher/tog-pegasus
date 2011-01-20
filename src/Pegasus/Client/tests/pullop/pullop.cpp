@@ -150,7 +150,6 @@ Uint32 errors = 0;
 
 String namespace_opt = "";
 String host_opt = "";
-Uint32 port_opt = 5988;
 String user_opt = "";
 String password_opt = "";
 // Spec default is null. We are using 0 for the moment.
@@ -219,9 +218,10 @@ OPTIONS:\n\
     --help          Print this help message.\n\
     -n NAMESPACE    The operation namespace(default is \"root/cimv2\").\n\
     -c OBJECTNAME   Name of class or object instance to process.\n\
-    -H HOST         Connect to this HOST. (default is localhost)\n\
-    -P PORT         Integer. Connect on this PORT if -H set. (Default 5988)\n\
-    -u USER         SWtring. Connect as this USER.\n\
+    -H HOST         Connect to this HOST where format for host is \n\
+                    hostName [:port]. Default is to use connectLocal.\n\
+                    If hostName specified witout port(default is 5988)\n\
+    -u USER         String. Connect as this USER.\n\
     -p PASSWORD     String. Connect with this PASSWORD.\n\
     -t TIMEOUT      Integer interoperation timeout. (Default 0)\n\
     -s seconds      Time to sleep between operations. Used to test timeouts\n\
@@ -1924,6 +1924,32 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
            << endl;
 }
 
+// Parse Hostname input into name and port number
+Boolean parseHostName(const String arg, String& hostName, Uint32& port)
+{
+    port = 5988;
+    hostName = arg;
+
+    Uint32 pos;
+    if (!((pos = arg.reverseFind(':')) == PEG_NOT_FOUND))
+    {
+        Uint64 temp;
+        if (StringConversion::decimalStringToUint64(
+            hostName.subString(pos+1).getCString(), temp)
+            &&
+            StringConversion::checkUintBounds(temp,CIMTYPE_UINT32))
+        {
+            hostName.remove(pos);
+            port = (Uint32)temp;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 /****************************************************************************** 
 ** 
 **  Main - parse input options and call function defined by
@@ -1943,7 +1969,7 @@ int main(int argc, char** argv)
     */
     int opt;
     while ((opt = getopt(argc, argv,
-                         "c:hVv:n:H:P:u:p:t:M:N:CTf:l:L:r:o:xR-:s:")) != -1)
+                         "c:hVv:n:H:u:p:t:M:N:CTf:l:L:r:o:xR-:s:")) != -1)
     {
         switch (opt)
         {
@@ -2002,12 +2028,7 @@ int main(int argc, char** argv)
                 host_opt = optarg;
                 break;
             }
-            case 'P':
-            {
-                port_opt = atoi(optarg);
-                break;
-            }
-            case 'u':
+             case 'u':
             {
                 user_opt = optarg;
                 break;
@@ -2083,7 +2104,7 @@ int main(int argc, char** argv)
             case 'r':
             {
                 repeat_opt = atoi(optarg);
-                cout << "KS_TBD - Option -r NOT IMPLEMENTED in code" << endl;
+                cout << "Option -r NOT IMPLEMENTED in code" << endl;
                 break;
             }
             case 'R':
@@ -2119,7 +2140,6 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            // KS_TODO - Add filterQueryLanguage_opt and 
             default:
             {
                 printf("ERROR: unknown option: %c", opt);
@@ -2142,16 +2162,6 @@ int main(int argc, char** argv)
     }
     String operation = argv[0];
 
-//  cout <<"Operation = " << operation
-//        << ". timeout = " << timeout_opt.toString()
-//        << ". maxObjCount = " << maxObjectsOnOpen_opt.toString() << endl;
-
-//  CIMNamespaceName nameSpace = "root/SampleProvider";
-//  String ClassName = "Sample_InstanceProviderClass";
-//    CIMNamespaceName nameSpace = "test/TestProvider";
-//    String ClassName = "Test_Person";
-//    cout << "ClassName = " << ClassName << endl;
-
     CIMClient client;
     try
     {
@@ -2161,7 +2171,17 @@ int main(int argc, char** argv)
         }
         else
         {
-            client.connect(host_opt, port_opt, user_opt, password_opt);
+            String hostName;
+            Uint32 port;
+            if (parseHostName(host_opt, hostName, port))
+            {
+                client.connect(hostName, port, user_opt, password_opt);
+            }
+            else
+            {
+                cerr << "Host name parameter error " << hostName << endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
         }
     }
 

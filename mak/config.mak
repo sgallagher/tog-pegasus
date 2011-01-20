@@ -1480,27 +1480,6 @@ endif
 
 ##==============================================================================
 ##
-## PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
-##
-##     Enable binary protocol between cimserver and out-of-process providers.
-##     By default this feature is enabled.
-##
-##==============================================================================
-
-ifndef PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
-  PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY=true
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
-  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
-else
-  ifneq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),false)
-    $(error "PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY must be true or false")
-  endif
-endif
-
-##==============================================================================
-##
 ## PEGASUS_ENABLE_PROTOCOL_BINARY
 ##
 ##     Enables the binary protocol between clients and cimserver. With provider

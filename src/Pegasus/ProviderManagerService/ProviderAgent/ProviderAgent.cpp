@@ -33,8 +33,6 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/AtomicInt.h>
-#include <Pegasus/Common/CIMMessageSerializer.h>
-#include <Pegasus/Common/CIMMessageDeserializer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/OperationContext.h>

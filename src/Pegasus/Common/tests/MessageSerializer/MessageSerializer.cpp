@@ -35,14 +35,8 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/SCMOClassCache.h>
-
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
-# include <Pegasus/Common/CIMBinMsgSerializer.h>
-# include <Pegasus/Common/CIMBinMsgDeserializer.h>
-#else
-# include <Pegasus/Common/CIMMessageSerializer.h>
-# include <Pegasus/Common/CIMMessageDeserializer.h>
-#endif
+#include <Pegasus/Common/CIMBinMsgSerializer.h>
+#include <Pegasus/Common/CIMBinMsgDeserializer.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -574,7 +568,6 @@ void validateCIMResponseMessageAttributes(
     a Message object.
 */
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
 {
     CIMBuffer buf(64*1024);
     CIMBinMsgSerializer::serialize(buf, inMessage);
@@ -587,34 +580,11 @@ CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 
     return outMessage;
 }
-#else
-{
-    Buffer outBuffer;
-    CIMMessageSerializer::serialize(outBuffer, inMessage);
-    outBuffer.append(0);
-
-    char* inBuffer = new char[outBuffer.size()];
-    memcpy(inBuffer, outBuffer.getData(), outBuffer.size());
-
-    if (verbose)
-    {
-        cout << inBuffer << endl;
-    }
-
-    CIMMessage* outMessage;
-
-    outMessage = CIMMessageDeserializer::deserialize(inBuffer);
-
-    delete [] inBuffer;
-    return outMessage;
-}
-#endif
 
 //
 // testEmptyRequestMessage
 //
 void testEmptyMessage()
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
 {
     CIMBuffer buf(64*1024);
     CIMBinMsgSerializer::serialize(buf, 0);
@@ -626,17 +596,6 @@ void testEmptyMessage()
     CIMMessage* outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
     PEGASUS_TEST_ASSERT(outMessage == 0);
 }
-#else
-{
-    Buffer outBuffer;
-    CIMMessageSerializer::serialize(outBuffer, 0);
-    PEGASUS_TEST_ASSERT(outBuffer.size() == 0);
-
-    char inBuffer[1] = { 0 };
-    CIMMessage* outMessage = CIMMessageDeserializer::deserialize(inBuffer);
-    PEGASUS_TEST_ASSERT(outMessage == 0);
-}
-#endif
 
 //
 // testCIMGetInstanceRequestMessage
@@ -2912,11 +2871,7 @@ void testMessageSerialization()
     testProvAgtGetScmoClassResponseMessage(mid2,ex1,class3,qids4);
     testProvAgtGetScmoClassResponseMessage(mid1,ex3,class2,qids3);
     testProvAgtGetScmoClassResponseMessage(mid4,ex2,class1,qids2);
-#ifdef PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
-    // This test case is only valid if binary protocol is used.
-    // At XML not all flavors for properties are transfered.
     testProvAgtGetScmoClassResponseMessage(mid3,ex4,class4,qids1);
-#endif
 
     testCIMGetInstanceResponseMessage(oc4, mid1, ex2, qids3, inst4);
     testCIMGetInstanceResponseMessage(oc1, mid2, ex3, qids4, inst1);

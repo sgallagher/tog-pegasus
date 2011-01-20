@@ -29,14 +29,8 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
-# include <Pegasus/Common/CIMBinMsgSerializer.h>
-# include <Pegasus/Common/CIMBinMsgDeserializer.h>
-#else
-# include <Pegasus/Common/CIMMessageSerializer.h>
-# include <Pegasus/Common/CIMMessageDeserializer.h>
-#endif
-
+#include <Pegasus/Common/CIMBinMsgSerializer.h>
+#include <Pegasus/Common/CIMBinMsgDeserializer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Tracer.h>
@@ -64,20 +58,11 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Serialize the request
     //
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
     CIMBuffer messageBuffer(4096);
-#else
-    Buffer messageBuffer;
-    messageBuffer.reserveCapacity (4096);
-#endif
 
     try
     {
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
         CIMBinMsgSerializer::serialize(messageBuffer, message);
-#else
-        CIMMessageSerializer::serialize (messageBuffer, message);
-#endif
     }
     catch (Exception & e)
     {
@@ -136,13 +121,9 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
     //
     //  Read the message data
     //
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
     // CIMBuffer uses realloc() and free() so the buffer must be allocated
     // with malloc().
     AutoPtr<char, FreeCharPtr> messageBuffer((char*)malloc(messageLength + 1));
-#else
-    AutoArrayPtr <char> messageBuffer (new char [messageLength + 1]);
-#endif
 
     //
     //  We know a message is coming
@@ -164,7 +145,6 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
         //
         //  De-serialize the message
         //
-#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
         // CIMBuffer frees messageBuffer upon destruction.
         CIMBuffer buf(messageBuffer.release(), messageLength);
         message = CIMBinMsgDeserializer::deserialize(buf, messageLength);
@@ -173,9 +153,6 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
         {
             throw CIMException(CIM_ERR_FAILED, "deserialize() failed");
         }
-#else
-        message = CIMMessageDeserializer::deserialize (messageBuffer.get ());
-#endif
     }
     catch (Exception & e)
     {

@@ -35,8 +35,6 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/CIMMessageSerializer.h>
-#include <Pegasus/Common/CIMMessageDeserializer.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/AnonymousPipe.h>

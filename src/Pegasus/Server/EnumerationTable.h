@@ -54,15 +54,17 @@ PEGASUS_NAMESPACE_BEGIN
 **
 **   EnumerationTable Class
 
-**  This Class defines a table contains all active EnumerationContext
-**  elements (structs). It is organized as a list and includes
+**  This Class defines a table that contains all active EnumerationContext
+**  class objects. It is organized as a hash table and includes
 **  methods to create new contexts, find a context by name, manage
-**  the information in a context amd remove a context.
-**  Each context element is represented by the EnumerationContext
-**  structure.
-**  This class is expected to be used only within the Operation
+**  the information in a context and remove a context.
+**  Each context object is represented by the EnumerationContext
+**  class.
+**  This class is expected to be used only with the Operation
 **  Dispatcher.
 *****************************************************************************/
+
+class EnumerationContext;
 
 class PEGASUS_SERVER_LINKAGE EnumerationTable
 {

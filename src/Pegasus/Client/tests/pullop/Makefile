@@ -63,6 +63,7 @@ CxxAssocNS = test/TestProvider
 tests:
 	pullop -h
 	pullop --help
+
 ## Tests conducted with pullop
 ## We are moving the test so that many of them will be direct rather than
 ## through makefile calls.  Will give us better control.  This is start
@@ -105,15 +106,13 @@ poststarttests:
 	make pcmpia1
 
 	@$(ECHO)  Test close in process of delivery  
-	make testclose
+	make testenumclose
+	make testenumpathsclose
+
 	@$(ECHO)  Test timeout in process of delivery 
 	make testtimeout
 
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
-
-localtests:
-
-stresstests:
 
 ## enumerate a class that is probably all repository
 pe1:
@@ -236,9 +235,16 @@ invalidAssocObjectPath:
 
 ################################
 #### Close tests
-testclose: 
+### Set the the size and value of responses to get large number of
+### responses. Then call pullop to get small set of objects and then
+### close
+testenumclose: 
 	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000
 	pullop e -c $(CL) -n $(NS) -M 9 -N 50 -o 4
+
+testenumpathsclose: 
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000
+	pullop en -c $(CL) -n $(NS) -M 9 -N 50 -o 4
 
 #################################
 #### timeout test. Set interoptime to 5 sec and sleep to 10 sec. This

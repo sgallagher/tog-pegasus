@@ -30,6 +30,7 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include "EnumerationContext.h"
+
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/TimeValue.h>
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Server/EnumerationTable.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -317,11 +319,24 @@ EnumerationContext::~EnumerationContext()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::~EnumerationContext()");
+    PEG_METHOD_EXIT();
+}
+
+void EnumerationContext::removeContext()
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::removeContext");
+    PEGASUS_ASSERT(valid());   // KS_TEMP;
+
+    // KS_TODO - We should be able to go to direct pointer function
+    _enumerationTable->remove(_enumerationContextName);
+    PEG_METHOD_EXIT();
 }
 
 /*
     Insert complete CIMResponseData entities into the cache, and if the
     cache is full, wait until it the size drops below the full limit.
+    If the operation is closed, we discard the response. If
+    this is the last response, remove the enumerationContext
 */
 void EnumerationContext::putCache(MessageType type,
                                   CIMResponseMessage*& response,
@@ -338,27 +353,43 @@ void EnumerationContext::putCache(MessageType type,
         "Enter putCache, response isComplete %s ResponseDataType %u",
         _toCharP(isComplete), to.getResponseDataContent() ));
 
-    _insertResponseIntoCache(type, response);
-
-    // test and set the high water mark for this cache.
-    if (cacheSize() > _cacheHighWaterMark)
+    // If an operation has closed the enumerationContext can
+    // ignore any received responses until the isComplete is received and
+    // then remove the Context.
+    if (_closed)
     {
-        _cacheHighWaterMark = cacheSize();
+        if (isComplete)
+        {
+            removeContext();
+        }
     }
-        
-    // Signal that we have added to the CIMResponseData cache. Do this
-    // before waiting to be sure any cache size wait is terminated.
-    signalCacheSizeCondition();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "After putCache cacheSize %u. CIMResponseData size %u."
-        " signal CacheSizeConditon",
-        cacheSize(), to.size() ));
-
-    // Wait for the cache size to drop below the limit requested here
-    // before returning to caller. This blocks providers until wait
-    // completed.
-    waitProviderLimitCondition(_responseCacheMaximumSize);
+    else
+    {
+        _insertResponseIntoCache(type, response);
+    
+        // test and set the high water mark for this cache.
+        if (responseCacheSize() > _cacheHighWaterMark)
+        {
+            _cacheHighWaterMark = responseCacheSize();
+        }
+            
+        // Signal that we have added to the CIMResponseData cache. Do this
+        // before waiting to be sure any cache size wait is terminated.
+        signalCacheSizeCondition();
+    
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+            "After putCache responseCacheSize %u. CIMResponseData size %u."
+            " signal CacheSizeConditon",
+            responseCacheSize(), to.size() ));
+    
+        // Wait for the cache size to drop below the limit requested here
+        // before returning to caller. This blocks providers until wait
+        // completed.
+        if (!_providersComplete)
+        {
+            waitProviderLimitCondition(_responseCacheMaximumSize);
+        }
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -370,7 +401,7 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
 {
     CIMResponseData& to = _responseCache;
 
-    AutoMutex autoMut(_cacheBlock);
+    AutoMutex autoMut(_responseCacheMutex);
 
     // Append the new Response to the CIMResponseData in the cache
     switch(type)
@@ -437,7 +468,7 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
                 type));
             PEGASUS_ASSERT(0);
             break;
-    } // switch
+    } // end switch
 }
 
 /***************************************************************************** 
@@ -469,7 +500,7 @@ Boolean EnumerationContext::getCacheResponseData(
     // cache during this period.
     waitCacheSizeCondition(count);
 
-    AutoMutex autoMut(_cacheBlock);
+    AutoMutex autoMut(_responseCacheMutex);
 
     // move the defined number of objects from the cache to the
     // return object.
@@ -483,8 +514,9 @@ Boolean EnumerationContext::getCacheResponseData(
     return true;
 }
 
-Uint32 EnumerationContext::cacheSize()
+Uint32 EnumerationContext::responseCacheSize()
 {
+    PEGASUS_ASSERT(valid());   // KS_TEMP
     PEGASUS_ASSERT(_responseCache.valid());   // KS_TEMP
     return _responseCache.size();
 }
@@ -511,13 +543,14 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     }
 
     // start timer to get time of wait for statistics.
-    Stopwatch waitTimer;        // KS_TEMP I think
+    Stopwatch waitTimer;        // KS_TEMP I think. should this be perm.
     waitTimer.start();
 
     // condition variable wait loop. waits on cache size or
     // providers complete
+    // KS_TODO change this to automutex
     _cacheTestCondMutex.lock();
-    while (!_providersComplete && (cacheSize() < size)) 
+    while (!_providersComplete && (responseCacheSize() < size)) 
     {
         _cacheTestCondition.wait(_cacheTestCondMutex);
     }
@@ -530,7 +563,7 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
         "Request Size %u complete %s result %s time %lu Usec",
         size,
         _toCharP(_providersComplete),
-        _toCharP((!_providersComplete && (cacheSize()) < size)),
+        _toCharP((!_providersComplete && (responseCacheSize()) < size)),
         (unsigned long int)waitTimer.getElapsedUsec() ));
 
     PEG_METHOD_EXIT();
@@ -540,11 +573,11 @@ void EnumerationContext::signalCacheSizeCondition()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::signalCacheSizeCondition");
-
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    _cacheTestCondMutex.lock();
+
+    AutoMutex autoMut(_cacheTestCondMutex);
+
     _cacheTestCondition.signal();
-    _cacheTestCondMutex.unlock();
 
     PEG_METHOD_EXIT();
 }
@@ -567,11 +600,13 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
         "EnumerationContext::waitProviderLimitCondition");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
+
+    // KS_TODO change this to automutex
     _providerLimitConditionMutex.lock();
 
     Stopwatch waitTimer;
     waitTimer.start();
-    while (!_closed && (cacheSize() > limit)) 
+    while (!_closed && (responseCacheSize() > limit)) 
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
@@ -579,10 +614,10 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
     waitTimer.stop();
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-       "waitproviderLimitCondition exit state %s cacheSize %u size %u "
+       "waitproviderLimitCondition exit state %s responseCacheSize %u size %u "
        "closed %s time %lu",
-         _toCharP((!_closed && (cacheSize() < limit))),
-         cacheSize(), limit, _toCharP(_closed),
+         _toCharP((!_closed && (responseCacheSize() < limit))),
+         responseCacheSize(), limit, _toCharP(_closed),
          (long unsigned int)waitTimer.getElapsedUsec() ));
 
     _providerLimitConditionMutex.unlock();
@@ -595,9 +630,10 @@ void EnumerationContext::signalProviderLimitCondition()
         "EnumerationContext::signalProviderLimitCondition()");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    _providerLimitConditionMutex.lock();
+
+    AutoMutex autoMut(_providerLimitConditionMutex);
+
     _providerLimitCondition.signal();
-    _providerLimitConditionMutex.unlock();
 
     PEG_METHOD_EXIT();
 }
@@ -644,7 +680,7 @@ Boolean EnumerationContext::ifProvidersComplete()
 Boolean EnumerationContext::ifEnumerationComplete()
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    if (ifProvidersComplete() && (cacheSize() == 0))
+    if (ifProvidersComplete() && (responseCacheSize() == 0))
     {
         return true;
     }
@@ -659,9 +695,23 @@ Boolean EnumerationContext::ifEnumerationComplete()
 Boolean EnumerationContext::setClosed()
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    // signal closed because that could force a blocked put to continue.
+    // return false if already closed
+    if (_closed)
+    {
+        return false;
+    }
     _closed = true;
-    signalProviderLimitCondition();
+
+    if (_providersComplete)
+    {
+        // Providers are complete, close the context
+        removeContext();
+    }
+    else
+    {
+        // Signal the limit on provider responses in case it is in wait
+        signalProviderLimitCondition();
+    }
     return true;
 }
 

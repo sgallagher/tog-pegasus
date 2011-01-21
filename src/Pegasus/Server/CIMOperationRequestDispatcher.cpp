@@ -263,7 +263,6 @@ CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
     return tmp;
 }
 
-// PULLOP TEMP - KS_TODO Do we need this???
 CIMResponseMessage* OperationAggregate::removeResponse(const Uint32& pos)
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP;
@@ -1021,34 +1020,19 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
             PEGASUS_ASSERT(en);          // KS_TEMP    
             PEGASUS_ASSERT(en->valid()); // KS_TEMP
 
-            // On normally en is removed by request function.
-            // However, when en has been marked as closed, we clear it
-            // from here when provider delivery is complete.
-            if (en->isClosed())
+            // If this is an exception set the error in EnumerationContext
+            if (response->cimException.getCode())
             {
-                if (isComplete)
-                {
-                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL4,
-                       "EnumerationContext removed by Provider rtn. "));
-                    enumerationTable.remove(en->getContextName());
-                    poA->_enumerationContext = 0;
-                }
-                else
-                {
-                    // KS_TODO Do we need to do anything here.
-                    // discard provider data
-                }
+                en->setErrorState(response->cimException);
+            }
 
-            }
-            else     // not closed. Put data into cache
-            {
-                // This function may wait and block providers
-                en->putCache(poA->getRequestType(), response, isComplete);
-                if (response->cimException.getCode())
-                {
-                    en->setErrorState(response->cimException);
-                }
-            }
+            // Send to the EnumerationContext cache along with the
+            // isComplete indicator. Note that this may remove the
+            // enumerationContext.
+            en->putCache(poA->getRequestType(), response, isComplete);
+
+
+
             delete response;
         }
         else
@@ -3281,7 +3265,7 @@ struct ProviderRequests
             "%s getting from cache. isComplete: %s cacheSize: %u error: %s",
             opSeqName,
             _toCharP(enumerationContext->ifProvidersComplete()),
-            enumerationContext->cacheSize(),
+            enumerationContext->responseCacheSize(),
             _toCharP(enumerationContext->isErrorState())  ));
     
         CIMResponseData & to = response->getResponseData();
@@ -3320,7 +3304,7 @@ struct ProviderRequests
           to.getResponseDataContent(), from.getResponseDataContent(),
           _toCharP(response->endOfSequence),
           _toCharP(enumerationContext->ifProvidersComplete()),
-          enumerationContext->cacheSize() ));
+          enumerationContext->responseCacheSize() ));
     
         if ((response->endOfSequence = enumerationContext->
              ifEnumerationComplete()))
@@ -3329,7 +3313,6 @@ struct ProviderRequests
                 "Close Enumeration");
             // close and delete the EnumerationContext object
             enumerationContext->setClosed();
-            enumerationTable.remove(enumerationContext);
         }
         else
         {
@@ -5933,7 +5916,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         CIMResponseData::RESP_INSTANCES,
         enContextIdStr);
 
-    PEGASUS_ASSERT(enumerationContext->cacheSize() == 0);  // KS_TEMP
+    PEGASUS_ASSERT(enumerationContext->responseCacheSize() == 0);  // KS_TEMP
     //
     // Set up an aggregate object and save a copy of the original request.
     // NOTE: Build the poA for the EnumerateRequest, not the corresponding
@@ -6120,7 +6103,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                "Cache size after repository put %u maxObjectCount %u",
-               enumerationContext->cacheSize(),
+               enumerationContext->responseCacheSize(),
                operationMaxObjectCount ));
 
     // Create a temporary response data with correct type.
@@ -6154,7 +6137,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
       to.getResponseDataContent(), from.getResponseDataContent(),
                _toCharP(openResponse->endOfSequence),
                _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->cacheSize() ));
+               enumerationContext->responseCacheSize() ));
 
     // tests for providers complete and cache empty. and sets response
     // endOfSequence
@@ -6165,8 +6148,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             "Close OpenInstancesWithPath Enumeration");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
-        enumerationTable.remove(enumerationContext);
-        enumerationTable.trace();
     }
     else   // snf enumerationContext only if not endOfSequence
     {
@@ -6484,7 +6465,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
             "Close EnumerateNames");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
-        enumerationTable.remove(enumerationContext);
     }
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
@@ -6801,7 +6781,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                "OpenReferenceInstances Cache size after repository put %u"
                " maxObjectCount %u",
-               enumerationContext->cacheSize(),
+               enumerationContext->responseCacheSize(),
                operationMaxObjectCount ));
 
     // Create a Response data based on what is in the cache now.
@@ -6841,7 +6821,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
       to.getResponseDataContent(), from.getResponseDataContent(),
                _toCharP(openResponse->endOfSequence),
                _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->cacheSize() ));
+               enumerationContext->responseCacheSize() ));
 
     // Do check here after we have processed the results of the get.
     // At this point we are current with the provider response status
@@ -6852,7 +6832,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
             "Close References");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
-        enumerationTable.remove(enumerationContext);
     }
 
     // fill in host, namespace on all instances on all elements of array
@@ -7158,7 +7137,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                "Cache size after repository put %u maxObjectCount %u",
-               enumerationContext->cacheSize(),
+               enumerationContext->responseCacheSize(),
                operationMaxObjectCount ));
 
     // Create a Response data based on what is in the cache now.
@@ -7193,7 +7172,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
       to.getResponseDataContent(), from.getResponseDataContent(),
                _toCharP(openResponse->endOfSequence),
                _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->cacheSize() ));
+               enumerationContext->responseCacheSize() ));
 
    if ((openResponse->endOfSequence =
         enumerationContext->ifEnumerationComplete()))
@@ -7202,7 +7181,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
             "Close ReferencePaths");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
-        enumerationTable.remove(enumerationContext);
     }
 
     // fill in host, namespace on all instances on all elements of array
@@ -7539,7 +7517,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                "OpenAssociatorInstances Cache size after repository put %u"
                " maxObjectCount %u",
-               enumerationContext->cacheSize(),
+               enumerationContext->responseCacheSize(),
                operationMaxObjectCount ));
 
     // Create a Response data based on what is in the cache now.
@@ -7578,7 +7556,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
       to.getResponseDataContent(), from.getResponseDataContent(),
                _toCharP(openResponse->endOfSequence),
                _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->cacheSize() ));
+               enumerationContext->responseCacheSize() ));
 
     // If the providers are complete close the enumeration. Else
     // prepare for the next operation by setting the inactive state
@@ -7592,7 +7570,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
             "Close AssociatorInstances");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
-        enumerationTable.remove(enumerationContext);
     }
 
     // fill in host, namespace on all instances on all elements of array
@@ -7908,7 +7885,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                "Cache size after repository put %u maxObjectCount %u",
-               enumerationContext->cacheSize(),
+               enumerationContext->responseCacheSize(),
                operationMaxObjectCount ));
 
     // Create a Response data based on what is in the cache now.
@@ -7942,7 +7919,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
           to.getResponseDataContent(), from.getResponseDataContent(),
                    _toCharP(openResponse->endOfSequence),
                    _toCharP(enumerationContext->ifProvidersComplete()),
-                   enumerationContext->cacheSize() ));
+                   enumerationContext->responseCacheSize() ));
     }
 
    if ((openResponse->endOfSequence =
@@ -7952,7 +7929,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
             "Close AssociatorInstancePaths");
         // delete the EnumerationContext object
         enumerationContext->setClosed();
-        enumerationTable.remove(enumerationContext);
     }
 
     // fill in host, namespace on all instances on all elements of array
@@ -8076,22 +8052,23 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         return;
     }
 
+    // Set the Enumeration Closed.
     en->setClosed();
 
     // need to confirm that the providers are complete and if not
     // to force process when they are complete.
-    if (en->ifProvidersComplete())
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-           "Close Operation. Providers complete, Close enumeration"));
-
-        enumerationTable.remove(request->enumerationContext);
-    }
-    else
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-           "Close Operation. Providers not complete, Close enumeration"));
-    }
+//  if (en->ifProvidersComplete())
+//  {
+//      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+//         "Close Operation. Providers complete, Close enumeration"));
+//
+//      enumerationTable.remove(request->enumerationContext);
+//  }
+//  else
+//  {
+//      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+//         "Close Operation. Providers not complete, Close enumeration"));
+//  }
 
     AutoPtr<CIMCloseEnumerationResponseMessage> response(
         dynamic_cast<CIMCloseEnumerationResponseMessage*>(

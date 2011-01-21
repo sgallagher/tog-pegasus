@@ -125,7 +125,9 @@ private:
     active - If true, an operation is active on this context
     and any pull or close operation request will be refused.
 */
+// Forward Reference to EnumerationTable class
 class EnumerationTable;
+
 class PEGASUS_SERVER_LINKAGE EnumerationContext
 {
 public:
@@ -247,7 +249,7 @@ public:
         cache. 
         @return  Uint32 count of objects currently in the cache 
     */
-    Uint32 cacheSize();
+    Uint32 responseCacheSize();
 
      /**
         Set the ProvidersComplete state.  This should be set from provider 
@@ -351,11 +353,14 @@ private:
     Boolean _active;
     Boolean _error;
 
+    // remove this entry from the enumerationTable
+    void removeContext();
+
     // Object cache for this context.  All pull responses feed their
     // CIMResponseData into this cache using putCache(..) and all 
     // Open and Pull responses get data from the cache using getCache()
     // Simultaneous access to the cache is controlled with _cacheBlock mutex.
-    Mutex _cacheBlock;
+    Mutex _responseCacheMutex;
     CIMResponseData _responseCache;
 
     // Condition variable and mutex for the  cache size tests. This condition

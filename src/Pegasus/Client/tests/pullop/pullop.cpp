@@ -1964,8 +1964,8 @@ int main(int argc, char** argv)
 
     /*
         Analyze and set all input options. uses getopt so, by definition
-        all options are proceeded by singe -. We make a single exception
-        in allowing --help.
+        all options are proceeded by single -. We make a single exception
+        to allow --help.
     */
     int opt;
     while ((opt = getopt(argc, argv,

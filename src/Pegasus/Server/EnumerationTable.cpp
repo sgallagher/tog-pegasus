@@ -29,8 +29,8 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#include "EnumerationContext.h"
 #include "EnumerationTable.h"
+
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/TimeValue.h>
@@ -41,6 +41,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Server/EnumerationContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -248,6 +249,14 @@ Boolean EnumerationTable::remove(const String& enumerationContextName)
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::remove");
     AutoMutex autoMut(tableLock);
     EnumerationContext* en = find(enumerationContextName);
+    if (en == 0)
+    {
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+            "remove ERRORERROR en == 0 enName %s",
+            (const char *)en->getContextName().getCString()));
+        cout << "EnumTable.remove where could not find en" << endl;
+        return true;
+    }
    
     PEG_METHOD_EXIT();  
     return _remove(en);
@@ -299,7 +308,18 @@ Boolean EnumerationTable::_remove(EnumerationContext* en)
     }
     else
     {
-        // KS_TODO - Should we mark this closed just to be sure.
+        if (en == 0)
+        {
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+                "_remove ERRORERROR en == 0"));
+        }
+        else
+        {
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+                "_remove ERRORERROR _!providersComplete %s",
+                (const char *)en->getContextName().getCString()));
+        }
+        cout << "remove with no providers complete ERROR" << endl;
         PEG_METHOD_EXIT();
         return false;
     }
@@ -322,6 +342,8 @@ Uint32 EnumerationTable::getMinPullDefaultTimeout() const
 }
 
 // KS_TODO - Clean this one up to one return.
+// If context name found, return pointer to that context.  Otherwise
+// return 0
 EnumerationContext* EnumerationTable::find(
     const String& enumerationContextName)
 {

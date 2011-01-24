@@ -26,6 +26,22 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
+
+##############################################################
+# Update the flex version in the following line to reflect
+# the version of flex used the last time the parser files
+# were generated. Never use an older version of flex than
+# indicated here. All of the generated files should be committed
+# after adding the OpenPegasus license to the top of each.
+# *************   REQUIRES FLEX 2.5.35 or later   ***********
+# Update the Bison version in the following line to reflect
+# the version of Bison used the last time the parser files
+# were generated. Never use an older version of Bison than
+# indicated here. All of the generated files should be committed
+# after adding the OpenPegasus license to the top of each.
+# *************   REQUIRES BISON 2.3 or later   ***********
+############################################################## 
+
 ROOT = ../../..
 
 DIR = Pegasus/Compiler

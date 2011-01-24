@@ -4831,6 +4831,15 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager2.ProviderManagerzOS_inline.PTHREAD_UKNOWN:string {"PGS12529: An unexpected error occurs switching to user {0} : {1} ( errno {2}, reason code 0x{3} )."}
 
         /**
+        * @note  PGS12530E:
+        * @version 2.11
+        *    Substitution {0} is the user ID
+        *    Sunstitution {1} is the reason code
+        *    Do not translate SAF, RACROUTE EXTRACT.     
+        */
+        ProviderManager2.ProviderManagerzOS_inline.PTHREAD_EMVSSAFEXTRERR:string {"PGS12530E: Cannot switch to user {0} because a SAF authorization error occurred. For the reason, see the SAF RACROUTE EXTRACT service reason code 0x{1}."}
+
+        /**
         * @note PGS12532:
         *    Substitution {0} is the ARM element name.
         *    Do not translate CIM and ARM since it is the name of a product.

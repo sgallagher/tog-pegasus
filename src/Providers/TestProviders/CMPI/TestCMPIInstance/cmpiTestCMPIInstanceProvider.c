@@ -40,6 +40,7 @@
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
+
 #define _ClassName "TestCMPIInstance_Method"
 #define _Namespace    "test/TestProvider"
 
@@ -208,7 +209,7 @@ static int _testInstance ()
     PROV_LOG("++++ CMSetObjectPath : (%s) ",strCMPIStatus(rc));
 
     rc = CMSetPropertyFilter(instance,&property_name,NULL);
-    if( rc.rc == CMPI_RC_ERR_INVALID_HANDLE )
+    if( rc.rc == CMPI_RC_OK )
     {
         PROV_LOG("++++  CMSetPropertyFilter with NULL handle for CMPIInstance"
             " status : (%s)", strCMPIStatus (rc));

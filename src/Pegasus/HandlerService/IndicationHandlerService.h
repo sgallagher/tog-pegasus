@@ -77,6 +77,9 @@ private:
     IndicationHandlerService();  //  unimplemented
 
     CIMRepository* _repository;
+    
+    void filterInstance(bool includeQualifiers,bool includeClassOrigin,
+        const CIMPropertyList& propertyList,CIMInstance & newInstance);
 
     CIMHandleIndicationResponseMessage* _handleIndication(
         CIMHandleIndicationRequestMessage* request);

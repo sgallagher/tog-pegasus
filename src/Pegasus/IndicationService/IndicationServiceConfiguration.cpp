@@ -223,7 +223,6 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationServiceConfiguration::"
             "_getIndicationServiceInstance");
-
     CIMInstance instance;
     CIMClass returnedClass;
 
@@ -304,8 +303,6 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
     CIMObjectPath path = instance.buildPath(returnedClass);
     path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instance.setPath(path);
-    instance.filter(includeQualifiers, includeClassOrigin, propertyList);
-
     PEG_METHOD_EXIT();
 
     return instance;
@@ -394,8 +391,6 @@ CIMInstance IndicationServiceConfiguration::
     CIMObjectPath path = instance.buildPath(returnedClass);
     path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instance.setPath(path);
-    instance.filter(includeQualifiers, includeClassOrigin, propertyList);
-
     PEG_METHOD_EXIT();
     return instance;
 }

@@ -40,7 +40,8 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/System.h>
 #include <cstring>
-
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/XmlWriter.h>
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
@@ -617,6 +618,608 @@ void _testNotFound(CIMClient& client)
         "Passed" << endl;
 }
 
+void _testFilterOfAssociations(CIMClient& client)
+{
+    try
+    {
+        Array<CIMObjectPath> teachesRefs;
+        Array<CIMObjectPath> personRefs;
+        Uint32 numTeachesInstances ;
+        Uint32 numPersonInstances ;
+        teachesRefs = client.enumerateInstanceNames(NAMESPACE, TEST_TEACHES);
+        numTeachesInstances = teachesRefs.size();
+        if (My_isDefaultInstanceProvider == 1 && 2 != numTeachesInstances)
+        {
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Enabled. ");
+        }
+        else if (My_isDefaultInstanceProvider == 0 && 1 != numTeachesInstances)
+        {
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Disabled. ");
+        }
+        personRefs = client.enumerateInstanceNames(NAMESPACE, TEST_PERSON);
+        numPersonInstances = personRefs.size();
+        CIMName resultClass;
+        String role;
+        String resultRole;
+        cout<<"++++++++Filtering the NULL propery list+++"<<endl;
+        for (Uint32 i = 0; i < numPersonInstances; ++i)
+        {
+            Array<CIMObject> resultObjects =
+                client.associators(
+                    NAMESPACE,
+                    personRefs[i],
+                    TEST_TEACHES,
+                    resultClass,
+                    role,
+                    resultRole,
+                    false,
+                    false,
+                    CIMPropertyList());
+            Uint32 size = resultObjects.size();
+            for(Uint32 j = 0;j<size;j++)
+            {
+                
+                Uint32 propCount = resultObjects[j].getPropertyCount();
+                Uint32 propNameCount = 0;
+                if(propCount != 0)
+                {
+                    String propName=
+                        resultObjects[j].getProperty(0).getName().getString();
+                    if(verbose)
+                    { 
+                        cout<<"Property Name of :"<<i<<":"<<propName<<endl;
+                    }
+                    if((propName == "Name") ||(propName == "name")) 
+                    {
+                        propNameCount++;
+                    } 
+                }
+                if((size != 0)&&(propCount == 1) &&(propNameCount == 1))
+                {
+                    cout<<"Filter associator test on TEST_TEACHES SUCCEEDED"
+                        <<":Filtering the ciminstance with a NULL property list"
+                        <<" returned all properties as expected"<<endl;
+                }
+                else
+                {
+                    cout<<"Filter associator test on TEST_TEACHES FAILED"
+                        <<":Filtering the ciminstance with a NULL property list"
+                        <<" did not return all properties as expected"<<endl;
+                    PEGASUS_TEST_ASSERT(false); 
+                }
+            }
+        }
+        cout<<"++++++++Filtering the empty propery list+++"<<endl;
+        Array<CIMName> propList;
+        for (Uint32 i = 0; i < numPersonInstances; ++i)
+        {
+            Array<CIMObject> resultObjects =
+                client.associators(
+                    NAMESPACE,
+                    personRefs[i],
+                    TEST_TEACHES,
+                    resultClass,
+                    role,
+                    resultRole,
+                    false,
+                    false,
+                    CIMPropertyList(propList));
+            Uint32 size = resultObjects.size();
+            for(Uint32 j = 0;j<size;j++)
+            {
+                if(verbose)
+                {
+                    for(Uint32 i = 0;i<resultObjects[j].getPropertyCount();i++)
+                    {
+                        cout<<"Property Name of :"<<i<<":"<<resultObjects[j]
+                            .getProperty(i).getName().getString()<<endl;
+                    }
+                } 
+                if((size !=0) &&(resultObjects[j].getPropertyCount() == 0))
+                {
+                    cout<<"Filter associators test on TEST_TEACHES SUCCEEDED"
+                        <<":Filtering the ciminstance with a empty property "
+                        <<"list returned zero properties as expected"<<endl;
+                }
+                else
+                { 
+                    cout<<"Filter associators test on TEST_TEACHES FAILED"
+                        <<":Filtering the ciminstance with a empty property "
+                        <<"list returned some properties which is not expected"
+                        <<endl;
+                    PEGASUS_TEST_ASSERT(false);
+                }
+            }
+        }
+        cout<<"++++++++Filtering the wrong property list+++"<<endl;
+        Array<CIMName> propName;
+        propName.append(CIMName(String("teach")));
+        for (Uint32 i = 0; i < numPersonInstances; ++i)
+        {
+            Array<CIMObject> resultObjects =
+                client.associators(
+                    NAMESPACE,
+                    personRefs[i],
+                    TEST_TEACHES,
+                    resultClass,
+                    role,
+                    resultRole,
+                    false,
+                    false,
+                    CIMPropertyList(propName));
+            Uint32 size = resultObjects.size();
+            for(Uint32 j = 0;j<size;j++)
+            {  
+                if(verbose)
+                {
+                    for(Uint32 i = 0;i<resultObjects[j].getPropertyCount();i++)
+                    {
+                        cout<<"Property Name of :"<<i<<":"<<resultObjects[j]
+                            .getProperty(i).getName().getString()<<endl;
+                    }
+                } 
+                if((size !=0) &&(resultObjects[j].getPropertyCount() == 0))
+                {
+                    cout<<"Filter associators test on TEST_TEACHES SUCCEEDED"
+                        <<":Filtering the ciminstance with a wrong property "
+                        <<"list returned zero properties as expected"<<endl;
+                }
+                else
+                {
+                    cout<<"Filter associators test on TEST_TEACHES FAILED"
+                         <<":Filtering the ciminstance with a wrong property "
+                         <<"list returned some properties which is not"
+                         <<" expected"<<endl;
+                    PEGASUS_TEST_ASSERT(false);
+                }
+            }
+        }
+        cout<<"++++++++Filtering the mentioned propery list+++"<<endl;
+        Array<CIMName> propArr;
+        propArr.append(CIMName(String("name")));
+        for (Uint32 i = 0; i < numPersonInstances; ++i)
+        {
+            Array<CIMObject> resultObjects =
+                client.associators(
+                    NAMESPACE,
+                    personRefs[0],
+                    TEST_TEACHES,
+                    resultClass,
+                    role,
+                    resultRole,
+                    false,
+                    false,
+                    CIMPropertyList(propArr));
+            Uint32 size = resultObjects.size();
+            for(Uint32 j = 0;j<size;j++)
+            {
+                Uint32 propCount = resultObjects[j].getPropertyCount();
+                Uint32 propNameCount = 0;
+                if(propCount != 0)
+                { 
+                    String propName=
+                        resultObjects[j].getProperty(0).getName().getString();
+                    if(verbose)
+                    {
+                        cout<<"Property Name "<<propName<<endl;
+                    }
+                    if((propName == "name") ||(propName == "Name"))
+                    {
+                        propNameCount++;
+                    }
+                } 
+                if((size !=0) &&(propCount == 1) && (propNameCount == 1))
+                {
+                    cout<<"Filter associators test on TEST_TEACHES SUCCEEDED"
+                        <<":Filtering the ciminstance with a mentioned property"
+                        <<" list returned mentioned property as expected"<<endl;
+                }
+                else
+                {
+                    cout<<"Filter associators test on TEST_TEACHES FAILED"
+                         <<":Filtering the ciminstance with  mentioned property"
+                         <<" list did not return properties as expected "<<endl;
+                    PEGASUS_TEST_ASSERT(false);
+                }
+            }
+        }
+    }
+    catch(Exception& e)
+    {
+        _errorExit(e.getMessage());
+    }
+}
+void _testEnumerateInstancesPropFilter(CIMClient& client)
+{
+    Boolean deepInheritance = false;
+    Boolean localOnly = false;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    static const String NAMESPACE("test/TestProvider");
+    static const String CLASSNAME("TEST_Teaches");
+    if (verbose)
+    {
+        cout << "deepInheritance = " <<
+            (deepInheritance ? "true" : "false") << endl;
+        cout << "localOnly = " <<
+            (localOnly ? "true" : "false") << endl;
+        cout << "includeQualifiers = " <<
+            (includeQualifiers ? "true" : "false") << endl;
+        cout << "includeClassOrigin = " <<
+            (includeClassOrigin ? "true" : "false") << endl;
+    }
+    {
+        cout<<"+++++++++empty property list filtered output++++++"<<endl;
+        Array<CIMName> propNames;
+        Array<CIMInstance> cimInstances =
+            client.enumerateInstances(
+                NAMESPACE,
+                CLASSNAME,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+       for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstances[0]);
+            }
+            Uint32 propertyCount = cimInstances[0].getPropertyCount();
+            if(propertyCount == 0)
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a empty property list"
+                    <<" returned zero properties as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a empty property list "
+                    <<" returned some properties which is not expected"<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+    }
+    {
+        cout<<"+++++++++NULL property list filtered output+++++++++"<<endl;
+        Array<CIMInstance> cimInstances =
+            client.enumerateInstances(
+                NAMESPACE,
+                CLASSNAME,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstances[i]);
+            }
+            Uint32 propertyCount = cimInstances[i].getPropertyCount();
+            Uint32 propNameCount = 0;
+            for(Uint32 j=0;j<propertyCount;j++)
+            {
+                String propName=
+                    cimInstances[i].getProperty(j).getName().getString();
+                if((propName == "teacher") ||(propName == "student"))
+                {
+                    propNameCount++;
+                }
+            }
+            if((propertyCount == 2) && (propNameCount == 2))
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a NULL property list "
+                    <<" returned all properties as expected"<<endl; 
+            }
+            else
+            {
+                 cout<<"Filter enumerateInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a NULL property list did"
+                    <<" not return allproperties which is not expected"<<endl;
+                 PEGASUS_TEST_ASSERT(false);
+            }
+        }
+    }
+    {
+        cout<<"++++++++property list with wrong prop names"
+            <<" filtered output++++++++"<<endl;
+        Array<CIMName> propNames;
+        propNames.append(CIMName(String("teache")));
+        Array<CIMInstance> cimInstances =
+            client.enumerateInstances(
+                NAMESPACE,
+                CLASSNAME,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstances[i]);
+            } 
+            Uint32 propertyCount = cimInstances[i].getPropertyCount();
+            if(propertyCount == 0)
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a wrong property list "
+                    <<" returned zero properties as expected"<<endl;       
+            }
+            else
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a wrong property list "
+                    <<"returned some properties which is not expected"<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+            
+        }
+    }
+    {
+        cout<<"++++++++property list with mentioned property names"
+            <<" filtered output++++++++"<<endl;
+        Array<CIMName> propNames;
+        propNames.append(CIMName(String("teacher")));
+        Array<CIMInstance> cimInstances =
+            client.enumerateInstances(
+                NAMESPACE,
+                CLASSNAME,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstances[i]);
+            }
+            Uint32 propertyCount = cimInstances[i].getPropertyCount();
+            Uint32 propNameCount = 0;
+            for(Uint32 j=0;j<propertyCount;j++)
+            {
+                String propName=
+                    cimInstances[i].getProperty(j).getName().getString();
+                if(propName == "teacher")
+                {
+                   propNameCount++;
+                }
+            }
+            if((propertyCount == 1) && (propNameCount == 1))
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a mentioned property "
+                    <<"list returned mentioned property as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a mentioned property "
+                    <<"list did not return properties as expected "<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+    }
+}
+void _testGetInstancePropFilter(CIMClient& client)
+{
+    static const String NAMESPACE("test/TestProvider");
+    static const String CLASSNAME("TEST_Teaches");
+    Array<CIMObjectPath> cimInstanceNames =
+    client.enumerateInstanceNames(
+        NAMESPACE,
+        CLASSNAME);
+    Boolean localOnly = false;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    cout<<"+++++++++empty property list filtered output++++++"<<endl;
+    for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+    {
+        CIMInstance cimInstance;
+        try
+        {
+            Array<CIMName> propNames;
+            cimInstance = client.getInstance(
+                NAMESPACE,
+                cimInstanceNames[0],
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+            if (verbose)
+            {
+               XmlWriter::printInstanceElement(cimInstance);
+            }
+            Uint32 propertyCount = cimInstance.getPropertyCount();
+            if(propertyCount == 0)
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a empty property list"
+                    <<" returned zero properties as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a empty property list "
+                    <<" returned some properties which is not expected"<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+        catch (CIMException& e)
+        {
+            if (verbose)
+            {
+                cout << "CIMException(" << e.getCode() << "): " <<
+                    e.getMessage() << endl;
+            }
+        }
+    }
+    cout<<"+++++++++NULL property list filtered output+++++++++"<<endl;
+    for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+    {
+        CIMInstance cimInstance;
+        try
+        {
+            cimInstance = client.getInstance(
+                NAMESPACE,
+                cimInstanceNames[i],
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstance);
+            }
+            Uint32 propertyCount = cimInstance.getPropertyCount();
+            Uint32 propNameCount = 0;
+            for(Uint32 j=0;j<propertyCount;j++)
+            {
+                String propName=
+                    cimInstance.getProperty(j).getName().
+                        getString();
+                if((propName == "teacher") ||(propName == "student"))
+                {
+                    propNameCount++;
+                }
+            }
+            if((propertyCount == 2) && (propNameCount == 2))
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a NULL property list "
+                    <<" returned all properties as expected"<<endl;   
+            }
+            else
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a NULL property list "
+                    <<"did not return all properties as expected"<<endl;
+                 PEGASUS_TEST_ASSERT(false);
+            }
+        }
+        catch (CIMException& e)
+        {
+            if (verbose)
+            {
+                cout << "CIMException(" << e.getCode() << "): " <<
+                    e.getMessage() << endl;
+            }
+        }
+    }
+    cout<<"++++++++property list with wrong prop names"
+        <<" filtered output++++++++"<<endl;
+    for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+    {
+        CIMInstance cimInstance;
+        try
+        {
+            Array<CIMName> propNames;
+            propNames.append(CIMName(String("k")));
+            cimInstance = client.getInstance(
+                NAMESPACE,
+                cimInstanceNames[i],
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstance);
+            }
+            Uint32 propertyCount = cimInstance.getPropertyCount();
+            if(propertyCount == 0)
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a wrong property list "
+                    <<" returned zero properties as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a wrong property list "
+                    <<"returned some properties which is not expected"<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+        catch (CIMException& e)
+        {
+            if (verbose)
+            {
+                cout << "CIMException(" << e.getCode() << "): " <<
+                    e.getMessage() << endl;
+            }
+        }
+    }
+    cout<<"++++++++property list with mentioned property names"
+        <<"filtered output++++++++"<<endl;
+    for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+    {
+        CIMInstance cimInstance;
+        try
+        {
+            Array<CIMName> propNames;
+            propNames.append(CIMName(String("teacher")));
+            cimInstance = client.getInstance(
+                NAMESPACE,
+                cimInstanceNames[i],
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstance);
+            } 
+            Uint32 propertyCount = cimInstance.getPropertyCount();
+            Uint32 propNameCount = 0;
+            for(Uint32 j=0;j<propertyCount;j++)
+            {
+                String propName=
+                    cimInstance.getProperty(j).getName().
+                        getString();
+                if(propName == "teacher") 
+                {
+                    propNameCount++;
+                }
+            }
+            if((propertyCount == 1) && (propNameCount == 1))
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with a mentioned property "
+                    <<"list returned mentioned property as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter getInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with a mentioned property "
+                    <<"list did not return properties as expected "<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+        catch (CIMException& e)
+        {
+            if (verbose)
+            {
+                cout << "CIMException(" << e.getCode() << "): " <<
+                     e.getMessage() << endl;
+            }
+        }
+    }
+}
+        
+        
 
 // =========================================================================
 //    Main
@@ -683,6 +1286,11 @@ int main(int argc, char** argv)
         _testFromRepository(client);
         _testNotSupported(client);
         _testNotFound(client);
+#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY        
+        _testFilterOfAssociations(client);
+        _testEnumerateInstancesPropFilter(client); 
+        _testGetInstancePropFilter(client);
+#endif
     }
     catch (Exception&)
     {

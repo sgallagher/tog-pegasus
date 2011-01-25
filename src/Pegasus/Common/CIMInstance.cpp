@@ -212,11 +212,22 @@ CIMObjectPath CIMInstance::buildPath(const CIMConstClass& cimClass) const
     return _rep->buildPath(cimClass);
 }
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 void CIMInstance::filter(Boolean includeQualifiers, Boolean includeClassOrigin,
                         const CIMPropertyList& propertyList)
 {
     CheckRep(_rep);
     _rep->filter(includeQualifiers, includeClassOrigin, propertyList);
+}
+#endif
+
+void CIMInstance::instanceFilter(
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList)
+{
+    CheckRep(_rep);
+    _rep->instanceFilter(includeQualifiers, includeClassOrigin, propertyList);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

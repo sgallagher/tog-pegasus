@@ -95,6 +95,8 @@ public:
     // Build the CIMObjectPath from the information provided with
     // the constructor
     CIMObjectPath buildCIMObjectPath();
+    void filterInstance(bool includeQualifiers,bool includeClassOrigin,
+        const CIMPropertyList& propertyList,CIMInstance & newInstance);
 
 private:
 

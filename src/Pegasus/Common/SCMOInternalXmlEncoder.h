@@ -41,9 +41,18 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE SCMOInternalXmlEncoder
 {
 public:
-    static void _putXMLInstance(CIMBuffer& out, const SCMOInstance& ci);
-    static void _putXMLNamedInstance(CIMBuffer& out, const SCMOInstance& ci);
-    static void _putXMLObject(CIMBuffer& out, const SCMOInstance& co);
+    static void _putXMLInstance(
+        CIMBuffer& out,
+        const SCMOInstance& ci,
+        const CIMPropertyList& propertyList = CIMPropertyList());
+    static void _putXMLNamedInstance(
+        CIMBuffer& out,
+        const Array<SCMOInstance> & _scmoInstances,    
+        const CIMPropertyList& propertyList = CIMPropertyList());
+    static void _putXMLObject(
+        CIMBuffer& out,
+        const Array<SCMOInstance> & co,
+        const CIMPropertyList& propertyList = CIMPropertyList());
     static void _appendValueReferenceElement(
         Buffer& out,
         const SCMOInstance& ref);

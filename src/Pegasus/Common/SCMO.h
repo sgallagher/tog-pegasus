@@ -472,7 +472,6 @@ struct SCMBInstance_Main
     struct{
       unsigned includeQualifiers  :1;
       unsigned includeClassOrigin :1;
-      unsigned isFiltered:1;
       unsigned isClassOnly:1;
       unsigned isCompromised:1;
       unsigned exportSetOnly:1;
@@ -503,14 +502,12 @@ struct SCMBInstance_Main
     SCMBDataPtr     hostName;
     // Relative pointer to SCMBInstanceKeyBindingArray
     SCMBDataPtr     keyBindingArray;
-    // Relative pointer to SCMBPropertyFilter
-    SCMBDataPtr     propertyFilter;
-    // Relative pointer to SCMBPropertyFilterIndexMap
-    SCMBDataPtr     propertyFilterIndexMap;
     // Number of properties of the class.
-    Uint32          numberProperties;
-    // Number of filter properties of the instance.
-    Uint32          filterProperties;
+    union
+    {
+        Uint64 __align64;
+        Uint32 numberProperties;
+    };
     // Relative pointer to SCMBInstancePropertyArray
     SCMBDataPtr     propertyArray;
 };

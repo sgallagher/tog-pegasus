@@ -66,10 +66,14 @@ public:
         RESP_OBJECTS = 4,
         RESP_OBJECTPATHS = 5
     };
-
+    //includeClassOrigin & _includeQualifiers are set to true by default.
+    //_propertyList is initialized to an empty propertylist to enable
+    // sending all properties by default.
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content)
-    {};
+        _encoding(0),_dataType(content),_includeQualifiers(true),
+        _includeClassOrigin(true),_propertyList(CIMPropertyList())
+    {
+    }
 
     CIMResponseData(const CIMResponseData & x):
         _encoding(x._encoding),
@@ -84,8 +88,12 @@ public:
         _instanceNames(x._instanceNames),
         _instances(x._instances),
         _objects(x._objects),
-        _scmoInstances(x._scmoInstances)
-    {};
+        _scmoInstances(x._scmoInstances),
+        _includeQualifiers(true),
+        _includeClassOrigin(true),
+        _propertyList(CIMPropertyList())
+    {
+    }
 
     ~CIMResponseData()
     {
@@ -187,6 +195,18 @@ public:
     void encodeInternalXmlResponse(CIMBuffer& out);
     // official Xml format(CIM over Http) used to communicate to clients
     void encodeXmlResponse(Buffer& out);
+  
+    //This function is called from buildResponce to set CIMResponcedata 
+    //with respective values of IncludeQualifiers,IncludeClassOrigin and
+    //propertyFilter.
+    void setRequestProperties(
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+    void getRequestProperties(
+        Boolean & includeQualifiers,
+        Boolean & includeClassOrigin,
+        CIMPropertyList& propertyList);
 
 private:
 
@@ -242,6 +262,9 @@ private:
 
     // SCMO encoding
     Array<SCMOInstance> _scmoInstances;
+    Boolean _includeQualifiers; 
+    Boolean _includeClassOrigin;
+    CIMPropertyList _propertyList;
 
 };
 

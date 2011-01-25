@@ -388,20 +388,11 @@ public:
      * @exception NoSuchProperty
      */
     void buildKeyBindingsFromProperties();
-
-    /**
-     * Set/replace a property filter on an instance.
-     * The filter is a white list of property names.
-     * A property part of the list can be accessed by name or index and
-     * is eligible to be returned to requester.
-     * Key properties can not be filtered. They are always a part of the
-     * instance. If a key property is not part of the property list,
-     * it will not be filtered out.
-     * @param propertyList Is an NULL terminated array of char* to
-     * property names
-     */
+    
+    //This function is not implemented and now Property filtering is done by
+    //the CIMOM infrastructure 
     void setPropertyFilter(const char **propertyList);
-
+    
     /**
      * Gets the hash index for the named property. Filtering is ignored.
      * @param theName The property name
@@ -1012,22 +1003,6 @@ inline void SCMOInstance::_getPropertyAt(
     const char ** valueBase,
     SCMBClassProperty ** propDef) const
 {
-    Uint32 node;
-    // is filtering on ?
-    if (inst.hdr->flags.isFiltered)
-    {
-        // Get absolut pointer to property filter index map of the instance
-        Uint32* propertyFilterIndexMap =
-        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
-        // get the real node index of the property.
-        node = propertyFilterIndexMap[pos];
-    }
-    else
-    {
-        // the index is used as node index.
-        node = pos;
-    }
-
     SCMBValue* theInstPropNodeArray =
         (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
@@ -1037,19 +1012,19 @@ inline void SCMOInstance::_getPropertyAt(
         (SCMBClassPropertyNode*)&(inst.hdr->theClass.ptr->cls.base)[idx];
 
     // return the absolute pointer to the property definition
-    *propDef= &(theClassPropNodeArray[node].theProperty);
+    *propDef= &(theClassPropNodeArray[pos].theProperty);
 
     // need check if property set or not, if not set use the default value
-    if (theInstPropNodeArray[node].flags.isSet)
+    if (theInstPropNodeArray[pos].flags.isSet)
     {
         // return the absolute pointer to the property value in the instance
-        *value = &(theInstPropNodeArray[node]);
+        *value = &(theInstPropNodeArray[pos]);
         *valueBase = inst.base;
     }
     else
     {
         // return the absolute pointer to
-        *value = &(theClassPropNodeArray[node].theProperty.defaultValue);
+        *value = &(theClassPropNodeArray[pos].theProperty.defaultValue);
         *valueBase = inst.hdr->theClass.ptr->cls.base;
     }
 }

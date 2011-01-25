@@ -122,7 +122,7 @@ void structureSizesTest()
     VCOUT << "SCMBClass_Main      : " << sizeof(SCMBClass_Main) << endl;
     PEGASUS_TEST_ASSERT(sizeof(SCMBClass_Main) == 600);
     VCOUT << "SCMBInstance_Main   : " << sizeof(SCMBInstance_Main) << endl;
-    PEGASUS_TEST_ASSERT(sizeof(SCMBInstance_Main) == 216);
+    PEGASUS_TEST_ASSERT(sizeof(SCMBInstance_Main) == 184);
     VCOUT << endl << "Testing sizes of structures...Done." << endl;
 }
 
@@ -1698,143 +1698,6 @@ void SCMOInstanceKeyBindingsTest()
     VCOUT << endl << "Done." << endl;
 }
 
-void SCMOInstancePropertyFilterTest()
-{
-    SCMO_RC rc;
-
-    // definition of return values.
-    const SCMBUnion* unionReturn;
-    CIMType typeReturn;
-    Boolean isArrayReturn;
-    Uint32 sizeReturn;
-    const char * nameReturn;
-
-    SCMOClassCache* _theCache = SCMOClassCache::getInstance();
-
-    SCMOClass SCMO_TESTClass2 = _theCache->getSCMOClass(
-            "cimv2",
-            strlen("cimv2"),
-            "SCMO_TESTClass2",
-            strlen("SCMO_TESTClass2"));
-
-    SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);
-
-    SCMBUnion uint32value;
-    uint32value.simple.val.u32 = 0x654321;
-    uint32value.simple.hasValue=true;
-
-    rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
-        "Uint32Property",
-        CIMTYPE_UINT32,
-        &uint32value);
-
-    /**
-     * Test property filter
-     */
-
-    VCOUT << endl << "SCMOInstance property filter tests..." << endl;
-    VCOUT << endl << "Set regular property filter." << endl;
-    const char* propertyFilter[] =
-    {
-        "Uint16Property",
-        "StringPropertyArray",
-        "Sint16PropertyArray",
-        "StringProperty",   // it's a key property, already part of the filter.
-        0
-    };
-
-    SCMO_TESTClass2_Inst.setPropertyFilter(propertyFilter);
-
-    // 6 properties = 4 of filter + 3 key properies - 1 key property,
-    // per default part of the filter.
-
-    PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==6);
-
-    for (Uint32 i = 0; i < SCMO_TESTClass2_Inst.getPropertyCount();i++)
-    {
-        rc = SCMO_TESTClass2_Inst.getPropertyAt(
-            i,
-            &nameReturn,
-            typeReturn,
-            &unionReturn,
-            isArrayReturn,
-            sizeReturn);
-
-        if (typeReturn == CIMTYPE_STRING &&
-            rc == SCMO_OK)
-        {
-                // do not forget !!!
-                free((void*)unionReturn);
-        }
-
-        PEGASUS_TEST_ASSERT(rc!=SCMO_INDEX_OUT_OF_BOUND);
-    }
-
-    VCOUT << "Check indexing." << endl;
-    // the indey is just from 0 to 5. 6 is invalid !
-    rc = SCMO_TESTClass2_Inst.getPropertyAt(
-        SCMO_TESTClass2_Inst.getPropertyCount(),
-        &nameReturn,
-        typeReturn,
-        &unionReturn,
-        isArrayReturn,
-        sizeReturn);
-
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_INDEX_OUT_OF_BOUND);
-
-    Uint32 nodeIndex;
-    // The property Uint32Property is not part of the filter
-    // and not a key property!
-    rc = SCMO_TESTClass2_Inst.getPropertyNodeIndex("Uint32Property",nodeIndex);
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
-
-    uint32value.simple.val.u32 = 0x123456;
-
-    rc = SCMO_TESTClass2_Inst.setPropertyWithNodeIndex(
-        nodeIndex,
-        CIMTYPE_UINT32,
-        &uint32value,
-        false,0);
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
-
-    rc = SCMO_TESTClass2_Inst.getPropertyNodeIndex(NULL,nodeIndex);
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_INVALID_PARAMETER);
-
-    VCOUT << "Reset filter." << endl;
-    // reset filter
-    SCMO_TESTClass2_Inst.setPropertyFilter(NULL);
-
-    PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==28);
-
-    rc = SCMO_TESTClass2_Inst.getProperty(
-        "Uint32Property",
-        typeReturn,
-        &unionReturn,
-        isArrayReturn,
-        sizeReturn);
-
-    // The property should not have changed! The setPropertyWithNodeIndex()
-    // must not have changed the value.
-    PEGASUS_TEST_ASSERT(
-        uint32value.simple.val.u32 != unionReturn->simple.val.u32);
-
-    const char* noPropertyFiler[] = { 0 };
-
-    VCOUT << "Empty filter." << endl;
-    // no properties in the filter
-    SCMO_TESTClass2_Inst.setPropertyFilter(noPropertyFiler);
-
-    // you can not filter out key properties !
-    PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==3);
-
-    VCOUT << endl << "Done." << endl;
-
-}
-
 void SCMOInstanceConverterTest()
 {
 
@@ -1910,11 +1773,9 @@ int main (int argc, char *argv[])
 
         SCMOInstanceKeyBindingsTest();
 
-        SCMOInstancePropertyFilterTest();
-
         SCMOInstanceConverterTest();
 
-        // destroy the cache.
+         //destroy the cache.
         _thecache->destroy();
     }
     catch (CIMException& e)

@@ -185,6 +185,7 @@ private:
     friend class CIMBuffer;
     friend class SCMOInstance;
     friend class SCMOClass;
+    friend class XmlWriter;
 };
 
 PEGASUS_NAMESPACE_END

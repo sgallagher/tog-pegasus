@@ -119,9 +119,12 @@ public:
             elements.
 
         @param propertyList A CIMPropertyList specifying the minimum set of
-            properties required in the returned instances.  Support for this
-            parameter is optional, so the returned instance may contain
-            properties not specified in the list.  A null propertyList
+            properties required in the returned instance.  Support for this
+            parameter is optional.This parameter can be used by the provider
+            to optimize their code and not fill properties which are not
+            requested.The cimserver will filter all properties using an
+            efficient algorithm hence the returned instance may contain
+            properties not specified in the list.A null propertyList
             indicates that all properties must be included.  A non-null,
             but empty, propertyList indicates that no properites are required.
 
@@ -228,9 +231,12 @@ public:
             elements.
 
         @param propertyList A CIMPropertyList specifying the minimum set of
-            properties required in the returned instances.  Support for this
-            parameter is optional, so the returned instance may contain
-            properties not specified in the list.  A null propertyList
+            properties required in the returned instance.  Support for this
+            parameter is optional.This parameter can be used by the provider
+            to optimize their code and not fill properties which are not
+            requested.The cimserver will filter all properties using an
+            efficient algorithm hence the returned instance may contain
+            properties not specified in the list.A null propertyList
             indicates that all properties must be included.  A non-null,
             but empty, propertyList indicates that no properites are required.
 

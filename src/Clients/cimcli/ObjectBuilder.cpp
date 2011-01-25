@@ -38,6 +38,7 @@
 #include "CIMCLIClient.h"
 #include "ObjectBuilder.h"
 #include "CIMCLICommon.h"
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -722,10 +723,11 @@ CIMInstance ObjectBuilder::buildInstance(
     }
 
     // Delete any properties not on the property list
-    newInstance.filter(
+    filterInstance(
         includeQualifiers,
         includeClassOrigin,
-        CIMPropertyList(myPropertyList));
+        myPropertyList,
+        newInstance);
 
     // Display the Instance if verbose
     if (_verbose)
@@ -836,6 +838,48 @@ CIMValue ObjectBuilder::buildPropertyValue(
         return _stringToScalarValue(value.getCString(), vp.getType());
     }
     
+}
+
+void ObjectBuilder::filterInstance(bool includeQualifiers,
+    bool includeClassOrigin,
+    const CIMPropertyList& myPropertyList,
+    CIMInstance & newInstance)
+{
+    if(!includeQualifiers && newInstance.getQualifierCount() > 0)
+    {
+        while(newInstance.getQualifierCount())
+        {
+            newInstance.removeQualifier(0);
+        }
+    }
+    // Delete any properties not on the property list
+    for(Uint32 i=0; i < newInstance.getPropertyCount();i++)
+    {
+        CIMConstProperty p = newInstance.getProperty(i);
+        CIMName name = p.getName();
+        Array<CIMName> pl = myPropertyList.getPropertyNameArray();
+        if (myPropertyList.isNull() || Contains(pl, name))
+        {
+            if (!includeClassOrigin)
+            {
+                (newInstance.getProperty(i)).setClassOrigin(CIMName());
+            }
+            if (!includeQualifiers && newInstance.getProperty(i).
+                getQualifierCount() > 0)
+            {
+                while (newInstance.getProperty(i).getQualifierCount() > 0)
+                {
+                    newInstance.getProperty(i).removeQualifier(0);
+                }
+            }
+        }
+        else
+        {
+            newInstance.removeProperty(i--);
+        }
+
+    }
+
 }
 
 PEGASUS_NAMESPACE_END

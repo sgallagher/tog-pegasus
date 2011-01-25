@@ -270,7 +270,6 @@ void InteropProvider::references(
             tmpTarget);
         for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {
-            refs[j].filter(includeQualifiers, includeClassOrigin, propertyList);
             handler.deliver((CIMObject)refs[j]);
         }
         if (numIterations == 2)

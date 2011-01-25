@@ -549,33 +549,7 @@ extern "C"
     static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
         const char** propertyList, const char **keys)
     {
-        PEG_METHOD_ENTER(
-            TRC_CMPIPROVIDERINTERFACE,
-            "CMPI_Instance:instSetPropertyFilter()");
-
-        if (!eInst->hdl)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
-        /* The property list is to be applied on the given instance.
-           Currently CMPI provider have to call instSetPropertyFilter to honor
-           property filters or have to filter for themselves.
-           Removing properties from the SCMOInstance here helps to effectively
-           avoid the need to carry a property list around in the CMPI layer.
-
-           A (propertyList == 0) means the property list is null and there
-           should be no filtering.
-
-           An empty propertylist(no property to be returned) is represented by
-           a valid propertyList pointer pointing to a null pointer, i.e.
-           (*propertyList == 0)
-        */
-
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        inst->setPropertyFilter(propertyList);
-
-        PEG_METHOD_EXIT();
+        //Property filtering is done by the CIMOM infrastructure.
         CMReturn(CMPI_RC_OK);
     }
 

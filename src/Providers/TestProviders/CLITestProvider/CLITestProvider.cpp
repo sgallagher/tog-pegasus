@@ -86,6 +86,7 @@ timeout of providers for unload, they will be discarded.
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -353,8 +354,6 @@ void CLITestProvider::getInstance(
         _addParam(text, "includeQualifiers", _toString(includeQualifiers));
         _addParam(text, "includeClassOrigin", _toString(includeClassOrigin));
 
-        // clone and filter the returned instance. Clone so the original
-        // not modified by filter.
         try
         {
             CIMInstance temp = _instances[index].clone();
@@ -374,7 +373,6 @@ void CLITestProvider::getInstance(
             temp.getProperty(temp.findProperty("requestInputParameters"))
                 .setValue(text);
 
-            temp.filter(includeQualifiers,includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
@@ -439,8 +437,6 @@ void CLITestProvider::enumerateInstances(
                     temp.findProperty("requestInputParameters"))
                     .setValue(text);
 
-                temp.filter(includeQualifiers,includeClassOrigin,
-                            propertyList);
                 handler.deliver(temp);
             }
             catch(CIMException& e)
@@ -725,8 +721,6 @@ void CLITestProvider::associators(
                 rtnObjectName.setHost(_getHostName());
             }
             temp.setPath(rtnObjectName);
-            temp.filter(includeQualifiers,
-                        includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
@@ -858,10 +852,6 @@ void CLITestProvider::references(
         _completePath(host, nameSpace, objectPath);
 
         assocInstance.setPath(objectPath);
-
-        // complete processing the request
-        assocInstance.filter(includeQualifiers,
-                    includeClassOrigin, propertyList);
 
         handler.deliver(assocInstance);
     }
@@ -1110,4 +1100,5 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
         }
     }
 }
+
 

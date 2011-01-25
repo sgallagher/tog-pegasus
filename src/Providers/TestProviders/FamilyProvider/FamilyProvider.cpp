@@ -276,25 +276,18 @@ CIMObjectPath setCompleteObjectPath(const CIMObjectPath& path,
     return(outpath);
 }
 
-/** clone the input instance and filter it in accordance with
-    the input variables.
-    @return cloned and filtered instance with object path
+/** clone the input instance.
+    @return cloned instance with object path
     complete.
 */
-CIMInstance filterInstance(const CIMInstance& instance,
-                            const Boolean includeQualifiers,
-                            const Boolean includeClassOrigin,
-                            const CIMPropertyList& pl,
-                            const CIMObjectPath& inputPath)
+CIMInstance _clone(const CIMInstance& instance,
+    const CIMObjectPath& inputPath)
 {
     // Copy of instance.
     CIMInstance rtnInstance = instance.clone();
 
-    // Filter per input parameters
-    rtnInstance.filter(includeQualifiers, includeClassOrigin, pl);
-
     setCompleteInstancePath(rtnInstance, inputPath);
-    CDEBUG("filterInstance path= " << rtnInstance.getPath().toString());
+    CDEBUG("Instance path= " << rtnInstance.getPath().toString());
     return(rtnInstance);
 }
 
@@ -769,9 +762,8 @@ void FamilyProvider::_getInstance(
         if (localReference == instanceArray[i].getPath())
         {
             // deliver filtered clone of requested instance
-            handler.deliver(filterInstance(instanceArray[i],
-                includeQualifiers, includeClassOrigin,
-                propertyList,   localReference));
+            handler.deliver(_clone(instanceArray[i],
+                localReference));
             return;
         }
     }
@@ -848,8 +840,7 @@ void FamilyProvider::_enumerateInstances(
 {
     for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
-        handler.deliver(filterInstance(instanceArray[i],
-            includeQualifiers, includeClassOrigin, propertyList,
+        handler.deliver(_clone(instanceArray[i],
             classReference));
     }
 }
@@ -1232,8 +1223,7 @@ void FamilyProvider::_associators(
                 if (resultPaths[j].identical(newPath))
                 {
 
-                    handler.deliver(filterInstance(resultInstanceArray[k],
-                        includeQualifiers, includeClassOrigin, propertyList,
+                    handler.deliver(_clone(resultInstanceArray[k],
                         objectName));
                 }
             }
@@ -1414,8 +1404,7 @@ void FamilyProvider::_references(
     for (Uint32 i = 0 ; i < returnInstances.size() ; i++)
     {
 
-        handler.deliver(filterInstance(returnInstances[i],
-            includeQualifiers, includeClassOrigin, propertyList,
+        handler.deliver(_clone(returnInstances[i],
             objectName));
     }
 }

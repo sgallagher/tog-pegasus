@@ -655,6 +655,15 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 instance of Test_CLITestProviderClass
 {
 Id = "ScalarTest";
+requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
+    "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
+    "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, "
+    "scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, "
+    "defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, "
+    "defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, "
+    "arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, "
+    "arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, "
+    "arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false";
 scalBool = TRUE;
 scalUint8 = 12;
 scalSint8 = 12;
@@ -665,6 +674,13 @@ scalSint32 = 9999;
 scalUint64 = 99999;
 scalSint64 = 99999;
 scalString = "testString";
+};
+path= Test_CLITestProviderClass.Id="arrayTest"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "arrayTest";
 requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
     "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
     "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, "
@@ -674,13 +690,6 @@ requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
     "arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, "
     "arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, "
     "arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false";
-};
-path= Test_CLITestProviderClass.Id="arrayTest"
-
-//Instance of Test_CLITestProviderClass
-instance of Test_CLITestProviderClass
-{
-Id = "arrayTest";
 scalString = "testString";
 scalDateTime = "19991224120000.000000+360";
 arrayBool = {TRUE, TRUE, TRUE, FALSE, TRUE};
@@ -690,15 +699,6 @@ arrayUint32 = {99, 0, 31000, 63000, 4294967295};
 arraySint32 = {-32000, 0, 32000, -2147483648, 2147483647};
 arrayUint64 = {99, 0, 31000, 63000, 18446744073709551615};
 arraySint64 = {-32000, 0, 32000, -9223372036854775808};
-requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
-    "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
-    "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, "
-    "scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, "
-    "defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, "
-    "defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, "
-    "arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, "
-    "arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, "
-    "arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false";
 };
 4. +++++ Test Instances modify Instance
 modified
@@ -813,8 +813,8 @@ path= Test_CLITestProviderClass
 instance of Test_CLITestProviderClass
 {
 scalBool = TRUE;
-scalString = "teststring";
 arrayUint64 = {4, 128, 240};
+scalString = "teststring";
 };
 12. +++++ test getInstance Operation
 path= Test_CLITestProviderClass
@@ -928,9 +928,15 @@ Return Value= 0
 path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 //Instance of Test_CLITestProviderLinkClass
+    [ASSOCIATION : DisableOverride, 
+    Version ("1.0.0") : Restricted, Translatable, 
+    Description ("Defines the relationship between parents and children. "
+        "Test Ref/Assoc functions in cimli") : Translatable]
 instance of Test_CLITestProviderLinkClass
 {
+    [key : DisableOverride]
 parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
+    [key : DisableOverride]
 child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
 requestInputParameters = "role=; resultClass=Test_CLITestProviderLinkClass; "
     "includeQualifiers=false; includeClassOrigin=false; propertyList=NULL";
@@ -938,9 +944,15 @@ requestInputParameters = "role=; resultClass=Test_CLITestProviderLinkClass; "
 path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 //Instance of Test_CLITestProviderLinkClass
+    [ASSOCIATION : DisableOverride, 
+    Version ("1.0.0") : Restricted, Translatable, 
+    Description ("Defines the relationship between parents and children. "
+        "Test Ref/Assoc functions in cimli") : Translatable]
 instance of Test_CLITestProviderLinkClass
 {
+    [key : DisableOverride]
 parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
+    [key : DisableOverride]
 child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
 requestInputParameters = "role=parent; resultClass=Test_CLITestProviderLinkClass; "
     "includeQualifiers=false; includeClassOrigin=false; propertyList=NULL";
@@ -950,8 +962,16 @@ requestInputParameters = "role=parent; resultClass=Test_CLITestProviderLinkClass
 path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 //Instance of Test_CLITestProviderLinkClass
+    [ASSOCIATION : DisableOverride, 
+    Version ("1.0.0") : Restricted, Translatable, 
+    Description ("Defines the relationship between parents and children. "
+        "Test Ref/Assoc functions in cimli") : Translatable]
 instance of Test_CLITestProviderLinkClass
 {
+    [key : DisableOverride]
+parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
+    [key : DisableOverride]
+child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
 requestInputParameters = "role=child; resultClass=Test_CLITestProviderLinkClass; "
     "includeQualifiers=false; includeClassOrigin=false; propertyList=requestInputParameters";
 };

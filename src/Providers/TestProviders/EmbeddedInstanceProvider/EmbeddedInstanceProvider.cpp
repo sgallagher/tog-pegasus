@@ -153,7 +153,6 @@ void EmbeddedInstanceProvider::invokeMethod(
         propList.append(errorParamInst.getProperty(i).getName());
     }
     CIMInstance tmpErrorInstance(errorInstance->clone());
-    tmpErrorInstance.filter(false, false, propList);
     if (!tmpErrorInstance.identical(errorParamInst))
     {
         throw Exception("Did not receive expected ErrorInstance");
@@ -205,7 +204,6 @@ void EmbeddedInstanceProvider::getInstance(
     else if (ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
         retInst = indicationInstance->clone();
 
-    retInst.filter(includeQualifiers, includeClassOrigin, propertyList);
     handler.deliver(retInst);
     handler.complete();
 }
@@ -228,8 +226,6 @@ void EmbeddedInstanceProvider::enumerateInstances(
         retInst = errorInstance->clone();
     else if (ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
         retInst = indicationInstance->clone();
-
-    retInst.filter(includeQualifiers, includeClassOrigin, propertyList);
 
     for (int i = 0; i < 5; i++)
         handler.deliver(retInst);
@@ -324,8 +320,7 @@ void EmbeddedInstanceProvider::createInstance(
         false,
         propList);
     repositoryInstance.setPath(repositoryPath);
-    repositoryInstance.filter(false, false, propList);
-    errorInstance->filter(false, false, propList);
+    
     if (!errorInstance->identical(repositoryInstance))
     {
         throw Exception(

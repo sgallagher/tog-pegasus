@@ -37,7 +37,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 void CIMInternalXmlEncoder::_putXMLInstance(
     CIMBuffer& out,
-    const CIMInstance& ci)
+    const CIMInstance& ci,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     if (ci.isUninitialized())
     {
@@ -52,7 +55,12 @@ void CIMInternalXmlEncoder::_putXMLInstance(
 
         // Serialize instance as XML.
         {
-            XmlWriter::appendInstanceElement(buf, ci);
+            XmlWriter::appendInstanceElement(
+                buf,
+                ci,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -85,7 +93,10 @@ void CIMInternalXmlEncoder::_putXMLInstance(
 
 void CIMInternalXmlEncoder::_putXMLNamedInstance(
     CIMBuffer& out,
-    const CIMInstance& ci)
+    const CIMInstance& ci,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     if (ci.isUninitialized())
     {
@@ -100,7 +111,12 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
 
         // Serialize instance as XML.
         {
-            XmlWriter::appendInstanceElement(buf, ci);
+            XmlWriter::appendInstanceElement(
+                buf,
+                ci,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -133,7 +149,10 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
 
 void CIMInternalXmlEncoder::_putXMLObject(
     CIMBuffer& out,
-    const CIMObject& co)
+    const CIMObject& co,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     if (co.isUninitialized())
     {
@@ -148,7 +167,12 @@ void CIMInternalXmlEncoder::_putXMLObject(
 
         // Serialize instance as XML.
         {
-            XmlWriter::appendObjectElement(buf, co);
+            XmlWriter::appendObjectElement(
+                buf,
+                co,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
             buf.append('\0');
 
             out.putUint32(buf.size());

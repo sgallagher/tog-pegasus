@@ -311,7 +311,6 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeBinaryResponse");
-
     // Need to do a complete job here by transferring all contained data
     // into binary format and handing it out in the CIMBuffer
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
@@ -573,7 +572,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
-
+    
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
     // fallback
@@ -581,7 +580,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
     {
         _resolveBinary();
     }
-
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         switch (_dataType)
@@ -644,6 +642,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
+        _propertyList.fillCIMNameTags();
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -658,7 +657,12 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 if (_instances.size() > 0)
                 {
-                    XmlWriter::appendInstanceElement(out, _instances[0]);
+                    XmlWriter::appendInstanceElement(
+                        out, 
+                        _instances[0],
+                        _includeQualifiers,
+                        _includeClassOrigin,
+                        _propertyList);
                 }
                 break;
             }
@@ -667,7 +671,11 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 for (Uint32 i = 0, n = _instances.size(); i < n; i++)
                 {
                     XmlWriter::appendValueNamedInstanceElement(
-                        out, _instances[i]);
+                        out, 
+                        _instances[i],
+                        _includeQualifiers,
+                        _includeClassOrigin,
+                        _propertyList);
                 }
                 break;
             }
@@ -677,7 +685,10 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 {
                     XmlWriter::appendValueObjectWithPathElement(
                         out,
-                        _objects[i]);
+                        _objects[i],
+                        _includeQualifiers,
+                        _includeClassOrigin,
+                        _propertyList);
                 }
                 break;
             }
@@ -711,6 +722,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                     SCMOXmlWriter::appendInstanceNameElement(
                         out,
                         _scmoInstances[i]);
+
                 }
                 break;
             }
@@ -718,28 +730,48 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 if (_scmoInstances.size() > 0)
                 {
-                    SCMOXmlWriter::appendInstanceElement(out,_scmoInstances[0]);
+                    if(_propertyList.isNull())
+                    {
+                        Array<Uint32> emptyNodes; 
+                        SCMOXmlWriter::appendInstanceElement(
+                            out,
+                            _scmoInstances[0],
+                            false,
+                            emptyNodes);
+                    }
+                    else
+                    {
+                        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
+                        // This searches for an already created array of nodes, 
+                        //if not found, creates it inside propFilterNodesArrays 
+                        const Array<Uint32> & nodes= 
+                            SCMOXmlWriter::getFilteredNodesArray( 
+                                propFilterNodesArrays, 
+                                _scmoInstances[0], 
+                                _propertyList);
+                        SCMOXmlWriter::appendInstanceElement(
+                            out,
+                            _scmoInstances[0],
+                            true,
+                            nodes); 
+                    }  
                 }
                 break;
             }
             case RESP_INSTANCES:
             {
-                for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
-                {
-                    SCMOXmlWriter::appendValueSCMOInstanceElement(
-                        out,
-                        _scmoInstances[i]);
-                }
+                SCMOXmlWriter::appendValueSCMOInstanceElements(
+                    out,
+                    _scmoInstances,
+                    _propertyList);
                 break;
             }
             case RESP_OBJECTS:
             {
-                for (Uint32 i = 0; i < _scmoInstances.size(); i++)
-                {
-                    SCMOXmlWriter::appendValueObjectWithPathElement(
-                        out,
-                        _scmoInstances[i]);
-                }
+                SCMOXmlWriter::appendValueObjectWithPathElement(
+                    out,
+                   _scmoInstances,
+                  _propertyList);
                 break;
             }
             case RESP_OBJECTPATHS:
@@ -771,7 +803,6 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
         "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
-
     // For mixed (CIM+SCMO) responses, we need to tell the receiver the
     // total number of instances. The totalSize variable is used to keep track
     // of this.
@@ -787,6 +818,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
     if ((0 == _encoding) ||
         (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM)))
     {
+        _propertyList.fillCIMNameTags();
         switch (_dataType)
         {
             case RESP_INSTANCE:
@@ -794,8 +826,17 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 if (0 == _instances.size())
                 {
                     _instances.append(CIMInstance());
+                    CIMInternalXmlEncoder::_putXMLInstance(
+                        out,
+                        _instances[0]);
+                    break;
                 }
-                CIMInternalXmlEncoder::_putXMLInstance(out, _instances[0]);
+                CIMInternalXmlEncoder::_putXMLInstance(
+                    out,
+                    _instances[0],
+                    _includeQualifiers,
+                    _includeClassOrigin,
+                    _propertyList);
                 break;
             }
             case RESP_INSTANCES:
@@ -807,7 +848,10 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     CIMInternalXmlEncoder::_putXMLNamedInstance(
                         out,
-                        _instances[i]);
+                        _instances[i],
+                        _includeQualifiers,
+                        _includeClassOrigin,
+                        _propertyList);
                 }
                 break;
             }
@@ -818,7 +862,12 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 out.putUint32(totalSize);
                 for (Uint32 i = 0; i < n; i++)
                 {
-                    CIMInternalXmlEncoder::_putXMLObject(out, _objects[i]);
+                    CIMInternalXmlEncoder::_putXMLObject(
+                        out,
+                        _objects[i],
+                        _includeQualifiers,
+                        _includeClassOrigin,
+                        _propertyList);
                 }
                 break;
             }
@@ -842,7 +891,10 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     _scmoInstances.append(SCMOInstance());
                 }
-                SCMOInternalXmlEncoder::_putXMLInstance(out, _scmoInstances[0]);
+                SCMOInternalXmlEncoder::_putXMLInstance(
+                    out, 
+                    _scmoInstances[0],
+                    _propertyList);
                 break;
             }
             case RESP_INSTANCES:
@@ -853,12 +905,10 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     out.putUint32(n);
                 }
-                for (Uint32 i = 0; i < n; i++)
-                {
-                    SCMOInternalXmlEncoder::_putXMLNamedInstance(
-                            out,
-                            _scmoInstances[i]);
-                }
+                SCMOInternalXmlEncoder::_putXMLNamedInstance(
+                    out,
+                    _scmoInstances,
+                    _propertyList);
                 break;
             }
             case RESP_OBJECTS:
@@ -869,12 +919,10 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     out.putUint32(n);
                 }
-                for (Uint32 i = 0; i < n; i++)
-                {
-                    SCMOInternalXmlEncoder::_putXMLObject(
-                        out,
-                        _scmoInstances[i]);
-                }
+                SCMOInternalXmlEncoder::_putXMLObject(
+                    out,
+                    _scmoInstances,
+                    _propertyList);
                 break;
             }
             // internal xml encoding of instance names and object paths not
@@ -887,6 +935,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             }
         }
     }
+
 }
 
 void CIMResponseData::_resolveToCIM()
@@ -1367,5 +1416,24 @@ void CIMResponseData::_resolveCIMToSCMO()
     // add SCMO Encoding flag
     _encoding |=RESP_ENC_SCMO;
 }
+
+void CIMResponseData::setRequestProperties(
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+{
+    _includeQualifiers = includeQualifiers;
+    _includeClassOrigin = includeClassOrigin;
+    _propertyList = propertyList; 
+}
+void CIMResponseData::getRequestProperties(
+    Boolean & includeQualifiers,
+    Boolean & includeClassOrigin,
+    CIMPropertyList& propertyList)
+{
+    includeQualifiers = _includeQualifiers;
+    includeClassOrigin = _includeClassOrigin;
+    propertyList = _propertyList;
+} 
 
 PEGASUS_NAMESPACE_END

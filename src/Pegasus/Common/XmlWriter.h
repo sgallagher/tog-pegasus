@@ -111,7 +111,10 @@ public:
 
     static void appendValueObjectWithPathElement(
         Buffer& out,
-        const CIMObject& objectWithPath);
+        const CIMObject& objectWithPath,
+        Boolean includeQualifiers = true,
+        Boolean includeClassOrigin = true,
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     static void appendValueReferenceElement(
         Buffer& out,
@@ -124,7 +127,10 @@ public:
 
     static void appendValueNamedInstanceElement(
         Buffer& out,
-        const CIMInstance& namedInstance);
+        const CIMInstance& namedInstance,
+        Boolean includeQualifiers = true,
+        Boolean includeClassOrigin = true,
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     static void appendClassElement(
         Buffer& out,
@@ -136,7 +142,11 @@ public:
 
     static void appendInstanceElement(
         Buffer& out,
-        const CIMConstInstance& instance);
+        const CIMConstInstance& instance,
+        Boolean includeQualifiers = true,
+        Boolean includeClassOrigin = true,
+        const CIMPropertyList& propertyList = CIMPropertyList());
+
 
     static void printInstanceElement(
         const CIMConstInstance& instance,
@@ -144,11 +154,16 @@ public:
 
     static void appendObjectElement(
         Buffer& out,
-        const CIMConstObject& object);
+        const CIMConstObject& object,
+        Boolean includeQualifiers = true,
+        Boolean includeClassOrigin = true,
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     static void appendPropertyElement(
         Buffer& out,
-        const CIMConstProperty& property);
+        const CIMConstProperty& property,
+        Boolean includeQualifiers = true,
+        Boolean includeClassOrigin = true);
 
     static void printPropertyElement(
         const CIMConstProperty& property,

@@ -31,6 +31,7 @@
 
 #include "CIMPropertyListRep.h"
 #include "CIMPropertyList.h"
+#include "OrderedSet.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -45,6 +46,7 @@ CIMPropertyList::CIMPropertyList(const CIMPropertyList& x)
     _rep = new CIMPropertyListRep();
     _rep->propertyNames = x._rep->propertyNames;
     _rep->isNull = x._rep->isNull;
+    _rep->cimNameTags = x._rep->cimNameTags;
 }
 
 CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
@@ -104,6 +106,8 @@ CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
     {
         _rep->propertyNames = x._rep->propertyNames;
         _rep->isNull = x._rep->isNull;
+        _rep->cimNameTags = x._rep->cimNameTags;
+        
     }
 
     return *this;
@@ -113,6 +117,11 @@ void CIMPropertyList::clear()
 {
     _rep->propertyNames.clear();
     _rep->isNull = true;
+    if(_rep->isCimNameTagsUpdated)
+    { 
+        _rep->cimNameTags.clear();
+        _rep->isCimNameTagsUpdated = false;
+    }
 }
 
 Boolean CIMPropertyList::isNull() const
@@ -134,5 +143,20 @@ Array<CIMName> CIMPropertyList::getPropertyNameArray() const
 {
     return _rep->propertyNames;
 }
-
+void CIMPropertyList::fillCIMNameTags()   
+{
+    if((!_rep->isNull) && (!_rep->isCimNameTagsUpdated))
+    {
+        for(Uint32 i=0;i<_rep->propertyNames.size();i++)
+        {
+            _rep->cimNameTags.append(
+                generateCIMNameTag(_rep->propertyNames[i]));
+        } 
+        _rep->isCimNameTagsUpdated = true;
+    }
+}
+Uint32 CIMPropertyList::getCIMNameTag(Uint32 index) const
+{
+    return _rep->cimNameTags[index]; 
+}
 PEGASUS_NAMESPACE_END

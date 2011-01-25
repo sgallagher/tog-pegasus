@@ -160,14 +160,7 @@ bool namespaceSupported(const CIMObjectPath & path)
 }
 */
 
-//
-// Normalize the instance by setting the complete path for the instance and
-// executing the instance filter to set the qualifiers, classorigin, and
-// property list in accordance with the input.  Note that this can only remove
-// characteristics, except for the path completion, so that it expects
-// instances with qualifiers, class origin, and a complete set of properties
-// already present in the instance.
-//
+// Normalize the instance by setting the complete path for the instance.
 void normalizeInstance(CIMInstance& instance, const CIMObjectPath& path,
                        Boolean includeQualifiers, Boolean includeClassOrigin,
                        const CIMPropertyList& propertyList)
@@ -177,9 +170,6 @@ void normalizeInstance(CIMInstance& instance, const CIMObjectPath& path,
     p.setNameSpace(path.getNameSpace());
 
     instance.setPath(p);
-    instance.filter(includeQualifiers,
-                    includeClassOrigin,
-                    propertyList );
 }
 
 //

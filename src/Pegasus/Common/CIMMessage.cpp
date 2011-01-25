@@ -33,6 +33,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include "CIMMessage.h"
 #include "XmlWriter.h"
+#include "CIMResponseData.h"
 
 PEGASUS_USING_STD;
 
@@ -74,6 +75,11 @@ CIMResponseMessage* CIMGetInstanceRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }
@@ -187,6 +193,11 @@ CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }
@@ -221,6 +232,11 @@ CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }
@@ -243,6 +259,11 @@ CIMResponseMessage* CIMReferencesRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }

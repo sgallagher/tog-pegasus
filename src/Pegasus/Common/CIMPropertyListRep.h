@@ -42,8 +42,18 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMPropertyListRep
 {
 public:
+    CIMPropertyListRep():isCimNameTagsUpdated(false)
+    {
+    }
+   ~CIMPropertyListRep()
+    {
+        cimNameTags.clear();
+    }
+
     Array<CIMName> propertyNames;
+    Array<Uint32> cimNameTags;
     Boolean isNull;
+    Boolean isCimNameTagsUpdated;
 };
 
 PEGASUS_NAMESPACE_END

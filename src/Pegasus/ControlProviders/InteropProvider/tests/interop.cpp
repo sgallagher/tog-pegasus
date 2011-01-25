@@ -1306,9 +1306,6 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     // method to construct the correct keys.
     CIMInstance instance = instances[0];
 
-    // remove the qualifiers, etc.
-    // NOTE should do this as part of the get.
-    instance.filter(false, false, CIMPropertyList());
     // Modify the name property value for new name
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
@@ -1405,9 +1402,6 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
         newInstance.addProperty(instance.getProperty(i).clone());
     }
 
-    // remove the qualifiers, etc.
-    // NOTE should do this as part of the get.
-    instance.filter(false, false, CIMPropertyList());
     // Modify the name property value for new name
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
@@ -2554,7 +2548,6 @@ void InteropTest::setStatisticsState(const Boolean flag)
     Array<CIMName> plA;
     plA.append(CIMName("gatherstatisticaldata"));
     CIMPropertyList myPropertyList(plA);
-    sendInstance.filter(false, false, myPropertyList);
 
     Uint32 pos;
     if ((pos = sendInstance.findProperty("gatherstatisticaldata")) !=
@@ -2702,8 +2695,6 @@ void InteropTest::testStatisticsEnable()
         else
             PEGASUS_TEST_ASSERT(false);
 
-        // Test with Multiple Properties in instance and qualifiers removed
-        sendInstance.filter(false, false, CIMPropertyList());
         // try modify with multiple properties . Should set statistics true
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
                 true, false, CIM_ERR_NOT_SUPPORTED))
@@ -2750,7 +2741,6 @@ void InteropTest::testStatisticsEnable()
         plA2.append(CIMName("RequestStateChange"));
         CIMPropertyList myPropertyList2(plA2);
         CIMInstance sendInstance2 = sendInstance.clone();
-        sendInstance2.filter(false, false, myPropertyList2);
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     false, false, CIM_ERR_NOT_SUPPORTED))
         TERMINATE("Set Should fail. Bad Property in modifiedInstance");
@@ -2761,7 +2751,6 @@ void InteropTest::testStatisticsEnable()
         Array<CIMName> plA3;
         myPropertyList2.set(plA3);
         sendInstance2 = sendInstance.clone();
-        sendInstance2.filter(false, false, myPropertyList);
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     true, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set with propertylist empty should pass");
@@ -3190,7 +3179,6 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                 true,                                // includeQualifiers
                 true,                                // includeClassOrigin
                 CIMPropertyList());                  // propertyList
-
         // test if references and referencenames return same size
         PEGASUS_TEST_ASSERT(references.size() == referenceNames.size());
         PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames,

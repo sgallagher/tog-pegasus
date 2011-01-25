@@ -171,6 +171,8 @@ public:
         in the property list.
     */
     Array<CIMName> getPropertyNameArray() const;
+    void fillCIMNameTags();
+    Uint32 getCIMNameTag(Uint32 index) const;
 
 private:
 

@@ -3015,7 +3015,6 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         SCMOInstance * modInst = getSCMOInstanceFromRequest(
             nameSpace, className, localModifiedInstance);
-        modInst->setPropertyFilter((const char **)props.getList());
         CMPI_InstanceOnStack eInst(modInst);
 
         // This will create a second reference for the same SCMOInstance

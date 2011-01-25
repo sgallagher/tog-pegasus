@@ -1264,8 +1264,6 @@ SCMOInstance::SCMOInstance(
     inst.hdr->flags.includeQualifiers=includeQualifiers;
     inst.hdr->flags.includeClassOrigin=includeClassOrigin;
 
-    setPropertyFilter(propertyList);
-
 }
 
 SCMOInstance::SCMOInstance(SCMOClass& baseClass, const CIMObjectPath& cimObj)
@@ -1609,55 +1607,35 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
         }
     }
 
-    if (inst.hdr->flags.isFiltered)
+    if (inst.hdr->flags.exportSetOnly)
     {
-        // Get absolut pointer to property filter index map of the instance
-        Uint32* propertyFilterIndexMap =
-            (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
-
-        for(Uint32 i = 0, k = inst.hdr->filterProperties; i<k; i++)
+        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
         {
-            // Get absolut pointer to property filter index map
-            // of the instance get the real node index of the property.
-            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(
-                propertyFilterIndexMap[i]);
+            SCMBValue* theInstPropArray =
+                (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
-            newInstance._rep->_properties.append(theProperty);
+            // was the property set by the provider ?
+            if(theInstPropArray[i].flags.isSet)
+            {
+                // no filtering. Counter is node index
+                CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+
+                newInstance._rep->_properties.append(theProperty);
+            }
         }
-
     }
     else
     {
+        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+        {
+            // Set all properties in the CIMInstance gegarding they
+            // are part of the SCMOInstance or the SCMOClass.
+            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
 
-        if (inst.hdr->flags.exportSetOnly)
-         {
-             for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
-             {
-                 SCMBValue* theInstPropArray =
-                     (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
-
-                 // was the property set by the provider ?
-                 if(theInstPropArray[i].flags.isSet)
-                 {
-                     // no filtering. Counter is node index
-                     CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
-
-                     newInstance._rep->_properties.append(theProperty);
-                 }
-             }
-         }
-         else
-         {
-             for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
-             {
-                 // Set all properties in the CIMInstance gegarding they
-                 // are part of the SCMOInstance or the SCMOClass.
-                 CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
-
-                 newInstance._rep->_properties.append(theProperty);
-             }
-         }
+            newInstance._rep->_properties.append(theProperty);
+        }
     }
+
     cimInstance = newInstance;
 
     return rc;
@@ -2850,18 +2828,6 @@ SCMO_RC SCMOInstance::getProperty(
         return rc;
     }
 
-    // is filtering on ?
-    if (inst.hdr->flags.isFiltered)
-    {
-        // Is the property NOT in the property filter ?
-        if(!_isPropertyInFilter(node))
-        {
-            // The named propery is not part of this instance
-            // due to filtering.
-            return SCMO_NOT_FOUND;
-        }
-    }
-
     return  _getPropertyAtNodeIndex(node,&pname,type,pOutVal,isArray,size);
 }
 
@@ -2877,35 +2843,13 @@ SCMO_RC SCMOInstance::getPropertyAt(
     *pOutVal = 0;
     isArray = false;
     size = 0;
-    Uint32 node;
 
-    // is filtering on ?
-    if (inst.hdr->flags.isFiltered)
+    if (idx >= inst.hdr->numberProperties)
     {
-        // check the number of properties part of the filter
-        if (idx >= inst.hdr->filterProperties)
-        {
-            return SCMO_INDEX_OUT_OF_BOUND;
-        }
-
-        // Get absolut pointer to property filter index map of the instance
-        Uint32* propertyFilterIndexMap =
-        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
-
-        // get the real node index of the property.
-        node = propertyFilterIndexMap[idx];
-    }
-    else
-    {
-        // the index is used as node index.
-        node = idx;
-        if (node >= inst.hdr->numberProperties)
-        {
-            return SCMO_INDEX_OUT_OF_BOUND;
-        }
+        return SCMO_INDEX_OUT_OF_BOUND;
     }
 
-    return  _getPropertyAtNodeIndex(node,pname,type,pOutVal,isArray,size);
+    return  _getPropertyAtNodeIndex(idx,pname,type,pOutVal,isArray,size);
 }
 
 SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
@@ -2951,18 +2895,6 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
         return rc;
     }
 
-    // is filtering on ?
-    if (inst.hdr->flags.isFiltered)
-    {
-        // Is the property NOT in the property filter ?
-        if(!_isPropertyInFilter(node))
-        {
-            // The named propery is not part of this instance
-            // due to filtering.
-            return SCMO_NOT_FOUND;
-        }
-    }
-
     // check class origin if set.
     if (origin!= 0)
     {
@@ -2993,17 +2925,6 @@ SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
     if (node >= inst.hdr->numberProperties)
     {
         return SCMO_INDEX_OUT_OF_BOUND;
-    }
-
-    // is filtering on ?
-    if (inst.hdr->flags.isFiltered)
-    {
-        // Is the property NOT in the property filter ?
-        if(!_isPropertyInFilter(node))
-        {
-            // The proptery of the is not set due to filtering.
-            return SCMO_OK;
-        }
     }
 
     // Is the traget type OK ?
@@ -4291,11 +4212,6 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
 
 Uint32 SCMOInstance::getPropertyCount() const
 {
-    if (inst.hdr->flags.isFiltered)
-    {
-        return(inst.hdr->filterProperties);
-    }
-
     return(inst.hdr->numberProperties);
 }
 
@@ -5262,177 +5178,9 @@ static int _indexComp(const void* left, const void* right)
 
 void SCMOInstance::setPropertyFilter(const char **propertyList)
 {
-    SCMO_RC rc;
-    Uint32 node,i = 0;
-
-    _copyOnWrite();
-
-    if (inst.hdr->propertyFilter.start == 0)
-    {
-        // Allocate the SCMBPropertyFilter
-        _getFreeSpace(
-            inst.hdr->propertyFilter,
-            sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1),
-            &inst.mem);
-
-        // Allocate the SCMBPropertyFilterIndexMap
-        _getFreeSpace(
-            inst.hdr->propertyFilterIndexMap,
-            sizeof(Uint32)*inst.hdr->numberProperties,
-            &inst.mem);
-    }
-    // Get absolut pointer to property filter index map of the instance
-    Uint32* propertyFilterIndexMap =
-        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
-
-    // All properties are accepted
-    if (propertyList == 0)
-    {
-        // Clear filtering:
-        // Switch filtering off.
-        inst.hdr->flags.isFiltered = false;
-
-        // Clear filter index map
-        memset(
-            propertyFilterIndexMap,
-            0,
-            sizeof(Uint32)*inst.hdr->numberProperties);
-
-        //reset number filter properties to all
-        inst.hdr->filterProperties = inst.hdr->numberProperties;
-
-        return;
-    }
-
-    // Switch filtering on.
-    inst.hdr->flags.isFiltered = true;
-
-    // intit the filter with the key properties
-    inst.hdr->filterProperties=_initPropFilterWithKeys();
-
-    // add the properties to the filter.
-    while (propertyList[i] != 0)
-    {
-        // the hash index of the property if the property name is found
-        rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,propertyList[i]);
-
-        // if property is already in the filter
-        // ( eg. key properties ) do not add them !
-        if (rc == SCMO_OK && !_isPropertyInFilter(node))
-        {
-            // The property name was found. Otherwise ignore this property name.
-            // insert the hash index into the filter index map
-            propertyFilterIndexMap[inst.hdr->filterProperties]=node;
-            // increase number of properties in filter.
-            inst.hdr->filterProperties++;
-            // set bit in the property filter
-            _setPropertyInPropertyFilter(node);
-        }
-        // Proceed with the next property name.
-        i++;
-    }
-
-    // sort the filter index to be in order as properties stored in the class.
-    qsort(
-        propertyFilterIndexMap,
-        inst.hdr->filterProperties,
-        sizeof(Uint32),
-        _indexComp);
+    return;
 }
 
-Uint32 SCMOInstance::_initPropFilterWithKeys()
-{
-
-    // Get absolut pointer to the key property mask of the class.
-    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->keyPropertyMask.start;
-    Uint64* keyMask =(Uint64*)&(inst.hdr->theClass.ptr->cls.base)[idx];
-
-    // Get absolut pointer to property filter mask
-    Uint64* propertyFilterMask =
-        (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
-
-    // copy the key mask to the property filter mask
-    memcpy(
-        propertyFilterMask,
-        keyMask,
-        sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1));
-
-    // Get absolut pointer to key index list of the class
-    idx=inst.hdr->theClass.ptr->cls.hdr->keyIndexList.start;
-    Uint32* keyIndex = (Uint32*)&(inst.hdr->theClass.ptr->cls.base)[idx];
-
-    // Get absolut pointer to property filter index map of the instance
-    Uint32* propertyFilterIndexMap =
-        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
-
-    Uint32 noKeys = inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
-    memcpy(propertyFilterIndexMap,keyIndex,sizeof(Uint32)*noKeys);
-
-    // return the number of properties already in the filter index map
-    return noKeys;
-
-}
-
-void SCMOInstance::_clearPropertyFilter()
-{
-    Uint64 *propertyFilter;
-
-    // Calculate the real pointer to the Uint64 array
-    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
-
-    // the number of Uint64 in the key mask is :
-    // Decrease the number of properties by 1
-    // since the array is starting at index 0!
-    // Divide with the number of bits in a Uint64.
-    // e.g. number of Properties = 68
-    // (68 - 1) / 64 = 1 --> The mask consists of 2 Uint64
-
-    memset(propertyFilter,
-           0,
-           sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1));
-
-}
-void SCMOInstance::_setPropertyInPropertyFilter(Uint32 i)
-{
-    Uint64 *propertyFilter;
-
-    // In which Uint64 of key mask is the bit for property i ?
-    // Divide with the number of bits in a Uint64.
-    // 47 / 64 = 0 --> The key bit for property i is in in keyMask[0].
-    Uint32 idx = i/64 ;
-
-    // Create a filter to set the bit.
-    // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i%64));
-
-    // Calculate the real pointer to the Uint64 array
-    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
-
-    propertyFilter[idx] = propertyFilter[idx] | filter ;
-}
-
-Boolean SCMOInstance::_isPropertyInFilter(Uint32 i) const
-{
-    Uint64 *propertyFilter;
-
-    // In which Uint64 of key mask is the bit for property i ?
-    // Divide with the number of bits in a Uint64.
-    // e.g. number of Properties = 68
-    // 47 / 64 = 0 --> The key bit for property i is in in keyMask[0].
-    Uint32 idx = i/64 ;
-
-    // Create a filter to check if the bit is set:
-    // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i%64));
-
-    // Calculate the real pointer to the Uint64 array
-    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
-
-    // If the bit is set the property is NOT filtered.
-    // So the result has to be negated!
-    return propertyFilter[idx] & filter ;
-
-}
 
 /******************************************************************************
  * SCMODump Print and Dump functions
@@ -5558,8 +5306,6 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
            (insthdr->flags.includeQualifiers ? "True" : "False"));
     fprintf(_out,"\n   includeClassOrigin: %s",
            (insthdr->flags.includeClassOrigin ? "True" : "False"));
-    fprintf(_out,"\n   isFiltered: %s",
-           (insthdr->flags.isFiltered ? "True" : "False"));
     fprintf(_out,"\n   isClassOnly: %s",
            (insthdr->flags.isClassOnly ? "True" : "False"));
     fprintf(_out,"\n   isCompromised: %s",
@@ -5575,31 +5321,8 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
 
     dumpSCMOInstanceKeyBindings(testInst);
 
-    dumpSCMOInstancePropertyFilter(testInst);
-
     dumpInstanceProperties(testInst);
     fprintf(_out,"\n\n");
-
-}
-
-void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const
-{
-    SCMBInstance_Main* insthdr = testInst.inst.hdr;
-
-    if (!insthdr->flags.isFiltered)
-    {
-        fprintf(_out,"\n\nNo propterty filter!\n\n");
-        return;
-    }
-
-    fprintf(_out,"\n\nInstance Property Filter :");
-    fprintf(_out,"\n==========================");
-    fprintf(_out,"\n\nNumber of properties in the filter : %u\n"
-        ,insthdr->filterProperties);
-
-    dumpPropertyFilter(testInst);
-
-    dumpPropertyFilterIndexMap(testInst);
 
 }
 
@@ -5622,122 +5345,12 @@ void SCMODump::dumpInstanceProperties(
     {
         fprintf(_out,"\n\nInstance property (#%3u) %s\n",i,
                 NULLSTR(insthdr->theClass.ptr->_getPropertyNameAtNode(i)));
-        if(insthdr->flags.isFiltered && !testInst._isPropertyInFilter(i))
-        {
-            fprintf(_out,"\nProperty is filtered out!");
-        }
-        else
-        {
-            printSCMOValue(val[i],instbase,verbose);
-        }
+
+        printSCMOValue(val[i],instbase,verbose);
     }
 
 }
 
-void SCMODump::dumpPropertyFilterIndexMap(SCMOInstance& testInst) const
-{
-
-    SCMBInstance_Main* insthdr = testInst.inst.hdr;
-    char* instbase = testInst.inst.base;
-
-    if (!insthdr->flags.isFiltered)
-    {
-        fprintf(_out,"\n\nNo propterty filter!\n\n");
-        return;
-    }
-
-    fprintf(_out,"\n\nProperty Filter Index Max:");
-    fprintf(_out,"\n==========================\n");
-
-    // Get absolut pointer to key index list of the class
-    Uint32* keyIndex =
-        (Uint32*)&(instbase)[insthdr->propertyFilterIndexMap.start];
-
-    Uint32 line,j,i,k = insthdr->filterProperties;
-
-    for (j = 0; j < k; j = j + line)
-    {
-        if ((insthdr->filterProperties-j)/16)
-        {
-            line = 16 ;
-        }
-        else
-        {
-            line = insthdr->filterProperties%16;
-        }
-
-
-        fprintf(_out,"Index :");
-        for (i = 0; i < line; i++)
-        {
-            fprintf(_out," %3u",j+i);
-        }
-
-        fprintf(_out,"\nNode  :");
-        for (i = 0; i < line; i++)
-        {
-            fprintf(_out," %3u",keyIndex[j+i]);
-        }
-
-        fprintf(_out,"\n\n");
-
-    }
-
-}
-
-void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
-{
-
-    SCMBInstance_Main* insthdr = testInst.inst.hdr;
-    char* instbase = testInst.inst.base;
-
-    if (!insthdr->flags.isFiltered)
-    {
-        fprintf(_out,"\n\nNo propterty filter!");
-        return;
-    }
-
-    Uint64 *thePropertyFilter =
-        (Uint64*)&(instbase[insthdr->propertyFilter.start]);
-     Uint32 end, noProperties = insthdr->numberProperties;
-     Uint32 noMasks = (noProperties-1)/64;
-     Uint64 printMask = 1;
-
-     for (Uint32 i = 0; i <= noMasks; i++ )
-     {
-         printMask = 1;
-         if (i < noMasks)
-         {
-             end = 64;
-         }
-         else
-         {
-             end = noProperties%64;
-         }
-
-         fprintf(_out,"\npropertyFilter[%02u]= ",i);
-
-         for (Uint32 j = 0; j < end; j++)
-         {
-             if (j > 0 && !(j%8))
-             {
-                 fprintf(_out," ");
-             }
-
-             if (thePropertyFilter[i] & printMask)
-             {
-                 fprintf(_out,"1");
-             }
-             else
-             {
-                 fprintf(_out,"0");
-             }
-
-             printMask = printMask << 1;
-         }
-         fprintf(_out,"\n");
-     }
-}
 
 void SCMODump::dumpSCMOInstanceKeyBindings(
     SCMOInstance& testInst,

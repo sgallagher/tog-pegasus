@@ -137,17 +137,12 @@ void _setCompleteObjectPath(CIMInstance & instance)
     instance.setPath(p);
 }
 
-/** clone the input instance and filter it in accordance with
-    the input variables.
-    @return cloned and filtered instance.
+/** clone the input instance  
+    @return cloned instance.
 */
-CIMInstance _filter(const CIMInstance& instance,
-                    const Boolean includeQualifiers,
-                    const Boolean includeClassOrigin,
-                    const CIMPropertyList& pl)
+CIMInstance _clone(const CIMInstance& instance)
 {
     CIMInstance rtnInstance = instance.clone();
-    rtnInstance.filter(includeQualifiers, includeClassOrigin, pl);
 
     _setCompleteObjectPath(rtnInstance);
     return(rtnInstance);
@@ -493,8 +488,7 @@ void TestAggregationOutputProvider::_getInstance(
         if(localReference1 == instanceArray[i].getPath())
         {
             // deliver filtered clone of requested instance
-            handler.deliver(_filter(instanceArray[i],
-                includeQualifiers, includeClassOrigin, propertyList));
+            handler.deliver(_clone(instanceArray[i]));
             return;
         }
     }
@@ -560,8 +554,7 @@ void TestAggregationOutputProvider::_enumerateInstances(
     {
         for(Uint32 i = 0, n = instanceArray.size(); i < n; ++i)
         {
-            handler.deliver(_filter(instanceArray[i],
-                includeQualifiers, includeClassOrigin, propertyList));
+            handler.deliver(_clone(instanceArray[i]));
         }
     }
     catch(Exception & e)
@@ -720,11 +713,8 @@ void TestAggregationOutputProvider::_associators(
 
                     if(resultPaths[j].identical(newPath))
                     {
-                        handler.deliver(_filter(
-                            resultInstanceArray[k],
-                            includeQualifiers,
-                            includeClassOrigin,
-                            propertyList));
+                        handler.deliver(_clone(
+                            resultInstanceArray[k]));
                     }
                 }
             }
@@ -901,11 +891,8 @@ void TestAggregationOutputProvider::_references(
                 objectPath.setNameSpace(nameSpace);
 
             returnInstances[i].setPath(objectPath);
-            CIMInstance inst = _filter(
-                returnInstances[i],
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
+            CIMInstance inst = _clone(
+                returnInstances[i]);
             handler.deliver(inst);
         }
     }

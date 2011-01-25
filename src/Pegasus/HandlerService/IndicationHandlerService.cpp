@@ -619,11 +619,10 @@ CIMResponseMessage*
 
         instance.getProperty(propArray[11]).setValue(
                 CIMValue(qinfo.lastSuccessfulDeliveryTimeUsec));
-
-        instance.filter(
-            message->includeQualifiers,
+        filterInstance(message->includeQualifiers,
             message->includeClassOrigin,
-            message->propertyList);
+            message->propertyList,
+            instance);
 
         instances.append(instance);
     }
@@ -1166,6 +1165,47 @@ ThreadReturnType PEGASUS_THREAD_CDECL
     return (ThreadReturnType)0;
 }
 
+void IndicationHandlerService::filterInstance(bool includeQualifiers,
+    bool includeClassOrigin,
+    const CIMPropertyList& myPropertyList,
+    CIMInstance & newInstance)
+{
+    if(!includeQualifiers && newInstance.getQualifierCount() > 0)
+    {
+        while(newInstance.getQualifierCount())
+        {
+            newInstance.removeQualifier(0);
+        }
+    }
+    // Delete any properties not on the property list
+    for(Uint32 i=0; i < newInstance.getPropertyCount();i++)
+    {
+        CIMConstProperty p = newInstance.getProperty(i);
+        CIMName name = p.getName();
+        Array<CIMName> pl = myPropertyList.getPropertyNameArray();
+        if (myPropertyList.isNull() || Contains(pl, name))
+        {
+            if (!includeClassOrigin)
+            {
+                (newInstance.getProperty(i)).setClassOrigin(CIMName());
+            }
+            if (!includeQualifiers && newInstance.getProperty(i).
+                getQualifierCount() > 0)
+            {
+                while (newInstance.getProperty(i).getQualifierCount() > 0)
+                {
+                    newInstance.getProperty(i).removeQualifier(0);
+                }
+            }
+        }
+        else
+        {
+            newInstance.removeProperty(i--);
+        }
+
+    }
+
+}
 #endif
 
 PEGASUS_NAMESPACE_END

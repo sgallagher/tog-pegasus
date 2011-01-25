@@ -404,7 +404,8 @@ Boolean StringConversion::stringToUnsignedInteger(
 
 Boolean StringConversion::decimalStringToUint64(
     const char* stringValue,
-    Uint64& x)
+    Uint64& x,
+    Boolean allowLeadingZeros )
 {
     x = 0;
     const char* p = stringValue;
@@ -414,7 +415,7 @@ Boolean StringConversion::decimalStringToUint64(
         return false;
     }
 
-    if (*p == '0')
+    if (*p == '0'&& !(allowLeadingZeros))
     {
         // A decimal string that starts with '0' must be exactly "0".
         return p[1] == '\0';
@@ -453,7 +454,8 @@ Boolean StringConversion::decimalStringToUint64(
 
 Boolean StringConversion::hexStringToUint64(
     const char* stringValue,
-    Uint64& x)
+    Uint64& x,
+    Boolean allowLeadingZeros)
 {
     x = 0;
     const char* p = stringValue;
@@ -462,7 +464,7 @@ Boolean StringConversion::hexStringToUint64(
     {
         return false;
     }
-
+   
     if ((p[0] != '0') || ((p[1] != 'x') && (p[1] != 'X')))
     {
         return false;
@@ -476,7 +478,6 @@ Boolean StringConversion::hexStringToUint64(
     {
         return false;
     }
-
     // Add on each digit, checking for overflow errors
     while (isxdigit(*p))
     {
@@ -488,7 +489,6 @@ Boolean StringConversion::hexStringToUint64(
 
         x = (x << 4) + Uint64(hexCharToNumeric(*p++));
     }
-
     // If we found a non-hexadecimal digit, report an error
     return (!*p);
 }
@@ -503,7 +503,8 @@ Boolean StringConversion::hexStringToUint64(
 
 Boolean StringConversion::octalStringToUint64(
     const char* stringValue,
-    Uint64& x)
+    Uint64& x,
+    Boolean allowLeadingZeros)
 {
     x = 0;
     const char* p = stringValue;
@@ -550,7 +551,8 @@ Boolean StringConversion::octalStringToUint64(
 
 Boolean StringConversion::binaryStringToUint64(
     const char* stringValue,
-    Uint64& x)
+    Uint64& x,
+    Boolean allowLeadingZeros)
 {
     x = 0;
     const char* p = stringValue;
@@ -619,7 +621,7 @@ Boolean StringConversion::checkUintBounds(
 
 Boolean StringConversion::stringToSint64(
     const char* stringValue,
-    Boolean (*uint64Converter)(const char*, Uint64&),
+    Boolean (*uint64Converter)(const char*, Uint64&,Boolean),
     Sint64& x)
 {
     x = 0;
@@ -641,7 +643,7 @@ Boolean StringConversion::stringToSint64(
     // Convert the remaining unsigned integer
 
     Uint64 uint64Value = 0;
-    if (!(uint64Converter(stringValue, uint64Value)))
+    if (!(uint64Converter(stringValue, uint64Value,false)))
     {
         return false;
     }
@@ -727,23 +729,22 @@ Boolean StringConversion::stringToReal64(
         p++;
 
     // Test required dot:
-
     if (*p++ != '.')
-        return false;
+          return false;
 
     // One or more digits required:
 
     if (!isdigit(*p++))
-        return false;
+           return false;
 
     while (isdigit(*p))
-        p++;
+           p++;
 
     // If there is an exponent now:
 
     if (*p)
     {
-        // Test exponent:
+         // Test exponent:
 
         if (*p != 'e' && *p != 'E')
             return false;
@@ -766,7 +767,6 @@ Boolean StringConversion::stringToReal64(
 
     if (*p)
         return false;
-
     //
     // Do the conversion
     //

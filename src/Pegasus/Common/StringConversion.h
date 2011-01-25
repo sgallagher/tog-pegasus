@@ -107,7 +107,8 @@ public:
     */
     static Boolean decimalStringToUint64(
         const char* stringValue,
-        Uint64& x);
+        Uint64& x,
+        Boolean allowLeadingZeros=false);
 
     /**
         Converts a character string to a Uint64 value according to the DMTF
@@ -120,7 +121,8 @@ public:
     */
     static Boolean octalStringToUint64(
         const char* stringValue,
-        Uint64& x);
+        Uint64& x,
+        Boolean allowLeadingZeros = false);
 
     /**
         Converts a character string to a Uint64 value according to the DMTF
@@ -133,7 +135,8 @@ public:
     */
     static Boolean hexStringToUint64(
         const char* stringValue,
-        Uint64& x);
+        Uint64& x,
+        Boolean allowLeadingZeros = false);
 
     /**
         Converts a character string to a Uint64 value according to the DMTF
@@ -146,7 +149,8 @@ public:
     */
     static Boolean binaryStringToUint64(
         const char* stringValue,
-        Uint64& x);
+        Uint64& x, 
+        Boolean allowLeadingZeros = false);
 
     /**
         Checks whether a specified Uint64 value will fit within a specified
@@ -174,7 +178,7 @@ public:
     */
     static Boolean stringToSint64(
         const char* stringValue,
-        Boolean (*uint64Converter)(const char*, Uint64&),
+        Boolean (*uint64Converter)(const char*, Uint64&,Boolean),
         Sint64& x);
 
     /**

@@ -33,6 +33,7 @@
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/CQL/CQLRegularExpression.h>
 #include <Pegasus/CQL/CQLFactory.h>
@@ -96,52 +97,52 @@ CQLValueRep::CQLValueRep(const String& inString,
    case CQLValue::Hex:
      {
        String tmp(inString);
-       if(inSign)
-     {
-       _theValue.set(CQLUtilities::stringToUint64(tmp));
-       _valueType = CQLValue::Uint64_type;
-     }
-       else
-     {
-       _theValue.set(CQLUtilities::stringToSint64(inString));
-       _valueType = CQLValue::Sint64_type;
-     }
-     }
+        if (inSign)
+        {
+          _theValue.set(CQLUtilities::stringToUint64(tmp));
+          _valueType = CQLValue::Uint64_type;
+        }
+        else
+        {
+           _theValue.set(CQLUtilities::stringToSint64(inString));
+           _valueType = CQLValue::Sint64_type;
+        }
+    }
      break;
    case CQLValue::Binary:
      {
        String tmp(inString);;
-       if(inSign)
-     {
-       _theValue.set(CQLUtilities::stringToUint64(tmp));
-       _valueType = CQLValue::Uint64_type;
-     }
-       else
-     {
-       _theValue.set(CQLUtilities::stringToSint64(tmp));
-       _valueType = CQLValue::Sint64_type;
-     }
-       break;
-     }
+        if (inSign)
+        {
+          _theValue.set(CQLUtilities::stringToUint64(tmp));
+          _valueType = CQLValue::Uint64_type;
+        }
+        else
+        {
+          _theValue.set(CQLUtilities::stringToSint64(tmp));
+          _valueType = CQLValue::Sint64_type;
+        }
+    }
+    break;
+
    case CQLValue::Decimal:
      {
        String tmp(inString);
-       if(inSign)
-     {
-       _theValue.set(CQLUtilities::stringToUint64(tmp));
-       _valueType = CQLValue::Uint64_type;
-     }
+       if (inSign)
+       {
+         _theValue.set(CQLUtilities::stringToUint64(tmp));
+         _valueType = CQLValue::Uint64_type;
+       }
        else
-     {
-       _theValue.set(CQLUtilities::stringToSint64(tmp));
-       _valueType = CQLValue::Sint64_type;
-     }
-     }
+       {
+         _theValue.set(CQLUtilities::stringToSint64(tmp));
+         _valueType = CQLValue::Sint64_type;
+       }
+    }
      break;
    case CQLValue::Real:
      {
        String tmp(inString);
-
        _theValue.set(CQLUtilities::stringToReal64(tmp));
        _valueType = CQLValue::Real_type;
      }
@@ -1941,7 +1942,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
             className.getString());
        throw CQLRuntimeException(mload);
      }
-       _setValue(CIMValue(Sint64(CQLUtilities::stringToSint64(
+     _setValue(CIMValue(Sint64(CQLUtilities::stringToSint64(
                            valueMapArray[matchIndex]))));
 
        PEG_METHOD_EXIT();
@@ -2248,7 +2249,7 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
                 _cqlVal2.append(CQLValue((CIMObject)tmpInst[i]));
             }
             break;
-        }    
+        }
         default:
             MessageLoaderParms mload(
                  "CQL.CQLValueRep.INVALID_ARRAY_COMPARISON",

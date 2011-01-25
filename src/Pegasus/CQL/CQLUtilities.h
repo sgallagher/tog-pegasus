@@ -64,7 +64,8 @@ public:
   // This will also remove a leading '+' sign from the exponent if it is
   // there.
   static String formatRealStringExponent(const String &realString);
-
+  static const char  KEY[];
+  static const char  MSG[];
 private:
   // This is a helper function which checks if a string has a decimal
   // point in it.  If so, it calls it a real.  In the case of a badly

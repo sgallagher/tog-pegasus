@@ -133,7 +133,8 @@ HTTPMessage::HTTPMessage(
     queueId(queueId_),
     authInfo(0),
     acceptLanguagesDecoded(false),
-    contentLanguagesDecoded(false)
+    contentLanguagesDecoded(false),
+    binaryResponse(false)
 {
     if (cimException_)
         cimException = *cimException_;
@@ -151,6 +152,7 @@ HTTPMessage::HTTPMessage(const HTTPMessage & msg)
     acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
     contentLanguagesDecoded = msg.contentLanguagesDecoded;
     cimException = msg.cimException;
+    binaryResponse = msg.binaryResponse;
 }
 
 

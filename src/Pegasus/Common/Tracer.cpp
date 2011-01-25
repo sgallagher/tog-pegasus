@@ -302,10 +302,141 @@ void Tracer::_traceCIMException(
     _traceCString(traceComponent, "", (const char*) traceMsg);
 }
 
+char* Tracer::_formatHexDump(
+    char* targetBuffer,
+    const char * data,
+    Uint32 size)
+{
+    unsigned char* p = (unsigned char*)data;
+    unsigned char buf[16];
+    size_t n = 0;
+    int len;
+
+    for (size_t i = 0, col = 0; i < size; i++)
+    {
+        unsigned char c = p[i];
+        buf[n++] = c;
+
+        if (col == 0)
+        {
+            len = sprintf(targetBuffer, "%06X ", (unsigned int)i);
+            targetBuffer+=len;
+        }
+
+        len = sprintf(targetBuffer, "%02X", c);
+        targetBuffer+=len;
+
+        if ( ((col+1)%4) == 0 )
+        {
+            *targetBuffer = ' ';
+            targetBuffer++;
+        }
+        if (col + 1 == sizeof(buf) || i + 1 == size)
+        {
+            for (size_t j = col + 1; j < sizeof(buf); j++)
+            {
+                targetBuffer[0]=' ';
+                targetBuffer[1]=' ';
+                targetBuffer[2]=' ';
+                targetBuffer += 3;
+            }
+            for (size_t j = 0; j < n; j++)
+            {
+                c = buf[j];
+
+                if (c >= ' ' && c <= '~')
+                {
+                    *targetBuffer = c;
+                }
+                else
+                {
+                    *targetBuffer = '.';
+                }
+                targetBuffer++;
+            }
+            *targetBuffer = '\n';
+            targetBuffer++;
+            n = 0;
+        }
+        if (col + 1 == sizeof(buf))
+        {
+            col = 0;
+        }
+        else
+        {
+            col++;
+        }
+    }
+    *targetBuffer = '\n';
+    targetBuffer++;
+    return targetBuffer;
+}
+
+SharedArrayPtr<char> Tracer::traceFormatChars(
+    const Buffer& data,
+    bool binary)
+{
+    static char start[]="\n### Begin of binary data\n";
+    static char end[]="\n### End of binary data\n";
+    static char msg[] ="\n### Parts of data omitted. Only first 768 bytes and "\
+        "last 256 bytes shown. For complete information, use traceLevel 5.\n\n";
+
+    SharedArrayPtr<char> outputBuffer(
+        new char[(10*data.size()+sizeof(start)+sizeof(end)+sizeof(msg))]);
+
+    char* target = outputBuffer.get();
+    size_t size = data.size();
+
+    if (0 == size)
+    {
+        target[0] = 0;
+        return outputBuffer;
+    }
+    if (binary)
+    {
+        memcpy(target,&(start[0]),sizeof(start)-1);
+        target+=sizeof(start)-1;
+        // If there are more then 1024 bytes of binary data and the trace level
+        // is not at highest level(5), we only trace part of the data and not
+        // everything
+        if ((_traceLevelMask & Tracer::LEVEL5) || (size <= 1024))
+        {
+            target=_formatHexDump(target, data.getData(), size);
+
+        }
+        else
+        {
+            target=_formatHexDump(target, data.getData(), 768);
+
+            memcpy(target, &(msg[0]), sizeof(msg)-1);
+            target+=sizeof(msg)-1;
+
+            target=_formatHexDump(target, &(data.getData()[size-256]), 256);
+        }
+        memcpy(target,&(end[0]),sizeof(end));
+    }
+    else
+    {
+        memcpy(target, data.getData(), size);
+        target[size] = 0;
+    }
+    return outputBuffer;
+}
+
 SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
     const Buffer& requestMessage)
 {
     const Uint32 requestSize = requestMessage.size();
+
+    // Check if requestMessage contains "application/x-openpegasus"
+    // and if true format the the requestBuf as HexDump for tracing
+    //
+    // Binary is only possible on localConnect and doesn't have Basic
+    // authorization for that reason
+    if (strstr(requestMessage.getData(),"application/x-openpegasus"))
+    {
+        return traceFormatChars(requestMessage,true);
+    }
 
     // Make a copy of the request message.
     SharedArrayPtr<char>
@@ -340,7 +471,6 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
 
         line = sep + ((*sep == '\r') ? 2 : 1);
     }
-
     return requestBuf;
 }
 

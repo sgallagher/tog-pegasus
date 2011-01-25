@@ -503,6 +503,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     {
         binaryResponse = false;
     }
+    httpMessage->binaryResponse=binaryResponse;
 
     // If it is a method call, then dispatch it to be handled:
 

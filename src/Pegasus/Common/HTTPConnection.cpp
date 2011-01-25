@@ -492,7 +492,9 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
                 "<!-- Response: queue id: %u -->\n%s",
                 getQueueId(),
-                buffer.getData()));
+                Tracer::traceFormatChars(
+                    buffer,
+                    httpMessage.binaryResponse).get()));
             if (isFirst == true)
             {
                 _incomingBuffer.clear();
@@ -1043,7 +1045,9 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                     PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
                         "<!-- Trailer: queue id: %u -->\n%s",
                         getQueueId(),
-                        trailer.getData()));
+                        Tracer::traceFormatChars(
+                            trailer,
+                            httpMessage.binaryResponse).get()));
                 }
                 sendStart = trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();

@@ -74,6 +74,7 @@ public:
     Boolean acceptLanguagesDecoded;
     Boolean contentLanguagesDecoded;
     CIMException cimException;
+    bool binaryResponse;
 
     void parse(
         String& startLine,

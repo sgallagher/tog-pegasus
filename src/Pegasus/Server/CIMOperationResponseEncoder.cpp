@@ -280,6 +280,7 @@ void CIMOperationResponseEncoder::sendResponse(
         new HTTPMessage(message, 0, &cimException));
     httpMessage->setComplete(isLast);
     httpMessage->setIndex(messageIndex);
+    httpMessage->binaryResponse = response->binaryResponse;
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {

@@ -3021,60 +3021,6 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
 
 //==============================================================================
 //
-// BinaryCodec::hexDump()
-//
-//==============================================================================
-
-#if defined(PEGASUS_DEBUG)
-
-void BinaryCodec::hexDump(const void* data, size_t size)
-{
-    unsigned char* p = (unsigned char*)data;
-    unsigned char buf[16];
-    size_t n = 0;
-
-    for (size_t i = 0, col = 0; i < size; i++)
-    {
-        unsigned char c = p[i];
-        buf[n++] = c;
-
-        if (col == 0)
-            printf("%06X ", (unsigned int)i);
-
-        printf("%02X ", c);
-
-        if (col + 1 == sizeof(buf) || i + 1 == size)
-        {
-            for (size_t j = col + 1; j < sizeof(buf); j++)
-                printf("   ");
-
-            for (size_t j = 0; j < n; j++)
-            {
-                c = buf[j];
-
-                if (c >= ' ' && c <= '~')
-                    printf("%c", buf[j]);
-                else
-                    printf(".");
-            }
-
-            printf("\n");
-            n = 0;
-        }
-
-        if (col + 1 == sizeof(buf))
-            col = 0;
-        else
-            col++;
-    }
-
-    printf("\n");
-}
-
-#endif /* defined(PEGASUS_DEBUG) */
-
-//==============================================================================
-//
 // BinaryCodec::decodeRequest()
 //
 //==============================================================================

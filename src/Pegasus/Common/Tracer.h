@@ -162,7 +162,19 @@ public:
         const Uint32 level,
         const CIMException& cimException);
 
+    /** Formats the message given in data as hex dump if binary is true
+        @param data      Message to be formatted
+        @param binary    flag indicating if message is binary or not
+    */
+    static SharedArrayPtr<char> traceFormatChars(
+        const Buffer& data,
+        bool binary);
+
     /** Gets an HTTP request message.
+
+        Given a binary HTTP request message(application/x-openpegasus
+        this method returns the request message formatted in hex dump format
+        and returns.
 
         Given an HTTP request message, this method checks if the
         message contains a "Basic" authorization header.
@@ -343,6 +355,13 @@ private:
     // Message Strings for function Entry and Exit
     static const char _METHOD_ENTER_MSG[];
     static const char _METHOD_EXIT_MSG[];
+
+    // Function formats size bytes of binary data given in data in a nicely
+    // readable hex format and writes the output to targetBuffer
+    // Return value: Pointer to one byte behind last position that was written
+    static char* _formatHexDump(
+        char* targetBuffer,
+        const char* data,Uint32 size);
 
     // Factory function to create an instance of the matching trace handler
     // for the given type of traceFacility.

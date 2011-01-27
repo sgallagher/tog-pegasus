@@ -549,6 +549,17 @@ extern "C"
     static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
         const char** propertyList, const char **keys)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Instance:instSetPropertyFilter()");
+
+        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
+
+        PEG_METHOD_EXIT();
+        if (inst==NULL)
+        {
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
         //Property filtering is done by the CIMOM infrastructure.
         CMReturn(CMPI_RC_OK);
     }

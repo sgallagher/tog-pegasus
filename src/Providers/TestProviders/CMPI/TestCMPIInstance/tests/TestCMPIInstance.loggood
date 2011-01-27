@@ -17,5 +17,5 @@
  ++++  Test for CMSetObjectPath with NULL input passed 
  ++++  CMSetObjectPath with NULL handle for CMPIInstance passed
  ++++ CMSetObjectPath : (CMPI_RC_ERR_INVALID_HANDLE) 
- ++++  CMSetPropertyFilter with NULL handle for CMPIInstance status : (CMPI_RC_OK)
+ ++++  CMSetPropertyFilter with NULL handle for CMPIInstance status : (CMPI_RC_ERR_INVALID_HANDLE)
  --- TestCMPIInstance_Method CMPI InvokeMethod() exited

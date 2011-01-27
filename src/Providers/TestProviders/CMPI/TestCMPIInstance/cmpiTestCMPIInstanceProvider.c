@@ -209,7 +209,7 @@ static int _testInstance ()
     PROV_LOG("++++ CMSetObjectPath : (%s) ",strCMPIStatus(rc));
 
     rc = CMSetPropertyFilter(instance,&property_name,NULL);
-    if( rc.rc == CMPI_RC_OK )
+    if( rc.rc == CMPI_RC_ERR_INVALID_HANDLE )
     {
         PROV_LOG("++++  CMSetPropertyFilter with NULL handle for CMPIInstance"
             " status : (%s)", strCMPIStatus (rc));

@@ -309,22 +309,6 @@ static void TestExceptionHandling(CIMHandler* handler)
     TestException(handler, indicationHandlerInstance, indicationInstance,
         CIM_ERR_FAILED);
 
-    // Test "SNMP session open failed" exception
-    indicationInstance = CIMInstance(testClass1);
-    indicationHandlerInstance = CreateHandlerInstance();
-    indicationHandlerInstance.addProperty(CIMProperty(
-       CIMName("TargetHost"), String("")));
-    indicationHandlerInstance.addProperty(CIMProperty(
-        CIMName("TargetHostFormat"), Uint16(3)));
-    indicationHandlerInstance.addProperty(CIMProperty(
-        CIMName("SNMPVersion"), Uint16(2)));
-    indicationHandlerInstance.addProperty(CIMProperty(
-       CIMName("OtherTargetHostFormat"), String("testOtherTargetHostFormat")));
-    indicationHandlerInstance.addProperty(CIMProperty(
-       CIMName("PortNumber"), Uint32(200)));
-    TestException(handler, indicationHandlerInstance, indicationInstance,
-        CIM_ERR_FAILED);
-
     // Test "invalid MappingStrings Syntax" exception
     indicationInstance = CIMInstance(testClass8);
     indicationInstance.addProperty(CIMProperty(

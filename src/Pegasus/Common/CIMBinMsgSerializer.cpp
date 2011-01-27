@@ -1024,10 +1024,17 @@ void CIMBinMsgSerializer::_putReferencesResponseMessage(
     CIMBuffer& out,
     CIMReferencesResponseMessage* msg)
 {
-    CIMBuffer data(16 * 4096);
-    msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32(data.size());
-    out.putBytes(data.getData(), data.size());
+    if (msg->binaryResponse)
+    {
+        CIMBuffer data(16 * 4096);
+        msg->getResponseData().encodeBinaryResponse(data);
+        out.putUint32(data.size());
+        out.putBytes(data.getData(), data.size());
+    }
+    else
+    {
+        msg->getResponseData().encodeInternalXmlResponse(out);
+    }
 }
 
 void CIMBinMsgSerializer::_putReferenceNamesResponseMessage(

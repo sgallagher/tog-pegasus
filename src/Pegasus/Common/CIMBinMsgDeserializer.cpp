@@ -426,7 +426,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getAssociatorNamesResponseMessage(in);
             break;
         case CIM_REFERENCES_RESPONSE_MESSAGE:
-            msg = _getReferencesResponseMessage(in);
+            msg = _getReferencesResponseMessage(in, binaryResponse);
             break;
         case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
             msg = _getReferenceNamesResponseMessage(in);
@@ -1805,7 +1805,8 @@ CIMBinMsgDeserializer::_getAssociatorNamesResponseMessage(
 
 CIMReferencesResponseMessage*
 CIMBinMsgDeserializer::_getReferencesResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
     CIMReferencesResponseMessage* msg;
 
@@ -1814,10 +1815,21 @@ CIMBinMsgDeserializer::_getReferencesResponseMessage(
 
     CIMResponseData& responseData = msg->getResponseData();
 
-    if (!responseData.setBinary(in))
+    if (binaryResponse)
     {
-        delete(msg);
-        return 0;
+        if (!responseData.setBinary(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+    else
+    {
+        if (!responseData.setXml(in))
+        {
+            delete(msg);
+            return 0;
+        }
     }
 
     return msg;

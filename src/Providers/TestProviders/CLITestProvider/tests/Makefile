@@ -880,18 +880,18 @@ referencetests:
 	    setProviderParameters \
 	    substituteHostName=localhost >> $(RESULTFILE)
 
-	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" -iq \
 	    >> $(RESULTFILE)
-	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" -iq \
 	    -r parent  >> $(RESULTFILE)
-	@cimcli rn -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	@cimcli rn -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" -iq \
 	    >> $(RESULTFILE)
 ###     This test confirms that specific input parameters are correctly passed
 ###     to the provider since the test provider returns this information
 ###     in a specific property.
 	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
 	    -r child -rc Test_CLITestProviderLinkClass \
-	    -pl requestInputParameters >> $(RESULTFILE)
+	    -pl parent,child,requestInputParameters -iq >> $(RESULTFILE)
 
 ##      Reset the flag to return a real hostname
 	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \

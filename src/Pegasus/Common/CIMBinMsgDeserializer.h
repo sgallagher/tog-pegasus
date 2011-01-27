@@ -273,7 +273,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMReferencesResponseMessage*
-        _getReferencesResponseMessage(CIMBuffer& in);
+        _getReferencesResponseMessage(CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMReferenceNamesResponseMessage*

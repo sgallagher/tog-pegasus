@@ -939,7 +939,7 @@ parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     [key : DisableOverride]
 child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
 requestInputParameters = "role=; resultClass=Test_CLITestProviderLinkClass; "
-    "includeQualifiers=false; includeClassOrigin=false; propertyList=NULL";
+    "includeQualifiers=true; includeClassOrigin=false; propertyList=NULL";
 };
 path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
@@ -955,7 +955,7 @@ parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     [key : DisableOverride]
 child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
 requestInputParameters = "role=parent; resultClass=Test_CLITestProviderLinkClass; "
-    "includeQualifiers=false; includeClassOrigin=false; propertyList=NULL";
+    "includeQualifiers=true; includeClassOrigin=false; propertyList=NULL";
 };
 1 referenceNames
 //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
@@ -973,7 +973,8 @@ parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     [key : DisableOverride]
 child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
 requestInputParameters = "role=child; resultClass=Test_CLITestProviderLinkClass; "
-    "includeQualifiers=false; includeClassOrigin=false; propertyList=requestInputParameters";
+    "includeQualifiers=true; includeClassOrigin=false; propertyList=parent, "
+    "child, requestInputParameters";
 };
 Return Value= 0
 16. +++++ associationtests

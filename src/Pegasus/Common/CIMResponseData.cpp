@@ -401,6 +401,7 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
                         p.setNameSpace(nsName);
                     }
                 }
+                break;
             }
             case RESP_INSTANCES:
             {

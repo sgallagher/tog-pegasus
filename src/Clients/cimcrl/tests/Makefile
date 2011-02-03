@@ -325,7 +325,8 @@ endif
 	@$(ECHO) "Remove the CA CRL that we just removed, this should get a DNE error" >> $(RESULTFILE)
 	@cimcrl -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)       
-	
+	@$(STRIPL) "CIM_ERR_NOT_FOUND" ".r0." $(RESULTFILE)
+
 	@$(ECHO) "Remove the CA certificate from the truststore to clean everything up, this should succeed" >> $(RESULTFILE)
 	@cimtrust -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)

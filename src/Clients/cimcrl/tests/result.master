@@ -206,7 +206,6 @@ Result: CIM_ComputerSystem
 
 Remove the CA CRL that we just removed, this should get a DNE error
 Specified CRL does not exist.
-CIM_ERR_NOT_FOUND: File does not exist 2ef780db.r0.
 
 Remove the CA certificate from the truststore to clean everything up, this should succeed
 Certificate removed successfully.

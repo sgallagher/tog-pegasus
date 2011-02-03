@@ -56,21 +56,6 @@
 
 typedef struct x509_store_ctx_st X509_STORE_CTX;
 
-typedef struct Timestamp
-{
-    char year[4];
-    char month[2];
-    char day[2];
-    char hour[2];
-    char minutes[2];
-    char seconds[2];
-    char dot;
-    char microSeconds[6];
-    char plusOrMinus;
-    char utcOffset[3];
-    char padding[3];
-} Timestamp_t;
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -112,8 +97,6 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
 {
     struct tm time;
     int offset;
-    Timestamp_t timeStamp;
-    char tempString[80];
     char plusOrMinus = '+';
     unsigned char* utcTimeData = utcTime->data;
 
@@ -160,10 +143,13 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
     }
 #undef g2
 
-    memset((void *)&timeStamp, 0, sizeof(Timestamp_t));
 
-    // Format the date.
-    sprintf((char *) &timeStamp,"%04d%02d%02d%02d%02d%02d.%06d%04d",
+    if (plusOrMinus == '-')
+    {
+        offset = -offset;
+    }
+
+    CIMDateTime dateTime = CIMDateTime(
             time.tm_year,
             time.tm_mon + 1,
             time.tm_mday,
@@ -171,15 +157,8 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
             time.tm_min,
             time.tm_sec,
             0,
+            6,
             offset);
-
-    timeStamp.plusOrMinus = plusOrMinus;
-
-    CIMDateTime dateTime;
-
-    dateTime.clear();
-    strcpy(tempString, (char *)&timeStamp);
-    dateTime.set(tempString);
 
     return dateTime;
 }

@@ -46,8 +46,6 @@
 #define _ClassName_size strlen(_ClassName)
 
 #define _Namespace "test/TestProvider"
-#define _ProviderLocation \
-    "/src/Providers/TestProviders/CMPI/TestAssociation/tests/"
 
 static const CMPIBroker *_broker;
 
@@ -153,10 +151,6 @@ CMPIStatus TestCMPIAssociationProviderAssociators(
 
     CMPIString * sourceClass = NULL;
 
-    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
-    PROV_LOG ("\n\n********************* %s CMPI Associators() called",
-        _ClassName);
-
     sourceClass = CMGetClassName(ref,&rc);
 
     /* get object path of the target class */
@@ -168,10 +162,6 @@ CMPIStatus TestCMPIAssociationProviderAssociators(
         &rc);
 
     sourceClass = CMGetClassName(op,&rc);
-    PROV_LOG(" target class: %s ",CMGetCharsPtr(sourceClass,NULL));
-
-    PROV_LOG (" New Object Path [%s]",
-                CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));
 
     /* Call to Associators */
     /* upcall to CIMOM; call enumInstances() of the target class */
@@ -188,9 +178,6 @@ CMPIStatus TestCMPIAssociationProviderAssociators(
         */
         CMReturnInstance( rslt, data.value.inst );
     }
-    PROV_LOG ("\n\n********************* %s CMPI Associators exited",
-        _ClassName);
-    PROV_LOG_CLOSE ();
     return rc;
 }
 
@@ -211,10 +198,6 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
 
     CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
-    PROV_LOG ("\n\n********************* %s CMPI AssociatorNames() called",
-        _ClassName);
-
     /* get object path of the target class */
     op = get_assoc_targetClass_ObjectPath(
         _broker,
@@ -222,9 +205,6 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
         _RefLeftClass,
         _RefRightClass,
         &rc);
-
-    PROV_LOG (" New Object Path [%s]",
-        CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));
 
     /* create new object path of association */
     rop = CMNewObjectPath(
@@ -247,9 +227,6 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
         */
         CMReturnObjectPath( rslt, data.value.ref );
     }
-    PROV_LOG ("\n\n********************* %s CMPI AssociatorNames() exited",
-        _ClassName);
-    PROV_LOG_CLOSE ();
     return rc;
 }
 
@@ -277,10 +254,6 @@ CMPIStatus TestCMPIAssociationProviderReferences(
 
     _thisClassName=_ClassName;
 
-    PROV_LOG_OPEN (_thisClassName, _ProviderLocation);
-    PROV_LOG ("\n\n********************* %s CMPI References() called",
-        _thisClassName);
-
     /* get object path of the target class */
     op = get_assoc_targetClass_ObjectPath(
         _broker,
@@ -288,9 +261,6 @@ CMPIStatus TestCMPIAssociationProviderReferences(
         _RefLeftClass,
         _RefRightClass,
         &rc);
-
-    PROV_LOG (" New Object Path [%s]",
-        CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));
 
     /* create new object path of association */
     rop = CMNewObjectPath(
@@ -345,10 +315,6 @@ CMPIStatus TestCMPIAssociationProviderReferences(
             CMReturnInstance( rslt, ci );
         }
     }
-    PROV_LOG ("\n\n********************* %s CMPI References() exited",
-        _thisClassName);
-    PROV_LOG_CLOSE ();
-
     return rc;
 }
 
@@ -375,10 +341,6 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
     CMPIStatus rc = {CMPI_RC_OK, NULL};
     _thisClassName=_ClassName;
 
-    PROV_LOG_OPEN (_thisClassName, _ProviderLocation);
-    PROV_LOG ("\n\n********************* %s CMPI ReferenceNames() called",
-        _thisClassName);
-
     /* get object path of the target class */
     op = get_assoc_targetClass_ObjectPath(
         _broker,
@@ -387,8 +349,6 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
         _RefRightClass,
         &rc);
 
-    PROV_LOG (" New Object Path [%s]",
-    CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));
 
     /* create new object path of association */
     rop = CMNewObjectPath(
@@ -452,10 +412,6 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
         */
         CMReturnObjectPath( rslt, cop );
     }
-
-    PROV_LOG ("\n\n********************* %s CMPI ReferenceNames() exited",
-        _thisClassName);
-    PROV_LOG_CLOSE ();
 
     return rc;
 }

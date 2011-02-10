@@ -7261,7 +7261,7 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS20019:
 	*     Substitution {0} is the received Invalid Filter Type Element
         */
-        WsmServer.WsmReader.INVALID_ASSOCIATED FILTER ELEMENT:string {"PGS20019: Invalid Association Filter Type Element: ''{$0}''"}
+        WsmServer.WsmReader.INVALID_ASSOCIATED_FILTER_ELEMENT:string {"PGS20019: Invalid Association Filter Type Element: ''{$0}''"}
 
         /**
         * @note PGS20020:

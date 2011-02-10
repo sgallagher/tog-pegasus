@@ -1512,7 +1512,7 @@ void WsmReader::decodeAssociationFilter(WsmFilter& wsmFilter)
         "AssociationInstances"))
     {
         MessageLoaderParms parms(
-            "WsmServer.WsmReader.INVALID_ASSOCIATED FILTER ELEMENT",
+            "WsmServer.WsmReader.INVALID_ASSOCIATED_FILTER_ELEMENT",
             "Invalid Association Filter Type Element: \"$0\".",
             entry.text);
         PEG_METHOD_EXIT();

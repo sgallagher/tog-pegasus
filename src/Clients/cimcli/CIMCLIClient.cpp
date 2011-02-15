@@ -184,6 +184,11 @@ Boolean _selectInstance(Options& opts,
     // return false if nothing in list
     if (list.size() == 0)
     {
+        if (opts.verboseTest)
+        {
+            cout << "No instances exist for class " << className.getString()
+                 << endl;
+        }
         return false;
     }
 
@@ -808,7 +813,7 @@ int execQuery(Options& opts)
     make the decision.
     @param opts -  Input arg, options specified by the user
     @param thisPath - Output arg,  CIMObjectPath which either contains the path
-    to be used or an empty path if there is no path for the operation.
+    to be used or an empty CIMObjectPath if there is no path for the operation.
     @return Returns true if CIMObjectPath returned have keybindings else false.
 */
 
@@ -837,7 +842,13 @@ Boolean _getObjectPath(Options& opts, CIMObjectPath &thisPath)
                 CIMPropertyList(),
                 opts.verboseTest);
 
-           thisPath = ob.buildCIMObjectPath();
+            thisPath = ob.buildCIMObjectPath();
+            if (opts.verboseTest && thisPath.getKeyBindings().size() == 0)
+            {
+                cout << "No valid object path defined. "
+                     << thisPath.toString() 
+                     << endl;
+            }
         }
         else  // no extra parameters.
         {
@@ -873,9 +884,9 @@ int deleteInstance(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
-
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {
@@ -918,8 +929,9 @@ int getInstance(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {
@@ -1356,8 +1368,9 @@ int getProperty(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
 
     if (_getObjectPath(opts, thisPath))
@@ -1403,8 +1416,9 @@ int setProperty(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {

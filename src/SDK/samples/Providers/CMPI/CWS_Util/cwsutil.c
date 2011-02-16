@@ -285,18 +285,33 @@ int CWS_Create_Directory(CWS_FILE* cwsf)
 
 int CWS_Get_FileType(const char *file, char* typestring, size_t tslen)
 {
-  char  cmdbuffer[300];
-  char  cmdout[300];
-  FILE *fcmdout;
+    char  cmdbuffer[300];
+    char  cmdout[300];
+    FILE *fcmdout;
 
-  if (file && tmpnam(cmdout)) {
-    sprintf(cmdbuffer,"file %s > %s",file,cmdout);
-    if (system(cmdbuffer)==0 &&
-        (fcmdout = fopen(cmdout,"r")) &&
-        fgets(typestring,tslen,fcmdout))
-      return 0;
-  }
-  return 1;
+    if (file && tmpnam(cmdout))
+    {
+        sprintf(cmdbuffer,"file %s > %s",file,cmdout);
+        if (system(cmdbuffer)!=0)
+        {
+            remove(cmdout);
+            return 1;
+        }
+        if (!(fcmdout = fopen(cmdout,"r")))
+        {
+            remove(cmdout);
+            return 1;
+        }
+        if (fgets(typestring,tslen,fcmdout))
+        {
+            fclose(fcmdout);
+            remove(cmdout);
+            return 0 ;
+        }
+        fclose(fcmdout);
+        remove(cmdout);
+    }
+    return 1;
 }
 
 #endif

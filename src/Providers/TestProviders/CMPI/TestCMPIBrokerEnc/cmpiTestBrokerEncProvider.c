@@ -73,8 +73,6 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     const CMPIResult * rslt)
 {
     int flag = 1 ;
-    int count;
-    char* msgId;
     char* illegal;
     char path[100];
     void* hdl;
@@ -298,7 +296,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of CMSetProperty of type CMPI_sint64 : (%s)",
         strCMPIStatus (rc));
 
-    val.real32 = 32.32;
+    val.real32 = 32.32f;
     rc = CMSetProperty (instance, "Real32", &val, CMPI_real32);
     PROV_LOG ("++++ Status of CMSetProperty of type CMPI_real32 : (%s)",
         strCMPIStatus (rc));

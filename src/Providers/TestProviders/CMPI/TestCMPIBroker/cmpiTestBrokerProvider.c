@@ -81,7 +81,7 @@ static int _testBrokerServices(const CMPIContext * ctx,
     const char* str1;
     const char* str2;
     CMPIData retData;
-    CMPIData data, data1;
+    CMPIData data;
     CMPIInstance *inst = NULL;
     CMPIInstance *retInst = NULL;
     CMPIStatus rc = {CMPI_RC_OK, NULL};

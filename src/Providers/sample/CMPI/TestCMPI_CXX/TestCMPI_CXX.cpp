@@ -67,7 +67,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, CMPISint64 i)
 
 static Buffer& operator<<(Buffer& out, const char* x)
 {
-    out.append(x, strlen(x));
+    out.append(x, (Uint32)strlen(x));
     return out;
 }
 
@@ -75,7 +75,7 @@ static Buffer& operator<<(Buffer& out, Uint32 x)
 {
     char buffer[32];
     sprintf(buffer, "%u", x);
-    out.append(buffer, strlen(buffer));
+    out.append(buffer, (Uint32)strlen(buffer));
     return out;
 }
 
@@ -123,7 +123,7 @@ convertTime (CmpiDateTime& dtTime)
    time_t      tTime;
 
    ui64Time = dtTime.getDateTime ();
-   tTime    = ui64Time / 1000000;
+   tTime    = (time_t)(ui64Time / 1000000);
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
    return ctime (&tTime);

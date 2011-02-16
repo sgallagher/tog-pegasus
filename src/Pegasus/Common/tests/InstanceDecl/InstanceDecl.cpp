@@ -42,6 +42,7 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -374,6 +375,152 @@ Boolean _propertyIdentical(
     return (p1.identical(p2));
 }
 
+// Compare the class and instance provided to determine if the attributes
+// and properties match.  The includeQualifier parameter, classOrigin
+// parameter and pl define whether these attributes were used in creating
+// or filtering the instance so they are tested to in accord with the
+// parameters.
+// Processing continues with error messages produced for discrepencies.
+// If there are any discrepencies, both objects are displayed and false
+// is returned to the caller.
+bool _compare(const CIMClass& myClass,
+                     const CIMInstance& inst,
+                     bool includeQualifiers,
+                     bool classOrigin,
+                     const CIMPropertyList& pl)
+{
+    bool rtn = true;
+    if (myClass.getClassName() != inst.getClassName())
+    {
+        rtn = false;
+        cout << "Class and Instance Name mismatch" << endl;
+    }
+
+    if (includeQualifiers && 
+        myClass.getQualifierCount() != inst.getQualifierCount())
+    {
+        rtn = false;
+        cout << "Diff in class qualifiers" << endl;
+    }
+    else if (!includeQualifiers && inst.getQualifierCount() != 0)
+    {
+        rtn = false;
+        cout << "Expected class level qualifier count == 0" << endl;
+    }
+
+    // test for properties expected in instance before executing 
+    // detailed property tests
+    if (pl.isNull() ||  pl.size() != 0)
+    {
+        Array<CIMName> plArray = pl.getPropertyNameArray();
+
+        // Loop to test properties from class
+        for (Uint32 i = 0 ; i < myClass.getPropertyCount() ; i++)
+        {
+            CIMConstProperty p1 = myClass.getProperty(i);
+            String pName = p1.getName().getString();
+
+            // if this property is in the property list or the
+            // propertylist is NULL compare this property with
+            // the instance
+            if (pl.isNull() || Contains(plArray, p1.getName()))
+            {
+                CIMConstProperty p2;
+                
+                // if the property exists in the instance
+                Uint32 pos;
+                if ((pos = inst.findProperty( p1.getName())) != PEG_NOT_FOUND)
+                {
+                     p2 = inst.getProperty(pos);
+                }
+                else
+                {
+                    rtn = false;
+                    cout << "Property " << pName
+                         << " Not found in instance" << endl;
+                    continue;
+                }
+
+                // Property exists in instance.  Compare to property in class
+                if (!p1.identical(p2))
+                {
+                    if (p1.getName() != p2.getName())
+                    {
+                        rtn = false;
+                        cout << "Property Name difference " << pName
+                             << " " << p1.getName().getString()
+                             << " 2 " << p2.getName().getString()
+                            << endl;
+                    }
+                    if (p1.getType() != p2.getType())
+                    {
+                        rtn = false;
+                        cout << " Property Types differ " << pName
+                            << endl;
+                    }
+                    if (includeQualifiers &&
+                         (p1.getQualifierCount() != p2.getQualifierCount()))
+                    {
+                        rtn = false;
+                        cout << " Property QualifierCounts differ "
+                             << pName
+                             << endl;
+                    }
+                    else if (!includeQualifiers && 
+                             inst.getQualifierCount() != 0)
+                    {
+                        rtn = false;
+                        cout << "Expected QualifierCount == 0" 
+                             << pName << endl;
+                    }
+                    
+                    // test for classOrigin true and values match
+                    // or expect classorigin null
+                    if ( classOrigin &&
+                         (p1.getClassOrigin() != p2.getClassOrigin()))
+                    {
+                        rtn = false;
+                        cout << "ClassOrigins Differ" << endl;
+                    }
+                    else if (!classOrigin && !p2.getClassOrigin().isNull())
+                    {
+                        rtn = false;
+                        cout << "Expect ClassOrigin == Null " << endl;
+                    }
+
+                    if (p1.getPropagated() != p2.getPropagated())
+                    {
+                        rtn = false;
+                        cout << "Propagated Attributes Differ" << endl;
+                    }
+
+                    if (p1.getArraySize() != p2.getArraySize())
+                    {
+                        rtn = false;
+                        cout << "ArraySize Attributes Differ" << endl;
+                    }
+
+                    if (p1.getValue() != p2.getValue())
+                    {
+                        rtn = false;
+                        cout << "Propagated Attributes Differ" << endl;
+                    }
+                }
+            }
+        }
+    }
+
+    // if error, display the class and instance
+    if (!rtn)
+    {
+        cout << "Error in class property to inst property comparison. "
+                "Class" << endl;
+        XmlWriter::printClassElement(myClass);
+        cout << "Instance" << endl;
+        XmlWriter::printInstanceElement(inst);
+    }
+    return rtn;
+}
 //
 // Test of the Instance creation and instance filtering
 //
@@ -411,6 +558,10 @@ void test04()
         CIMScope::PROPERTY));
 
     CIMClass class1(CIMName("MyClass"));
+    Array<Uint32> testArray;
+    testArray.append(Uint32(1));
+    testArray.append(Uint32(2));
+    CIMValue testArrayValue(testArray);
 
     class1
         .addProperty(CIMProperty(CIMName("count"), Uint32(55))
@@ -420,16 +571,24 @@ void test04()
         .addProperty(CIMProperty(CIMName("message"), String("Hello"))
             .addQualifier(CIMQualifier(CIMName("description"),
                 String("My Message"))))
-        .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)));
-
+        .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)))
+        .addProperty(CIMProperty(CIMName("array"), testArrayValue));
 
     Resolver::resolveClass(class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
 
 
+    // Create a subclass to do classOrigin and propagation testing
+    CIMClass mySubClass(CIMName("subclass"));
+    mySubClass.setSuperClassName(CIMName("MyClass"));
+
+    Resolver::resolveClass(mySubClass, context, NAMESPACE);
+    context->addClass(NAMESPACE, mySubClass);
+
     if (verbose)
     {
         XmlWriter::printClassElement(class1);
+        XmlWriter::printClassElement(mySubClass);
     }
 
     //
@@ -453,7 +612,39 @@ void test04()
             newInstance.findProperty("ratio") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(
             newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("array") != PEG_NOT_FOUND);
 
+        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, true, true,
+                                     CIMPropertyList()));
+    }
+
+    // Test with instance of subclass
+    // Create instance with qualifiers, classorigin, and Null propertyList
+    // Primary function is testing propagated  and classOrigin attributes.
+    {
+        CIMInstance newInstance;
+
+        newInstance = mySubClass.buildInstance(true, true, CIMPropertyList());
+
+        if (verbose)
+        {
+            XmlWriter::printInstanceElement(newInstance);
+        }
+
+        PEGASUS_TEST_ASSERT(
+            newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(
+            newInstance.getQualifierCount() == class1.getQualifierCount());
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("array") != PEG_NOT_FOUND);
+
+        PEGASUS_TEST_ASSERT(_compare(mySubClass, newInstance, true, true,
+                                     CIMPropertyList()));
     }
 
     //
@@ -470,6 +661,11 @@ void test04()
             newInstance.findProperty("ratio") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(
             newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("array") != PEG_NOT_FOUND);
+
+        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
+                                            CIMPropertyList()));
     }
 
     //
@@ -483,6 +679,9 @@ void test04()
 
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
         PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 0);
+
+        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
+                                            pl1));
     }
 
     //
@@ -507,6 +706,11 @@ void test04()
         PEGASUS_TEST_ASSERT(
             newInstance.findProperty("message") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("array") == PEG_NOT_FOUND);
+
+        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
+                                            pl1));
     }
 
     //
@@ -528,6 +732,9 @@ void test04()
         PEGASUS_TEST_ASSERT(
             newInstance.findProperty("message") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
+
+        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
+                                            pl1));
     }
 
 
@@ -659,6 +866,7 @@ void test05()
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+
     try
     {
         test01();

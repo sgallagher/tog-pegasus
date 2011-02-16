@@ -145,7 +145,7 @@ public:
         const String& description);
 
     // display a single property
-    static void PEGASUS_CLI_LINKAGE displayProperty(Options& opts,
+    static void PEGASUS_CLI_LINKAGE displayProperty(const Options& opts,
         const CIMProperty& property);
 
     /**

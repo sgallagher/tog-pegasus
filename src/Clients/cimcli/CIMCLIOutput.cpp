@@ -1112,7 +1112,7 @@ void CIMCLIOutput::displayNamespaceNames(Options& opts,
     CIMCLIOutput::testReturnCount(opts, ns.size(), "Namespaces");
 }
 
-void CIMCLIOutput::displayProperty(Options& opts,
+void CIMCLIOutput::displayProperty(const Options& opts,
     const CIMProperty& property)
 {
     _print(property, opts.outputType);

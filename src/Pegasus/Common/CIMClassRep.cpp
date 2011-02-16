@@ -459,7 +459,8 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
                                 cp.getValue(),
                                 cp.getArraySize(),
                                 cp.getReferenceClassName(),
-                                cp.getClassOrigin());
+                                cp.getClassOrigin(),
+                                cp.getPropagated());
             }
 
             // Delete class origin attribute if required

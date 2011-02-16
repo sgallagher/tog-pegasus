@@ -54,7 +54,6 @@ private:
         TRCFH_UNEXPECTED_FILE_OWNER,
         TRCFH_FAILED_TO_SET_FILE_PERMISSIONS,
         TRCFH_UNABLE_TO_WRITE_TRACE_TO_FILE,
-        TRCFH_INVALID_FILE_HANDLE
     };
 
     /** Open the specified file in append mode and ensure the file owner and
@@ -65,6 +64,8 @@ private:
     FILE* _openFile(const char* fileName);
 
     /** Function writes an error message to the log, but only once.
+        This function is not thread safe which has to be taken care by the
+        caller.
         @param    specifies the type of error message
         @param    parms MessageLoaderParms object containing the localizable
                   message to log.

@@ -210,21 +210,26 @@ void TraceFileHandler::_logError(
     ErrLogMessageIds msgID,
     const MessageLoaderParms & parms)
 {
+    static Boolean isLogErrorProgress = false;
     // msgID has to be within range, else we have a severe coding error
     PEGASUS_ASSERT((msgID >= TRCFH_FAILED_TO_OPEN_FILE_SYSMSG) &&
-        (msgID <= TRCFH_INVALID_FILE_HANDLE));
-
-    if ((_logErrorBitField & (1 << msgID)) == 0)
+        (msgID <= TRCFH_UNABLE_TO_WRITE_TRACE_TO_FILE));
+    if (!isLogErrorProgress)
     {
-        // log message not yet written, write log message
-        Logger::put_l(
-            Logger::ERROR_LOG,
-            System::CIMSERVER,
-            Logger::WARNING,
-            parms);        
-        // mark bit in log error field to flag that specific log message
-        // has been written
-        _logErrorBitField |= (1 << msgID);
+        isLogErrorProgress = true;
+        if ((_logErrorBitField & (1 << msgID)) == 0)
+        {
+           // log message not yet written, write log message
+           Logger::put_l(
+               Logger::ERROR_LOG,
+               System::CIMSERVER,
+               Logger::WARNING,
+               parms);
+           // mark bit in log error field to flag that specific log message
+           // has been written
+           _logErrorBitField |= (1 << msgID);
+        }
+        isLogErrorProgress = false;
     }
 }
 

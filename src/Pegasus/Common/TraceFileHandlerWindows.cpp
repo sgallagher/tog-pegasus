@@ -112,6 +112,66 @@ void TraceFileHandler::handleMessage(
             _fileName);
         _logError(TRCFH_INVALID_FILE_HANDLE,parm);
     }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +217,66 @@ void TraceFileHandler::handleMessage(const char* message, Uint32 msgLen)
             // thus allow writing of errors to log again
             _logErrorBitField = 0;
         }
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
+    }
+    else
+    {
+        // Invalid file handle
+        // Log message
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
     }
     else
     {

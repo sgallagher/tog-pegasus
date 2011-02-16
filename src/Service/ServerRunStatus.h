@@ -88,6 +88,11 @@ public:
     void setServerRunning();
 
     /**
+        Indicates that this instance of the server is not running.
+    */
+    void setServerNotRunning();
+
+    /**
         On platforms that use a PID file, this method allows a parent process
         ID to be specified.  This allows the isServerRunning() method to take
         the parent process into consideration.

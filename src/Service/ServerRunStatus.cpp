@@ -85,15 +85,21 @@ ServerRunStatus::ServerRunStatus(
 
 ServerRunStatus::~ServerRunStatus()
 {
-    if (_event != NULL)
-    {
-        CloseHandle(_event);
-    }
+    setServerNotRunning();
 }
 
 Boolean ServerRunStatus::isServerRunning()
 {
     return _wasAlreadyRunning;
+}
+
+void ServerRunStatus::setServerNotRunning()
+{
+    if (_event != NULL)
+    {
+        CloseHandle(_event);
+        _event = NULL;
+    }
 }
 
 void ServerRunStatus::setServerRunning()
@@ -144,10 +150,16 @@ ServerRunStatus::ServerRunStatus(
 
 ServerRunStatus::~ServerRunStatus()
 {
+    setServerNotRunning();
+}
+
+void ServerRunStatus::setServerNotRunning()
+{
     if (_isRunningServerInstance)
     {
         PidFile pidFile(_pidFilePath);
         pidFile.remove();
+        _isRunningServerInstance = false;
     }
 }
 

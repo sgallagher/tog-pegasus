@@ -343,6 +343,7 @@ void deleteCIMServer()
         Thread::clearLanguages();
         delete dummyInitialThread;
     }
+    _serverRunStatus.setServerNotRunning();
 }
 
 //

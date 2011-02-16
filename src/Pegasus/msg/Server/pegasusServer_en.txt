@@ -3123,6 +3123,7 @@ en:table {
         /**
         * @note  PGS09405:
         *    Substitution {0} is the name of the file (a string)
+        * This message is no longer used as of version 2.11.0
         */
         Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE:string {"PGS09405: File handle is not valid for file {0}."}
 

@@ -445,7 +445,7 @@ static void _print(const CIMProperty& property,
     {
         XmlWriter::printPropertyElement(property,cout);
     }
-    else if (format == OUTPUT_MOF)
+    else if (format == OUTPUT_MOF || format == OUTPUT_TEXT)
     {
         CIMProperty pt = property.clone();
         pt.setPropagated(false);
@@ -453,10 +453,14 @@ static void _print(const CIMProperty& property,
         MofWriter::appendPropertyElement(false, x, pt);
         mofFormat(cout, x.getData(), 4);
     }
+    else
+    {
+        cout << " Format type error" << endl;
+    }
 }
 
 // output CIMValue in accord with output format definition
-//NOTE: DUPLICATES OUTPUT FORMATT FUNCTION
+//NOTE: DUPLICATES OUTPUT FORMAT FUNCTION
 static void _print(const CIMValue& v,
     const OutputType format)
 {
@@ -464,7 +468,7 @@ static void _print(const CIMValue& v,
     {
         XmlWriter::printValueElement(v,cout);
     }
-    else if (format == OUTPUT_MOF)
+    else if (format == OUTPUT_MOF || format == OUTPUT_TEXT)
     {
         Buffer x;
         MofWriter::appendValueElement(x, v);
@@ -662,7 +666,7 @@ static void _outputFormatInstance(Options& opts,
     {
         XmlWriter::printInstanceElement(instance, cout);
     }
-    else if (opts.outputType == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
         CIMInstance temp = instance.clone();
         // Reset the propagated flag to assure that these entities
@@ -677,6 +681,8 @@ static void _outputFormatInstance(Options& opts,
         MofWriter::appendInstanceElement(x, temp);
         mofFormat(cout, x.getData(), 4);
     }
+    else
+        cerr << "Error, Format Definition Error" << endl;
 }
 
 static void _outputFormatParamValue(Options& opts,
@@ -686,7 +692,7 @@ static void _outputFormatParamValue(Options& opts,
     {
         XmlWriter::printParamValueElement(pv, cout);
     }
-    else if (opts.outputType == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
         if (!pv.isUninitialized())
         {
@@ -715,7 +721,7 @@ static void _outputFormatClass(Options& opts,
         XmlWriter::printClassElement(myClass, cout);
     }
 
-    else if (opts.outputType == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
         // Reset the propagated flag to assure that these entities
         // are all shown in the MOF output.
@@ -766,7 +772,7 @@ static void _outputFormatQualifierDecl(const Options& opts,
     {
         XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
     }
-    else if (opts.outputType == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
         Buffer x;
         MofWriter::appendQualifierDeclElement(x, myQualifierDecl);
@@ -786,7 +792,7 @@ static void _outputFormatCIMValue(Options& opts,
     {
         XmlWriter::printValueElement(myValue, cout);
     }
-    else if (opts.outputType == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
         Buffer x;
         MofWriter::appendValueElement(x, myValue);
@@ -923,7 +929,6 @@ void CIMCLIOutput::displayInstances(Options& opts,
         for (Uint32 i = 0; i < instances.size(); i++)
         {
             CIMInstance instance = instances[i];
-            // Check Output Format to print results
             _outputFormatInstance(opts, instance);
         }
     }

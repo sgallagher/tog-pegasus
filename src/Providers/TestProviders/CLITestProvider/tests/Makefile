@@ -146,6 +146,12 @@ testPropertyOperations:
 	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id="PropertyOpTest" \
 	    scalBool >> $(RESULTFILE)
+
+##  test with xml output
+	@cimcli gp -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest"  -x \
+	    scalBool >> $(RESULTFILE)
+
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id="PropertyOpTest" \
 	    scalBool=false scalUint8=12 scalSint8=12 scalUint16=500 \
@@ -589,6 +595,11 @@ testCreateInstanceOperation:
 	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
 	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
 
+##  repeat the ei with xml output options
+	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass -x >> $(RESULTFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass -x >> $(RESULTFILE)
+	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass -o xml >> $(RESULTFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass -o xml >> $(RESULTFILE)
 ### Test multiple forms of modifyInstance. Requires instance created in
 ### test 3
 testModifyInstanceOperation:
@@ -690,6 +701,18 @@ testInvokeMethod:
 	    InParam1="test/TestProvider:class.key1=\"aaa\",key2=0" \
 	    InParam2="test/TestProvider:class.key1=\\\"aaa01\\\"\,key2=1","test/TestProvider:class.key1=\\\"aaa02\\\"\,key2=2" \
 	    >>$(RESULTFILE)
+
+##  Test with xml output option
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    ReferenceParamTest \
+	    InParam1="test/TestProvider:class.key1=\"aaa\",key2=0" \
+	    InParam2="test/TestProvider:class.key1=\\\"aaa01\\\"\,key2=1","test/TestProvider:class.key1=\\\"aaa02\\\"\,key2=2" \
+	     -o xml >>$(RESULTFILE)
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    ReferenceParamTest \
+	    InParam1="test/TestProvider:class.key1=\"aaa\",key2=0" \
+	    InParam2="test/TestProvider:class.key1=\\\"aaa01\\\"\,key2=1","test/TestProvider:class.key1=\\\"aaa02\\\"\,key2=2" \
+	     -x >>$(RESULTFILE)
 	    
 	@$(ECHO) +++++ Test invoke method Passed.
 
@@ -714,14 +737,21 @@ testTableOutputFormat:
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
 	@$(ECHO) +++++ Test table output format Passed.
 
+
 ### Test qualifer declaration get and enumerate.
 testQualifierDecls:
 	@$(ECHO) 8. +++++ Test QualifierDecl Operations
 	@$(ECHO) 8. +++++ Test QualifierDecl Operations >> $(RESULTFILE)
 
 	@cimcli gq -n "$(TESTCIMV2)" Association >>$(RESULTFILE)
-##      Use sort to assure ordering of response objects
+
+##  Use sort to assure ordering of response objects
 	@cimcli eq -n "$(TESTCIMV2)" --sort >>$(RESULTFILE)
+
+##  Test with xml output options
+	@cimcli eq -n "$(TESTCIMV2)" --sort -x >>$(RESULTFILE)
+	@cimcli eq -n "$(TESTCIMV2)" --sort -o xml >>$(RESULTFILE)
+
 	@$(ECHO) +++++ Test QualifierDecls Passed.
 
 ### Test the class operations.  Note that we may have issues with the
@@ -735,6 +765,8 @@ testClassOperations:
 	@cimcli nc -n $(STATICNS) --sort >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) -o xml >>$(RESULTFILE)
+	@cimcli gc CIM_ManagedElement -n $(STATICNS) -x >>$(RESULTFILE)
+
 	@$(ECHO) +++++ Test ClassOperations Passed.
 
 ### Test different options on propertylist parameter
@@ -772,6 +804,12 @@ testGetInstanceOperation:
 
 	@cimcli gi Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
 	    -pl Name,scalBool >>$(RESULTFILE)
+
+##  test with the xml output option
+	@cimcli gi Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+	    -pl Name,scalBool -o xml >>$(RESULTFILE)
+	@cimcli gi Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+	    -pl Name,scalBool -x >>$(RESULTFILE)
 	   
 	@$(ECHO) +++++ Test getInstance Passed.
 

@@ -79,9 +79,6 @@ void BuildOptionsTable(
     // Table of available options to be used by cimcli.  Each of the possible
     // options is defined in one entry in the table below.
 
-    static const char* outputFormats[] = { "xml", "mof", "txt", "table"};
-    static const Uint32 NUM_OUTPUTFORMATS = sizeof(outputFormats) /
-                                            sizeof(outputFormats[0]);
     static OptionRowWithMsg optionsTable[] =
         //optionname defaultvalue rqd  type domain domainsize clname msgkey
         // hlpmsg
@@ -218,9 +215,11 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.QUERYLANGUAGE_OPTION_HELP",
         "Defines a Query Language to be used with a query filter.\n"},
 
-        // KS change the output formats to use the enum options function
-        // Deprecate this function.
-        {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS,
+        // Defines the multiple output formats. List of possible options
+        // defined in CIMCLIOptionStruct files. default mof.
+        // TODO - Add simple option that uses the enum features of
+        // options manager.  However. we cannot remove this option.
+        {"outputformats", "mof", false, Option::STRING, 0,0,
         "o",
         "Clients.cimcli.CIMCLIClient.OUTPUTFORMATS_OPTION_HELP",
         "Output in xml, mof, txt, table"},
@@ -756,44 +755,40 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     // get User name and password if set.
     lookupStringOptionEMPTY(opts, om, "User", opts.user);
-
     lookupStringOptionEMPTY(opts, om, "Password", opts.password);
 
-    // Create a variable with the format output and a correponding type.
-    // Suggest we might change this whole thing to the option type that
-    // mike used in the example of colors so that  you could do -red -blue
-    // or in our case -mof -xml, etc.
-
-     opts.isXmlOutput = om.isTrue("xmlOutput");
-     if (opts.isXmlOutput  && debug && verboseTest)
-     {
-         cout << "xmlOutput set" << endl;
-     }
-
-    if (om.lookupValue("outputformats", opts.outputFormat))
+    // Test for outputFormats parameter with valid type string
+    if (om.lookupValue("outputformats", opts.outputTypeParamStr))
      {
         if (debug && verboseTest)
         {
-            cout << "Output Format = " << opts.outputFormat << endl;
+            cout << "Output Format = " << opts.outputTypeParamStr << endl;
         }
      }
 
-    // Get the output format parameter and save it
-    Uint32 cnt = 0;
-    opts.outputFormat.toLower();
-
-    for( ; cnt < NUM_OUTPUTS; cnt++ )
+    // test for valid string on output type.
+    if ((opts.outputType = OutputTypeStruct::getOutputType(
+                                                    opts.outputTypeParamStr))
+         == OUTPUT_TYPE_ILLEGAL )
     {
-        if (opts.outputFormat == OutputTable[cnt].OutputName)
-        {
-            break;
-        }
+        cerr << "Error: Invalid Output Type " << opts.outputTypeParamStr
+             << ". Valid types are: "<< OutputTypeStruct::listOutputTypes()
+             << endl;
+        exit(CIMCLI_INPUT_ERR);
     }
-    // Note that this makes no notice if a not found
-    if (cnt != NUM_OUTPUTS)
+
+    // Test for special output option -x
+    // Note that this is after the general format definition so that it
+    // overrides any choice made with -o
+
+    Boolean xmlTest = om.isTrue("xmlOutput");
+    if (xmlTest)
     {
-        opts.outputFormatType = cnt;
-        opts.outputType = OutputTable[cnt].OutputType;
+        opts.outputType = OUTPUT_XML;
+        if (debug && verboseTest)
+        {
+            cout << "xmlOutput set" << endl;
+        }
     }
 
     lookupUint32Option(opts, om, "repeat", opts.repeat, 0, "times");

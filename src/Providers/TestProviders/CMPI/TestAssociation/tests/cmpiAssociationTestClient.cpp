@@ -758,9 +758,7 @@ int main(int argc, char** argv)
     // =======================================================================
     // Test property filter for associators and references
     // =======================================================================
-#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
     _testCMPIFilterOfAssociation(client);
-#endif
 
     // =======================================================================
     // Test referenceNames

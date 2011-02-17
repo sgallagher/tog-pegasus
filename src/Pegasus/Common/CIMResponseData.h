@@ -89,9 +89,9 @@ public:
         _instances(x._instances),
         _objects(x._objects),
         _scmoInstances(x._scmoInstances),
-        _includeQualifiers(true),
-        _includeClassOrigin(true),
-        _propertyList(CIMPropertyList())
+        _includeQualifiers(x._includeQualifiers),
+        _includeClassOrigin(x._includeClassOrigin),
+        _propertyList(x._propertyList)
     {
     }
 
@@ -203,10 +203,15 @@ public:
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
-    void getRequestProperties(
-        Boolean & includeQualifiers,
-        Boolean & includeClassOrigin,
-        CIMPropertyList& propertyList);
+
+    void setPropertyList(const CIMPropertyList& propertyList)
+    {
+        _propertyList = propertyList;
+    }
+    CIMPropertyList & getPropertyList()
+    {
+        return _propertyList;
+    }
 
 private:
 

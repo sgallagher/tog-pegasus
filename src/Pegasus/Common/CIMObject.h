@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -312,6 +313,11 @@ public:
         @return True if the object represents a CIMInstance; false otherwise.
     */
     Boolean isInstance() const;
+
+    void instanceFilter(
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList);
 
 private:
 

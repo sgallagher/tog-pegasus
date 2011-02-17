@@ -1286,11 +1286,9 @@ int main(int argc, char** argv)
         _testFromRepository(client);
         _testNotSupported(client);
         _testNotFound(client);
-#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY        
         _testFilterOfAssociations(client);
         _testEnumerateInstancesPropFilter(client); 
         _testGetInstancePropFilter(client);
-#endif
     }
     catch (Exception&)
     {

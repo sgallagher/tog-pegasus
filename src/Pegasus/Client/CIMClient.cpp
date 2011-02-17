@@ -169,6 +169,13 @@ CIMInstance CIMClient::getInstance(
         p.setClassName(cls);
 
     }
+#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
+    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
+    if (rep->_binaryResponse)
+    {
+        inst.instanceFilter(includeQualifiers,includeClassOrigin,propertyList);
+    }
+#endif
 
     return inst;
 }
@@ -268,7 +275,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-
+#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
     Array<CIMInstance> a = _rep->enumerateInstances(
             nameSpace,
             className,
@@ -276,8 +283,33 @@ Array<CIMInstance> CIMClient::enumerateInstances(
             localOnly,
             includeQualifiers,
             includeClassOrigin,
-            propertyList).getInstances();    
+            propertyList).getInstances();
+#else
+    CIMResponseData respData = _rep->enumerateInstances(
+        nameSpace,
+        className,
+        deepInheritance,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
 
+    Array<CIMInstance> a = respData.getInstances();
+    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
+
+    if (rep->_binaryResponse)
+    {
+        CIMPropertyList returnedPropList = respData.getPropertyList();
+        for (Uint32 i = 0, n = a.size(); i < n ; i++)
+        {
+            CIMInstance & inst = a[i];
+            inst.instanceFilter(
+                includeQualifiers,
+                includeClassOrigin,
+                returnedPropList);
+        }
+    }
+#endif    
     // remove name space and host name to be instance names
     for (Uint32 i = 0, n = a.size(); i < n ; i++)
     {
@@ -288,7 +320,6 @@ Array<CIMInstance> CIMClient::enumerateInstances(
             p.setHost(String());
         }
     }
-
 
     return a;
 }
@@ -336,7 +367,7 @@ Array<CIMObject> CIMClient::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    return _rep->associators(
+    CIMResponseData respData = _rep->associators(
         nameSpace,
         objectName,
         assocClass,
@@ -345,7 +376,28 @@ Array<CIMObject> CIMClient::associators(
         resultRole,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getObjects();
+        propertyList);
+
+    Array<CIMObject> a = respData.getObjects();
+#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
+    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
+    if (rep->_binaryResponse)
+    {
+        CIMPropertyList returnedPropList = respData.getPropertyList();
+        if ((a.size() > 0) && (a[0].isInstance()))
+        {
+            for (Uint32 i = 0, n = a.size(); i < n ; i++)
+            {    
+                CIMObject & obj = a[i];
+                obj.instanceFilter(
+                    includeQualifiers,
+                    includeClassOrigin,
+                    propertyList);
+            }
+        }
+    }    
+#endif
+    return a;
 }
 
 Array<CIMObjectPath> CIMClient::associatorNames(
@@ -374,14 +426,35 @@ Array<CIMObject> CIMClient::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    return _rep->references(
+    CIMResponseData respData = _rep->references(
         nameSpace,
         objectName,
         resultClass,
         role,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getObjects();
+        propertyList);
+    Array<CIMObject> a = respData.getObjects();
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
+    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
+    if (rep->_binaryResponse)
+    {
+        CIMPropertyList returnedPropList = respData.getPropertyList();
+        if ((a.size() > 0) && (a[0].isInstance()))
+        {
+            for (Uint32 i = 0, n = a.size(); i < n ; i++)
+            {    
+                CIMObject & obj = a[i];
+                obj.instanceFilter(
+                    includeQualifiers,
+                    includeClassOrigin,
+                    propertyList);
+            }
+        }
+    }    
+#endif
+    return a;
 }
 
 Array<CIMObjectPath> CIMClient::referenceNames(

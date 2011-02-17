@@ -301,6 +301,8 @@ public:
 
     void connectLocalBinary();
 
+    bool _binaryResponse;
+
 private:
 
     void _connect(bool binaryRequest, bool binaryResponse);
@@ -342,7 +344,6 @@ private:
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;
     bool _binaryRequest;
-    bool _binaryResponse;
     bool _localConnect;
 };
 

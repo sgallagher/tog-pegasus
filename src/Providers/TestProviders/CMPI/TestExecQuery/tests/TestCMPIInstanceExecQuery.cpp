@@ -783,10 +783,8 @@ main (int argc, char **argv)
           providerNamespace = CIMNamespaceName (argv[2]);
           _test1 (client);
           _test2 (client);
-#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
           _test3(client);
           _test4(client);          
-#endif
         }
       else
         {

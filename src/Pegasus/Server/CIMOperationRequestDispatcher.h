@@ -329,7 +329,9 @@ public:
 
     void handleAssociatorNamesResponseAggregation(OperationAggregate* poA);
 
-    void handleEnumerateInstancesResponseAggregation(OperationAggregate* poA);
+    void handleEnumerateInstancesResponseAggregation(
+        OperationAggregate* poA,
+        bool hasPropList);
 
     void handleEnumerateInstanceNamesResponseAggregation(
         OperationAggregate* poA);

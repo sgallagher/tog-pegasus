@@ -1427,14 +1427,5 @@ void CIMResponseData::setRequestProperties(
     _includeClassOrigin = includeClassOrigin;
     _propertyList = propertyList; 
 }
-void CIMResponseData::getRequestProperties(
-    Boolean & includeQualifiers,
-    Boolean & includeClassOrigin,
-    CIMPropertyList& propertyList)
-{
-    includeQualifiers = _includeQualifiers;
-    includeClassOrigin = _includeClassOrigin;
-    propertyList = _propertyList;
-} 
 
 PEGASUS_NAMESPACE_END

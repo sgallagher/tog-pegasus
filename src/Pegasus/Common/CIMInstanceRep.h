@@ -70,9 +70,6 @@ public:
             Boolean includeClassOrigin,
             const CIMPropertyList & propertyList);
    
-    void instanceFilter(Boolean includeQualifiers,
-            Boolean includeClassOrigin,
-            const CIMPropertyList & propertyList);
 private:
 
     CIMInstanceRep(const CIMInstanceRep& x);

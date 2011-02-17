@@ -342,13 +342,20 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
 static void _encodeEnumerateInstancesResponseBody(
     CIMBuffer& out,
     CIMResponseData& data,
-    CIMName& name)
+    CIMName& name,
+    bool isFirst)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("EnumerateInstances");
     name = NAME;
 
+    // Only write the property list on the first provider response
+    if (isFirst)
+    {
+        // [PROPERTY-LIST]
+        out.putPropertyList(data.getPropertyList());
+    }    
     data.encodeBinaryResponse(out);
 }
 
@@ -372,6 +379,15 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
+
+    // [PROPERTY-LIST]
+    CIMPropertyList propertyList;
+    if (!in.getPropertyList(propertyList))
+    {
+        return 0;
+    }
+    responseData.setPropertyList(propertyList);
+
     responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest=true;
@@ -3521,7 +3537,8 @@ bool BinaryCodec::encodeResponseBody(
             _encodeEnumerateInstancesResponseBody(
                 buf,
                 ((CIMEnumerateInstancesResponseMessage*)msg)->getResponseData(),
-                name);
+                name,
+                (msg->getIndex() == 0));
             break;
         }
 

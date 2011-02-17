@@ -653,7 +653,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 break;
 
             case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE :
-                handleEnumerateInstancesResponseAggregation(poA);
+                handleEnumerateInstancesResponseAggregation(poA,true);
                 break;
 
             case CIM_ASSOCIATORS_REQUEST_MESSAGE :
@@ -3246,7 +3246,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         if (numberResponses > 0)
         {
-            handleEnumerateInstancesResponseAggregation(poA);
+            handleEnumerateInstancesResponseAggregation(poA,true);
 
             CIMResponseMessage* response = poA->removeResponse(0);
 
@@ -5148,7 +5148,8 @@ void CIMOperationRequestDispatcher::
 */
 void CIMOperationRequestDispatcher::
     handleEnumerateInstancesResponseAggregation(
-        OperationAggregate* poA)
+        OperationAggregate* poA,
+        bool hasPropList)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
@@ -5169,6 +5170,13 @@ void CIMOperationRequestDispatcher::
         (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
 
     CIMResponseData & to = toResponse->getResponseData();
+    // Re-add the property list as stored from request after deepInheritance fix
+    // since on OOP on the response message the property list gets lost
+    if (hasPropList)
+    {
+        to.setPropertyList(request->propertyList);
+    }
+
     // Work backward and delete each response off the end of the array
     for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {

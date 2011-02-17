@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/OrderedSet.h>
 #include <Pegasus/Common/CIMPropertyRep.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -162,6 +163,11 @@ public:
         if (_refCounter.decAndTestIfZero())
             delete this;
     }
+
+    void instanceFilter(
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList);
 
 protected:
 

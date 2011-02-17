@@ -257,49 +257,4 @@ void CIMInstanceRep::filter(
     return;
 }
 
-void CIMInstanceRep::instanceFilter(
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
-{
-    // Filter any qualifiers from this instance.
-    if (!includeQualifiers && _qualifiers.getCount() > 0)
-    {
-        while (_qualifiers.getCount())
-        {
-            _qualifiers.removeQualifier(0);
-        }
-    }
-
-    // For each property, remove if not in propertylist
-    for (Uint32 i = 0 ; i < _properties.size(); i++)
-    {
-        CIMConstProperty p = getProperty(i);
-        CIMName name = p.getName();
-        Array<CIMName> pl = propertyList.getPropertyNameArray();
-        if (propertyList.isNull() || Contains(pl, name))
-        {
-            // test ClassOrigin and possibly remove
-            if (!includeClassOrigin)
-            {
-                _properties[i].setClassOrigin(CIMName());
-            }
-            // remove qualifiers if required.
-            if (!includeQualifiers && _properties[i].getQualifierCount() > 0)
-            {
-                while (_properties[i].getQualifierCount() > 0)
-                {
-                    _properties[i].removeQualifier(0);
-                }
-            }
-        }
-        else
-        {
-            _properties.remove(i--);
-        }
-    }
-    return;
-}
-
-
 PEGASUS_NAMESPACE_END

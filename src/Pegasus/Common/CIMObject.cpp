@@ -229,6 +229,15 @@ CIMObject CIMObject::clone() const
     return CIMObject(_rep->clone());
 }
 
+void CIMObject::instanceFilter(
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList)
+{
+    CheckRep(_rep);
+    _rep->instanceFilter(includeQualifiers, includeClassOrigin, propertyList);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

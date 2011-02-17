@@ -575,7 +575,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             exit(CIMCLI_INPUT_ERR);
         }
 
-        showUsage();
         exit(CIMCLI_RTN_CODE_OK);
     }
 

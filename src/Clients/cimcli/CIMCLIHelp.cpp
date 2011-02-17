@@ -326,15 +326,8 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
     }
     else
     {
-        cerr << "Error: Input Parameter with Operation Name required.\n"
-             << "     ex. cimcli -h di. or \n"
-             << "         cimcli -h deleteinstance"
-             << endl;
-        cout << loadMessage(
-            "Clients.cimcli.CIMCLIClient.HELP_SUMMARY",
-            " -h for all help, -hc for commands, -ho for options")
-            << endl;
-            return false;
+        showUsage();
+        return true;
     }
 }
 

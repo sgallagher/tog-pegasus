@@ -35,24 +35,47 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+template<class REP>
+inline void Ref(REP* rep)
+{
+        rep->_refCounter++;
+}
+
+template<class REP>
+inline void Unref(REP* rep)
+{
+    if (rep->_refCounter.decAndTestIfZero())
+        delete rep;
+}
+
 CIMPropertyList::CIMPropertyList()
 {
     _rep = new CIMPropertyListRep();
-    _rep->isNull = true;
 }
 
 CIMPropertyList::CIMPropertyList(const CIMPropertyList& x)
 {
-    _rep = new CIMPropertyListRep();
-    _rep->propertyNames = x._rep->propertyNames;
-    _rep->isNull = x._rep->isNull;
-    _rep->cimNameTags = x._rep->cimNameTags;
+    _rep = x._rep;
+    Ref(_rep);
+}
+
+static inline CIMPropertyListRep* _copyOnWriteCIMPropertyListRep(
+    CIMPropertyListRep* rep)
+{
+    if (rep->_refCounter.get() > 1)
+    {
+        CIMPropertyListRep* tmpRep= new CIMPropertyListRep(*rep);
+        Unref(rep);
+        return tmpRep;
+    }
+    else
+    {
+        return rep;
+    }
 }
 
 CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
 {
-    _rep = new CIMPropertyListRep();
-
     // ATTN: the following code is inefficient and problematic. besides
     // adding overhead to check for null property names, it has the
     // disadvantage of returning an error if only 1 of n properties are null
@@ -68,14 +91,14 @@ CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
             throw UninitializedObjectException();
         }
     }
-
+    _rep = new CIMPropertyListRep();
     _rep->propertyNames = propertyNames;
     _rep->isNull = false;
 }
 
 CIMPropertyList::~CIMPropertyList()
 {
-    delete _rep;
+    Unref(_rep);
 }
 
 void CIMPropertyList::set(const Array<CIMName>& propertyNames)
@@ -95,32 +118,46 @@ void CIMPropertyList::set(const Array<CIMName>& propertyNames)
             throw UninitializedObjectException();
         }
     }
-
+    _rep = _copyOnWriteCIMPropertyListRep(_rep);
+    
     _rep->propertyNames = propertyNames;
+    _rep->cimNameTags.clear();
     _rep->isNull = false;
+    _rep->isCimNameTagsUpdated = false;
 }
 
 CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
 {
-    if (&x != this)
+    if (x._rep != _rep)
     {
-        _rep->propertyNames = x._rep->propertyNames;
-        _rep->isNull = x._rep->isNull;
-        _rep->cimNameTags = x._rep->cimNameTags;
-        
+        Unref(_rep);
+        _rep = x._rep;
+        Ref(_rep);
     }
-
     return *this;
 }
 
 void CIMPropertyList::clear()
 {
-    _rep->propertyNames.clear();
-    _rep->isNull = true;
-    if(_rep->isCimNameTagsUpdated)
-    { 
-        _rep->cimNameTags.clear();
-        _rep->isCimNameTagsUpdated = false;
+    // If there is more than one reference
+    // remove reference and get a new shiny empty representation
+    if (_rep->_refCounter.get() > 1)
+    {
+        Unref(_rep);
+        _rep = new CIMPropertyListRep();
+    }
+    else
+    {
+        // If there is only one reference
+        // no need to copy the data, we own it
+        // just clear the fields
+        _rep->propertyNames.clear();
+        _rep->isNull = true;
+        if(_rep->isCimNameTagsUpdated)
+        { 
+            _rep->cimNameTags.clear();
+            _rep->isCimNameTagsUpdated = false;
+        }
     }
 }
 
@@ -145,6 +182,8 @@ Array<CIMName> CIMPropertyList::getPropertyNameArray() const
 }
 void CIMPropertyList::fillCIMNameTags()   
 {
+    _rep = _copyOnWriteCIMPropertyListRep(_rep);
+
     if((!_rep->isNull) && (!_rep->isCimNameTagsUpdated))
     {
         for(Uint32 i=0;i<_rep->propertyNames.size();i++)

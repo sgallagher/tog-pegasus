@@ -42,13 +42,42 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMPropertyListRep
 {
 public:
-    CIMPropertyListRep():isCimNameTagsUpdated(false)
+    CIMPropertyListRep()
+        : _refCounter(1),
+          isNull(true),
+          isCimNameTagsUpdated(false)
     {
     }
-   ~CIMPropertyListRep()
+
+    CIMPropertyListRep(const CIMPropertyListRep& x)
+        : _refCounter(1),
+        propertyNames(x.propertyNames),
+        cimNameTags(x.cimNameTags),
+        isNull(x.isNull),
+        isCimNameTagsUpdated(x.isCimNameTagsUpdated)
+    {
+    }
+
+    CIMPropertyListRep& operator=(const CIMPropertyListRep& x)
+    {
+        if (&x != this)
+        {
+            propertyNames = x.propertyNames;
+            cimNameTags = x.cimNameTags;
+            isNull = x.isNull;
+            isCimNameTagsUpdated = x.isCimNameTagsUpdated;
+        }
+        return *this;
+    }
+
+    ~CIMPropertyListRep()
     {
         cimNameTags.clear();
     }
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
 
     Array<CIMName> propertyNames;
     Array<Uint32> cimNameTags;

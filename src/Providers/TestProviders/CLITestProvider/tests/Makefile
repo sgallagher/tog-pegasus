@@ -978,6 +978,7 @@ helpoutputtests:
 	@cimcli -hc  >> $(HELPRESULTFILE)
 	@cimcli -ho >> $(HELPRESULTFILE)
 	@cimcli -h mi  >> $(HELPRESULTFILE)
+	@cimcli -h >> $(HELPRESULTFILE)
 
 	@$(ECHO) +++++ Test Help Output Passed.
 

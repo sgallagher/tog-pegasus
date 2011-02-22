@@ -215,18 +215,12 @@ DestinationQueue::~DestinationQueue()
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "DestinationQueue::~DestinationQueue");
 
-    if (!isIdle())
+    if (_queue.size() || _lastDeliveryRetryStatus == PENDING)
     {
         _cleanup(LISTENER_NOT_ACTIVE);
     }
 
     PEG_METHOD_EXIT();
-}
-
-Boolean DestinationQueue::isIdle()
-{
-    AutoMutex mtx(_queueMutex);
-    return _queue.size() == 0 && _lastDeliveryRetryStatus != PENDING;
 }
 
 Sint64 DestinationQueue::getSequenceNumber()
@@ -265,12 +259,6 @@ Sint64 DestinationQueue::getSequenceNumber()
     }
 
     return nextSequenceNumber;
-}
-
-void DestinationQueue::updateLastSuccessfulDeliveryTime()
-{
-    AutoMutex mtx(_queueMutex);
-    _lastSuccessfulDeliveryTimeUsec = System::getCurrentTimeUsec();
 }
 
 String DestinationQueue::_getSequenceContext(
@@ -312,16 +300,57 @@ void DestinationQueue::_traceDiscardedIndication(
         _getSequenceNumber(indication)));
 }
 
-void DestinationQueue::enqueue(IndicationInfo *info)
+void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "DestinationQueue::enqueue");
 
+    Uint32 idx;
+    CIMProperty prop;
+    CIMInstance &indication = message->indicationInstance;
+
+    if ((idx = indication.findProperty(_PROPERTY_SEQUENCECONTEXT))
+        != PEG_NOT_FOUND)
+    {
+        prop = indication.getProperty(idx);
+        prop.setValue(getSequenceContext());
+        indication.removeProperty(idx);
+    }
+    else
+    {
+        prop = CIMProperty(
+            _PROPERTY_SEQUENCECONTEXT,
+            getSequenceContext());
+    }
+    indication.addProperty(prop);
+
     AutoMutex mtx(_queueMutex);
+    Sint64 sequenceNumber = getSequenceNumber();
+    if ((idx = indication.findProperty(_PROPERTY_SEQUENCENUMBER))
+        != PEG_NOT_FOUND)
+    {
+        prop = indication.getProperty(idx);
+        prop.setValue(sequenceNumber);
+        indication.removeProperty(idx);
+    }
+    else
+    {
+        prop = CIMProperty(
+            _PROPERTY_SEQUENCENUMBER,
+            sequenceNumber);
+    }
+    indication.addProperty(prop);
+
+    IndicationInfo *info = new IndicationInfo(
+        message->indicationInstance,
+        message->subscriptionInstance,
+        message->operationContext,
+        message->nameSpace.getString(),
+        this);
     _queue.insert_back(info);
 
-    info->lastDeliveryRetryTimeUsec = System::getCurrentTimeUsec();
-    info->arrivalTimeUsec = info->lastDeliveryRetryTimeUsec;
+    info->lastDeliveryRetryTimeUsec = 0;
+    info->arrivalTimeUsec = System::getCurrentTimeUsec();
 
     if (_queue.size() > _maxIndicationDeliveryQueueSize)
     {
@@ -332,6 +361,7 @@ void DestinationQueue::enqueue(IndicationInfo *info)
             temp->indication);
         delete temp;
     }
+
     PEG_METHOD_EXIT();
 }
 
@@ -365,44 +395,58 @@ void DestinationQueue::updateDeliveryRetryFailure(
 
     AutoMutex mtx(_queueMutex);
 
+    // Log a warning message on first delivery attempt failure.
+    if (info->lastDeliveryRetryTimeUsec == 0)
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED",
+                "Failed to deliver an indication with SequenceContext \"$0\" "
+                    "and SequenceNumber \"$1\" : $2.",
+                (const char*)_getSequenceContext(info->indication).getCString(),
+                _getSequenceNumber(info->indication),
+                (const char*)e.getMessage().getCString()));
+    }
+
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastDeliveryRetryStatus = FAIL;
     info->deliveryRetryAttemptsMade++;
 
-    if (info->deliveryRetryAttemptsMade >= _maxDeliveryRetryAttempts)
+    // Check for DeliveryRetryAttempts by adding the original delivery attempt.
+    if (info->deliveryRetryAttemptsMade >= _maxDeliveryRetryAttempts + 1)
     {
         _retryAttemptsExceededIndications++;
         _traceDiscardedIndication(
             DRA_EXCEEDED,
             info->indication);
         delete info;
-        PEG_METHOD_EXIT();
-        return;
     }
-
-    if (_queue.size() == _maxIndicationDeliveryQueueSize)
+    else if (_queue.size() >= _maxIndicationDeliveryQueueSize)
     {
         _queueFullDroppedIndications++;
         _traceDiscardedIndication(
             DESTINATIONQUEUE_FULL,
             info->indication);
-        PEG_METHOD_EXIT();
         delete info;
     }
     else
     {
+        // To deliver the indications in the correct order, insert the
+        // delivery retry failed indications at the front of the queue.
+        _queue.insert_front(info);
+        if (info->lastDeliveryRetryTimeUsec)
+        {
+            PEG_TRACE((TRC_IND_HANDLER,Tracer::LEVEL1,
+                "Delivery failure for indication with SequenceContext %s and "
+                    "SequenceNumber %" PEGASUS_64BIT_CONVERSION_WIDTH "d."
+                        " DeliveryRetryAttempts made %u. Exception : %s",
+                (const char*)_getSequenceContext(info->indication).getCString(),
+                _getSequenceNumber(info->indication),
+                info->deliveryRetryAttemptsMade,
+                (const char*)e.getMessage().getCString()));
+        }
         info->lastDeliveryRetryTimeUsec = System::getCurrentTimeUsec();
-        _queue.insert_back(info);
     }
-
-    PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
-        "Delivery failure for indication with SequenceContext %s and "
-            "SequenceNumber %" PEGASUS_64BIT_CONVERSION_WIDTH "d."
-            " DeliveryRetryAttempts made %u. Exception : %s",
-        (const char*)_getSequenceContext(info->indication).getCString(),
-        _getSequenceNumber(info->indication),
-        info->deliveryRetryAttemptsMade,
-        (const char*)e.getMessage().getCString()));
 
     PEG_METHOD_EXIT();
 }
@@ -531,6 +575,33 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
             _lastDeliveryRetryStatus = PENDING;
             _queue.remove_front();
             IndicationInfo *temp = _queue.front();
+
+            // The following algorithm is used to determine the elapsed
+            // DeliveryRetryAttempts. To deliver the indication in order,
+            // Server delays the newer indications until older indications
+            // in the queue are attempted for delivery and their
+            // DeliveryRetyAttempts are exceeded. The following algorithm
+            // ensures that indications won't stay in the queue more than
+            // (DeliveryRetryInterval * (DeliveryRetyAttempts + 1) time.
+            Uint32 elapsedDeliveryRetryAttempts;
+            if (info->lastDeliveryRetryTimeUsec)
+            {
+                elapsedDeliveryRetryAttempts =
+                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec) 
+                        / _minDeliveryRetryIntervalUsec);
+            }
+            else
+            {
+                elapsedDeliveryRetryAttempts = 
+                    ((timeNowUsec - info->arrivalTimeUsec) 
+                        / _minDeliveryRetryIntervalUsec);
+            }
+
+            if (elapsedDeliveryRetryAttempts)
+            {
+                info->deliveryRetryAttemptsMade +=
+                    elapsedDeliveryRetryAttempts - 1;
+            }
 
             if (temp)
             {

@@ -51,7 +51,7 @@ SOURCES = \
     HandlerTable.cpp \
     IndicationHandlerConstants.cpp
 
-ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT), true)
     SOURCES += DestinationQueue.cpp
 endif
 

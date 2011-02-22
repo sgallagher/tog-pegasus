@@ -4134,6 +4134,12 @@ CIM server listening on HTTPS port {0}."}
         HandlerService.IndicationHandlerService.INDICATION_DELIVERY_FAILED:string {"PGS10405: Failed to deliver an indication: {0}"}
 
 
+        /**
+        * @note  PGS10406:
+        */
+        HandlerService.IndicationHandlerService.NOT_ENOUGH_THREADS:string {"PGS10406: Could not allocate thread for indication dispatcher"}
+
+
         // ==========================================================
         // Messages for snmpIndicationHandler
         //  Please use message prefix "PGS10600"
@@ -7513,6 +7519,21 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is a file path (a string)
         */
         Repository.SQLiteStore.DB_FILE_ALREADY_EXISTS:string {"PGS21402: Cannot create namespace {0}: SQLite database file ''{1}'' already exists in the repository."}
+
+
+        // ==========================================================
+        // Messages for DestinationQueue
+        //  Please use message prefix "PGS21600 - PGS21799"
+        // ==========================================================
+
+        /**
+        * @note  PGS21600:
+        *    Substitution {0} indication SequenceContext
+        *    Substitution {1} indication SequenceNumber
+        *    Substitution {2} is a string containing an Exception message
+        */
+        HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED:string {"PGS21600: Failed to deliver an indication with SequenceContext ''{0}'' and SequenceNumber ''{1}'' : {2}."}
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

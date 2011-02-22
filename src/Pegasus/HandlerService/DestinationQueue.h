@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/CIMMessage.h>
 
 #include <Pegasus/HandlerService/Linkage.h>
 #include <Pegasus/HandlerService/IndicationHandlerConstants.h>
@@ -124,7 +125,6 @@ public:
     DestinationQueue(const CIMInstance &handler);
     ~DestinationQueue();
 
-    Boolean isIdle();
     Sint64 getSequenceNumber();
 
     String getSequenceContext()
@@ -142,7 +142,8 @@ public:
         return Uint32(_minDeliveryRetryIntervalUsec / 1000000);
     }
 
-    void enqueue(IndicationInfo* message);
+    void enqueue(
+        CIMHandleIndicationRequestMessage *message);
 
     /**
         Cleanup all the indications from the DestinationQueue. This method
@@ -200,9 +201,8 @@ public:
     IndicationInfo* getNextIndicationForDelivery(
         Uint64 &timeNowUsec, Uint64 &nextIndDRIExpTimeUsec);
 
-    void updateLastSuccessfulDeliveryTime();
-
     void getInfo(QueueInfo &qinfo);
+
 private:
     void _cleanup(int reasonCode);
     CIMInstance _getInstance(const CIMName &className);

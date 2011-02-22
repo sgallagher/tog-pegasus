@@ -54,11 +54,15 @@ IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
     : Base("IndicationHandlerService"),
       _repository(repository)
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-      ,_deliveryThreadPool(0, "IndicationHandlerService", 0, 5, deallocateWait),
+      ,_destinationQueueTable(),
+      _deliveryThreadPool(0, "IndicationHandlerService", 0, 5, deallocateWait),
       _dispatcherThread(_dispatcherRoutine, this, true),
       _maxDeliveryThreads(5)
 #endif
 {
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _startDispatcher();
+#endif
 }
 
 IndicationHandlerService::~IndicationHandlerService()
@@ -337,24 +341,12 @@ IndicationHandlerService::_handleIndication(
             }
             else
             {
-                 // Set sequence-identfier if the indication profile enabled.
+                 // Set sequence-identfier and enqueue if the indication
+                 // profile is enabled.
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-                String queueName = _setSequenceIdentifier(request);
-#endif
+                _setSequenceIdentifierAndEnqueue(request);
+#else
                 handleIndicationSuccess = _loadHandler(request, cimException);
-
-            // Note: DeliveryRetry is supported only for the following handlers.
-            // PEGASUS_CLASSNAME_INDHANDLER_CIMXML
-            // PEGASUS_CLASSNAME_LSTNRDST_CIMXML
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-                if (!handleIndicationSuccess)
-                {
-                    _destinationQueueEnqueue(request);
-                }
-                else
-                {
-                    _updateSuccessfulDeliveryTime(queueName);
-                }
 #endif
             }
         }
@@ -736,22 +728,17 @@ void IndicationHandlerService::_stopDispatcher()
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_stopDispatcher");
 
-    if (!_stopDispatcherThread.get())
+    _stopDispatcherThread++;
+    _dispatcherWaitSemaphore.signal();
+
+    while (_dispatcherThreadRunning.get())
     {
-        {
-            AutoMutex mtx(_dispatcherThreadMutex);
-            _stopDispatcherThread++;
-        }
-
-        while (_dispatcherThreadRunning.get())
-        {
-            Threads::yield();
-            Threads::sleep(50);
-        }
-
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER,Tracer::LEVEL4,
-            "Dispatcher thread stopped");
+        Threads::yield();
+        Threads::sleep(50);
     }
+
+    PEG_TRACE_CSTRING(TRC_IND_HANDLER,Tracer::LEVEL4,
+        "Dispatcher thread stopped");
     PEG_METHOD_EXIT();
 }
 
@@ -777,54 +764,14 @@ void IndicationHandlerService::_deliverIndication(IndicationInfo *info)
    }
 }
 
-void IndicationHandlerService::_setSequenceIndentifierProperties(
-    CIMInstance &indication, DestinationQueue *queue)
-{
-    Uint32 idx;
-    CIMProperty prop;
-
-    if ((idx = indication.findProperty(_PROPERTY_SEQUENCECONTEXT))
-        != PEG_NOT_FOUND)
-    {
-        prop = indication.getProperty(idx);
-        prop.setValue(queue->getSequenceContext());
-        indication.removeProperty(idx);
-    }
-    else
-    {
-        prop = CIMProperty(
-            _PROPERTY_SEQUENCECONTEXT,
-            queue->getSequenceContext());
-    }
-    indication.addProperty(prop);
-
-    if ((idx = indication.findProperty(_PROPERTY_SEQUENCENUMBER))
-        != PEG_NOT_FOUND)
-    {
-        prop = indication.getProperty(idx);
-        prop.setValue(queue->getSequenceNumber());
-        indication.removeProperty(idx);
-    }
-    else
-    {
-        prop = CIMProperty(
-            _PROPERTY_SEQUENCENUMBER,
-            queue->getSequenceNumber());
-    }
-
-    indication.addProperty(prop);
-}
-
-String IndicationHandlerService::_setSequenceIdentifier(
+void IndicationHandlerService::_setSequenceIdentifierAndEnqueue(
     CIMHandleIndicationRequestMessage *message)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
-        "IndicationHandlerService::_setSequenceIdentifier");
+        "IndicationHandlerService::_setSequenceIdentifierAndEnqueue");
 
-    CIMInstance &indication = message->indicationInstance;
     CIMInstance handler = message->handlerInstance;
-    String queueName = _getQueueName(
-        message->subscriptionInstance.getPath());
+    String queueName = _getQueueName(message->subscriptionInstance.getPath());
 
     DestinationQueue *queue;
 
@@ -833,112 +780,59 @@ String IndicationHandlerService::_setSequenceIdentifier(
 
         if (_destinationQueueTable.lookup(queueName, queue))
         {
-            _setSequenceIndentifierProperties(indication, queue);
+            queue->enqueue(message);
+            _dispatcherWaitSemaphore.signal();
             PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
                 "DestinationQueue %s already exists",
                 (const char*)queueName.getCString()));
             PEG_METHOD_EXIT();
-            return queueName;
+            return;
         }
     }
 
     WriteLock lock(_destinationQueueTableLock);
     if (_destinationQueueTable.lookup(queueName, queue))
     {
-        _setSequenceIndentifierProperties(indication, queue);
+        queue->enqueue(message);
+        _dispatcherWaitSemaphore.signal();
         PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "DestinationQueue %s already exists",
-            (const char*)queueName.getCString()));
-        PEG_METHOD_EXIT();
-        return queueName;
-    }
-
-    queue = new DestinationQueue(handler);
-    Boolean ok = _destinationQueueTable.insert(queueName, queue);
-    PEGASUS_ASSERT(ok);
-    _setSequenceIndentifierProperties(indication, queue);
-    PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
-        "DestinationQueue %s created",
-        (const char*)queueName.getCString()));
-    PEG_METHOD_EXIT();
-
-    return queueName;
-}
-
-void IndicationHandlerService::_updateSuccessfulDeliveryTime(
-    const String &queueName)
-{
-    DestinationQueue *queue;
-
-    ReadLock lock(_destinationQueueTableLock);
-    if (_destinationQueueTable.lookup(queueName, queue))
-    {
-        queue->updateLastSuccessfulDeliveryTime();
-    }
-}
-
-void IndicationHandlerService::_destinationQueueEnqueue(
-    CIMHandleIndicationRequestMessage *message)
-{
-    PEG_METHOD_ENTER(TRC_IND_HANDLER,
-        "IndicationHandlerService::_destinationQueueEnqueue");
-
-    String queueName = _getQueueName(
-        message->subscriptionInstance.getPath());
-
-    DestinationQueue *queue;
-
-    ReadLock lock(_destinationQueueTableLock);
-
-    // If queue cannot be found, listener might have been deleted.
-    if (!_destinationQueueTable.lookup(queueName, queue))
-    {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
-            "DestinationQueue %s does not exist, Listener destination might "
-                "have been deleted",
             (const char*)queueName.getCString()));
         PEG_METHOD_EXIT();
         return;
     }
 
-    IndicationInfo *info = new IndicationInfo(
-        message->indicationInstance,
-        message->subscriptionInstance,
-        message->operationContext,
-        message->nameSpace.getString(),
-        queue);
+    queue = new DestinationQueue(handler);
+    Boolean ok = _destinationQueueTable.insert(queueName, queue);
+    PEGASUS_ASSERT(ok);
+    queue->enqueue(message);
+    _dispatcherWaitSemaphore.signal();
+    PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+        "DestinationQueue %s created",
+        (const char*)queueName.getCString()));
+    PEG_METHOD_EXIT();
+}
 
-    queue->enqueue(info);
 
-    // Start dispather if not already running.
-    if (!_dispatcherThreadRunning.get() && !_stopDispatcherThread.get())
+void  IndicationHandlerService::_startDispatcher()
+{
+    ThreadStatus tr;
+    while ((tr = _dispatcherThread.run()) != PEGASUS_THREAD_OK)
     {
-        AutoMutex mtx(_dispatcherThreadMutex);
-        if (!_dispatcherThreadRunning.get() && !_stopDispatcherThread.get())
+        if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
         {
-            ThreadStatus tr;
-            while ((tr = _dispatcherThread.run()) != PEGASUS_THREAD_OK)
-            {
-                if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-                {
-                    Threads::yield();
-                }
-                else
-                {
-                    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
-                        "Failed to start DispatcherThread");
-                    break;
-                }
-            }
-            if (tr == PEGASUS_THREAD_OK)
-            {
-                _dispatcherThreadRunning++;
-                PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-                    "DispatcherThread not running, started now.");
-            }
+            Threads::yield();
+        }
+        else
+        {
+            throw Exception(
+                MessageLoaderParms(
+                    "HandlerService.IndicationHandlerService."
+                        "NOT_ENOUGH_THREADS",
+                    "Could not allocate thread for indication dispatcher"));
         }
     }
-    PEG_METHOD_EXIT();
+    _dispatcherThreadRunning++;
 }
 
 String IndicationHandlerService::_getQueueName(
@@ -1003,7 +897,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL
     IndicationHandlerService *service =
         reinterpret_cast<IndicationHandlerService*>(myself->get_parm());
 
-    const Uint32 RETRY_THREAD_MIN_WAITTIME = 100; // milliseconds
     const Uint32 RETRY_THREAD_MAX_WAITTIME = // milliseconds
         DestinationQueue::getDeliveryRetryIntervalSeconds() * 1000;
 
@@ -1023,17 +916,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL
     {
         try
         {
-            if (nextMinIndDRIExpTime < RETRY_THREAD_MIN_WAITTIME)
-            {
-                nextMinIndDRIExpTime = RETRY_THREAD_MIN_WAITTIME;
-            }
-
-            Threads::sleep(nextMinIndDRIExpTime);
+            service->_dispatcherWaitSemaphore.time_wait(nextMinIndDRIExpTime);
 
             // Check if we need to terminate
             if (service->_stopDispatcherThread.get())
             {
-                AutoMutex mtx(service->_dispatcherThreadMutex);
                 service->_dispatcherThreadRunning = 0;
                 break;
             }
@@ -1041,7 +928,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL
             nextMinIndDRIExpTime = RETRY_THREAD_MAX_WAITTIME;
             timeNowUsec = System::getCurrentTimeUsec();
 
-            Boolean queueTableEmpty = true;
             Uint64 nextIndDRIExpTime;
 
             {
@@ -1069,11 +955,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                                 service->_deliveryThreadsRunningCount--;
                             }
                         }
-                        queueTableEmpty = false;
-                    }
-                    else if (!queue->isIdle())
-                    {
-                        queueTableEmpty = false;
                     }
 
                     // convert to milliseconds
@@ -1082,35 +963,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                     {
                         nextMinIndDRIExpTime = nextIndDRIExpTime;
                     }
-                }
-            }
-
-            if (queueTableEmpty)
-            {
-                // Verify again if there are indications in the table.
-                WriteLock lock(service->_destinationQueueTableLock);
-
-                DestinationQueueTable::Iterator i =
-                    service->_destinationQueueTable.start();
-                queueTableEmpty = true;
-
-                for(;i;++i)
-                {
-                    if (!i.value()->isIdle())
-                    {
-                        queueTableEmpty = false;
-                        break;
-                    }
-                }
-                if (queueTableEmpty)
-                {
-                    AutoMutex mtx(service->_dispatcherThreadMutex);
-                    PEG_TRACE_CSTRING(TRC_IND_HANDLER,Tracer::LEVEL3,
-                        "No indications in the DestinationQueueTable, Exiting "
-                            "the dispatcher thread");
-                    service->_dispatcherThreadRunning = 0;
-                    PEG_METHOD_EXIT();
-                    return 0;
                 }
             }
 

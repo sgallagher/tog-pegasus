@@ -134,19 +134,15 @@ private:
         This method is called when indication in the form of
         CIMHandleIndicationRequestMessage arrives to HandlerService  from
         IndicationService. This method sets the sequence-identfier to the
-        indication. Returns DestinationQueue name to which the indication
-        belongs.
+        indication and enqueues the indication into the destination queue.
    */
-    String _setSequenceIdentifier(
+    void _setSequenceIdentifierAndEnqueue(
         CIMHandleIndicationRequestMessage *message);
 
     /**
-        This method is called from _setSequenceIdentifier(). This method
-        actually sets the sequence-identfier properties SequenceContext
-        and SequenceNumber to the indication.
-   */
-    void _setSequenceIndentifierProperties(
-        CIMInstance &indication, DestinationQueue *queue);
+        Starts the dispatcher thread.
+    */
+    void  _startDispatcher();
 
     /**
         This method is called when indication delivery has failed.
@@ -171,8 +167,6 @@ private:
     String _getQueueName(
         const CIMObjectPath &instancePath);
 
-    void _updateSuccessfulDeliveryTime(const String &queueName);
-
     typedef HashTable<
                 String,
                 DestinationQueue*,
@@ -184,12 +178,12 @@ private:
 
     AtomicInt _deliveryThreadsRunningCount;
     AtomicInt _dispatcherThreadRunning;
-    Mutex _dispatcherThreadMutex;
     List<IndicationInfo, Mutex> _deliveryQueue;
     ThreadPool _deliveryThreadPool;
     Thread _dispatcherThread;
     AtomicInt _stopDispatcherThread;
     const Uint32 _maxDeliveryThreads;
+    Semaphore _dispatcherWaitSemaphore;
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _dispatcherRoutine(void *param);
     static ThreadReturnType PEGASUS_THREAD_CDECL _deliveryRoutine(void *param);

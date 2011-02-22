@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicLibrary.h"
+#include <Pegasus/Common/MessageLoader.h>
 
 #include <dlfcn.h>
 
@@ -47,6 +48,10 @@ Boolean DynamicLibrary::_load()
 #if defined(PEGASUS_ZOS_SECURITY)
     if (!hasProgramControl(cstr))
     {
+        MessageLoaderParms parms(
+            "General.DynamicLibrary.MISSING_PROGRAM_CONTROL_REASON.ZOS",
+            "Missing program control flag.");
+        _loadErrorMessage = MessageLoader::getMessage(parms);
         return false;
     }
 #endif

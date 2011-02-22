@@ -657,6 +657,15 @@ en:table {
         */
         Common.AsyncRequestExecutor.ASYNCREQUEST_THREAD_ALLOCATION_FAILED:string {"PGS00700: Failed to allocate a thread for processing a request"}
 
+        // ==========================================================
+        // Messages for General DynamicLibrary
+        //  Please use message prefix "PGS00750" for DynamicLibary
+        // ==========================================================
+        /**
+        * @note  This message is a translateable reason message with no message id.
+        */
+        General.DynamicLibrary.MISSING_PROGRAM_CONTROL_REASON.ZOS:string {"Missing program control flag."}
+
 
         // ==========================================================
         // Messages for Repository InheritanceTree

@@ -68,16 +68,9 @@ public:
        Decode a serialized CIMOperationRequestMessage received in a Buffer.
     */
     static CIMOperationRequestMessage* decodeRequest(
-        const Buffer& in,
+        CIMBuffer& in,
         Uint32 queueId,
         Uint32 returnQueueId);
-
-    /**
-       Decode an input Buffer containing a serialized message stream into 
-       a single CIMResponseMessage. 
-    */
-    static CIMResponseMessage* decodeResponse(
-        const Buffer& in);
 
     /**
        Decode an input CIMBuffer containing a serialized message stream 

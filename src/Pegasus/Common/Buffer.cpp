@@ -186,6 +186,23 @@ void Buffer::insert(Uint32 pos, const char* data, Uint32 size)
     }
 }
 
+void Buffer::insertWithOverlay(
+    Uint32 pos,
+    const char* data,
+    Uint32 size,
+    Uint32 overlay)
+{
+    if (pos > _rep->size)
+        return;
+
+    Uint32 rem = _rep->size - pos;
+
+    memmove(_rep->data + pos + size - overlay, _rep->data + pos, rem);
+    memcpy(_rep->data + pos, data, size);
+
+    _rep->size += (size-overlay);
+}
+
 void Buffer::remove(Uint32 pos, Uint32 size)
 {
     if (pos + size > _rep->size)

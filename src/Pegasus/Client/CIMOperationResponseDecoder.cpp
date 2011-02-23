@@ -407,9 +407,22 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Calculate the beginning of the content from the message size and
     // the content length.
+    if (binaryResponse)
+    {
+        // binary the "Content" also contains a few padding '\0' to align
+        // data structures to 8byte boundary
+        // the padding '\0' are also part of the counted contentLength
+        Uint32 headerEnd = httpMessage->message.size() - contentLength;
+        Uint32 binContentStart = CIMBuffer::round(headerEnd);
 
-    content = httpMessage->message.getData() +
-        httpMessage->message.size() - contentLength;
+        contentLength = contentLength - (binContentStart - headerEnd);
+        content = httpMessage->message.getData() + binContentStart;
+    }
+    else
+    {
+        content = httpMessage->message.getData() +
+            httpMessage->message.size() - contentLength;
+    }
 
     //
     // If it is a method response, then dispatch it to be handled:

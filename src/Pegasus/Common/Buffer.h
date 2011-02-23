@@ -108,6 +108,18 @@ public:
 
     void insert(Uint32 pos, const char* data, Uint32 size);
 
+    /* inserts size bytes of data at position pos, but overwrites overlay
+       bytes of the original Buffer data.
+       This function is used in HTTPConnection.
+       ATTENTION: Function does NOT check if enough capacity is available in
+                 the Buffer and expects the caller to take care of that upfront.
+    */
+    void insertWithOverlay(
+        Uint32 pos,
+        const char* data,
+        Uint32 size,
+        Uint32 overlay);
+
     void remove(Uint32 pos, Uint32 size);
 
     void remove(Uint32 pos);

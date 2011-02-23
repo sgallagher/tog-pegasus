@@ -648,7 +648,139 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                 String reasonPhrase;
                 Boolean isValid = httpMessage.parseStatusLine(
                     startLine, httpVersion, httpStatusCode, reasonPhrase);
+
                 Uint32 headerLength = messageLength - contentLength;
+                if (!isChunkRequest)
+                {
+                    if (contentLanguages.size() != 0)
+                    {
+                        // we must insert the content-language into the
+                        // header
+                        Buffer contentLanguagesString;
+
+                        // this is the keyword:value(s) + header line
+                        // terminator
+                        contentLanguagesString <<
+                            headerNameContentLanguage <<
+                            headerNameTerminator <<
+                            LanguageParser::buildContentLanguageHeader(
+                                contentLanguages).getCString() <<
+                            headerLineTerminator;
+
+                        Uint32 insertOffset =
+                            headerLength - headerLineTerminatorLength;
+                        messageLength =
+                            contentLanguagesString.size() + buffer.size();
+
+                        // Adding 8 bytes to capacity, since in the 
+                        // binary case we might add up to 7 null bytes
+                        buffer.reserveCapacity(messageLength+8);
+                        messageLength = contentLanguagesString.size();
+                        messageStart=(char *)contentLanguagesString.getData();
+
+                        // insert the content language line before end
+                        // of header
+                        // note: this can be expensive on large payloads
+
+                        if (!httpMessage.binaryResponse)
+                        {
+                            buffer.insert(
+                                insertOffset, messageStart, messageLength);
+                        }
+                        else
+                        {
+                            // Need to fixup the binary alignment 0 bytes
+                            // delete bytes if new is smaller than old
+                            // add bytes if old is smaller than new
+                            // if new and old amount equal -> do nothing
+                            Uint32 extraNullBytes =
+                                ((headerLength + 7) & ~7) - headerLength;
+                            Uint32 newHeaderSize = 
+                                headerLength+contentLanguagesString.size();
+                            Uint32 newExtraNullBytes =
+                                ((newHeaderSize + 7) & ~7) - newHeaderSize;
+
+                            if (extraNullBytes > newExtraNullBytes)
+                            {
+                                buffer.insertWithOverlay(
+                                    insertOffset,
+                                    messageStart,
+                                    messageLength,
+                                    extraNullBytes-newExtraNullBytes);
+
+                                contentLength -= 
+                                    (extraNullBytes-newExtraNullBytes);
+                            }
+                            else
+                            {
+                                Uint32 reqNullBytes = 
+                                    newExtraNullBytes - extraNullBytes;
+                                // Cleverly attach the extra bytes upfront
+                                // to the contentLanguagesString
+                                for (Uint32 i = 0; i < reqNullBytes; i++)
+                                {
+                                    contentLanguagesString.append('\0');
+                                }
+                                messageLength+=reqNullBytes;
+                                buffer.insert(
+                                    insertOffset,
+                                    messageStart,
+                                    messageLength);
+
+                                contentLength+=reqNullBytes;
+                            }
+                        }
+                        // null terminate
+                        messageLength = buffer.size();
+                        messageStart = (char *) buffer.getData();
+                        messageStart[messageLength] = 0;
+                        bytesRemaining = messageLength;
+                    } // if there were any content languages
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+                    // The following is processing to wrap (encrypt) the
+                    // response from the server when using kerberos
+                    // authentications.
+                    // If the security association does not exist then
+                    // kerberos authentication is not being used.
+                    CIMKerberosSecurityAssociation *sa =
+                        _authInfo->getSecurityAssociation();
+
+                    if (sa)
+                    {
+                        // The message needs to be parsed in order to
+                        // distinguish between the headers and content.
+                        // When parsing, the code breaks out of the loop
+                        // as soon as it finds the double separator that
+                        // terminates the headers so the headers and
+                        // content can be easily separated.
+
+                        Boolean authrecExists = false;
+                        const char* authorization;
+                        if (HTTPMessage::lookupHeader(
+                                headers, "WWW-Authenticate",
+                                authorization, false))
+                        {
+                            authrecExists = true;
+                        }
+
+                        // The following is processing to wrap (encrypt)
+                        // the response from the server when using
+                        // kerberos authentications.
+                        sa->wrapResponseMessage(
+                            buffer, contentLength, authrecExists);
+                        messageLength = buffer.size();
+
+                        // null terminate
+                        messageStart = (char *) buffer.getData();
+                        messageStart[messageLength] = 0;
+                        bytesRemaining = messageLength;
+                    }  // endif kerberos security assoc exists
+#endif
+                } // if chunk request is false
+
+                headerLength = messageLength - contentLength;
+
                 char save = messageStart[headerLength];
                 messageStart[headerLength] = 0;
 
@@ -769,88 +901,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 
                 } // if content length was found
 
-                if (isChunkRequest == false)
-                {
-                    if (isLast == true)
-                    {
-                        if (contentLanguages.size() != 0)
-                        {
-                            // we must insert the content-language into the
-                            // header
-                            Buffer contentLanguagesString;
-
-                            // this is the keyword:value(s) + header line
-                            // terminator
-                            contentLanguagesString <<
-                                headerNameContentLanguage <<
-                                headerNameTerminator <<
-                                LanguageParser::buildContentLanguageHeader(
-                                    contentLanguages).getCString() <<
-                                headerLineTerminator;
-
-                            Uint32 insertOffset =
-                                headerLength - headerLineTerminatorLength;
-                            messageLength =
-                                contentLanguagesString.size() + buffer.size();
-                            buffer.reserveCapacity(messageLength+1);
-                            messageLength = contentLanguagesString.size();
-                            messageStart =
-                                (char *)contentLanguagesString.getData();
-                            // insert the content language line before end
-                            // of header
-                            // note: this can be expensive on large payloads
-                            buffer.insert(
-                                insertOffset, messageStart, messageLength);
-                            messageLength = buffer.size();
-                            // null terminate
-                            messageStart = (char *) buffer.getData();
-                            messageStart[messageLength] = 0;
-                            bytesRemaining = messageLength;
-                        } // if there were any content languages
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                        // The following is processing to wrap (encrypt) the
-                        // response from the server when using kerberos
-                        // authentications.
-                        // If the security association does not exist then
-                        // kerberos authentication is not being used.
-                        CIMKerberosSecurityAssociation *sa =
-                            _authInfo->getSecurityAssociation();
-
-                        if (sa)
-                        {
-                            // The message needs to be parsed in order to
-                            // distinguish between the headers and content.
-                            // When parsing, the code breaks out of the loop
-                            // as soon as it finds the double separator that
-                            // terminates the headers so the headers and
-                            // content can be easily separated.
-
-                            Boolean authrecExists = false;
-                            const char* authorization;
-                            if (HTTPMessage::lookupHeader(
-                                    headers, "WWW-Authenticate",
-                                    authorization, false))
-                            {
-                                authrecExists = true;
-                            }
-
-                            // The following is processing to wrap (encrypt)
-                            // the response from the server when using
-                            // kerberos authentications.
-                            sa->wrapResponseMessage(
-                                buffer, contentLength, authrecExists);
-                            messageLength = buffer.size();
-
-                            // null terminate
-                            messageStart = (char *) buffer.getData();
-                            messageStart[messageLength] = 0;
-                            bytesRemaining = messageLength;
-                        }  // endif kerberos security assoc exists
-#endif
-                    } // if this is the last chunk
-                    else bytesRemaining = 0;
-                } // if chunk request is false
             } // if this is the first chunk containing the header
             else
             {
@@ -902,6 +952,7 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                 _mpostPrefix << headerNameCode <<    headerValueSeparator <<
                 _mpostPrefix << headerNameDescription << headerValueSeparator <<
                 headerNameContentLanguage << headerLineTerminator;
+
             sendStart = trailer.getData();
             bytesToWrite = trailer.size();
 

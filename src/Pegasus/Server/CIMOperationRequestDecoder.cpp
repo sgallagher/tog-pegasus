@@ -426,12 +426,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         }
     }
 
-    // Calculate the beginning of the content from the message size and
-    // the content length.
-
-    content = (char*) httpMessage->message.getData() +
-        httpMessage->message.size() - contentLength;
-
     // Validate the "Content-Type" header:
 
     const char* cimContentType;
@@ -462,10 +456,29 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         PEG_METHOD_EXIT();
         return;
     }
+    // Calculate the beginning of the content from the message size and
+    // the content length.
+    if (binaryRequest)
+    {
+        // binary the "Content" also contains a few padding '\0' to align
+        // data structures to 8byte boundary
+        // the padding '\0' are also part of the counted contentLength
+        Uint32 headerEnd = httpMessage->message.size() - contentLength;
+        Uint32 binContentStart = CIMBuffer::round(headerEnd);
+
+        contentLength = contentLength - (binContentStart - headerEnd);
+        content = (char*) httpMessage->message.getData() + binContentStart;
+    }
+    else
+    {
+        content = (char*) httpMessage->message.getData() +
+            httpMessage->message.size() - contentLength;
+    }
+
     // Validating content falls within UTF8
     // (required to be complaint with section C12 of Unicode 4.0 spec,
     // chapter 3.)
-    else if (!binaryRequest)
+    if (!binaryRequest)
     {
         Uint32 count = 0;
         while(count<contentLength)
@@ -577,7 +590,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
     if (binaryRequest)
     {
-        Buffer buf(content, contentLength);
+        CIMBuffer buf(content, contentLength);
+        CIMBufferReleaser buf_(buf);
 
         request.reset(BinaryCodec::decodeRequest(buf, queueId, _returnQueueId));
 

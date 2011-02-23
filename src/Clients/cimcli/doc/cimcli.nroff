@@ -535,12 +535,18 @@ issues the CIM operation modifyInstance with an instance built from
 the parameters provided.  It requires the [OperationTarget] parameter defining
 the class for which the instance is to be created and a set of
 value parameters that define properties to be provided in the created
-instance in the format defined for CreateInstance above.
+instance in the format defined for CreateInstance above. The modified
+instance may also be build from a combination of the CIMObjectPath for
+the instance to be modified and value parameters for other properties.
     
 In the same manner as the createInstance, this command first acquires
 the class definition for the server and uses the property type
 information from the class to properly crate the property value types
 from the input property values.
+
+This operation also allows the specific interactive mode where the
+classname and properties to be modified (minus key properties) are supplied
+and cimcli presents a selection of instance names that can be modified.
 
 For a detailed definition of the name/value input see the createInstance
 description.
@@ -549,9 +555,17 @@ In addition to the property definitions, this command allows the
 property list options (-pl) that defines a property list to be
 supplied to the target server with the modifyInstance CIM Operation.
 
+NOTE: For existing versions of Pegasus (though 2.10) the -pl option may be
+required to allow the server to correctly modify the instance since without
+this option the pegasus server may remove properties that are not in the
+modified instance.
+
 .B Example:
 .nf
     cimcli mi CIM_xxxx name=abc size=zyx
+    or
+    cimcli mi 'CIM_xxx.name="abc"' size=zyx
+
     cimcli mi CIM_xxxx name=abc arrayParam= \\
           {abc,def,ghi,"jkl mno" \
           numericArray=1,2,3,4

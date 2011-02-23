@@ -271,7 +271,7 @@ OperationExampleEntry OperationExamples[] = {
     "    -- Modifies the Instance if it exists using rules of DMTF \n"
     "       modifyInstance operation.\n",
     "Clients.cimcli.CIMCLIClient.MI_COMMAND_OPTIONS",
-    "-n -pl (define properties to be modified)\n "},
+    "-n -pl(define properties to be modified) -i (interactive)\n "},
 
     {"Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE",
     "cimcli dc -n test/TestProvider TST_Person\n"

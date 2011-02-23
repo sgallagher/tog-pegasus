@@ -138,7 +138,10 @@ uses the input path directly without getting the class from the server.
 <DT><B>[options...] </B>
 
 <DD>
-Options are identified on the command line with the - or -- notation.
+Options are identified on the command line with the - or -- notation. They
+are identified in a cimcli config file with the form &lt;name&gt;=value where name
+is a long name for the option.  Each cimcli option has both a short name
+for command line use and a long name for configuration file use.
 There are several types of options:
 <P>
 <DT><B>1.</B>
@@ -173,7 +176,8 @@ options are requested, no operation is executed.
 <DT><B>[value-parameters]</B>
 
 <DD>
-Some of the operations allow or require extra parameters. these are
+Some of the operations allow or require extra parameters, for example
+to supply property value definitions for create and modify instance. These are
 typically keywords or keyword/value pairs and are defined as part of
 the particular operation that use them.
 <P>
@@ -205,7 +209,7 @@ the parameter.
 There is a set of options which are general to all of the CIM
 Operations and most of the compound operations and which provide
 parameters for the initiation or execution of the operations (ie. identify
-the target server and set connection security parameters.. 
+the target server and set connection security parameters.
 These include:
 <DL COMPACT>
 <DT><B>-n [namespace]</B>
@@ -247,7 +251,7 @@ this option is set but neither the --cert or --key options are included,
 the SSLContext for the connect call is submitted with the Cert and key 
 marked NULL.  
 <P>
-NOTE: Since SSL is considerd a compilable option with cimcli, these
+NOTE: Since SSL is a compile cimcli compile option, the following
 options may not even exist in a Pegasus environment that was compiled
 with the SSL capabilities disabled.
 <P>
@@ -282,13 +286,13 @@ command completion. If this option is set, the time for the operation
 is recorded upon completion of the operation.  In addition, the client
 infrastructure is queried to determine if the operation execution
 times optionally measured in the infrastructure and at the server are
-available. If they are, they are displayed also.  This would allow the
+available. If so, they are displayed also.  This would allow the
 user to see a) time spent in the server, b) round trip time for the
 operation, c) application round trip time for the operation. Note that
 when combined with the repeat option, the output includes maximum,
 minimum, and average times for the operation.  There are a specific
 operations in cimcli to turn control statistics generation (See son
-and soff operations)
+and soff operations) at least for the Pegasus cimserver.
 <P>
 <DT><B>--sort</B>
 
@@ -307,7 +311,8 @@ Repeat the operation repeat_count times. This repeats the operation
 without disconnecting. This option is useful for setting up tests that
 load the server with repeated calls and also for getting average times
 for an operation by taking the average of a number of calls ( when
-used with the summary information option and the measure time option). 
+used with the summary information option and the measure time option).
+<P>
 <DT><B>-delay [seconds]</B>
 
 <DD>
@@ -339,10 +344,12 @@ is output to cerr.
 <PRE>
    cimcli en CIM_ManagedElement -count 100
 
-       If the count of instances returned is not equal to 100, cimcli exits
-       with error code 60 and the Failed count test ... error message.
+       If the count of instances returned is not equal to 100,
+       cimcli exits with error code 60 and the Failed count test 
+       error message.
 </PRE>
 
+<P>
 <DT><B>--timeout [seconds]</B>
 
 <DD>
@@ -491,30 +498,76 @@ name and value parameters provided with the input.  The command issues the
 CIM operation createInstance with an instance built from the parameters 
 provided.  It requires the [OperationTarget] parameter defining the class 
 for which the instance is to be created and also allows for an optional 
-set of value parameters that define properties to be provided in the 
-created instance in the following format: 
+set of name=value parameters that define properties to be provided in the 
+created instance in the following format:
+<P>
 <PRE>
   [propertyName]=value
      where value may be either a scalar for scalar properties
      or an array for array properties.
-
-  The detailed form for the input is defined in section TBD.   
+  or
+  [propertyName]!
+  or
+  [propertyName]=
+  or
+  [propertyName]
 </PRE>
 
-If the propertyName parameter is provided with no value, the default value or
-NULL if there is no default value is inserted.
 <P>
-Note that string property values are a special case because there are actually
-two concepts that must be covered when there is no value, 1) Empty String or
-2. NULL/default value.
+The detailed form for value input is defined as follows:
 <P>
-Thus when a property that requires an empty string is to be input, the user
-will specify it with no value after the = sign.  If, a NULL or default value
-is desired, the = sign terminator is replaced with the ! (exclamation mark).
+<B>1.</B>
+
+Scalar property values - The string form of the property similar
+to MOF input of constant values is used to input scalar values.
+The scalarvalue input includes all CIM Types. Numeric values may
+be input in hex, octal, decimal or binary in the same form as
+the DMTF specification for MOF. Quotations are not required surrounding
+values unless the value includes spaces.  Quote marks can be embedded
+by escaping them.
 <P>
-The operation first accesses the CIMServer for the class definition and 
-uses this information to build the proper value types and values for the 
-instance.  
+<B>2.</B>
+
+Array property values - Array property values are defined by defining a string
+that is comma-separated scalarvalue entities.
+of the form :
+<P>
+<PRE>
+        {scalarvalue1[,scalarvalue.n]*}
+</PRE>
+
+<P>
+The array MUST NOT include any spaces between the scalarvalue
+entities.  It must appear to cimcli as a single input parameter. 
+In addition, array value can be input by repeating the complete parameter
+so that values input will be appended to an already created array.
+<P>
+<B>3.</B>
+
+If the propertyName parameter is provided with no value, the
+default value or NULL if there is no default value is inserted.
+<P>
+<B>4.</B>
+
+String property values are special because there are actually
+two concepts that must be covered when there is no value, 
+1) Empty String or
+2. NULL/default value. These are different for CIM Strings.
+<P>
+When a property that requires an empty string is to be input,
+the user will specify it with no value after the = sign.
+If, a NULL or default value is desired, the = sign terminator
+is replaced with the ! (exclamation mark).
+<P>
+<B>5</B>
+
+The value defined in the name/value pair must be decodable into the
+CIMType of the CIMClass for which the instance is being created.
+<P>
+The execution of this operation first accesses the CIMServer for the class 
+definition and uses this information to build the proper value types and 
+values for the instance. This means that values that cannot be decoded with
+values to match the CIM Type in the class will be rejected. 
 <P>
 This command builds the instance with all of the properties for which
 name/value pairs representing the properties of the class are input.
@@ -523,47 +576,42 @@ It does not include any properties that are not defined on the command line.
 To create an instance with less than the full set of properties,
 supply only those properties that are to be submitted to the CIM Server.
 <P>
-Scalar property values - The String form of the property similar to MOF input
-of constant values is used to input scalar values.
-<P>
-Array property values - Array properties are defined by defining a value
-of the form:
-<P>
-<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>{ scalarvalue1[,scalarvaluex]*}<BR>
-<P>
-Note that the array MUST NOT include any spaces between the scalarvalue
-entities.
-<P>
-[FUTURE]The capability exists to create &quot;incorrect&quot; properties as an
-additional test capability. Generally this means properties with an
-incorrect type or with names that are not part of the class for which
-the instance is being built.  
-<P>
-[FUTURE]If a property value definition is supplied with the form
-<P>
-<BR>&nbsp;&quot;(&quot;PropertyType&quot;)&quot;[propertyName]=value
-<P>
-where property type is one of the CIM property types (i.e. boolean,
-String, Uint8, etc.) the property will be recreated or added to the
-instance with that type and name.  Thus, a property can be added with
-an incorrect name or with an incorrect type overriding the definition
-in the class.
-<P>
-The command will be rejected if the class does not exist in the namespace.
+The command will be rejected if the class does not exist in the namespace or
+if the input includes property names that are not in the class.
 <P>
 <B>Examples:</B>
 
 <PRE>
-    cimcli ci CIM_xxxx name=abc size=zyx
-    cimcli ci CIM_xxxx name=abc anotherproperty=32
-        create an instance of CIM_xxxx with name property value = abc, 
-        a property added named another property with type uint32 and
-        value of 32.
-    cimcli ci CIM_xxxx name=abc arrayParam={abc,def,ghi,&quot;jkl mno&quot;        numericArray=1,2,3,4
+    cimcli ci CIM_xxxx ID=abc size=32 age=O12
+        Creates an instance of CIM_xxxx with 
+           property ID value = abc, 
+           property size with value 32
+           property age with value octal 012
+
+    cimcli ci CIM_xxxx ID=grrrr \
+           arrayParam={abc,def,ghi,&quot;jkl mno&quot; \
+           numArray=1,2,3,4
+        Creates an instance of CIM_xxxx with
+           property ID with value = grrr
+           property arrayParam (a String array property)
+               with the values
+                    abc
+                    def
+                    ghi
+                    jkl mno
+           property numArray (Uint32 array) with
+               the values  1, 2, 3, 4
+               
+     cimcli ci CIM_xxxx ID=blah
+          numArray=1,2,3 numArray=4,5
+        Creates an instance with the ID property and
+        the numArray property having the  values
+            1,2,3,4,5
 </PRE>
 
 Returns the object path of the created instance if the call to the CIM
-server was executed successfully.  Otherwise it returns the exception received.
+server was executed successfully.  Otherwise it returns the exception received
+from the server.
 <P>
 <DT><B>mi    ModifyInstance</B>
 
@@ -575,24 +623,43 @@ issues the CIM operation modifyInstance with an instance built from
 the parameters provided.  It requires the [OperationTarget] parameter defining
 the class for which the instance is to be created and a set of
 value parameters that define properties to be provided in the created
-instance in the format defined for CreateInstance above.
+instance in the format defined for CreateInstance above. The modified
+instance may also be build from a combination of the CIMObjectPath for
+the instance to be modified and value parameters for other properties.
 <BR>&nbsp;&nbsp;&nbsp;&nbsp;
 In the same manner as the createInstance, this command first acquires
 the class definition for the server and uses the property type
 information from the class to properly crate the property value types
 from the input property values.
 <P>
+This operation also allows the specific interactive mode where the
+classname and properties to be modified (minus key properties) are supplied
+and cimcli presents a selection of instance names that can be modified.
+<P>
+For a detailed definition of the name/value input see the createInstance
+description.
+<P>
 In addition to the property definitions, this command allows the
 property list options (-pl) that defines a property list to be
 supplied to the target server with the modifyInstance CIM Operation.
+<P>
+NOTE: For existing versions of Pegasus (though 2.10) the -pl option may be
+required to allow the server to correctly modify the instance since without
+this option the pegasus server may remove properties that are not in the
+modified instance.
 <P>
 <B>Example:</B>
 
 <PRE>
     cimcli mi CIM_xxxx name=abc size=zyx
-    cimcli mi CIM_xxxx name=abc arrayParam={abc,def,ghi,&quot;jkl mno&quot;           numericArray=1,2,3,4
+    or
+    cimcli mi 'CIM_xxx.name=&quot;abc&quot;' size=zyx
+
+    cimcli mi CIM_xxxx name=abc arrayParam= \
+          {abc,def,ghi,&quot;jkl mno&quot;           numericArray=1,2,3,4
 </PRE>
 
+<P>
 <DT><B>ec    EnumerateClasses</B>
 
 <DD>
@@ -683,15 +750,15 @@ names returned.
 <B>Examples:</B>
 
 <PRE>
-    cimcli ni CIM_ManagedElement -p password -n name -n root/PG_Interop --sort
+    cimcli ni CIM_ManagedElement -p password -n name        -n root/PG_Interop --sort
 
-        Execute the enumerateInstanceNames operation on CIM_ManagedElement
-        class in the root/PG_Interop namespace. Sort the returned list
-        of instance paths.
+        Execute the enumerateInstanceNames operation on
+        CIM_ManagedElement class in the root/PG_Interop namespace.
+        Sort the returned list of instance paths.
 
     cimcli ni CIM_Door --sum
-        Execute the enumerateInstanceNames operation on the class CIM_Door
-        and return the count of instance paths returned.
+        Execute the enumerateInstanceNames operation on the class
+        CIM_Door and return the count of instance paths returned.
 </PRE>
 
 <DT><B>ei    EnumerateInstances</B>
@@ -742,11 +809,12 @@ output options parameter.
 
 <PRE>
     cimcli ei CIM_ComputerSystem -niq -di
-        This example enumerates CIM_ComputerSystem in the namespace
-        root/CIMV2 (default) requesting without qualifiers (-niq) with
-        deepInheritance (-di).  
+        This example enumerates CIM_ComputerSystem in the
+        namespace root/CIMV2 (default) requesting without
+        qualifiers (-niq) with deepInheritance (-di).  
 </PRE>
 
+<P>
 <DT><B>niall enumerateallinstanceNames</B>
 
 <DD>
@@ -769,10 +837,13 @@ location, etc.)
 <PRE>
     cimcli niall -n test/testproviders
 
-        Returns all instancenames in the namespace test/testproviders by
-        executing enumerateinstancenames on each class in the namespace.
+        Returns all instancenames in the namespace
+        test/testproviders by executing
+        enumerateinstancenames on each class in
+        the namespace.
 </PRE>
 
+<P>
 <DT><B>gi    GetInstance</B>
 
 <DD>
@@ -827,10 +898,12 @@ optional property list for the operation
 <PRE>
     cimcli gi cim_ManagedElement
 
-        This is an interactive request that returns a list of CIMObjectPaths
-        from an enumerateInstance of CIM_ManagedElement from which the
-        user can select one path which cimcli will uses as the [objectname]
-        to execute a getInstance operation returning the instance.
+        This is an interactive request that returns a list of
+            CIMObjectPaths from an enumerateInstance of
+            CIM_ManagedElement from which the user can select
+            one path which cimcli will uses as the [objectname]
+            to execute a getInstance operation returning the
+            instance.
 </PRE>
 
 <P>
@@ -859,14 +932,14 @@ was successfully deleted or an exception return if there were any errors.
 <PRE>
     cimcli di President.&quot;name=fred&quot; -n test/testnamespace
 
-        Attempt to delete the instance of President with the key property
-        name - fred from the test/testnamespace namespace.
+        Attempt to delete the instance of President with the key
+        property name(fred) from the test/testnamespace namespace.
 
     cimcli di President  -n test/testnamespace
 
-        cimcli requests instance paths for the President class in the
-        test/testnamespace and puts the complete list on the console for
-        the user to select one instance to delete.
+        cimcli requests instance paths for the President class in
+        the test/testnamespace and puts the complete list on the
+        console for the user to select one instance to delete.
 </PRE>
 
 <P>
@@ -1048,12 +1121,15 @@ selection. Thus, the user can execute interactive reference, etc. operations
 
 <PRE>
      cimcli a CIM_ManagedElement
-          would return classs that associate with CIM_ManagedElement
+          would return classs that associate with
+          CIM_ManagedElement
 
      cimcli a CIM_ManagedElement -i
-          executes an enumerateInstanceNames on CIM_ManagedElement and
-          presents the user with a list of instances names so that the user can
-          pick an instance name that will be used for the associator request.
+          executes an enumerateInstanceNames on
+          CIM_ManagedElement and presents the user with
+          a list of instances names so that the user can
+          pick an instance name that will be used for
+          the associator request.
 </PRE>
 
 <DT><B>rn    referencenames</B>
@@ -1108,8 +1184,12 @@ Parameters are input in the form:
         parameterName=&lt;value&gt;
 
         &lt;value&gt; defines may be any of the value forms defined for
-        CIM value including string, integer, etc.  NOTE: Earlier versions
-        of cimcli allowed only String values.
+        CIM value including string, integer, etc.  See the
+        createInstance description for detailed information on
+        the syntax of the value component.
+        NOTE: Earlier versions
+        of cimcli allowed only String values and used the -ip
+        option. This option has been removed.
 </PRE>
 
 The completed operations displays the return code from the command and
@@ -1119,15 +1199,40 @@ any returned parameters that are qualified as OUT parameters.
 
 <PRE>
         cimcli PG_WBEMSLPTemplate register -n root/PG_Interop
+            Calls PG_WBEMSLPTemplate class with the method named
+            register
 
         cimcli PG_XXX dosomething input1=true input2=1111
-        --- input1 is boolean parameter and input2 is Uint32 parameter
+            Calls PG_XXX class method dosomething with two
+            parameters:
+            input1 is boolean parameter with value true
+            input2 is Uint32 parameter with value 1111
 </PRE>
 
-<DT><B>eq    executeQuery</B>
+<P>
+<DT><B>xq    execQuery</B>
 
 <DD>
-<BR>&nbsp;The&nbsp;executeQuery&nbsp;operation&nbsp;is&nbsp;not&nbsp;supported&nbsp;in&nbsp;the&nbsp;current&nbsp;version&nbsp;of&nbsp;cimcli.
+The execQuery operation directly executes the CIM Operation execQuery
+with the input parameter supplied either by direct parameter input
+or the options for filter and querylanguage. The syntax of the operation is
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cimcli&nbsp;&lt;query_filter&gt;&nbsp;&lt;query_language&gt;&nbsp;&lt;options&gt;
+<P>
+the query_filter and the query_language may be supplied directly on the
+command line as parameter or vi options (-f for the query filter and
+-ql for query language.
+<P>
+The execQuery cim Operation is executed directly with the input parameters
+or options.  If neither a query_filter parameter or option are supplied
+cimcli returns an error.
+<P>
+<B>Examples</B>
+
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>cimcli xq &quot;Select * from CIM_Something&quot; CQL<BR>
+<P>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>cimcli xq &quot;Select * from CIM_blah&quot;<BR>
+<TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>     uses WQL as default query language<BR>
 <P>
 <DT><B>son</B>
 
@@ -1229,6 +1334,31 @@ option is set. This is optional and used only  with the -s and --key
 options. The parameter certificateFilePath is required with the parameter
 and defined the file containing the certificate.
 <P>
+<DT><B>--count [object_count]</B>
+
+<DD>
+Defines an expected count of objects to be returned in the response.
+cimcli is terminated with an error exit if the number of objects returned does
+not match the object_count supplied with the option. 
+This test can be used in batch files to test for number of 
+objects returned by an operation.  In addition to the error status code, a 
+message 
+of the general form:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Failed&nbsp;count&nbsp;test.&nbsp;Expected=&nbsp;xx.&nbsp;Received=&nbsp;yy&quot;
+is output to cerr.
+<P>
+<B>Example:</B>
+
+<BR>&nbsp;
+<PRE>
+   cimcli en CIM_ManagedElement -count 100
+
+       If the count of instances returned is not equal to 100,
+       cimcli exits with error code 60 and the Failed count test 
+       error message.
+</PRE>
+
+<P>
 <DT><B>-delay [time in seconds]</B>
 
 <DD>
@@ -1275,14 +1405,6 @@ operations that were felt to be useful in testing CIM environments.
 
 <DD>
 Boolean to set include class origin operation parameter to true.
-<P>
-<P>
-<DT><B>-ip [inputParameterList]</B>
-
-<DD>
-Defines an invokeMethod input parameter list. Format is:
-<P>
-p1=v1,p2=v2,..,pn=vn (without spaces) . Default()
 <P>
 <DT><B>-f [filter]</B>
 
@@ -1438,7 +1560,8 @@ default Pegasus client timeout which for Pegasus is normally to about
 
 <DD>
 Set Pegasus Common Components Trace.  Sets the Trace level.  0 is off.  
-Default(0).  The trace level can be set to 0 - 4.
+Default(0).  The trace level can be set to 0 - 5. Note that since mose
+trace definitions have been removed from cimcli, this is of little value.
 <P>
 <DT><B>--v</B>
 
@@ -1635,6 +1758,6 @@ Karl Schopmeyer <A HREF="mailto:k.schopmeyer@opengroup.org">k.schopmeyer@opengro
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 14:15:33 GMT, January 25, 2010
+Time: 22:19:57 GMT, February 23, 2011
 </BODY>
 </HTML>

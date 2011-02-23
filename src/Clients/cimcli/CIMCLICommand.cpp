@@ -708,12 +708,12 @@ int main(int argc, char** argv)
 
                     // The current CLI operation
                     //  cimcli gp Test_CLITestProviderClass.Id=\"Mike\"  Name
-                    // could be input as 
+                    // could be input as
                     //  cimcli gp Test_CLITestProviderClass Id="Mike"  Name
                     //So we assume the last paramter is for propertyName
                     opts.propertyName = argv[argc-1];
                     opts.valueParams.remove(opts.valueParams.size()-1);
-                    
+
                     opts.termCondition = getProperty(opts);
                     break;
 
@@ -732,10 +732,10 @@ int main(int argc, char** argv)
                     }
                     else
                     // The current CLI operation
-                    //  cimcli sp 
-                    //    Test_CLITestProviderClass.Id=\"PropertyOpTest\"  
+                    //  cimcli sp
+                    //    Test_CLITestProviderClass.Id=\"PropertyOpTest\"
                     //    scalSint8=-99
-                    // could be input as 
+                    // could be input as
                     //  cimcli sp Test_CLITestProviderClass Id="PropertyOpTest"
                     //    scalSint8=-99
                     //So we assume the last paramter is for propertyName=value
@@ -750,13 +750,13 @@ int main(int argc, char** argv)
                                << endl;
                             exit(CIMCLI_INPUT_ERR);
                         }
-                        
+
                         opts.propertyName = property.subString(0,pos);
-                        opts.newValue = 
-                            property.subString(opts.propertyName.size() + 1, 
+                        opts.newValue =
+                            property.subString(opts.propertyName.size() + 1,
                                                PEG_NOT_FOUND);
                         opts.valueParams.remove(opts.valueParams.size()-1);
-                        
+
                         opts.termCondition = setProperty(opts);
                     }
                     break;

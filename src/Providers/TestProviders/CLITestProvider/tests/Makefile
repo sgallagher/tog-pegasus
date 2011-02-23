@@ -618,11 +618,8 @@ testModifyInstanceOperation:
 	    scalSint16=501 scalUint32=9998 scalSint32=9999 \
 	    scalUint64=888 scalSint64=1 scalString=testString >> $(RESULTFILE)
 
-#####   NOTE: This test reflects a possible error in Pegasus today.  The
-#####       key property should not be required in the input.
 	@cimcli mi -n "$(PROVIDERNS)" \
 	    Test_CLITestProviderClass.Id=\"ScalarTest\" \
-	    Id=ScalarTest \
 	    scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
 	    scalSint16=502 scalUint32=9997 scalSint32=9998 \
 	    scalUint64=888 scalSint64=1 >> $(RESULTFILE)

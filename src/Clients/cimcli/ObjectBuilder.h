@@ -81,7 +81,7 @@ public:
     //Create a cimvalue for a specify property
     CIMValue buildPropertyValue(const CIMName& name,
         const String& value);
-    
+
     //Create a CIMParamValue for the defined parameter name
     Array<CIMParamValue> buildMethodParameters();
 
@@ -95,6 +95,7 @@ public:
     // Build the CIMObjectPath from the information provided with
     // the constructor
     CIMObjectPath buildCIMObjectPath();
+
     void filterInstance(bool includeQualifiers,bool includeClassOrigin,
         const CIMPropertyList& propertyList,CIMInstance & newInstance);
 

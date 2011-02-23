@@ -109,6 +109,19 @@ void _showValueParameters(const Options& opts)
     cout << endl;
 }
 
+// Map the keybinding values from any CIMObjectPath that was input into
+// our standard input form for use by objectBuilder.
+void mapKeyBindingsToInputParameters(Options& opts)
+{
+    Array<CIMKeyBinding> keys = opts.getTargetObjectName().getKeyBindings();
+    for (Uint32 i = 0 ; i < keys.size() ; i++)
+    {
+        String param = keys[i].getName().getString();
+        param.append("=");
+        param.append(keys[i].getValue());
+        opts.valueParams.append(param);
+    }
+}
 /*************************************************************
 *
 *  Functions for interactive selection from the console
@@ -1309,9 +1322,9 @@ int testInstance(Options& opts)
     If only the classname is provided or not provide any key property,
     an interactive operation is executed
 ***/
+
 int modifyInstance(Options& opts)
 {
-    // FUTURE - TODO add flag for interactive operation.
     if (opts.verboseTest)
     {
         cout << "modifyInstance "
@@ -1321,6 +1334,33 @@ int modifyInstance(Options& opts)
                 _toString(opts.propertyList)
             << endl;
         _showValueParameters(opts);
+    }
+
+    // Determine if the input form was with an object path or with individual
+    // properties listed including the key properties or specifically
+    // interactive (-i) where an enumerateinstance names will be used tl
+    // determine object path.
+    Array<CIMKeyBinding> keys = opts.getTargetObjectName().getKeyBindings();
+    if (!opts.targetObjectNameClassOnly())
+    {
+        mapKeyBindingsToInputParameters(opts);
+    }
+    else
+    {
+        if (opts.interactive)
+        {
+            if (_conditionalSelectInstance(opts, opts.targetObjectName))
+            {
+                mapKeyBindingsToInputParameters(opts);
+            }
+            else
+            {
+                cerr << "Error: no path for instance set" << endl;
+                exit(CIMCLI_INPUT_ERR);
+            }
+
+
+        }
     }
 
     // build the instance from all input properties. It is allowable
@@ -1338,23 +1378,8 @@ int modifyInstance(Options& opts)
         opts.includeClassOrigin,
         CIMPropertyList());
 
-    const CIMClass thisClass = ob.getTargetClass();
-
     opts.targetObjectName = ob.buildCIMObjectPath();
 
-    // If the objectName keybindings are zero create the path from the
-    // built instance,then ask the user to select from existing instances.
-
-    if (opts.targetObjectNameClassOnly())
-    {
-        //Force enter to interactive mode,
-        //if the objectName keybindings are zero.
-        opts.interactive = 1;
-        if (!_conditionalSelectInstance(opts, opts.targetObjectName))
-        {
-            opts.targetObjectName = modifiedInstance.buildPath(thisClass);
-        }
-    }
     // put the path into the modifiedInstance
     modifiedInstance.setPath(opts.targetObjectName);
 

@@ -251,7 +251,7 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
 
         case CIMTYPE_REFERENCE:
             return CIMValue(CIMObjectPath(str));
-        
+
         default:
             cerr << "Error: Parser Error. Data type " << cimTypeToString(type)
                  << " not allowed" << endl;
@@ -837,7 +837,6 @@ CIMValue ObjectBuilder::buildPropertyValue(
     {   // scalar
         return _stringToScalarValue(value.getCString(), vp.getType());
     }
-    
 }
 
 void ObjectBuilder::filterInstance(bool includeQualifiers,
@@ -877,9 +876,7 @@ void ObjectBuilder::filterInstance(bool includeQualifiers,
         {
             newInstance.removeProperty(i--);
         }
-
     }
-
 }
 
 PEGASUS_NAMESPACE_END

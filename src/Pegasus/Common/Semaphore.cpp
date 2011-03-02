@@ -193,8 +193,11 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     {
         int r = pthread_cond_timedwait(&_rep.cond, &_rep.mutex, &waittime);
 
-        if (((r == -1 && errno == ETIMEDOUT) || (r == ETIMEDOUT)) &&
-            _rep.count == 0)
+#ifdef PEGASUS_OS_ZOS
+        if (((r==-1 && errno==EAGAIN) || (r==ETIMEDOUT)) && _rep.count==0)
+#else
+        if (((r==-1 && errno==ETIMEDOUT) || (r==ETIMEDOUT)) && _rep.count==0)
+#endif
         {
             timedOut = true;
         }

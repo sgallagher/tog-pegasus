@@ -402,7 +402,7 @@ cimcli mi -n test/TestProvider TST_Person.Id=\"Mike\" SSN=444
        modifyInstance operation.
 
 Valid options for this command are : 
--n -pl (define properties to be modified)
+-n -pl(define properties to be modified) -i (interactive)
  
 Common Options are : 
     -count, -d, -delay, -p, -l, -u, -o, -x, -v, --sum, --timeout, -r, --t 

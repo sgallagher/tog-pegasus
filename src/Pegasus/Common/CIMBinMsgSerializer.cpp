@@ -933,7 +933,7 @@ void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     {
         CIMBuffer data(4096);
         msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32(data.size());
+        out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
@@ -957,7 +957,7 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     {
         CIMBuffer data(16 * 4096);
         msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32(data.size());
+        out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
@@ -972,7 +972,7 @@ void CIMBinMsgSerializer::_putEnumerateInstanceNamesResponseMessage(
 {
     CIMBuffer data(16 * 4096);
     msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32(data.size());
+    out.putUint32((Uint32)data.size());
     out.putBytes(data.getData(), data.size());
 }
 
@@ -984,7 +984,7 @@ void CIMBinMsgSerializer::_putExecQueryResponseMessage(
     {
         CIMBuffer data(16 * 4096);
         msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32(data.size());
+        out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
@@ -1001,7 +1001,7 @@ void CIMBinMsgSerializer::_putAssociatorsResponseMessage(
     {
         CIMBuffer data(16 * 4096);
         msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32(data.size());
+        out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
@@ -1016,7 +1016,7 @@ void CIMBinMsgSerializer::_putAssociatorNamesResponseMessage(
 {
     CIMBuffer data(16 * 4096);
     msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32(data.size());
+    out.putUint32((Uint32)data.size());
     out.putBytes(data.getData(), data.size());
 }
 
@@ -1028,7 +1028,7 @@ void CIMBinMsgSerializer::_putReferencesResponseMessage(
     {
         CIMBuffer data(16 * 4096);
         msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32(data.size());
+        out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
@@ -1043,7 +1043,7 @@ void CIMBinMsgSerializer::_putReferenceNamesResponseMessage(
 {
     CIMBuffer data(16 * 4096);
     msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32(data.size());
+    out.putUint32((Uint32)data.size());
     out.putBytes(data.getData(), data.size());
 }
 

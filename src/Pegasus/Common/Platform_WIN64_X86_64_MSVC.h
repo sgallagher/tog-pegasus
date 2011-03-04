@@ -82,6 +82,13 @@
 // for dll-interface class <YYY>
 #pragma warning( disable : 4275 )
 
+// Disable this warningBinary 'argument' : conversion from 'size_t' to
+//'Type', possible loss of data. Typically type is Uint32
+#pragma warning ( disable : 4267 )
+
+// Disable this warning 'function': was declared deprecated
+#pragma warning( disable : 4996 )
+ 
 // Supresss this warning : C++ exception specification ignored except
 // to indicate a function is not __declspec(nothrow)
 #pragma warning( disable : 4290 )

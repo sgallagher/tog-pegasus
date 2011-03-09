@@ -37,7 +37,6 @@
 # include <openssl/err.h>
 # include <openssl/ssl.h>
 # include <openssl/rand.h>
-# include <openssl/tls1.h>
 #else
 # define SSL_CTX void
 #endif // end of PEGASUS_HAS_SSL
@@ -57,29 +56,26 @@
 
 typedef struct x509_store_ctx_st X509_STORE_CTX;
 
+typedef struct Timestamp
+{
+    char year[4];
+    char month[2];
+    char day[2];
+    char hour[2];
+    char minutes[2];
+    char seconds[2];
+    char dot;
+    char microSeconds[6];
+    char plusOrMinus;
+    char utcOffset[3];
+    char padding[3];
+} Timestamp_t;
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 const int SSLCallbackInfo::SSL_CALLBACK_INDEX = 0;
-
-class SSLCertificateInfoRep
-{
-public:
-    String    subjectName;
-    String    issuerName;
-    Uint32    depth;
-    Uint32    errorCode;
-    Uint32    respCode;
-    String    errorString;
-    Uint32    versionNumber;
-    long      serialNumber;
-    CIMDateTime    notBefore;
-    CIMDateTime    notAfter;
-#ifdef  PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    String    peerCertificate;
-#endif
-};
 
 //
 // use the following definitions only if SSL is available
@@ -98,6 +94,8 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
 {
     struct tm time;
     int offset;
+    Timestamp_t timeStamp;
+    char tempString[80];
     char plusOrMinus = '+';
     unsigned char* utcTimeData = utcTime->data;
 
@@ -144,13 +142,10 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
     }
 #undef g2
 
+    memset((void *)&timeStamp, 0, sizeof(Timestamp_t));
 
-    if (plusOrMinus == '-')
-    {
-        offset = -offset;
-    }
-
-    CIMDateTime dateTime = CIMDateTime(
+    // Format the date.
+    sprintf((char *) &timeStamp,"%04d%02d%02d%02d%02d%02d.%06d%04d",
             time.tm_year,
             time.tm_mon + 1,
             time.tm_mday,
@@ -158,8 +153,15 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
             time.tm_min,
             time.tm_sec,
             0,
-            6,
             offset);
+
+    timeStamp.plusOrMinus = plusOrMinus;
+
+    CIMDateTime dateTime;
+
+    dateTime.clear();
+    strcpy(tempString, (char *)&timeStamp);
+    dateTime.set(tempString);
 
     return dateTime;
 }
@@ -187,7 +189,7 @@ public:
 // return 1 if revoked, 0 otherwise
 //
 int SSLCallback::verificationCRLCallback(
-    int,
+    int ok,
     X509_STORE_CTX* ctx,
     X509_STORE* sslCRLStore)
 {
@@ -261,14 +263,14 @@ int SSLCallback::verificationCRLCallback(
     //get revoked certificates
     STACK_OF(X509_REVOKED)* revokedCerts = NULL;
     revokedCerts = X509_CRL_get_REVOKED(crl);
-    int numRevoked= sk_X509_REVOKED_num(revokedCerts);
+    int numRevoked = sk_X509_REVOKED_num(revokedCerts);
     PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
         "---> SSL: Number of certificates revoked by the issuer %d\n",
         numRevoked));
 
     //check whether the subject's certificate is revoked
     X509_REVOKED* revokedCert = NULL;
-    for (int i = 0; i < numRevoked; i++)
+    for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
     {
         revokedCert = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
         //a matching serial number indicates revocation
@@ -405,46 +407,9 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
 
     // insert at the beginning of the array so that the peer certificate is
     // first and the root CA is last
-    SSLCertificateInfo *certInfo = new SSLCertificateInfo(
-        subjectName,
-        issuerName,
-        version,
-        serialNumber,
-        notBefore,
-        notAfter,
-        depth,
-        errorCode,
-        errorStr,
-        preVerifyOk);
-
-    String peerCertificate;
-#ifdef  PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    //
-    // Get Base64 encoded DER (PEM) certificate
-    //
-    char *data = 0;
-    long length = 0;
-
-    BIO *bio = BIO_new(BIO_s_mem());
-    if (bio)
-    {
-        if (PEM_write_bio_X509(bio, currentCert) == 0)
-        {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
-                "PEM converion failed.");
-        }
-        else
-        {
-            length = BIO_get_mem_data(bio, &data);
-            peerCertificate.assign(data, (Uint32)length);
-        }
-        BIO_free_all(bio);
-    }
-    certInfo->_rep->peerCertificate = peerCertificate;
-#endif
-
-    exData->_rep->peerCertificate.insert(0, certInfo);
-
+    exData->_rep->peerCertificate.insert(0, new SSLCertificateInfo(
+        subjectName, issuerName, version, serialNumber,
+        notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk));
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "Created SSLCertificateInfo");
 
@@ -523,9 +488,7 @@ SSLContextRep::SSLContextRep(
     const String& keyPath,
     const String& crlPath,
     SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile,
-    const String& cipherSuite,
-    const Boolean& sslCompatibility)
+    const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -534,8 +497,7 @@ SSLContextRep::SSLContextRep(
     _keyPath = keyPath;
     _crlPath = crlPath;
     _certificateVerifyFunction = verifyCert;
-    _cipherSuite = cipherSuite;
-    _sslCompatibility = sslCompatibility;
+
     //
     // If a truststore and/or peer verification function is specified,
     // enable peer verification
@@ -560,8 +522,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _verifyPeer = sslContextRep._verifyPeer;
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
-    _cipherSuite = sslContextRep._cipherSuite;
-    _sslCompatibility = sslContextRep._sslCompatibility;
+
     _sslContext = _makeSSLContext();
 
     PEG_METHOD_EXIT();
@@ -587,6 +548,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_randomInit()");
 
+    Boolean ret;
+    int retVal = 0;
 
 #if defined(PEGASUS_SSL_RANDOMFILE) && !defined(PEGASUS_OS_PASE)
     if ( RAND_status() == 0 )
@@ -608,10 +571,10 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //
         // Try the given random seed file
         //
-        Boolean ret = FileSystem::exists(randomFile);
+        ret = FileSystem::exists(randomFile);
         if (ret)
         {
-            int retVal = RAND_load_file(randomFile.getCString(), -1);
+            retVal = RAND_load_file(randomFile.getCString(), -1);
             if ( retVal < 0 )
             {
                 PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
@@ -705,40 +668,13 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
 
-    // OPENSSL_VERSION_NUMBER is defined as  0xnnnnnnnnnL
-    // MMNNFFPPS: major minor fix patch status 
-    // The change  'const' SSL_METHOD 
-    // was introduced in version  1.0.0
-    
-#if (OPENSSL_VERSION_NUMBER < 0x10000000L)
-    SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
-#else
-    const SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
-#endif
-
-    int options = SSL_OP_ALL;
-
+    SSL_CTX * sslContext = 0;
 
     //
     // create SSL Context Area
     //
-   
-    if ( _sslCompatibility == false )
-    {
 
-#ifdef TLS1_2_VERSION
-        // Enable only TLSv1.2 and disable all other protocol (SSL v2, SSL v3,
-        // TLS v1.0, TLSv1.1)
-        sslProtocolMethod = TLSv1_2_method();
-        options = SSL_OP_NO_TLSv1|SSL_OP_NO_TLSv1_1;
-#ifndef OPENSSL_NO_SSL3
-       options |= SSL_OP_NO_SSLv3;
-#endif  
-#endif
-    }
-
-    SSL_CTX *sslContext = NULL;
-    if (!(sslContext = SSL_CTX_new(sslProtocolMethod)))
+    if (!(sslContext = SSL_CTX_new(SSLv23_method())))
     {
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
@@ -750,9 +686,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 #ifdef PEGASUS_SSL_WEAKENCRYPTION
     if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40)))
     {
-        SSL_CTX_free(sslContext);
-        sslContext = NULL;
-
         MessageLoaderParms parms(
             "Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
             "Could not set the cipher list");
@@ -760,52 +693,16 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     }
 #endif
 
-    if (_cipherSuite != String::EMPTY)
-    {
-        if (!(SSL_CTX_set_cipher_list(sslContext, _cipherSuite.getCString())))
-        {
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
-
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
-                "---> SSL: Cipher Suite could not be specified");
-            MessageLoaderParms parms(
-                "Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
-                "Could not set the cipher list");
-            throw SSLException(parms);
-        }
-        else
-        {
-           PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
-                "---> SSL: Cipher suite set to %s",
-                (const char *)_cipherSuite.getCString()));
-        }
-    }
-
     //
     // set overall SSL Context flags
     //
-    // For OpenSSLversion >1.0.0 use SSL_OP_NO_COMPRESSION to disable the 
-    // compression For TLS 1.2 version, compression does not suffer from 
-    // CRIME attack so don.t disable compression For other OpenSSL versions 
-    // zero out the compression methods.
-#ifdef SSL_OP_NO_COMPRESSION 
-#ifndef TLS1_2_VERSION
-    SSL_CTX_set_options(sslContext, SSL_OP_NO_COMPRESSION); 
-#endif
-#elif OPENSSL_VERSION_NUMBER >= 0x00908000L 
-    sk_SSL_COMP_zero(SSL_COMP_get_compression_methods());
-#endif    
+
     SSL_CTX_set_quiet_shutdown(sslContext, 1);
     SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_mode(sslContext, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
 
-#ifdef SSL_MODE_RELEASE_BUFFERS
-    // Keep memory usage as low as possible 
-    SSL_CTX_set_mode (sslContext, SSL_MODE_RELEASE_BUFFERS);
-#endif
-
+    int options = SSL_OP_ALL;
 #ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
     options |= SSL_OP_NO_SSLv2;
 #endif
@@ -882,8 +779,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
                     "Could not load certificates in to trust store.");
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -920,8 +815,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     MessageLoaderParms parms(
                         "Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
                         "Could not load certificates in to trust store.");
-                    SSL_CTX_free(sslContext);
-                    sslContext = NULL;
                     PEG_METHOD_EXIT();
                     throw SSLException(parms);
                 }
@@ -947,8 +840,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         _crlStore.reset(X509_STORE_new());
         if (_crlStore.get() == NULL)
         {
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw PEGASUS_STD(bad_alloc)();
         }
@@ -968,8 +859,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
                 _crlStore.reset();
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -993,8 +882,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
                 _crlStore.reset();
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1033,9 +920,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 "Common.SSLContext.COULD_NOT_ACCESS_SERVER_CERTIFICATE",
                 "Could not access server certificate in $0.",
                 (const char*)_certPath.getCString());
-
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1060,8 +944,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
                     "Could not get private key.");
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1087,8 +969,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             MessageLoaderParms parms(
                 "Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
                 "Could not get private key.");
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1186,11 +1066,6 @@ String SSLContextRep::getTrustStoreUserName() const
 }
 #endif
 
-String SSLContextRep::getCipherSuite() const
-{
-    return _cipherSuite;
-}
-
 String SSLContextRep::getCRLPath() const
 {
     return _crlPath;
@@ -1255,26 +1130,24 @@ void SSLContextRep::validateCertificate()
 //
 
 SSLContextRep::SSLContextRep(
-    const String&,
-    const String&,
-    const String&,
-    const String&,
-    SSLCertificateVerifyFunction*,
-    const String&,
-    const String&,
-    const Boolean&)
+    const String& trustStore,
+    const String& certPath,
+    const String& keyPath,
+    const String& crlPath,
+    SSLCertificateVerifyFunction* verifyCert,
+    const String& randomFile)
 {
 }
 
-SSLContextRep::SSLContextRep(const SSLContextRep&) {}
+SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 
 SSLContextRep::~SSLContextRep() {}
 
 SSL_CTX* SSLContextRep::_makeSSLContext() { return 0; }
 
 Boolean SSLContextRep::_verifyPrivateKey(
-    SSL_CTX*,
-    const String&)
+    SSL_CTX *ctx,
+    const String& keyPath)
 {
     return false;
 }
@@ -1287,8 +1160,6 @@ String SSLContextRep::getCertPath() const { return String::EMPTY; }
 
 String SSLContextRep::getKeyPath() const { return String::EMPTY; }
 
-String SSLContextRep::getCipherSuite() const { return String::EMPTY; }
-
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 String SSLContextRep::getTrustStoreUserName() const { return String::EMPTY; }
 #endif
@@ -1300,7 +1171,7 @@ SharedPtr<X509_STORE, FreeX509STOREPtr> SSLContextRep::getCRLStore() const
     return SharedPtr<X509_STORE, FreeX509STOREPtr>();
 }
 
-void SSLContextRep::setCRLStore(X509_STORE*) { }
+void SSLContextRep::setCRLStore(X509_STORE* store) { }
 
 Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
 
@@ -1332,9 +1203,7 @@ SSLContext::SSLContext(
         String::EMPTY,
         String::EMPTY,
         verifyCert,
-        randomFile,
-        String::EMPTY,
-        false);
+        randomFile);
 }
 
 SSLContext::SSLContext(
@@ -1370,39 +1239,13 @@ SSLContext::SSLContext(
         trustStore, certPath, keyPath, crlPath, verifyCert, randomFile);
 }
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-SSLContext::SSLContext(
-        const String& trustStore,
-        const String& certPath,
-        const String& keyPath,
-        const String& crlPath,
-        SSLCertificateVerifyFunction* verifyCert,
-        const String& randomFile,
-        const String& cipherSuite,
-        const Boolean& sslCompatibility)
-{
-#ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    if (crlPath.size() > 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
-            "SSL CRL verification is not enabled.");
-        throw Exception(parms);
-    }
-#endif
-    _rep = new SSLContextRep(
-        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile,
-        cipherSuite,sslCompatibility);
-}
-#endif
-
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 SSLContext::SSLContext(
     const String& trustStore,
     const String& certPath,
     const String& keyPath,
     SSLCertificateVerifyFunction* verifyCert,
-    String,
+    String trustStoreUserName,
     const String& randomFile)
 {
     _rep = new SSLContextRep(
@@ -1478,13 +1321,6 @@ String SSLContext::getTrustStoreUserName() const
 }
 #endif
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-String SSLContext::getCipherSuite() const
-{
-    return _rep->getCipherSuite();
-}
-#endif
-
 SSLCertificateVerifyFunction*
     SSLContext::getSSLCertificateVerifyFunction() const
 {
@@ -1539,6 +1375,22 @@ const int    SSLCertificateInfo::V_ERR_AKID_ISSUER_SERIAL_MISMATCH         = 31;
 const int    SSLCertificateInfo::V_ERR_KEYUSAGE_NO_CERTSIGN                = 32;
 
 const int    SSLCertificateInfo::V_ERR_APPLICATION_VERIFICATION            = 50;
+
+class SSLCertificateInfoRep
+{
+public:
+    String    subjectName;
+    String    issuerName;
+    Uint32    depth;
+    Uint32    errorCode;
+    Uint32    respCode;
+    String    errorString;
+    Uint32    versionNumber;
+    long      serialNumber;
+    CIMDateTime    notBefore;
+    CIMDateTime    notAfter;
+};
+
 
 SSLCertificateInfo::SSLCertificateInfo(
     const String subjectName,
@@ -1599,9 +1451,6 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep->errorCode = certificateInfo._rep->errorCode;
     _rep->errorString = certificateInfo._rep->errorString;
     _rep->respCode = certificateInfo._rep->respCode;
-#ifdef  PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    _rep->peerCertificate = certificateInfo._rep->peerCertificate;
-#endif
 }
 
 // Dummy constructor made private to disallow default construction
@@ -1673,13 +1522,6 @@ void SSLCertificateInfo::setResponseCode(const int respCode)
 {
     _rep->respCode = respCode;
 }
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-const String &SSLCertificateInfo::getPeerCertificate() const
-{
-    return _rep->peerCertificate;
-}
-#endif
 
 String SSLCertificateInfo::toString() const
 {

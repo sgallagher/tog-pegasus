@@ -4882,7 +4882,7 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
         *    Do not translate 'UPDATE' since it is the name of a specific access right
         */
-        Server.checkAuthorizationzOS_include.NOUPDATE_CIMSERV_ACCESS:string {"PGS12535W: Authorization failed: UserID {0} misses UPDATE permission to profile CIMSERV CL(WBEM) to execute a writing CIM operation."}
+        Server.checkAuthorizationzOS_include.NOUPDATE_CIMSERV_ACCESS:string {"PGS12535W: Authorization error. The user ID {0} cannot run the requested CIM operation because it lacks UPDATE permission to profile CIMSERV CL(WBEM)."}
 
         /**
         * @note PGS12540:

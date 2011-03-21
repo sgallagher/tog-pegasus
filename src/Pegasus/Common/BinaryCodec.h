@@ -49,9 +49,6 @@ class PEGASUS_COMMON_LINKAGE BinaryCodec
 {
 public:
 
-    // Peform hex dump of the given data.
-    static void hexDump(const void* data, size_t size);
-
     static bool encodeRequest(
         Buffer& out,
         const char* host,

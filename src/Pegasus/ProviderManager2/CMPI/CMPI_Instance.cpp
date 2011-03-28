@@ -136,7 +136,7 @@ extern "C"
             case SCMO_OK:
             {
                 CMPIType ct=type2CMPIType(type, isArray);
-                CMPISCMOUtilities::scmoValue2CMPIData( value, ct, &data );
+                CMPISCMOUtilities::scmoValue2CMPIData(value, ct, &data, size);
                 if ((ct&~CMPI_ARRAY) == CMPI_string)
                 {
                     // We always receive strings as an array of pointers

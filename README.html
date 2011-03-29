@@ -1,19 +1,22 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-<meta http-equiv="Content-Language" content="en-us">
-<meta name="GENERATOR" content="Microsoft FrontPage 6.0">
-<meta name="ProgId" content="FrontPage.Editor.Document">
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>OpenPegasus 2.6 README</title>
-
-<link rel="stylesheet" href="http://www.opengroup.org/stylesheets/info1+margins.css">
-<style>
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-us">
+  <meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+  <meta name="ProgId" content="FrontPage.Editor.Document">
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=windows-1252">
+  <title>OpenPegasus 2.6 README</title>
+  <link rel="stylesheet"
+ href="http://www.opengroup.org/stylesheets/info1+margins.css">
+  <style>
 <!--
 table.MsoNormalTable
 {mso-style-parent:"";
 font-size:10.0pt;
 font-family:"Times New Roman"}
 -->
-</style>
+  </style>
 </head>
 <body>
 <hr>
@@ -37,32 +40,35 @@ an object manager for
 DMTF CIM objects written in C++
 and hosted by The Open Group </p>
 <a href="#Overview">OpenPegasus Overview</a>
-<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> <a href="#avail_of_peg">Availability</a><br>
-<a href="#peg_sup_plat">Supported Platforms</a><br>
-<a href="#peg_dep">Dependencies</a><br>
-<a href="#cmnd">Commands</a><br>
-<a href="#docs">Documentation</a><br>
-<a href="#part">How to Participate</a><br>
+<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> <a
+ href="#avail_of_peg">Availability</a><br>
+  <a href="#peg_sup_plat">Supported Platforms</a><br>
+  <a href="#peg_dep">Dependencies</a><br>
+  <a href="#cmnd">Commands</a><br>
+  <a href="#docs">Documentation</a><br>
+  <a href="#part">How to Participate</a><br>
 </blockquote>
 <a href="#inst_peg">Installing OpenPegasus</a>
-<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"><a href="#download">Download or Checkout</a><br>
-<a href="#vfy_req_sw">Verify Dependencies</a><br>
-<a href="#set_envt_var">Set the Environment Variables</a><br>
-<a href="#bld_peg">Build the Executables</a><br>
-<a href="#pop_peg_rep">Populate the Repository</a><br>
-<a href="#reg_prov">Register Providers</a><br>
-<a href="#note_bld_peg_lnx">Notes
+<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"><a
+ href="#download">Download or Checkout</a><br>
+  <a href="#vfy_req_sw">Verify Dependencies</a><br>
+  <a href="#set_envt_var">Set the Environment Variables</a><br>
+  <a href="#bld_peg">Build the Executables</a><br>
+  <a href="#pop_peg_rep">Populate the Repository</a><br>
+  <a href="#reg_prov">Register Providers</a><br>
+  <a href="#note_bld_peg_lnx">Notes
 about Building on Linux</a><br>
-<a href="#bld_peg_win">Notes about Building
+  <a href="#bld_peg_win">Notes about Building
 on Windows</a><br>
-<blockquote style="margin-top: 0pt; margin-bottom: 0pt;">
-<a href="#mu_utility">The MU Utility</a><br>
-</blockquote>
-<a href="#note_bld_peg_ssl">Notes about
+  <blockquote style="margin-top: 0pt; margin-bottom: 0pt;">
+    <a href="#mu_utility">The MU Utility</a><br>
+  </blockquote>
+  <a href="#note_bld_peg_ssl">Notes about
 Building with SSL</a><br>
 </blockquote>
 <a href="#test">Testing an OpenPegasus installation</a><br>
-<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> <a href="#test_icu">Testing with ICU enabled</a><br>
+<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> <a
+ href="#test_icu">Testing with ICU enabled</a><br>
 </blockquote>
 <hr>
 <h1><a name="Overview">OpenPegasus Overview</a>
@@ -87,29 +93,30 @@ noted in the documentation.<br>
 components for: <br>
 </div>
 <blockquote>
-<ol style="margin-left: 40px;">
-<li>A DMTF compliant CIM Server that processes CIM
+  <ol style="margin-left: 40px;">
+    <li>A DMTF compliant CIM Server that processes CIM
 operations, CIM
 Indications, and
 includes class and instance repositories and interfaces for creating
 CIM
 Providers and CIM Clients.</li>
-<li>Provider interfaces so that providers may be build in
+    <li>Provider interfaces so that providers may be build in
 multiple
 languages (i.e.
 C++, C, Java).</li>
-<li>A number of CIM Providers.</li>
-<li>A MOF compiler.</li>
-<li>A number of CIM Clients to provide usage examples, CIM
+    <li>A number of CIM Providers.</li>
+    <li>A MOF compiler.</li>
+    <li>A number of CIM Clients to provide usage examples, CIM
 Server
 test functions,
 and administrative
 functions.</li>
-<li>More complete information on the exact functions
+    <li>More complete information on the exact functions
 and their functional state is available from the Release Notes
-(pegasus/ReleaseNotes.htm) and the OpenPegasus <a href="http://www.openpegasus.org/page.tpl?CALLER=index.tpl&amp;ggid=799">Feature
+(pegasus/ReleaseNotes.htm) and the OpenPegasus <a
+ href="http://www.openpegasus.org/page.tpl?CALLER=index.tpl&amp;ggid=799">Feature
 Status Page</a>.</li>
-</ol>
+  </ol>
 </blockquote>
 <div style="margin-left: 40px;">OpenPegasus is open source
 and is
@@ -124,7 +131,8 @@ Open
 Group.&nbsp; OpenPegasus is maintained under the license defined in
 the
 doc
-directory of this release.&nbsp; The specific file is: <font style="color: rgb(0, 0, 0);">pegasus/doc/license.txt</font>.&nbsp;
+directory of this release.&nbsp; The specific file is: <font
+ style="color: rgb(0, 0, 0);">pegasus/doc/license.txt</font>.&nbsp;
 This licensing is intended to support as
 wide a
 distribution as possible with minimal demands on the users.
@@ -132,9 +140,11 @@ distribution as possible with minimal demands on the users.
 <p style="margin-left: 40px;">More information on this
 project, access
 to the CVS, and
-documentation<span style="color: rgb(255, 0, 0);"><span style="text-decoration: line-through;"></span></span>
+documentation<span style="color: rgb(255, 0, 0);"><span
+ style="text-decoration: line-through;"></span></span>
 is available
-from the Ope<span style="color: rgb(255, 0, 0);"><span style="text-decoration: line-through;"></span></span>nPegasus
+from the Ope<span style="color: rgb(255, 0, 0);"><span
+ style="text-decoration: line-through;"></span></span>nPegasus
 web
 site.
 </p>
@@ -166,18 +176,22 @@ file
 formats on the OpenPegasus web site.</div>
 <ol style="color: rgb(0, 0, 0);">
 OpenPegasus can be obtained via any of the following:<br>
-<ol>
-<li>Released tarballs (see <a href="http://www.openpegasus.org/page.tpl?CALLER=page.tpl&amp;ggid=392">ZIP/GZ/EXE
+  <ol>
+    <li>Released tarballs (see <a
+ href="http://www.openpegasus.org/page.tpl?CALLER=page.tpl&amp;ggid=392">ZIP/GZ/EXE
 link for this release</a>)</li>
-<li>CVS (See <a href="http://www.openpegasus.org/protected/page.tpl?CALLER=index.tpl&amp;ggid=667">CVS
+    <li>CVS (See <a
+ href="http://www.openpegasus.org/protected/page.tpl?CALLER=index.tpl&amp;ggid=667">CVS
 code repository</a> for
 more information)</li>
-<li>Linux RPMs
-(see <a href="http://www.openpegasus.org/page.tpl?CALLER=page.tpl&amp;ggid=392">RPM
+    <li>Linux RPMs
+(see <a
+ href="http://www.openpegasus.org/page.tpl?CALLER=page.tpl&amp;ggid=392">RPM
 link for this release</a>)</li>
+  </ol>
 </ol>
-</ol>
-<p style="margin-left: 40px;"><span class="norm"></span><font style="color: rgb(0, 0, 0);">CVS
+<p style="margin-left: 40px;"><span class="norm"></span><font
+ style="color: rgb(0, 0, 0);">CVS
 write accounts are managed by Martin Kirk of The Open Group&nbsp;</font>
 (<a href="mailto:%28k.m.kirk@opengroup.org">m.kirk@opengroup.org</a>)&nbsp;
 </p>
@@ -187,10 +201,12 @@ tested against a
 variety of platforms by the
 development group.&nbsp; The results of the nightly tests can be
 found
-here on our <a href="http://cvs.opengroup.org/cgi-bin/pegasus-build-status.cgi">Nightly
-Build and Test Status</a> page.&nbsp; The Release Notes
+here on our <a
+ href="http://cvs.opengroup.org/cgi-bin/pegasus-build-status.cgi">Nightly
+Build and Test Status</a> page.&nbsp; The Release Notes for each
+release&nbsp;
 (pegasus/ReleaseNotes.htm) provide additional details
-regarding the platforms for the current release.<br>
+regarding the platforms, compilers, etc. for the current release.<br>
 </p>
 <h2><a name="peg_dep">Dependencies</a></h2>
 <p style="margin-left: 40px;">
@@ -202,30 +218,32 @@ required only if selected options are enabled except for GNUMAKE which
 is the required make tool:
 </p>
 <ol style="margin-left: 40px;">
-<li><b>GNUMAKE</b> - To simplify the building of
+  <li><b>GNUMAKE</b> - To simplify the building of
 OpenPegasus across
 multiple platforms we
 have standardized on a set of build tools including: GNUMAKE. We are
 using GNUMAKE 3.79.1 successfully both in Windows and Linux
 environments. It is available from <a href="http://www.gnu.org">http://www.gnu.org</a>.
 The windows version&nbsp; of GNUMAKE is available on the Pegasus
-web site <a href="http://www.openpegasus.org/pb/protected/index.tpl?CALLER=index.tpl">
+web site <a
+ href="http://www.openpegasus.org/pb/protected/index.tpl?CALLER=index.tpl">
 tools page</a>.</li>
-<li><b>FLEX</b> and <b>BISON</b> -
+  <li><b>FLEX</b> and <b>BISON</b> -
 These tools were used to develop the MOF
 compiler and WQL and CQL parsers.&nbsp; These tools are required <b>ONLY</b>
 for
 development of the parsers, not for building OpenPegasus.&nbsp;
 Bison
 version 2.3 or later and flex version 2.5.4 or later are required.</li>
-<li><b>Doxygen </b>- The OpenPegasus documentation
+  <li><b>Doxygen </b>- The OpenPegasus documentation
 is taken from a combination of text files and header files themselves.
 This documentation is formatted with Doxygen and GAWK.&nbsp; This
 is required <b>ONLY</b> if you want to build documentation
-from the source tree.&nbsp; <span class="norm"></span><font style="color: rgb(0, 0, 0);">These tools are required to
+from the source tree.&nbsp; <span class="norm"></span><font
+ style="color: rgb(0, 0, 0);">These tools are required to
 build the
 interface documentation set.</font> </li>
-<li><b>ICU Internationalization libraries</b> -
+  <li><b>ICU Internationalization libraries</b> -
 These libraries are
 used as the basis for message catalogs for message
 internationalization. See the ICU website
@@ -234,35 +252,40 @@ for more information on these
 libraries.<span style="color: rgb(255, 0, 0);"> These
 libraries are used ONLY if you set the requisite environment variable (
 PEGASUS_HAS_ICU) to use ICU</span><br>
-</li>
-<li><b>OpenSSL
-</b>- If it
+  </li>
+  <li><b>OpenSSL
+    </b>- If it
 is intended to use SSL on the
-communication protocol, the OpenSSL libraries are required (<a href="http://www.openssl.org">http://www.openssl.org</a>).</li>
-<li><span style="font-weight: bold;">OpenSLP</span>
+communication protocol, the OpenSSL libraries are required (<a
+ href="http://www.openssl.org">http://www.openssl.org</a>).</li>
+  <li><span style="font-weight: bold;">OpenSLP</span>
 - If you choose
 to use
 OpenSLP as your choice of SLP implementations, then it will need to be
 installed and available to OpenPegasus. Refer to the
 PEGASUS_USE_OPENSLP and PEGASUS_OPENSLP_HOME build variables in the
-doc/BuildAndReleaseOptions.html file, and the OpenSLP web site (<a href="http://www.openslp.org">http://www.openslp.org</a>).</li>
-<li><span style="font-weight: bold;">zlib
-</span>- If you choose to
+doc/BuildAndReleaseOptions.html file, and the OpenSLP web site (<a
+ href="http://www.openslp.org">http://www.openslp.org</a>).</li>
+  <li><span style="font-weight: bold;">zlib
+    </span>- If you choose to
 enable the compressed repository feature with the
 PEGASUS_ENABLE_COMPRESSED_REPOSITORY build variable, you will need to
 install the gzip (GNU zip) compression utility. Refer to
 readme.compressed_repository in OpenPegasus source tree, and the gzip
-web site (<a style="color: rgb(204, 51, 204);" href="http://www.gzip.org">http://www.gzip.org</a>).</li>
-<li><span style="font-weight: bold;">sqlite</span>
+web site (<a style="color: rgb(204, 51, 204);"
+ href="http://www.gzip.org">http://www.gzip.org</a>).</li>
+  <li><span style="font-weight: bold;">sqlite</span>
 - If you choose to enable the use of sqlite for the repository, refer
 to the doc/BuildAndReleaseOptions.html file for the defintion of the
 build variables and the sqlite implementation which may be obtained
-either as part of a standard distribution or from <a href="http://www.sqlite.org">http://www.sqlite.org</a>.</li>
+either as part of a standard distribution or from <a
+ href="http://www.sqlite.org">http://www.sqlite.org</a>.</li>
 </ol>
 <p style="margin-left: 40px;"><span style="font-weight: bold;">NOTE</span>:
 A set of the required
 tools for building on the Windows platform is available on the
-OpenPegasus <a href="http://www.openpegasus.org/pb/index.tpl?CALLER=index.tpl">Tools</a>
+OpenPegasus <a
+ href="http://www.openpegasus.org/pb/index.tpl?CALLER=index.tpl">Tools</a>
 web page.<br>
 </p>
 <h2><a name="cmnd">Commands</a></h2>
@@ -277,54 +300,55 @@ directory (from CVS). </p>
 command,
 invoke it with the "--help" option.<br>
 </p>
-<div style="margin-left: 40px;"><span style="font-weight: bold;">Some of
+<div style="margin-left: 40px;"><span style="font-weight: bold;">Some
+of
 the basic commands:</span>
 <br>
 </div>
 <ul>
-<ul>
-<li><span style="font-family: monospace;">cimserve</span>r
+  <ul>
+    <li><span style="font-family: monospace;">cimserve</span>r
 (Start the server
 cimserver)</li>
-<li><span style="font-family: monospace;">cimserver
+    <li><span style="font-family: monospace;">cimserver
 -s</span>&nbsp; (Shuts down the cimserver)</li>
-<li><span style="font-family: monospace;">cimserver
+    <li><span style="font-family: monospace;">cimserver
 traceLevel=4 traceComponents=ALL</span>&nbsp;
 (Starts server
 with
 config flags)</li>
-</ul>
-<ul>
-<li><span style="font-family: monospace;">cimprovider
+  </ul>
+  <ul>
+    <li><span style="font-family: monospace;">cimprovider
 -l -s</span>&nbsp; (Lists providers and their
 status)</li>
-<li><span style="font-family: monospace;">cimprovider
+    <li><span style="font-family: monospace;">cimprovider
 -e -m OperatingSystemModule</span>&nbsp;
 (Enables the
 OperatingSystem provider)</li>
-<li><span style="font-family: monospace;">cimuser
+    <li><span style="font-family: monospace;">cimuser
 -a -u guest _w &lt;ThePassword&gt;</span> (Adds
 the user <span style="font-style: italic;">guest</span>
 with specified password)<br>
-</li>
-<li><span style="font-family: monospace;">cimuser
+    </li>
+    <li><span style="font-family: monospace;">cimuser
 -l</span>&nbsp; (Lists the users )</li>
-<li><span style="font-family: monospace;">cimconfig
+    <li><span style="font-family: monospace;">cimconfig
 -l -c</span> (Lists the
 current config options and their current values)<br>
-</li>
-</ul>
+    </li>
+  </ul>
 </ul>
 <div style="margin-left: 40px;"><span style="font-weight: bold;">NOTES</span>:
 <br>
 </div>
 <blockquote>
-<ol style="margin-left: 40px;">
-<li>Refer to the admin guide in
+  <ol style="margin-left: 40px;">
+    <li>Refer to the admin guide in
 pegasus/doc/Admin_Guide_Release.pdf
 for
 more information about administering the OpenPegasus CIM Server.</li>
-<li>There are differences between Windows and other
+    <li>There are differences between Windows and other
 platforms in
 starting the CIMserver as a daemon/service. Whereas most supported
 platforms use
@@ -336,24 +360,27 @@ and then
 started as a service (cimserver -start). The cimserver --help option
 explains the
 exact format of the start and stop options.</li>
-<li>The cimuser command is used to manage OpenPegasus users
+    <li>The cimuser command is used to manage OpenPegasus users
 only when
 the CIM Server is compiled without the PEGASUS_PAM_AUTHENTICATION
-environment variable defined. See <a href="http://www.openpegasus.org/pp/uploads/40/16781/PEP308_RecommendedReleaseOptions.htm">
+environment variable defined. See <a
+ href="http://www.openpegasus.org/pp/uploads/40/16781/PEP308_RecommendedReleaseOptions.htm">
 PEP 308</a> for more information on these configuration options.<br>
-</li>
-</ol>
+    </li>
+  </ol>
 </blockquote>
 <a name="docs">Documentation</a>
 <p style="margin-left: 40px;">Much
 of
 OpenPegasus
-is documented in the <a href="http://www.openpegasus.org/pp/index.tpl?CALLER=index.tpl">Pegasus
+is documented in the <a
+ href="http://www.openpegasus.org/pp/index.tpl?CALLER=index.tpl">Pegasus
 Enhancement Process (PEPs)</a> which are the basis for approval
 of
 OpenPegasus functionality, changes, plans, etc.&nbsp; The approved
 PEPs
-are publicly available on the OpenPegasus web site.<span style="color: rgb(255, 0, 0);"><br>
+are publicly available on the OpenPegasus web site.<span
+ style="color: rgb(255, 0, 0);"><br>
 </span></p>
 <p style="margin-left: 40px;">Other
 documentation available
@@ -361,19 +388,15 @@ is an api document (creatable
 from the
 source tree, see pegasus/doc/apidoc) and other miscellaneous
 documentation
-in the doc directory. Also, there is a set of Release Notes for each
+in the CVS doc directory and the pegasus CVS root as readme files.
+Also, there is a set of Release Notes for each
 release in the OpenPegasus root
-source directory of CVS.</p>
-<p style="margin-left: 40px;">The <a href="http://www.openpegasus.org/">OpenPegasus web
-site</a> will be the source
-of most
-documentation in the future, and today is the source of most discussion
-and
-design documentation. </p>
+source directory of CVS and as a Pegasus PEP.</p>
 <h2><a name="part">How to Participate</a></h2>
 <p style="margin-left: 40px;"><font style="color: rgb(0, 0, 0);">Contributors
 are welcome to participate in the OpenPegasus development effort. Join
-the mailing list by going to the <a href="http://www.openpegasus.org/mailinglists.tpl?CALLER=index.tpl">Mailing
+the mailing list by going to the <a
+ href="http://www.openpegasus.org/mailinglists.tpl?CALLER=index.tpl">Mailing
 Lists</a> web page from the OpenPegasus site.</font></p>
 <h1>
 <a name="inst_peg">Installing OpenPegasus</a> </h1>
@@ -383,12 +406,15 @@ section for instructions on obtaining source code.<br>
 </p>
 <p style="margin-left: 40px;">If you want to install
 pre-built Pegasus
-executables instead of building from source code, then refer to the <a href="http://www.openpegasus.org/pr/">RPM installation
+executables instead of building from source code, then refer to the <a
+ href="http://www.openpegasus.org/pr/">RPM installation
 instructions</a>.<br>
 </p>
 <h2><strong><strong><a name="vfy_req_sw"></a>Verify
-Dependencies</strong></strong><strong><strong><span style="font-weight: normal;"></span></strong></strong></h2>
-<p style="margin-left: 40px;"><strong><strong><span style="font-weight: normal;">Be</span></strong></strong>fore
+Dependencies</strong></strong><strong><strong><span
+ style="font-weight: normal;"></span></strong></strong></h2>
+<p style="margin-left: 40px;"><strong><strong><span
+ style="font-weight: normal;">Be</span></strong></strong>fore
 you build, install, or run OpenPegasus, be sure you have the proper set
 of software
 it depends on.&nbsp; Refer to the section <a href="#peg_dep">Dependencies</a>
@@ -408,23 +434,28 @@ environment variables and configuration options for OpenPegasus. The
 minimum set is:<br>
 </p>
 <ul>
-<ul>
-<li>PEGASUS_ROOT -- The directory
+  <ul>
+    <li>PEGASUS_ROOT -- The directory
 containing the OpenPegasus root directory from CVS.</li>
-<li>PEGASUS_HOME -- The directory
+    <li>PEGASUS_HOME -- The directory
 that will contain all output from building and running OpenPegasus, it
 can be the same as PEGASUS_ROOT if desired.</li>
-<li>PEGASUS_PLATFORM -- The
-platform on which OpenPegasus is being built.<br>
-</li>
+    <li>PEGASUS_PLATFORM -- The
+platform on which OpenPegasus is being built.</li>
+  </ul>
 </ul>
-</ul>
+<div style="margin-left: 40px;">There are a significant number of
+environment variables that control the compile and test of features in
+the OpenPegasus package in addition to the 3 variables described above.
+These variables are documented in the Pegasus documentation in CVS (see
+the pegasus/doc directory).</div>
 <h2><a name="bld_peg"></a>Build the Executables<br>
 </h2>
 <div style="margin-left: 40px;">OpenPegasus
 is compiled and linked using a make structure that recurses through
 the&nbsp; OpenPegasus source tree.<br>
-<font><font color="RED"><span style="color: rgb(0, 0, 0); font-weight: bold;"><br>
+<font><font color="RED"><span
+ style="color: rgb(0, 0, 0); font-weight: bold;"><br>
 Makefile commands
 </span></font></font><br>
 <br>
@@ -441,20 +472,22 @@ directory. A recommended minimum set
 to know are:
 <br>
 <ul>
-<li>usage -- Explains the
+  <li>usage -- Explains the
 available make targets in some detail.</li>
-<li>new -- Clean out all
+  <li>new -- Clean out all
 objects, libs, executables, and the repository.</li>
-<li>build -- Builds
+  <li>build -- Builds
 dependencies, compiles, links, and installs the server. After this
 OpenPegasus is ready to run.</li>
-<li>alltests - Builds the
+  <li>alltests - Builds the
 repository entries and other resources required by the tests, and then
 executes all automated tests.</li>
+  <li>world - Builds the complete environment and runs the test suite.</li>
 </ul>
 For a comprehensive
 list of&nbsp; the
-make targets, refer to <big><span style="font-family: Courier New,Courier,monospace;">pegasus/Makefile</span></big>
+make targets, refer to <big><span
+ style="font-family: Courier New,Courier,monospace;">pegasus/Makefile</span></big>
 at the top of the OpenPegasus source directory.<br>
 </div>
 <ul>
@@ -471,54 +504,56 @@ can also compile MOF (Managed Object Format) code manually with the
 cimmof compiler.<br>
 </p>
 <p style="margin-left: 40px;">The 'make repository' target
-in the makefile <big><span style="font-family: Courier New,Courier,monospace;">pegasus/Makefile</span></big>
+in the makefile <big><span
+ style="font-family: Courier New,Courier,monospace;">pegasus/Makefile</span></big>
 performs several functions including:
 </p>
 <ul>
-<li><span style="color: rgb(0, 0, 0);">Removes
+  <li><span style="color: rgb(0, 0, 0);">Removes
 the existing
 repository (if one exists).</span><br>
-</li>
-<li>Generates the default
+  </li>
+  <li>Generates the default
 CIM Schema (defined in pegasus/mak/config.mak)
 in the repository (skeleton of CIM
 objects).&nbsp; Refer to PEGASUS_CIM_SCHEMA environment
 variable&nbsp; in&nbsp; Pegasus PEP 308&nbsp; to
 set&nbsp; alternate schema versions.<br>
-</li>
-<li>Loads
+  </li>
+  <li>Loads
 schema for CIM Server functions (shutdown, add users, etc) and
 CIM indications
 (SNMP, Events, Alert, Threshold, etc)
 internal to Pegasus. </li>
-<li>Registers included CIM Providers (libOSProvider.so,
-libDNSProvider.so, … ) in OpenPegasus (which are located in
+  <li>Registers included CIM Providers (libOSProvider.so,
+libDNSProvider.so, &hellip; ) in OpenPegasus (which are located in
 src/Providers) <br>
-</li>
+  </li>
 </ul>
 <h2><a name="reg_prov">Register
 Providers</a></h2>
 <p style="margin-left: 40px;">OpenPegasus registers
 Providers using a
 set of provider registration classes
-encoded in MOF. This set of classes is close
-to, but not
-exactly the same as, the experimental DMTF definition (See the DMTF
-Interop
-schema, experimental versions starting with 2.6). This will be
-harmonized in the future when the DMTF schema is moved to final
-status.&nbsp; </p>
+encoded in MOF. This classes are proprietary to OpenPegasus
+today.&nbsp; </p>
 <p style="margin-left: 40px;">Registration
 is performed by creating instances of the
 registration classes that represent the provider module, providers,
 capabilities, etc. to be
 registered.&nbsp; The easiest way to create a new
 registration today is to copy from one of the existing registration
-MOFs.&nbsp; See the <big><span style="font-family: Courier New,Courier,monospace;">pegasus/src/Providers/sample/Load</span></big>
+MOFs.&nbsp; See the <big><span
+ style="font-family: Courier New,Courier,monospace;">pegasus/src/Providers/sample/Load</span></big>
 directory for examples of
 several registration instance implementations that do work with
 OpenPegasus
 today.</p>
+<p style="margin-left: 40px;">Registration may be performed by creating
+compiling the registration mof with either the on-line or off-line
+Pegasus mof compiler. &nbsp;It is recommended that providers be
+registered with the on-line compiler because this allows pegasus to
+validate the registration information.</p>
 <h2><a name="note_bld_peg_lnx">Notes about
 Building on Linux </a></h2>
 <p style="margin-left: 40px;">
@@ -534,10 +569,12 @@ of
 PEGASUS_PLATFORM is normally LINUX_IX86_64_GNU.&nbsp; Use the g++
 compiler to compile and link the executables. All of the supported
 platform
-definitions are defined in <big><span style="font-family: Courier New,Courier,monospace;">pegasus/mak</span></big>
+definitions are defined in <big><span
+ style="font-family: Courier New,Courier,monospace;">pegasus/mak</span></big>
 as&nbsp; make files with the
 definition:</p>
-<p style="margin-left: 40px;">&nbsp; &nbsp; <span style="font-family: monospace;">&nbsp; &nbsp;
+<p style="margin-left: 40px;">&nbsp; &nbsp; <span
+ style="font-family: monospace;">&nbsp; &nbsp;
 platform_&lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt;</span></p>
 <p style="margin-left: 40px;">The
 &lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt;
@@ -550,18 +587,20 @@ about Building on Windows </a></h2>
 <p style="margin-left: 40px;">
 Use of Windows 2000 SP3 or later is recommended.&nbsp; OpenPegasus
 is
-regularly tested on both Windows 2000 and Windows XP using the
-Microsoft Visual C++ compilers.</p>
-<p style="margin-left: 40px;">Today we build OpenPegasus
+regularly tested on mulitple windows platforms.</p>
+<p style="margin-left: 40px;">We build OpenPegasus
 on Windows
 using a set of Makefiles
 contained
 in the source distribution, the Microsoft compilers (DevStudio 5.x is
 not supported, Visual Studio 6.0 (SP5) or later is supported) and the
 GNUMAKE
-make utility.&nbsp; Note that you MUST have the OpenPegasus <a href="#mu_utility">mu.exe </a>utility compiled and
+make utility.&nbsp; Note that you MUST have the OpenPegasus <a
+ href="#mu_utility">mu.exe </a>utility compiled and
 available
-before trying to compile OpenPegasus on the normal windows platform.
+before trying to compile OpenPegasus on the normal windows platform
+(This utility allows use of unix command line semantics for certain
+operations in windows).
 The
 following is the basic setup steps for the environment.
 </p>
@@ -576,7 +615,21 @@ with Microsoft Visual C++. (contained in the same directory as cl.exe).
 following for an
 example environment: </p>
 <blockquote>
-<pre style="margin-left: 40px;"><span style="font-family: monospace;">REM call the standard Microsoft .bat for VC 6 setup. </span><br style="font-family: monospace;"><span style="font-family: monospace;">call 'C:/Program Files\Microsoft Visual Studio\VC98\Bin\Vcvars32.bat' </span><br style="font-family: monospace;"><span style="font-family: monospace;">REM Set debug to something if you want to compile in debug mode </span><br style="font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_DEBUG=true </span><br style="font-family: monospace;"><span style="font-family: monospace;">REM set PEGASUS_ROOT to top of source tree </span><br style="font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_ROOT=C:/cimom/pegasus </span><br style="font-family: monospace;"><span style="font-family: monospace;">REM (Note: </span><span style="font-family: monospace;" class="norm">The '/' characters are intentional and required by the OpenPegasus build system). <br>REM     Also the disk designator (C:) is required for at least some newer versions of the Microsoft<br>REM&nbsp;    compilers to avoid confusion between options and paths<br></span><span style="font-family: monospace;">REM set PEGASUS_HOME to where you want repository and executables, it can be the same as PEGASUS_ROOT</span><br style="font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_HOME=%PEGASUS_ROOT% </span><br style="font-family: monospace;"><span style="font-family: monospace;">REM set PEGASUS_PLATFORM for Windows</span><br style="color: rgb(255, 0, 0); font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_PLATFORM=WIN32_IX86_MSVC</span><br style="font-family: monospace;"><span style="font-family: monospace;">REM setup the path to the runtime files. </span><br style="font-family: monospace;"><span style="font-family: monospace;">set path=%path%;%PEGASUS_HOME%\bin </span><br></pre>
+  <pre style="margin-left: 40px;"><span style="font-family: monospace;">REM call the standard Microsoft .bat for VC 6 setup. </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">call 'C:/Program Files\Microsoft Visual Studio\VC98\Bin\Vcvars32.bat' </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">REM Set debug to something if you want to compile in debug mode </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_DEBUG=true </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">REM set PEGASUS_ROOT to top of source tree </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_ROOT=C:/cimom/pegasus </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">REM (Note: </span><span
+ style="font-family: monospace;" class="norm">The '/' characters are intentional and required by the OpenPegasus build system). <br>REM     Also the disk designator (C:) is required for at least some newer versions of the Microsoft<br>REM&nbsp;    compilers to avoid confusion between options and paths<br></span><span
+ style="font-family: monospace;">REM set PEGASUS_HOME to where you want repository and executables, it can be the same as PEGASUS_ROOT</span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">set PEGASUS_HOME=%PEGASUS_ROOT% </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">REM set PEGASUS_PLATFORM for Windows</span><br
+ style="color: rgb(255, 0, 0); font-family: monospace;"><span
+ style="font-family: monospace;">set PEGASUS_PLATFORM=WIN32_IX86_MSVC</span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">REM setup the path to the runtime files. </span><br
+ style="font-family: monospace;"><span style="font-family: monospace;">set path=%path%;%PEGASUS_HOME%\bin </span><br></pre>
 </blockquote>
 <h3>
 <a name="mu_utility">The MU Utility </a></h3>
@@ -605,7 +658,8 @@ globing
 (expansion of wildcards) so
 you can do things like this:
 </p>
-<p style="margin-left: 40px;"><font face="Courier New">&nbsp;&nbsp;&nbsp;</font><span style="font-family: monospace;">
+<p style="margin-left: 40px;"><font face="Courier New">&nbsp;&nbsp;&nbsp;</font><span
+ style="font-family: monospace;">
 C:\&gt; mu rm *.obj *.exe</span> </p>
 <p style="margin-left: 40px;">MU is required to build
 under the Windows
@@ -613,7 +667,8 @@ environment. MU is
 available as part
 of the distribution of OpenPegasus.<br>
 </p>
-<div style="margin-left: 40px;"><span style="font-weight: bold;">NOTE:</span> The binary for
+<div style="margin-left: 40px;"><span style="font-weight: bold;">NOTE:</span>
+The binary for
 MU.EXE is not
 distributed in the OpenPegasus bin
 directory.
@@ -622,7 +677,8 @@ distribution
 in the directory src/utils/MU with its own make file. You must compile
 MU
 before you initiate the OpenPegasus make. A copy of the binary is made
-available as a zip file on the OpenPegasus <a href="http://www.openpegasus.org/pb/index.tpl?CALLER=index.tpl">Tools</a>
+available as a zip file on the OpenPegasus <a
+ href="http://www.openpegasus.org/pb/index.tpl?CALLER=index.tpl">Tools</a>
 web page.<br>
 </div>
 <h2><a name="note_bld_peg_ssl">Notes about
@@ -661,7 +717,7 @@ environment, including:
 </p>
 <div style="margin-left: 40px;">
 <ul>
-<li><b>Test Clients</b> - There are several
+  <li><b>Test Clients</b> - There are several
 clients that have been
 built specifically to test OpenPegasus, or parts of OpenPegasus,
 including
@@ -679,7 +735,7 @@ test providers.</li>
 </div>
 <div style="margin-left: 40px;">
 <ul>
-<li><b>Sample and Test Providers</b> -&nbsp;
+  <li><b>Sample and Test Providers</b> -&nbsp;
 Test providers exist
 for
 the major provider types in the src/Providers/sample
@@ -687,12 +743,12 @@ and src/Providers/TestProviders directories.</li>
 </ul>
 </div>
 <ul>
-<ul>
-</ul>
+  <ul>
+  </ul>
 </ul>
 <div style="margin-left: 40px;">
 <ul>
-<li><b>Unit Tests</b> - Most OpenPegasus
+  <li><b>Unit Tests</b> - Most OpenPegasus
 functions include unit
 tests
 for
@@ -711,7 +767,7 @@ repository.</li>
 </ul>
 </div>
 <ul style="margin-left: 40px;">
-<li><b>End-to-end Test Suite</b> - the directory
+  <li><b>End-to-end Test Suite</b> - the directory
 "test" contains
 a
 set of operation
@@ -727,21 +783,21 @@ successfully built, the&nbsp; tests can be executed through the
 root Makefile
 with targets such as:</p>
 <blockquote>
-<ul>
-</ul>
-<ul>
-<li><b>make unittests </b>- Execute the unit
+  <ul>
+  </ul>
+  <ul>
+    <li><b>make unittests </b>- Execute the unit
 tests. These do not depend on having a running server or repository
 installed.&nbsp; They test components of the OpenPegasus code.
 These tests run to completion if successful but normally stop on the
 first error found by a test program.</li>
-<ul>
-</ul>
-</ul>
+    <ul>
+    </ul>
+  </ul>
 </blockquote>
 <blockquote>
-<ul>
-<li><b>make servertests</b> - Executes the
+  <ul>
+    <li><b>make servertests</b> - Executes the
 OpenPegasus end-to-end test suite against a running OpenPegasus server
 starting and stopping the server as required to modify configuration
 parameters. The repository must be installed for these tests to execute
@@ -751,15 +807,14 @@ successful completion if there are not errors detected but will
 normally stop on the first error.&nbsp; There is a subset of these
 tests that can be run in an environment that does not have root
 privileges but root privileges are required to run the complete suite.</li>
-</ul>
+  </ul>
 </blockquote>
 <ul>
 </ul>
 <ul style="margin-left: 40px;">
-<li><b>make alltests</b> - execute both the
+  <li><b>make alltests</b> - execute both the
 unit and end-to-end tests.</li>
 </ul>
-
 <h2><a name="test_icu">Testing with ICU enabled</a></h2>
 <p style="margin-left: 40px;">ICU (International
 Components for
@@ -852,4 +907,5 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <hr>
-</body></html>
+</body>
+</html>

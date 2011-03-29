@@ -825,6 +825,58 @@ void _testFilterOfAssociations(CIMClient& client)
                 }
             }
         }
+        cout<<"++++++++Filtering the duplicate properties from the" 
+            <<"propertList+++"<<endl;
+        Array<CIMName> propArr1;
+        propArr1.append(CIMName(String("name")));
+        propArr1.append(CIMName(String("name")));
+        propArr1.append(CIMName(String("name")));
+        for (Uint32 i = 0; i < numPersonInstances; ++i)
+        {
+            Array<CIMObject> resultObjects =
+                client.associators(
+                    NAMESPACE,
+                    personRefs[0],
+                    TEST_TEACHES,
+                    resultClass,
+                    role,
+                    resultRole,
+                    false,
+                    false,
+                    CIMPropertyList(propArr1));
+            Uint32 size = resultObjects.size();
+            for(Uint32 j = 0;j<size;j++)
+            {
+                Uint32 propCount = resultObjects[j].getPropertyCount();
+                Uint32 propNameCount = 0;
+                if(propCount != 0)
+                {
+                    String propName=
+                        resultObjects[j].getProperty(0).getName().getString();
+                    if(verbose)
+                    {
+                        cout<<"Property Name "<<propName<<endl;
+                    }
+                    if((propName == "name") ||(propName == "Name"))
+                    {
+                        propNameCount++;
+                    }
+                }
+                if((size !=0) &&(propCount == 1) && (propNameCount == 1))
+                {
+                    cout<<"Filter associators test on TEST_TEACHES SUCCEEDED"
+                        <<":Filtering the ciminstance with duplicate properties"
+                        <<" returned mentioned property as expected"<<endl;
+                }
+                else
+                {
+                    cout<<"Filter associators test on TEST_TEACHES FAILED"
+                        <<":Filtering the ciminstance with duplicate properties"
+                        <<" did not return properties as expected "<<endl;
+                    PEGASUS_TEST_ASSERT(false);
+                }
+            }
+        }
     }
     catch(Exception& e)
     {
@@ -1008,6 +1060,56 @@ void _testEnumerateInstancesPropFilter(CIMClient& client)
                 cout<<"Filter enumerateInstances test on TEST_TEACHES FAILED"
                     <<":Filtering the ciminstance with a mentioned property "
                     <<"list did not return properties as expected "<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+    }
+    {
+        cout<<"++++++++property list with duplicate property names"
+            <<" filtered output++++++++"<<endl;
+        Array<CIMName> propNames;
+        propNames.append(CIMName(String("teacher")));
+        propNames.append(CIMName(String("student")));
+        propNames.append(CIMName(String("teacher")));
+        propNames.append(CIMName(String("student")));
+        Array<CIMInstance> cimInstances =
+            client.enumerateInstances(
+                NAMESPACE,
+                CLASSNAME,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstances[i]);
+            }
+            Uint32 propertyCount = cimInstances[i].getPropertyCount();
+            Uint32 propNameCount = 0;
+            for(Uint32 j=0;j<propertyCount;j++)
+            {
+                String propName=
+                    cimInstances[i].getProperty(j).getName().getString();
+                if(propName == "teacher" || propName == "student")
+                {
+                   propNameCount++;
+                }
+            }
+            if((propertyCount == 2) && (propNameCount == 2))
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with duplicate properties "
+                    <<"returned mentioned property as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter enumerateInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with duplicate properties"
+                    <<"did not return properties as expected "<<endl;
                 PEGASUS_TEST_ASSERT(false);
             }
         }
@@ -1205,6 +1307,64 @@ void _testGetInstancePropFilter(CIMClient& client)
                 cout<<"Filter getInstances test on TEST_TEACHES FAILED"
                     <<":Filtering the ciminstance with a mentioned property "
                     <<"list did not return properties as expected "<<endl;
+                PEGASUS_TEST_ASSERT(false);
+            }
+        }
+        catch (CIMException& e)
+        {
+            if (verbose)
+            {
+                cout << "CIMException(" << e.getCode() << "): " <<
+                     e.getMessage() << endl;
+            }
+        }
+    }
+    cout<<"++++++++property list with duplicate property names"
+        <<"filtered output++++++++"<<endl;
+    for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+    {
+        CIMInstance cimInstance;
+        try
+        {
+            Array<CIMName> propNames;
+            propNames.append(CIMName(String("teacher")));
+            propNames.append(CIMName(String("STUDENT")));
+            propNames.append(CIMName(String("teacher")));
+            propNames.append(CIMName(String("student")));
+            cimInstance = client.getInstance(
+                NAMESPACE,
+                cimInstanceNames[i],
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList(propNames));
+            if (verbose)
+            {
+                XmlWriter::printInstanceElement(cimInstance);
+            }
+            Uint32 propertyCount = cimInstance.getPropertyCount();
+            Uint32 propNameCount = 0;
+            for(Uint32 j=0;j<propertyCount;j++)
+            {
+                String propName=
+                    cimInstance.getProperty(j).getName().
+                        getString();
+                if(propName == "teacher" || propName == "student")
+                {
+                    propNameCount++;
+                }
+            }
+            if((propertyCount == 2) && (propNameCount == 2))
+            {
+                cout<<"Filter getInstance test on TEST_TEACHES SUCCEEDED"
+                    <<":Filtering the ciminstance with duplicate properties"
+                    <<"returned mentioned property as expected"<<endl;
+            }
+            else
+            {
+                cout<<"Filter getInstances test on TEST_TEACHES FAILED"
+                    <<":Filtering the ciminstance with duplicate properties"
+                    <<"did not return properties as expected "<<endl;
                 PEGASUS_TEST_ASSERT(false);
             }
         }

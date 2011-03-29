@@ -643,7 +643,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        _propertyList.fillCIMNameTags();
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -819,7 +818,6 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
     if ((0 == _encoding) ||
         (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM)))
     {
-        _propertyList.fillCIMNameTags();
         switch (_dataType)
         {
             case RESP_INSTANCE:

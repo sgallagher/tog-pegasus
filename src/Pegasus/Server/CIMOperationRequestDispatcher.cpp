@@ -3116,15 +3116,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         // in the specified class.
         if (!request->deepInheritance && request->propertyList.isNull())
         {
-            Array<CIMName> propertyNameArray;
             Uint32 numProperties = cimClass.getPropertyCount();
+            Array<String>  propertyListArray;
             for (Uint32 i = 0; i < numProperties; i++)
             {
-                propertyNameArray.append(cimClass.getProperty(i).getName());
+                propertyListArray.append(
+                    cimClass.getProperty(i).getName().getString());          
             }
-
-            request->propertyList.set(propertyNameArray);
+            request->propertyList.append(propertyListArray);
         }
+        
     }
 
     //

@@ -1991,12 +1991,7 @@ CIMGetInstanceRequestMessage*
                 {
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
+                    propertyList.append(propertyListArray);
                 }
             }
             duplicateParameter = gotPropertyList;
@@ -2207,12 +2202,7 @@ CIMEnumerateInstancesRequestMessage*
                 {
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
+                    propertyList.append(propertyListArray);
                 }
             }
             duplicateParameter = gotPropertyList;
@@ -2239,7 +2229,7 @@ CIMEnumerateInstancesRequestMessage*
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
     }
-
+    
     AutoPtr<CIMEnumerateInstancesRequestMessage> request(
         new CIMEnumerateInstancesRequestMessage(
             messageId,
@@ -2751,12 +2741,7 @@ CIMReferencesRequestMessage*
                 {
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
+                    propertyList.append(propertyListArray);
                 }
             }
             duplicateParameter = gotPropertyList;
@@ -3028,12 +3013,7 @@ CIMAssociatorsRequestMessage*
                 {
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
+                    propertyList.append(propertyListArray);
                 }
             }
             duplicateParameter = gotPropertyList;

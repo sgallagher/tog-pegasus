@@ -1575,6 +1575,14 @@ void CIMBuffer::putPropertyList(const CIMPropertyList& x)
 
         for (Uint32 i = 0; i < n; i++)
             putName(rep->propertyNames[i]);
+
+        Uint32 tagCount = rep->cimNameTags.size();
+        putUint32(tagCount);
+      
+        for(Uint32 j = 0; j < tagCount; j++)
+        {
+            putUint32(rep->cimNameTags[j]);
+        } 
     }
 }
 
@@ -1611,6 +1619,17 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
 
         x.~CIMPropertyList();
         new(&x) CIMPropertyList(names);
+      
+        Uint32 tagCount;
+        getUint32(tagCount);
+
+        for(Uint32 j=0;j<tagCount;j++)
+        {
+            Uint32 tag;
+            getUint32(tag);
+            x.appendCIMNameTag(tag);
+        }
+
     }
 
     return true;

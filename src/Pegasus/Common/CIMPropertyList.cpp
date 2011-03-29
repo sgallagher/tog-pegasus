@@ -180,22 +180,48 @@ Array<CIMName> CIMPropertyList::getPropertyNameArray() const
 {
     return _rep->propertyNames;
 }
-void CIMPropertyList::fillCIMNameTags()   
-{
-    _rep = _copyOnWriteCIMPropertyListRep(_rep);
 
-    if((!_rep->isNull) && (!_rep->isCimNameTagsUpdated))
-    {
-        for(Uint32 i=0;i<_rep->propertyNames.size();i++)
-        {
-            _rep->cimNameTags.append(
-                generateCIMNameTag(_rep->propertyNames[i]));
-        } 
-        _rep->isCimNameTagsUpdated = true;
-    }
-}
 Uint32 CIMPropertyList::getCIMNameTag(Uint32 index) const
 {
     return _rep->cimNameTags[index]; 
 }
+void CIMPropertyList::append(Array<String> & propertyListArray)
+{
+    _rep = _copyOnWriteCIMPropertyListRep(_rep);
+    Array<Uint32> cimNameTags;
+    Array<CIMName> cimNameArray;
+    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+    {
+        CIMName name(propertyListArray[i]);
+        Uint32 tag = generateCIMNameTag(name);
+        Boolean dupFound=false;
+        for(Uint32 j=0;j<cimNameTags.size();j++)
+        {
+            if ((tag == cimNameTags[j]) && (name == cimNameArray[j]))
+            {
+                dupFound = true;
+                break;
+            }
+        }
+        if(!dupFound)
+        {
+            cimNameTags.append(tag);
+            cimNameArray.append(name);
+        }
+    }
+    if(cimNameTags.size() != 0 )
+    {
+        _rep->cimNameTags.appendArray(cimNameTags);
+        _rep->propertyNames = cimNameArray;
+        _rep->isCimNameTagsUpdated = true;
+    }
+    _rep->isNull = false;
+}
+
+void CIMPropertyList::appendCIMNameTag(Uint32 nameTag)
+{
+    _rep = _copyOnWriteCIMPropertyListRep(_rep);
+    _rep->cimNameTags.append(nameTag);
+}
+
 PEGASUS_NAMESPACE_END

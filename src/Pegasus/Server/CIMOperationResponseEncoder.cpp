@@ -225,8 +225,12 @@ void CIMOperationResponseEncoder::sendResponse(
             // NOTE: even if this error occurs in the middle, HTTPConnection
             // will flush the entire queued message and reformat.
             if (isChunkRequest == false)
+            {
                 message =
                     formatError(name, messageId, httpMethod, cimException);
+                // Errors are always returned XML and not binary
+                response->binaryResponse = false;
+            }
 
             // uri encode the error (for the http header) only when it is
             // non-chunking or the first error with chunking

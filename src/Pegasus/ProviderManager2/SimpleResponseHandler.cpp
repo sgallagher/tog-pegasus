@@ -330,8 +330,8 @@ void SimpleMethodResultResponseHandler::deliver(const CIMValue& returnValue)
         "SimpleMethodResultResponseHandler::deliver()");
 
     _returnValue = returnValue;
-
-    send(false);
+    // async delivers are not supported for returnValues and parameters
+    //send(false);
 }
 
 const Array<CIMParamValue>

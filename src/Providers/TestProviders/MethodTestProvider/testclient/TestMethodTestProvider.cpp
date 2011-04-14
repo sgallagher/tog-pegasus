@@ -97,6 +97,40 @@ void callMethod(const CIMName& methodName)
     }
 }
 
+void  callMethodOutputParam(const CIMName& methodName)
+{
+    try
+    {
+        CIMClient client;
+        client.connectLocal();
+
+        Array<CIMParamValue> inParams;
+        Array<CIMParamValue> outParams;
+
+        CIMObjectPath instName =
+            CIMObjectPath("Test_MethodProviderClass.Id=1");
+
+        CIMValue returnValue = client.invokeMethod(
+            NAMESPACE,
+            instName,
+            methodName,
+            inParams,
+            outParams);
+
+        Uint32 rc;
+        returnValue.get(rc);
+        PEGASUS_TEST_ASSERT(rc == 0);
+
+        PEGASUS_TEST_ASSERT(outParams.size() == 101);
+    }
+    catch (Exception& e)
+    {
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
+    }
+}
+
+
 /* Test for method invoke and response that handles ref parameter
    This functions sends two ref  in parameters and expects exactly the
    same references back in the two out parameters.
@@ -282,6 +316,11 @@ int main(int argc, char** argv)
             cout << "Calling test4" << endl;
         }
         callMethodRefParamArray("test4");
+        if (verbose)
+        {
+            cout << "Calling test5" << endl;
+        }
+        callMethodOutputParam("test5");
     }
     catch (Exception& e)
     {

@@ -374,7 +374,18 @@ void MethodTestProvider::invokeMethod(
 
         handler.deliver(Uint32(10));
     }
-
+    /* Test 5 is for testing the out parameters whose size exceeds object
+       response threshold count (default 100).
+    */
+    else if (methodName.equal("test5"))
+    {
+        for (Uint32 i = 0; i <  101; ++i)
+        {
+            handler.deliverParamValue(
+                CIMParamValue("OutParam", String("OutParamTest")));
+            handler.deliver(Uint32(0));
+        }
+    }
     else
     {
         throw CIMNotSupportedException(methodName.getString());

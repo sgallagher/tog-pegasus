@@ -57,4 +57,6 @@ class Test_MethodProviderClass
         [in]  CIM_ComputerSystem ref InParam2[],
 	[out] CIM_ComputerSystem ref Outparam1[],
 	[out] CIM_ComputerSystem ref Outparam2[]);
+
+    uint32 Test5([out]  string OutParam);
 };

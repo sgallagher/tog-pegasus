@@ -225,6 +225,8 @@ private:
      **/
     static Semaphore  _scmoClassDelivered;
     static SCMOClass* _transferSCMOClass;
+    static Mutex       _transferSCMOClassMutex;
+    static String      _transferSCMOClassRspMsgID;
 
     /**
        Indicates if the provider agent has been successful initialised already.

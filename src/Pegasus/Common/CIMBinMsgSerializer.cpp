@@ -920,6 +920,7 @@ void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
     CIMBuffer& out,
     ProvAgtGetScmoClassRequestMessage* msg)
 {
+    out.putString(msg->messageId);
     out.putNamespaceName(msg->nameSpace);
     out.putName(msg->className);    
 }
@@ -1083,6 +1084,7 @@ void CIMBinMsgSerializer::_putProvAgtGetScmoClassResponseMessage(
     CIMBuffer& out,
     ProvAgtGetScmoClassResponseMessage* msg)
 {
+    out.putString(msg->messageId);
     out.putSCMOClass(msg->scmoClass);
 }
 

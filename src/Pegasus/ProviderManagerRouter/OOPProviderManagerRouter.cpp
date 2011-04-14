@@ -997,16 +997,6 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
         }
     } while (response == _REQUEST_NOT_PROCESSED);
 
-    if (msgType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
-    {
-        _subscriptionInitComplete = true;
-    }
-    else if (msgType ==
-        CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
-    {
-        _subscriptionInitComplete = false;
-    }
-
     PEG_METHOD_EXIT();
     return response;
 }
@@ -1283,7 +1273,7 @@ void ProviderAgentContainer::_processGetSCMOClassRequest(
 
     AutoPtr<ProvAgtGetScmoClassResponseMessage> response(
         new ProvAgtGetScmoClassResponseMessage(
-            XmlWriter::getNextMessageId(),
+            request->messageId,
             CIMException(),
             QueueIdStack(),
             SCMOClass("","")));

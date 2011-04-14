@@ -1582,6 +1582,10 @@ CIMBinMsgDeserializer::_getProvAgtGetScmoClassRequestMessage(
 {
     CIMName className;
     CIMNamespaceName nsName;
+    String messageID;
+
+    if (!in.getString(messageID))
+        return false;
 
     if (!in.getNamespaceName(nsName))
         return false;
@@ -1590,7 +1594,7 @@ CIMBinMsgDeserializer::_getProvAgtGetScmoClassRequestMessage(
         return false;
 
     return new ProvAgtGetScmoClassRequestMessage(
-        String::EMPTY,
+        messageID,
         nsName,
         className,
         QueueIdStack());
@@ -2050,13 +2054,16 @@ CIMBinMsgDeserializer::_getProvAgtGetScmoClassResponseMessage(
     CIMBuffer& in)
 {
     SCMOClass theClass("","");
+    String messageID;
 
+    if (!in.getString(messageID))
+        return false;
 
     if (!in.getSCMOClass(theClass))
         return false;
 
     return new ProvAgtGetScmoClassResponseMessage(
-        String::EMPTY,
+        messageID,
         CIMException(),
         QueueIdStack(),
         theClass);

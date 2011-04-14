@@ -94,6 +94,8 @@ static struct timeval deallocateWait = {300, 0};
 
 Semaphore ProviderAgent::_scmoClassDelivered(0);
 SCMOClass* ProviderAgent::_transferSCMOClass = 0;
+Mutex ProviderAgent::_transferSCMOClassMutex;
+String ProviderAgent::_transferSCMOClassRspMsgID;
 
 ProviderAgent* ProviderAgent::_providerAgent = 0;
 
@@ -541,24 +543,6 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
         delete request;
     }
-    else if (request->getType () ==
-             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
-            request->getType () ==
-             CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
-
-    {
-        //
-        // Process the request in this thread
-        //
-        AutoPtr <Message> response (_processRequest (request));
-        _writeResponse (response.get ());
-
-        //
-        //  Note: the response does not contain interesting data
-        //
-
-        delete request;
-    }
     else
     {
         // Start a new thread to process the request
@@ -579,9 +563,15 @@ Boolean ProviderAgent::_readAndProcessRequest()
             // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
             // CIM_EXPORT_INDICATION_REQUEST_MESSAGE 
             // All the above have already been handled differently
-            // except for CIM_EXPORT_INDICATION_REQUEST_MESSAGE.
+            // except for CIM_EXPORT_INDICATION_REQUEST_MESSAGE,
+            // CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE and
+            // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE.
             if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES &&
-                request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+                (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE ||
+                 request->getType() == 
+                     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
+                 request->getType() == 
+                     CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE))
             {
                 Threads::yield();
             }
@@ -676,17 +666,21 @@ void ProviderAgent::_processGetSCMOClassResponse(
     // _scmoClassCache_GetClass()
     //
 
-    if (0 != _transferSCMOClass)
     {
-         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
-             "_transferSCMOClass was not cleand up!");
-         delete  _transferSCMOClass;
-         _transferSCMOClass = 0;
+        AutoMutex mtx(_transferSCMOClassMutex);
+        if (0 != _transferSCMOClass)
+        {
+             PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
+                 "_transferSCMOClass was not cleand up. The previous "
+                     "ProvAgtGetScmoClassRequest's might have been timed-out.");
+             delete  _transferSCMOClass;
+             _transferSCMOClass = 0;
+        }
+
+        // Copy class and messageID from response
+        _transferSCMOClass = new SCMOClass(response->scmoClass);
+        _transferSCMOClassRspMsgID = response->messageId;
     }
-
-
-    // Copy class from response
-    _transferSCMOClass = new SCMOClass(response->scmoClass);
 
     // signal delivery of SCMOClass to _scmoClassCache_GetClass()
     _scmoClassDelivered.signal();
@@ -902,10 +896,11 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
         "ProviderAgent::_scmoClassCache_GetClass");
 
+    String requestID = XmlWriter::getNextMessageId();
     // create message
     ProvAgtGetScmoClassRequestMessage* message =
         new ProvAgtGetScmoClassRequestMessage(
-        XmlWriter::getNextMessageId(),
+        requestID,
         nameSpace,
         className,
         QueueIdStack());
@@ -915,39 +910,53 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
 
     delete message;
 
-    // Wait for semaphore signaled by _readAndProcessRequest()
-    if (!_scmoClassDelivered.time_wait(
-            PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS))
+    for(;;)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Timed-out waiting for SCMOClass for "
+        // Wait for semaphore signaled by _readAndProcessRequest()
+        if (!_scmoClassDelivered.time_wait(
+            PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS))
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Timed-out waiting for SCMOClass for "
                     "Name Space Name '%s' Class Name '%s'",
                 (const char*)nameSpace.getString().getCString(),
                 (const char*)className.getString().getCString()));
-        PEG_METHOD_EXIT();
-        return SCMOClass("","");
-    }
+            PEG_METHOD_EXIT();
+            return SCMOClass("","");
+        }
 
-    if ( 0 == _transferSCMOClass)
-    {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "No SCMOClass received for Name Space Name '%s' Class Name '%s'",
+
+        AutoMutex mtx(_transferSCMOClassMutex);
+        if ( 0 == _transferSCMOClass)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "No SCMOClass received for Name Space Name '%s' "
+                    "Class Name '%s'",
                 (const char*)nameSpace.getString().getCString(),
                 (const char*)className.getString().getCString()));
+            PEG_METHOD_EXIT();
+            return SCMOClass("","");
+        }
+
+        // Verify if we have actually received the response for our
+        // request. This may happen when previous requests have timed out.
+        if (_transferSCMOClassRspMsgID != requestID)
+        {
+            delete _transferSCMOClass;
+            _transferSCMOClass = 0;
+            continue;
+        }
+
+        // Create a local copy.
+        SCMOClass ret = SCMOClass(*_transferSCMOClass);
+
+        // Delete the transferred instance.
+        delete _transferSCMOClass;
+        _transferSCMOClass = 0;
+
         PEG_METHOD_EXIT();
-        return SCMOClass("","");
+        return ret;
     }
-
-    // Create a local copy.
-    SCMOClass ret = SCMOClass(*_transferSCMOClass);
-
-    // Delete the transferred instance.
-    delete _transferSCMOClass;
-    _transferSCMOClass = 0;
-
-    PEG_METHOD_EXIT();
-    return ret;
-
 }
 
 //

@@ -540,12 +540,14 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
 {
     AutoMutex mtx(_queueMutex);
 
-    nextIndDRIExpTimeUsec = 0;
-
     if (!_queue.size() || _lastDeliveryRetryStatus == PENDING)
     {
+        // Maximum expiration time is equals to DeliveryRetryInterval.
+        nextIndDRIExpTimeUsec = _minDeliveryRetryIntervalUsec;
         return 0;
     }
+
+    nextIndDRIExpTimeUsec = 0;
 
     IndicationInfo *info;
 

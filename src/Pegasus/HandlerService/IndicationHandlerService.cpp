@@ -1010,6 +1010,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL
     while ((indication = service->_deliveryQueue.remove_front()))
     {
         service->_deliverIndication(indication);
+        // Notify the dispatcher that the indication delivery has finished.
+        service->_dispatcherWaitSemaphore.signal();
     }
     service->_deliveryThreadsRunningCount--;
     PEG_METHOD_EXIT();

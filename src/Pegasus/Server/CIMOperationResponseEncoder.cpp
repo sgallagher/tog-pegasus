@@ -228,8 +228,6 @@ void CIMOperationResponseEncoder::sendResponse(
             {
                 message =
                     formatError(name, messageId, httpMethod, cimException);
-                // Errors are always returned XML and not binary
-                response->binaryResponse = false;
             }
 
             // uri encode the error (for the http header) only when it is

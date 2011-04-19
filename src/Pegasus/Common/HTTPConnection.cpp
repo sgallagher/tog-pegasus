@@ -616,6 +616,8 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                         // null terminate
                         messageStart = (char *) buffer.getData();
                         messageStart[messageLength] = 0;
+                        // Error messages are always encoded non-binary
+                        httpMessage.binaryResponse = false;
                     }
                     bytesRemaining = messageLength;
                 }

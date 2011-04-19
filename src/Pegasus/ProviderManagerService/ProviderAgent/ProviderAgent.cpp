@@ -957,6 +957,8 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
         PEG_METHOD_EXIT();
         return ret;
     }
+
+    PEGASUS_UNREACHABLE(return SCMOClass("","");)
 }
 
 //

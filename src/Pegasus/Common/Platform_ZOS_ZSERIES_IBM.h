@@ -73,4 +73,6 @@
 
 #define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
 
+#define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME "IBM z/OS CIM Server-pegasus"
+
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

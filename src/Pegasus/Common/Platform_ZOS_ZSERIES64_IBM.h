@@ -77,4 +77,6 @@
 
 #define PEGASUS_INITIAL_THREADSTACK_SIZE 1024*1024
 
+#define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME "IBM z/OS CIM Server-pegasus"
+
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

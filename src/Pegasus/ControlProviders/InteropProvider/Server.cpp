@@ -438,14 +438,11 @@ CIMInstance InteropProvider::getObjectManagerInstance()
             PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString());
         setPropertyValue(instance, OM_PROPERTY_NAME,
             String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + Guid::getGuid());
-#ifdef PEGASUS_FLAVOR
-        String elementName(PEGASUS_FLAVOR);
-        elementName.append(Char16('-'));
-        elementName.append("pegasus");
-        setPropertyValue(instance, OM_PROPERTY_ELEMENTNAME, elementName);
-#else
-        setPropertyValue(instance, OM_PROPERTY_ELEMENTNAME, String("Pegasus"));
-#endif
+        setPropertyValue(
+            instance, 
+            OM_PROPERTY_ELEMENTNAME, 
+            String(PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME));
+
         Array<Uint16> operationalStatus;
         operationalStatus.append(2);
         setPropertyValue(instance, OM_PROPERTY_OPERATIONALSTATUS,

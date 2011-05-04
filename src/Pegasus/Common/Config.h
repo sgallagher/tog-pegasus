@@ -313,4 +313,24 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_INITIAL_THREADSTACK_SIZE 256*1024
 #endif
 
+/*
+** PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME
+** 
+** This macro is used to set ElementName property on the PG_ObjectManager
+** instance. This value is also used in SLP announcment for service-hi-name.
+**
+** This value can be overridden platform specific by defining the macro in
+** the corresponding PEGASUS_PLATFORM_*.h file.
+*/
+
+
+#ifndef PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME
+# ifdef PEGASUS_FLAVOR
+#  define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME PEGASUS_FLAVOR"-pegasus"
+# else
+#  define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME "Pegasus"
+# endif 
+#endif
+
+
 #endif  /* Pegasus_Config_h */

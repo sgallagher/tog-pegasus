@@ -29,6 +29,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_CIMDateTimeInline_h
+#define Pegasus_CIMDateTimeInline_h
+
 #include <cstring>
 #include <cassert>
 #include "CIMDateTime.h"
@@ -327,3 +330,5 @@ static inline void _DateTimetoCStr(const CIMDateTimeRep& rep, char buffer[26])
 }
 
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_CIMDateTimeInline_h */

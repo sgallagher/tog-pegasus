@@ -910,6 +910,8 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
 
     delete message;
 
+    SCMOClass scmoClass = SCMOClass("","");
+
     for(;;)
     {
         // Wait for semaphore signaled by _readAndProcessRequest()
@@ -921,8 +923,7 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
                     "Name Space Name '%s' Class Name '%s'",
                 (const char*)nameSpace.getString().getCString(),
                 (const char*)className.getString().getCString()));
-            PEG_METHOD_EXIT();
-            return SCMOClass("","");
+            break;
         }
 
 
@@ -934,8 +935,7 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
                     "Class Name '%s'",
                 (const char*)nameSpace.getString().getCString(),
                 (const char*)className.getString().getCString()));
-            PEG_METHOD_EXIT();
-            return SCMOClass("","");
+            break;
         }
 
         // Verify if we have actually received the response for our
@@ -948,17 +948,16 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
         }
 
         // Create a local copy.
-        SCMOClass ret = SCMOClass(*_transferSCMOClass);
+        scmoClass = SCMOClass(*_transferSCMOClass);
 
         // Delete the transferred instance.
         delete _transferSCMOClass;
         _transferSCMOClass = 0;
-
-        PEG_METHOD_EXIT();
-        return ret;
+        break;
     }
+    PEG_METHOD_EXIT();
 
-    PEGASUS_UNREACHABLE(return SCMOClass("","");)
+    return scmoClass;
 }
 
 //

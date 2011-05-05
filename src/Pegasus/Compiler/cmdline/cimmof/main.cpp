@@ -71,6 +71,13 @@ int main(int argc, char ** argv)
     // Allow user group name larger than 8 chars in PASE environemnt
     setenv("PASE_USRGRP_LIMITED","N",1);
 #endif
+
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
+
     int ret = 0;
     String msg_;
     MessageLoaderParms parms;
@@ -98,12 +105,6 @@ int main(int argc, char ** argv)
     {
         cerr << e.getMessage() << endl;
         ret = PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY;
-#ifdef PEGASUS_OS_ZOS
-  // for z/OS set stdout and stderr to EBCDIC
-  setEBCDICEncoding(STDOUT_FILENO);
-  setEBCDICEncoding(STDERR_FILENO);
-#endif
-
     }
     catch (CIMException &e)
     {

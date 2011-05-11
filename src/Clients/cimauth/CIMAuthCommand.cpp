@@ -139,12 +139,6 @@ static const Uint32 OPERATION_TYPE_VERSION        = 6;
 
 //l10n default messages and corresponding resource keys
 
-static const char NOT_PRIVILEGED_USER [] =
-    "You must have superuser privilege to run this command.";
-
-static const char NOT_PRIVILEGED_USER_KEY [] =
-    "Clients.cimauth.CIMAuthCommand.NOT_PRIVILEGED_USER";
-
 static const char CIMOM_NOT_RUNNING [] =
     "CIM Server may not be running.";
 
@@ -1438,20 +1432,6 @@ int main (int argc, char* argv [])
     // l10n set messageloading to process locale
     MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
-
-    //
-    // Check if root is issuing the command
-    //
-    if ( !System::isPrivilegedUser(System::getEffectiveUserName()) )
-    {
-        //l10n
-        //cerr << NOT_PRIVILEGED_USER << endl;
-        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY,
-                                 NOT_PRIVILEGED_USER);
-        parms.msg_src_path = MSG_PATH;
-        cerr << MessageLoader::getMessage(parms) << endl;
-        return 1;
-    }
 
     command.reset(new CIMAuthCommand ());
 

@@ -122,12 +122,6 @@ static const Uint32 OPERATION_TYPE_VERSION        = 6;
 
 //l10n
 
-static const char NOT_PRIVILEGED_USER [] =
-    "You must have superuser privilege to run this command.";
-
-static const char NOT_PRIVILEGED_USER_KEY [] =
-    "Clients.cimuser.CIMUserCommand.NOT_PRIVILEGED_USER";
-
 static const char CIMOM_NOT_RUNNING [] =
     "CIM Server may not be running.";
 
@@ -1473,18 +1467,6 @@ int main (int argc, char* argv[])
 
     MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
-
-    //
-    // Check if root is issuing the command
-    //
-    if (!System::isPrivilegedUser(System::getEffectiveUserName()))
-    {
-        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY,
-                NOT_PRIVILEGED_USER);
-        parms.msg_src_path = MSG_PATH;
-        cerr << MessageLoader::getMessage(parms) << endl;
-        return 1;
-    }
 
     command.reset(new CIMUserCommand ());
 

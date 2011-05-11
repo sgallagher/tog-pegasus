@@ -263,7 +263,10 @@ en:table {
 	//  Please use message prefix "PGC00400"
         // ==========================================================
 
-
+        /**
+        * @note PGC00400:
+        *    This message is no longer used in OpenPegasus release 2.12
+        */
         Clients.cimauth.CIMAuthCommand.NOT_PRIVILEGED_USER:string {"PGC00400: Superuser authority is required to run this command."}
 
         Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING:string {"PGC00401: The CIM server may not be running."}
@@ -449,6 +452,10 @@ en:table {
 	//  Please use message prefix "PGC00800"
         // ==========================================================
 
+        /**
+        * @note PGC00800:
+        *    This message is no longer used in OpenPegasus release 2.12
+        */
         Clients.cimuser.CIMUserCommand.NOT_PRIVILEGED_USER:string {"PGC00800: Superuser authority is required to run this command."}
 
         Clients.cimuser.CIMUserCommand.CIMOM_NOT_RUNNING:string {"PGC00801: The CIM server may not be running."}

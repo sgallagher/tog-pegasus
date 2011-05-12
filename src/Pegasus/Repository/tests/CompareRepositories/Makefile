@@ -40,10 +40,6 @@ SOURCES = CompareRepositories.cpp
 
 include $(ROOT)/mak/program.mak
 
-.PHONY: FORCE local-clean tests poststarttests
-
-FORCE: 
-
 local-clean:
 
 tests:

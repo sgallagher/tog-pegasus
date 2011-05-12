@@ -231,7 +231,7 @@ int main(int argc, char** argv)
     if (argc != 3)
     {
     fprintf(stderr,
-        "Usage: %s repository-root-1 repository-root-2\n", __FILE__);
+        "Usage: %s repository-root-1 repository-root-2\n", argv[0]);
     exit(1);
     }
 

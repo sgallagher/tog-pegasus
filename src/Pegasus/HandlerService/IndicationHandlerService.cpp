@@ -656,7 +656,7 @@ CIMResponseMessage*
                 _getQueueName(queue->getHandler().getPath()),
                 CIMKeyBinding::STRING));
 
-        CIMObjectPath instanceName(
+        CIMObjectPath instanceName = CIMObjectPath(
             String(),
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,

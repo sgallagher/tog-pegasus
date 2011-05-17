@@ -151,8 +151,6 @@ public:
 
     Semaphore* getShutdownSemaphore();
 
-    void setShutdownSemaphore(Semaphore* shutdownSempahore);
-
     void reset();
 
     String toString();

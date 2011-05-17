@@ -158,15 +158,6 @@ void DynamicConsumer::initialize()
     PEG_METHOD_EXIT();
 }
 
-void DynamicConsumer::setShutdownSemaphore(Semaphore* shutdownSemaphore)
-{
-    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::setShutdownSemaphore");
-
-    _shutdownSemaphore = shutdownSemaphore;
-
-    PEG_METHOD_EXIT();
-}
-
 Semaphore* DynamicConsumer::getShutdownSemaphore()
 {
     return _shutdownSemaphore;

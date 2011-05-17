@@ -391,10 +391,7 @@ void ConsumerManager::_initConsumer(
 
         consumer->initialize();
 
-        //ATTN: need to change this
-        Semaphore* semaphore = new Semaphore(0);  //blocking
-
-        consumer->setShutdownSemaphore(semaphore);
+        Semaphore* semaphore = consumer->getShutdownSemaphore();
 
         //start the worker thread
         if (_thread_pool->allocate_and_awaken(consumer,
@@ -406,8 +403,6 @@ void ConsumerManager::_initConsumer(
                 Tracer::LEVEL1,
                 "Could not allocate thread for consumer.");
 
-            consumer->setShutdownSemaphore(0);
-            delete semaphore;
             throw Exception(
                 MessageLoaderParms(
                     "DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD",

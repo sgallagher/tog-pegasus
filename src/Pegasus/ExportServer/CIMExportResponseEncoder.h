@@ -33,7 +33,7 @@
 #define Pegasus_CIMExportResponseEncoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
@@ -42,10 +42,10 @@ PEGASUS_NAMESPACE_BEGIN
 /** This class encodes CIM operation requests and passes them up-stream.
  */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder :
-    public MessageQueue
+    public MessageQueueService
 {
 public:
-    typedef MessageQueue Base;
+    typedef MessageQueueService Base;
 
     CIMExportResponseEncoder();
 

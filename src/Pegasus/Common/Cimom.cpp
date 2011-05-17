@@ -148,7 +148,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                 }
 
                 MessageQueueService *dest_svc =
-                    static_cast<MessageQueueService *>(dest_q);
+                    dynamic_cast<MessageQueueService *>(dest_q);
+                PEGASUS_ASSERT(dest_svc);
 
                 Boolean accepted = false;
                 if (dispatcher->_monitorCIMService(dest_svc))

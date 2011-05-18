@@ -147,6 +147,6 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 // CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when
 // integrating with versions prior to 2.5.1.
 //
-#define PEGASUS_VERSION_NUMBER 0x02101000
+#define PEGASUS_VERSION_NUMBER 0x02100100
 
 #endif /* Pegasus_Version_h */

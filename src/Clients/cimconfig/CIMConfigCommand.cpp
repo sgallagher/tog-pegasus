@@ -44,6 +44,7 @@
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include "CIMConfigCommand.h"
 
 #ifdef PEGASUS_OS_PASE
@@ -1205,6 +1206,21 @@ Uint32 CIMConfigCommand::execute(
                     }
                     else if (_plannedValueSet)
                     {
+                        // Check if new planned value is valid by
+                        // asking the ConfigManager which does the same for the
+                        // server
+                        ConfigManager* myCfgMgr=ConfigManager::getInstance();
+                        if (!myCfgMgr->validatePropertyValue(
+                                _propertyName.getString(),
+                                _propertyValue))
+                        {
+                            outPrintWriter << localizeMessage(MSG_PATH,
+                                                 INVALID_PROPERTY_VALUE_KEY,
+                                                 INVALID_PROPERTY_VALUE)
+                                           << endl;
+                            return ( RC_ERROR );
+                        }
+                        
                         if ( !_configFileHandler->updatePlannedValue(
                             _propertyName, _propertyValue, false ) )
                         {

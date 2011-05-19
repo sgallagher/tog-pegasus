@@ -7025,9 +7025,9 @@ void IndicationService::_sendAsyncCreateRequests(
     //
     //  Create an aggregate object for the create subscription requests
     //
-    IndicationOperationAggregate * operationAggregate =
-        new IndicationOperationAggregate(aggRequest, indicationSubclasses);
-    operationAggregate->setNumberIssued(indicationProviders.size());
+    AutoPtr<IndicationOperationAggregate> operationAggregate(
+        new IndicationOperationAggregate(aggRequest, indicationSubclasses));
+    operationAggregate.get()->setNumberIssued(indicationProviders.size());
 
     //
     //  Send Create request to each provider
@@ -7037,7 +7037,7 @@ void IndicationService::_sendAsyncCreateRequests(
         //
         //  Create the create subscription request
         //
-       CIMCreateSubscriptionRequestMessage * request =
+       AutoPtr<CIMCreateSubscriptionRequestMessage> request(
             new CIMCreateSubscriptionRequestMessage(
                 XmlWriter::getNextMessageId(),
                 nameSpace,
@@ -7048,14 +7048,15 @@ void IndicationService::_sendAsyncCreateRequests(
                 query,
                 QueueIdStack(_providerManager, getQueueId()),
                 authType,
-                userName);
+                userName));
 
         //
         //  Store a copy of the request in the operation aggregate instance
         //
-        CIMCreateSubscriptionRequestMessage * requestCopy =
-            new CIMCreateSubscriptionRequestMessage(*request);
-        requestCopy->operationContext.insert(ProviderIdContainer(
+        AutoPtr<CIMCreateSubscriptionRequestMessage> requestCopy(
+            new CIMCreateSubscriptionRequestMessage(* (request.get())));
+
+        requestCopy.get()->operationContext.insert(ProviderIdContainer(
             indicationProviders[i].providerModule
             ,indicationProviders[i].provider
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
@@ -7063,8 +7064,8 @@ void IndicationService::_sendAsyncCreateRequests(
             ,indicationProviders[i].remoteInfo
 #endif
             ));
-        operationAggregate->appendRequest(requestCopy);
-        request->operationContext.insert(ProviderIdContainer(
+        operationAggregate.get()->appendRequest(requestCopy.get());
+        request.get()->operationContext.insert(ProviderIdContainer(
             indicationProviders[i].providerModule
             ,indicationProviders[i].provider
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
@@ -7072,37 +7073,44 @@ void IndicationService::_sendAsyncCreateRequests(
             ,indicationProviders[i].remoteInfo
 #endif
             ));
-        request->operationContext.insert(
+        request.get()->operationContext.insert(
             SubscriptionInstanceContainer(subscription));
-        request->operationContext.insert(
+        request.get()->operationContext.insert(
             SubscriptionFilterConditionContainer(condition,queryLanguage));
-        request->operationContext.insert(
+        request.get()->operationContext.insert(
             SubscriptionFilterQueryContainer(query,queryLanguage,nameSpace));
-        request->operationContext.insert(IdentityContainer(userName));
-        request->operationContext.set(
+        request.get()->operationContext.insert(IdentityContainer(userName));
+        request.get()->operationContext.set(
             ContentLanguageListContainer(contentLangs));
-        request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
+        request.get()->operationContext.set(
+            AcceptLanguageListContainer(acceptLangs));
 
         AsyncOpNode * op = this->get_op();
 
-        AsyncLegacyOperationStart * async_req =
+        AutoPtr<AsyncLegacyOperationStart> async_req(
             new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
-                request);
+                request.get()));
 
         SendAsync(
             op,
             _providerManager,
             IndicationService::_aggregationCallBack,
             this,
-            operationAggregate);
+            operationAggregate.get());
+
+        // Release objects from their AutoPtr to prevent double deletes.
+        requestCopy.release();
+        request.release();
+        async_req.release();
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
        // Release AutomicInt if atleast one request is sent for aggregation.
        counter.release();
 #endif
     }
+    operationAggregate.release();
 
     PEG_METHOD_EXIT();
 }

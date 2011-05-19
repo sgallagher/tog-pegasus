@@ -312,6 +312,9 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (GetUserInfo(request.userName, &uid, &gid) != 0)
         {
+            Log(LL_WARNING, "User %s does not exist on this system, " 
+                "hence cannot start the provider agent %s", 
+                request.userName, request.module);
             status = -1;
             break;
         }
@@ -627,11 +630,6 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
     do
     {
-        if (GetUserInfo(request.username, &uid, &gid) != 0)
-        {
-            status = -1;
-            break;
-        }
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
@@ -645,6 +643,12 @@ static void HandleAuthenticatePasswordRequest(int sock)
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         {
+            if (GetUserInfo(request.username, &uid, &gid) != 0)
+            {
+                status = -1;
+                break;
+            }
+
             const char* path = FindMacro("passwordFilePath");
 
             if (!path)

@@ -53,11 +53,11 @@ PEGASUS_NAMESPACE_BEGIN
 CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
+    _binaryResponse(false),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _doReconnect(false),
     _binaryRequest(false),
-    _binaryResponse(false),
     _localConnect(false)
 {
     //

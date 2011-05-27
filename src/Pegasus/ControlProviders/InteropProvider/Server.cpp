@@ -162,31 +162,6 @@ void getFunctionalProfiles(
     }
 }
 
-String _getHostID()
-{
-    String ipAddress;
-    int af;
-
-    String hostName(System::getHostName());
-    if (!System::getHostIP(hostName, &af, ipAddress))
-    {
-        // There is IP address for this host.
-        // It is not reachable from out side.
-        ipAddress = String("localhost");
-        return ipAddress;
-    }
-
-    // change the dots to dashes
-    for (Uint32 i=0; i<ipAddress.size(); i++)
-    {
-        if (ipAddress[i] == Char16('.') || 
-            ipAddress[i] == Char16(':') )
-        {
-            ipAddress[i] = Char16('-');
-        }
-    }
-    return ipAddress;
-}
 //
 // Build a single instance of the CIMXMLCommunicationMechanism class using the
 // parameters provided. Builds the complete instance and sets its object path.
@@ -312,55 +287,6 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
     return instance;
 }
 
-//isHttpsEnabled signifies if the instance to be built is for https
-void InteropProvider::_buildCommInstSkeleton(
-    const Boolean isHttpsEnabled,
-    const Array<String> &ips,
-    const CIMClass &commMechClass,
-    Array<CIMInstance> &instances )
-{
-    // Build the CommunicationMechanism instance
-    Uint32 namespaceAccessProtocol = 2;
-    String namespaceType = "http";
-    String port = httpPort;
-    if( isHttpsEnabled)
-    {
-        namespaceType = "https";
-        namespaceAccessProtocol = 3;
-        port  = httpsPort;
-    }
-    CIMInstance instance;
-    for (Uint32 i = 0; i < ips.size() ; ++i)
-    {
-        String addr = ips[i];
-        HostAddress tmp;
-        tmp.setHostAddress(addr);
-        if(tmp.getAddressType() == HostAddress::AT_IPV6)
-        {
-            addr = "[" + addr + "]";
-        }
-        addr.append(":");
-        addr.append(port);
-
-        instance  = buildCIMXMLCommunicationMechanismInstance(
-                namespaceType,
-                namespaceAccessProtocol,
-                addr,
-                commMechClass);
-        instances.append(instance);
-    }
-    // If System::getInterfaceAddrs() fails add ip4 addr here.
-    if (!ips.size())
-    {
-        instance  = buildCIMXMLCommunicationMechanismInstance(
-                namespaceType,
-                namespaceAccessProtocol,
-                getHostAddress(hostName, namespaceAccessProtocol, port),
-                commMechClass);
-        instances.append(instance);
-    }
-}
-
 //
 // Retrieves all of the instances of CIMXMLCommunicationMechanism for the
 // CIMOM.
@@ -375,51 +301,88 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         configManager->getCurrentValue("enableHttpConnection"));
     Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableHttpsConnection"));
-    String listenAdd = configManager->getCurrentValue(
-        "listenAddress");
 
     Array<CIMInstance> instances;
+    Uint32 namespaceAccessProtocol;
+    String namespaceType;
 
     CIMClass commMechClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM, false, true, false);
 
     Array<String> ips;
-
-    if(!String::equalNoCase(listenAdd, "All"))
-    {
-        ips = DefaultPropertyOwner::parseAndGetListenAddress(listenAdd);
-        //Filter out the loopback addresses without going deeper to TCP Layer
-        for(Uint32 i = 0, n = ips.size(); i < n; ++i)
-        {
-            String add = ips[i];
-            if((add.size() >= 3) && 
-                ((add[0] == Char16(':') && add[1] == Char16(':') &&
-                    add[2] == Char16('1')) ||
-                ( add[0] == Char16('1') && add[1] == Char16('2') &&
-                    add[2] == Char16('7'))))
-            {
-                ips.remove(i);
-            }
-        }
-
-    }
-    else
-    {
 #ifdef PEGASUS_ENABLE_IPV6
     ips = System::getInterfaceAddrs();
 #endif
-    }
     if (enableHttpConnection)
     {
         // Build the CommunicationMechanism instance for the HTTP protocol
-        _buildCommInstSkeleton( false, ips, commMechClass, instances);
+        namespaceAccessProtocol = 2;
+        namespaceType = "http";
+        CIMInstance instance;
+        for (Uint32 i = 0; i < ips.size() ; ++i)
+        {
+            String addr = ips[i];
+            if (HostAddress::isValidIPV6Address(ips[i]))
+            {
+                addr = "[" + addr + "]";
+            }
+            addr.append(":");
+            addr.append(httpPort);
+
+            instance  =
+                buildCIMXMLCommunicationMechanismInstance(
+                    namespaceType,
+                    namespaceAccessProtocol,
+                    addr,
+                    commMechClass);
+            instances.append(instance);
+        }
+        // If System::getInterfaceAddrs() fails add ip4 addr here.
+        if (!ips.size())
+        {
+            instance  = buildCIMXMLCommunicationMechanismInstance(
+                namespaceType,
+                namespaceAccessProtocol,
+                getHostAddress(hostName, namespaceAccessProtocol, httpPort),
+                commMechClass);
+            instances.append(instance);
+        }
     }
 
     if (enableHttpsConnection)
     {
         // Build the CommunicationMechanism instance for the HTTPS protocol
-        _buildCommInstSkeleton( true, ips, commMechClass, instances);
+        namespaceAccessProtocol = 3;
+        namespaceType = "https";
+        CIMInstance instance;
+        for (Uint32 i = 0; i < ips.size() ; ++i)
+        {
+            String addr = ips[i];
+            if (HostAddress::isValidIPV6Address(ips[i]))
+            {
+                addr = "[" + addr + "]";
+            }
+            addr.append(":");
+            addr.append(httpsPort);
+            instance  =
+                buildCIMXMLCommunicationMechanismInstance(
+                    namespaceType,
+                    namespaceAccessProtocol,
+                    addr,
+                    commMechClass);
+            instances.append(instance);
+        }
+        // If System::getInterfaceAddrs() fails add ip4 addr here.
+        if (!ips.size())
+        {
+            instance  = buildCIMXMLCommunicationMechanismInstance(
+                namespaceType,
+                namespaceAccessProtocol,
+                getHostAddress(hostName, namespaceAccessProtocol, httpsPort),
+                commMechClass);
+            instances.append(instance);
+        }
     }
 
     PEG_METHOD_EXIT();
@@ -427,8 +390,8 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
 }
 
 //
-// Get the instance of the CIM_ObjectManager class, creating the instance
-// eache time the cimserve is re-started.
+// Get the instance of the CIM_ObjectManager class, creating the instance if it
+// does not already exist in the repository.
 //
 // @param includeQualifiers Boolean
 // @param includeClassOrigin Boolean
@@ -442,32 +405,39 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
 CIMInstance InteropProvider::getObjectManagerInstance()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::getObjectManagerInstance()");
+        "InteropProvider::getObjectManagerInstance");
 
-    if (_CIMObjectManagerInst.isUninitialized())
+    // Try to get the instance from the repository.
+    CIMInstance instance;
+    bool found = false;
+    Array<CIMInstance> tmpInstances = repository->enumerateInstancesForClass(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, false,
+        CIMPropertyList());
+    Uint32 numInstances = tmpInstances.size();
+    if(numInstances == 1)
     {
-        PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-             " _CIMObjectManagerInst is to be initialized.");
+        instance = tmpInstances[0];
+    }
+    PEGASUS_ASSERT(numInstances <= 1);
 
+
+    if(instance.isUninitialized())
+    {
+        //
+        // No instance in the repository. Build new instance and save it.
+        //
         CIMClass omClass;
-        CIMInstance instance;
-        instance = buildInstanceSkeleton(
-                       PEGASUS_NAMESPACENAME_INTEROP,
-                       PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
-                       false,
-                       omClass);
+        instance = buildInstanceSkeleton(PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, omClass);
 
         // Set the common key properties
         setCommonKeys(instance);
 
-        setPropertyValue(
-            instance,
-            OM_PROPERTY_CREATIONCLASSNAME,
+        setPropertyValue(instance, OM_PROPERTY_CREATIONCLASSNAME,
             PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString());
-        setPropertyValue(
-            instance,
-            OM_PROPERTY_NAME,
-            String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + _getHostID());
+        setPropertyValue(instance, OM_PROPERTY_NAME,
+            String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + Guid::getGuid());
         setPropertyValue(
             instance, 
             OM_PROPERTY_ELEMENTNAME, 
@@ -475,13 +445,9 @@ CIMInstance InteropProvider::getObjectManagerInstance()
 
         Array<Uint16> operationalStatus;
         operationalStatus.append(2);
-        setPropertyValue(
-            instance,
-            OM_PROPERTY_OPERATIONALSTATUS,
+        setPropertyValue(instance, OM_PROPERTY_OPERATIONALSTATUS,
             operationalStatus);
-        setPropertyValue(
-            instance,
-            OM_PROPERTY_STARTED,
+        setPropertyValue(instance, OM_PROPERTY_STARTED,
             CIMValue(Boolean(true)));
 
         //
@@ -489,53 +455,49 @@ CIMInstance InteropProvider::getObjectManagerInstance()
         // If PEGASUS_CIMOM_DESCRIPTION is non-zero length, use it.
         // Otherwise build form the components below, as defined in
         // PegasusVersion.h.
-        String description = String(PEGASUS_CIMOM_DESCRIPTION);
-        if (description.size() == 0)
-        {
-            String pegasusProductStatus(PEGASUS_PRODUCT_STATUS);
+        String descriptionStatus;
+        String pegasusProductStatus(PEGASUS_PRODUCT_STATUS);
+        if(pegasusProductStatus.size() > 0)
+            descriptionStatus = " " + pegasusProductStatus;
 
-            description.append(String(PEGASUS_CIMOM_GENERIC_NAME));
-            description.append(Char16(' '));
-            description.append(String(PEGASUS_PRODUCT_NAME));
-            description.append(" Version ");
-            description.append(String(PEGASUS_PRODUCT_VERSION));
+        String description = (String(PEGASUS_CIMOM_DESCRIPTION).size() != 0) ?
+                String(PEGASUS_CIMOM_DESCRIPTION)
+            :
+                String(PEGASUS_CIMOM_GENERIC_NAME) + " " +
+                String(PEGASUS_PRODUCT_NAME) + " Version " +
+                String(PEGASUS_PRODUCT_VERSION) +
+                descriptionStatus;
 
-            if(pegasusProductStatus.size() > 0)
-            {
-                description.append(Char16(' '));
-                description.append(String(pegasusProductStatus));
-            }
-
-        }
         setPropertyValue(instance, OM_PROPERTY_DESCRIPTION, description);
 
         // Property GatherStatisticalData. Initially this is set to false
         // and can then be modified by a modify instance on the instance.
         Boolean gatherStatDataFlag = false;
-        setPropertyValue(
-            instance,
-            OM_PROPERTY_GATHERSTATISTICALDATA,
+        setPropertyValue(instance, OM_PROPERTY_GATHERSTATISTICALDATA,
             gatherStatDataFlag);
 
         // Set the statistics property into the Statisticaldata class so that
         // it can perform statistics gathering if necessary.
-    #ifndef PEGASUS_DISABLE_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
         StatisticalData* sd = StatisticalData::current();
         sd->setCopyGSD(gatherStatDataFlag);
-    #endif
+#endif
 
-        // build the instance path and set into instance
-        CIMObjectPath objPath = instance.buildPath(omClass);
-        objPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-        objPath.setHost(System::getHostName());
-        instance.setPath(objPath);
-
-        _CIMObjectManagerInst = instance;
+        // write instance to the repository
+        CIMObjectPath instancePath = repository->createInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, instance);
+        // Get an updated copy of the instance that was saved
+        instance = repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, instancePath);
+        instance.setPath(instancePath);
     }
 
+    CIMObjectPath currentPath = instance.getPath();
+    currentPath.setHost(hostName);
+    currentPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+    instance.setPath(currentPath);
     PEG_METHOD_EXIT();
-    return _CIMObjectManagerInst;
-
+    return instance;
 }
 
 //
@@ -551,21 +513,17 @@ void InteropProvider::modifyObjectManagerInstance(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::modifyObjectManagerInstance()");
+        "InteropProvider::modifyObjectManagerInstance");
 
     // Modification only allowed when Performance staticistics are active
 #ifndef PEGASUS_DISABLE_PERFINST
     Uint32 propListSize = propertyList.size();
     if(propListSize == 0 && !propertyList.isNull())
-    {
-        PEG_METHOD_EXIT();
         return;
-    }
 
     if(propertyList.size() != 1 ||
         propertyList[0] != OM_PROPERTY_GATHERSTATISTICALDATA)
     {
-        PEG_METHOD_EXIT();
         throw CIMNotSupportedException(String("Only modification of ") +
             OM_PROPERTY_GATHERSTATISTICALDATA.getString() + " allowed");
     }
@@ -582,7 +540,6 @@ void InteropProvider::modifyObjectManagerInstance(
         omInstance = getObjectManagerInstance();
         if(omInstance.isUninitialized())
         {
-            PEG_METHOD_EXIT();
             throw CIMObjectNotFoundException(instanceReference.toString());
         }
         statisticsFlag = getPropertyValue(modifiedIns,
@@ -598,6 +555,9 @@ void InteropProvider::modifyObjectManagerInstance(
         PEG_METHOD_EXIT();
         return;
     }
+    // Modify the instance on disk
+    repository->modifyInstance(instanceReference.getNameSpace(),
+        omInstance, false,  propertyList);
     PEG_TRACE((
         TRC_CONTROLPROVIDER,
         Tracer::LEVEL3,
@@ -675,6 +635,7 @@ CIMInstance InteropProvider::getHostedObjectManagerInstance(
 
     // Try to get the current object.  If true then it is already created.
     CIMInstance instance;
+    bool found = false;
 
     CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
     CIMObjectPath omPath = getObjectManagerInstance().getPath();
@@ -772,23 +733,6 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
 }
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-
-Array<CIMInstance> InteropProvider::enumIndicationServiceInstances(
-    const OperationContext &opContext)
-{
-    Array<CIMInstance> instances = cimomHandle.enumerateInstances(
-        opContext,
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
-        true,
-        false,
-        true,
-        true,
-        CIMPropertyList());
-    PEGASUS_ASSERT(instances.size() == 1);
-
-    return instances;
-}
 
 CIMInstance InteropProvider::buildAssociationInstance(
     const CIMName &className,

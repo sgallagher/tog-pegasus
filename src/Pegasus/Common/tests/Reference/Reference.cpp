@@ -330,7 +330,7 @@ void test01()
     errorDetected = false;
     try
     {
-        // Missing port
+        // Missing port is okay, needs be ignored
         CIMObjectPath op("//192.168.1.80:/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
@@ -338,7 +338,7 @@ void test01()
     {
         errorDetected = true;
     }
-    PEGASUS_TEST_ASSERT(errorDetected);
+    PEGASUS_TEST_ASSERT(!errorDetected);
 
     errorDetected = false;
     try
@@ -369,7 +369,7 @@ void test01()
     errorDetected = false;
     try
     {
-        // Missing port
+        // Missing port is okay, needs be ignored
         CIMObjectPath op("//usopen-9.usta-1-a.org:/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
@@ -377,7 +377,7 @@ void test01()
     {
         errorDetected = true;
     }
-    PEGASUS_TEST_ASSERT(errorDetected);
+    PEGASUS_TEST_ASSERT(!errorDetected);
 
     errorDetected = false;
     try

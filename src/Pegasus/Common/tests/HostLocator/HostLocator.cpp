@@ -114,8 +114,10 @@ void testHostLocator()
     locator.setHostLocator("::1"); // must be enclosed in brackets.
     PEGASUS_TEST_ASSERT(!locator.isValid());
 
+    // host is valid and empty port needs be silently ignored as unspecified
     locator.setHostLocator("[1::24]:");
-    PEGASUS_TEST_ASSERT(!locator.isValid());
+    PEGASUS_TEST_ASSERT(locator.isValid());
+    PEGASUS_TEST_ASSERT(!locator.isPortSpecified());
 
     locator.setHostLocator("[xyz.com]");
     PEGASUS_TEST_ASSERT(!locator.isValid());

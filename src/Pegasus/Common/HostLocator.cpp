@@ -107,14 +107,14 @@ static bool _parseLocator(
     if (*p == ':')
     {
         const Uint16* start = ++p;
-        port = HostLocator::PORT_INVALID;
 
-        // If empty port number, fail.
-
+        // If empty port number, ignore and proceed as unspecified port.
         if (start == last)
         {
-            return false;
+            return true;
         }
+
+        port = HostLocator::PORT_INVALID;
 
         // Convert string port number to integer (start at end of string).
 

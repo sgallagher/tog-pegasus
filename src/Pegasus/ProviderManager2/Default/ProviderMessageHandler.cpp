@@ -1586,8 +1586,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleExportIndicationRequest(
     providerContext.insert(request->operationContext.get(
         ContentLanguageListContainer::NAME));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
-
     CIMIndicationConsumerProvider* provider =
         getProviderInterface<CIMIndicationConsumerProvider>(_provider);
 

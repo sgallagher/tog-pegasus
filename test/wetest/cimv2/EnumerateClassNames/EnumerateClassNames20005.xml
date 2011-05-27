@@ -1,6 +1,6 @@
 M-POST /cimom HTTP/1.1
 Host: cancan
-Content-Type: application/xml; charset="utf-8"
+Content-Type: application/xml; charset=utf-8
 Content-Length: 409
 Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=06
 06-CIMProtocolVersion: 1.0

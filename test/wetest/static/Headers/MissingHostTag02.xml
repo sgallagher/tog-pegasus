@@ -1,5 +1,5 @@
 POST /cimom HTTP/1.0
-Content-Type: application/xml; charset="utf-8"
+Content-Type: application/xml; charset=utf-8
 Content-Length: 838
 Man: http://www.dmtf.org/cim/mapping/http/v1.0
 CIMProtocolVersion: 1.0

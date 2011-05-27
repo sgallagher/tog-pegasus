@@ -1,6 +1,6 @@
 M-POST /cimlistener/browser HTTP/1.1
 HOST: http://localhost:2003
-Content-Type: application/xml; charset="utf-8"
+Content-Type: application/xml; charset=utf-8
 Content-Length: 964
 Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
 40-CIMExport: MethodRequest

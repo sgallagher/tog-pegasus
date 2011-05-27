@@ -1,6 +1,6 @@
 M-POST
 Host: 
-Content-Type: application/xml; charset="utf-8"
+Content-Type: application/xml; charset=utf-8
 Content-Length: 555
 Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=03
 03-CIMProtocolVersion: 1.0

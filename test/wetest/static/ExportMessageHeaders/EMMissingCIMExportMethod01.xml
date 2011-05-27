@@ -1,6 +1,6 @@
 M-POST /CIMListener/consumer1 HTTP/1.1
 HOST: localhost:5988
-Content-Type: application/xml; charset="utf-8"
+Content-Type: application/xml; charset=utf-8
 content-length: 0000000485
 CIMExport: MethodRequest
 

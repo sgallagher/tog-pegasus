@@ -148,7 +148,7 @@ private:
      
     M-POST /cimom HTTP/1.1
     HOST: cascades
-    Content-CIMType: application/xml; charset="utf-8"
+    Content-CIMType: application/xml; charset=utf-8
     Content-Length: 508
     Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=35
     35-CIMOperation: MethodCall

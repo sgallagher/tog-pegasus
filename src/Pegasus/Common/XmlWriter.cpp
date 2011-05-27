@@ -1779,7 +1779,7 @@ void XmlWriter::appendMethodCallHeader(
     }
     else
     {
-        out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+        out << STRLIT("Content-Type: application/xml; charset=utf-8\r\n");
     }
 
     if (binaryResponse)
@@ -1893,7 +1893,7 @@ void XmlWriter::appendMethodResponseHeader(
      }
      else
      {
-         out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+         out << STRLIT("Content-Type: application/xml; charset=utf-8\r\n");
      }
 
      OUTPUT_CONTENTLENGTH(out, contentLength);
@@ -2901,7 +2901,7 @@ void XmlWriter::appendEMethodRequestHeader(
       out << STRLIT("POST ") << requestUri << STRLIT(" HTTP/1.1\r\n");
     }
     out << STRLIT("HOST: ") << host << STRLIT("\r\n"
-                  "Content-Type: application/xml; charset=\"utf-8\"\r\n");
+                  "Content-Type: application/xml; charset=utf-8\r\n");
     OUTPUT_CONTENTLENGTH(out, contentLength);
 
     if (acceptLanguages.size() > 0)
@@ -2965,7 +2965,7 @@ void XmlWriter::appendEMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n"
-                  "Content-Type: application/xml; charset=\"utf-8\"\r\n");
+                  "Content-Type: application/xml; charset=utf-8\r\n");
     OUTPUT_CONTENTLENGTH(out, contentLength);
 
     if (contentLanguages.size() > 0)

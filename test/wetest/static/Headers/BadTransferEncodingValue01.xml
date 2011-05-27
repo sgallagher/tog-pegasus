@@ -1,6 +1,6 @@
 M-POST /cimom HTTP/1.1
 Host: testsystem
-Content-Type: application/xml; charset="utf-8"
+Content-Type: application/xml; charset=utf-8
 Content-Length: 845
 Transfer-Encoding: unknown
 Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=23

@@ -1,6 +1,6 @@
 POST /CIMListener/Pegasus_SimpleDisplayConsumer HTTP/1.0
 HOST: localhost:5988
-Content-Type: text/xml; charset="utf-8"
+Content-Type: text/xml; charset=utf-8
 Accept-Language: en
 content-length: 0000000485
 CIMExport: MethodRequest

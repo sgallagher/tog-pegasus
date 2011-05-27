@@ -150,7 +150,7 @@ void CIMExportRequestDecoder::handleEnqueue()
 //
 //     M-POST /cimom HTTP/1.1
 //     HOST: www.erewhon.com
-//     Content-Type: application/xml; charset="utf-8"
+//     Content-Type: application/xml; charset=utf-8
 //     Content-Length: xxxx
 //     Man: http://www.dmtf.org/cim/operation ; ns=73
 //     73-CIMExport: MethodRequest

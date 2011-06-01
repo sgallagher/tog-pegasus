@@ -413,7 +413,7 @@ void WMIClassProvider::deleteClass(const String& nameSpace,
     {
         CMyString msg;
         msg.Format("Failed to delete class [%s]. Error: 0x%X",
-            255, className.getCString(), hr);
+            255, static_cast<char const *>(className.getCString()), hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
             "WMIClassProvider::deleteClass() - %s", (LPCTSTR)msg));
@@ -539,8 +539,12 @@ void WMIClassProvider::createClass(const String& nameSpace,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("It is not possible to create the class [%s]. "
-            "Error: 0x%X", 255, newClass.getClassName().getString(), hr);
+        msg.Format(
+            "It is not possible to create the class [%s]. Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (newClass.getClassName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
                           "WMIClassProvider::createClass() - %s",
@@ -789,7 +793,7 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
 
             CMyString msg;
             msg.Format("Failed to get a pointer to Superclass [%s]. Error: "
-                "0x%X", 255, tmp.getCString(), hr);
+                "0x%X", 255, static_cast<char const *>(tmp.getCString()), hr);
 
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
@@ -836,8 +840,12 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to add class name on class [%s]. Error: 0x%X",
-            255, newClass.getClassName().getString().getCString(), hr);
+        msg.Format(
+            "Failed to add class name on class [%s]. Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (newClass.getClassName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
@@ -856,9 +864,13 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to get the Qualifier set pointer of class [%s]. "
-            "Error: 0x%X", 255,
-            newClass.getClassName().getString().getCString(), hr);
+        msg.Format(
+            "Failed to get the Qualifier set pointer of class [%s]."
+                " Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (newClass.getClassName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
@@ -944,8 +956,12 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
         if (FAILED(hr))
         {
             CMyString msg;
-            msg.Format("Failed get Qualifier set of [%s]. Error: 0x%X", 255,
-                prop.getName().getString().getCString(), hr);
+            msg.Format(
+                "Failed get Qualifier set of [%s]. Error: 0x%X",
+                255,
+                static_cast<char const *>
+                    (prop.getName().getString().getCString()),
+                hr);
 
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMIClassProvider::createProperties() - %s", (LPCTSTR)msg));
@@ -999,8 +1015,12 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
         if (FAILED(hr))
         {
             CMyString msg;
-            msg.Format("Failed to add CLASSORIGIN qualifier in [%s]. Error: "
-                "0x%X", 255, prop.getName().getString().getCString(), hr);
+            msg.Format(
+                "Failed to add CLASSORIGIN qualifier in [%s]. Error: 0x%X",
+                255,
+                static_cast<char const *>
+                    (prop.getName().getString().getCString()),
+                hr);
 
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                           "WMIClassProvider::createProperties () - %s",
@@ -1076,8 +1096,12 @@ void WMIClassProvider::createProperty(const CIMProperty &keyProp,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to add property [%s]. Error: 0x%X", 255,
-            keyProp.getName().getString().getCString(), hr);
+        msg.Format(
+            "Failed to add property [%s]. Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (keyProp.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createProperty () - %s",
@@ -1126,8 +1150,12 @@ void WMIClassProvider::createQualifier (const WMIQualifier &qualifier,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("It is not possible to add the qualifier [%s] to "
-            "the object! Error: 0x%X", 255, sName.getCString(), hr);
+        msg.Format(
+            "It is not possible to add the qualifier [%s] to "
+                "the object! Error: 0x%X",
+            255,
+            static_cast<char const *>(sName.getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WmiClassProvider::createQualifier() - %s", (LPCTSTR)msg));
@@ -1164,9 +1192,13 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to get a paramter pointer while "
-            "creating method: %s! Error: 0x%X",
-            255, method.getName().getString().getCString(), hr);
+        msg.Format(
+            "Failed to get a paramter pointer while "
+                "creating method: %s! Error: 0x%X",
+            255,            
+            static_cast<char const *>
+                (method.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
@@ -1189,9 +1221,13 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to get a paramter pointer while "
-            "creating method: %s! Error: 0x%X",
-            255, method.getName().getString().getCString(), hr);
+        msg.Format(
+            "Failed to get a paramter pointer while "
+                "creating method: %s! Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (method.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
@@ -1259,8 +1295,12 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("It is not possible to add the method [%s] ! Error: 0x%X",
-            255, method.getName().getString().getCString(), hr);
+        msg.Format(
+            "It is not possible to add the method [%s] ! Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (method.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
@@ -1277,9 +1317,13 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("It is not possible to get the qualifier "
-            "set of the method [%s] ! Error: 0x%X", 255,
-            method.getName().getString().getCString(), hr);
+        msg.Format(
+            "It is not possible to get the qualifier "
+                "set of the method [%s] ! Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (method.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
@@ -1344,9 +1388,13 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("It is not possible to add parameter [%s] "
-            "to the parameters list! Error: 0x%X", 255,
-            param.getName().getString().getCString(), hr);
+        msg.Format(
+            "It is not possible to add parameter [%s] "
+                "to the parameters list! Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (param.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createParam() - %s", (LPCTSTR)msg));
@@ -1362,9 +1410,13 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("It is not possible to get a qualifier "
-            "set for parameter [%s]! Error: 0x%X", 255,
-            param.getName().getString().getCString(), hr);
+        msg.Format(
+            "It is not possible to get a qualifier 
+                "set for parameter [%s]! Error: 0x%X",
+            255,
+            static_cast<char const *>
+                (param.getName().getString().getCString()),
+            hr);
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createParam() - %s", (LPCTSTR)msg));

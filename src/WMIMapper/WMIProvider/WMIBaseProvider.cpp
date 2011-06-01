@@ -360,7 +360,9 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 
     int strLength = CMyString(sQueryCommand).GetLength() +
         CMyString(sObjName).GetLength() + 1;
-    sQuery.Format(CMyString(sQueryCommand), strLength, CMyString(sObjName));
+    sQuery.Format(
+        CMyString(sQueryCommand),
+        strLength, static_cast<LPCTSTR>(CMyString(sObjName)));
 
     //set up any optional parameters
     if (!((0 == assocClass.size()) && (0 == resultClass.size()) &&

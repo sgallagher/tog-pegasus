@@ -2814,6 +2814,84 @@ en:table {
         *
         */
         Common.CIMMethodRep.CONTAINED_METHOD_NAMECHANGEDEXCEPTION:string {"PGS07001: Attempted to change the name of a method already in a container."}
+        
+        
+        // ==========================================================
+        // Reason Code Messages for CIMObjectPath
+        //  Please don't use a message prefix
+        // ==========================================================
+        
+        /**
+        * @note The following messages without a PGSxxxx prefix are used as reason code error text.
+        *       The prefix has been left off intentionally.
+        */
+        
+        
+        /**
+        *       Substitution {0} is a host name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_HOSTNAME:string {"{0}, reason:\"invalid hostname\""}
+        
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.MISSING_SLASH_AFTER_HOST:string {"{0}, reason:\"missing slash after hostname\""}
+        
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_NAMESPACE:string {"{0}, reason:\"invalid namespace name\""}
+        
+        /**
+        *       Substitution {0} is an object name (a string) 
+        *       Substitution {1} is a key name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_KEYNAME:string {"{0}, reason:\"invalid key-value pair, invalid key name {1}\""}
+        
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_KEYVALUE:string {"{0}, reason:\"invalid key-value pair, malformed value\""}
+
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSINGQUOTE:string {"{0}, reason:\"invalid key-value pair, missing quote in key value\""}
+
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_BOOLVALUE:string {"{0}, reason:\"invalid key-value pair, value should be TRUE or FALSE\""}
+
+        /**
+        *       Substitution {0} is an object name (a string) 
+        *       Substitution {1} is a string
+        */
+        Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE:string {"{0}, reason:\"invalid key-value pair, invalid negative number value {1}\""}
+
+        /**
+        *       Substitution {0} is an object name (a string) 
+        *       Substitution {1} is a string
+        */
+        Common.CIMObjectPath.INVALID_NUMBER_VALUE:string {"{0}, reason:\"invalid key-value pair, invalid number value {1}\""}
+
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSCOMMA:string {"{0}, reason:\"invalid key-value pair, next key-value pair has to start with comma\""}
+
+        /**
+        *       Substitution {0} is an object name (a string) 
+        */
+        Common.CIMObjectPath.MISSING_NAMESPACE:string {"{0}, reason:\"host specified, missing namespace\""}
+        
+        /**
+        *       Substitution {0} is an object name (a string) 
+        *       Substitution {1} is a class name (string)
+        */
+        Common.CIMObjectPath.INVALID_CLASSNAME:string {"{0}, reason:\"class name {1} not a legal CIM name\""}
+
+
 
         // ==========================================================
         // Messages for CIMObjectRep

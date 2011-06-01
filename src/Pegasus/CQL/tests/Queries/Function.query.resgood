@@ -1062,11 +1062,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 =========     120     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE CLASSNAME(TestPropertyTypes) = 'CQL_TestPropertyTypes'
@@ -1105,11 +1105,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 =========     125     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE NAMESPACENAME(TestPropertyTypes) = 'root/SampleProvider'
@@ -1163,11 +1163,11 @@ Function HOSTPORT has 0 parameters.  It must have between 1 and 1.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 =========     131     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE HOSTPORT(TestPropertyTypes) = 'a.b.com'
@@ -1206,11 +1206,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 =========     136     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE MODELPATH(TestPropertyTypes) = 'CQL_TestPropertyTypes.InstanceId=2'
@@ -1260,11 +1260,11 @@ Parameter 1 for function CLASSPATH has type Identifier.  It must be type Referen
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 =========     142     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(OBJECTPATH()) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
@@ -1303,11 +1303,11 @@ Parameter 1 for function OBJECTPATH has type Identifier.  It must be type Refere
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
 
 =========     147     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(INSTANCETOREFERENCE()) = 'root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'

@@ -471,7 +471,12 @@ void CIMObjectPath::set(
 {
     if ((host != String::EMPTY) && !CIMObjectPathRep::isValidHostname(host))
     {
-        throw MalformedObjectNameException(host);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.INVALID_HOSTNAME",
+            "$0, reason:\"invalid hostname\"",
+            host);
+
+        throw MalformedObjectNameException(mlParms);
     }
 
     _rep = _copyOnWriteCIMObjectPathRep(_rep);
@@ -502,13 +507,21 @@ Boolean _parseHostElement(
     char* slash = strchr(p, '/');
     if (!slash)
     {
-        throw MalformedObjectNameException(objectName);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.MISSING_SLASH_AFTER_HOST",
+            "$0, reason:\"missing slash after hostname\"",
+            objectName);
+        throw MalformedObjectNameException(mlParms);
     }
 
     String hostname = String(p, (Uint32)(slash - p));
     if (!CIMObjectPathRep::isValidHostname(hostname))
     {
-        throw MalformedObjectNameException(objectName);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.INVALID_HOSTNAME",
+            "$0, reason:\"invalid hostname\"",
+            objectName);
+        throw MalformedObjectNameException(mlParms);
     }
     host = hostname;
 
@@ -551,7 +564,11 @@ Boolean _parseNamespaceElement(
     String namespaceName = String(p, (Uint32)(colon - p));
     if (!CIMNamespaceName::legal(namespaceName))
     {
-        throw MalformedObjectNameException(objectName);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.INVALID_NAMESPACE",
+            "$0, reason:\"invalid namespace name\"",
+            objectName);
+        throw MalformedObjectNameException(mlParms);
     }
     nameSpace = namespaceName;
 
@@ -591,13 +608,24 @@ void _parseKeyBindingPairs(
         char* equalsign = strchr(p, '=');
         if (!equalsign)
         {
-            throw MalformedObjectNameException(objectName);
+            MessageLoaderParms mlParms(
+                "Common.CIMObjectPath.INVALID_KEYVALUEPAIR",
+                "$0, reason:\"invalid key-value pair, missing equal sign\"",
+                objectName);
+            throw MalformedObjectNameException(mlParms);
         }
 
         *equalsign = 0;
 
         if (!CIMName::legal(p))
-            throw MalformedObjectNameException(objectName);
+        {
+            MessageLoaderParms mlParms(
+                "Common.CIMObjectPath.INVALID_KEYNAME",
+                "$0, reason:\"invalid key-value pair, invalid key name:$1\"",
+                objectName,
+                p);
+            throw MalformedObjectNameException(mlParms);
+        }
 
         CIMName keyName (p);
 
@@ -623,7 +651,12 @@ void _parseKeyBindingPairs(
 
                     if ((*p != '\\') && (*p != '"'))
                     {
-                        throw MalformedObjectNameException(objectName);
+                        MessageLoaderParms mlParms(
+                            "Common.CIMObjectPath.INVALID_KEYVALUE",
+                            "$0, reason:\"invalid key-value pair, "
+                                "malformed value\"",
+                            objectName);
+                        throw MalformedObjectNameException(mlParms);
                     }
                 }
 
@@ -631,7 +664,14 @@ void _parseKeyBindingPairs(
             }
 
             if (*p++ != '"')
-                throw MalformedObjectNameException(objectName);
+            {            
+                MessageLoaderParms mlParms(
+                    "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSINGQUOTE",
+                    "$0, reason:\"invalid key-value pair, "
+                        "missing quote in key value\"",
+                    objectName);
+                throw MalformedObjectNameException(mlParms);
+            }
 
             // Convert the UTF-8 value to a UTF-16 String
 
@@ -685,7 +725,14 @@ void _parseKeyBindingPairs(
 
             if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
                   ((strncmp(p, "FALSE", n) == 0) && n == 5)))
-                throw MalformedObjectNameException(objectName);
+            {            
+                MessageLoaderParms mlParms(
+                    "Common.CIMObjectPath.INVALID_BOOLVALUE",
+                    "$0, reason:\"invalid key-value pair, "
+                        "value should be TRUE or FALSE\"",
+                    objectName);
+                throw MalformedObjectNameException(mlParms);
+            }
 
             valueString.assign(p, n);
 
@@ -715,13 +762,29 @@ void _parseKeyBindingPairs(
             {
                 Sint64 x;
                 if (!StringConversion::stringToSignedInteger(p, x))
-                    throw MalformedObjectNameException(objectName);
+                {                
+                    MessageLoaderParms mlParms(
+                        "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
+                        "$0, reason:\"invalid key-value pair, "
+                            "invalid negative number value $1\"",
+                        objectName,
+                        p);
+                    throw MalformedObjectNameException(mlParms);
+                }
             }
             else
             {
                 Uint64 x;
                 if (!StringConversion::stringToUnsignedInteger(p, x))
-                    throw MalformedObjectNameException(objectName);
+                {                
+                    MessageLoaderParms mlParms(
+                        "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
+                        "$0, reason:\"invalid key-value pair, "
+                            "invalid number value $1\"",
+                        objectName,
+                        p);
+                    throw MalformedObjectNameException(mlParms);
+                }
             }
 
             valueString.assign(p, n);
@@ -741,7 +804,12 @@ void _parseKeyBindingPairs(
         {
             if (*p++ != ',')
             {
-                throw MalformedObjectNameException(objectName);
+                MessageLoaderParms mlParms(
+                    "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSCOMMA",
+                    "$0, reason:\"invalid key-value pair, "
+                        "next key-value pair has to start with comma\"",
+                    objectName);
+                throw MalformedObjectNameException(mlParms);
             }
         }
     }
@@ -774,7 +842,11 @@ void CIMObjectPath::set(const String& objectName)
 
     if (gotHost && !gotNamespace)
     {
-        throw MalformedObjectNameException(objectName);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.MISSING_NAMESPACE",
+            "$0, reason:\"host specified, missing namespace\"",
+            objectName);
+        throw MalformedObjectNameException(mlParms);
     }
 
     // Extract the class name:
@@ -785,7 +857,12 @@ void CIMObjectPath::set(const String& objectName)
     {
         if (!CIMName::legal(p))
         {
-            throw MalformedObjectNameException(objectName);
+            MessageLoaderParms mlParms(
+                "Common.CIMObjectPath.INVALID_CLASSNAME",
+                "$0, reason:\"class name $1 not a legal CIM name\"",
+                objectName,
+                p);
+            throw MalformedObjectNameException(mlParms);
         }
 
         // ATTN: remove this later: a reference should only be able to hold
@@ -798,7 +875,12 @@ void CIMObjectPath::set(const String& objectName)
     String className = String(p, (Uint32)(dot - p));
     if (!CIMName::legal(className))
     {
-        throw MalformedObjectNameException(objectName);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.INVALID_CLASSNAME",
+            "$0, reason:\"class name $1 not a legal CIM name\"",
+            objectName,
+            className);
+        throw MalformedObjectNameException(mlParms);
     }
     _rep->_className = className;
 
@@ -827,7 +909,11 @@ void CIMObjectPath::setHost(const String& host)
         (host != System::getHostName()) &&
         !CIMObjectPathRep::isValidHostname(host))
     {
-        throw MalformedObjectNameException(host);
+        MessageLoaderParms mlParms(
+            "Common.CIMObjectPath.INVALID_HOSTNAME",
+            "$0, reason:\"invalid hostname\"",
+            host);
+        throw MalformedObjectNameException(mlParms);
     }
     _rep = _copyOnWriteCIMObjectPathRep(_rep);
 

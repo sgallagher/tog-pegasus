@@ -1484,9 +1484,15 @@ CIMStopAllProvidersRequestMessage*
 CIMBinMsgDeserializer::_getStopAllProvidersRequestMessage(
     CIMBuffer& in)
 {
+    Uint32 shutdownTimeout;
+
+    if (!in.getUint32(shutdownTimeout))
+        return false;
+
     return new CIMStopAllProvidersRequestMessage(
         String::EMPTY,
-        QueueIdStack());
+        QueueIdStack(),
+        shutdownTimeout);
 }
 
 CIMInitializeProviderAgentRequestMessage*

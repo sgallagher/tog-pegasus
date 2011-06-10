@@ -219,6 +219,8 @@ private:
     void _processGetSCMOClassResponse(
         ProvAgtGetScmoClassResponseMessage* response);
 
+    void _processStopAllProvidersRequest(CIMRequestMessage* request);
+
     /**
      * Condition variable and transger pointer for the provider agend to
      * the SCMOClassCache.

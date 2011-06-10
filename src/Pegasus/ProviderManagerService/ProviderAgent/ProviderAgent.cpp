@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
 #if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
@@ -201,20 +202,14 @@ void ProviderAgent::run()
                 //
                 // Stop all providers
                 //
-                CIMStopAllProvidersRequestMessage
-                    stopRequest("0", QueueIdStack(0));
-                AutoPtr<Message> stopResponse(_processRequest(&stopRequest));
-
-                // If there are agent threads running exit from here.If provider
-                // is not responding cimprovagt may loop forever in ThreadPool
-                // destructor waiting for running threads to become idle.
-                if (_threadPool.runningCount())
-                {
-                    PEG_TRACE_CSTRING(TRC_PROVIDERAGENT,
-                        Tracer::LEVEL1,
-                        "Agent threads are running, terminating forcibly.");
-                    exit(1);
-                }
+                CIMStopAllProvidersRequestMessage *stopRequest =
+                    new CIMStopAllProvidersRequestMessage("0", QueueIdStack(0));
+                Uint64 shutdownTimeout = 0;
+                StringConversion::stringToUnsignedInteger(
+                    PEGASUS_DEFAULT_SHUTDOWN_TIMEOUT_SECONDS_STRING,
+                    shutdownTimeout);
+                stopRequest->shutdownTimeout= Uint32(shutdownTimeout);
+                _processStopAllProvidersRequest(stopRequest);
             }
         }
         else if (!active)
@@ -516,8 +511,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
         // Return response to CIM Server
         _writeResponse(response.get());
     }
-    else if ((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) ||
-             (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE))
+    else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
     {
         // Process the request in this thread
         AutoPtr<Message> response(_processRequest(request));
@@ -526,13 +520,11 @@ Boolean ProviderAgent::_readAndProcessRequest()
         CIMResponseMessage * respMsg =
             dynamic_cast<CIMResponseMessage*>(response.get());
 
-        // If StopAllProviders, terminate the agent process.
         // If DisableModule not successful, leave agent process running.
         // If there are any active providers after DisableModule request
         // successful, this agent might be servicing the group of
         // provider modules, leave agent process running.
-        if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-            ((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) &&
+        if (((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) &&
              (!_providerManagerRouter.hasActiveProviders()) &&
              (respMsg->cimException.getCode() == CIM_ERR_SUCCESS)))
         {
@@ -542,6 +534,10 @@ Boolean ProviderAgent::_readAndProcessRequest()
         }
 
         delete request;
+    }
+    else if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+    {
+        _processStopAllProvidersRequest(request);
     }
     else
     {
@@ -619,6 +615,77 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
     PEG_METHOD_EXIT();
     return true;
+}
+
+void ProviderAgent::_processStopAllProvidersRequest(CIMRequestMessage* request)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
+        "ProviderAgent::_processStopAllProvidersRequest");
+
+    ProviderAgentRequest* agentRequest =
+        new ProviderAgentRequest(this, request);
+    Uint32 shutdownTimeout =
+        ((CIMStopAllProvidersRequestMessage*)request)->shutdownTimeout;
+
+    if ( _threadPool.allocate_and_awaken(agentRequest,
+                   ProviderAgent::_processRequestAndWriteResponse) !=
+               PEGASUS_THREAD_OK)
+     {
+         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
+             "Could not allocate thread to process "
+                 "StopAllProvidersRequest. Exiting.");
+
+         MessageLoaderParms msgLoaderPrms(
+             "ProviderManager.ProviderAgent.ProviderAgent."
+                    "THREAD_ALLOCATION_FAILED",
+             "Failed to allocate a thread in cimprovagt \"$0\".",
+             _agentId);
+
+         Logger::put_l(
+             Logger::STANDARD_LOG,
+             System::CIMSERVER,
+             Logger::WARNING,
+             msgLoaderPrms);
+         exit(1);
+     }
+
+    // Wait until shutdownTimeout-1 seconds expires or
+    // CIMStopAllprovidersRequestMessage is processed successfully.
+    if (shutdownTimeout)
+    {
+        for (Uint32 i = 0; !_providersStopped && i < shutdownTimeout - 1 ; ++i)
+        {
+            Threads::yield();
+            Threads::sleep(1000);
+        }
+    }
+
+    // If the shutdownTimeout expired, exit from here. Providers not
+    // responding to the cleanup requests will cause this agent left as
+    // orphaned process.
+    // If there are agent threads running exit from here.If provider
+    // is not responding cimprovagt may loop forever in ThreadPool
+    // destructor waiting for running threads to become idle.
+    if (!_providersStopped || _threadPool.runningCount())
+    {
+        MessageLoaderParms msgLoaderPrms(
+            "ProviderManager.ProviderAgent.ProviderAgent."
+                "PROVIDERS_FAILED_TO_CLEANUP",
+            "Providers in the agent \"$0\" have failed to cleanup within \"$1\""
+                " seconds during the shutdown. Provider agent terminated"
+                " forcibly.",
+            _agentId,
+            shutdownTimeout);
+        Logger::put_l(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::WARNING,
+            msgLoaderPrms);
+        exit(1);
+    }
+    _terminating = true;
+
+    PEG_METHOD_EXIT();
 }
 
 Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
@@ -762,6 +829,11 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
 
         // Write the response
         agent->_writeResponse(response.get());
+
+        if (response->getType() == CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE)
+        {
+            agent->_providersStopped = true;
+        }
     }
     catch (const Exception& e)
     {

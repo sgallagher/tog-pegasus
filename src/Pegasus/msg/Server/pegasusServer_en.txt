@@ -5372,6 +5372,13 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS14005: \"{0}\" received asynchronous signal: \"{1}\""}
 
+        /**
+        * @note  PGS14006
+        *    Substitution {0} is the provider agent name.
+        *    Substitution {1} is the shutdown timeout in seconds
+        */
+        ProviderManager.ProviderAgent.ProviderAgent.PROVIDERS_FAILED_TO_CLEANUP:string {"PGS14006: Providers in the agent \"{0}\" have failed to cleanup within \"{1}\" seconds during the shutdown. Provider agent terminated forcibly."}
+
         // ==========================================================
         // Messages for Common.Monitor
         //  Please use message prefix "PGS14200"

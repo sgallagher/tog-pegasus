@@ -242,6 +242,11 @@ private:
         ProvAgtGetScmoClassRequestMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
+    static void _putStopAllProvidersRequestMessage(
+        CIMBuffer& out,
+        CIMStopAllProvidersRequestMessage *msg);
+
+    PEGASUS_HIDDEN_LINKAGE
     static void _putGetInstanceResponseMessage(
         CIMBuffer& out,
         CIMGetInstanceResponseMessage* msg);

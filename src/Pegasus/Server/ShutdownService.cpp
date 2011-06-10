@@ -293,7 +293,8 @@ void ShutdownService::shutdownProviders()
     CIMStopAllProvidersRequestMessage* stopRequest =
         new CIMStopAllProvidersRequestMessage(
             XmlWriter::getNextMessageId(),
-            QueueIdStack(_queueId));
+            QueueIdStack(_queueId),
+            _shutdownTimeout);
 
     //
     // create async request message

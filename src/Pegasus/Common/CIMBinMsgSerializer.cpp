@@ -252,7 +252,8 @@ void CIMBinMsgSerializer::_putRequestMessage(
                 out, (CIMEnableModuleRequestMessage*)msg);
             break;
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-            // not implemented
+            _putStopAllProvidersRequestMessage(
+                 out, (CIMStopAllProvidersRequestMessage*)msg);
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
             _putInitializeProviderAgentRequestMessage(
@@ -925,6 +926,12 @@ void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
     out.putName(msg->className);    
 }
 
+void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(
+    CIMBuffer& out,
+    CIMStopAllProvidersRequestMessage *msg)
+{
+    out.putUint32(msg->shutdownTimeout);
+}
 
 void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     CIMBuffer& out,

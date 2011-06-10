@@ -1359,15 +1359,18 @@ class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersRequestMessage
 public:
     CIMStopAllProvidersRequestMessage(
         const String& messageId_,
-        const QueueIdStack& queueIds_)
+        const QueueIdStack& queueIds_,
+        Uint32 shutdownTimeout_ = 0)
     : CIMRequestMessage(
         CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
         messageId_,
-        queueIds_)
+        queueIds_),
+        shutdownTimeout(shutdownTimeout_)
     {
     }
 
     virtual CIMResponseMessage* buildResponse() const;
+    Uint32 shutdownTimeout;
 };
 
 // Used to pass initialization data to an Out-of-Process Provider Agent process

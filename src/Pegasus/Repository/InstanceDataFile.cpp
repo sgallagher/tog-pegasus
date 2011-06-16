@@ -257,36 +257,72 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     // files are getting created in some error conditions.
 
     fstream fs;
+    String rollbackPath = path;
+    rollbackPath.append(".rollback");
 
-    if (!_openFile(fs, path + ".rollback", ios::out PEGASUS_OR_IOS_BINARY))
+    do
     {
+        if (!_openFile(fs, rollbackPath, ios::out PEGASUS_OR_IOS_BINARY))
+        {
+            break;
+        }
+
+        //
+        // Save the size of the data file in the rollback file.
+        //
+
+        char buffer[9];
+        sprintf(buffer, "%08x", fileSize);
+        fs.write(buffer, static_cast<streamsize>(strlen(buffer)));
+
+        if (!fs)
+        {
+            break;
+        }
+
+        //
+        // If the badbit is set, it indicates error in the file write operation.
+        //
+        if (fs.bad())
+        {
+            // 
+            // Close the file
+            //
+
+            fs.close();
+            break;
+        }
+
+        //
+        // Close the file.
+        //
+
+        FileSystem::syncWithDirectoryUpdates(fs);
+        fs.close();
+
         PEG_METHOD_EXIT();
-        return false;
+        return true;
     }
+    while(0);
 
-    //
-    // Save the size of the data file in the rollback file.
-    //
-
-    char buffer[9];
-    sprintf(buffer, "%08x", fileSize);
-    fs.write(buffer, static_cast<streamsize>(strlen(buffer)));
-
-    if (!fs)
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    //
-    // Close the file.
-    //
-
-    FileSystem::syncWithDirectoryUpdates(fs);
-    fs.close();
+    // Undo the begin transaction for instance data file 
+    undoBeginTransaction(path); 
 
     PEG_METHOD_EXIT();
-    return true;
+    return false;
+}
+
+void InstanceDataFile::undoBeginTransaction(const String& path)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,"InstanceDataFile::undoBeginTransaction()");
+
+    String rollbackPath = path;
+    rollbackPath.append(".rollback");
+
+    // Remove the incorrect instance data rollback file as a part of cleanup
+    FileSystem::removeFileNoCase(rollbackPath);
+
+    PEG_METHOD_EXIT();
 }
 
 Boolean InstanceDataFile::rollbackTransaction(const String& path)

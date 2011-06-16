@@ -132,6 +132,12 @@ public:
     */
     static Boolean beginTransaction(const String& path);
 
+    /** In case of a failure in the beginTransaction(), undo the changes
+        done in the begin transaction and restore the repository
+        to the previous state
+    */
+    static void undoBeginTransaction(const String& path);
+
     /** Roll back any changes to the file since the last time
         beginTransaction() was called.
     */

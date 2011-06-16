@@ -237,6 +237,13 @@ public:
     */
     static Boolean beginTransaction(const String& path);
 
+    /** In case of a failure in the beginTransaction(), undo the changes
+        done in the begin transaction and restore the repository
+        to the previous state. The current implementation removes the 
+        index file and copies the rollback file to the index file.
+    */
+    static void undoBeginTransaction(const String& path);
+
     /** Roll back any changes to the file since the last time
         beginTransaction() was called. The current implementation deletes
         the current file and renames the rollback file to the same name.

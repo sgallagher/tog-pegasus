@@ -951,24 +951,50 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     // copied back to the index file.
     //
 
-    if (!FileSystem::renameFileNoCase(path, rollbackPath))
+    do
     {
-        PEG_METHOD_EXIT();
-        return false;
-    }
+        if (!FileSystem::renameFileNoCase(path, rollbackPath))
+        {
+            break;
+        }
 
-    if (!FileSystem::copyFile(rollbackPath, path))
-    {
-        // Try to restore the initial state
+        if (!FileSystem::copyFile(rollbackPath, path))
+        {
+            break;
+        }
+
+        PEG_METHOD_EXIT();
+        return true;
+    }
+    while(0);
+
+    // Try to restore the initial state
+    undoBeginTransaction(path);
+
+    PEG_METHOD_EXIT();
+    return false;
+}
+
+void InstanceIndexFile::undoBeginTransaction(const String& path)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "InstanceIndexFile::undoBeginTransaction()");
+
+    String rollbackPath = path;
+    rollbackPath.append(".rollback");
+
+    //
+    // Remove the original index file and 
+    // Rename the rollback file to the original file
+    // If the rollback file is present, this function has no effect
+    //
+    if(FileSystem::existsNoCase(rollbackPath))
+    { 
         FileSystem::removeFileNoCase(path);
         FileSystem::renameFileNoCase(rollbackPath, path);
-
-        PEG_METHOD_EXIT();
-        return false;
     }
 
     PEG_METHOD_EXIT();
-    return true;
 }
 
 Boolean InstanceIndexFile::rollbackTransaction(const String& path)

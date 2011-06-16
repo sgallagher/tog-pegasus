@@ -43,6 +43,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 #include "InstanceIndexFile.h"
 #include "InstanceDataFile.h"
 #include "AssocInstTable.h"
@@ -72,6 +73,20 @@ static const char _ASSOCIATIONS_SUFFIX[] = "/associations";
 static const char _CONFIGFILE_NAME[] = "repository.conf";
 
 static const Uint32 _MAX_FREE_COUNT = 16;
+
+#define REPOSITORY_BEGIN_PROGRESS_FILE     "begin.progress";
+#define REPOSITORY_COMMIT_PROGRESS_FILE    "commit.progress";
+#define REPOSITORY_ROLLBACK_PROGRESS_FILE  "rollback.progress";
+
+//
+// This static variable is used inside "rollbackInstanceTransaction" function
+// to determine if it is called from the constructor of "CIMRepository" during 
+// startup in order to avoid the creation of "rollback.progress" state file 
+// as it increases the startup time of the cimserver process.
+// true => startup
+//
+static bool startup = true;
+
 
 static inline String _escapeUtf8FileNameCharacters(const String& fileName)
 {
@@ -297,6 +312,32 @@ static void _beginInstanceTransaction(
     const String& dataFilePath)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "_beginInstanceTransaction");
+    
+    // Create a state file for the begin instance transaction in the same
+    // directory where the rollback files will be created for 
+    // index and data file.
+    // The CIMRepository checks if this file is present during
+    // its initialization. 
+    // If it is present, it is assumed that the last begin transaction was 
+    // incomplete due to system failure and it removes the rollback files along
+    // with this state file
+
+    String dirPath = FileSystem::extractFilePath(indexFilePath); 
+    String stateFilePath = dirPath + REPOSITORY_BEGIN_PROGRESS_FILE;
+
+    fstream fs;
+     
+    fs.open(stateFilePath.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
+
+    if (!fs)
+    {
+        PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.BEGIN_FAILED",
+                    "The attempt to begin the transaction failed."));
+    }
+    fs.close();
 
     //
     // Begin the transaction (an incomplete transaction will cause
@@ -305,19 +346,44 @@ static void _beginInstanceTransaction(
 
     if (!InstanceIndexFile::beginTransaction(indexFilePath))
     {
+        //
+        // Remove the state file
+        //
+        FileSystem::removeFile(stateFilePath);
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.BEGIN_FAILED",
+                "The attempt to begin the transaction failed."));
     }
 
     if (!InstanceDataFile::beginTransaction(dataFilePath))
     {
+        // 
+        // The creation of the index and data rollback file should be atomic
+        // So undo the begin transaction of index file in case of error in 
+        // the begin transaction of the data file
+        //     
+        InstanceIndexFile::undoBeginTransaction(indexFilePath);
+
+        //
+        // Remove the state file
+        //
+        FileSystem::removeFile(stateFilePath);
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.BEGIN_FAILED",
+                "The attempt to begin the transaction failed."));
     }
+    //
+    // Since both the rollback files are created, begin transaction is over.
+    // So remove the state file for the begin transaction
+    //
+    FileSystem::removeFile(stateFilePath);
+
 
     PEG_METHOD_EXIT();
 }
@@ -336,25 +402,71 @@ static void _commitInstanceTransaction(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "_commitInstanceTransaction");
 
+    // Create a state file for the commit instance transaction in the same
+    // directory where the rollback files are created for index and data file.
+    // The CIMRepository checks if this file is present during
+    // its initialization.
+    // If it is present, it is assumed that the last commit transaction was
+    // incomplete due to system failure and it removes the rollback files along
+    // with this state file
+
+    String dirPath = FileSystem::extractFilePath(indexFilePath);
+    String stateFilePath = dirPath + REPOSITORY_COMMIT_PROGRESS_FILE;
+
+    fstream fs;
+
+    fs.open(stateFilePath.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
+
+    if (!fs)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.COMMIT_FAILED",
+                "The commit operation failed."));
+    }
+
+    fs.close();
+
+    //
     //
     // Commit the transaction by removing the rollback files.
     //
 
     if (!InstanceIndexFile::commitTransaction(indexFilePath))
     {
+        // 
+        // Remove the state file
+        //        
+        FileSystem::removeFile(stateFilePath);
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.COMMIT_FAILED",
+                "The commit operation failed."));
     }
 
     if (!InstanceDataFile::commitTransaction(dataFilePath))
     {
+        // 
+        // Remove the state file
+        //
+        
+        FileSystem::removeFile(stateFilePath);
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.COMMIT_FAILED",
+                "The commit operation failed."));
     }
+
+    //
+    // Since both the rollback files are removed, commit transaction is over.
+    // So remove the state file for the commit transaction
+    //
+    FileSystem::removeFile(stateFilePath);
 
     PEG_METHOD_EXIT();
 }
@@ -399,25 +511,247 @@ static void _rollbackInstanceTransaction(
     }
 
     // Proceed to rollback logic.
+    String dirPath = FileSystem::extractFilePath(indexFilePath);
+    String stateFilePath = dirPath + REPOSITORY_ROLLBACK_PROGRESS_FILE;
+
+    //
+    // Check the static variable "startup" to determine if this function is 
+    // called from the constructor of "CIMRepository" during startup. 
+    // If it is true do not create the "rollback.progress" state file.
+    //
+
+    if (!startup)
+    {
+        // Create a state file for the rollback instance transaction in the same
+        // directory where the rollback files are created for 
+        // index and data file.
+        // The CIMRepository checks if this file is present during
+        // its initialization.
+        // If it is present, it is assumed that the last rollback transaction
+        // was incomplete due to system failure. So it completes 
+        // the rollback instance transaction and removes this state file
+
+        fstream fs;
+
+        fs.open(stateFilePath.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
+
+        if (!fs)
+        {
+            PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "Repository.CIMRepository.ROLLBACK_FAILED",
+                        "The rollback operation failed."));
+        }
+
+        fs.close();
+    }
 
     if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
     {
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-    }
+        if(!startup)
+        {
+            // Remove the state file
+            FileSystem::removeFile(stateFilePath);
+        }
 
-    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
-    {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
+                "The rollback operation failed."));
+    }
+
+    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+    {
+        if(!startup)
+        {
+            // Remove the state file
+            FileSystem::removeFile(stateFilePath);
+        }
+
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.ROLLBACK_FAILED",
+                "The rollback operation failed."));
+    }
+
+    if (!startup)
+    {
+        // Since both the rollback files are removed, 
+        // rollback transaction is over.
+        // So remove the state file for the rollback transaction
+        FileSystem::removeFile(stateFilePath);
     }
 
     PEG_METHOD_EXIT();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  FileBasedStore::_completeTransactions()
+//
+//      Searches for state file in the "instance" directory of all
+//      namespaces.
+//      i)   Removes the rollback files to void a begin operation.
+//      ii)  Removes the rollback files to complete a commit operation.
+//      iii) Restores instance index and data files complete a rollback
+//           operation.
+//      If no state files are present, this method returns false
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Boolean FileBasedStore::_completeTransactions()
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "FileBasedStore::_completeTransactions");
+
+    for (Dir dir(_repositoryPath); dir.more(); dir.next())
+    {
+        String nameSpaceDirName = dir.getName();
+        if ((nameSpaceDirName == "..") ||
+            (nameSpaceDirName == ".") ||
+            (nameSpaceDirName == _CONFIGFILE_NAME))
+        {
+            continue;
+        }
+
+        String nameSpacePath = _repositoryPath + "/" + nameSpaceDirName;
+        String nameSpaceName = _dirNameToNamespaceName(nameSpaceDirName);
+
+        if (!FileSystem::isDirectory(nameSpacePath + _CLASSES_SUFFIX) ||
+            !FileSystem::isDirectory(nameSpacePath + _INSTANCES_SUFFIX) ||
+            !FileSystem::isDirectory(nameSpacePath + _QUALIFIERS_SUFFIX))
+        {
+            PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL2,
+                "Namespace: %s ignored -- "
+                "subdirectories are not correctly formed",
+                (const char*)nameSpaceDirName.getCString()));
+            continue;
+        }
+
+        //
+        // Get the instance directory path
+        // 
+        String dirPath = nameSpacePath + _INSTANCES_SUFFIX;
+        String classesPath = nameSpacePath + _CLASSES_SUFFIX;
+
+        //
+        // Get the paths of the state files
+        //
+        String beginFilePath=dirPath+"/"+REPOSITORY_BEGIN_PROGRESS_FILE;
+        String commitFilePath=dirPath+"/"+REPOSITORY_COMMIT_PROGRESS_FILE;
+        String rollbackfilePath=dirPath+"/"+REPOSITORY_ROLLBACK_PROGRESS_FILE;
+
+        Array<String> classNames;
+
+        for (Dir dir(classesPath); dir.more(); dir.next())
+        {
+            String fileName = dir.getName();
+            // Ignore the current and parent directories.
+            if (fileName == "." || fileName == "..")
+                continue;
+
+            Uint32 dot = fileName.find('.');
+
+            // Ignore files without dots in them:
+            if (dot == PEG_NOT_FOUND)
+            {
+                continue;
+            }
+            String className =
+                _unescapeUtf8FileNameCharacters(fileName.subString(0, dot));
+            classNames.append(className);
+        }
+
+        if(FileSystem::exists(beginFilePath))
+        {
+            //
+            // Either the begin or the commit operation is left incomplete
+            // Begin -> Actual repository update operation is not started.
+            // Commit -> Actual repository update operation is complete.
+            //
+            for (Uint32 j = 0; j < classNames.size(); j++)
+            {
+                //
+                // Get paths of index and data files:
+                //
+
+                String indexFilePath = _getInstanceIndexFilePath(
+                    nameSpaceName, classNames[j]);
+
+                String dataFilePath = _getInstanceDataFilePath(
+                    nameSpaceName, classNames[j]);
+  
+                InstanceIndexFile::undoBeginTransaction(indexFilePath);
+                InstanceDataFile::undoBeginTransaction(dataFilePath);
+            }
+   
+            FileSystem::removeFile(beginFilePath);
+ 
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    
+        if(FileSystem::exists(commitFilePath))
+        {
+            //
+            // Either the begin or the commit operation is left incomplete
+            // Begin -> Actual repository update operation is not started.
+            // Commit -> Actual repository update operation is complete.
+            // In both cases, we can safely remove the rollback files
+            //
+
+            for (Uint32 j = 0; j < classNames.size(); j++)
+            {
+                //
+                // Get paths of index and data files:
+                //
+
+                String indexFilePath = _getInstanceIndexFilePath(
+                    nameSpaceName, classNames[j]);
+
+                String dataFilePath = _getInstanceDataFilePath(
+                    nameSpaceName, classNames[j]);
+
+                InstanceIndexFile::commitTransaction(indexFilePath);
+                InstanceDataFile::commitTransaction(dataFilePath);
+            }
+
+            FileSystem::removeFile(commitFilePath);
+
+            PEG_METHOD_EXIT();
+            return true;
+        }
+ 
+        if(FileSystem::exists(rollbackfilePath))
+        {
+            // Rollback transaction is left incomplete
+            // Rollback -> Call rollback 
+
+            for (Uint32 j = 0; j < classNames.size(); j++)
+            {
+                // Get paths of index and data files:
+                String indexFilePath = _getInstanceIndexFilePath(
+                    nameSpaceName, classNames[j]);
+
+                String dataFilePath = _getInstanceDataFilePath(
+                    nameSpaceName, classNames[j]);
+
+                _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+            }
+    
+            FileSystem::removeFile(rollbackfilePath);
+
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -603,7 +937,25 @@ FileBasedStore::FileBasedStore(
         }
     }
 
-    _rollbackIncompleteTransactions();
+    // 
+    // Check if any state files are present in the repository.
+    // and bring the repository to a consistent state based 
+    // on the particular state file found.
+    //
+    if (!_completeTransactions())
+    {
+        //
+        // No state files are found in the repository. So, try to 
+        // rollback any incomplete transactions in the repository
+        //
+        _rollbackIncompleteTransactions();
+    }
+
+    //
+    // Reset the variable "startup" to false to indicate the
+    // end of CIMRepository constructor
+    //
+    startup = false;
 
     PEG_METHOD_EXIT();
 }

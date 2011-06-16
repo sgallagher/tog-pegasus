@@ -196,6 +196,17 @@ private:
 
     void _rollbackIncompleteTransactions();
 
+    /** 
+        Searches for state file in the "instance" directory of all
+        namespaces. 
+        i)   Removes the rollback files to void a begin operation.
+        ii)  Removes the rollback files to complete a commit operation. 
+        iii) Restores instance index and data files complete a
+             rollback operation.
+        If no state files are present, this method returns false
+    */
+    Boolean _completeTransactions();
+
     /**
         Converts a namespace name into a directory path.  The specified
         namespace name is not required to match the case of the namespace

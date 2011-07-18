@@ -115,11 +115,21 @@ PEGASUS_NAMESPACE_BEGIN
 /**
   Function to convert CMPIValue to SCMBUnion
 */
-SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
+SCMBUnion value2SCMOValue(
+    const CMPIValue* data,
+    const CMPIType type,
+    Boolean &nullValue)
 {
     SCMBUnion scmoData= { { { 0 }, 0 } };
+    nullValue = false;
 
     PEGASUS_ASSERT(!(type&CMPI_ARRAY));
+
+    if (data == NULL) 
+    {
+        nullValue = true;
+        return scmoData;
+    }
 
     switch (type)
     {
@@ -131,6 +141,10 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             {
                 scmoData.dateTimeValue = *cimdt;
             }
+            else
+            {
+                nullValue = true;
+            }
             break;
         }
         case CMPI_chars:
@@ -141,6 +155,10 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 scmoData.extString.length =
                     strlen(scmoData.extString.pchar);
             }
+            else
+            {
+                nullValue = true;
+            }
             break;
         }
         case CMPI_charsptr:
@@ -150,6 +168,10 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 scmoData.extString.pchar = *(char**)data;
                 scmoData.extString.length =
                     strlen(scmoData.extString.pchar);
+            }
+            else
+            {
+                nullValue = true;
             }
             break;
         }
@@ -164,6 +186,10 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 scmoData.extString.length =
                     strlen(scmoData.extString.pchar);
             }
+            else
+            {
+                nullValue = true;
+            }
             break;
         }
         case CMPI_ref:
@@ -172,6 +198,10 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             if (data->inst)
             {
                 scmoData.extRefPtr = (SCMOInstance*)data->inst->hdl;
+            }
+            else
+            {
+                nullValue = true;
             }
             break;
         }

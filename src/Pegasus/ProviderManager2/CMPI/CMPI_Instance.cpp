@@ -320,11 +320,12 @@ extern "C"
         if (!(type&CMPI_ARRAY))
         {
             CIMType cimType=type2CIMType(type);
-            SCMBUnion scmoData = value2SCMOValue(data, type);
+            Boolean nullValue =  false;
+            SCMBUnion scmoData = value2SCMOValue(data, type, nullValue);
 
             rc = inst->setPropertyWithOrigin(name,
                                              cimType,
-                                             &scmoData,
+                                             nullValue ? 0 : &scmoData,
                                              false,  // isArray
                                              0,      // arraySize
                                              origin);
@@ -359,13 +360,15 @@ extern "C"
                 {
                     scmbArray=&(scmbArrayBuf[0]);
                 }
+                Boolean nullValue = false;
                 for (unsigned int x=0; x<arraySize; x++)
                 {
                     // Note:  First element is the array status information,
                     //        therefore cmpi array starts at index 1!!!
                     scmbArray[x] = value2SCMOValue(
                         &(arrData[x+1].value),
-                        arrData[x+1].type);
+                        arrData[x+1].type,
+                        nullValue);
                 }
 
                 rc = inst->setPropertyWithOrigin(

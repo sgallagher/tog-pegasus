@@ -3327,8 +3327,11 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         emInst1 = CMNewInstance(_broker, objPath, &rc);
         PROV_LOG("CMNewInstance status (%s)", strCMPIStatus (rc));
         PROV_LOG("++++ Setting TestCMPI_Embedded instance properties");
+        rc = CMSetProperty(emInst1, "id", 0, CMPI_uint32);
         rc = CMSetProperty(emInst1, "id", &value, CMPI_uint32);
         PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));
+        value.inst = 0;
+        rc = CMSetProperty(emInst1, "emInstance", &value, CMPI_instance);
         value.inst = inst1;
         rc = CMSetProperty(emInst1, "emInstance", &value, CMPI_instance);
         PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));

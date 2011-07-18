@@ -41,7 +41,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 CIMValue value2CIMValue(const CMPIValue* data,const CMPIType type, CMPIrc *rc);
-SCMBUnion value2SCMOValue(const CMPIValue* data, const CMPIType type);
+SCMBUnion value2SCMOValue(
+    const CMPIValue* data,
+    const CMPIType type,
+    Boolean &nullValue);
+
 CMPIrc value2CMPIData(const CIMValue&,CMPIType,CMPIData *data);
 CMPIType type2CMPIType(CIMType pt, int array);
 //Function to convert CMPIType to CIMType

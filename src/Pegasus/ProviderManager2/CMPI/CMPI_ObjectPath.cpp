@@ -296,7 +296,8 @@ extern "C"
         CIMType cimType=type2CIMType(type);
 
         CMPIrc cmpiRC = CMPI_RC_OK;
-        SCMBUnion scmoData = value2SCMOValue(data, type);
+        Boolean nullValue = false;
+        SCMBUnion scmoData = value2SCMOValue(data, type, nullValue);
         if (cmpiRC != CMPI_RC_OK)
         {
             PEG_TRACE((
@@ -309,7 +310,7 @@ extern "C"
 
         SCMO_RC rc = ref->setKeyBinding(name,
                                         cimType,
-                                        &scmoData);
+                                        nullValue ? 0 : &scmoData);
 
         switch (rc)
         {

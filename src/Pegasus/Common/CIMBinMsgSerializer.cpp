@@ -187,7 +187,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                 break;
 
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
         }
     }
     else
@@ -221,7 +221,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                     out, (CIMDeleteSubscriptionRequestMessage*)msg);
                 break;
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
         }
     }
     else
@@ -278,7 +278,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
         }
     }
     else
@@ -400,7 +400,7 @@ void CIMBinMsgSerializer::_putResponseMessage(
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
     }
 }
 
@@ -602,21 +602,6 @@ void CIMBinMsgSerializer::_serializeOperationContext(
     }
     else
         out.putPresent(false);
-
-    // [UserRoleContainer]
-
-    if (operationContext.contains(UserRoleContainer::NAME))
-    {
-        out.putPresent(true);
-
-        const UserRoleContainer container =
-            operationContext.get(UserRoleContainer::NAME);
-
-        out.putString(container.getUserRole());
-    }
-    else
-        out.putPresent(false);
-
 }
 
 void CIMBinMsgSerializer::_serializeContentLanguageList(
@@ -885,7 +870,6 @@ void CIMBinMsgSerializer::_putProcessIndicationRequestMessage(
     _putInstance(out, msg->indicationInstance);
     out.putObjectPathA(msg->subscriptionInstanceNames);
     _putInstance(out, msg->provider);
-    out.putUint32(msg->timeoutMilliSec);
 }
 
 void CIMBinMsgSerializer::_putDisableModuleRequestMessage(
@@ -939,7 +923,7 @@ void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
 {
     out.putString(msg->messageId);
     out.putNamespaceName(msg->nameSpace);
-    out.putName(msg->className);
+    out.putName(msg->className);    
 }
 
 void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(

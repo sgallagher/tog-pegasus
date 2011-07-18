@@ -126,21 +126,13 @@ private:
     static void _indicationCallback(
         CIMProcessIndicationRequestMessage* request);
 
-    static void _handleIndicationDeliveryResponse(
-        CIMProcessIndicationResponseMessage *response);
-
     /**
         Callback function to which all response chunks are sent for processing.
      */
     static void _responseChunkCallback(
         CIMRequestMessage* request, CIMResponseMessage* response);
 
-    /*
-     *Tries to unload idle providers giving a timeout of value shutdown timeout
-     * return true if unloaded successfuly
-     */
-    Boolean _unloadIdleProviders();
-
+    void _unloadIdleProviders();
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
 
@@ -228,9 +220,6 @@ private:
         ProvAgtGetScmoClassResponseMessage* response);
 
     void _processStopAllProvidersRequest(CIMRequestMessage* request);
-
-    static void _indicationDeliveryRoutine(
-        CIMProcessIndicationRequestMessage* message);
 
     /**
      * Condition variable and transger pointer for the provider agend to

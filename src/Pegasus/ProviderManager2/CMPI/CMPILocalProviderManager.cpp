@@ -151,7 +151,6 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
 
                 ph->SetProvider (pr);
-                ph->GetProvider ().update_idle_timer ();
                 break;
             }
 
@@ -1049,6 +1048,7 @@ CMPIProvider * CMPILocalProviderManager::_lookupProvider(
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Created provider %s",(const char*)pr->getName().getCString()));
     }
+    pr->update_idle_timer();
 
     PEG_METHOD_EXIT ();
     return(pr);

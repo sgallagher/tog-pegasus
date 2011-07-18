@@ -689,8 +689,7 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
             String providerName = _broker.name;
             CMPIInstanceMI *mi = NULL;
 
-            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Instance);
-            if (_miVector.genericMode)
+            if (_miVector.genericMode && _miVector.createGenInstMI)
             {
                 mi = _miVector.createGenInstMI(
                     &_broker,
@@ -698,7 +697,7 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else
+            else if (_miVector.createInstMI)
             {
                 mi = _miVector.createInstMI(&_broker, &eCtx, &rc);
             }
@@ -740,8 +739,8 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
             CMPIMethodMI *mi;
-            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Method);
-            if (_miVector.genericMode)
+
+            if (_miVector.genericMode && _miVector.createGenMethMI)
             {
                 mi = _miVector.createGenMethMI(
                     &_broker,
@@ -749,7 +748,7 @@ CMPIMethodMI *CMPIProvider::getMethMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else
+            else if (_miVector.createMethMI)
             {
                 mi = _miVector.createMethMI(&_broker, &eCtx, &rc);
             }
@@ -790,8 +789,8 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
             CMPIAssociationMI *mi;
-            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Association);
-            if (_miVector.genericMode)
+
+            if (_miVector.genericMode && _miVector.createGenAssocMI)
             {
                 mi = _miVector.createGenAssocMI(
                     &_broker,
@@ -799,7 +798,7 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else
+            else if (_miVector.createAssocMI)
             {
                 mi = _miVector.createAssocMI(&_broker, &eCtx, &rc);
             }
@@ -841,9 +840,8 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
             CMPIPropertyMI *mi;
-            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Property);
 
-            if (_miVector.genericMode)
+            if (_miVector.genericMode && _miVector.createGenPropMI)
             {
                 mi = _miVector.createGenPropMI(
                     &_broker,
@@ -851,7 +849,7 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else
+            else if (_miVector.createPropMI)
             {
                 mi = _miVector.createPropMI(&_broker, &eCtx, &rc);
             }
@@ -893,8 +891,8 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
             CMPIIndicationMI *mi;
-            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Indication);
-            if (_miVector.genericMode)
+
+            if (_miVector.genericMode && _miVector.createGenIndMI)
             {
                 mi = _miVector.createGenIndMI(
                     &_broker,
@@ -902,7 +900,7 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else
+            else if (_miVector.createIndMI)
             {
                 mi = _miVector.createIndMI(&_broker, &eCtx, &rc);
             }

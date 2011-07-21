@@ -206,7 +206,7 @@ public:
         intervals along with unloadIdleProviders
     */
     void cleanDisconnectedClientRequests();
-
+    static void setAllProvidersStopped();
 private:
     //
     // Private methods
@@ -427,10 +427,12 @@ private:
     */
     ThreadPool* _threadPool;
 
+    static Boolean _allProvidersStopped;
 };
 
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
 Mutex ProviderAgentContainer::_numProviderProcessesMutex;
+Boolean ProviderAgentContainer::_allProvidersStopped = false;
 
 // Set this to a value that no valid CIMResponseMessage* will have.
 CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
@@ -502,6 +504,11 @@ ProviderAgentContainer::~ProviderAgentContainer()
     }
 
     PEG_METHOD_EXIT();
+}
+
+void ProviderAgentContainer::setAllProvidersStopped()
+{
+    _allProvidersStopped = true;
 }
 
 void ProviderAgentContainer::_startAgentProcess()
@@ -1049,6 +1056,32 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
         //
         {
             AutoMutex lock(_agentMutex);
+
+            // Don't process any other messages if _allProvidersStopped flag
+            // is set. CIMServer hangs during the shutdown if the agent is
+            // started to process a request after StopAllProviders request
+            // has been processed. This scenario may happen if provider
+            // generates indication during the shutdwon whose destination is
+            // indication consumer provider running within cimserver.
+            if (_allProvidersStopped &&
+                request->getType() != CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+            {
+                //Note: l11n is not necessary, not propagated to client.
+                CIMException e = CIMException(
+                    CIM_ERR_FAILED,
+                    "Request not processed, CIMServer shutting down");
+                if (!respAggregator || respAggregator->isComplete(e))
+                {
+                    
+                    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                        "Exception: %s",
+                        (const char*)e.getMessage().getCString()));
+                    response = request->buildResponse();
+                    delete respAggregator;
+                    PEG_METHOD_EXIT();
+                    return response;
+                }
+            }
 
             //
             // Initialize the Provider Agent, if necessary
@@ -1685,6 +1718,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     //
     if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
     {
+        ProviderAgentContainer::setAllProvidersStopped();
         // Forward the CIMStopAllProvidersRequest to all providers
         response.reset(_forwardRequestToAllAgents(request));
 

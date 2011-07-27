@@ -1953,6 +1953,32 @@ static int _testCMPIInstance ()
 
     objPath = make_ObjectPath(_broker, _Namespace, _ClassName);
     instance = make_Instance(objPath);
+
+    // Check for default null values
+    returnedData1 = CMGetProperty(instance, name1, &rc);
+    PROV_LOG("++++  CMGetProperty, Default Nullvalue. rc: (%s)",
+        strCMPIStatus (rc));
+    PROV_LOG("++++  CMGetProperty value state: (%s)",
+        (returnedData1.state == CMPI_nullValue) ?
+            "CMPI_nullValue" : "Unexpected" );
+
+    // Set Null value tests
+    rc = CMSetProperty(instance, name1, 0, type);
+    returnedData1 = CMGetProperty(instance, name1, &rc);
+    PROV_LOG("++++  CMGetProperty, Set Nullvalue. rc: (%s)",
+        strCMPIStatus (rc));
+    PROV_LOG("++++  CMGetProperty value state: (%s)",
+        returnedData1.state == CMPI_nullValue ?
+            "CMPI_nullValue" : "Unexpected" );
+
+    // Property not found in schema tests
+    returnedData1 = CMGetProperty(instance, "NotAProp", &rc);
+    PROV_LOG("++++  CMGetProperty, not a valid property. rc: (%s)",
+        strCMPIStatus (rc));
+    PROV_LOG("++++  CMGetProperty, not a valid property. Value state: (%s)",
+        returnedData1.state == (CMPI_nullValue|CMPI_notFound) ?
+            "CMPI_nullValue|CMPI_notFound" : "Unexpected" );
+
     value1.uint32 = 10;
     rc = CMSetProperty(instance, name1, &value1, type);
     PROV_LOG("++++  CMSetProperty-1 : (%s)", strCMPIStatus (rc));

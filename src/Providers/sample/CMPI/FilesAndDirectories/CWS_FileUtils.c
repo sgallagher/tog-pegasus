@@ -155,7 +155,11 @@ int makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf)
     dt=CMGetProperty(instance,"Name",&rc);
     if (rc.rc == CMPI_RC_OK)
     {
-        strcpy(cwsf->cws_name,CMGetCharsPtr(dt.value.string,NULL));
+        // Name needs be valid before copied using strcpy
+        if (CMPI_goodValue == dt.state)
+        {
+            strcpy(cwsf->cws_name,CMGetCharsPtr(dt.value.string,NULL));
+        }
     }
     dt=CMGetProperty(instance,"FileSize",&rc);
     if (rc.rc == CMPI_RC_OK)

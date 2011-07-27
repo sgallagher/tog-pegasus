@@ -289,6 +289,12 @@
  ++++  CMNewObjectPath : (CMPI_RC_OK)
  ++++ make_Instance: CMNewInstance
  ++++  CMNewInstance : (CMPI_RC_OK)
+ ++++  CMGetProperty, Default Nullvalue. rc: (CMPI_RC_OK)
+ ++++  CMGetProperty value state: (CMPI_nullValue)
+ ++++  CMGetProperty, Set Nullvalue. rc: (CMPI_RC_OK)
+ ++++  CMGetProperty value state: (CMPI_nullValue)
+ ++++  CMGetProperty, not a valid property. rc: (CMPI_RC_ERR_NO_SUCH_PROPERTY)
+ ++++  CMGetProperty, not a valid property. Value state: (CMPI_nullValue|CMPI_notFound)
  ++++  CMSetProperty-1 : (CMPI_RC_OK)
  ++++  CMSetProperty-2 : (CMPI_RC_OK)
  ++++  CMGetPropertyCount : (CMPI_RC_OK)

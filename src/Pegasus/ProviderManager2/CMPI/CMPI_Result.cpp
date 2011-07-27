@@ -202,8 +202,8 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnInstance()");
-        InstanceResponseHandler* res=
-            (InstanceResponseHandler*)eRes->hdl;
+        SimpleInstanceResponseHandler* res=
+            (SimpleInstanceResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
             PEG_TRACE((
@@ -268,7 +268,8 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnObject()");
-        ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
+        SimpleObjectResponseHandler* res=
+            (SimpleObjectResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eInst == NULL))
         {
@@ -398,7 +399,8 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnObjectPath()");
-        ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
+        SimpleObjectPathResponseHandler* res=
+            (SimpleObjectPathResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eRef == NULL))
         {
@@ -846,7 +848,7 @@ CMPIResultFT *CMPI_ResultResponseOnStack_Ftab=&resultResponseOnStack_FT;
 CMPIResultFT *CMPI_ResultExecQueryOnStack_Ftab=&resultExecQueryOnStack_FT;
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const ObjectPathResponseHandler & handler,
+    const SimpleObjectPathResponseHandler & handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -857,7 +859,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(
 }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const InstanceResponseHandler& handler,
+    const SimpleInstanceResponseHandler& handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -868,7 +870,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(
 }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const ObjectResponseHandler& handler,
+    const SimpleObjectResponseHandler& handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -929,13 +931,13 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
         if ((flags & RESULT_set)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)
-               ((ObjectPathResponseHandler*)hdl)->processing();
+               ((SimpleObjectPathResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultInstOnStack_Ftab)
-                ((InstanceResponseHandler*)hdl)->processing();
+                ((SimpleInstanceResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultObjOnStack_Ftab)
-               ((ObjectResponseHandler*)hdl)->processing();
+               ((SimpleObjectResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultMethOnStack_Ftab)
                ((MethodResultResponseHandler*)hdl)->processing();
@@ -951,13 +953,13 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
         if ((flags & RESULT_done)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)
-               ((ObjectPathResponseHandler*)hdl)->complete();
+               ((SimpleObjectPathResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultInstOnStack_Ftab)
-               ((InstanceResponseHandler*)hdl)->complete();
+               ((SimpleInstanceResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultObjOnStack_Ftab)
-               ((ObjectResponseHandler*)hdl)->complete();
+               ((SimpleObjectResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultMethOnStack_Ftab)
                ((MethodResultResponseHandler*)hdl)->complete();

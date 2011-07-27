@@ -77,10 +77,10 @@ struct CMPI_ResultOnStack : CMPIResult
     CMPI_Broker *xBroker;
     CMPI_Error *resError;
     CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
-    CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
-    CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const SimpleObjectPathResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const SimpleInstanceResponseHandler&,CMPI_Broker*);
     CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
-    CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const SimpleObjectResponseHandler&,CMPI_Broker*);
     CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
     ~CMPI_ResultOnStack();
 };

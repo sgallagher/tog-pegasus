@@ -758,6 +758,18 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
     try
     {
+        CIMException cimException;
+        if (!cleanShutdown)
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "ProviderManager.OOPProviderManagerRouter."
+                        "CIMPROVAGT_CONNECTION_LOST",
+                    "Lost connection with cimprovagt \"$0\".",
+                    _moduleOrGroupName));
+        }
+
         AutoMutex lock(_agentMutex);
 
         PEGASUS_ASSERT(_isInitialized);
@@ -798,45 +810,71 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                 Boolean sendResponseNow = false;
                 CIMResponseMessage *response;
 
-                if(cleanShutdown)
-                {
-                    MessageType msgType = i.value()->requestMessage->getType();
+                MessageType msgType = i.value()->requestMessage->getType();
 
-                    if(msgType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE ||
-                        msgType == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE ||
-                        msgType == 
-                            CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
-                        msgType == 
-                            CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE ||
-                        msgType == CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE)
+                // Note: Whether this agent was shutdown cleanly or not,
+                // for the below requests wait until all responses are
+                // received.
+                if(msgType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE ||
+                    msgType == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE ||
+                    msgType == 
+                        CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
+                    msgType == 
+                        CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE ||
+                    msgType == CIM_ENABLE_MODULE_REQUEST_MESSAGE ||
+                    msgType == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+                {
+                    PEGASUS_ASSERT(i.value()->respAggregator);
+                    if(i.value()->respAggregator->isComplete(cimException))
                     {
-                        CIMException ce;
-                        if(i.value()->respAggregator == NULL ||
-                            i.value()->respAggregator->isComplete(ce))
+                        CIMException cimException;
+                        sendResponseNow = true;
+
+                        if (msgType == CIM_ENABLE_MODULE_REQUEST_MESSAGE ||
+                            msgType == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+                        {
+                            CIMException e =
+                                i.value()->respAggregator->getException();
+                            if (e.getCode() == CIM_ERR_SUCCESS)
+                            {
+                                retryReqArray.append(i.value()->requestMessage);
+                                sendResponseNow = false;
+                            }
+                            else
+                            {
+                                cimException = e;
+                            }
+                        }
+
+                        if (sendResponseNow)
                         {
                             response = 
                                 i.value()->requestMessage->buildResponse();
                             response->messageId = i.value()->originalMessageId;
-                            response->cimException = ce;
+                            response->cimException = cimException;
                             sendResponseNow = true;
                         }
+                        delete i.value()->respAggregator;
                     }
-                    else
-                    {
-                        // retry the request
-                        retryReqArray.append(i.value()->requestMessage);
-                    }
+                }
+                else if (msgType == CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE)
+                {
+                    response = i.value()->requestMessage->buildResponse();
+                    response->messageId = i.value()->originalMessageId;
+                    sendResponseNow = true;
+                }
+                else if (cleanShutdown)
+                {
+                    // retry the request
+                    retryReqArray.append(i.value()->requestMessage);
                 }
                 else
                 {
+                    // Requests with respAggregator set were already handled
+                    // before.
+                    PEGASUS_ASSERT(!i.value()->respAggregator);
                     response = i.value()->requestMessage->buildResponse();
-                    response->cimException = PEGASUS_CIM_EXCEPTION(
-                       CIM_ERR_FAILED,
-                       MessageLoaderParms(
-                           "ProviderManager.OOPProviderManagerRouter."
-                               "CIMPROVAGT_CONNECTION_LOST",
-                           "Lost connection with cimprovagt \"$0\".",
-                           _moduleOrGroupName));
+                    response->cimException = cimException;
                     sendResponseNow = true;
                 }
 
@@ -851,8 +889,6 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                         i.value()->requestMessage,
                         response);
                 }
-                // delete the response aggregator
-                delete i.value()->respAggregator;
             }
             _outstandingRequestTable.clear();
         }

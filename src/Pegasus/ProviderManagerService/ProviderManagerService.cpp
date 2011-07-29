@@ -965,6 +965,16 @@ void ProviderManagerService::_updateModuleStatusToEnabled(
         appendStatus.append (CIM_MSE_OPSTATUS_VALUE_OK);
         _updateProviderModuleStatus(
             providerModule, removeStatus, appendStatus);
+       String moduleName;
+       providerModule.getProperty(
+           providerModule.findProperty("Name")).getValue().get(moduleName);
+       AutoMutex mtx(_failedProviderModuleTableMutex);
+       if (!_failedProviderModuleTable.contains(moduleName))
+       {
+            _providerRegistrationManager->sendPMInstAlert(
+                providerModule,
+                PM_ENABLED);
+       }
     }
 }
 
@@ -1012,6 +1022,9 @@ void ProviderManagerService::_updateModuleStatusToDisabled(
         }
         _updateProviderModuleStatus(
             providerModule, removeStatus, appendStatus);
+        _providerRegistrationManager->sendPMInstAlert(
+            providerModule,
+            PM_DISABLED);
     }
 }
 
@@ -1285,6 +1298,21 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
         }
         else
         {
+            CIMInstance providerModule;
+            CIMKeyBinding keyBinding(
+                _PROPERTY_PROVIDERMODULE_NAME,
+                moduleName,
+                CIMKeyBinding::STRING);
+
+            Array<CIMKeyBinding> kbArray;
+            kbArray.append(keyBinding);
+
+            CIMObjectPath modulePath(
+                "",
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_PROVIDERMODULE,
+                kbArray);
+
             //
             //  Successful response
             //  Examine result to see if any subscriptions were affected
@@ -1297,15 +1325,6 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
                 //
                 try
                 {
-                    CIMInstance providerModule;
-                    CIMKeyBinding keyBinding(
-                        _PROPERTY_PROVIDERMODULE_NAME,
-                        moduleName,
-                        CIMKeyBinding::STRING);
-                    Array<CIMKeyBinding> kbArray;
-                    kbArray.append(keyBinding);
-                    CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
-                        PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
 
                     Boolean startProviderModule = false;
                     // Get the maxFailedProviderModuleRestarts value. Note that
@@ -1364,6 +1383,9 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
                     if (startProviderModule)
                     {
                         _invokeProviderModuleStartMethod(modulePath);
+                        _providerRegistrationManager->sendPMInstAlert(
+                            providerModule,
+                            PM_FAILED_RESTARTED);
                        //
                        // Log a information message since provider module
                        // is restarted automatically
@@ -1389,6 +1411,9 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
                     }
                     else
                     {
+                        _providerRegistrationManager->sendPMInstAlert(
+                            providerModule,
+                            PM_DEGRADED);
                         //
                         //  Log a warning message since subscriptions
                         //  were affected
@@ -1416,6 +1441,18 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
                         "Failed to update provider module status: %s",
                         (const char*)e.getMessage().getCString()));
                 }
+            }
+            else
+            {
+                providerModule = providerManagerService->
+                    _providerRegistrationManager->getInstance(
+                        modulePath,
+                        false,
+                        false,
+                        CIMPropertyList());
+                _providerRegistrationManager->sendPMInstAlert(
+                    providerModule,
+                    PM_FAILED);
             }
         }
     }

@@ -63,11 +63,14 @@ public:
 
         @param   origRequest           the original request, if any, received by
                                            the Indication Service
+        @param   controlProviderName   Name of the control provider if the
+                                       request destination is control provider.
         @param   indicationSubclasses  the list of indication subclasses for the
                                            subscription
      */
     IndicationOperationAggregate(
         CIMRequestMessage* origRequest,
+        const String &controlProviderName,
         const Array<CIMName>& indicationSubclasses);
 
     ~IndicationOperationAggregate();
@@ -221,6 +224,7 @@ private:
         const IndicationOperationAggregate& x);
 
     CIMRequestMessage* _origRequest;
+    String _controlProviderName;
     Array<CIMName> _indicationSubclasses;
     Uint32 _numberIssued;
     Array<CIMRequestMessage*> _requestList;

@@ -269,13 +269,21 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
 
 void ShutdownService::shutdownProviders()
 {
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdownProviders");
+    _shutdownProviders(true);
+    _shutdownProviders(false);
+}
+
+void ShutdownService::_shutdownProviders(Boolean controlProviders)
+{
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownProviders");
 
     //
-    // get provider manager service
+    // get provider manager service or control service
     //
     MessageQueue* queue =
-        MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+        controlProviders ?
+            MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE) :
+            MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
     if (queue == 0)
     {
@@ -299,11 +307,24 @@ void ShutdownService::shutdownProviders()
     //
     // create async request message
     //
-    AsyncLegacyOperationStart* asyncRequest =
-        new AsyncLegacyOperationStart(
-            NULL,
+    AsyncRequest *asyncRequest;
+
+    if (controlProviders)
+    {
+        asyncRequest = new AsyncModuleOperationStart(
+           0,
+           _queueId,
+           String(),
+           stopRequest);
+    }
+    else
+    {
+        asyncRequest = new AsyncLegacyOperationStart(
+            0,
             _queueId,
             stopRequest);
+    }
+
 
     // Use SendWait, which is serialized and waits. Do not use asynchronous
     // callback as the response might be received _after_ the provider or
@@ -311,9 +332,26 @@ void ShutdownService::shutdownProviders()
 
     AsyncReply* asyncReply =
         _controller->ClientSendWait(_queueId, asyncRequest);
-    CIMStopAllProvidersResponseMessage* response =
-       reinterpret_cast<CIMStopAllProvidersResponseMessage*>(
-         (static_cast<AsyncLegacyOperationResult*>(asyncReply))->get_result());
+
+
+    MessageType msgType = asyncReply->getType();
+    PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
+        (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
+
+    CIMStopAllProvidersResponseMessage *response;
+
+    if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMStopAllProvidersResponseMessage *>(
+            (static_cast<AsyncLegacyOperationResult *>(
+                asyncReply))->get_result());
+    }
+    else
+    {
+        response = reinterpret_cast<CIMStopAllProvidersResponseMessage*>(
+            (static_cast<AsyncModuleOperationResult *>(
+                asyncReply))->get_result());
+    }
 
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {

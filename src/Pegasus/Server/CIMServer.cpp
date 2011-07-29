@@ -136,6 +136,23 @@ static Message* controlProviderReceiveMessageCallback(
 
     ProviderMessageHandler* pmh =
         reinterpret_cast<ProviderMessageHandler*>(instance);
+
+    MessageType reqType = request->getType();
+    if (reqType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+    {
+        pmh->terminate();
+        return 0;
+    }
+    else if (reqType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
+    {
+        pmh->subscriptionInitComplete();
+        return 0;
+    }
+    else if (reqType == CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
+    {
+        pmh->indicationServiceDisabled();
+        return 0;
+    }
     return pmh->processMessage(request);
 }
 
@@ -353,7 +370,7 @@ void CIMServer::_init()
     ProviderMessageHandler* provRegProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "ProviderRegistrationProvider",
         new ProviderRegistrationProvider(_providerRegistrationManager),
-        0, 0, false);
+        ModuleController::indicationCallback, 0, false);
     // Warning: The ProviderRegistrationProvider destructor deletes
     // _providerRegistrationManager
     _controlProviders.append(provRegProvider);
@@ -560,6 +577,7 @@ void CIMServer::initComplete()
     {
         _indicationService->sendSubscriptionInitComplete();
     }
+    _providerRegistrationManager->setInitComplete();
 }
 
 CIMServer::~CIMServer ()

@@ -134,6 +134,7 @@ private:
     ~ShutdownService();
 
     void _sendShutdownRequestToService(const char* serviceName);
+    void _shutdownProviders(Boolean controlProviders);
 };
 
 PEGASUS_NAMESPACE_END

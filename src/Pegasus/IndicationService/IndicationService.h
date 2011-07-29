@@ -55,6 +55,18 @@ ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Holds information of control providers servicing the indications.
+struct ControlProvIndReg
+{
+    CIMName className;
+    CIMNamespaceName nameSpace;
+    CIMInstance providerModule;
+    CIMInstance provider;
+};
+
+typedef HashTable <String, ControlProvIndReg, EqualFunc <String>,
+    HashFunc <String> > ControlProvIndRegTable;
+
 class SubscriptionRepository;
 class SubscriptionTable;
 
@@ -1486,6 +1498,11 @@ private:
     Uint32 _handlerService;
 
     /**
+        Integer representing queue ID for accessing Module Controller
+     */
+    Uint32 _moduleController;
+
+    /**
         Boolean indicating that the CIM Server has been configured to
         allow non-privileged users read and write access to the
         Subscription classes.
@@ -1506,6 +1523,12 @@ private:
         @return CIMClass object for the indication class
     */
     CIMClass _getIndicationClass(const CIMInstance& instance);
+
+    void _buildInternalControlProvidersRegistration();
+
+    Array<ProviderClassList> _getInternalIndProviders(
+        const CIMNamespaceName& nameSpace,
+        const Array<CIMName>& indicationSubclasses) const;
 
     /**
         Arrays of valid and supported property values
@@ -1545,6 +1568,7 @@ private:
     Array<CIMName> _supportedSNMPHandlerProperties;
     Array<CIMName> _supportedSyslogListenerDestinationProperties;
     Array<CIMName> _supportedEmailListenerDestinationProperties;
+    ControlProvIndRegTable _controlProvIndRegTable;
 };
 
 // Use with AutoPtr to automatically decrement AtomicInt

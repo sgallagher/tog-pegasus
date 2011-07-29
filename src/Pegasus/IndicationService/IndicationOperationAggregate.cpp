@@ -39,8 +39,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 IndicationOperationAggregate::IndicationOperationAggregate(
     CIMRequestMessage* origRequest,
+    const String &controlProviderName,
     const Array<CIMName>& indicationSubclasses)
 :   _origRequest(origRequest),
+    _controlProviderName(controlProviderName),
     _indicationSubclasses(indicationSubclasses),
     _numberIssued(0)
 {
@@ -173,6 +175,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
+                    provider.controlProviderName = _controlProviderName;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                     provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
                     provider.remoteInfo = pidc.getRemoteInfo();
@@ -189,6 +192,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
+                    provider.controlProviderName = _controlProviderName;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                     provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
                     provider.remoteInfo = pidc.getRemoteInfo();

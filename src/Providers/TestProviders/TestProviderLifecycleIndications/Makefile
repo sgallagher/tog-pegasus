@@ -26,64 +26,32 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
+ROOT = ../../../..
 
-ROOT = ../../..
+DIR = Providers/TestProviders/TestProviderLifecycleIndications
 
 include $(ROOT)/mak/config.mak
 
-TEST_DIRS = \
-	AlertIndicationProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests \
-        EmbeddedInstanceProvider \
-        EmbeddedInstanceProvider/testClient \
-        TestModuleGrouping \
-	FaultyInstanceProvider \
-	FaultyInstanceProvider/testclient \
-	TestGoodInstanceProvider \
-	DeliveryRetryTestProvider \
-        TestProviderLifecycleIndications \
-        TestProviderLifecycleIndications/testclient \
-        TestProviderLifecycleIndications/testconsumer
+LIBRARY = TestProviderLifecycleIndicationProvider
 
+LIBRARIES = \
+	pegqueryexpression \
+	pegwql
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-TEST_DIRS += \
-	TestServerProfileProviders
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+LIBRARIES += \
+	pegcql
 endif
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-TEST_DIRS += \
-	CMPI
-endif
+LIBRARIES += \
+	pegquerycommon \
+	pegprovider \
+	pegclient \
+	pegcommon
+	
+SOURCES = \
+	ProviderLifecycleIndicationTestProvider.cpp
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/dynamic-library.mak
+
+tests:

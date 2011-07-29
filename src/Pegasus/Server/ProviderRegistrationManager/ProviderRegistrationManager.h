@@ -40,6 +40,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -289,6 +290,19 @@ public:
        const String & moduleName,
        const String & providerName);
 
+    void setPMInstAlertCallback(
+        void (*)(
+            const CIMInstance&,
+            const CIMInstance&,
+            PMInstAlertCause));
+
+    void sendPMInstAlert(
+        const CIMInstance &instance,
+        PMInstAlertCause alertCause);
+
+    void setInitComplete();
+    Boolean getInitComplete();
+
     enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 
 protected:
@@ -310,6 +324,13 @@ protected:
     */
     ReadWriteSem _registrationTableLock;
 
+    Boolean _initComplete;
+
+    void (*_PMInstAlertCallback)(
+        const CIMInstance &providerModule,
+        const CIMInstance &provider,
+        PMInstAlertCause cause);
+
     String _generateKey(const String & name, const String & provider);
 
     String _generateKey(
@@ -326,7 +347,7 @@ protected:
     MessageQueueService * _getIndicationService();
 
     void _sendMessageToSubscription(
-        CIMNotifyProviderRegistrationRequestMessage * notify);
+        CIMRequestMessage * notify);
 
 private:
 

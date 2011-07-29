@@ -45,6 +45,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+IndicationResponseHandler*
+    ProviderRegistrationProvider::_indicationResponseHandler;
+
 /**
    The name of the CapabilityID property for provider capabilities class
 */
@@ -70,17 +73,149 @@ static const CIMName _SET_MODULEGROUPNAME = CIMNameCast("SetModuleGroupName");
 */
 static const CIMName _PARAM_MODULEGROUPNAME = CIMNameCast("ModuleGroupName");
 
+Boolean ProviderRegistrationProvider::_enableIndications = false;
+Mutex ProviderRegistrationProvider::_indicationDeliveryMtx;
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)
 {
     _providerRegistrationManager = providerRegistrationManager;
+    _providerRegistrationManager->setPMInstAlertCallback(_PMInstAlertCallback);
 
     _controller = ModuleController::getModuleController();
+    _sentEnabledIndications = false;
 }
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)
 {
+}
+
+void ProviderRegistrationProvider::_generatePMIndications(
+    PMInstAlertCause alertCause)
+{
+    CIMObjectPath path = 
+        CIMObjectPath("", CIMNamespaceName(), PEGASUS_CLASSNAME_PROVIDERMODULE);
+
+    Array<CIMInstance> enumInstances =
+        _providerRegistrationManager->enumerateInstancesForClass(
+            path,
+            false,
+            false,
+            CIMPropertyList());
+
+    _sendIndication(enumInstances, CIMInstance(), alertCause);
+}
+
+void ProviderRegistrationProvider::_PMInstAlertCallback(
+    const CIMInstance &providerModule,
+    const CIMInstance &provider,
+    PMInstAlertCause alertCause)
+{
+    Array<CIMInstance> providerModules;
+    providerModules.append(providerModule);
+    _sendIndication(providerModules, provider, alertCause);
+}
+
+void ProviderRegistrationProvider::_sendIndication(
+    const Array<CIMInstance> &providerModules,
+    const CIMInstance &provider,
+    PMInstAlertCause alertCause)
+{
+    AutoMutex mtx(_indicationDeliveryMtx);
+
+    if (!_enableIndications)
+    {
+        return;
+    }
+    PEGASUS_ASSERT(_indicationResponseHandler);
+
+    String providerName;
+
+    try
+    {
+       // Note: The following code determines whether this indiction
+       // actually needs to be delivered. Don't deliver the indication
+       // if operationalStatus have multiple status values. For example,
+       // during the provider disable, operationalStatus is updated
+       // with "Ok,Stopping" first and later with "Stopped". providerModules
+       // array will have more than one provider module if the indication
+       // is generated during the cimserver start or stop.
+       if (providerModules.size() == 1)
+       {
+            Array<Uint16> operationalStatus;
+            providerModules[0].getProperty(providerModules[0].findProperty(
+                _PROPERTY_OPERATIONALSTATUS)).getValue().get(operationalStatus);
+
+            if (operationalStatus.size() != 1)
+            {
+                return;
+            }
+            // Not all alerts will have provider associated with them.
+            // Get the provider name if provider is involved.
+            if (!provider.isUninitialized())
+            {
+                provider.getProperty(provider.findProperty(
+                    PEGASUS_PROPERTYNAME_NAME)).getValue().get(providerName);
+            }
+        }
+
+        CIMInstance indication(
+            PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT);
+
+        Uint16 cause = 0;
+        if (alertCause == PM_CREATED || alertCause == PM_DELETED)
+        {
+            if (providerName.size())
+            {
+                cause = (alertCause == PM_CREATED) ?
+                    PM_PROVIDER_ADDED : PM_PROVIDER_REMOVED;
+
+                indication.addProperty(CIMProperty(
+                    "ProviderName",
+                    providerName));
+            }
+            else
+            {
+                cause = alertCause;
+            }
+        }
+        else
+        {
+            cause = alertCause;
+        }
+
+        indication.addProperty(
+            CIMProperty("AlertCause", Uint16(cause)));
+
+        Array<CIMObject> modules;
+        for (Uint32 i = 0, n = providerModules.size() ; i < n; ++i)
+        {
+            modules.append(CIMObject(providerModules[i]));
+        }
+
+        indication.addProperty(
+            CIMProperty("ProviderModules", modules));
+
+        CIMObjectPath path =  CIMObjectPath(
+            String(),
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT);
+        indication.setPath (path);
+        _indicationResponseHandler->deliver(indication);
+    }
+    catch(const Exception &e)
+    {
+        PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL1,
+            "Exception in ProviderRegistrationProvider::"
+                "PMInstAlertCallback(): %s",
+            (const char*)e.getMessage().getCString()));
+    }
+    catch(...)
+    {
+        PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER,Tracer::LEVEL1,
+            "Unknown exception in ProviderRegistrationProvider::"
+                "PMInstAlertCallback()");
+    }
 }
 
 // get registered provider
@@ -1934,6 +2069,31 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
     }
 
     return (indCapInstances);
+}
+
+// CIMIndicationProvider interface
+
+void ProviderRegistrationProvider::enableIndications(
+    IndicationResponseHandler& handler)
+{
+    {
+        AutoMutex mtx(_indicationDeliveryMtx);
+        _enableIndications = true;
+        _indicationResponseHandler = &handler;
+    }
+
+    if (!_providerRegistrationManager->getInitComplete())
+    {
+        _generatePMIndications(PM_ENABLED_CIMSERVER_START);
+    }
+}
+
+void ProviderRegistrationProvider::disableIndications()
+{
+    _generatePMIndications(PM_DISABLED_CIMSERVER_STOP);
+    AutoMutex mtx(_indicationDeliveryMtx);
+    _enableIndications = false;
+    _indicationResponseHandler = 0;
 }
 
 #ifdef PEGASUS_ENABLE_INTEROP_PROVIDER

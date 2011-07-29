@@ -223,8 +223,10 @@ static const char UNSUPPORTED_PROVIDER_TYPE[] =
     "Unsupported ProviderType \"$0\" in ProviderModule \"$1\".";
 
 ProviderRegistrationManager::ProviderRegistrationManager(
-                                        CIMRepository* repository)
-    : _repository(repository)
+    CIMRepository* repository):
+        _repository(repository),
+        _initComplete(false),
+        _PMInstAlertCallback(0)
 {
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
     supportWildCardNamespaceNames=true;
@@ -250,6 +252,94 @@ ProviderRegistrationManager::~ProviderRegistrationManager(void)
             delete i.value();
 
         delete _registrationTable;
+    }
+}
+
+void ProviderRegistrationManager::setInitComplete()
+{
+    _initComplete = true;
+}
+
+Boolean ProviderRegistrationManager::getInitComplete()
+{
+    return _initComplete;
+}
+
+void ProviderRegistrationManager::setPMInstAlertCallback(
+    void (*callback)(
+        const CIMInstance&,
+        const CIMInstance&,
+        PMInstAlertCause cause))
+{
+    _PMInstAlertCallback = callback;
+}
+
+void ProviderRegistrationManager::sendPMInstAlert(
+    const CIMInstance &instance,
+    PMInstAlertCause cause)
+{
+    if (!_PMInstAlertCallback)
+    {
+        return;
+    }
+    CIMInstance providerModule;
+    CIMInstance provider;
+    String providerModuleName;
+    try
+    {
+        if (instance.getClassName() == PEGASUS_CLASSNAME_PROVIDER)
+        {
+            instance.getProperty(instance.findProperty(
+                _PROPERTY_PROVIDERMODULENAME)).getValue().get(
+                    providerModuleName);
+            Array <CIMKeyBinding> moduleKeyBindings;
+
+            moduleKeyBindings.append (
+               CIMKeyBinding(
+                   _PROPERTY_PROVIDERMODULE_NAME,
+                   providerModuleName,
+                   CIMKeyBinding::STRING));
+
+            CIMObjectPath reference = CIMObjectPath(
+                "",
+                CIMNamespaceName (),
+                PEGASUS_CLASSNAME_PROVIDERMODULE,
+                moduleKeyBindings);
+
+            providerModule =  _repository->getInstance(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                reference,
+                false,
+                false,
+                CIMPropertyList());
+            provider = instance;
+        }
+        else if (instance.getClassName() == PEGASUS_CLASSNAME_PROVIDERMODULE)
+        {
+            providerModule = instance;
+        }
+        else
+        {
+            return; // No other instance changes are supported
+        }
+        _PMInstAlertCallback(providerModule, provider, cause);
+    }
+    catch(const Exception &e)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "PMI alert generation failed. Exception: %s,"
+                "ProviderModuleName: %s, Alert value: %u.",
+            (const char*)e.getMessage().getCString(),
+            (const char*)providerModuleName.getCString(),
+            cause));
+    }
+    catch(...)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "PMI alert generation failed. Unknown exception."
+                "ProviderModuleName: %s, Alert value: %u.",
+            (const char*)providerModuleName.getCString(),
+            cause));
     }
 }
 
@@ -1358,6 +1448,7 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
 
     CIMInstance createdInstance = instance.clone();
     CIMObjectPath cimRef = _createInstance(ref, createdInstance, OP_CREATE);
+    sendPMInstAlert(createdInstance, PM_CREATED);
 
     PEG_TRACE((
         TRC_PROVIDERMANAGER,
@@ -1667,6 +1758,7 @@ Boolean ProviderRegistrationManager::setProviderModuleGroupName(
         Array<CIMInstance> instances;
         instances.append(_instance);
         _addInstancesToTable(_moduleKey, instances);
+        sendPMInstAlert(_instance, PM_GROUP_CHANGED);
     }
     catch (const Exception & e)
     {
@@ -3073,6 +3165,11 @@ void ProviderRegistrationManager::_deleteInstance(
         false,
         CIMPropertyList());
 
+    if (flag == OP_DELETE)
+    {
+        sendPMInstAlert(instance, PM_DELETED);
+    }
+
     //
     // unregister PG_ProviderCapability class or
     // PG_ConsumerCapability class
@@ -4027,7 +4124,7 @@ MessageQueueService * ProviderRegistrationManager::_getIndicationService()
 // send notify message to subscription service
 //
 void ProviderRegistrationManager::_sendMessageToSubscription(
-    CIMNotifyProviderRegistrationRequestMessage * notify_req)
+    CIMRequestMessage * notify_req)
 {
     ModuleController* controller = ModuleController::getModuleController();
 

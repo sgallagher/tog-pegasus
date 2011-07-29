@@ -40,6 +40,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -84,6 +85,9 @@ public:
         Message* (*receive_message)(Message *, void *));
 
     static ModuleController* getModuleController();
+
+    static  void indicationCallback(
+        CIMProcessIndicationRequestMessage* request);
 
     // send a message to another service
     AsyncReply* ClientSendWait(

@@ -119,9 +119,43 @@ void ModuleController::_handle_async_request(AsyncRequest* rq)
 {
     if (rq->getType() == ASYNC_ASYNC_MODULE_OP_START)
     {
-        // find the target module
+        // find the target modules
         RegisteredModuleHandle* target;
         Message* module_result = NULL;
+
+        CIMRequestMessage *request =
+            static_cast<CIMRequestMessage*>(
+                static_cast<AsyncModuleOperationStart *>(rq)->_act);
+
+        MessageType reqType = request->getType();
+        if (reqType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE ||
+            reqType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
+            reqType == CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
+        {
+            // Note: Since control providers are not loaded/unloaded
+            // dynamically, and the requests processed here arrives after
+            // registering the all control providers, acquiring the lock
+            // on modules list is not required.
+            // Process the request on each control provider by iterating
+            // through modules list. Since called functions  returns null
+            // responses for these requests, build the single response after
+            //  the request is processed with all control providers.
+            target = _modules.front();
+            while (target != NULL)
+            {
+                module_result = target->_receive_message(
+                    static_cast<AsyncModuleOperationStart *>(rq)->_act);
+                target = _modules.next_of(target);
+            }
+            module_result = request->buildResponse();
+            AsyncModuleOperationResult *result = new AsyncModuleOperationResult(
+                rq->op,
+                async_results::OK,
+                static_cast<AsyncModuleOperationStart *>(rq)->_target_module,
+                module_result);
+            _complete_op_node(rq->op);
+            return;
+        }
 
         {
             RegisteredModulesList::AutoLock lock(_modules);
@@ -203,6 +237,31 @@ Boolean ModuleController::ClientSendForget(
 {
     message->dest = destination_q;
     return SendForget(message);
+}
+
+void ModuleController::indicationCallback(
+    CIMProcessIndicationRequestMessage* request)
+{
+    if (!request->operationContext.contains(AcceptLanguageListContainer::NAME))
+    {
+        request->operationContext.insert(
+            AcceptLanguageListContainer(AcceptLanguageList()));
+    }
+
+    ModuleController *mc = getModuleController();
+
+    Uint32 _indicationServiceQueueId = mc->find_service_qid(
+        PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+    request->queueIds = QueueIdStack(_indicationServiceQueueId);
+
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart(
+        0,
+        _indicationServiceQueueId,
+        request);
+
+    mc->SendForget(asyncRequest);
 }
 
 PEGASUS_NAMESPACE_END

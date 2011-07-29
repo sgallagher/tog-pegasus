@@ -36,6 +36,7 @@
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 
 #include <Pegasus/Common/AcceptLanguageList.h>
@@ -47,7 +48,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_PROVREGPROVIDER_LINKAGE ProviderRegistrationProvider :
     public CIMInstanceProvider,
-    public CIMMethodProvider
+    public CIMMethodProvider ,
+    public CIMIndicationProvider
 {
 public:
 
@@ -142,6 +144,29 @@ ProviderRegistrationProvider & operator=
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler);
 
+    // CIMIndicationProvider interface
+    virtual void enableIndications(IndicationResponseHandler& handler);
+    virtual void disableIndications();
+
+    virtual void createSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy){}
+
+    virtual void modifySubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy){}
+
+    virtual void deleteSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames){}
+
 protected:
 
     ModuleController * _controller;
@@ -158,6 +183,9 @@ protected:
         const CIMObjectPath & ref, const String & moduleName,
         const Boolean disableProviderOnly,
         const AcceptLanguageList & al);
+
+    void _generatePMIndications(
+        PMInstAlertCause alertCause);
 
     Sint16 _disableModule(const CIMObjectPath & moduleRef,
                           const String & moduleName,
@@ -196,11 +224,22 @@ protected:
         const CIMObjectPath & providerRef);
 private:
 
+    static void _sendIndication(
+        const Array<CIMInstance> &providerModules,
+        const CIMInstance &provider,
+        PMInstAlertCause alertCause);
 #ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
     void _sendUpdateCacheMessagetoInteropProvider(
         const OperationContext & context);
 #endif
-
+    static IndicationResponseHandler *_indicationResponseHandler;
+    static  Boolean _enableIndications;
+    Boolean _sentEnabledIndications;
+    static Mutex _indicationDeliveryMtx;
+    static void _PMInstAlertCallback(
+        const CIMInstance &providerModule,
+        const CIMInstance &provider,
+        PMInstAlertCause cause);
 };
 
 PEGASUS_NAMESPACE_END

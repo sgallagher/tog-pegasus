@@ -199,8 +199,12 @@ IndicationService::IndicationService(
     : MessageQueueService(
           PEGASUS_QUEUENAME_INDICATIONSERVICE),
       _providerRegManager(providerRegManager),
-      _cimRepository(repository)
+      _cimRepository(repository),
+     // NOTE: Create ControlProvIndRegTable with only one chain. Only one
+     // indication control provider is available at this time.
+     _controlProvIndRegTable(1)
 {
+    _buildInternalControlProvidersRegistration();
     _enableSubscriptionsForNonprivilegedUsers = false;
     _authenticationEnabled = true;
 
@@ -269,6 +273,82 @@ IndicationService::IndicationService(
 
 IndicationService::~IndicationService()
 {
+    _controlProvIndRegTable.clear();
+}
+
+void IndicationService::_buildInternalControlProvidersRegistration()
+{
+    // ProvRegistrationProvider
+    ControlProvIndReg regProvider;
+
+    regProvider.className = 
+        PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT;
+
+   regProvider.providerModule =
+        CIMInstance(PEGASUS_CLASSNAME_PROVIDERMODULE);
+
+    regProvider.providerModule.addProperty(
+        CIMProperty(
+            PEGASUS_PROPERTYNAME_NAME,
+            String(PEGASUS_MODULENAME_PROVREGPROVIDER)));
+
+    regProvider.providerModule.addProperty(
+        CIMProperty(
+            PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT,
+            CIMValue()));
+
+    regProvider.provider =
+         CIMInstance(PEGASUS_CLASSNAME_PROVIDER);
+
+    regProvider.provider.addProperty(
+        CIMProperty(
+            PEGASUS_PROPERTYNAME_NAME,
+            String(PEGASUS_MODULENAME_PROVREGPROVIDER)));
+
+    regProvider.provider.addProperty(
+        CIMProperty(
+            _PROPERTY_PROVIDERMODULENAME,
+            String(PEGASUS_MODULENAME_PROVREGPROVIDER)));
+
+    Array<CIMKeyBinding> keys;
+
+    CIMKeyBinding kb1(
+        PEGASUS_PROPERTYNAME_NAME,
+        String(PEGASUS_MODULENAME_PROVREGPROVIDER),
+        CIMKeyBinding::STRING);
+    keys.append(kb1);
+
+    CIMObjectPath pmPath = 
+        CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            PEGASUS_CLASSNAME_PROVIDERMODULE,
+            keys);
+    regProvider.providerModule.setPath (pmPath);
+
+    CIMKeyBinding kb2(
+        _PROPERTY_PROVIDERMODULENAME,
+        String(PEGASUS_MODULENAME_PROVREGPROVIDER),
+        CIMKeyBinding::STRING);
+    keys.append(kb2);
+
+    CIMObjectPath providerPath = 
+        CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            PEGASUS_CLASSNAME_PROVIDER,
+            keys);
+
+    regProvider.provider.setPath (providerPath);
+
+    String key = PEGASUS_MODULENAME_PROVREGPROVIDER;
+    key.append(PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT.getString());
+
+    Boolean ok = _controlProvIndRegTable.insert(
+        key,
+        regProvider);
+
+    PEGASUS_ASSERT(ok);
 }
 
 Uint16  IndicationService::_getEnabledState()
@@ -598,6 +678,7 @@ void IndicationService::_initialize()
     //  Find required services
     _providerManager = find_service_qid(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
     _handlerService = find_service_qid(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
+    _moduleController = find_service_qid(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     //
     //  Set arrays of valid and supported property values
@@ -803,14 +884,43 @@ void IndicationService::_sendIndicationServiceDisabled()
             XmlWriter::getNextMessageId(),
             QueueIdStack(_providerManager, getQueueId()));
 
+    CIMIndicationServiceDisabledRequestMessage *requestCopy =
+        new CIMIndicationServiceDisabledRequestMessage(*request);
+
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
             0,
             _providerManager,
-            request);
+            requestCopy);
     AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest));
 
     delete asyncRequest;
+
+
+    // Now send to all indication internal control providers
+
+    for (ControlProvIndRegTable::Iterator j =
+        _controlProvIndRegTable.start (); j; j++)
+    {
+        ControlProvIndReg reg = j.value();
+        String controlProviderName;
+        reg.provider.getProperty(reg.provider.findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue().get(controlProviderName);
+
+        requestCopy = new CIMIndicationServiceDisabledRequestMessage(*request);
+
+        AsyncModuleOperationStart * asyncRequest =
+            new AsyncModuleOperationStart(
+                0,
+                _moduleController,
+                controlProviderName,
+                requestCopy);
+
+        AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest));
+        delete asyncRequest;
+    }
+
+    delete request;
 
     PEG_METHOD_EXIT();
 }
@@ -6286,6 +6396,13 @@ Array<ProviderClassList> IndicationService::_getIndicationProviders (
         }  // if any providers
     }  // for each indication subclass
 
+    // Verify if any control providers exists for this class
+    if (!indicationProviders.size())
+    {
+        indicationProviders = _getInternalIndProviders(
+            nameSpace, indicationSubclasses);
+    }
+
     PEG_METHOD_EXIT();
     return indicationProviders;
 }
@@ -6826,6 +6943,38 @@ void IndicationService::_getCreateParams(
     PEG_METHOD_EXIT();
 }
 
+Array<ProviderClassList> IndicationService::_getInternalIndProviders(
+    const CIMNamespaceName& nameSpace,
+    const Array<CIMName>& indicationSubclasses) const
+{
+    Array<ProviderClassList> providers;
+    for (Uint32 i = 0, n = indicationSubclasses.size(); i < n; ++i)
+    {
+        for (ControlProvIndRegTable::Iterator j =
+            _controlProvIndRegTable.start (); j; j++)
+        {
+            ControlProvIndReg reg = j.value();
+            if (indicationSubclasses[i] == reg.className &&
+                ( reg.nameSpace.isNull() || reg.nameSpace == nameSpace))
+            {
+               String controlProviderName;
+               reg.provider.getProperty(
+                   reg.provider.findProperty(
+                       PEGASUS_PROPERTYNAME_NAME)).getValue().get(
+                           controlProviderName);
+                ProviderClassList provider;
+                provider.controlProviderName = controlProviderName;
+                provider.provider = reg.provider;
+                provider.providerModule = reg.providerModule;
+                provider.classList.append(reg.className);
+                providers.append(provider);
+            }
+        }
+    }
+
+    return providers;
+}
+
 void IndicationService::_getCreateParams(
     const CIMInstance& subscriptionInstance,
     Array<CIMName>& indicationSubclasses,
@@ -7026,7 +7175,11 @@ void IndicationService::_sendAsyncCreateRequests(
     //  Create an aggregate object for the create subscription requests
     //
     AutoPtr<IndicationOperationAggregate> operationAggregate(
-        new IndicationOperationAggregate(aggRequest, indicationSubclasses));
+        new IndicationOperationAggregate(
+            aggRequest,
+            indicationProviders[0].controlProviderName,
+            indicationSubclasses));
+
     operationAggregate.get()->setNumberIssued(indicationProviders.size());
 
     //
@@ -7087,23 +7240,39 @@ void IndicationService::_sendAsyncCreateRequests(
 
         AsyncOpNode * op = this->get_op();
 
-        AutoPtr<AsyncLegacyOperationStart> async_req(
-            new AsyncLegacyOperationStart(
-                op,
-                _providerManager,
-                request.get()));
+        AutoPtr<AsyncRequest> asyncRequest;
+        Uint32 serviceId;
+        if (!indicationProviders[i].controlProviderName.size())
+        {
+            serviceId = _providerManager;
+            asyncRequest.reset(
+                new AsyncLegacyOperationStart(
+                    op,
+                    serviceId,
+                    request.get()));
+        }        
+        else
+        {
+           serviceId = _moduleController;
+            asyncRequest.reset(
+               new AsyncModuleOperationStart(
+                   op,
+                   serviceId,
+                   indicationProviders[i].controlProviderName,
+                   request.get()));
+        }
 
         SendAsync(
             op,
-            _providerManager,
+            serviceId,
             IndicationService::_aggregationCallBack,
             this,
             operationAggregate.get());
 
         // Release objects from their AutoPtr to prevent double deletes.
+        asyncRequest.release();
         requestCopy.release();
         request.release();
-        async_req.release();
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
        // Release AutomicInt if atleast one request is sent for aggregation.
@@ -7194,18 +7363,44 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
             ContentLanguageListContainer(contentLangs));
         request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart(
+        AsyncRequest *asyncRequest;
+        if (!indicationProviders[i].controlProviderName.size())
+        {
+            asyncRequest = new AsyncLegacyOperationStart(
                 0,
                 _providerManager,
                 request);
+        }
+        else
+        {
+           asyncRequest = new AsyncModuleOperationStart(
+               0,
+               _moduleController,
+               indicationProviders[i]. controlProviderName,
+               request);
+        }
 
         AsyncReply * asyncReply = SendWait(asyncRequest);
 
-        CIMCreateSubscriptionResponseMessage * response =
-            reinterpret_cast<CIMCreateSubscriptionResponseMessage *>(
+        MessageType msgType = asyncReply->getType();
+        PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
+                   (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
+
+        CIMCreateSubscriptionResponseMessage *response;
+
+        if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
+        {
+            response = reinterpret_cast<CIMCreateSubscriptionResponseMessage *>(
                 (static_cast<AsyncLegacyOperationResult *>(
                     asyncReply))->get_result());
+        }
+        else
+        {
+            response = reinterpret_cast<CIMCreateSubscriptionResponseMessage *>(
+                (static_cast<AsyncModuleOperationResult *>(
+                    asyncReply))->get_result());
+        }
+
 
         if (response->cimException.getCode() == CIM_ERR_SUCCESS)
         {
@@ -7310,18 +7505,44 @@ void IndicationService::_sendWaitModifyRequests(
             ContentLanguageListContainer(contentLangs));
         request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart(
+
+        AsyncRequest *asyncRequest;
+        if (!indicationProviders[i].controlProviderName.size())
+        {
+            asyncRequest = new AsyncLegacyOperationStart(
                 0,
                 _providerManager,
                 request);
+        }
+        else
+        {
+           asyncRequest = new AsyncModuleOperationStart(
+               0,
+               _moduleController,
+               indicationProviders[i].controlProviderName,
+               request);
+        }
 
         AsyncReply * asyncReply = SendWait(asyncRequest);
 
-        CIMModifySubscriptionResponseMessage * response =
-            reinterpret_cast<CIMModifySubscriptionResponseMessage *>(
+        MessageType msgType = asyncReply->getType();
+        PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
+                   (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
+
+        CIMModifySubscriptionResponseMessage *response;
+
+        if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
+        {
+            response = reinterpret_cast<CIMModifySubscriptionResponseMessage *>(
                 (static_cast<AsyncLegacyOperationResult *>(
                     asyncReply))->get_result());
+        }
+        else
+        {
+            response = reinterpret_cast<CIMModifySubscriptionResponseMessage *>(
+                (static_cast<AsyncModuleOperationResult *>(
+                    asyncReply))->get_result());
+        }
 
         if (!(response->cimException.getCode() == CIM_ERR_SUCCESS))
         {
@@ -7431,7 +7652,11 @@ void IndicationService::_sendAsyncDeleteRequests(
     //  Create an aggregate object for the delete subscription requests
     //
     IndicationOperationAggregate * operationAggregate =
-        new IndicationOperationAggregate(aggRequest, indicationSubclasses);
+        new IndicationOperationAggregate(
+            aggRequest,
+            indicationProviders[0].controlProviderName,
+            indicationSubclasses);
+
     operationAggregate->setNumberIssued(indicationProviders.size());
 
     //
@@ -7481,15 +7706,30 @@ void IndicationService::_sendAsyncDeleteRequests(
 
         AsyncOpNode * op = this->get_op();
 
-        AsyncLegacyOperationStart * async_req =
-            new AsyncLegacyOperationStart(
-                op,
-                _providerManager,
-                request);
+        Uint32 serviceId;
+        if (!indicationProviders[i].controlProviderName.size())
+        {
+            AsyncLegacyOperationStart * async_req =
+                new AsyncLegacyOperationStart(
+                   op,
+                   _providerManager,
+                   request);
+            serviceId = _providerManager;
+        }
+        else
+        {
+           AsyncModuleOperationStart* moduleControllerRequest =
+               new AsyncModuleOperationStart(
+                   op,
+                   _moduleController,
+                   indicationProviders[i].controlProviderName,
+                   request);
+           serviceId = _moduleController;
+        }
 
         SendAsync(
             op,
-            _providerManager,
+            serviceId,
             IndicationService::_aggregationCallBack,
             this,
             operationAggregate);
@@ -7555,18 +7795,45 @@ void IndicationService::_sendWaitDeleteRequests(
             ContentLanguageListContainer(contentLangs));
         request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart(
-                0,
-                _providerManager,
-                request);
+        AsyncRequest *asyncRequest;
+        if (!indicationProviders[i].controlProviderName.size())
+        {
+            asyncRequest =
+                new AsyncLegacyOperationStart(
+                    0,
+                    _providerManager,
+                    request);
+        }
+        else
+        {
+           asyncRequest =
+               new AsyncModuleOperationStart(
+                   0,
+                   _moduleController,
+                   indicationProviders[i].controlProviderName,
+                   request);
+        }
 
         AsyncReply * asyncReply = SendWait(asyncRequest);
 
-        CIMDeleteSubscriptionResponseMessage * response =
-            reinterpret_cast<CIMDeleteSubscriptionResponseMessage *>(
+        MessageType msgType = asyncReply->getType();
+        PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
+                   (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
+
+        CIMDeleteSubscriptionResponseMessage *response;
+
+        if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
+        {
+            response = reinterpret_cast<CIMDeleteSubscriptionResponseMessage *>(
                 (static_cast<AsyncLegacyOperationResult *>(
                     asyncReply))->get_result());
+        }
+        else
+        {
+            response = reinterpret_cast<CIMDeleteSubscriptionResponseMessage *>(
+                (static_cast<AsyncModuleOperationResult *>(
+                    asyncReply))->get_result());
+        }
 
         if (!(response->cimException.getCode() == CIM_ERR_SUCCESS))
         {
@@ -8144,6 +8411,8 @@ void IndicationService::sendSubscriptionInitComplete()
             XmlWriter::getNextMessageId(),
             QueueIdStack(_providerManager, getQueueId()));
 
+    CIMSubscriptionInitCompleteRequestMessage *requestCopy =
+        new CIMSubscriptionInitCompleteRequestMessage(*request);
     //
     //  Send Subscription Initialization Complete request to provider manager
     //  Provider Manager calls providers' enableIndications method
@@ -8152,13 +8421,36 @@ void IndicationService::sendSubscriptionInitComplete()
         new AsyncLegacyOperationStart(
             0,
             _providerManager,
-            request);
+            requestCopy);
 
     AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest));
     //
     //  Note: the response does not contain interesting data
     //
     delete asyncRequest;
+
+    // Now send to all indication internal control providers
+
+    for (ControlProvIndRegTable::Iterator j =
+        _controlProvIndRegTable.start (); j; j++)
+    {
+        ControlProvIndReg reg = j.value();
+        String controlProviderName;
+        reg.provider.getProperty(reg.provider.findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue().get(controlProviderName);
+        requestCopy = new CIMSubscriptionInitCompleteRequestMessage(*request);
+        AsyncModuleOperationStart * asyncRequest =
+            new AsyncModuleOperationStart(
+                0,
+                _moduleController,
+                controlProviderName,
+                requestCopy);
+
+        AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest));
+        delete asyncRequest;
+    }
+
+    delete request;
 
     PEG_METHOD_EXIT();
 }

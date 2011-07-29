@@ -55,7 +55,7 @@ struct providerClassList
     Boolean isRemoteNameSpace;
     String remoteInfo;
 #endif
-
+    String controlProviderName;
     providerClassList()
     {
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
@@ -75,6 +75,7 @@ struct providerClassList
         isRemoteNameSpace (rh.isRemoteNameSpace),
         remoteInfo (rh.remoteInfo)
 #endif
+        ,controlProviderName(rh.controlProviderName)
     {
     }
 
@@ -92,6 +93,7 @@ struct providerClassList
             isRemoteNameSpace = rh.isRemoteNameSpace;
             remoteInfo = rh.remoteInfo;
 #endif
+            controlProviderName = rh.controlProviderName;
         }
         return * this;
     }

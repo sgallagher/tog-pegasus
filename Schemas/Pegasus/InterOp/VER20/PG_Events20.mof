@@ -151,3 +151,46 @@ class PG_ListenerDestinationEmail: CIM_ListenerDestination
            "A string containing the Subject: field of the mail message.")]
    string MailSubject;
 };
+
+// ====================================================================
+// PG_ProviderModuleInstAlert
+// ====================================================================
+
+        [Version("2.12.0"), Description ( "PG_ProviderModulesInstAlert "
+            "notifies creation or deletion or modification of "
+            "PG_ProviderModule instances.")]
+class PG_ProviderModulesInstAlert : CIM_AlertInstIndication {
+
+    [Required, Description(
+          "An enumerated value that describes the probable cause of "
+          "the situation which resulted in the PG_ProviderModulesInstAlert." ),
+     ValueMap { "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "10", "11", "12", "13", "14", "15..255" },
+     Values { "Unknown", "Other", "Provider module created",
+              "Provider module deleted", "Provider module enabled",
+              "Provider module disabled", "Provider module degraded",
+              "Provider module with no active indication subscriptions"
+                  " failed/crashed",
+              "Provider module with active indication subscriptions"
+                  " restarted automatically after failure",
+              "Provider module group changed",
+              "Provider is added to the provider module",
+              "Provider is removed from the provider module",
+              "Provider module(s) enabled due to CIMServer start/restart",
+              "Provider module(s) disabled due to CIMServer shutdown",
+              "Pegasus Reserved"}]
+    uint16 AlertCause;
+
+    [Required,
+     Description (
+         "Provider module instances for the corresponding alert type. "
+         "There can be more than one provider module instance if the "
+         "AlertCause cause value is either \"13\" or \"14\"."),
+     EmbeddedObject]
+    string ProviderModules[];
+
+    [Description ("Name of the provider if the AlertCause cause value is "
+                  "either \"11\" or \"12\"."),
+        ModelCorrespondence { "PG_Provider.Name"} ]
+    string ProviderName;
+};

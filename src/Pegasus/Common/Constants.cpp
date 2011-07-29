@@ -75,6 +75,8 @@ const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL       =
     CIMNameCast("PG_ListenerDestinationEmail");
 const CIMName PEGASUS_CLASSNAME_INDFILTER            =
     CIMNameCast("CIM_IndicationFilter");
+const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT  =
+    CIMNameCast("PG_ProviderModulesInstAlert");
 const CIMName PEGASUS_CLASSNAME_SHUTDOWN             =
     CIMNameCast("PG_ShutdownService");
 const CIMName PEGASUS_CLASSNAME___NAMESPACE          =

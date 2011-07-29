@@ -26,64 +26,32 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
+ROOT = ../../../../..
 
-ROOT = ../../..
+DIR = Providers/TestProviders/TestProviderLifecycleIndications/testconsumer
 
 include $(ROOT)/mak/config.mak
 
-TEST_DIRS = \
-	AlertIndicationProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests \
-        EmbeddedInstanceProvider \
-        EmbeddedInstanceProvider/testClient \
-        TestModuleGrouping \
-	FaultyInstanceProvider \
-	FaultyInstanceProvider/testclient \
-	TestGoodInstanceProvider \
-	DeliveryRetryTestProvider \
-        TestProviderLifecycleIndications \
-        TestProviderLifecycleIndications/testclient \
-        TestProviderLifecycleIndications/testconsumer
+LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ROOT=\"$(ROOT)\"
 
+LIBRARY = ProviderLifecycleIndicationConsumer
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-TEST_DIRS += \
-	TestServerProfileProviders
+LIBRARIES = \
+    pegprovider \
+    pegcommon
+	
+SOURCES = \
+   ProviderLifecycleIndicationConsumer.cpp
+
+ifeq ($(OS),VMS)
+#
+# VMS uses different escape characters for including double quotes.
+#
+LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ROOT="""$(PEGASUS_ROOT)"""
 endif
+include $(ROOT)/mak/dynamic-library.mak
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-TEST_DIRS += \
-	CMPI
-endif
+poststarttests:
 
-include $(ROOT)/mak/recurse.mak
+tests:
+

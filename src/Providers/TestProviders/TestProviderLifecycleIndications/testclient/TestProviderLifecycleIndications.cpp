@@ -631,6 +631,35 @@ static void _deregisterProviders(CIMClient &client, const String &id=String())
         "TestProviderLifecycleIndicationProviderCapability" + id);
 }
 
+static void _waitForCreateSubscription(CIMClient &client)
+{
+    Array<CIMParamValue> outParams;
+    Array<CIMParamValue> inParams;
+    Uint32 iteration = 0;
+    Uint32 rc = 0;
+    while (iteration < 300)
+    {
+        iteration++;
+
+        CIMValue value = client.invokeMethod(
+            NAMESPACE,
+            CIMObjectPath("TestProviderLifecycleIndicationClass"),
+            "getSubscriptionCount",
+            inParams,
+            outParams);
+
+        value.get(rc);
+        if (rc)
+        {
+            return;
+        }
+        else
+        {
+            System::sleep(1);
+        }
+    }
+}
+
 static void _terminateProvider(CIMClient &client)
 {
         Array<CIMParamValue> outParams;
@@ -674,6 +703,7 @@ void _testIndicationProviders(CIMClient &client)
         "TestProviderLifecycleIndicationProviderModule",
         CIM_MSE_OPSTATUS_VALUE_OK);
 
+    _waitForCreateSubscription(client);
     _terminateProvider(client);
 
     _checkStatus(

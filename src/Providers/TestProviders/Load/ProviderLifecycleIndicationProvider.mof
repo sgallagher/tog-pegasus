@@ -32,6 +32,7 @@ class TestProviderLifecycleIndicationClass : CIM_Indication
     [key]
     uint32 id;
     uint32 terminate();
+    uint32 getSubscriptionCount();
 };
 
 class TestProviderLifecycleIndicationClass2 : TestProviderLifecycleIndicationClass

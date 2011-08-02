@@ -36,6 +36,8 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+static Uint32 _numSubscriptions = 0;
+
 extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
     const String& providerName)
 {
@@ -84,6 +86,7 @@ void ProviderLifecycleIndicationTestProvider::createSubscription(
     const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
+    _numSubscriptions++;
 }
 
 void ProviderLifecycleIndicationTestProvider::modifySubscription(
@@ -100,6 +103,7 @@ void ProviderLifecycleIndicationTestProvider::deleteSubscription(
     const CIMObjectPath& subscriptionName,
     const Array <CIMObjectPath>& classNames)
 {
+    _numSubscriptions--;
 }
 
 void ProviderLifecycleIndicationTestProvider::invokeMethod(
@@ -109,5 +113,18 @@ void ProviderLifecycleIndicationTestProvider::invokeMethod(
     const Array<CIMParamValue>& inParameters,
     MethodResultResponseHandler& handler)
 {
-    exit(-1);
+    handler.processing();
+    if (methodName.equal("terminate"))
+    {
+        exit(-1);
+    }
+    else if (methodName.equal("getSubscriptionCount"))
+    {
+        handler.deliver(_numSubscriptions);
+    }
+    else
+    {
+         handler.deliver(Uint32(0));
+    }
+    handler.complete();
 }

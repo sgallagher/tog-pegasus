@@ -85,12 +85,11 @@ Boolean _validateStatus(
             if (!statusValue.isNull())
             {
                 statusValue.get(operationalStatus);
-                for (Uint32 i = 0; i < operationalStatus.size(); i++)
+                if (operationalStatus.size() == 1)
                 {
-                    if (operationalStatus [i] == expectedStatus)
+                    if (operationalStatus [0] == expectedStatus)
                     {
                         result = true;
-                        break;
                     }
                 }
             }
@@ -641,21 +640,33 @@ static void _waitForCreateSubscription(CIMClient &client)
     {
         iteration++;
 
-        CIMValue value = client.invokeMethod(
-            NAMESPACE,
-            CIMObjectPath("TestProviderLifecycleIndicationClass"),
-            "getSubscriptionCount",
-            inParams,
-            outParams);
-
-        value.get(rc);
-        if (rc)
+        try
         {
-            return;
+            CIMValue value = client.invokeMethod(
+                NAMESPACE,
+                CIMObjectPath("TestProviderLifecycleIndicationClass"),
+                "getSubscriptionCount",
+                inParams,
+                outParams);
+            value.get(rc);
+            if (rc)
+            {
+                return;
+            }
+            else
+            {
+                System::sleep(1);
+            }
         }
-        else
+        catch(CIMException &e)
         {
-            System::sleep(1);
+            // If indication provider is not restarted yet, 
+            // provider blocked exception is thrown, wait
+            // until provider is restarted.
+            if (e.getCode() != CIM_ERR_NOT_SUPPORTED)
+            {
+                throw;
+            }
         }
     }
 }

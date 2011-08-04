@@ -489,12 +489,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 
         if (_isClient() == false)
         {
-            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
-                "<!-- Response: queue id: %u -->\n%s",
-                getQueueId(),
-                Tracer::traceFormatChars(
-                    buffer,
-                    httpMessage.binaryResponse).get()));
             if (isFirst == true)
             {
                 _incomingBuffer.clear();
@@ -925,6 +919,14 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 
         PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
                 "HTTPConnection::_handleWriteEvent: Server write event.");
+
+        // All possible fix ups have been done, trace the result
+        PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
+            "<!-- Response: queue id: %u -->\n%s",
+            getQueueId(),
+            Tracer::traceFormatChars(
+                Buffer(messageStart,bytesRemaining),
+                httpMessage.binaryResponse).get()));
 
         SignalHandler::ignore(PEGASUS_SIGPIPE);
 

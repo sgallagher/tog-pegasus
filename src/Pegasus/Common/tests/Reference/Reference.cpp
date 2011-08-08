@@ -66,7 +66,7 @@ void test01()
 
         if (verbose)
         {
-            XmlWriter::printValueReferenceElement(r, false);
+            XmlWriter::printValueReferenceElement(r);
             cout << r.toString() << endl;
         }
 
@@ -1205,7 +1205,7 @@ void test08()
     PEGASUS_TEST_ASSERT(errorDetected);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

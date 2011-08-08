@@ -45,6 +45,7 @@
 #include <string.h>
 #include <new>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/SCMODump.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -150,6 +151,7 @@ extern "C"
                 CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
                 CMPIData rdata={0,CMPI_nullValue|CMPI_notFound,{0}};
                 return rdata;
+                break;
             }
 
             case SCMO_NULL_VALUE:
@@ -218,7 +220,6 @@ extern "C"
             {
             case SCMO_NOT_FOUND:
                 {
-                    data.state = CMPI_nullValue | CMPI_notFound;
                     CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
                     return data;
                 }
@@ -228,11 +229,25 @@ extern "C"
                 {
                     // A NullValue does not indicate an error, but simply that
                     // no value has been set for the property.
-                    data.type = type2CMPIType(type, isArray);
-                    data.value.uint64 = 0;
-                    data.state = CMPI_nullValue;
-                    CMSetStatus(rc, CMPI_RC_OK);
+
+                    // TBD: Though the CMPI specification mandates to return a
+                    // nullvalue when a property exists on an instance but has
+                    // not yet been assigned a value, for compatibility with
+                    // previous versions we return CMPI_RC_ERR_NO_SUCH_PROPERTY
+                    // in this case.
+                    // If SCMO would distinguish between nullvalues and values
+                    // that have not been set at all on an instance, we could
+                    // be more precise here.
+                    /*
+                         // Correct code for nullvalues
+                         data.type = type2CMPIType(type, isArray);
+                         data.state = CMPI_nullValue;
+                         data.value.uint64 = 0;
+                    */
+                    // Code for properties that have not been set
+                    CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
                     return data;
+
                 }
                 break;
 
@@ -373,9 +388,11 @@ extern "C"
         if (rc != SCMO_OK)
         {
             PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL3,
-                "Property %s not set on created instance. SCMO_RC=%d",
-                name,
-                rc));
+                       "Property %s not set on created instance."
+                           "Either the property is not part of the class or"
+                       "not part of the property list. SCMO_RC=%d",
+                       name,
+                       rc));
 
             switch (rc)
             {
@@ -383,28 +400,11 @@ extern "C"
                     cmpiRC.rc = CMPI_RC_ERR_INVALID_PARAMETER;
                     break;
                 case SCMO_NOT_FOUND:
-                {
-                    // Logical would be to return an error here, but previous
-                    // impl. returned OK since CMPI spec. is not specific about
-                    // this. Should become CMPI_RC_ERR_NO_SUCH_PROPERTY in
-                    // CMPI 2.1 or 3.0
+                    //TBD: Should return an error here, but previous impl.
+                    //     returned OK. Is this correct?
+                    //cmpiRC.rc = CMPI_RC_ERR_NO_SUCH_PROPERTY;
                     cmpiRC.rc = CMPI_RC_OK;
-
-                    // Writing a message to log since provider tries to set a 
-                    // non-existing property
-                    Logger::put_l(
-                        Logger::ERROR_LOG,
-                        System::CIMSERVER,
-                        Logger::WARNING,
-                        MessageLoaderParms(
-                            "ProviderManager.CMPI.CMPI_Instance."
-                                "NO_SUCH_PROPERTY",
-                            "Property $0 not set on the created instance of "
-                                "class $1",
-                            name,
-                            inst->getClassName()));
                     break;
-                }
                 case SCMO_WRONG_TYPE:
                 case SCMO_NOT_AN_ARRAY:
                 case SCMO_IS_AN_ARRAY:

@@ -643,7 +643,7 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
 
     while (size>=8)
     {
-        register int c;
+        register Uint8 c;
         c = str[0];
         if (_isSpecialChar7[c])
         {
@@ -738,7 +738,7 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
 
     while (size>=4)
     {
-        register int c;
+        register Uint8 c;
         c = str[0];
         if (_isSpecialChar7[c])
         {
@@ -789,7 +789,7 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
 
     while (size--)
     {
-        register int c;
+        register Uint8 c;
         c=*str;
         if (_isSpecialChar7[c])
         {

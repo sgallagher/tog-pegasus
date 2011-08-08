@@ -276,6 +276,7 @@ Boolean CIMKeyBinding::equal(CIMValue value)
         case CIMTYPE_INSTANCE:
             // From PEP 194: EmbeddedObjects cannot be keys.
             return false;
+            break;
         default:  // Numerics
             if (getType() != NUMERIC) return false;
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
@@ -313,9 +314,11 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
             // If CIMObjectPath parsing fails, just compare strings
             return String::equal(x.getValue(), y.getValue());
         }
+        break;
     case CIMKeyBinding::BOOLEAN:
         // Case-insensitive comparison is sufficient for booleans
         return String::equalNoCase(x.getValue(), y.getValue());
+        break;
     case CIMKeyBinding::NUMERIC:
         // Note: This comparison assumes XML syntax for integers
         // First try comparing as unsigned integers
@@ -345,8 +348,10 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         // Note: Keys may not be real values, so don't try comparing as reals
         // We couldn't parse the numbers, so just compare the strings
         return String::equal(x.getValue(), y.getValue());
+        break;
     default:  // CIMKeyBinding::STRING
         return String::equal(x.getValue(), y.getValue());
+        break;
     }
 
     PEGASUS_UNREACHABLE(return false;)
@@ -659,7 +664,7 @@ void _parseKeyBindingPairs(
             }
 
             if (*p++ != '"')
-            {
+            {            
                 MessageLoaderParms mlParms(
                     "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSINGQUOTE",
                     "$0, reason:\"invalid key-value pair, "
@@ -720,7 +725,7 @@ void _parseKeyBindingPairs(
 
             if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
                   ((strncmp(p, "FALSE", n) == 0) && n == 5)))
-            {
+            {            
                 MessageLoaderParms mlParms(
                     "Common.CIMObjectPath.INVALID_BOOLVALUE",
                     "$0, reason:\"invalid key-value pair, "
@@ -757,7 +762,7 @@ void _parseKeyBindingPairs(
             {
                 Sint64 x;
                 if (!StringConversion::stringToSignedInteger(p, x))
-                {
+                {                
                     MessageLoaderParms mlParms(
                         "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
                         "$0, reason:\"invalid key-value pair, "
@@ -771,7 +776,7 @@ void _parseKeyBindingPairs(
             {
                 Uint64 x;
                 if (!StringConversion::stringToUnsignedInteger(p, x))
-                {
+                {                
                     MessageLoaderParms mlParms(
                         "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
                         "$0, reason:\"invalid key-value pair, "
@@ -978,7 +983,7 @@ String CIMObjectPath::toString() const
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
-    //  key bindings. See BUG_3302
+    //  key bindings
     //
     if (_rep->_keyBindings.size () != 0)
     {

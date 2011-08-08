@@ -180,6 +180,13 @@ static inline Uint32 _Min(Uint32 x, Uint32 y)
     return x < y ? x : y;
 }
 
+// Used to test signal handling
+void * sigabrt_generator(void * parm)
+{
+    abort();
+    return 0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -249,7 +256,7 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1),
     _connectionClosePending(false),
     _acceptPending(false),
-    _httpMethodNotChecked(true),
+    _firstRead(true),
     _internalError(false)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
@@ -518,10 +525,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             INTERNAL_SERVER_ERROR_CONNECTION_CLOSED,
                             _ipAddress));
                 }
-
-                // Cleanup Authentication Handle
-                // currently only PAM implemented, see Bug#9642
-                _authInfo->getAuthHandle().destroy();
                 return true;
             }
 
@@ -686,9 +689,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             // delete bytes if new is smaller than old
                             // add bytes if old is smaller than new
                             // if new and old amount equal -> do nothing
-
-                            // ((a+7) & ~7) <- round up to the next highest 
-                            // number dividable by eight
                             Uint32 extraNullBytes =
                                 ((headerLength + 7) & ~7) - headerLength;
                             Uint32 newHeaderSize = 
@@ -711,8 +711,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             {
                                 Uint32 reqNullBytes = 
                                     newExtraNullBytes - extraNullBytes;
-                                contentLanguagesString << headerLineTerminator;
-                                messageLength += headerLineTerminatorLength;
                                 // Cleverly attach the extra bytes upfront
                                 // to the contentLanguagesString
                                 for (Uint32 i = 0; i < reqNullBytes; i++)
@@ -720,11 +718,10 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                                     contentLanguagesString.append('\0');
                                 }
                                 messageLength+=reqNullBytes;
-                                buffer.insertWithOverlay(
+                                buffer.insert(
                                     insertOffset,
                                     messageStart,
-                                    messageLength,
-                                    headerLineTerminatorLength);
+                                    messageLength);
 
                                 contentLength+=reqNullBytes;
                             }
@@ -1187,10 +1184,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
         //
         if (_isClient() == false)
         {
-            // Cleanup Authentication Handle
-            // currently only PAM implemented, see Bug#9642
-            _authInfo->getAuthHandle().destroy();
-
             if (_internalError)
             {
                 _closeConnection();
@@ -1250,9 +1243,7 @@ Boolean _IsBodylessMessage(const char* line)
     const char* METHOD_NAMES[] =
     {
         "GET",
-        "HEAD",
-        "OPTIONS",
-        "DELETE"
+        "HEAD"
     };
 
     // List of response codes which the client accepts and which should not
@@ -1350,7 +1341,8 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     Boolean gotContentLanguage = false;
     Boolean gotTransferTE = false;
 
-    while ((sep = HTTPMessage::findSeparator(line)))
+    while ((sep =
+        HTTPMessage::findSeparator(line, (Uint32)(size - (line - data)))))
     {
         char save = *sep;
         *sep = '\0';
@@ -2170,6 +2162,34 @@ void HTTPConnection::_handleReadEvent()
 
         Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
 
+        // Check if this was the first read of a connection to the server.
+        // This has to happen inside the read loop, because there can be
+        // an incomplete SSL read.
+        if (_firstRead && n > 5 && !_isClient())
+        {
+            // The first bytes of a connection to the server have to contain
+            // a valid cim-over-http HTTP Method (M-POST or POST).
+            if ((strncmp(buffer, "POST", 4) != 0) &&
+                (strncmp(buffer, "M-POST", 6) != 0))
+            {
+                _clearIncoming();
+
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                      "This Request has non-valid CIM-HTTP Method: "
+                      "%02X %02X %02X %02X %02X %02X",
+                      buffer[0],buffer[1],buffer[2],
+                      buffer[3],buffer[4],buffer[5]));
+
+                // Try to send message to client.
+                // This function also closes the connection.
+                _handleReadEventFailure(HTTP_STATUS_NOTIMPLEMENTED);
+
+                PEG_METHOD_EXIT();
+                return;
+            }
+            _firstRead = false;
+        }
+
         if (n <= 0)
         {
             // It is possible that SSL_read was not able to
@@ -2207,43 +2227,6 @@ void HTTPConnection::_handleReadEvent()
         }
 
         bytesRead += n;
-
-        // Check if this was the first read of a connection to the server.
-        // This has to happen inside the read loop, because there can be
-        // an incomplete SSL read.
-        if (_httpMethodNotChecked && (bytesRead > 5) && !_isClient())
-        {
-            char* buf = _incomingBuffer.getContentPtr();
-            // The first bytes of a connection to the server have to contain
-            // a valid HTTP Method.
-            if ((strncmp(buf, "POST", 4) != 0) &&
-                            (strncmp(buf, "PUT", 3) != 0) &&
-                            (strncmp(buf, "OPTIONS", 7) != 0) &&
-                            (strncmp(buf, "DELETE", 6) != 0) &&
-#if defined(PEGASUS_ENABLE_PROTOCOL_WEB)
-                            (strncmp(buf, "GET", 3) != 0) &&
-                            (strncmp(buf, "HEAD", 4) != 0) &&
-#endif
-                (strncmp(buf, "M-POST", 6) != 0))
-            {
-                _clearIncoming();
-
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-                      "This Request has an unknown HTTP Method: "
-                      "%02X %02X %02X %02X %02X %02X",
-                      buf[0],buf[1],buf[2],
-                      buf[3],buf[4],buf[5]));
-
-                // Try to send message to client.
-                // This function also closes the connection.
-                _handleReadEventFailure(HTTP_STATUS_NOTIMPLEMENTED);
-
-                PEG_METHOD_EXIT();
-                return;
-            }
-            _httpMethodNotChecked = false;
-        }
-
 #if defined (PEGASUS_OS_VMS)
         if (n < sizeof(buffer))
         {
@@ -2358,13 +2341,6 @@ void HTTPConnection::_handleReadEvent()
         {
             _outputMessageQueue->enqueue(message);
         }
-        catch(TooManyHTTPHeadersException& e)
-        {
-            String httpStatus(HTTP_STATUS_REQUEST_TOO_LARGE);
-            httpStatus.append(httpDetailDelimiter);
-            httpStatus.append(e.getMessage());
-            _handleReadEventFailure(httpStatus);
-        }
         catch (Exception& e)
         {
             String httpStatus =
@@ -2399,7 +2375,7 @@ Boolean HTTPConnection::isResponsePending()
     return _responsePending;
 }
 
-Boolean HTTPConnection::run()
+Boolean HTTPConnection::run(Uint32 milliseconds)
 {
     Boolean handled_events = false;
     int events = 0;

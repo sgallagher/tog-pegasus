@@ -62,6 +62,9 @@ FileSystemPropertyOwner ConfigManager::fileSystemOwner;
 ProviderDirPropertyOwner ConfigManager::providerDirOwner;
 NormalizationPropertyOwner ConfigManager::normalizationOwner;
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+IndicationServicePropertyOwner ConfigManager::indicationServiceOwner;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -186,6 +189,13 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"maxFailedProviderModuleRestarts",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    ,{"maxIndicationDeliveryRetryAttempts",
+        (ConfigPropertyOwner*)&ConfigManager::indicationServiceOwner},
+    {"minIndicationDeliveryRetryInterval",
+        (ConfigPropertyOwner*)&ConfigManager::indicationServiceOwner}
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);

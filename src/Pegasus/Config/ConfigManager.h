@@ -61,6 +61,10 @@
 #include <Pegasus/Config/ProviderDirPropertyOwner.h>
 #include <Pegasus/Config/NormalizationPropertyOwner.h>
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+#include <Pegasus/Config/IndicationServicePropertyOwner.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -184,6 +188,10 @@ public:
     static ProviderDirPropertyOwner providerDirOwner;
 
     static NormalizationPropertyOwner normalizationOwner;
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    static IndicationServicePropertyOwner indicationServiceOwner;
+#endif
 
     /**
         Boolean indicating whether configuration data should be read from

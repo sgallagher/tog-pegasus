@@ -30,12 +30,23 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/StringConversion.h>
 
 #include "IndicationService.h"
 #include "IndicationConstants.h"
 #include "IndicationServiceConfiguration.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+static Uint32 _getConfigValue(const String &name)
+{
+    Uint64 v;
+    ConfigManager* configManager = ConfigManager::getInstance();
+    String strValue = configManager->getCurrentValue(name);
+    StringConversion::decimalStringToUint64(strValue.getCString(), v);
+
+    return (Uint32)v;
+}
 
 IndicationServiceConfiguration::IndicationServiceConfiguration(
     CIMRepository * repository)
@@ -205,12 +216,12 @@ void IndicationServiceConfiguration::_setIntervalPropertyValues(
         {
             // Old CIM Schema 2.17 with experimental classes
             p2.setValue(
-                Uint64(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
+                Uint64(_getConfigValue("minIndicationDeliveryRetryInterval")));
         }
         else
         {
             // New CIM Schema 2.22 and up with final classes
-            p2.setValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE);
+            p2.setValue(_getConfigValue("minIndicationDeliveryRetryInterval"));
         }
     }
 }
@@ -282,11 +293,12 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
         instance,
         _PROPERTY_SUBSCRIPTIONREMOVALACTION,
         CIMValue(_PROPERTY_SUBSCRIPTIONREMOVALACTION_VALUE));
-
+ 
     _setPropertyValue(
         instance,
         _PROPERTY_DELIVERYRETRYATTEMPTS,
-        CIMValue(_PROPERTY_DELIVERYRETRYATTEMPTS_VALUE));
+        CIMValue(
+            Uint16(_getConfigValue("maxIndicationDeliveryRetryAttempts"))));
 
     _setIntervalPropertyValues(instance);
 

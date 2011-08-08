@@ -417,6 +417,7 @@ void CMPIProvider::terminate()
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
         "CMPIProvider::terminate()");
+    Status savedStatus=_status;
     if (_status == INITIALIZED)
     {
         try
@@ -737,7 +738,7 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIMethodMI *mi = 0;
+            CMPIMethodMI *mi;
 
             if (_miVector.genericMode && _miVector.createGenMethMI)
             {
@@ -787,7 +788,7 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIAssociationMI *mi = 0;
+            CMPIAssociationMI *mi;
 
             if (_miVector.genericMode && _miVector.createGenAssocMI)
             {
@@ -838,7 +839,7 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIPropertyMI *mi = 0;
+            CMPIPropertyMI *mi;
 
             if (_miVector.genericMode && _miVector.createGenPropMI)
             {
@@ -889,7 +890,7 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIIndicationMI *mi = 0;
+            CMPIIndicationMI *mi;
 
             if (_miVector.genericMode && _miVector.createGenIndMI)
             {

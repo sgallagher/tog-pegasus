@@ -38,7 +38,6 @@
 #include <iostream>
 #include <fstream>
 #include <Pegasus/Common/Network.h>
-#include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_STD;
 
@@ -80,16 +79,62 @@ void CIMClientRep::handleEnqueue()
 {
 }
 
+Uint32 _getShowType(String& s)
+{
+    String log = "log";
+    String con = "con";
+    String both = "both";
+    if (s == log)
+        return 2;
+    if (s == con)
+        return 1;
+    if (s == both)
+        return 3;
+    return 0;
+}
+
 void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 {
-    ClientTrace::setup();
+    //
+    // Test for Display optons of the form
+    // Use Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
+    // intrace = "con" | "log" | "both"
+    // outtrace = intrace
+    // ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
+    // to console and log
+    // Keywords are case insensitive.
+    // PEP 90
+    //
+    Uint32 showOutput = 0;
+    Uint32 showInput = 0;
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    String input;
+    if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
+    {
+        input = envVar;
+        input.toLower();
+        String io;
+        Uint32 pos = input.find(':');
+        if (pos == PEG_NOT_FOUND)
+            pos = 0;
+        else
+            io = input.subString(0,pos);
+
+        // some compilers do not allow temporaries to be passed to a
+        // reference argument - so break into 2 lines
+        String out = input.subString(pos + 1);
+        showOutput = _getShowType(out);
+
+        showInput = _getShowType(io);
+    }
+#endif
 
     //
     // Create response decoder:
     //
     AutoPtr<CIMOperationResponseDecoder> responseDecoder(
         new CIMOperationResponseDecoder(
-            this, _requestEncoder.get(), &_authenticator ));
+            this, _requestEncoder.get(), &_authenticator, showInput));
 
     //
     // Attempt to establish a connection:
@@ -114,7 +159,7 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 
     AutoPtr<CIMOperationRequestEncoder> requestEncoder(
         new CIMOperationRequestEncoder(
-            httpConnection.get(), connectHost, &_authenticator,
+            httpConnection.get(), connectHost, &_authenticator, showOutput,
             binaryRequest,
             binaryResponse));
 
@@ -134,7 +179,7 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
-void CIMClientRep::_disconnect(bool keepChallengeStatus)
+void CIMClientRep::_disconnect()
 {
     if (_connected)
     {
@@ -167,11 +212,8 @@ void CIMClientRep::_disconnect(bool keepChallengeStatus)
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
 
-    if (keepChallengeStatus == false)
-    {
     // Reset the challenge status
     _authenticator.resetChallengeStatus();
-}
 }
 
 void CIMClientRep::connect(
@@ -982,7 +1024,6 @@ CIMValue CIMClientRep::invokeMethod(
     outParameters = response->outParameters;
 
     return response->retValue;
-
 }
 
 Message* CIMClientRep::_doRequest(
@@ -1073,7 +1114,7 @@ Message* CIMClientRep::_doRequest(
             //
             if (response->getCloseConnect() == true)
             {
-                _disconnect(true);
+                _disconnect();
                 _doReconnect = true;
                 response->setCloseConnect(false);
             }
@@ -1256,93 +1297,4 @@ void CIMClientRep::deregisterClientOpPerformanceDataHandler()
     perfDataStore.setClassRegistered(false);
 }
 
-
-/*
-    Implementation of the Trace mechanism
-*/
-
-// static variables to store the display state for input and output.
-Uint32 ClientTrace::inputState;
-Uint32 ClientTrace::outputState;
-
-ClientTrace::TraceType ClientTrace::selectType(const String& str)
-{
-    if (str == "con")
-    {
-        return TRACE_CON;
-    }
-    if (str == "log")
-    {
-        return TRACE_LOG;
-    }
-    if (str == "both")
-    {
-        return TRACE_BOTH;
-    }
-    return TRACE_NONE;
-}
-
-Boolean ClientTrace::displayOutput(TraceType tt)
-{
-    return (tt & outputState);
-}
-
-Boolean ClientTrace::displayInput(TraceType tt)
-{
-    return (tt & inputState);
-}
-
-// Set up the input and output state variables from the input
-// environment variable.
-void ClientTrace::setup()
-{
-    String input;
-    if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
-    {
-        input = envVar;
-        input.toLower();
-        String in;
-        String out;
-        Uint32 pos = input.find(':');
-
-        // if no colon found, input and output have same mask
-        if (pos == PEG_NOT_FOUND)
-        {
-            in = input;
-            out = input;
-        }
-        else
-        {
-            // if string starts with colon, input empty, else
-            // either both or output empty
-            if (input[0] == ':')
-            {
-                in = "";
-                out = input.subString(1);
-            }
-            else
-            {
-                in = input.subString(0,pos);
-                if (pos == (input.size() - 1))
-                {
-                    out = "";
-                }
-                else
-                {
-                    out =input.subString(pos + 1);
-                }
-            }
-        }
-
-        // set the state variables
-        outputState = ClientTrace::selectType(out);
-        inputState = ClientTrace::selectType(in);
-
-        // Test for logging requested and if so set log parameters
-        if (((outputState| inputState) & TRACE_LOG) != 0)
-        {
-            Logger::setlogLevelMask("");
-        }
-    }
-}
 PEGASUS_NAMESPACE_END

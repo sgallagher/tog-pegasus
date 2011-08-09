@@ -147,6 +147,8 @@ static struct OwnerEntry _properties[] =
     {"enableCFZAPPLID",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #endif
+    {"sslCipherSuite",
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider",
          (ConfigPropertyOwner*)&ConfigManager::repositoryOwner},
     {"enableBinaryRepository",

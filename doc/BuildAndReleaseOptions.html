@@ -3040,6 +3040,26 @@ configuration properties.</p>
      Pegasus/Config/SecurityPropertyOwner.cpp
 </ul>
 
+<h5>sslCipherSuite</h5>
+<ul>
+  <b>Description:&nbsp;</b>String containing OpenSSL cipher
+     specifications to configure the cipher suite the client is
+     permitted to negotiate with the server during the SSL
+     handshake phase.<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>
+     DEFAULT (the default cipher list of OpenSSL)<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>
+     DEFAULT (the default cipher list of OpenSSL)<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>The value should be mentioned between
+     single quotes since it can contain special characters like .+,
+     !, -.. For more details look at SSL ciphers.<br>
+  <b>Source Configuration File:&nbsp;</b>
+     Pegasus/Config/SecurityPropertyOwner.cpp
+</ul>
+
 <h5>sslClientVerificationMode</h5>
 <ul>
   <b>Description:&nbsp;</b>Describes the desired level of support

@@ -317,6 +317,20 @@ is true.
 .BR Dynamic: \0No
 .PD
 .PP
+.B sslCipherSuite
+.IP
+.BR Description: " String containing OpenSSL cipher specifications to 
+configure the cipher suite the client is permitted to negotiate with 
+the server during the SSL handshake phase. The value should be 
+mentioned between single quotes since it can contain special characters 
+like .+, !, -. 
+.PD 0
+.IP
+.BR "Default Value: " DEFAULT\ (The\ default\ cipher\ list\ of\ OpenSSL)
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
 If both the 
 .B enableHttpsConnection
 and

@@ -914,6 +914,7 @@ SSLContext* CIMServer::_getSSLContext()
         "sslTrustStoreUserName";
     static const String PROPERTY_NAME__HTTP_ENABLED =
         "enableHttpConnection";
+    static const String PROPERTY_NAME__SSL_CIPHER_SUITE = "sslCipherSuite";
 
     String verifyClient;
     String trustStore;
@@ -1086,6 +1087,14 @@ SSLContext* CIMServer::_getSSLContext()
 #endif
 
     //
+    // Get the cipherSuite property from the Config Manager.
+    //
+    String cipherSuite = configManager->getCurrentValue(
+        PROPERTY_NAME__SSL_CIPHER_SUITE);
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4, "Cipher suite is %s", 
+        (const char*)cipherSuite.getCString())); 
+
+    //
     // Create the SSLContext defined by the configuration properties
     //
     if (String::equal(verifyClient, "required"))
@@ -1094,7 +1103,8 @@ SSLContext* CIMServer::_getSSLContext()
             "SSL Client verification REQUIRED.");
 
         _sslContextMgr->createSSLContext(
-            trustStore, certPath, keyPath, crlStore, false, randFile);
+            trustStore, certPath, keyPath, crlStore, false, randFile,
+            cipherSuite);
     }
     else if (String::equal(verifyClient, "optional"))
     {
@@ -1102,7 +1112,8 @@ SSLContext* CIMServer::_getSSLContext()
             "SSL Client verification OPTIONAL.");
 
         _sslContextMgr->createSSLContext(
-            trustStore, certPath, keyPath, crlStore, true, randFile);
+            trustStore, certPath, keyPath, crlStore, true, randFile,
+            cipherSuite);
     }
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
@@ -1111,7 +1122,8 @@ SSLContext* CIMServer::_getSSLContext()
             "SSL Client verification DISABLED.");
 
         _sslContextMgr->createSSLContext(
-            String::EMPTY, certPath, keyPath, crlStore, false, randFile);
+            String::EMPTY, certPath, keyPath, crlStore, false, randFile,
+            cipherSuite);
     }
     sslContext = _sslContextMgr->getSSLContext();
 

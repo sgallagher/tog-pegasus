@@ -522,7 +522,8 @@ SSLContextRep::SSLContextRep(
     const String& keyPath,
     const String& crlPath,
     SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile)
+    const String& randomFile,
+    const String& cipherSuite)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -531,6 +532,7 @@ SSLContextRep::SSLContextRep(
     _keyPath = keyPath;
     _crlPath = crlPath;
     _certificateVerifyFunction = verifyCert;
+    _cipherSuite = cipherSuite;
 
     //
     // If a truststore and/or peer verification function is specified,
@@ -556,6 +558,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _verifyPeer = sslContextRep._verifyPeer;
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
+    _cipherSuite = sslContextRep._cipherSuite;
 
     _sslContext = _makeSSLContext();
 
@@ -726,6 +729,23 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         throw SSLException(parms);
     }
 #endif
+
+    if (_cipherSuite != String::EMPTY)
+    {
+        if (!(SSL_CTX_set_cipher_list(sslContext, _cipherSuite.getCString())))
+        {
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
+                "---> SSL: Cipher Suite could not be specified");
+            MessageLoaderParms parms(
+                "Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
+                "Could not set the cipher list");
+            throw SSLException(parms);
+        }
+        else
+           PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
+                "---> SSL: Cipher suite set to %s",
+                (const char *)_cipherSuite.getCString()));
+    }
 
     //
     // set overall SSL Context flags
@@ -1100,6 +1120,11 @@ String SSLContextRep::getTrustStoreUserName() const
 }
 #endif
 
+String SSLContextRep::getCipherSuite() const
+{
+    return _cipherSuite;
+}
+
 String SSLContextRep::getCRLPath() const
 {
     return _crlPath;
@@ -1170,6 +1195,7 @@ SSLContextRep::SSLContextRep(
     const String& crlPath,
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
+    const String& cipherSuite)
 {
 }
 
@@ -1193,6 +1219,8 @@ String SSLContextRep::getTrustStore() const { return String::EMPTY; }
 String SSLContextRep::getCertPath() const { return String::EMPTY; }
 
 String SSLContextRep::getKeyPath() const { return String::EMPTY; }
+
+String SSLContextRep::getCipherSuite() const { return String::EMPTY; }
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 String SSLContextRep::getTrustStoreUserName() const { return String::EMPTY; }
@@ -1237,7 +1265,8 @@ SSLContext::SSLContext(
         String::EMPTY,
         String::EMPTY,
         verifyCert,
-        randomFile);
+        randomFile,
+        String::EMPTY);
 }
 
 SSLContext::SSLContext(
@@ -1272,6 +1301,31 @@ SSLContext::SSLContext(
     _rep = new SSLContextRep(
         trustStore, certPath, keyPath, crlPath, verifyCert, randomFile);
 }
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+SSLContext::SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        const String& crlPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile,
+        const String& cipherSuite)
+{
+#ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    if (crlPath.size() > 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
+            "SSL CRL verification is not enabled.");
+        throw Exception(parms);
+    }
+#endif
+    _rep = new SSLContextRep(
+        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile, 
+        cipherSuite);
+}
+#endif
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 SSLContext::SSLContext(
@@ -1352,6 +1406,13 @@ Boolean SSLContext::isPeerVerificationEnabled() const
 String SSLContext::getTrustStoreUserName() const
 {
     return _rep->getTrustStoreUserName();
+}
+#endif
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+String SSLContext::getCipherSuite() const
+{
+    return _rep->getCipherSuite();
 }
 #endif
 

@@ -201,6 +201,7 @@ private:
     AutoPtr<struct ConfigProperty> _sslClientVerificationMode;
     AutoPtr<struct ConfigProperty> _sslTrustStoreUserName;
     AutoPtr<struct ConfigProperty> _enableSubscriptionsForNonprivilegedUsers;
+    AutoPtr<struct ConfigProperty> _cipherSuite;
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     AutoPtr<struct ConfigProperty> _authorizedUserGroups;

@@ -231,7 +231,8 @@ public:
         const String& keyPath = String::EMPTY,
         const String& crlPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
-        const String& randomFile = String::EMPTY);
+        const String& randomFile = String::EMPTY,
+        const String& cipherSuite = String::EMPTY);
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
@@ -244,6 +245,8 @@ public:
     String getCertPath() const;
 
     String getKeyPath() const;
+
+    String getCipherSuite() const;
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     String getTrustStoreUserName() const;
@@ -285,6 +288,7 @@ private:
     String _keyPath;
     String _crlPath;
     String _randomFile;
+    String _cipherSuite;
     SSL_CTX * _sslContext;
 
     Boolean _verifyPeer;

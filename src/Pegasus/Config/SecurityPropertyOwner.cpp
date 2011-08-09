@@ -130,6 +130,7 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
 #endif
+    {"sslCipherSuite", "DEFAULT", IS_STATIC, IS_VISIBLE}
 #endif
 };
 
@@ -162,6 +163,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 #ifdef PEGASUS_OS_ZOS
     _enableCFZAPPLID.reset(new ConfigProperty());
 #endif
+    _cipherSuite.reset(new ConfigProperty());
 
 }
 
@@ -367,6 +369,17 @@ void SecurityPropertyOwner::initialize()
                 properties[i].externallyVisible;
         }
 #endif
+        else if (String::equal(
+                     properties[i].propertyName, "sslCipherSuite"))
+        {
+            _cipherSuite->propertyName = properties[i].propertyName;
+            _cipherSuite->defaultValue = properties[i].defaultValue;
+            _cipherSuite->currentValue = properties[i].defaultValue;
+            _cipherSuite->plannedValue = properties[i].defaultValue;
+            _cipherSuite->dynamic = properties[i].dynamic;
+            _cipherSuite->externallyVisible =
+                properties[i].externallyVisible;
+        }
     }
 
 }
@@ -447,6 +460,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
         return _enableCFZAPPLID.get();
     }
 #endif
+    else if (String::equal(_cipherSuite->propertyName, name))
+    {
+        return _cipherSuite.get();
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -808,6 +825,22 @@ Boolean SecurityPropertyOwner::isValid(
         }
     }
 #endif
+    else if (String::equal(_cipherSuite->propertyName, name))
+    {
+        String cipherSuite(value);
+
+        //
+        // Check if the cipher list is empty
+        //
+        if (cipherSuite == String::EMPTY)
+        {
+            retVal =  false;
+        }
+        else
+        {
+           retVal =  true;
+        }
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);

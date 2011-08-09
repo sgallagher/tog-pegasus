@@ -420,6 +420,13 @@ public:
     */
     X509_STORE* getCRLStore() const;
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** Gets the cipher suite of the SSLContext object.
+        @return a string containing the cipher suite
+    */
+    String getCipherSuite() const;
+#endif
+
     /** Returns whether peer verification is ON of OFF
         Corresponds to what the SSL_CTX_set_verify is set to
         @return true if verification is on; false otherwise
@@ -505,6 +512,43 @@ public:
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** Constructor for an SSLContext object. This constructor is intended
+        to be used by the CIMServer or CIMClient.
+        @param trustStore file path of the trust store.
+        @param certPath  file path of the server certificate.
+        @param keyPath  file path of the private key.
+        @param crlPath file path of the certificate revocation list.
+        @param verifyCert  function pointer to a certificate verification
+        call back function.  A null pointer indicates that no callback is
+        requested for certificate verification.
+        @param randomFile  file path of a random file that may be used as a seed
+        for random number generation by OpenSSL.
+        @param cipherSuite cipher list
+
+        NOTE:
+        For platforms that support /dev/random(urandom), the /dev/random
+        files will be used to seed OpenSSL.  The specified random file
+        may be used as a fallback when /dev/random(urandom) is unavailable
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using
+        a random file.
+
+        An empty random file string indicates that a random file should not
+        be used. If sufficient randomness is not achieved using /dev/random
+        and/or a random file, an SSLException is thrown.
+
+        @exception SSLException indicates failure to create an SSL context.
+    */
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        const String& crlPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile,
+        const String& cipherSuite);
+#endif
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     /** Constructor for an SSLContextRep object.

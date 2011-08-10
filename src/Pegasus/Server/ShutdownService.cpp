@@ -198,32 +198,8 @@ void ShutdownService::shutdownCimomServices()
     // Shutdown the Indication Handler Service
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
 
-    // PEGASUS_QUEUENAME_OPRESPENCODER
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPRESPENCODER);
-
     // PEGASUS_QUEUENAME_EXPORTRESPENCODER
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTRESPENCODER);
-
-    //
-    // shutdown  Authenticator Delegator Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR);
-
-    //
-    // shutdown  CIM Operation Request Authorizer Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQAUTHORIZER);
-
-    //
-    // shutdown  CIM Operation Request Decoder Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDECODER);
-
-
-    //
-    // shutdown  CIM Export Request Decoder Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDECODER);
 
     //
     // shutdown  CIM Export Request Dispatcher Service

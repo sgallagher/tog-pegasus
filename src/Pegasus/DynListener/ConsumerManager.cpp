@@ -281,6 +281,7 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::getConsumer");
 
     DynamicConsumer* consumer = 0;
+    CIMIndicationConsumerProvider* consumerRef = 0;
     Boolean cached = false;
     Boolean entryExists = false;
 
@@ -304,13 +305,13 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
             "Consumer not found in cache, creating %s",
             (const char*)consumerName.getCString()));
         consumer = new DynamicConsumer(consumerName);
+        //ATTN: The above is a memory leak if _initConsumer throws an exception
+        //need to delete it in that case
     }
 
     if (!cached)
     {
-        AutoPtr<DynamicConsumer> destroyer(consumer);
         _initConsumer(consumerName, consumer);
-        destroyer.release();
 
         if (!entryExists)
         {

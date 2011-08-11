@@ -1,5 +1,5 @@
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec
-# This is required when BIT_32_PROVIDERS_SUPPORT_FOR_BIT_64_CIMOM is set
+# This is required only when PEGASUS_32BIT_PROVIDER_SUPPORT is set
 
 %if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
 

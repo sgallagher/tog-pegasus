@@ -394,6 +394,7 @@ if [ "$PEGASUS_TEST_ENABLE_DEBUG_TRACE" = "true" ]; then
             -e "HTTPAcceptor: accept() failed.  errno: 24" \
             -e "Socket write failed with error: Broken pipe (error code 32)" \
             -e "arrived after the client disconnected." \
+            -e "no shared cipher" \
             -e "^$" \
             $traceFile > $PEGASUS_HOME/trace/trace.out
 

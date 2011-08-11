@@ -121,6 +121,8 @@ private:
      */
     CIMResponseMessage* _forwardRequestToAllAgents(CIMRequestMessage* request);
 
+    void _handleIndicationDeliveryResponse(CIMResponseMessage *response);
+
     //
     // Private data
     //

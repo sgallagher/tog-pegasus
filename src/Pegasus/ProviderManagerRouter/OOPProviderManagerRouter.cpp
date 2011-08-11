@@ -207,6 +207,7 @@ public:
     */
     void cleanDisconnectedClientRequests();
     static void setAllProvidersStopped();
+    void sendResponse(CIMResponseMessage *response);
 private:
     //
     // Private methods
@@ -995,6 +996,11 @@ String ProviderAgentContainer::getGroupNameWithType() const
     return _groupNameWithType;
 }
 
+void ProviderAgentContainer::sendResponse(CIMResponseMessage *response)
+{
+    _pipeToAgent->writeMessage(response);
+}
+
 CIMResponseMessage* ProviderAgentContainer::processMessage(
     CIMRequestMessage* request,RespAggCounter* respAggregator)
 {
@@ -1494,10 +1500,11 @@ void ProviderAgentContainer::_processResponses()
             if (message->getType() == CIM_PROCESS_INDICATION_REQUEST_MESSAGE)
             {
                 // Process an indication message
-
-                _indicationCallback(
+                CIMProcessIndicationRequestMessage* request = 
                     reinterpret_cast<CIMProcessIndicationRequestMessage*>(
-                        message));
+                        message);
+                request->oopAgentName = getGroupNameWithType();
+                _indicationCallback(request);
             }
             else if (message->getType()==PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE)
             {
@@ -1693,10 +1700,41 @@ OOPProviderManagerRouter::~OOPProviderManagerRouter()
     PEG_METHOD_EXIT();
 }
 
+void OOPProviderManagerRouter::_handleIndicationDeliveryResponse(
+    CIMResponseMessage *response)
+{
+    if (response->getType() == CIM_PROCESS_INDICATION_RESPONSE_MESSAGE)
+    {
+         CIMProcessIndicationResponseMessage *rsp =
+             (CIMProcessIndicationResponseMessage*)response;
+
+        // Look up the Provider Agents for this module
+        Array<ProviderAgentContainer*> paArray =
+            _lookupProviderAgents(rsp->oopAgentName);
+
+        for (Uint32 i = 0; i < paArray.size(); i++)
+        {
+            if (paArray[i]->isInitialized())
+            {
+                paArray[i]->sendResponse(response);
+            }
+        }
+        return;
+    }
+
+    PEGASUS_ASSERT(false);
+}
+
 Message* OOPProviderManagerRouter::processMessage(Message* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "OOPProviderManagerRouter::processMessage");
+
+    if (message->getType() == CIM_PROCESS_INDICATION_RESPONSE_MESSAGE)
+    {
+        _handleIndicationDeliveryResponse((CIMResponseMessage*)message);
+        return 0;
+    }
 
     CIMRequestMessage* request = dynamic_cast<CIMRequestMessage *>(message);
     PEGASUS_ASSERT(request != 0);

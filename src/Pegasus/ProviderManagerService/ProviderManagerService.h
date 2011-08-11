@@ -115,6 +115,10 @@ private:
         const String & userName,
         Uint16 userContext);
 
+    void _handleIndicationDeliveryResponse(Message *message);
+    static void _indicationDeliveryRoutine(
+        CIMProcessIndicationRequestMessage* request);
+
     static ProviderManagerService* providerManagerService;
 
     CIMRepository* _repository;

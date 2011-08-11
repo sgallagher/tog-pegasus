@@ -168,9 +168,29 @@ void ProviderManagerService::handleEnqueue(void)
     handleEnqueue(message);
 }
 
+void ProviderManagerService::_handleIndicationDeliveryResponse(Message *message)
+{
+    CIMProcessIndicationResponseMessage *response = 
+        (CIMProcessIndicationResponseMessage*)message;
+    if (response->oopAgentName.size())
+    {
+        _oopProviderManagerRouter->processMessage(response);
+    }
+    else
+    {
+        IndicationRouter::notify(response);
+    }
+}
+
 void ProviderManagerService::handleEnqueue(Message * message)
 {
     PEGASUS_ASSERT(message != 0);
+
+    if (message->getType() == CIM_PROCESS_INDICATION_RESPONSE_MESSAGE)
+    {
+        _handleIndicationDeliveryResponse(message);
+        return;
+    }
 
     AsyncLegacyOperationStart* asyncRequest =
         static_cast<AsyncLegacyOperationStart*>(message->get_async());
@@ -1077,6 +1097,15 @@ void ProviderManagerService::_updateProviderModuleStatus(
 void ProviderManagerService::indicationCallback(
     CIMProcessIndicationRequestMessage* request)
 {
+    IndicationRouter router =
+        IndicationRouter(request, _indicationDeliveryRoutine);
+
+    router.deliverAndWaitForStatus();
+}
+
+void ProviderManagerService::_indicationDeliveryRoutine(
+    CIMProcessIndicationRequestMessage* request)
+{
     if (request->operationContext.contains(AcceptLanguageListContainer::NAME))
     {
         AcceptLanguageListContainer cntr =
@@ -1095,7 +1124,8 @@ void ProviderManagerService::indicationCallback(
     }
 
     request->queueIds = QueueIdStack(
-        _indicationServiceQueueId, providerManagerService->getQueueId());
+        providerManagerService->getQueueId(),
+        _indicationServiceQueueId);
 
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(

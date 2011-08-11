@@ -115,6 +115,19 @@ void ModuleController::register_module(
     _modules.insert_back(module);
 }
 
+void ModuleController::handleEnqueue(Message *message)
+{
+    if (message->getType() == CIM_PROCESS_INDICATION_RESPONSE_MESSAGE)
+    {
+        CIMProcessIndicationResponseMessage *response = 
+            (CIMProcessIndicationResponseMessage*)message;
+        PEGASUS_ASSERT(!response->oopAgentName.size());
+        IndicationRouter::notify(response);
+        return;
+    }
+    PEGASUS_ASSERT(false);
+}
+
 void ModuleController::_handle_async_request(AsyncRequest* rq)
 {
     if (rq->getType() == ASYNC_ASYNC_MODULE_OP_START)
@@ -239,7 +252,7 @@ Boolean ModuleController::ClientSendForget(
     return SendForget(message);
 }
 
-void ModuleController::indicationCallback(
+void ModuleController::_indicationDeliveryRoutine(
     CIMProcessIndicationRequestMessage* request)
 {
     if (!request->operationContext.contains(AcceptLanguageListContainer::NAME))
@@ -253,7 +266,8 @@ void ModuleController::indicationCallback(
     Uint32 _indicationServiceQueueId = mc->find_service_qid(
         PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
-    request->queueIds = QueueIdStack(_indicationServiceQueueId);
+    request->queueIds = QueueIdStack(
+        mc->getQueueId(), _indicationServiceQueueId);
 
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
@@ -262,6 +276,15 @@ void ModuleController::indicationCallback(
         request);
 
     mc->SendForget(asyncRequest);
+}
+
+void ModuleController::indicationCallback(
+    CIMProcessIndicationRequestMessage* request)
+{
+    IndicationRouter router =
+        IndicationRouter(request, _indicationDeliveryRoutine);
+
+    router.deliverAndWaitForStatus();
 }
 
 PEGASUS_NAMESPACE_END

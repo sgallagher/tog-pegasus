@@ -321,6 +321,14 @@ Boolean ProviderAgent::_readAndProcessRequest()
                 PEG_METHOD_EXIT();
                 return true;
            }
+           else if (cimMessage->getType() ==
+               CIM_PROCESS_INDICATION_RESPONSE_MESSAGE)
+           {
+               _handleIndicationDeliveryResponse(
+                   (CIMProcessIndicationResponseMessage*)cimMessage);
+               PEG_METHOD_EXIT();
+               return true;
+           }
         }
 
         // A "wake up" message means we should unload idle providers
@@ -852,17 +860,29 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
     return(ThreadReturnType(0));
 }
 
+void ProviderAgent::_handleIndicationDeliveryResponse(
+    CIMProcessIndicationResponseMessage *response)
+{
+    IndicationRouter::notify(response);
+}
+
 void ProviderAgent::_indicationCallback(
     CIMProcessIndicationRequestMessage* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_indicationCallback");
+    IndicationRouter router =
+        IndicationRouter(message, _indicationDeliveryRoutine);
+    router.deliverAndWaitForStatus();
+    PEG_METHOD_EXIT();
+}
 
+void ProviderAgent::_indicationDeliveryRoutine(
+    CIMProcessIndicationRequestMessage* message)
+{
     // Send request back to the server to process
     _providerAgent->_writeResponse(message);
 
     delete message;
-
-    PEG_METHOD_EXIT();
 }
 
 void ProviderAgent::_responseChunkCallback(

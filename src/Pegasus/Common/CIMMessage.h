@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/CIMResponseData.h>
+#include <Pegasus/Common/IndicationRouter.h>
 
 /*   ProviderType should become part of Pegasus/Common     PEP# 99
    #include <Pegasus/ProviderManager2/ProviderType.h>
@@ -986,13 +987,15 @@ public:
         const CIMInstance& indicationInstance_,
         const Array<CIMObjectPath> & subscriptionInstanceNames_,
         const CIMInstance & provider_,
-        const QueueIdStack& queueIds_)
+        const QueueIdStack& queueIds_,
+        String oopAgentName_ = String())
     : CIMRequestMessage(
         CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
         nameSpace (nameSpace_),
         indicationInstance(indicationInstance_),
         subscriptionInstanceNames(subscriptionInstanceNames_),
-        provider(provider_)
+        provider(provider_),
+        oopAgentName(oopAgentName_)
     {
     }
 
@@ -1002,6 +1005,7 @@ public:
     CIMInstance indicationInstance;
     Array<CIMObjectPath> subscriptionInstanceNames;
     CIMInstance provider;
+    String oopAgentName;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationRequestMessage
@@ -1084,7 +1088,8 @@ public:
         indicationInstance(indicationInstance_),
         subscriptionInstance(subscriptionInstance_),
         authType(authType_),
-        userName(userName_)
+        userName(userName_),
+        deliveryStatusAggregator(0)
     {
     }
 
@@ -1096,6 +1101,7 @@ public:
     CIMInstance subscriptionInstance;
     String authType;
     String userName;
+    DeliveryStatusAggregator *deliveryStatusAggregator;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMCreateSubscriptionRequestMessage
@@ -1972,11 +1978,14 @@ public:
     CIMProcessIndicationResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_)
+        const QueueIdStack& queueIds_,
+        String oopAgentName_ = String())
     : CIMResponseMessage(CIM_PROCESS_INDICATION_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
+        messageId_, cimException_, queueIds_),
+        oopAgentName(oopAgentName_)
     {
     }
+    String oopAgentName;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationResponseMessage

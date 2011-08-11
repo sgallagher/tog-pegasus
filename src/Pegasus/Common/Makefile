@@ -192,8 +192,8 @@ SOURCES2 = \
     SCMOInternalXmlEncoder.cpp \
     AsyncRequestExecutor.cpp \
     CIMBinMsgSerializer.cpp \
-    CIMBinMsgDeserializer.cpp
-
+    CIMBinMsgDeserializer.cpp \
+    IndicationRouter.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp

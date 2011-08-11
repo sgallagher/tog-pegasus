@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -101,11 +102,13 @@ public:
 protected:
     // ATTN-RK-P2-20010322:  These methods are pure virtual in superclass
     virtual void handleEnqueue() {}
-    virtual void handleEnqueue(Message *) {}
+    virtual void handleEnqueue(Message *message);
     virtual void _handle_async_request(AsyncRequest *rq);
     virtual void _handle_async_callback(AsyncOpNode *op);
 
 private:
+    static void _indicationDeliveryRoutine(
+        CIMProcessIndicationRequestMessage* request);
     typedef List<RegisteredModuleHandle, Mutex> RegisteredModulesList;
     RegisteredModulesList _modules;
 };

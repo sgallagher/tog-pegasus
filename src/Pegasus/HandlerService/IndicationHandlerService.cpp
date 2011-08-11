@@ -107,14 +107,19 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
 
         AutoPtr<CIMResponseMessage> response;
 
+        CIMHandleIndicationRequestMessage *handleIndicationRequest = 0;
+        Boolean aggregationComplete = false;
+
         try
         {
             switch(legacy->getType())
             {
                 case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
-                    response.reset(
-                        _handleIndication(
-                            (CIMHandleIndicationRequestMessage*) legacy.get()));
+                    handleIndicationRequest = 
+                        (CIMHandleIndicationRequestMessage*) legacy.get();
+                    response.reset(_handleIndication(
+                        handleIndicationRequest,
+                        aggregationComplete));
                     break;
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
                case CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE:
@@ -169,6 +174,12 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                 req->op,
                 response.get()));
 
+        if (handleIndicationRequest && !aggregationComplete &&
+            handleIndicationRequest->deliveryStatusAggregator)
+        {
+            handleIndicationRequest->deliveryStatusAggregator->complete();
+        }
+
         response.release();
         result.release();
         _complete_op_node(req->op);
@@ -195,9 +206,21 @@ void IndicationHandlerService::handleEnqueue(Message* message)
     {
         case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
         {
+            Boolean aggregationComplete = false;
+            CIMHandleIndicationRequestMessage *handleIndicationRequest =
+                (CIMHandleIndicationRequestMessage*) message;
+
             AutoPtr<CIMHandleIndicationResponseMessage> response(
                 _handleIndication(
-                    (CIMHandleIndicationRequestMessage*) message));
+                    handleIndicationRequest,
+                    aggregationComplete));
+
+            if (!aggregationComplete &&
+                handleIndicationRequest->deliveryStatusAggregator)
+            {
+                handleIndicationRequest->deliveryStatusAggregator->complete();
+            }
+
             SendForget(response.get());
             response.release();
             break;
@@ -221,13 +244,14 @@ void IndicationHandlerService::handleEnqueue()
    }
 }
 
-CIMHandleIndicationResponseMessage*
-IndicationHandlerService::_handleIndication(
-    CIMHandleIndicationRequestMessage* request)
+CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
+    CIMHandleIndicationRequestMessage* request,
+    Boolean &aggregationComplete)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_handleIndication()");
 
+    aggregationComplete = false;
     Boolean handleIndicationSuccess = true;
     CIMException cimException =
         PEGASUS_CIM_EXCEPTION(CIM_ERR_SUCCESS, String::EMPTY);
@@ -279,6 +303,11 @@ IndicationHandlerService::_handleIndication(
 //compared index 10 is not :
             else if (destination.subString(0, 10) == String("localhost/"))
             {
+                if (request->deliveryStatusAggregator)
+                {
+                    request->deliveryStatusAggregator->complete();
+                    aggregationComplete = true;
+                }
                 Uint32 exportServer =
                     find_service_qid(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
@@ -345,7 +374,17 @@ IndicationHandlerService::_handleIndication(
                  // profile is enabled.
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
                 _setSequenceIdentifierAndEnqueue(request);
+                if (request->deliveryStatusAggregator)
+                {
+                    request->deliveryStatusAggregator->complete();
+                    aggregationComplete = true;
+                }
 #else
+                if (request->deliveryStatusAggregator)
+                {
+                    request->deliveryStatusAggregator->complete();
+                    aggregationComplete = true;
+                }
                 handleIndicationSuccess = _loadHandler(request, cimException);
 #endif
             }
@@ -353,6 +392,11 @@ IndicationHandlerService::_handleIndication(
     }
     else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
     {
+        if (request->deliveryStatusAggregator)
+        {
+            request->deliveryStatusAggregator->complete();
+            aggregationComplete = true;
+        }
         pos = handler.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
 
         if (pos == PEG_NOT_FOUND)
@@ -387,6 +431,11 @@ IndicationHandlerService::_handleIndication(
     else if ((className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
              (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)))
     {
+        if (request->deliveryStatusAggregator)
+        {
+            request->deliveryStatusAggregator->complete();
+            aggregationComplete = true;
+        }
         handleIndicationSuccess = _loadHandler(request, cimException);
     }
 

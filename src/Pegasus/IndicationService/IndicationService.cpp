@@ -3081,6 +3081,21 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     Array<String> matchedSubscriptionsKeys;
 
     CIMInstance indication = request->indicationInstance;
+    
+    QueueIdStack qids = request->queueIds.copyAndPop();
+    PEGASUS_ASSERT(qids.size() == 1);
+
+    AutoPtr<DeliveryStatusAggregator, ExpectedResponseCountSetDone>
+        deliveryStatusAggregator(
+#ifdef PEGASUS_ENABLE_INDICATION_ORDERING
+            new DeliveryStatusAggregator(
+                request->messageId,
+                qids.top(),
+                request->oopAgentName)
+#else
+                0
+#endif
+                );
 
     try
     {
@@ -3238,8 +3253,8 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                                              handlerInstance,
                                              formattedIndication,
                                              request->nameSpace,
-                                             request->operationContext);
-
+                                             request->operationContext,
+                                             deliveryStatusAggregator.get());
                         matchedSubscriptions.append(subscriptions[i]);
                         matchedSubscriptionsKeys.append(subscriptionKeys[i]);
                     }
@@ -8998,12 +9013,13 @@ void IndicationService::_forwardIndToHandler(
     const CIMInstance& handlerInstance,
     const CIMInstance& formattedIndication,
     const CIMNamespaceName& namespaceName,
-    const OperationContext& operationContext)
+    const OperationContext& operationContext,
+    DeliveryStatusAggregator *deliveryStatusAggregator)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_forwardIndToHandler");
 
-    CIMRequestMessage * handler_request =
+    CIMHandleIndicationRequestMessage *handler_request =
         new CIMHandleIndicationRequestMessage (
             XmlWriter::getNextMessageId (),
             namespaceName,
@@ -9015,6 +9031,7 @@ void IndicationService::_forwardIndToHandler(
             String::EMPTY);
 
     handler_request->operationContext = operationContext;
+    handler_request->deliveryStatusAggregator = deliveryStatusAggregator;
 
     AsyncLegacyOperationStart *async_req =
         new AsyncLegacyOperationStart(
@@ -9030,7 +9047,10 @@ void IndicationService::_forwardIndToHandler(
         "BAD queue name")));
 
     SendForget(async_req);
-
+    if (deliveryStatusAggregator)
+    {
+        deliveryStatusAggregator->incExpectedResponseCount();
+    }
     PEG_METHOD_EXIT();
 }
 

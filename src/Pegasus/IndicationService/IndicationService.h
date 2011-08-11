@@ -1416,7 +1416,8 @@ private:
         const CIMInstance& handlerInstance,
         const CIMInstance& formattedIndication,
         const CIMNamespaceName& namespaceName,
-        const OperationContext& operationContext);
+        const OperationContext& operationContext,
+        DeliveryStatusAggregator *deliveryStatusAggregator);
 
     /**
         Updates the subscription table with the information of the providers
@@ -1579,6 +1580,17 @@ struct DecAtomicInt
         if (ptr)
         {
             ptr->dec();
+        }
+    }
+};
+
+struct ExpectedResponseCountSetDone
+{
+    void operator()(DeliveryStatusAggregator* ptr)
+    {
+        if (ptr)
+        {
+            ptr->expectedResponseCountSetDone();
         }
     }
 };

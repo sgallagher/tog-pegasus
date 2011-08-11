@@ -126,6 +126,9 @@ private:
     static void _indicationCallback(
         CIMProcessIndicationRequestMessage* request);
 
+    static void _handleIndicationDeliveryResponse(
+        CIMProcessIndicationResponseMessage *response);
+
     /**
         Callback function to which all response chunks are sent for processing.
      */
@@ -220,6 +223,9 @@ private:
         ProvAgtGetScmoClassResponseMessage* response);
 
     void _processStopAllProvidersRequest(CIMRequestMessage* request);
+
+    static void _indicationDeliveryRoutine(
+        CIMProcessIndicationRequestMessage* message);
 
     /**
      * Condition variable and transger pointer for the provider agend to

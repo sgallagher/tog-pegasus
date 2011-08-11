@@ -44,7 +44,7 @@ poststarttests:
 commandtests:
 ifdef PEGASUS_HAS_SSL
 	- cimserver "enableHttpsConnection=true" "sslTrustStore=" "sslClientVerificationMode=optional" 2>$(RESULTFILE) 
-	- cimserver "sslCipherSuite='*gfh&'" 2>>$(RESULTFILE)
+	- cimserver "enableHttpsConnection=true" "sslCipherSuite='*gfh&'" 2>>$(RESULTFILE)
 	$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
 	$(RM) $(RESULTFILE)
 endif

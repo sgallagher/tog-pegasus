@@ -1194,7 +1194,7 @@ SSLContextRep::SSLContextRep(
     const String& keyPath,
     const String& crlPath,
     SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile)
+    const String& randomFile,
     const String& cipherSuite)
 {
 }

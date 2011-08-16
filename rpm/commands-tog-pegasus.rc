@@ -35,7 +35,7 @@ fi;
 
 [ -e /etc/sysconfig/${PEGASUS_FLAVOR}-pegasus ] && . /etc/sysconfig/${PEGASUS_FLAVOR}-pegasus;
 
-if [ -e /lib/lsb/init-functions ]; then 
+if [ -e /lib/lsb/init-functions ]; then
 . /lib/lsb/init-functions
 else
     . /etc/init.d/functions

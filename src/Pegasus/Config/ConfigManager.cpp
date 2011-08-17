@@ -91,10 +91,6 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
     {"traceMemoryBufferKbytes",
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceFileSizeKBytes",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"numberOfTraceFiles",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",
          (ConfigPropertyOwner*)&ConfigManager::logOwner},
@@ -116,8 +112,6 @@ static struct OwnerEntry _properties[] =
 #ifdef PEGASUS_ENABLE_SLP
     {"slp",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"slpProviderStartupTimeout",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
     {"enableAssociationTraversal",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
@@ -137,8 +131,6 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslTrustStore",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslBackwardCompatibility",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
@@ -155,8 +147,6 @@ static struct OwnerEntry _properties[] =
     {"enableCFZAPPLID",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #endif
-    {"sslCipherSuite",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider",
          (ConfigPropertyOwner*)&ConfigManager::repositoryOwner},
     {"enableBinaryRepository",
@@ -193,26 +183,12 @@ static struct OwnerEntry _properties[] =
     {"enableAuditLog",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-      {"webRoot",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-      {"indexFile",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-      {"mimeTypesFile",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#endif
     {"socketWriteTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"idleConnectionTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"maxFailedProviderModuleRestarts",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"listenAddress",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"hostname",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"fullyQualifiedHostName",
-        (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     ,{"maxIndicationDeliveryRetryAttempts",
@@ -222,7 +198,7 @@ static struct OwnerEntry _properties[] =
 #endif
 };
 
-const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);
+const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -251,7 +227,7 @@ static struct FixedValueEntry _fixedValues[] =
 };
 
 const Uint32 NUM_FIXED_PROPERTIES =
-    sizeof(_fixedValues) / sizeof( _fixedValues[0]);
+    sizeof(_fixedValues) / sizeof(struct FixedValueEntry);
 
 
 /**
@@ -305,6 +281,7 @@ Boolean ConfigManager::initCurrentValue(
     const String& propertyValue)
 {
     ConfigPropertyOwner* propertyOwner = 0;
+    Boolean success = true;
 
     //
     // get property owner object from the config table.
@@ -324,7 +301,6 @@ Boolean ConfigManager::initCurrentValue(
     //
     propertyOwner->initCurrentValue(propertyName, propertyValue);
 
-    Boolean success = true;
     if (useConfigFiles)
     {
         try
@@ -355,6 +331,7 @@ Boolean ConfigManager::updateCurrentValue(
     Uint32 timeoutSeconds,
     Boolean unset)
 {
+    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -369,7 +346,7 @@ Boolean ConfigManager::updateCurrentValue(
     //
     // keep a copy of the existing config value
     //
-    String prevValue = propertyOwner->getCurrentValue(name);
+    prevValue = propertyOwner->getCurrentValue(name);
 
     //
     // ask owner to update the current value
@@ -430,6 +407,7 @@ Boolean ConfigManager::updatePlannedValue(
     const String& value,
     Boolean unset)
 {
+    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -444,7 +422,7 @@ Boolean ConfigManager::updatePlannedValue(
     //
     // keep a copy of the existing config value
     //
-    String prevValue = propertyOwner->getPlannedValue(name);
+    prevValue = propertyOwner->getPlannedValue(name);
 
     //
     // ask owner to update the planned value to new value
@@ -515,8 +493,12 @@ Get default value of the specified property.
 */
 String ConfigManager::getDefaultValue(const String& name) const
 {
-    String fixedValue;
-    if (_fixedValueCheck(name, fixedValue))
+    //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue;
+
+    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
     {
         return fixedValue;
     }
@@ -539,8 +521,12 @@ String ConfigManager::getDefaultValue(const String& name) const
 */
 String ConfigManager::getCurrentValue(const String& name) const
 {
-    String fixedValue;
-    if (_fixedValueCheck(name, fixedValue))
+    //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue;
+
+    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
     {
         return fixedValue;
     }
@@ -564,8 +550,12 @@ Get planned value of the specified property.
 */
 String ConfigManager::getPlannedValue(const String& name) const
 {
-    String fixedValue;
-    if (_fixedValueCheck(name, fixedValue))
+    //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue;
+
+    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
     {
         return fixedValue;
     }
@@ -583,25 +573,6 @@ String ConfigManager::getPlannedValue(const String& name) const
     return propertyOwner->getPlannedValue(name);
 }
 
-/**
-Get help on specified attribute
-*/
-void ConfigManager::getPropertyHelp(
-    const String& name,
-    String& propertyHelp) const
-{
-    //
-    // get property owner object from config table
-    //
-    ConfigPropertyOwner* propertyOwner;
-    if ( !_propertyTable->ownerTable.lookup(name,
-        propertyOwner))
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
-    propertyHelp.append(propertyOwner->getPropertyHelp(name));
-    propertyHelp.append(propertyOwner->getPropertyHelpSupplement(name));
-}
 
 /**
 Get all the attributes of the specified property.
@@ -910,57 +881,6 @@ void ConfigManager::_initPropertyTable()
     }
 }
 
-Boolean ConfigManager::_fixedValueCheck(const String& name,String & value) const
-{
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue = 0;
-
-    _propertyTable->fixedValueTable.lookup(name, fixedValue);
-
-    // no fixed property 'name' in FixedPropertyTable, bail out
-    if (0 == fixedValue)
-    {
-        return false;
-    }
-
-    // if the fixed value is set to blank, need to replace the value with
-    // the system-supplied host name
-    if (String::equalNoCase(name, "fullyQualifiedHostName"))
-    {
-        if (0 == strlen(fixedValue))
-        {
-            value.assign(System::getFullyQualifiedHostName());
-        }
-        else
-        {
-            value.assign(fixedValue);
-            System::setFullyQualifiedHostName(value);
-        }
-        // returning here already to avoid the following and in this case
-        // unnecessary string compare and assign
-        return true;
-    }
-    if (String::equalNoCase(name, "hostname"))
-    {
-        if (0 == strlen(fixedValue))
-        {
-            value.assign(System::getHostName());
-        }
-        else
-        {
-            value.assign(fixedValue);
-            System::setHostName(value);
-        }
-        // returning here already to avoid the following and in this case
-        // unnecessary assign
-        return true;
-    }
-    value.assign(fixedValue);
-    return true;
-}
-
 /**
     Get Pegasus Home
 */
@@ -987,7 +907,7 @@ String ConfigManager::getHomedPath(const String& value)
 {
     String homedPath;
 
-    if (value.size() != 0 )
+    if (value != String::EMPTY)
     {
         if (System::is_absolute_path((const char *)value.getCString()))
         {
@@ -1025,9 +945,7 @@ String ConfigManager::getHomedPath(const String& value)
             }
 
             if (token == 1)
-            {
                 homedPath.append(FileSystem::getPathDelimiter());
-            }
             temp.remove(0, pos + token);
         } while (temp.size() > 0);
     }
@@ -1047,42 +965,6 @@ Boolean ConfigManager::isValidBooleanValue(const String& value)
         return true;
     }
     return false;
-}
-Array<HostAddress> ConfigManager::getListenAddress(const String &propertyValue)
-{
-    Array<String> interfaces = DefaultPropertyOwner::parseAndGetListenAddress (
-        propertyValue);
-
-    HostAddress theAddress;
-    Array<HostAddress> listenAddrs;
-    for(Uint32 i = 0, n = interfaces.size(); i < n; i++)
-    {
-        theAddress.setHostAddress(interfaces[i]);
-        listenAddrs.append(theAddress);
-    }
-    return listenAddrs;
-}
-
-String ConfigManager::getDynamicAttributeStatus(const String& name)
-{
-    //
-    // get property owner object from config table
-    //
-    ConfigPropertyOwner* propertyOwner;
-    if ( !_propertyTable->ownerTable.lookup(name, propertyOwner))
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
-
-    Boolean _isDynamic = propertyOwner->isDynamic(name);
-
-    MessageLoaderParms parms(
-        (_isDynamic? "Config.ConfigManager.DYNAMIC":
-                     "Config.ConfigManager.STATIC"),
-        (_isDynamic? "Dynamic" : "Static"));
-
-    parms.msg_src_path = "pegasus/pegasusServer";
-    return MessageLoader::getMessage(parms);
 }
 
 PEGASUS_NAMESPACE_END

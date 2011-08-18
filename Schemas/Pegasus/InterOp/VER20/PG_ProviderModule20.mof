@@ -34,17 +34,42 @@
          "one or more Providers. ") ]
 class PG_ProviderModule : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
-       "uniquely identifies the Provider Module.")]
+       "uniquely identifies the Provider Module. This name is used as "
+       "a key by  the PG_Provider ProviderModuleName property and the "
+       "PG_ProviderCapabilities ProviderModuleName property.")]
    string Name;
-      [Required, Description ("The name of the Provider Module vendor.") ]
+
+      [Required, Description ("The name of the Provider Module vendor. "
+      "Used only for documentation.") ]
    string Vendor;
+
       [Required, Description ("The Provider Module version.")]
    string Version;
-      [Required, Description ("")]
+
+      [Required, Description ("A string defining the provider interface "
+      "implemented by the provider module.  It must be one of the values "
+      "defined in the valueMap and defines the Pegasus Provider Manager "
+      "destination for operation requests in conjunction with the "
+      "InterfaceVesion property."),
+      valueMap {"C++Default", "CMPI","JMPI"} ]
    string InterfaceType;
-      [Required, Description ("")]
+
+      [Required, Description ("A string defining the version of the "
+      "provider interface defined in the InterFaceType property. "
+      "In conjunction with the InterfaceType property this defines a "
+      "Pegasus Provider Manager to which operations are routed.  The "
+      "string is of the form xxx.yyy.zzz where:\n"
+      "xxx is the major version number \n"
+      "yyy is the minor version number \n"
+      "zzz is the revision number for the interface. \n"
+      "Separate provider managers can exist within the Pegasus environment "
+      "for the same InterfaceType and different interface versions.")]
    string InterfaceVersion;
-      [Required, Description ("")]
+
+      [Required, Description ("The location string defines the name of "
+      "shared library that implements the ProviderModule.  Only the main "
+      "part of the name is provided. Pegasus provides the shared library "
+      "suffix consistent with each operating system. ")]
    string Location;
 
       [Description (
@@ -209,7 +234,8 @@ class PG_CapabilitiesRegistration : PG_Capabilities {
        "capabilities defined for the associated Provider. "),
        ArrayType ("Indexed"),
        ValueMap { "2", "3", "4" , "5" , "6" , "7"},
-       Values {"Instance", "Association", "Indication" , "Method", "IndicationConsumer", "InstanceQuery"}]
+       Values {"Instance", "Association", "Indication" , "Method",
+           "IndicationConsumer", "InstanceQuery"}]
     uint16 ProviderType[];
 };
 
@@ -225,7 +251,7 @@ class PG_ProviderCapabilities : PG_CapabilitiesRegistration {
        "Provider supplies instances, associations or indications "
        "information.")]
    string ClassName;
-      [Required, Description ("Namespaces describes the namespaces that are "
+      [Required, Description ("Namespaces defines the namespaces that are "
        "supported by the Provider for ClassName.")] 
    string Namespaces[];
       [Description (

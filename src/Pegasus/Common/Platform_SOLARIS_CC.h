@@ -29,6 +29,20 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/*****************************************************************************
+  The platform configuration files in pegasus/src/Pegasus/Common/Platform_*.h
+  are intended to normalize platform/compiler differences so that Pegasus code
+  can be written to work on all platforms without requiring platform ifdefs.
+  Since these files are part of the Pegasus SDK, their contents should be
+  the minimum that achieves the stated purpose.
+
+  Examples of differences that are normalized here are support for C++
+  namespaces, 64-bit integer type, support for C++ template specialization.
+
+  Examples of things that are not appropriate in these files are the enablement
+  of Pegasus features for a specific platform and other build configuration.
+******************************************************************************/
+
 #ifndef Pegasus_Platform_SOLARIS_CC_h
 #define Pegasus_Platform_SOLARIS_CC_h
 

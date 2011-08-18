@@ -313,8 +313,7 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
 
     gettimeofday(&finish, NULL);
     finish.tv_sec += (milliseconds / 1000);
-    milliseconds %= 1000;
-    usec = finish.tv_usec + (milliseconds * 1000);
+    usec = finish.tv_usec + ((milliseconds % 1000) * 1000);
     finish.tv_sec += (usec / 1000000);
     finish.tv_usec = usec % 1000000;
 
@@ -344,7 +343,10 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
         {
             return false;
         }
-        Threads::yield();
+        // yield just marks the thread as eligible to be not scheduled by 
+        // hypervisor, sleep forces thread to actually take a break
+        // which what is called for here to avoid CPU spikes from close loop
+        Threads::sleep(milliseconds/100+1);
     }
 
     return true;

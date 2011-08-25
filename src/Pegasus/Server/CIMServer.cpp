@@ -304,7 +304,6 @@ void CIMServer::_init()
     // the CIMServer to build the initial repository.
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
-        PEG_METHOD_EXIT();
         throw NoSuchDirectory(repositoryRootPath);
     }
 #endif

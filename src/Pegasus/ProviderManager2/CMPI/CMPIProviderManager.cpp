@@ -175,11 +175,14 @@ SCMOInstance* CMPIProviderManager::getSCMOClassFromRequest(
         throw cimException;
     }
 
-    SCMOInstance *objectPath = new SCMOInstance(*scmoClass);
-    objectPath->setHostName(
+    SCMOInstance *classPath = new SCMOInstance(*scmoClass);
+    classPath->setHostName(
         (const char*)System::getHostName().getCString());
 
-    return objectPath;
+    // Clear the KeyBindings to make this instance as class path only.
+    classPath->clearKeyBindings();
+    
+    return classPath;
 }
 
 SCMOInstance* CMPIProviderManager::getSCMOObjectPathFromRequest(

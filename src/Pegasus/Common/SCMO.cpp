@@ -4326,6 +4326,10 @@ void SCMOInstance::clearKeyBindings()
           inst.hdr->keyBindingArray,
           sizeof(SCMBKeyBindingValue)*inst.hdr->numberKeyBindings,
           &inst.mem);
+
+    // Clear the keybindings after the allocation. Setting the keybindings
+    // later causes this value to be reinitialized.
+    inst.hdr->numberKeyBindings = 0;
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const
@@ -4891,6 +4895,15 @@ SCMO_RC SCMOInstance::setKeyBinding(
 
     _copyOnWrite();
 
+    // If keybindings exists and cleared using the clearKeyBindings()
+    // method, reset the value to the actual keybindings count exists
+    // in the class.
+    if (!inst.hdr->numberKeyBindings)
+    {
+        inst.hdr->numberKeyBindings =
+            inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
+    }
+
     rc = inst.hdr->theClass.ptr->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
@@ -4940,6 +4953,16 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     }
 
     _copyOnWrite();
+
+    // If keybindings exists and cleared using the clearKeyBindings()
+    // method, reset the value to the actual keybindings count exists
+    // in the class.
+    if (!inst.hdr->numberKeyBindings)
+    {
+        inst.hdr->numberKeyBindings =
+            inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
+    }
+
 
    // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->

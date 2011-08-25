@@ -3726,9 +3726,13 @@ void SCMOInstance::_setUnionValue(
 
     case CIMTYPE_STRING:
         {
-            _setString(*((String*)((void*)&u)),
-                       scmoUnion->stringValue,
-                       pmem );
+            CString cstr = ((String*)((void*)&u))->getCString();
+            const char *cptr = (const char*)cstr;
+            _setBinary(
+                cptr,
+                strlen(cptr) + 1,
+                scmoUnion->stringValue,
+                pmem );
             break;
         }
 

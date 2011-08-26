@@ -398,6 +398,8 @@ _createInstance()
   CMPIObjectPath *temp_objPath = NULL;
   CMPIString *objName = NULL;
   CMPIInstance *inst = NULL;
+  CMPIString *str;
+  CMPIValue v;
 
   PROV_LOG("Calling CMNewObjectPath for %s", _ClassName );
   objPath  = CMNewObjectPath (_broker, _Namespace, "TestCMPI_Instance", &rc);
@@ -407,6 +409,10 @@ _createInstance()
   PROV_LOG("Calling CMNewInstance ");
   inst = CMNewInstance(_broker, objPath, &rc);
   PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+
+  str = CMNewString (_broker, "", 0);
+  v.string = str;
+  CMSetProperty(inst, "s", &v, CMPI_string);
 
   // Get the object path
   PROV_LOG("Calling CMGetObjectPath");
@@ -3274,11 +3280,19 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
     else if(strncmp("processEmbeddedInstance", methodName,
       strlen ("processEmbeddedInstance"))== 0)
     {
+        CMPIData d;
+
         PROV_LOG("++++ Creating instance for processEmbeddedInstance");
         instance = _createInstance();
         PROV_LOG("++++ Getting inputInstance arg");
         data = CMGetArg(in, "inputInstance", &rc);
         PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+        
+        d  = CMGetProperty(data.value.inst, "s", &rc);
+        if (rc.rc == CMPI_RC_OK && d.state == CMPI_nullValue)
+        {
+           PROV_LOG("++++ Error, Null value for empty string");
+        }
 
         PROV_LOG("++++ Cloning inputInstance arg");
         paramInst = data.value.inst->ft->clone(

@@ -723,6 +723,8 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 #ifdef PEGASUS_SSL_WEAKENCRYPTION
     if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40)))
     {
+        SSL_CTX_free(sslContext);
+
         MessageLoaderParms parms(
             "Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
             "Could not set the cipher list");
@@ -734,6 +736,8 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     {
         if (!(SSL_CTX_set_cipher_list(sslContext, _cipherSuite.getCString())))
         {
+            SSL_CTX_free(sslContext);
+
             PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Cipher Suite could not be specified");
             MessageLoaderParms parms(

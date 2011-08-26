@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/SCMO.h>
@@ -575,7 +570,7 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
     tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
-      cls.hdr->keyBindingSet.hashTable[tag&(PEGASUS_KEYBINDIG_SCMB_HASHSIZE-1)];
+        cls.hdr->keyBindingSet.hashTable[tag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE];
     // there is no entry in the hash table on this hash table index.
     if (hashIdx == 0)
     {
@@ -630,7 +625,7 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
     tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
-      cls.hdr->propertySet.hashTable[tag&(PEGASUS_PROPERTY_SCMB_HASHSIZE -1)];
+        cls.hdr->propertySet.hashTable[tag%PEGASUS_PROPERTY_SCMB_HASHSIZE];
     // there is no entry in the hash table on this hash table index.
     if (hashIdx == 0)
     {
@@ -797,8 +792,7 @@ void SCMOClass::_insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->keyBindingSet.hashTable;
 
     // calculate the new hash index of the new property.
-    Uint32 hash = newKeyNode->nameHashTag & 
-        (PEGASUS_KEYBINDIG_SCMB_HASHSIZE - 1);
+    Uint32 hash = newKeyNode->nameHashTag % PEGASUS_KEYBINDIG_SCMB_HASHSIZE;
 
     // 0 is an invalid index in the hash table
     if (hashTable[hash] == 0)
@@ -849,8 +843,8 @@ void SCMOClass::_insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->propertySet.hashTable;
 
     // calcuate the new hash index of the new property.
-    Uint32 hash = newPropNode->theProperty.nameHashTag &
-        (PEGASUS_PROPERTY_SCMB_HASHSIZE -1);
+    Uint32 hash = newPropNode->theProperty.nameHashTag %
+        PEGASUS_PROPERTY_SCMB_HASHSIZE;
 
     // 0 is an invalid index in the hash table
     if (hashTable[hash] == 0)
@@ -922,7 +916,7 @@ void SCMOClass::_setPropertyAsKeyInMask(Uint32 i)
 
     // Create a filter to set the bit.
     // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i & 63));
+    Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
     keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
@@ -942,7 +936,7 @@ Boolean SCMOClass::_isPropertyKey(Uint32 i)
 
     // Create a filter to check if the bit is set:
     // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i & 63));
+    Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
     keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
@@ -1261,7 +1255,8 @@ SCMOInstance::SCMOInstance(SCMOClass& baseClass)
 SCMOInstance::SCMOInstance(
     SCMOClass& baseClass,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    Boolean includeClassOrigin,
+    const char** propertyList)
 {
 
     _initSCMOInstance(new SCMOClass(baseClass));
@@ -2228,7 +2223,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -2350,6 +2345,17 @@ void SCMOInstance::setHostName(const char* hostName)
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
 
+void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
+{
+    // Copy on Write is only necessary if a realloc() becomes necessary
+    if (inst.mem->freeBytes < ((len+8) & ~7))
+    {
+        _copyOnWrite();
+    }
+    // copy including trailing '\0'
+    _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
+}
+
 const char* SCMOInstance::getHostName() const
 {
     return _getCharString(inst.hdr->hostName,inst.base);
@@ -2466,33 +2472,6 @@ const char* SCMOInstance::getNameSpace_l(Uint32 & length) const
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 
-void SCMOInstance::completeHostNameAndNamespace(
-    const char* hn,
-    Uint32 hnLen,
-    const char* ns,
-    Uint32 nsLen)
-{
-    // hostName is Null or empty String ?
-    if (0 == inst.hdr->hostName.size ||
-        0 == inst.base[inst.hdr->hostName.start])
-    {
-        // Copy on Write is only necessary if a realloc() becomes necessary
-        if (inst.mem->freeBytes < ((hnLen+8) & ~7))
-        {
-            _copyOnWrite();
-        }
-        // copy including trailing '\0'
-        _setBinary(hn,hnLen+1,inst.hdr->hostName,&inst.mem);
-    }
-    // namespace is Null or empty String ?
-    if (0 == inst.hdr->instNameSpace.size ||
-        0 == inst.base[inst.hdr->instNameSpace.start])
-    {
-        setNameSpace_l(ns,nsLen);
-    }
-}
-
-
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
     Uint32 propNode;
@@ -2507,9 +2486,6 @@ void SCMOInstance::buildKeyBindingsFromProperties()
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
     SCMBValue* theInstPropNodeArray=
         (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
-
-    inst.hdr->numberKeyBindings =
-        inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
 
     for (Uint32 i = 0, k = inst.hdr->numberKeyBindings; i < k; i++)
     {
@@ -2668,7 +2644,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3151,7 +3127,7 @@ void SCMOInstance::_setSCMBUnion(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3645,7 +3621,7 @@ void SCMOInstance::_setUnionArrayValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3750,13 +3726,9 @@ void SCMOInstance::_setUnionValue(
 
     case CIMTYPE_STRING:
         {
-            CString cstr = ((String*)((void*)&u))->getCString();
-            const char *cptr = (const char*)cstr;
-            _setBinary(
-                cptr,
-                strlen(cptr) + 1,
-                scmoUnion->stringValue,
-                pmem );
+            _setString(*((String*)((void*)&u)),
+                       scmoUnion->stringValue,
+                       pmem );
             break;
         }
 
@@ -3921,7 +3893,7 @@ void SCMOInstance::_setUnionValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -4291,6 +4263,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             {
                 return(u);
             }
+            break;
         }
 
     case CIMTYPE_STRING:
@@ -4324,11 +4297,12 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
                 ptr->extString.length = u->stringValue.size-1;
             }
 
-            return(ptr);
+             return(ptr);
+            break;
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -4356,8 +4330,6 @@ void SCMOInstance::clearKeyBindings()
     // Clear the keybindings after the allocation. Setting the keybindings
     // later causes this value to be reinitialized.
     inst.hdr->numberKeyBindings = 0;
-
-    markAsCompromised();
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const
@@ -4569,22 +4541,26 @@ CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
                         return CIMTYPE_REAL64;
                     }
                 }
+                break;
             }
 
 
         case CIMKeyBinding::STRING:
         {
             return CIMTYPE_STRING;
+            break;
         }
 
         case CIMKeyBinding::BOOLEAN:
         {
             return CIMTYPE_BOOLEAN;
+            break;
         }
 
         case CIMKeyBinding::REFERENCE:
         {
             return CIMTYPE_REFERENCE;
+            break;
         }
 
         default:
@@ -4795,6 +4771,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             // Can cause reallocation !
             _setString(kbs,scmoKBV.data.stringValue,&inst.mem);
             return true;
+            break;
         }
     case CIMTYPE_REFERENCE:
         {
@@ -4831,10 +4808,11 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
         {
             // From PEP 194: EmbeddedObjects cannot be keys.
             throw TypeMismatchException();
+            break;
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -5072,6 +5050,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u8=Uint8(keyValue->simple.val.u64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT16:
@@ -5079,6 +5058,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u16=Uint16(keyValue->simple.val.u64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT32:
@@ -5086,6 +5066,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u32=Uint32(keyValue->simple.val.u64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT64:
@@ -5093,15 +5074,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u64=keyValue->simple.val.u64;
+                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
-        return SCMO_OK;
-        
     }
 
     if (setType == CIMTYPE_SINT64)
@@ -5114,6 +5095,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s8=Sint8(keyValue->simple.val.s64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT16:
@@ -5121,6 +5103,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s16=Sint16(keyValue->simple.val.s64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT32:
@@ -5128,6 +5111,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s32=Sint32(keyValue->simple.val.s64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT64:
@@ -5135,14 +5119,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s64=keyValue->simple.val.s64;
+                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
-        return SCMO_OK;
     }
 
     if (setType == CIMTYPE_REAL64)
@@ -5154,6 +5139,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.r32=Real32(keyValue->simple.val.r64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_REAL64:
@@ -5161,14 +5147,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.r64=keyValue->simple.val.r64;
+                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
-        return SCMO_OK;
     }
     else
     {
@@ -5193,10 +5180,12 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 _setSCMBUnion(keyValue,classType,false, 0,kbValue.data);
                 return SCMO_OK;
+                break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
     }
@@ -5205,8 +5194,17 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
 
 }
 
-// class SCMODump only in debug builds available
-#ifdef PEGASUS_DEBUG
+static int _indexComp(const void* left, const void* right)
+{
+    return((*(Uint32 *)left)-(*(Uint32 *)right));
+}
+
+void SCMOInstance::setPropertyFilter(const char **propertyList)
+{
+    return;
+}
+
+
 /******************************************************************************
  * SCMODump Print and Dump functions
  *****************************************************************************/
@@ -5215,9 +5213,9 @@ SCMODump::SCMODump()
     _out = stderr;
     _fileOpen = false;
 
-# ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_OS_ZOS
     setEBCDICEncoding(fileno(_out));
-# endif
+#endif
 
 }
 
@@ -5243,9 +5241,9 @@ void SCMODump::openFile(const char* filename)
 
     _fileOpen = true;
 
-# ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_OS_ZOS
     setEBCDICEncoding(fileno(_out));
-# endif
+#endif
 
 }
 
@@ -5584,7 +5582,7 @@ void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
         }
         else
         {
-            line = clshdr->propertySet.number & 15;
+            line = clshdr->propertySet.number%16;
         }
 
 
@@ -5651,7 +5649,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
 
         fprintf(_out,"\nHash Tag %3u Hash Index %3u",
                nodeArray[i].nameHashTag,
-               nodeArray[i].nameHashTag & (PEGASUS_KEYBINDIG_SCMB_HASHSIZE -1));
+               nodeArray[i].nameHashTag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE);
 
         fprintf(_out,"\nType: %s",cimTypeToString(nodeArray[i].type));
 
@@ -5711,7 +5709,7 @@ void SCMODump::_dumpClassProperty(
 
     fprintf(_out,"\nHash Tag %3u Hash Index %3u",
            prop.nameHashTag,
-           prop.nameHashTag & (PEGASUS_PROPERTY_SCMB_HASHSIZE -1));
+           prop.nameHashTag%PEGASUS_PROPERTY_SCMB_HASHSIZE);
     fprintf(_out,"\nPropagated: %s isKey: %s",
            (prop.flags.propagated?"TRUE":"FALSE"),
            (prop.flags.isKey?"TRUE":"FALSE")
@@ -5745,7 +5743,7 @@ void SCMODump::dumpHashTable(Uint32* hashTable,Uint32 size) const
         }
         else
         {
-            line = size & 15;
+            line = size%16;
         }
 
 
@@ -5863,14 +5861,14 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
          }
          else
          {
-             end = noProperties & 63;
+             end = noProperties%64;
          }
 
          fprintf(_out,"\nkeyPropertyMask[%02u]= ",i);
 
          for (Uint32 j = 0; j < end; j++)
          {
-             if (j > 0 && !(j & 7))
+             if (j > 0 && !(j%8))
              {
                  fprintf(_out," ");
              }
@@ -5941,7 +5939,7 @@ void SCMODump::_hexDump(char* buffer,Uint64 length) const
         }
 
         printLine[1][p] = item/16;
-        printLine[2][p] = item & 15;
+        printLine[2][p] = item%16;
 
     }
 }
@@ -6222,7 +6220,7 @@ void SCMODump::printArrayValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -6370,14 +6368,13 @@ void SCMODump::printUnionValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
 
   return;
 }
-#endif // PEGASUS_DEBUG (class SCMODump only in debug builds available)
 
 
 /*****************************************************************************

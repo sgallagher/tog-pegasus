@@ -30,6 +30,8 @@ ROOT = ../../../../..
 
 LIBRARIES = \
     pegwsmserver \
+    pegwql \
+    pegquerycommon \
     pegrepository \
     pegconfig \
     pegcommon

@@ -3083,19 +3083,20 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     CIMInstance indication = request->indicationInstance;
     
     QueueIdStack qids = request->queueIds.copyAndPop();
-    PEGASUS_ASSERT(qids.size() == 1);
 
     AutoPtr<DeliveryStatusAggregator, ExpectedResponseCountSetDone>
-        deliveryStatusAggregator(
+        deliveryStatusAggregator;
+
+    if (qids.size())
+    {
 #ifdef PEGASUS_ENABLE_INDICATION_ORDERING
+        deliveryStatusAggregator.reset(
             new DeliveryStatusAggregator(
                 request->messageId,
                 qids.top(),
-                request->oopAgentName)
-#else
-                0
+                request->oopAgentName));
 #endif
-                );
+    }
 
     try
     {
@@ -3124,6 +3125,8 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                    " subscription requets are completed");
              CIMProcessIndicationRequestMessage * requestCopy =
                     new CIMProcessIndicationRequestMessage(*request);
+            // Delivery enqueue status is not required for this request.
+            requestCopy->queueIds = QueueIdStack(requestCopy->queueIds.top());
             _deliveryWaitIndications.insert_back(requestCopy);
             PEG_METHOD_EXIT();
             return;

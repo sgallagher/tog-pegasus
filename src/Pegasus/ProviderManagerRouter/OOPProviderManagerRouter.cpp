@@ -998,7 +998,16 @@ String ProviderAgentContainer::getGroupNameWithType() const
 
 void ProviderAgentContainer::sendResponse(CIMResponseMessage *response)
 {
-    _pipeToAgent->writeMessage(response);
+    AutoMutex lock(_agentMutex);
+
+    AnonymousPipe::Status writeStatus =
+        _pipeToAgent->writeMessage(response);
+    if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
+    {
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+            "Failed to write message to pipe.  writeStatus = %d.",
+            writeStatus));
+    }
 }
 
 CIMResponseMessage* ProviderAgentContainer::processMessage(

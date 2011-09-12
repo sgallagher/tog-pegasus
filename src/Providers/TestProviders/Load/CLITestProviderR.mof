@@ -72,3 +72,16 @@ instance of PG_ProviderCapabilities
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "CLITestProviderModule";
+    ProviderName = "CLITestProvider";
+    CapabilityID = "CLITestProviderCapability3";
+    ClassName = "Test_CLITestEmbeddedClass";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2, 5 };
+    SupportedProperties = NULL;
+    SupportedMethods = { "embeddedInstParamMethod",
+			 "embeddedInstArrayParamMethod" };
+};

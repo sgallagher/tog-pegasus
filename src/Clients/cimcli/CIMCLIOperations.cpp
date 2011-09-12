@@ -79,12 +79,42 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_CreateInstance,          "createInstance",2 ,       "ci",
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP",
-    "Create Instance of <Class> *<name=param> with defined properties"},
+                        "Create instance of a class. Input Format is:\n"
+                        "   <className> [<propertyDef>]*\n"
+                        "where propertyDef is:\n"
+                        "  | <propName>=<value>      //property with value\n"
+                        "  | <propName>=\"<value>\"    //string with space\n"
+                        "                            //in string\n"
+                        "  | <propName>=             //NULL value\n"
+                        "  | <propName>!             //empty string value\n"
+                        "  | <propName>=<arrayVal>   //Arrayinput\n"
+                        "      where: arrayVal=<value>[,<value>]*\n"
+                        "\n"
+                        "  | <propName>{<classname> [<propertyDef>]* }\n"
+                        "  | <propName>={<classname> [<propertyDef>]* }\n"
+                        "     defines embedded instance where:\n"
+                        "       -classname - embedded class\n"
+                        "       -propertyDef - embedded instance property"},
 
     {ID_TestInstance,             "testInstance",   2 ,      "ti",
     "Clients.cimcli.CIMCLIClient.TI_COMMAND_HELP",
-    "Test instance  of <objectname>  *<name=value> |"
-    " <classname>  *<PropertyName=value> for equal property values." },
+                        "Test instance  of <objectname>  [<propertyDef>]* |"
+                        " <classname>  [<propertyDef>]* for equal property "
+                             " values."
+                        "where propertyDef is:\n"
+                        "  | <propName>=<value>      //property with value\n"
+                        "  | <propName>=\"<value>\"    //string with space\n"
+                        "                            //in string\n"
+                        "  | <propName>=             //NULL value\n"
+                        "  | <propName>!             //empty string value\n"
+                        "  | <propName>=<arrayVal>   //Arrayinput\n"
+                        "      where: arrayVal=<value>[,<value>]*\n"
+                        "\n"
+                        "  | <propName>{<classname> [<propertyDef>]* }\n"
+                        "  | <propName>={<classname> [<propertyDef>]* }\n"
+                        "     defines embedded instance where:\n"
+                        "       -classname - embedded class\n"
+                        "       -propertyDef - embedded instance property"},
 
     {ID_DeleteInstance,          "deleteInstance",2 ,       "di",
     "Clients.cimcli.CIMCLIClient.DI_COMMAND_HELP",
@@ -98,8 +128,23 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_ModifyInstance,          "modifyInstance",2 ,       "mi",
     "Clients.cimcli.CIMCLIClient.MI_COMMAND_HELP",
-    "Modify Instance of <objectname> *<name=value> "
-    "| <classname> *<name=value>"},
+                        "Modify Instance of a class. Input formats are:\n"
+                        "<objectname> [<propertyDef>]*\n"
+                        "| <classname> [<propertyDef>]*\n"
+                        "where propertyDef is:\n"
+                        "  | <propName>=<value>      //property with value\n"
+                        "  | <propName>=\"<value>\"    //string with space\n"
+                        "                            //in string\n"
+                        "  | <propName>=             //NULL value\n"
+                        "  | <propName>!             //empty string value\n"
+                        "  | <propName>=<arrayVal>   //Arrayinput\n"
+                        "      where: arrayVal=<value>[,<value>]*\n"
+                        "\n"
+                        "  | <propName>{<classname> [<propertyDef>]* }\n"
+                        "  | <propName>={<classname> [<propertyDef>]* }\n"
+                        "     defines embedded instance where:\n"
+                        "       -classname - embedded class\n"
+                        "       -propertyDef - embedded instance property"},
 
     {ID_DeleteClass,             "deleteClass",   2 ,       "dc",
     "Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP",
@@ -147,11 +192,14 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_InvokeMethod,            "invokeMethod",  2 ,       "im",
     "Clients.cimcli.CIMCLIClient.IM_COMMAND_HELP",
-    "Invoke Method for <object> <method> {<inputParams>}"},
+                    "Invoke Method for <object> <method> {*<inputParam>} "
+                    "where inputParms can be defined as:\n"
+                    "  <paramName>=<value>\n"
+                    "  <paramName>{<embeddedClassName> *[<paramName> }"},
 
     {ID_ExecQuery,               "execQuery",     2 ,       "xq",
     "Clients.cimcli.CIMCLIClient.XQ_COMMAND_HELP",
-    " ExecQuery <query-expresssion> [<query-language>]"},
+    "ExecQuery <query-expresssion> [<query-language>]"},
 
     {ID_EnumerateNamespaces,     "enumerateNamespaces",2 ,  "ns",
     "Clients.cimcli.CIMCLIClient.NS_COMMAND_HELP",
@@ -207,6 +255,7 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.NC_COMMAND_OPTIONS",
     "    -n, -di\n"},
 
+
     {"Clients.cimcli.CIMCLIClient.EC_COMMAND_EXAMPLE",
     "cimcli ec -n root/cimv2\n"
         "    -- Enumerate classes from namespace root/cimv2.\n",
@@ -230,10 +279,21 @@ OperationExampleEntry OperationExamples[] = {
 
     {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
     "cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333\n"
-        "    -- Create Instance of  class TST_Person with properties\n"
-        "       Name= Mike and SSN= 333\n",
+        "    -- Create Instance of  class TST_Person with properties:\n"
+        "       Name = Mike\n"
+        "       SSN = 333\n\n"
+    "cimcli ci -n test/TestProvider C1 id=3 name=fred \\\n"
+        "    embed{C2 p1=3 p2=\"ab cd\" }\n\n"
+        "    -- Create instance of class C1 with properties:\n"
+        "       id with value 3\n"
+        "       name with string value \"fred\"\n"
+        "       embed embedded instance property with instance of class\n",
+        "        C2 with properties:\n"
+        "           p1 embedded instance property with value 3\n"
+        "           p2 embedded instance string property with value \"ab cd\""
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
     "    -n\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.TI_COMMAND_EXAMPLE",
     "cimcli ti -n test/TestProvider TST_Person Name=Mike SSN=333\n"
@@ -243,6 +303,7 @@ OperationExampleEntry OperationExamples[] = {
         "       instance built from input\n",
     "Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS",
     "    -n -nlo -iq -pl\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE",
     "cimcli di -n test/TestProvider TST_Person\n"
@@ -259,6 +320,7 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS",
     "    -n\n"},
 
+
     // Create Class Not Supported
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "Operation Not supported..\n",
@@ -273,12 +335,14 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.MI_COMMAND_OPTIONS",
     "-n -pl(define properties to be modified) -i (interactive)\n "},
 
+
     {"Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE",
     "cimcli dc -n test/TestProvider TST_Person\n"
         "    -- Deletes the Class when there are no instances and\n"
         "       sub-classes for this class\n",
     "Clients.cimcli.CIMCLIClient.DC_COMMAND_OPTIONS",
     "    -n\n"},
+
 
     // getProperty
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
@@ -287,6 +351,7 @@ OperationExampleEntry OperationExamples[] = {
             "       defined by TST_Person.Id=\"Mike\"",
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "\n"},
+
 
     // setProperty
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
@@ -297,6 +362,7 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "\n"},
 
+
     {"Clients.cimcli.CIMCLIClient.GQ_COMMAND_EXAMPLE",
     "cimcli gq Association\n"
         "    -- Get the qualifier named Association in mof output\n"
@@ -304,11 +370,13 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS",
     "    -n\n"},
 
+
     // setQualifier
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "Operation Not supported..\n",
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.EQ_COMMAND_EXAMPLE",
     "cimcli eq -n test/TestProvider\n"
@@ -322,6 +390,7 @@ OperationExampleEntry OperationExamples[] = {
         "       test/TestProvider\n",
     "Clients.cimcli.CIMCLIClient.DQ_COMMAND_OPTIONS",
     "    -n, qualifierName\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.A_COMMAND_EXAMPLE",
     "cimcli a TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider"
@@ -419,12 +488,6 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli ?  -- Displays help command\n",
     "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
     "    No options Required"}
-//  ,
-//
-//  {"Clients.cimcli.CIMCLIClient.?_PROFILE_EXAMPLE",
-//  "cimcli profiles  -- Displays registered profiles\n",
-//  "Clients.cimcli.CIMCLIClient.PROFILE_COMMAND_OPTIONS",
-//  "     -n"}
 };
 
 const Uint32 NUM_EXAMPLES = sizeof(OperationExamples) /

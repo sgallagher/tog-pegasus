@@ -56,13 +56,28 @@ bool resultTest(const Buffer& buffer, const char * result)
    else
     {
         int maxLen = (int)strlen(result);
-        if (strlen(buffer.getData()) != strlen(result))
+        const char* bufData = buffer.getData();
+
+        if (strlen(bufData) != strlen(result))
         {
-            cout << "Size diff error. str1 len = " << strlen(buffer.getData())
+            cout << "Size diff error. str1 len = " << strlen(bufData)
                  << " str2 len = " << strlen(result) << endl;
         }
-        cout << "Created Buffer\n<" << buffer.getData()
+        cout << "Created Buffer\n<" << bufData
             << ">\nTest Result\n<" << result << ">" << endl;
+
+        // get min length
+        Uint32 cmplen = (strlen(bufData) < strlen(result))?
+             strlen(bufData) : strlen(result);
+
+        for (Uint32 i = 0; i < cmplen; i++)
+        {
+            if (bufData[i] != result[i])
+            {
+                cout << "Diff at " << i << " " << bufData[i] 
+                    << " " << result[i] << endl;
+            }
+        }
         return(false);
     }
 }
@@ -274,8 +289,7 @@ void test05()
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
         char instanceCompare[] =
-            "\n//Instance of MyClass\n"
-            "instance of MyClass\n"
+            "\ninstance of MyClass\n"
             "{\n"
             "message = \"Hello\";\n"
             "count = 77;\n"
@@ -340,8 +354,7 @@ void test05()
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
         char instanceCompare[] =
-            "\n//Instance of MyClass\n"
-            "instance of MyClass\n"
+            "\ninstance of MyClass\n"
             "{\n"
             "message = NULL;\n"
             "count = NULL;\n"

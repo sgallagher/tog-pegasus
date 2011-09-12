@@ -35,11 +35,158 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CIMStatusCode.h>
 #include "CIMCLICommon.h"
 #include "CIMCLIClient.h"
+#include <cstdarg>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+
+//Global Values
+
+// Set by input options functions and used to test for expected exit code.
+Uint32 expectedExitCode = 0;
+
+
+// Internal function to generate a string dependent on the exitCode.
+// The generated string is a header for output messages (ex. ERROR, etc.)
+// The second parameter allows return of the message bundle code for
+// internationalized messages.
+static String _getMsgHeader(Uint32 exitCode)
+{
+    // Puts prefix on message
+    if (exitCode == CIMCLI_INPUT_ERR)
+    {
+        return "INPUT ERROR: ";
+    }
+    else
+    {
+        if (exitCode != 0)
+        {
+            return "ERROR: ";
+        }
+    }
+    return String();
+}
+
+void cimcliMsg::exit(
+    Uint32 exitCode,
+    const String& formatString)
+{
+    cerr << _getMsgHeader(exitCode)
+         << formatString << endl;
+    cimcliExit(exitCode);
+}
+
+/** EXIT functions. All functions with name "exit" output a
+ *  message and then Exit cimcli.
+ *
+ *  Internationalized output message with exit
+ *  @param exit Code - See CIMCLIClient for definition of these
+ *              codes.
+ *  @param msgParams Call to function MessageLoaderParms to
+ *                   build internationalized message
+*/
+void cimcliMsg::exit(
+    Uint32 exitCode,
+    const MessageLoaderParms& msgParms)
+{
+    MessageLoaderParms parms = msgParms;
+    parms.useProcessLocale = true;
+    parms.msg_src_path = MSG_PATH;
+
+    // output header and message
+    cout << _getMsgHeader(exitCode)
+         << MessageLoader::getMessage(parms) << endl;
+
+    // execute exit from cimcli.  This may involve another
+    // message
+    cimcliExit(exitCode);
+}
+
+/** Optimized one-parameter form of Message output
+*/
+void cimcliMsg::exit(
+    Uint32 exitCode,
+    const String& formatString,
+    const Formatter::Arg& arg0)
+{
+    cout << _getMsgHeader(exitCode)
+         << Formatter::format(formatString, arg0) << endl;
+    cimcliExit(exitCode);
+}
+
+/** Optimized two-argument form of Message output
+*/
+void cimcliMsg::exit(
+    Uint32 exitCode,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1)
+{
+    cout << _getMsgHeader(exitCode)
+        << Formatter::format(formatString, arg0, arg1) << endl;
+    cimcliExit(exitCode);
+}
+
+/** Optimized three-argument form of Message output
+*/
+void cimcliMsg::exit(
+    Uint32 exitCode,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2)
+{
+    cout << _getMsgHeader(exitCode)
+         << Formatter::format(formatString, arg0, arg1, arg2) << endl;
+    cimcliExit(exitCode);
+}
+
+/** Internationalized msg with output Message
+*/
+void cimcliMsg::msg(
+    const MessageLoaderParms& msgParms)
+{
+    MessageLoaderParms parms = msgParms;
+    parms.useProcessLocale = true;
+    parms.msg_src_path = MSG_PATH;
+    cout << MessageLoader::getMessage(parms) << endl;
+}
+
+/** Optimized one-parameter form of Message output
+*/
+void cimcliMsg::msg(
+    const String& formatString,
+    const Formatter::Arg& arg0)
+{
+    cout << Formatter::format(formatString, arg0) << endl;
+}
+
+/** Optimized two-argument form of Message output
+*/
+void cimcliMsg::msg(
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1)
+{
+    cout << Formatter::format(formatString, arg0, arg1) << endl;
+
+}
+
+/** Optimized three-argument form of Message output
+*/
+void cimcliMsg::msg(
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2)
+{
+    cout << Formatter::format(formatString, arg0, arg1, arg2) << endl;
+}
+
+
 
 /* Convert Boolean parameter to String "true" or "false"
 */
@@ -111,6 +258,7 @@ String _toString(const Array<String>& strList)
     }
     return rtn;
 }
+
 void _print(const Array<String>& strList)
 {
     cout << _toString(strList);
@@ -131,7 +279,6 @@ Array<String> _tokenize(const String& input,
                         const Char16 separator,
                         bool allTokens)
 {
-    ///////cout << "Enter _Tokenize2" << endl;
     Array<String> tokens;
     if (input.size() != 0)
     {
@@ -144,8 +291,6 @@ Array<String> _tokenize(const String& input,
             {
                 length = end - start;
 
-                /////cout << "This2 Token = " << input.subString(start,
-                ///  length) << endl;
                 tokens.append(input.subString(start, length));
                 start += (length + 1);
             }
@@ -154,9 +299,6 @@ Array<String> _tokenize(const String& input,
         {
             if ((length = input.find(start, separator)) != PEG_NOT_FOUND)
             {
-
-                /////cout << "This2 Token = " << input.subString(start,
-                ///length) << endl;
                 tokens.append(input.subString(start,length));
                 start+= (length + 1);
             }
@@ -188,6 +330,10 @@ CIMPropertyList _buildPropertyList(const CIMInstance& inst)
     return(pl);
 }
 
+/*
+    Wrapper functions for the conversions in Pegasus Common
+    StringConversion.h
+*/
 Sint64 strToSint(const char* str, CIMType type)
 {
     Sint64 s64;
@@ -203,7 +349,8 @@ Sint64 strToSint(const char* str, CIMType type)
         StringConversion::checkSintBounds(s64, type);
     if (!success)
     {
-        printf("Parse Error: Value conversion error. %s. type %s\n",
+        cimcliMsg::exit(CIMCLI_INPUT_ERR,
+            "Value conversion error. $0s. type $1\n",
                str, cimTypeToString(type));
     }
 
@@ -222,9 +369,9 @@ Uint64 strToUint(const char* str, CIMType type)
 
     if (!success)
     {
-        fprintf(stderr,"Parse Error: Value conversion error. %s. type %s\n",
+        cimcliMsg::exit(CIMCLI_INPUT_ERR,
+            "Value conversion error. $0. type $1\n",
                str, cimTypeToString(type));
-        exit(CIMCLI_INPUT_ERR);
     }
 
     return u64;
@@ -236,11 +383,232 @@ Real64 strToReal(const char * str, CIMType type)
 
     if (!StringConversion::stringToReal64(str, r64))
     {
-        fprintf(stderr, "Parse Error: Value conversion error. %s. type %s\n",
+        cimcliMsg::exit(CIMCLI_INPUT_ERR,
+            "Value conversion error. $0. type $1\n",
                str, cimTypeToString(type));
-        exit(CIMCLI_INPUT_ERR);
     }
     return r64;
+}
+
+void cimcliExit(Uint32 exitCode)
+{
+    // This should be the only use of exit in cimcli.
+    // all other exits should use cimcliExit
+    if (expectedExitCode == exitCode)
+    {
+        exit(0);
+    }
+    cerr << "WARNING: Expected exit code " << expectedExitCode
+         << ". Program delivered exit code (" << exitCode
+         << ") " << rtnExitCodeToString(exitCode) << endl;
+    exit(exitCode);
+}
+
+void setExpectedExitCode(Uint32 exitCode)
+{
+    expectedExitCode = exitCode;
+}
+
+/***************************************************************************
+**
+**  String formatting functions.  These are helper functions to allow
+**  use of C++ standard printf formatting concepts but that return
+**  Pegasus String results rather than char* and handle all memory
+**  issues internally.
+**
+***************************************************************************/
+//  function to return a formatted char*  from a va_list.
+//  Allocates space for the returned char* and repeats the
+//  build process until the allocated space is large enough
+//  to hold the result.  This is internal only and the core function
+//  used by stringPrintf and stringVPrintf
+
+static char* charVPrintf(const char* format, va_list ap)
+{
+    // Iniitial allocation size.  This is a guess assuming that
+    // most printfs are one or two lines long
+    int allocSize = 256;
+
+    int rtnSize;
+    char *p;
+
+    // initial allocate for output
+    if ((p = (char*)malloc(allocSize)) == NULL)
+    {
+        return 0;
+    }
+
+    // repeat formatting  with increased realloc until it works.
+    do
+    {
+        rtnSize = vsnprintf(p, allocSize, format, ap);
+
+        // return if successful if not negative and
+        // returns less than allocated size.
+        if (rtnSize > -1 && rtnSize < allocSize)
+        {
+            return p;
+        }
+
+        // increment alloc size. Assumes that positive return is
+        // expected size and negative is error.
+        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
+
+    } while((p = (char*)realloc(p, allocSize)) != NULL);
+
+    // return error code if realloc failed
+    return 0;
+}
+// formatting function that returns a Pegasus String object.
+String stringPrintf(const char* format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+
+    // Format into allocated memory
+    char* rtnCharPtr = charVPrintf(format, ap);
+    va_end(ap);
+
+    // Free allocated memory and return formatted output in String
+    String rtnString(rtnCharPtr);
+    free(rtnCharPtr);
+
+    return(rtnString);
+}
+
+/* Remap a long string into a multi-line string that can be positioned on a
+   line starting at pos and with length defined for each line.
+   Each output line consists of fill parameter to pos and max line length
+   defined display length parameter.
+
+   The input string is recreated by tokenizing on the space character
+   and filled from the left so that the returned string can be output
+   as a multiline string starting at pos.
+*/
+static String _fill(Uint32 count)
+{
+    String str;
+    for (Uint32 i = 0 ; i < count ; i++)
+    {
+        str.append(' ');
+    }
+    return str;
+}
+
+
+String foldString(const String& input, Uint32 startPos, Uint32 foldPos)
+{
+    String strOut;
+    String line;
+    String word;
+    for (Uint32 i = 0; i < input.size(); i++)
+    {
+        switch (input[i])
+        {
+            case ' ':
+            {
+                // if next word overflows line. move it to output String
+                // and start new line
+                if ((line.size() + word.size()) >= foldPos)
+                {
+                    strOut.append(line);
+                    strOut.append('\n');
+                    line = _fill(startPos);
+                }
+
+                line.append(word);
+                word.clear();
+                word.append(input[i]);
+                break;
+            }
+
+            case '\n':
+            {
+                if (line.size() + word.size() >= foldPos)
+                {
+                    // terminate current line
+                    strOut.append(line);
+                    strOut.append('\n');
+                    line = _fill(startPos);
+                }
+
+                line.append(word);
+                word.clear();
+                line.append('\n');
+                strOut.append(line);
+                line = _fill(startPos);
+
+                break;
+            }
+
+            default:
+                word.append(input[i]);
+        }
+    }
+
+    if (word.size() != 0)
+    {
+        // if overflow create new line
+        if ((line.size() + word.size()) >= foldPos)
+        {
+            strOut.append(line);
+            strOut.append('\n');
+            line = _fill(startPos);
+        }
+        // pick up last word.
+        line.append(word);
+    }
+
+    // if data in last line, move it.
+    if (line.size() != startPos)
+    {
+        strOut.append(line);
+    }
+    return strOut;
+}
+
+// Return a string definition for each possible exit code
+String rtnExitCodeToString(Uint32 exitCode)
+{
+    String rtn;
+    switch (exitCode)
+    {
+        case CIMCLI_RTN_CODE_OK:
+            rtn= "OK";
+            break;
+        case CIMCLI_INTERNAL_ERR:
+            rtn = "Internal error";
+            break;
+        case CIMCLI_RTN_CODE_PEGASUS_EXCEPTION:
+            rtn = "Pegasus Exception";
+            break;
+        case CIMCLI_RTN_COUNT_TEST_FAILED:
+            rtn = "Count test (--count) failed";
+            break;
+        case CIMCLI_RTN_CODE_ERR_COMPARE_FAILED:
+            rtn = "Test Comparison failed";
+            break;
+        case CIMCLI_CONNECTION_FAILED:
+            rtn = "Connection Failed";
+            break;
+        case CIMCLI_INPUT_ERR:
+            rtn = "Input Error";
+            break;
+        case CIMCLI_RTN_CODE_UNKNOWN_EXCEPTION:
+            rtn = "Unknown Exception";
+            break;
+        case GENERAL_CLI_ERROR_CODE:
+            rtn = "General cimcli Error";
+            break;
+        default:
+            if (exitCode < CIMCLI_RTN_CODE_PEGASUS_EXCEPTION)
+            {
+                rtn = cimStatusCodeToString((CIMStatusCode)exitCode);
+            }
+            else
+                rtn = "Unknown code";
+    }
+    return rtn;
 }
 
 PEGASUS_NAMESPACE_END

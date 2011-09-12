@@ -146,7 +146,7 @@ void BuildOptionsTable(
         "If set deepInheritance parameter\n"
             "    set true"},
 
-        // TODO - Drop this option completely
+        // FUTURE - Drop this option completely
         {"localOnly", "true", false, Option::BOOLEAN, 0, 0, "lo",
         "Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP",
         "DEPRECATED. This was used to set LocalOnly.\n"
@@ -217,7 +217,7 @@ void BuildOptionsTable(
 
         // Defines the multiple output formats. List of possible options
         // defined in CIMCLIOptionStruct files. default mof.
-        // TODO - Add simple option that uses the enum features of
+        // FUTURE - Add simple option that uses the enum features of
         // options manager.  However. we cannot remove this option.
         {"outputformats", "mof", false, Option::STRING, 0,0,
         "o",
@@ -291,7 +291,13 @@ void BuildOptionsTable(
 
         {"sort", "false", false, Option::BOOLEAN, 0, 0, "-sort",
         "Clients.cimcli.CIMCLIClient.SORT_OPTION_HELP",
-        "Sort the returned entities for multi-entity responses"}
+        "Sort the returned entities for multi-object responses "
+        "(ex. enumerations, associators, etc.)"},
+
+        {"expectedExitCode", "0", false, Option::WHOLE_NUMBER, 0, 0, "-expExit",
+        "Clients.cimcli.CIMCLIClient.EXPEXIT_OPTION_HELP",
+        "Set the exit code that cimcli expects for this operation. cimcli"
+        " exits code = 0 if expectedExitCode matches pgm exit code."}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -334,7 +340,7 @@ static const Option* _lookupOption(OptionManager& om, const char* optionName)
                cerr << "Parse Error in " << optionName
                    << " Name not valid cimcli option. Fix options table"
                     << endl;
-               exit(CIMCLI_INPUT_ERR);
+               cimcliExit(CIMCLI_INPUT_ERR);
     }
     return op;
 }
@@ -445,7 +451,7 @@ void lookupCIMNameOption(Options& opts,
                cerr << "Parse Error in " << optionName << " Class. Exception "
                     << e.getMessage()
                     << endl;
-               exit(CIMCLI_INPUT_ERR);
+               cimcliExit(CIMCLI_INPUT_ERR);
            }
        }
        else
@@ -543,9 +549,9 @@ void lookupBooleanOptionNegate(Options& opts,
     }
 }
 
-int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
+void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 {
-    Uint32 lineLength = 75;
+    Uint32 lineLength = 79;
     // Catch the verbose and debug options first so they can control other
     // processing
     Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
@@ -564,7 +570,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     if (om.isTrue("full help"))
     {
         showFullHelpMsg(argv[0], om, lineLength);
-        exit(CIMCLI_RTN_CODE_OK);
+        cimcliExit(CIMCLI_RTN_CODE_OK);
     }
 
     // show usage for a single operation and exit
@@ -572,31 +578,31 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     {
         if (!showOperationUsage(argv[1], om, lineLength))
         {
-            exit(CIMCLI_INPUT_ERR);
+            cimcliExit(CIMCLI_INPUT_ERR);
         }
 
-        exit(CIMCLI_RTN_CODE_OK);
+        cimcliExit(CIMCLI_RTN_CODE_OK);
     }
 
     // show version number
     if (om.isTrue("version"))
     {
         showVersion(argv[0], om);
-        exit(CIMCLI_RTN_CODE_OK);
+        cimcliExit(CIMCLI_RTN_CODE_OK);
     }
 
     // show all help options
     if (om.isTrue("help options"))
     {
         showOptions(argv[0], om);
-        exit(CIMCLI_RTN_CODE_OK);
+        cimcliExit(CIMCLI_RTN_CODE_OK);
     }
 
     // show help Operation list
     if (om.isTrue("help commands"))
     {
         showOperations(argv[0], lineLength);
-        exit(CIMCLI_RTN_CODE_OK);
+        cimcliExit(CIMCLI_RTN_CODE_OK);
     }
 
     lookupStringOption(opts, om, "namespace", opts.nameSpace);
@@ -676,7 +682,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
               "    parameters can be directly input as name/value pairs\n"
               "    in the same manner properties are input to the\n"
               "    createInstance and other operations\n" << endl;
-        exit(CIMCLI_INPUT_ERR);
+        cimcliExit(CIMCLI_INPUT_ERR);
     }
 
     // process localOnly and notlocalOnly parameters
@@ -710,7 +716,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     lookupBooleanOption(opts, om, "notIncludeQualifiers",
         opts.notIncludeQualifiersRequested);
-
 
     lookupBooleanOption(opts, om,"includeClassOrigin",
         opts.includeClassOrigin );
@@ -773,7 +778,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         cerr << "Error: Invalid Output Type " << opts.outputTypeParamStr
              << ". Valid types are: "<< OutputTypeStruct::listOutputTypes()
              << endl;
-        exit(CIMCLI_INPUT_ERR);
+        cimcliExit(CIMCLI_INPUT_ERR);
     }
 
     // Test for special output option -x
@@ -791,6 +796,19 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     }
 
     lookupUint32Option(opts, om, "repeat", opts.repeat, 0, "times");
+
+    Uint32 tempCode = 0;
+    lookupUint32Option(opts, om, "expectedExitCode", tempCode, 0, "");
+    if (tempCode != 0)
+    {
+        setExpectedExitCode(tempCode);
+        if (debug && verboseTest)
+        {
+            cout << "expectedExitCode="
+                << tempCode
+                << endl;
+        }
+    }
 
     lookupUint32ResolvedOption(opts, om, "count", opts.executeCountTest,
                                opts.expectedCount,
@@ -840,8 +858,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             }
         }
     }
-
-    return 0;
 }
 
 PEGASUS_NAMESPACE_END

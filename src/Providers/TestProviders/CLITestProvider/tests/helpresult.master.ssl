@@ -79,7 +79,8 @@ This command executes single CIM Operations.
  --r  repeat. Number of times to repeat the operation.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
- --sort  sort. Sort the returned entities for multi-entity responses. Default(false)
+ --sort  sort. Sort the returned entities for multi-object responses (ex. enumerations, associators, etc.). Default(false)
+ --expExit  expectedExitCode. Set the exit code that cimcli expects for this operation. cimcli exits code = 0 if expectedExitCode matches pgm exit code.. Default(0)
 
 Options vary by command consistent with CIM Operations
 
@@ -88,26 +89,65 @@ niall enumallInstanceNames  Enumerate all instance names in <namespace>.
 ei    enumerateInstances    Enumerate instances of <classname>
 nc    enumerateClassNames   Enumerate Class Names of [ <classname> ].
                             Classname optional
-ec    enumerateClasses      Enumerate classes of [ <classname> ].
-                            Classname optional
+ec    enumerateClasses      Enumerate classes of [ <classname> ]. Classname
+                            optional
 gc    getClass              Get class of <classname>
 gi    getInstance           Get instance of <objectname> | <classname>
-                            (interactive) |
-                            <classname> 
-                            *<PropertyName=value> for equal property values.
-ci    createInstance        Create Instance of <Class> *<name=param> with
-                            defined properties
-ti    testInstance          Test instance  of <objectname>  *<name=value>
-                            | <classname> 
-                            *<PropertyName=value>
-                            for equal property
-                            values.
+                            (interactive) | <classname>  *<PropertyName=value>
+                            for equal property values.
+ci    createInstance        Create instance of a class. Input Format is:
+                              <className> [<propertyDef>]*
+                           where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
+ti    testInstance          Test instance  of <objectname>  [<propertyDef>]* |
+                            <classname>  [<propertyDef>]* for equal property
+                            values.where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
 di    deleteInstance        Delete Instance of <objectname> | <classname>
-                            *<keyPropertyName=value> | interactive of <className>
+                            *<keyPropertyName=value> | interactive of
+                            <className>
 cc    createClass           Not supported
-mi    modifyInstance        Modify Instance of <objectname> *<name=value>
-                            | <classname>
-                            *<name=value>
+mi    modifyInstance        Modify Instance of a class. Input formats are:
+                           <objectname> [<propertyDef>]*
+                           | <classname> [<propertyDef>]*
+                           where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
 dc    deleteClass           Delete Class of <classname>
 gp    getProperty           get single property of <object name>
 sp    setProperty           set a single property of <object-name>
@@ -124,9 +164,11 @@ r     references            Enumerate References of <classname> |
 rn    referenceNames        Enumerate Reference Names <classname> |
                             <instancename>
 im    invokeMethod          Invoke Method for <object> <method>
-                            {<inputParams>}
-xq    execQuery              ExecQuery <query-expresssion>
-                            [<query-language>]
+                            {*<inputParam>} where inputParms can be defined
+                            as:
+                             <paramName>=<value>
+                             <paramName>{<embeddedClassName> *[<paramName> }
+xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
 son   Turn On Statistics    Turn on CIM Server Statistics Gathering
 soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
@@ -154,8 +196,17 @@ cimcli gi -n test/TestProvider TST_Person
     -- Get Instance of class
 
 cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333
-    -- Create Instance of  class TST_Person with properties
-       Name= Mike and SSN= 333
+    -- Create Instance of  class TST_Person with properties:
+       Name = Mike
+       SSN = 333
+
+cimcli ci -n test/TestProvider C1 id=3 name=fred 
+    embed{C2 p1=3 p2="ab cd" }
+
+    -- Create instance of class C1 with properties:
+       id with value 3
+       name with string value "fred"
+       embed embedded instance property with instance of class
 
 cimcli ti -n test/TestProvider TST_Person Name=Mike SSN=333
     -- Test Instance of  class for equality of Name and SSN
@@ -273,26 +324,65 @@ niall enumallInstanceNames  Enumerate all instance names in <namespace>.
 ei    enumerateInstances    Enumerate instances of <classname>
 nc    enumerateClassNames   Enumerate Class Names of [ <classname> ].
                             Classname optional
-ec    enumerateClasses      Enumerate classes of [ <classname> ].
-                            Classname optional
+ec    enumerateClasses      Enumerate classes of [ <classname> ]. Classname
+                            optional
 gc    getClass              Get class of <classname>
 gi    getInstance           Get instance of <objectname> | <classname>
-                            (interactive) |
-                            <classname> 
-                            *<PropertyName=value> for equal property values.
-ci    createInstance        Create Instance of <Class> *<name=param> with
-                            defined properties
-ti    testInstance          Test instance  of <objectname>  *<name=value>
-                            | <classname> 
-                            *<PropertyName=value>
-                            for equal property
-                            values.
+                            (interactive) | <classname>  *<PropertyName=value>
+                            for equal property values.
+ci    createInstance        Create instance of a class. Input Format is:
+                              <className> [<propertyDef>]*
+                           where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
+ti    testInstance          Test instance  of <objectname>  [<propertyDef>]* |
+                            <classname>  [<propertyDef>]* for equal property
+                            values.where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
 di    deleteInstance        Delete Instance of <objectname> | <classname>
-                            *<keyPropertyName=value> | interactive of <className>
+                            *<keyPropertyName=value> | interactive of
+                            <className>
 cc    createClass           Not supported
-mi    modifyInstance        Modify Instance of <objectname> *<name=value>
-                            | <classname>
-                            *<name=value>
+mi    modifyInstance        Modify Instance of a class. Input formats are:
+                           <objectname> [<propertyDef>]*
+                           | <classname> [<propertyDef>]*
+                           where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
 dc    deleteClass           Delete Class of <classname>
 gp    getProperty           get single property of <object name>
 sp    setProperty           set a single property of <object-name>
@@ -309,9 +399,11 @@ r     references            Enumerate References of <classname> |
 rn    referenceNames        Enumerate Reference Names <classname> |
                             <instancename>
 im    invokeMethod          Invoke Method for <object> <method>
-                            {<inputParams>}
-xq    execQuery              ExecQuery <query-expresssion>
-                            [<query-language>]
+                            {*<inputParam>} where inputParms can be defined
+                            as:
+                             <paramName>=<value>
+                             <paramName>{<embeddedClassName> *[<paramName> }
+xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
 son   Turn On Statistics    Turn on CIM Server Statistics Gathering
 soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
@@ -389,13 +481,27 @@ This command executes single CIM Operations.
  --r  repeat. Number of times to repeat the operation.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
- --sort  sort. Sort the returned entities for multi-entity responses. Default(false)
+ --sort  sort. Sort the returned entities for multi-object responses (ex. enumerations, associators, etc.). Default(false)
+ --expExit  expectedExitCode. Set the exit code that cimcli expects for this operation. cimcli exits code = 0 if expectedExitCode matches pgm exit code.. Default(0)
 
 Options vary by command consistent with CIM Operations
-
-mi    modifyInstance        Modify Instance of <objectname> *<name=value>
-                            | <classname>
-                            *<name=value>
+mi    modifyInstance        Modify Instance of a class. Input formats are:
+                           <objectname> [<propertyDef>]*
+                           | <classname> [<propertyDef>]*
+                           where propertyDef is:
+                             | <propName>=<value>      //property with value
+                             | <propName>="<value>"    //string with space
+                                                       //in string
+                             | <propName>=             //NULL value
+                             | <propName>!             //empty string value
+                             | <propName>=<arrayVal>   //Arrayinput
+                                 where: arrayVal=<value>[,<value>]*
+                           
+                             | <propName>{<classname> [<propertyDef>]* }
+                             | <propName>={<classname> [<propertyDef>]* }
+                                defines embedded instance where:
+                                  -classname - embedded class
+                                  -propertyDef - embedded instance property
 Example : 
 cimcli mi -n test/TestProvider TST_Person.Id=\"Mike\" SSN=444
     -- Modifies the Instance if it exists using rules of DMTF 

@@ -199,7 +199,20 @@ inline void _mofWriter_appendValue(Buffer& out, const CIMObjectPath& x)
 
 inline void _mofWriter_appendValue(Buffer& out, const CIMObject& x)
 {
-    _mofWriter_appendValue(out, x.toString());
+    if(x.isClass())
+    {
+        CIMConstClass y = (CIMConstClass)x;
+        MofWriter::appendClassElement(out, y);
+    }
+    else
+    {
+        MofWriter::appendInstanceElement(out, (CIMInstance)x);
+    }
+}
+
+inline void _mofWriter_appendValue(Buffer& out, const CIMInstance& x)
+{
+    MofWriter::appendInstanceElement(out, x);
 }
 
 /** Array -
@@ -638,7 +651,7 @@ void MofWriter::appendInstanceElement(
     const CIMInstanceRep* rep = instance._rep;
 
     // Get and format the class qualifiers
-    out << STRLIT("\n//Instance of ") << rep->getClassName();
+
     if (rep->getQualifierCount())
     {
         out.append('\n');
@@ -755,25 +768,21 @@ void MofWriter::appendPropertyElement(
     if (!rep->getValue().isNull())
     {
         out << STRLIT(" = ");
-        if (rep->getValue().isArray())
-        {
-            // Insert any property values
-            MofWriter::appendValueElement(out, rep->getValue());
-        }
-        else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
-        {
-            MofWriter::appendValueElement(out, rep->getValue());
-        }
-        else
-        {
-            MofWriter::appendValueElement(out, rep->getValue());
-        }
+        MofWriter::appendValueElement(out, rep->getValue());
     }
     else if (!isDeclaration)
+    {
         out << STRLIT(" = NULL");
+    }
 
-    // Close the property MOF
-    out.append(';');
+    // Close the property MOF.
+    // Do not add closing ; if instance or object.  The embedded code already
+    // did that.
+    if (property.getType() != CIMTYPE_INSTANCE &&
+         property.getType() != CIMTYPE_OBJECT)
+    {
+        out.append(';');
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -928,28 +937,37 @@ void MofWriter::appendQualifierElement(
             Boolean b;
             rep->getValue().get(b);
             if (!b)
+            {
                 out << STRLIT(" (false)");
+            }
         }
         else
         {
             if (!rep->getValue().isArray())
+            {
                 out << STRLIT(" (");
+            }
             else
+            {
                 out << STRLIT(" ");
+            }
+
             hasValueField = true;
+
             MofWriter::appendValueElement(out, rep->getValue());
+
             if (!rep->getValue().isArray())
+            {
                 out.append(')');
+            }
         }
     }
 
     // output the flavors
-    String flavorString;
-    flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
+    String flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
     if (flavorString.size())
     {
-        out << STRLIT(" : ");
-        out << flavorString;
+        out << STRLIT(" : ") << flavorString;
     }
 }
 
@@ -1002,7 +1020,6 @@ void MofWriter::appendQualifierDeclElement(
     //if (!rep->getValue().isNull() ||
     //    !(rep->getValue().getType() == CIMTYPE_BOOLEAN))
     //{
-        // KS With CIM Qualifier, this should be =
         out << STRLIT(" = ");
         hasValueField = true;
         MofWriter::appendValueElement(out, rep->getValue());
@@ -1013,16 +1030,13 @@ void MofWriter::appendQualifierDeclElement(
     scopeString = MofWriter::getQualifierScope(rep->getScope());
     //if (scopeString.size())
     //{
-        out << STRLIT(", Scope(") << scopeString;
-        out.append(')');
+        out << STRLIT(", Scope(") << scopeString << STRLIT(")");
     //}
     // Output Flavor Information
-    String flavorString;
-    flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
+    String flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
     if (flavorString.size())
     {
-        out << STRLIT(", Flavor(") << flavorString;
-        out.append(')');
+        out << STRLIT(", Flavor(") << flavorString << STRLIT(")");
     }
     // End each qualifier declaration with newline
     out << STRLIT(";\n");

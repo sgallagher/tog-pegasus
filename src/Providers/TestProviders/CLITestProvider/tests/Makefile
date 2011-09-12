@@ -850,7 +850,7 @@ testIntegerVariations:
 	    scalUint16=100 \
 	    scalUint32=9999 \
 	    scalUint64=99999 \
-	    arrayUint32=99,0,31000,63000,4294967295 >> $(RESULTFILE)
+	    arrayUint32=99,0,31000,63000,4294967295,0100,111b >> $(RESULTFILE)
 
 ##      Display the created instance
 	@cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass \
@@ -863,7 +863,7 @@ testIntegerVariations:
 	    scalUint16=100 \
 	    scalUint32=9999 \
 	    scalUint64=99999 \
-	    arrayUint32=99,0,31000,63000,4294967295 >> $(RESULTFILE)
+	    arrayUint32=99,0,31000,63000,4294967295,0100,111b >> $(RESULTFILE)
 
 ##      test Hex
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
@@ -873,7 +873,7 @@ testIntegerVariations:
 	    scalUint16=0X64 \
 	    scalUint32=0X270F \
 	    scalUint64=0X1869F \
-	    arrayUint32=0X63,0,0X7918,0XF618,0XFFFFFFFF >> $(RESULTFILE)
+	    arrayUint32=0X63,0,0X7918,0XF618,0XFFFFFFFF,0X40,0X7 >> $(RESULTFILE)
 
 ##      test Octal
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
@@ -883,7 +883,7 @@ testIntegerVariations:
 	    scalUint16=0144 \
 	    scalUint32=023417 \
 	    scalUint64=0303237 \
-	    arrayUint32=0143,0,074430,0173030,037777777777 >> $(RESULTFILE)
+	    arrayUint32=0143,0,074430,0173030,037777777777,0100,07 >> $(RESULTFILE)
 
 ##      test Binary
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
@@ -1148,18 +1148,38 @@ testEmptyKeyBindings:
 
 ## Test executeQuery Operation. This test should 
 ## return a single instance.  We just test the response count to avoid
-## the issue of variable information in the result file
+## the issue of variable information in the result file since execution of
+## this test is controlled by a pegasus build variable
 testExecQuery:
-	@$(ECHO) 23. +++++ Test For execQuery
-	@$(ECHO) 23. +++++ Test For execQuery  >> $(RESULTFILE)
+	@$(ECHO) 23. +++++ Test execQuery
+	@$(ECHO) 23. +++++ Test execQuery  >> $(RESULTFILE)
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@cimcli xq "Select scaleBool from Test_CLITestProviderClass" \
-	  -n "$(PROVIDERNS)" -count 1
+	  -n "$(PROVIDERNS)" -count 1 
 endif
+	@$(ECHO) 23. +++++ Test execQuery
 
-	@$(ECHO) 23. +++++ Test enumerateClasses
+## The following tests all generate error responses. NOTE: These tests
+## use the __expExit option in Pegasus 2.12 to return an OK exit code for
+## a request that generates an error.
+testErrorInput:
+	@$(ECHO) 24. +++++ Test Errors on Input
+	@$(ECHO) 24. +++++ Test Errors on Input  >> $(RESULTFILE)
 
-### Execute the set of test targets defined below
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="Error in boolean parameter definition. Incorrect keyword."\
+	    scalBool=blah  --expExit 53   >> $(RESULTFILE)  2>&1
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="Error in boolean parameter definition. Incorrect keyword."\
+	    scalUint32=1234blah  --expExit 53   >> $(RESULTFILE)  2>&1
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="Error in boolean parameter definition. Incorrect keyword."\
+	    scalUint8=9999999  --expExit 53   >> $(RESULTFILE)  2>&1
+
+	@$(ECHO) 24. +++++ Test Errors on Input
+	@$(ECHO) 24. +++++ Test Errors on Input   >> $(RESULTFILE)
+##############################################################################
+### Execute the set of test targets defined
 poststarttests:
 ##      Remove existing master files
 	@$(RM) $(RESULTFILE)
@@ -1193,6 +1213,7 @@ poststarttests:
 	$(MAKE) enumerateClasses
 	$(MAKE) testExecQuery
 	$(MAKE) testEmptyKeyBindings
+	$(MAKE) testErrorInput
 
 	@$(ECHO) +++++ Compare Result files
 ##      diffsort used because there is at least one instance where

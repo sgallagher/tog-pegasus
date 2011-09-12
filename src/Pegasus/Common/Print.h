@@ -58,6 +58,9 @@ PEGASUS_NAMESPACE_BEGIN
 //     You may use these functions for diffing two objects using the following
 //     procedure. (1) Print each object to a file. (2) Diff the files with the
 //     diff command.
+//     WARNING: These functions are a diagnostic tool and generate output ONLY
+//     in PEGASUS_DEBUG mode. When pegasus is compiled withPEGASUS_DEBUG set
+//     false, empty functions are built.
 //
 //==============================================================================
 

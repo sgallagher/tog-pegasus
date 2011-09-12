@@ -36,28 +36,227 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Clients/cimcli/Linkage.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/Formatter.h>
 
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/MessageLoader.h>
+#include <cstdarg>
 PEGASUS_NAMESPACE_BEGIN
 
+// Common functions used in cimcli
+
+/**
+ * cliExit - Function to actually execute cimcli exits
+ */
+void cliExit(Uint32 exitCode, const char* format, ...);
+
+/**
+    This class provides a set of static functions to provide:
+
+    1. Standard error message generation with exit from cimcli
+    in a form that the messages can be internationalized.  These
+    are the Exit(...) functions where the arguements include a
+    cimcli exit code and information to format the messages
+
+    2. Stand error message generation in a form that the
+    messages can be internationalized. These methods are all
+    Msg(...) where the arguments are either internationalized or
+    internationlaizable messages.
+
+    All the messages generated use the Pegasus Formatter.h as
+    the basis for defining the messages (formatString, one or
+    more arguments).
+
+    Both Exit(...) and Msg(...) methods include:
+
+    a. Generation of non-internationalized messages with 1 or
+    more arguments for the formatString
+
+    b. Internationalized messages that use MessageLoaderParms in
+    place of the direct call to define the messages.
+
+    Once a non-internationalized message is defined in cimcli
+       ex: cimcliMsg::Msg("This is my $0 msg. $1", count, name);
+    it can be internationlaized by simply enveloping the
+    parameters in MessageLoaderParms method
+       ex:
+       ex: cimcliMsg::Msg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.BLAH_MSG",
+            "This is my $0 msg. $1", count, name));
+    NOTE: To make it easier in the future to confirm whether
+    messages and exits are internationalized, please use the
+    form of the message above so a simple scan will determine
+    whether internationalized (if cimcliMsg and MsgLoaderParms
+    exist on the same source line)
+*/
+class cimcliMsg
+{
+public:
+    /** Internationalized form of exit with message output
+     *
+     *
+     * @param exitCode Code to set for this exit.
+     * @param msgParms MessageLoaderParms definition with key to
+     * internationalized message and default message consisting of
+     * format string and variable number of parameters.
+     */
+    static void exit(
+        Uint32 exitCode,
+        const MessageLoaderParms& msgParms);
+
+    /** Non internationalized exit with message output.
+     * @param exitCode Uint32 exit code to set for this exit
+     * @param formatString String without parameters that is
+     *                     displayed
+     */
+    static void exit(
+        Uint32 exitCode,
+        const String& formatString);
+
+    /** One-argument form of exit with message
+    */
+    static void exit(
+        Uint32 exitCode,
+        const String& formatString,
+        const Formatter::Arg& arg0);
+
+    /** Two-argument form of exit with message
+    */
+    static void exit(
+        Uint32 exitCode,
+        const String& formatString,
+        const Formatter::Arg& arg0,
+        const Formatter::Arg& arg1);
+
+    /** Three-argument form of exit with message
+    */
+    static void exit(
+        Uint32 exitCode,
+        const String& formatString,
+        const Formatter::Arg& arg0,
+        const Formatter::Arg& arg1,
+        const Formatter::Arg& arg2);
+
+
+    /** Internationalized form of message output. The following
+     *  methods output messages but do not
+     *  terminate cimcli
+     */
+     /**
+     * Generate an Internationlaized output message.
+     *
+     * @param msgParms MessageLoaderParms definition with key to
+     * internationalized message and default message consisting of
+     * format string and variable number of parameters.
+     */
+    static void msg(
+        const MessageLoaderParms& msgParms);
+
+    /** Non internationalized message output with a single String
+     *  parameter
+     * @param formatString String without parameters that is
+     *                     displayed
+     */
+    static void msg(
+        const String& formatString);
+
+    /** One-argument form of message that generates a message
+     *  from a formatString and a single argument.
+     *  @param formatString - formatting string as defined in the
+     *  file src/Pegasus/Common/Formatter.h
+     *  @param arg0  Input argument for formatterString.See
+     *               Formatter.h for more information on possible
+     *               arguments.
+    */
+    static void msg(
+        const String& formatString,
+        const Formatter::Arg& arg0);
+
+    /** Two-argument form of message that generates a message
+     *  from a formatString and a single argument.
+     *  @param formatString - formatting string as defined in the
+     *  file src/Pegasus/Common/Formatter.h
+     *  @param arg0 - First input argument (replaces $0 in
+     *              formatString)
+     *  @param arg1 - Second input argument (replaces $1 in
+     *              formatString)
+    */
+        static void msg(
+        const String& formatString,
+        const Formatter::Arg& arg0,
+        const Formatter::Arg& arg1);
+
+    /** Three-argument form of message that generates a message
+     *  from a formatString and a single argument.
+     *  @param formatString - formatting string as defined in the
+     *  file src/Pegasus/Common/Formatter.h
+     *  @param arg0 - First input argument (replaces $0 in
+     *              formatString)
+     *  @param arg1 - Second input argument (replaces $1 in
+     *              formatString)
+     *  @param arg3 - Thirs input argument (replaces $2 in
+     *              formatString)
+    */
+    static void msg(
+        const String& formatString,
+        const Formatter::Arg& arg0,
+        const Formatter::Arg& arg1,
+        const Formatter::Arg& arg2);
+private:
+
+};
+
+/**
+ * convert a Boolean to a String ("true" or "false")
+ */
+
 String  PEGASUS_CLI_LINKAGE _toString(Boolean x);
+
+/**
+ * print the string repesentation of a Boolean
+ * @param x Bpp;ean to print
+ */
 void  PEGASUS_CLI_LINKAGE _print(Boolean x);
 
+/**
+ * Convert CIMPropertyList to a String in the form name[,name]
+ * @param pl  property list
+ * @return String PEGASUS_CLI_LINKAGE
+ */
 String  PEGASUS_CLI_LINKAGE _toString(const CIMPropertyList& pl);
+/**
+ * convert a PropertyList object to displayable form
+ * @param pl propertyList to print
+ * @return String containing propertyList in displayable form
+ */
 void  PEGASUS_CLI_LINKAGE _print(const CIMPropertyList& pl);
 
+/**
+    return a String with display representation of and Array of
+    Strings. The form is comma separated on a single line
+*/
 String  PEGASUS_CLI_LINKAGE _toString(const Array<String>& strList);
 void  PEGASUS_CLI_LINKAGE _print(const Array<String>& strList);
 
-// Generate comma separated list of namespace names
+/** Generate comma separated list of namespace names
+*/
 String PEGASUS_CLI_LINKAGE _toString(const Array<CIMNamespaceName>& List);
 void PEGASUS_CLI_LINKAGE _print(const Array<CIMNamespaceName>& List);
 
+/**
+ * Create an array of strings where each entry is the substring
+ * of the input between the separator character.
+ *
+ * @param input
+ * @param separator
+ * @param allTokens
+ *
+ * @return Array<String>
+ */
 Array<String>  PEGASUS_CLI_LINKAGE _tokenize(
     const String& input,
     const Char16 separator,
     bool allTokens);
-
 
 /* Build a property list from all of the property names in the input instance
    @param inst CIMInstance from which propertylist built
@@ -77,6 +276,78 @@ Sint64 PEGASUS_CLI_LINKAGE strToSint(const char* str, CIMType type);
 Uint64 PEGASUS_CLI_LINKAGE strToUint(const char* str, CIMType type);
 
 Real64 PEGASUS_CLI_LINKAGE strToReal(const char * str, CIMType type);
+
+/**
+ * exit cimcli. This function executes an exit of cimcli after
+ * testing the exitCode provided against the code defined in the
+ * --expExit option.
+ * NOTE: In the future, insure that this is only local to common
+ * and that all exits are through the cimcliExit class defined
+ * below. KS Aug 2011
+ *
+ * @param exitCode  exit code defined by the application
+ * If the exitCode matches the expectedExit code exit with exit
+ * code == 0. else exit with exitCode.
+ * This allows user to set a certain code that system will
+ * convert to good exit from program.  Primarily used for
+ * Makefile testing where only zero allows the test to continue.
+ *
+ * This function does not return to the the caller but does a
+ * program exit.
+ */
+void PEGASUS_CLI_LINKAGE cimcliExit(Uint32 exitCode);
+
+/** Set the expected exit code to some value.  This value will
+ *  be tested by cimcliExit to determine if expected exit
+ *  taken and put out message if not.
+ *  @param expectedExitCode value to set.
+ */
+void setExpectedExitCode(Uint32 expectedExitCode);
+
+/**
+ * Return a Pegasus String formatted string in allocated memory
+ * based on the input format definition string and the variable
+ * number of arguments that follow the format string.
+ *
+ * @param format containing the C++ printf format definition.
+ * @param ... variable number of input parameters dependent on
+ *        the format definition input parameter
+ * @return String with formatted string.
+ */
+String PEGASUS_CLI_LINKAGE stringPrintf(const char* format, ...);
+
+/**
+   Remap a long string into a multi-line string that can be
+   positioned on a line starting at pos and with length defined
+   for each line. Each output line consists of fill parameter to
+   pos and max line length with characters from the input
+   defined by lineLength parameter.
+
+   The input string is recreated by tokenizing on the space character
+   and filled from the left so that the returned string can be output
+   as a multiline string starting at pos.
+
+   New lines are created when the current line length exceeds
+   lineLength or a EOL is identified in the input string.
+
+   NOTE: The first line is started a 0 position, not pos.
+   TODO: Correct the above or extend so either option allowed.
+
+   @param input const char * - input string.  May contain EOL
+                characters
+   @param pos Uint32 Left margin for folded string.  Each line
+              is filled with spaces up to this position.
+   @param lineLength Uint32 max line position where input is
+                     folded by adding EOL and spacing of new
+                     line to pos
+   @return String containing folded string
+*/
+String PEGASUS_CLI_LINKAGE foldString (const String& input,
+    Uint32 pos,
+    Uint32 lineLength);
+
+// Return a string description for each possible return code
+String rtnExitCodeToString(Uint32 rtnCode);
 
 
 PEGASUS_NAMESPACE_END

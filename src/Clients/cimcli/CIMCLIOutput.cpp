@@ -329,20 +329,22 @@ static void _Sort(Array<CIMParamValue>& x)
 //
 //------------------------------------------------------------------------------
 
-static void _indent(PEGASUS_STD(ostream)& os,
+// Set new line and indent per definition of level and indentSize
+static void _indent(String& output,
                     Uint32 level,
-                    Uint32 indentSize)
+                    Uint32 indentSize,
+                    Uint32& count, Boolean lf = true)
 {
     Uint32 n = level * indentSize;
-    if (n > 50)
+    count = n;
+    if (lf)
     {
-        cout << "Jumped Ship " << level << " size " << indentSize << endl;
-        exit(1);
+        output.append("\n");
     }
 
     for (Uint32 i = 0; i < n; i++)
     {
-        os << ' ';
+        output.append(" ");
     }
 }
 
@@ -352,83 +354,168 @@ void mofFormat(PEGASUS_STD(ostream)& os,
     const char* text,
     Uint32 indentSize)
 {
+    String output;
+
+    // Copy to avoid changes to input text.
     char* var = new char[strlen(text)+1];
     char* tmp = strcpy(var, text);
+
     Uint32 count = 0;
     Uint32 indent = 0;
     Boolean quoteState = false;
     Boolean qualifierState = false;
+    Uint32 insideState = 0;
     char c;
     char prevchar = 0;
+
+    // The following line displays the input MOF. Diagnostic tool
+    ///////// Compile only if debugging this function cout << tmp << endl;
+
+    // This simplistic and must move to formatting in the
+    // MofWriter.  This operation indents based on characters in
+    // the input stream and assumes that the input stream has the
+    // following characteristics.
+    //     Each feature( property, method)exists on one line.
+    //     Qualifiers are each on a line with [ on first line and ] ending
+    //     last line.
+    //     a comma and space separating each qualifier.
+    //     Significant {} marks occur on their own line
+    // It also formats by folding lines to less than 78 characters.
+    // creating new lines where \n or ' ' characters are found.
     while ((c = *tmp++))
     {
         count++;
-        // This is too simplistic and must move to a token based mini parser
-        // but will do for now. One problem is tokens longer than 12
-        // characters that overrun the max line length.
-        switch (c)
+        switch(c)
         {
+            // new line indent the next line to current indent.
+            // eol output by _indent. Should not occur in quote state since
+            // mofwriter should have substituted the \n sequence.
             case '\n':
-                os << c;
-                prevchar = c;
-                count = 0 + (indent * indentSize);
-                _indent(os, indent, indentSize);
+                // if next char not } indent to new line.  Covers case
+                // where we nave nl } nl and avoids extra space.
+                if (*tmp != '}')
+                {
+                    _indent(output, indent, indentSize, count);
+                }
                 break;
 
-            case '\"':   // quote
-                os << c;
-                prevchar = c;
-                quoteState = !quoteState;
+            case '\"':               // quote. Set quoted state.
+                output.append(c);
+                // if insize quotes, ignore \escaped quote sequence.
+                if (quoteState && (prevchar != '\\'))
+                {
+                    quoteState = !quoteState;
+                }
+                else if (!quoteState)
+                {
+                        quoteState = !quoteState;
+                }
                 break;
 
-            case ' ':
-                os << c;
-                prevchar = c;
+            case ' ':                // space. conditional line break;
+                output.append(c);
                 if (count > 66)
                 {
+                    // if in quotes, extra indent
                     if (quoteState)
                     {
-                        os << "\"\n";
-                        _indent(os, indent + 1, indentSize);
-                        os <<"\"";
+                        output.append("\"");
+                        _indent(output, indent + 1, indentSize, count);
+                        output.append("\"");
                     }
                     else
                     {
-                        os <<"\n";
-                        _indent(os, indent + 1,  indentSize);
+                        _indent(output, indent + 1,  indentSize, count);
                     }
-                    count = 0 + ((indent + 1) * indentSize);
                 }
                 break;
-            case '[':
+
+            case '[':  // represents indent for qualifiers
+                if (quoteState)
+                {
+                    output.append(c);
+                    break;
+                }
+                // First qualifier
                 if (prevchar == '\n')
                 {
-                    indent++;
-                    _indent(os, indent,  indentSize);
+                    //indent++;
+                    _indent(output, ++indent,  indentSize, count);
                     qualifierState = true;
                 }
-                os << c;
-                prevchar = c;
+                output.append(c);
                 break;
 
             case ']':
+                if (quoteState)
+                {
+                    output.append(c);
+                    break;
+                }
                 if (qualifierState)
                 {
                     if (indent > 0)
                         indent--;
                     qualifierState = false;
                 }
-                os << c;
-                prevchar = c;
+                output.append(c);
+                break;
+
+            case '{':  // represents indent for internals of object
+                if (quoteState)
+                {
+                    output.append(c);
+                    break;
+                }
+                if ((prevchar == '\n'))
+                {
+                    indent++;
+                    insideState++;
+                }
+                // end of line picks up the embedded instance array.
+                else if(*tmp == '\n')
+                {
+                    indent++;
+                }
+                output.append(c);
+                break;
+
+            case '}':   // end of indent for internals of class
+                if (quoteState)
+                {
+                    output.append(c);
+                    break;
+                }
+                // cover cases where "nl } nl"  "nl } ;"
+                if ((insideState > 0) && (prevchar == '\n'))
+                //if ((prevchar == '\n'))
+                {
+                    if (indent > 0)
+                        indent--;
+                    insideState--;
+                }
+                // if next character is end of line or ; indicating end of
+                // class or instance definition.
+                if (prevchar == '\n')
+                {
+                    _indent(output, indent, indentSize, count);
+                }
+                else if((*tmp == '\n') || ((*tmp == ';') && (*(tmp+1) == 0)))
+                {
+                    _indent(output, indent, indentSize, count);
+                }
+
+                output.append(c);
                 break;
 
             default:
-                os << c;
-                prevchar = c;
+                output.append(c);
         }
-
+        prevchar = c;
     }
     delete [] var;
+
+    os << output;
 }
 
 /*************************************************************
@@ -451,27 +538,6 @@ static void _print(const CIMProperty& property,
         pt.setPropagated(false);
         Buffer x;
         MofWriter::appendPropertyElement(false, x, pt);
-        mofFormat(cout, x.getData(), 4);
-    }
-    else
-    {
-        cout << " Format type error" << endl;
-    }
-}
-
-// output CIMValue in accord with output format definition
-//NOTE: DUPLICATES OUTPUT FORMAT FUNCTION
-static void _print(const CIMValue& v,
-    const OutputType format)
-{
-    if (format == OUTPUT_XML)
-    {
-        XmlWriter::printValueElement(v,cout);
-    }
-    else if (format == OUTPUT_MOF || format == OUTPUT_TEXT)
-    {
-        Buffer x;
-        MofWriter::appendValueElement(x, v);
         mofFormat(cout, x.getData(), 4);
     }
     else
@@ -594,7 +660,7 @@ static void tableDisplay(PEGASUS_STD(ostream)& outPrintWriter,
             String propertyValueStr = (pos != PEG_NOT_FOUND) ?
                     instances[j].getProperty(pos).getValue().toString()
                 :
-                    String::EMPTY;
+                    String();
 
             propertyValueArray.append(propertyValueStr);
 
@@ -645,7 +711,7 @@ static void _outputPath(Options& opts, const CIMObjectPath& path,
 
     if (description.size() != 0)
     {
-        cout << description;
+        cout << endl << description;
     }
     cout << tmpPath.toString() << endl;
 }
@@ -658,16 +724,18 @@ static void _outputPath(Options& opts, const CIMObjectPath& path,
 static void _outputFormatInstance(Options& opts,
     CIMInstance& instance)
 {
-    // display the path element
-    _outputPath(opts, instance.getPath(), "path= ");
 
     // Display the instance based on the format type.
     if (opts.outputType == OUTPUT_XML)
     {
+        // display the path element
+        _outputPath(opts, instance.getPath(), "path= ");
         XmlWriter::printInstanceElement(instance, cout);
     }
     else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
+        // display the path element
+        _outputPath(opts, instance.getPath(), "// path= ");
         CIMInstance temp = instance.clone();
         // Reset the propagated flag to assure that these entities
         // are all shown in the MOF output.
@@ -680,34 +748,6 @@ static void _outputFormatInstance(Options& opts,
         Buffer x;
         MofWriter::appendInstanceElement(x, temp);
         mofFormat(cout, x.getData(), 4);
-    }
-    else
-        cerr << "Error, Format Definition Error" << endl;
-}
-
-static void _outputFormatParamValue(Options& opts,
-    const CIMParamValue& pv)
-{
-    if (opts.outputType == OUTPUT_XML)
-    {
-        XmlWriter::printParamValueElement(pv, cout);
-    }
-    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
-    {
-        if (!pv.isUninitialized())
-        {
-           CIMValue v =  pv.getValue();
-           CIMType type = v.getType();
-           if (pv.isTyped())
-               cerr << cimTypeToString (type) << " ";
-           else
-               cerr << "UnTyped ";
-
-           cerr << pv.getParameterName() << "="
-                << v.toString() << endl;
-        }
-        else
-            cerr << "ParamValue not initialized" << endl;
     }
     else
         cerr << "Error, Format Definition Error" << endl;
@@ -746,23 +786,111 @@ static void _outputFormatClass(Options& opts,
 }
 
 static void _outputFormatObject(Options& opts,
-    CIMObject& myObject)
+    CIMObject& object)
 {
-
-    if (myObject.isClass())
+    if (object.isClass())
     {
-        CIMClass c(myObject);
+        CIMClass c(object);
         _outputFormatClass(opts, c);
     }
-    else if (myObject.isInstance())
+    else if (object.isInstance())
     {
-        CIMInstance i(myObject);
+        CIMInstance i(object);
         _outputFormatInstance(opts, i);
     }
     else
     {
-        cerr << "Error: Object is neither class or instance" << endl;
+        cerr << "Error: Output Object is neither class or instance" << endl;
     }
+}
+
+static void _outputFormatParamValue(Options& opts,
+    const CIMParamValue& pv)
+{
+    if (opts.outputType == OUTPUT_XML)
+    {
+        XmlWriter::printParamValueElement(pv, cout);
+    }
+    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
+    {
+        if (!pv.isUninitialized())
+        {
+           CIMValue v =  pv.getValue();
+           CIMType type = v.getType();
+           if (pv.isTyped())
+           {
+               cerr << cimTypeToString (type) << " ";
+           }
+           else
+           {
+               cerr << "UnTyped ";
+           }
+
+           // output the parameter name
+           cout << pv.getParameterName() << "=";
+
+           if (pv.isTyped())
+           {
+               if (type == CIMTYPE_INSTANCE)
+               {
+                   cout << endl;
+                   if (v.isArray())
+                   {
+                       Array<CIMInstance> vInstances;
+                       v.get(vInstances);
+                       for (Uint32 i = 0 ; i < vInstances.size(); i++)
+                       {
+                           _outputFormatInstance(opts,vInstances[i]);
+                       }
+
+                   }
+                   else
+                   {
+                       CIMInstance vi;
+                       v.get(vi);
+                       _outputFormatInstance(opts,vi);
+                   }
+                   return;
+               }
+               else if (type == CIMTYPE_OBJECT)
+               {
+                   cout << endl;
+                   if (v.isArray())
+                   {
+                       Array<CIMObject> objects;
+                       v.get(objects);
+                       for (Uint32 i = 0 ; i < objects.size(); i++)
+                       {
+                           _outputFormatObject(opts,objects[i]);
+                       }
+
+                   }
+                   else
+                   {
+                       CIMObject vi;
+                       v.get(vi);
+                       _outputFormatObject(opts, vi);
+                   }
+                   return;
+               }
+               else
+               {
+                   // output with toString since it is a DMTF scalar
+                   // or array data type.
+                   cout << v.toString() << endl;
+               }
+           }
+           else
+           {
+               cout << "Value untyped" << endl;
+           }
+
+        }
+        else
+            cerr << "ParamValue not initialized" << endl;
+    }   // not defined format
+    else
+        cerr << "Error, Format Definition Error" << endl;
 }
 
 static void _outputFormatQualifierDecl(const Options& opts,
@@ -784,7 +912,6 @@ static void _outputFormatQualifierDecl(const Options& opts,
     }
 }
 
-// KS_TODO This not used today
 static void _outputFormatCIMValue(Options& opts,
     const CIMValue& myValue)
 {
@@ -851,7 +978,7 @@ void CIMCLIOutput::testReturnCount(Options& opts,
         opts.termCondition = CIMCLI_RTN_COUNT_TEST_FAILED;
 
         // Exit failed immediatly if the count test fails
-        exit(opts.termCondition);
+        cimcliExit(opts.termCondition);
     }
 }
 
@@ -1121,7 +1248,7 @@ void CIMCLIOutput::displayProperty(const Options& opts,
 void CIMCLIOutput::displayValue(Options& opts,
     const CIMValue& value)
 {
-    _print(value, opts.outputType);
+    _outputFormatCIMValue(opts, value);
 }
 
 void CIMCLIOutput::display(Options& opts,

@@ -964,13 +964,14 @@ en:table {
 
         /**
         * @note Clients.cimcli.CIMCLIClient.MENU.STANDARD:
-        *    Do not translate the cimconfig command or options.  Just
+        *    Do not translate the cimcli command or options.  Just
         *    translate the text that explains the options.
         *    When translating this message, make sure that each line fits in
         *    80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
+
         Clients.cimcli.CIMCLIClient.MENU.STANDARD:string {
         "Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>\n"
         "    -hc    for <command> set and <CimObject> for each command\n"
@@ -1029,10 +1030,37 @@ en:table {
 	"                              <classname> (interactive mode)\n"}
         Clients.cimcli.CIMCLIClient.TI_COMMAND_HELP:string {
         "ti    testInstance           Test instance of <objectname> *<name=value> |\n"
-	"                             <classname> *<name=value> |\n"}
+	"                             <classname> *<name=value> |\n"
+	"                             where propertyDef is:\n"
+	"                              | <propName>=<value>      //property with value\n"
+	"                              | <propName>=\"<value>\"    //string with space\n"
+	"                                                        //in string\n"
+	"                              | <propName>=             //NULL value\n"
+	"                              | <propName>!             //empty string value\n"
+        " 			       | <propName>=<arrayVal>   //Arrayinput\n"
+        "                                  where: arrayVal=<value>[,<value>]*\n"
+        "\n"
+	"                               | <propName>{<classname> [<propertyDef>]* }\n"
+	"                               | <propName>={<classname> [<propertyDef>]* }\n"	"                                 defines embedded instance where:\n"
+	"                                   -classname - embedded class name\n"
+	"                                   -propertyDef - embedded instance property"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP:string {
-        "ci    createInstance         Create Instance of <Class> *<name=value>\n"}
+        "ci    createInstance        Create instance of a class. Input Format is:\n"
+	"                               <className> [<propertyDef>]*\n"
+	"                            where propertyDef is:\n"
+	"                              | <propName>=<value>      //property with value\n"
+	"                              | <propName>=\"<value>\"    //string with space\n"
+	"                                                        //in string\n"
+	"                              | <propName>=             //NULL value\n"
+	"                              | <propName>!             //empty string value\n"
+        " 			       | <propName>=<arrayVal>   //Arrayinput\n"
+        "                                  where: arrayVal=<value>[,<value>]*\n"
+        "\n"
+	"                               | <propName>{<classname> [<propertyDef>]* }\n"
+	"                               | <propName>={<classname> [<propertyDef>]* }\n"	"                                  defines embedded instance where:\n"
+	"                                   -classname - embedded class name\n"
+	"                                   -propertyDef - embedded instance property"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_HELP:string {
         "di    deleteInstance         Delete Instance of <objectname>,\n"
@@ -1043,8 +1071,23 @@ en:table {
         "cc    createClass            Not supported\n"}
 
         Clients.cimcli.CIMCLIClient.MI_COMMAND_HELP:string {
-        "mi    modifyInstance         Modify Instance of <objectname> *<name=value>\n"
-	"                             | <classname> *<name=value>\n"}
+	"mi    modifyInstance         Modify instance of a class. Input formats are:\n"
+	"                             <objectname> [<propertyDef>]*\n"
+	"                             | <classname> [<propertyDef>]*\n"
+	"                             where propertyDef is:\n"
+	"                               | <propName>=<value>      //property with value\n"
+	"                               | <propName>=\"<value>\"    //string with space\n"
+	"                                                         //in string\n"
+	"                               | <propName>=             //NULL value\n"
+	"                               | <propName>!             //empty string value\n"
+	"                               | <propName>=<arrayVal>   //Arrayinput\n"
+	"                                   where: arrayVal=<value>[,<value>]*\n"
+	"\n"
+	"                               | <propName>{<classname> [<propertyDef>]* }\n"
+	"                               | <propName>={<classname> [<propertyDef>]* }\n"
+	"                                  defines embedded instance where:\n"
+	"                                     -classname - embedded class name\n"
+	"                                     -propertyDef - embedded instance property"}
 
         Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP:string {
         "dc    deleteClass            Delete Class of <classname>\n"}
@@ -1139,7 +1182,6 @@ en:table {
         Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS:string {
         "    -n, -lo, -inq, -pl, className, -ic\n"}
 
-
         Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE:string {
         "cimcli gi -n test/TestProvider TEST_Person\n"
         "    -- Get Instance of class\n"}
@@ -1148,16 +1190,26 @@ en:table {
         "    -n, -lo, -iq, -pl, -ic\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE:string {
-        "cimcli ci -n test/TestProvider TST_Person Name=Michael SSN=333\n"
-        "    -- Create Instance of  class TST_Person with properties Name\n"
-	"       and SSN \n"}
+	"cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333\n"
+	"    -- Create Instance of class TST_Person with properties:\n"
+	"       Name = Mike\n"
+	"       SSN = 333\n\n"
+	"cimcli ci -n test/TestProvider C1 id=3 name=fred\\\n"
+	"    embed{C2 p1=3 p2=\"ab cd\" }\n\n"
+	"    -- Create instance of class C1 with properties:\n"
+	"         - id with value 3\n"
+	"         - name with string value \"fred\"\n"
+	"         - embed embedded instance property with instance of class\n"
+	"       C2 with properties:\n"
+	"         - p1 embedded instance property with value 3\n"
+	"         - p2 embedded instance string property with value \"ab cd\""}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS:string {
         "    -n\n"}
 
         Clients.cimcli.CIMCLIClient.TI_COMMAND_EXAMPLE:string {
         "cimcli ti -n test/TestProvider TST_Person Name=Mike SSN=333\n"
-        "    -- Test Instance of  class for equality of Name and SSN\n"
+        "    -- Test Instance of class for equality of Name and SSN\n"
         "       properties. Returns error code if instance in server\n"
         "       does not have same properties and values as the\n"
         "       instance built from input\n"}
@@ -1457,6 +1509,16 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.VERSION:string {
         "Version {0}"}
+
+	/**
+	* @note PGC01719: substitution {0} is a string with the keyword
+	* in error
+ 	*/
+       
+	Clients.cimcli.CIMCLIClient.BOOLEAN_VALUE_ERR:string {
+        "Invalid keywork for boolean value = {0}. Must be \"true\" or \"false\""
+	" upper or lower case\n"}
+
         // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================

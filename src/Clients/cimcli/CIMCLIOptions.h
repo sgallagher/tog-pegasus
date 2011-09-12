@@ -50,7 +50,7 @@ void  PEGASUS_CLI_LINKAGE BuildOptionsTable(
     char** argv,
     const String& testHome);
 
-int PEGASUS_CLI_LINKAGE CheckCommonOptionValues(
+void PEGASUS_CLI_LINKAGE CheckCommonOptionValues(
     OptionManager& om,
     char** argv,
     Options& opts);

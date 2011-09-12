@@ -26,42 +26,63 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# Makefile to create documentation from
-# nroff formatted for manpages
-# This makefile is not connected to the
-# standard makefile.  It is strictly a
-# means to create the ascii and html
-# manpages from an NROFF source.  Note
-# that it requires utilities probably only
-# found in Linux/Unix environments including.
-# nroff and man2html
+# Makefile to create documentation from nroff formatted for manpages
+# This makefile is not connected to the Pegasus Make environment. It must be
+# executed manually.
+#  It creates the ascii and html manpage files from an NROFF source
+# (cimcli.nroff).  Note that it requires utilities probably only found in
+# Linux/Unix environments including:
+# groff, possibly nroff, and possibly other linux tools for the view* targets.
+# This Makefile intended to be used only by the author(s) of cimcli
 #
 ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
 GROFFOPTIONS=man
-# old was man
+
 DOCUMENT=cimcli
 SOURCE=$(DOCUMENT).nroff
 
-html:
-	man2html <$(SOURCE) >$(DOCUMENT).html
+## generate all targets.
+all: manpage html text
 
-
+## generate the manpage output.
 manpage:
 	nroff -$(GROFFOPTIONS) $(SOURCE) >$(DOCUMENT)
 
-testnroff:
-	nroff -$(GROFFOPTIONS) $(SOURCE) | less
+## generate html output.
+html:
+	groff -$(GROFFOPTIONS) -Thtml $(SOURCE) > $(DOCUMENT).html
 
-testgroff:
+## Produce pure ASCII text output.
+text:
+	groff -$(GROFFOPTIONS) -Tascii $(SOURCE) | col -b > $(DOCUMENT).txt
+
+## Alternate text output generator since the ascii option on groff not
+## universal.
+## This operation includes sed processing to remove a unicode equivalent
+## of - (/xe2/x80/x90) that nroff produces.  See bug 8945 for more details.
+## Uses sed hex character definition which may not be available on all versions
+## of unix and linux (sed 3.02 on linux works). Alternate from for the
+## search is sed 's/'`echo "\342\200\220"`'/-/g' > $(DOCUMENT).txt
+textnroff:
+	nroff -$(GROFFOPTIONS) $(SOURCE) | col -b \
+	| sed 's/\xE2\x80\x90/-/g' > $(DOCUMENT).txt
+
+clean:
+	$(RM) $(DOCUMENT) $(DOCUMENT).html $(DOCUMENT).txt
+
+## The following targets are for developer use to test the various outputs
+## of the txt, manpage, and html generation.
+## view nroff output for text. This is a test function
+viewnroff:
+	nroff -$(GROFFOPTIONS) $(SOURCE) | col -b | less
+
+viewgrofftext:
+	groff -$(GROFFOPTIONS) -Tascii $(SOURCE) | col -b | less
+
+## view groff output.  Requires. linux groff package
+viewgroff:
 	groff -$(GROFFOPTIONS) -X $(SOURCE)
 
-text:
-	nroff -$(GROFFOPTIONS) $(SOURCE) | col -b > $(DOCUMENT).txt
-
-textgroff:
-	groff -$(GROFFOPTIONS) $(SOURCE) | col -b > $(DOCUMENT).txt
-
-all: manpage html text

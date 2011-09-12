@@ -53,6 +53,7 @@ TEST_DIRS = \
     benchmarkTest \
     cimsub/tests \
     repupgrade/tests \
+    cimcli/tests
 
 # In WMIMapper, wbemexec functionality for windows is available
 # No need to build the wbemexec under Clients directory 

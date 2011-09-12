@@ -26,9 +26,10 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
+
 [Version ("2.5.0"), Description(
     "Class to test input and output of all property types that can "
-    "be handled by cimcli.") ]
+    "be handled by cimcli. Does not cover embedded types.") ]
 class Test_CLITestProviderClass
 {
     [key]
@@ -49,7 +50,8 @@ class Test_CLITestProviderClass
    Uint32  scalUint32;
    Sint32  scalSint32;
    Uint64  scalUint64;
-   Sint64  scalSint64;
+   Sint64  scalSint64;      
+
    Real32  scalReal32;
    Real64  scalReal64;
    String  scalString;
@@ -92,8 +94,6 @@ class Test_CLITestProviderClass
         [out] Test_CLITestProviderClass REF OutParam1,
         [out] Test_CLITestProviderClass REF OutParam2[]);
 
-        
-
    [ Description("Method to test input and output of all "
         "parameter types. Provider is expected to return "
 	"all parameters input.") ]
@@ -110,15 +110,15 @@ class Test_CLITestProviderClass
 	[in, out] Real64  scalReal64,
 	[in, out] String  scalString,
 	[in, out] Datetime scalDateTime,
-	[in, out]   Boolean arrayBool[],
-	[in, out]  Uint8   arrayUint8[],
-	[in, out]  Sint8   arraySint8[],
-	[in, out]  Uint16  arrayUint16[],
-	[in, out]  Sint16  arraySint16[],
-	[in, out]  Uint32  arrayUint32[],
-	[in, out]  Sint32  arraySint32[],
-	[in, out]  Uint64  arrayUint64[],
-	[in, out]  Real32  arrayReal32[],
+	[in, out] Boolean arrayBool[],
+	[in, out] Uint8   arrayUint8[],
+	[in, out] Sint8   arraySint8[],
+	[in, out] Uint16  arrayUint16[],
+	[in, out] Sint16  arraySint16[],
+	[in, out] Uint32  arrayUint32[],
+	[in, out] Sint32  arraySint32[],
+	[in, out] Uint64  arrayUint64[],
+	[in, out] Real32  arrayReal32[],
 	[in, out] Real64  arrayReal64[],
 	[in, out] String  arrayString[],
 	[in, out] Datetime arrayDateTime[],
@@ -176,6 +176,128 @@ class Test_CLITestProviderLinkClass
 
 class Test_CLITestProviderEmpty
 {
-[key] uint32 id;
-string name;
+    [key] uint32 id;
+    string name;
 };
+
+// Classes to test embedded instance operation with cimcli. These classes
+// define an embedded instance class, and a class that contains a
+// property that is an embedded instance type as well as a method that contains
+// an embedded instance
+
+// Class to embed
+[Version ("2.5.0"), Description(
+    "Class to test handling of embedded instances and objects by "
+    "cimcli. This class is to be embedded but cannot be "
+    "directly accessed(enumerated, etc.)") ]
+class Test_CLITestEmbedded1
+{
+    [Key] string Id;
+    string name;
+    string comment;
+};
+
+// third Class to Embed. Defined before the second one because it is defined
+// to be embedded in Test_CLITestEmbedded2. Before embedded2 in file because
+// compiler only looks forward.
+[Version ("2.5.0"), Description(
+    "Class to test handling of embedded instances and objects by "
+    "cimcli. This class is to be embedded but cannot be "
+    "directly accessed(enumerated, etc.)") ]
+class Test_CLITestEmbedded3
+{
+    [Key] string Id;
+    string name;
+    string comment;
+};
+
+// Second Class to Embed that contains a recursive embedded instance
+[Version ("2.5.0"), Description(
+    "Class to test handling of embedded instances and objects by "
+    "cimcli. This class is to be embedded but cannot be "
+    "directly accessed(enumerated, etc. This one includes a recursive "
+    "embedded instance and object and corresponding array properties)") ]
+class Test_CLITestEmbedded2
+{
+    [Key] string Id;
+
+    string name;
+
+    // Note that there is an issue in the compiler with recursive embedded
+    // instances in that it is still defining the class when it hits the
+    // className in the EmbeddedInstance qualifier.
+    [EmbeddedInstance("Test_CLITestEmbedded3"),
+	Description("Property containing embedded Instance")]
+    string recursiveEmbeddedInst;
+
+        [EmbeddedObject,
+	Description("Property containing embedded Instance")]
+    string recursiveEmbeddedObj;
+     
+    [EmbeddedInstance("Test_CLITestEmbedded3"),
+	Description("Property containing embedded Instance Array")]
+    string recursiveEmbeddedInstArray[];
+
+    [EmbeddedObject,
+	Description("Property containing embedded Object Array defined with "
+	"the EmbeddedObject qualifier")]
+    string recursiveEmbeddedObjArray[];
+           
+    string comment;
+};
+
+[Version ("2.5.0"), Description(
+    "Class to test handling of embedded instances and objects by "
+    "cimcli. This class embeds objects and instances") ]
+class Test_CLITestEmbeddedClass
+{
+    [Key] string Id;
+
+    [EmbeddedInstance("Test_CLITestEmbedded1"),
+	Description("Property containing embedded Instance")]
+    string embeddedInst;
+    
+    [EmbeddedInstance("Test_CLITestEmbedded2"),
+	Description("Property containing embedded Instance")]
+    string embeddedInst2;
+
+    [EmbeddedObject,
+	Description("Property containing embedded Instance defined with "
+	"the EmbeddedObject qualifier")]
+    string embeddedObj;
+    
+    [EmbeddedInstance("Test_CLITestEmbedded2"),
+	Description("Property containing embedded Instance Array")]
+    string embeddedInstArray[];
+
+    [EmbeddedObject,
+	Description("Property containing embedded Object Array defined with "
+	"the EmbeddedObject qualifier")]
+    string embeddedObjArray[];
+
+    string comment;
+
+    string requestInputParameters;
+
+        [Description("Method contains parameters with embedded instance and "
+	    "embeddedObject. Implementation is expected to return all "
+	    "parameters input in exactly the same form") ]
+    uint32 embeddedInstParamMethod(
+        [In, Out] string firstArg,
+
+            [EmbeddedInstance("Test_CLITestEmbedded1"), In, Out]
+	string EmbedInstArg,
+
+        [EmbeddedObject, In, Out] string embedObjArg,
+	
+            [EmbeddedInstance("Test_CLITestEmbedded1"), In, Out]
+	string embedInstArrayArg[],
+
+        [EmbeddedObject, In, Out] string embedObjArrayArg[],
+	
+        [In, Out] string lastArg);
+};
+
+
+
+

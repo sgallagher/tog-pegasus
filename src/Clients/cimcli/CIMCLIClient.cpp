@@ -47,6 +47,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/General/MofWriter.h>
+#include <Pegasus/Common/Print.h>
 
 #include "CIMCLIClient.h"
 
@@ -135,7 +136,6 @@ void mapKeyBindingsToInputParameters(Options& opts)
     @param what String that defines for the output string what type
     of items the select is based on (ex: "Instance Names");
     @return Uint32 representing the item to be selected.
-    TODO: Find a way to do a reject.
 */
 Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 {
@@ -458,7 +458,7 @@ Boolean _compareInstances(CIMInstance& inst1,
     CIM_Namespace class in that namespace.
     If the interop namespace found, the instances of CIM_Namespace are
     returned in the instances parameter.
-    TODO: Determine a more complete algorithm for determining the
+    FUTURE: Determine a more complete algorithm for determining the
     interop namespace.  Simply the existence of this class may not always
     be sufficient.
 */
@@ -700,7 +700,7 @@ void _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
     {
         cerr << "Error: -niq and -iq parameters cannot be used together"
              << endl;
-        exit(CIMCLI_INPUT_ERR);
+        cimcliExit(CIMCLI_INPUT_ERR);
     }
     // if default is true (ex class operations), we test for -niq received
     // depend only on the -niq input.
@@ -1051,7 +1051,9 @@ int deleteInstance(Options& opts)
        - Class only in objectName plus entries in extra parameters - cimcli
          builds instance from extra parameters and then builds path from
          instance to retrieve.
-         TODO: Test if properties suppled include all key properties.
+         FUTURE: Test if properties suppled include all key properties. At best
+         we would issue a warning since we do not want to eliminate
+         ability to make error calls
 */
 int getInstance(Options& opts)
 {
@@ -1084,6 +1086,7 @@ int getInstance(Options& opts)
             opts.includeClassOrigin,
             opts.propertyList);
         _stopCommandTimer(opts);
+
         CIMCLIOutput::displayInstance(opts, cimInstance);
     }
 
@@ -1262,7 +1265,7 @@ int testInstance(Options& opts)
     if (!_compareInstances(testInstance, rtndInstance, opts, detailedTest,
                            opts.verboseTest))
     {
-        cerr << "Error:Test Instance differs from Server returned Instance."
+        cerr << "Error: Test Instance differs from Server returned Instance."
             << "Rtn Code " << CIMCLI_RTN_CODE_ERR_COMPARE_FAILED << endl;
 
         // optional display of all the instances if you really have problems
@@ -1277,7 +1280,7 @@ int testInstance(Options& opts)
         return CIMCLI_RTN_CODE_ERR_COMPARE_FAILED;
     }
     else
-        cout << "test instance " << opts.targetObjectName.toString()
+        cout << "Test instance " << opts.targetObjectName.toString()
              << " OK" << endl;
 
     _stopCommandTimer(opts);
@@ -1356,7 +1359,7 @@ int modifyInstance(Options& opts)
             else
             {
                 cerr << "Error: no path for instance set" << endl;
-                exit(CIMCLI_INPUT_ERR);
+                cimcliExit(CIMCLI_INPUT_ERR);
             }
 
 
@@ -1735,7 +1738,7 @@ int enumerateQualifiers(Options& opts)
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY
+        const String& role = String()
 */
 int referenceNames(Options& opts)
 {
@@ -1854,7 +1857,6 @@ int references(Options& opts)
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY
     );
-
 */
 int associatorNames(Options& opts)
 {
@@ -1966,7 +1968,6 @@ int associators(Options& opts)
     return CIMCLI_RTN_CODE_OK;
 }
 
-
 /***************************** invokeMethod  ******************************/
 /*
     CIMValue invokeMethod(
@@ -1976,8 +1977,6 @@ int associators(Options& opts)
         const Array<CIMParamValue>& inParameters,
         Array<CIMParamValue>& outParameters
 */
-
-
 /***************************** invokeMethod  ******************************/
  int invokeMethod(Options& opts)
  {
@@ -2004,9 +2003,7 @@ int associators(Options& opts)
             CIMPropertyList(),
             opts.verboseTest);
 
-        ob.setMethod(opts.methodName);
-
-        Array<CIMParamValue> params = ob.buildMethodParameters();
+        Array<CIMParamValue> params = ob.buildMethodParameters(opts.methodName);
 
          // Create array for output parameters
         CIMValue retValue;
@@ -2025,14 +2022,9 @@ int associators(Options& opts)
 
         // Display the return value CIMValue
         cout << "Return Value= ";
-        if (opts.outputType == OUTPUT_XML)
-        {
-            XmlWriter::printValueElement(retValue, cout);
-        }
-        else
-        {
-            cout << retValue.toString() << endl;
-        }
+
+        CIMCLIOutput::displayValue(opts, retValue);
+        cout << endl;
 
         // Display any outparms
 

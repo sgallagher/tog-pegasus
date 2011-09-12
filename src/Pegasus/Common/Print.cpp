@@ -35,6 +35,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Build the functions in this file ONLY in debug mode.
 #if defined(PEGASUS_DEBUG)
 
 struct Ind
@@ -488,6 +489,22 @@ void PrintProperty(
     os << Ind(n) << "CIMProperty" << endl;
     os << Ind(n) << "{" << endl;
     os << Ind(n) << "    name=" << x.getName().getString() << endl;
+
+    os << Ind(n) << "    CIMType=" << cimTypeToString(x.getType());
+    if (x.isArray())
+    {
+        os << " Array";
+        if (x.getArraySize() != 0)
+        {
+            os << ", size=" << x.getArraySize();
+        }
+        os << endl;
+    }
+    else
+    {
+        os << " Scalar" << endl;
+    }
+
     PrintValue(os, x.getValue(), n + 1);
     os << Ind(n) << "}" << endl;
 }
@@ -555,6 +572,57 @@ PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
     os << Ind(n) << "}" << endl;
 }
 
+#else  // compile empty functions
+
+
+PEGASUS_COMMON_LINKAGE void PrintValue(
+    PEGASUS_STD(ostream)& os,
+    const CIMValue& x,
+    Uint32 n)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintProperty(
+    PEGASUS_STD(ostream)& os,
+    const CIMConstProperty& x,
+    Uint32 n)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintObjectPath(
+    PEGASUS_STD(ostream)& os,
+    const CIMObjectPath& x,
+    Uint32 n)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintInstance(
+    PEGASUS_STD(ostream)& os,
+    const CIMConstInstance& cimInstance,
+    Uint32 n)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
+    PEGASUS_STD(ostream)& os,
+    const CIMConstQualifierDecl& x,
+    Uint32 n)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintParamValue(
+    PEGASUS_STD(ostream)& os, 
+    const CIMParamValue& x, 
+    Uint32 n)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
+    PEGASUS_STD(ostream)& os, 
+    const Array<CIMParamValue>& x, 
+    Uint32 n)
+{
+}
 #endif /* defined(PEGASUS_DEBUG) */
 
 PEGASUS_NAMESPACE_END

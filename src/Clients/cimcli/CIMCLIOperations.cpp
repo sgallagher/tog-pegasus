@@ -99,7 +99,7 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     {ID_TestInstance,             "testInstance",   2 ,      "ti",
     "Clients.cimcli.CIMCLIClient.TI_COMMAND_HELP",
                         "Test instance  of <objectname>  [<propertyDef>]* |"
-                        " <classname>  [<propertyDef>]* for equal property "
+                        " <classname>  [<propertyDef>]* for equal property"
                              " values."
                         "where propertyDef is:\n"
                         "  | <propName>=<value>      //property with value\n"

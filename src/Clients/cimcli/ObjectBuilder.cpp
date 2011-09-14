@@ -133,7 +133,7 @@ String tokenTypeToString(TokenType tokenType)
     static const Uint32 _NUM_TYPES =
         sizeof(tokenTypeString) / sizeof(tokenTypeString[0]);
 
-    assert((Uint32)tokenType <= _NUM_TYPES);
+    PEGASUS_ASSERT((Uint32)tokenType <= _NUM_TYPES);
     return tokenTypeString[tokenType];
 }
 

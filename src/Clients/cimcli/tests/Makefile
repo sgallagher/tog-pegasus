@@ -83,6 +83,7 @@ general:
 
 poststarttests::
 	@$(RM) $(RESULTFILE)
+	@$(ECHO) > ${RESULTFILE} 
 	$(MAKE) createEmbeddedInstanceTests
 	$(MAKE) invokeEmbeddedInstMethodTests
 	$(MAKE) EmbeddedInstanceErrorTests

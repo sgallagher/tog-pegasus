@@ -159,8 +159,8 @@ CIMInstance InteropProvider::localGetInstance(
     // through the PG_ElementConformsToProfile association
     CIMNamespaceName opNamespace = instanceName.getNameSpace();
     CIMName opClass = instanceName.getClassName();
-    if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
-        opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE
+    if((opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
+        opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE)
         // Get CIM_IndicationService instance from IndicationService.
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE
@@ -272,8 +272,8 @@ Array<CIMInstance> InteropProvider::getReferencedInstances(
         CIMNamespaceName opNamespace = thisTarget.getNameSpace();
         CIMName opClass = thisTarget.getClassName();
 
-        if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
-            opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE
+        if((opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
+            opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE)
             // Get CIM_IndicationService instance from IndicationService.
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
             || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE

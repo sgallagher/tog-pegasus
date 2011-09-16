@@ -212,11 +212,13 @@ private:
     String _getSequenceContext(const CIMInstance &indication);
     Sint64 _getSequenceNumber(const CIMInstance &indication);
     /**
-        Traces the discarded indication with the reason. SequenceContext
+        Logs the discarded indication with the reason. SequenceContext
         and SequenceNumber properties of indication are traced.
     */
-    void _traceDiscardedIndication(
-        Uint32 reasonCode, const CIMInstance &indication);
+    void _logDiscardedIndication(
+        Uint32 reasonCode,
+        const CIMInstance &indication,
+        const String &message =  String());
 
     CIMInstance _handler;
     List<IndicationInfo,NullLock> _queue;

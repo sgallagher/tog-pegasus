@@ -285,19 +285,26 @@ Sint64 DestinationQueue::_getSequenceNumber(
     return sequenceNumber;
 }
 
-void DestinationQueue::_traceDiscardedIndication(
-    Uint32 reasonCode, const CIMInstance &indication)
+void DestinationQueue::_logDiscardedIndication(
+    Uint32 reasonCode,
+    const CIMInstance &indication,
+    const String &message)
 {
 
     PEGASUS_ASSERT(reasonCode <
         sizeof(_indDiscardedReasons)/sizeof(const char*));
 
-    PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL3,
-        "%s, Indication with SequenceContext %s and SequenceNumber %"
-            PEGASUS_64BIT_CONVERSION_WIDTH "d is discarded",
-        _indDiscardedReasons[reasonCode],
-        (const char*)_getSequenceContext(indication).getCString(),
-        _getSequenceNumber(indication)));
+    String logMessage = _indDiscardedReasons[reasonCode];
+    logMessage.append(Char16('.'));
+    logMessage.append(message);
+    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+        MessageLoaderParms(
+            "HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED",
+            "Failed to deliver an indication with SequenceContext \"$0\" "
+                "and SequenceNumber \"$1\" : $2.",
+            (const char*)_getSequenceContext(indication).getCString(),
+            _getSequenceNumber(indication),
+            (const char*)logMessage.getCString()));
 }
 
 void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
@@ -356,7 +363,7 @@ void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
     {
         _queueFullDroppedIndications++;
         IndicationInfo *temp = _queue.remove_front();
-        _traceDiscardedIndication(
+        _logDiscardedIndication(
             DESTINATIONQUEUE_FULL,
             temp->indication);
         delete temp;
@@ -395,19 +402,6 @@ void DestinationQueue::updateDeliveryRetryFailure(
 
     AutoMutex mtx(_queueMutex);
 
-    // Log a warning message on first delivery attempt failure.
-    if (info->lastDeliveryRetryTimeUsec == 0)
-    {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED",
-                "Failed to deliver an indication with SequenceContext \"$0\" "
-                    "and SequenceNumber \"$1\" : $2.",
-                (const char*)_getSequenceContext(info->indication).getCString(),
-                _getSequenceNumber(info->indication),
-                (const char*)e.getMessage().getCString()));
-    }
-
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastDeliveryRetryStatus = FAIL;
     info->deliveryRetryAttemptsMade++;
@@ -416,15 +410,16 @@ void DestinationQueue::updateDeliveryRetryFailure(
     if (info->deliveryRetryAttemptsMade >= _maxDeliveryRetryAttempts + 1)
     {
         _retryAttemptsExceededIndications++;
-        _traceDiscardedIndication(
+        _logDiscardedIndication(
             DRA_EXCEEDED,
-            info->indication);
+            info->indication,
+            e.getMessage());
         delete info;
     }
     else if (_queue.size() >= _maxIndicationDeliveryQueueSize)
     {
         _queueFullDroppedIndications++;
-        _traceDiscardedIndication(
+        _logDiscardedIndication(
             DESTINATIONQUEUE_FULL,
             info->indication);
         delete info;
@@ -434,17 +429,14 @@ void DestinationQueue::updateDeliveryRetryFailure(
         // To deliver the indications in the correct order, insert the
         // delivery retry failed indications at the front of the queue.
         _queue.insert_front(info);
-        if (info->lastDeliveryRetryTimeUsec)
-        {
-            PEG_TRACE((TRC_IND_HANDLER,Tracer::LEVEL1,
-                "Delivery failure for indication with SequenceContext %s and "
-                    "SequenceNumber %" PEGASUS_64BIT_CONVERSION_WIDTH "d."
-                        " DeliveryRetryAttempts made %u. Exception : %s",
-                (const char*)_getSequenceContext(info->indication).getCString(),
-                _getSequenceNumber(info->indication),
-                info->deliveryRetryAttemptsMade,
-                (const char*)e.getMessage().getCString()));
-        }
+        PEG_TRACE((TRC_IND_HANDLER,Tracer::LEVEL1,
+            "Delivery failure for indication with SequenceContext %s and "
+                "SequenceNumber %" PEGASUS_64BIT_CONVERSION_WIDTH "d."
+                    " DeliveryRetryAttempts made %u. Exception : %s",
+            (const char*)_getSequenceContext(info->indication).getCString(),
+            _getSequenceNumber(info->indication),
+            info->deliveryRetryAttemptsMade,
+            (const char*)e.getMessage().getCString()));
         info->lastDeliveryRetryTimeUsec = System::getCurrentTimeUsec();
     }
 
@@ -488,7 +480,7 @@ void DestinationQueue::deleteMatchedIndications(
         if (info->subscription.getPath().identical(subscriptionPath))
         {
             _subscriptionDeleteDroppedIndications++;
-            _traceDiscardedIndication(
+            _logDiscardedIndication(
                 SUBSCRIPTION_NOT_ACTIVE,
                 info->indication);
             delete info;
@@ -528,7 +520,7 @@ void DestinationQueue::_cleanup(int reasonCode)
     IndicationInfo *info;
     while ((info = _queue.remove_front()))
     {
-        _traceDiscardedIndication(
+        _logDiscardedIndication(
             reasonCode,
             info->indication);
         delete info;
@@ -566,7 +558,7 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
         {
             _lifetimeExpiredIndications++;
             IndicationInfo *temp = _queue.remove_front();
-            _traceDiscardedIndication(
+            _logDiscardedIndication(
                 SIL_EXPIRED,
                 temp->indication);
             delete temp;

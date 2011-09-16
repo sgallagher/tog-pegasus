@@ -1008,6 +1008,7 @@ void ProviderAgentContainer::sendResponse(CIMResponseMessage *response)
             "Failed to write message to pipe.  writeStatus = %d.",
             writeStatus));
     }
+    delete response;
 }
 
 CIMResponseMessage* ProviderAgentContainer::processMessage(

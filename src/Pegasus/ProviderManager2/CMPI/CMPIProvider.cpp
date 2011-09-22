@@ -738,7 +738,7 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIMethodMI *mi;
+            CMPIMethodMI *mi = 0;
 
             if (_miVector.genericMode && _miVector.createGenMethMI)
             {
@@ -788,7 +788,7 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIAssociationMI *mi;
+            CMPIAssociationMI *mi = 0;
 
             if (_miVector.genericMode && _miVector.createGenAssocMI)
             {
@@ -839,7 +839,7 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIPropertyMI *mi;
+            CMPIPropertyMI *mi = 0;
 
             if (_miVector.genericMode && _miVector.createGenPropMI)
             {
@@ -890,7 +890,7 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIIndicationMI *mi;
+            CMPIIndicationMI *mi = 0;
 
             if (_miVector.genericMode && _miVector.createGenIndMI)
             {

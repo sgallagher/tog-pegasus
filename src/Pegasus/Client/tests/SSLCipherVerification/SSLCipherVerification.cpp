@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -69,16 +70,15 @@ int main()
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 # endif
 
-    CIMClient *cc = new CIMClient ();
-    SSLContext *sslContext = 0;
+    AutoPtr<CIMClient> cc(new CIMClient);
     cipherSuite = "LOW";
 
     try
     {
-        sslContext = new SSLContext (trustStorePath, certPath, keyPath,
-            String::EMPTY, 0, randPath, cipherSuite); 
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite)); 
 
-        if (sslContext)
+        if (sslContext.get())
         {
             cc->connect (host, port, *sslContext, "", "");
             //
@@ -102,9 +102,9 @@ int main()
     try
     {
 
-        sslContext = new SSLContext (trustStorePath, certPath, keyPath, 
-            String::EMPTY, 0, randPath, cipherSuite);
-        if (sslContext)
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite));
+        if (sslContext.get())
         {
             cc->connect (host, port, *sslContext, "", "");
             //

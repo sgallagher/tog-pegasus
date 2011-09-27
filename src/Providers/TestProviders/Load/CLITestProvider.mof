@@ -266,7 +266,7 @@ class Test_CLITestEmbeddedClass
 	"the EmbeddedObject qualifier")]
     string embeddedObj;
     
-    [EmbeddedInstance("Test_CLITestEmbedded2"),
+    [EmbeddedInstance("Test_CLITestEmbedded1"),
 	Description("Property containing embedded Instance Array")]
     string embeddedInstArray[];
 

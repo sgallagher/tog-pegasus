@@ -133,7 +133,7 @@ Returned Path  Test_CLITestEmbeddedClass.Id="701"
 instance of Test_CLITestEmbeddedClass
 {
     Id = "701";
-    embeddedInst = 
+    embeddedInst2 = 
     instance of Test_CLITestEmbedded2
     {
         Id = "702";
@@ -159,7 +159,7 @@ Returned Path  Test_CLITestEmbeddedClass.Id="801"
 instance of Test_CLITestEmbeddedClass
 {
     Id = "801";
-    embeddedInst = 
+    embeddedInst2 = 
     instance of Test_CLITestEmbedded2
     {
         Id = "802";

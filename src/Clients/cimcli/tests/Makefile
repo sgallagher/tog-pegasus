@@ -286,7 +286,7 @@ ct6: c6 g6 t6 d6
 c7:
 	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=701 \
 	    comment="test with recursive embedded instance" \
-	    embeddedInst{Test_CLITestEmbedded2 Id=702 \
+	    embeddedInst2{Test_CLITestEmbedded2 Id=702 \
 		comment="Property with embedded instance" \
 		    recursiveEmbeddedInst{Test_CLITestEmbedded3 Id=702 \
 			comment="recursive embedded instance" } \
@@ -295,7 +295,7 @@ c7:
 t7:
 	$(CIMCLI) ti $(EMBED_CLASS_DEF) id=701 \
 	    comment="test with recursive embedded instance" \
-	    embeddedInst{Test_CLITestEmbedded2 Id=702 \
+	    embeddedInst2{Test_CLITestEmbedded2 Id=702 \
 		comment="Property with embedded instance" \
 		    recursiveEmbeddedInst{Test_CLITestEmbedded3 Id=702 \
 			comment="recursive embedded instance" } \
@@ -316,7 +316,7 @@ ct7: c7 g7 t7 d7
 c8:
 	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=801 \
 	    comment="test with ={ as embed token" \
-	    embeddedInst={Test_CLITestEmbedded2 Id=802 \
+	    embeddedInst2={Test_CLITestEmbedded2 Id=802 \
 		comment="Property with embedded instance" \
 		    recursiveEmbeddedInst{Test_CLITestEmbedded3 Id=803 \
 			comment="recursive embedded instance" } \
@@ -325,7 +325,7 @@ c8:
 t8:
 	$(CIMCLI) ti $(EMBED_CLASS_DEF) id=801 \
 	    comment="test with ={ as embed token" \
-	    embeddedInst={Test_CLITestEmbedded2 Id=802 \
+	    embeddedInst2={Test_CLITestEmbedded2 Id=802 \
 		comment="Property with embedded instance" \
 		    recursiveEmbeddedInst{Test_CLITestEmbedded3 Id=803 \
 			comment="recursive embedded instance" } \
@@ -371,7 +371,7 @@ ct9: c9 g9 t9 d9
 c10:
 	$(CIMCLI) ci -n test/TestProvider Test_CLITestEmbeddedClass id=1001 \
 	    comment="test with ={ as embed token" \
-	    embeddedInst={Test_CLITestEmbedded2 Id=1002 \
+	    embeddedInst2={Test_CLITestEmbedded2 Id=1002 \
 		comment="Property with embedded instance" \
 		    recursiveEmbeddedInstArray{Test_CLITestEmbedded3 Id=1002 \
 			comment="recursive embedded instance" } \
@@ -382,7 +382,7 @@ c10:
 t10:
 	$(CIMCLI) ti -n test/TestProvider Test_CLITestEmbeddedClass id=1001 \
 	    comment="test with ={ as embed token" \
-	    embeddedInst={Test_CLITestEmbedded2 Id=1002 \
+	    embeddedInst2={Test_CLITestEmbedded2 Id=1002 \
 		comment="Property with embedded instance" \
 		    recursiveEmbeddedInstArray={Test_CLITestEmbedded3 Id=1002 \
 			comment="recursive embedded instance" } \

@@ -689,6 +689,9 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             // delete bytes if new is smaller than old
                             // add bytes if old is smaller than new
                             // if new and old amount equal -> do nothing
+
+                            // ((a+7) & ~7) <- round up to the next highest 
+                            // number dividable by eight
                             Uint32 extraNullBytes =
                                 ((headerLength + 7) & ~7) - headerLength;
                             Uint32 newHeaderSize = 
@@ -711,6 +714,8 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             {
                                 Uint32 reqNullBytes = 
                                     newExtraNullBytes - extraNullBytes;
+                                contentLanguagesString << headerLineTerminator;
+                                messageLength += headerLineTerminatorLength;
                                 // Cleverly attach the extra bytes upfront
                                 // to the contentLanguagesString
                                 for (Uint32 i = 0; i < reqNullBytes; i++)
@@ -718,10 +723,11 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                                     contentLanguagesString.append('\0');
                                 }
                                 messageLength+=reqNullBytes;
-                                buffer.insert(
+                                buffer.insertWithOverlay(
                                     insertOffset,
                                     messageStart,
-                                    messageLength);
+                                    messageLength,
+                                    headerLineTerminatorLength);
 
                                 contentLength+=reqNullBytes;
                             }

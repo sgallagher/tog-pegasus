@@ -40,18 +40,11 @@
 #include "SecurityPropertyOwner.h"
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
-#include "ConfigExceptions.h"
+
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**
- * The Server message resource name
- */
-
-//// static const char * SSL_POSSIBLE_VALUE_KEY =
-////        "Config.SecurityPropertyOwner.SSLClientVerification_POSSIBLE_VALUE";
 
 ///////////////////////////////////////////////////////////////////////////////
 //  SecurityPropertyOwner
@@ -91,7 +84,6 @@ static struct ConfigPropertyRow properties[] =
     {"sslClientVerificationMode", "optional", IS_STATIC, IS_VISIBLE},
     {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
-    {"sslBackwardCompatibility","false", IS_STATIC, IS_VISIBLE},
 # ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", IS_STATIC, IS_VISIBLE},
 # endif
@@ -110,7 +102,6 @@ static struct ConfigPropertyRow properties[] =
 #endif
     {"sslKeyFilePath", "file.pem", IS_STATIC, IS_VISIBLE},
     {"sslTrustStore", "cimserver_trust", IS_STATIC, IS_VISIBLE},
-    {"sslBackwardCompatibility","false", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore", "crl", IS_STATIC, IS_VISIBLE},
 #endif
@@ -154,7 +145,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _httpAuthType.reset(new ConfigProperty());
     _passwordFilePath.reset(new ConfigProperty());
     _certificateFilePath.reset(new ConfigProperty());
-    _sslBackwardCompatibility.reset(new ConfigProperty());
     _keyFilePath.reset(new ConfigProperty());
     _trustStore.reset(new ConfigProperty());
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
@@ -244,22 +234,6 @@ void SecurityPropertyOwner::initialize()
             _certificateFilePath->plannedValue = properties[i].defaultValue;
             _certificateFilePath->dynamic = properties[i].dynamic;
             _certificateFilePath->externallyVisible =
-                properties[i].externallyVisible;
-        }
-        else if (String::equal(
-                     properties[i].propertyName, "sslBackwardCompatibility"))
-        {
-            _sslBackwardCompatibility->propertyName = 
-                properties[i].propertyName;
-            _sslBackwardCompatibility->defaultValue =
-                properties[i].defaultValue;
-            _sslBackwardCompatibility->currentValue = 
-                properties[i].defaultValue;
-            _sslBackwardCompatibility->plannedValue = 
-                properties[i].defaultValue;
-            _sslBackwardCompatibility->dynamic = 
-                properties[i].dynamic;
-            _sslBackwardCompatibility->externallyVisible =
                 properties[i].externallyVisible;
         }
         else if (String::equal(
@@ -434,10 +408,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _certificateFilePath.get();
     }
-    else if (String::equal(_sslBackwardCompatibility->propertyName, name))
-    {
-        return _sslBackwardCompatibility.get();
-    }
     else if (String::equal(_keyFilePath->propertyName, name))
     {
         return _keyFilePath.get();
@@ -507,11 +477,30 @@ void SecurityPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
+    propertyInfo.clear();
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    buildPropertyInfo(name, configProperty, propertyInfo);
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
 }
-
 
 /**
     Get default value of the specified property.
@@ -573,16 +562,15 @@ void SecurityPropertyOwner::updateCurrentValue(
     const String& userName,
     Uint32 timeoutSeconds)
 {
-    struct ConfigProperty* configProperty =_lookupConfigProperty(name);
-
     //
     // make sure the property is dynamic before updating the value.
     //
-    if (configProperty->dynamic != IS_DYNAMIC)
+    if (!isDynamic(name))
     {
         throw NonDynamicConfigProperty(name);
     }
 
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->currentValue = value;
 }
 
@@ -616,9 +604,7 @@ Boolean SecurityPropertyOwner::isValid(
         String::equal(
             _enableRemotePrivilegedUserAccess->propertyName, name) ||
         String::equal(
-            _enableSubscriptionsForNonprivilegedUsers->propertyName, name) ||
-        String::equal(
-            _sslBackwardCompatibility->propertyName, name)
+            _enableSubscriptionsForNonprivilegedUsers->propertyName, name)
 #ifdef PEGASUS_OS_ZOS
         || String::equal(_enableCFZAPPLID->propertyName, name)
 #endif

@@ -36,8 +36,7 @@ CIMCLI = @cimcli
 LIBRARIES = \
     pegclient \
     peggeneral \
-    pegcommon \
-    pegcliutils
+    pegcommon
 
  LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
@@ -61,12 +60,35 @@ tests:
 
 poststarttests:
 
-#############################################################################
-##Setup for manual tests.  The following normally not used.
+############################################################################
+## create instance operation with embedded instance array property
+c5:
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=501 \
+	    comment="test with array of embedded instances" \
+	    embeddedInstArray{Test_CLITestEmbedded1 Id=502 \
+		    comment="First embedded Instance" } \
+	    embeddedInstArray{Test_CLITestEmbedded1 Id=503 \
+		    comment="Second embedded Instance" } >> $(RESULTFILE)
 
-PROVIDERNS=test/TestProvider
+t5:
+	$(CIMCLI) ti $(EMBED_CLASS_DEF) id=501 \
+	    comment="test with array of embedded instances" \
+	    embeddedInstArray{Test_CLITestEmbedded1 Id=502 \
+		    comment="First embedded Instance" } \
+	    embeddedInstArray{Test_CLITestEmbedded1 Id=503 \
+		    comment="Second embedded Instance" } >> $(RESULTFILE) \
+		>> $(RESULTFILE)
 
-PROVNSOPT = -n $(PROVIDERNS)
-EMBED_CLASS_DEF = -n $(PROVIDERNS) Test_CLITestEmbeddedClass
-ASSOC_CLASS_DEF = -n $(PROVIDERNS) Test_CLITestProviderLinkClass
+d5:
+	$(CIMCLI) di $(EMBED_CLASS_DEF) Id=501 \
+		>> $(RESULTFILE)
+
+g5:
+	$(CIMCLI) gi $(EMBED_CLASS_DEF) Id=501 \
+		>> $(RESULTFILE)
+
+## Build an instance with embedded instance, test it and delete it.  Combines
+## The previous 3 tests into a single target.
+ct5: c5 g5 t5 d5
+	@$(ECHO) +++++ passed test ct5
 

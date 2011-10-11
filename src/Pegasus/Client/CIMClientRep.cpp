@@ -53,11 +53,11 @@ PEGASUS_NAMESPACE_BEGIN
 CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
+    _binaryResponse(false),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _doReconnect(false),
     _binaryRequest(false),
-    _binaryResponse(false),
     _localConnect(false)
 {
     //
@@ -308,12 +308,21 @@ void CIMClientRep::connect(
 void CIMClientRep::connectLocal()
 {
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    bool binaryRequest = true;
-    bool binaryResponse = true;
+    _connectLocal(true);
 #else
-    bool binaryRequest = false;
-    bool binaryResponse = false;
+    _connectLocal(false);
 #endif
+}
+
+void CIMClientRep::connectLocalBinary()
+{
+    _connectLocal(true);
+}
+
+void CIMClientRep::_connectLocal(bool binary)
+{
+    bool binaryRequest = binary;
+    bool binaryResponse = binary;
 
     //
     // If already connected, bail out!
@@ -386,7 +395,6 @@ void CIMClientRep::connectLocal()
     }
 #endif
 }
-
 
 void CIMClientRep::disconnect()
 {

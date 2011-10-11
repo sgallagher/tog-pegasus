@@ -35,10 +35,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-# define MAX_PATH_LEN 4096
-# define MAX_FILENAME_LEN 256
-
 #if defined SIMULATED
+
 typedef struct {
   int next;
   int done;
@@ -176,108 +174,31 @@ int CWS_Get_FileType(const char *file, char* typestring, size_t tslen)
 
 #else
 
-#include <dirent.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
 
 typedef struct {
   FILE *fp;
   char name[L_tmpnam];
 } CWS_Control;
 
-
-void * CWS_Begin_Enum(const char *topdir, int filetype)
+void* CWS_Begin_Enum(const char *topdir, int filetype)
 {
-  int processDir;
+  /* begin enumeration */
+  char cmdbuffer[2000];
   CWS_Control *cc = (CWS_Control*) malloc(sizeof(CWS_Control));
   if (cc && tmpnam(cc->name)) {
-  cc->fp = fopen(cc->name,"w");
-    processDir = openDirectory((char*)topdir,cc->fp,filetype);
-    fclose(cc->fp);
-    cc->fp = fopen(cc->name,"r");
-   }
-   if (processDir != 0)
-   {
+    sprintf(cmdbuffer,
+            "find %s -xdev -type %c -printf \"%%p %%s "
+            "%%C@ %%A@ %%T@ %%m\n\" > %s",
+            topdir, filetype, cc->name);
+    if (system(cmdbuffer)==0)
+      cc->fp = fopen(cc->name,"r");
+    else {
       free(cc);
-      cc = NULL;
-   }   
-   return cc;
-
-}
-
-int openDirectory(char* topDir,FILE * fp,char fileType)
-{
-    
-    struct dirent dirEntry;
-    struct dirent *dirResult;
-    DIR* dirPoint;
-    struct stat fileDetails;
-    char path[MAX_PATH_LEN],fileName[MAX_FILENAME_LEN];
-    if ((dirPoint = opendir(topDir)) != NULL)
-    {
-       
-       while ((readdir_r(dirPoint,&dirEntry,&dirResult) == 0) && dirResult )
-       {
-          strcpy(fileName,dirEntry.d_name);
-          strcpy(path,topDir);
-          if (topDir[ strlen(topDir) - 1 ] != '/')
-          {
-             strcat(path,"/");
-          }
-          strcat(path,fileName);
-          if (stat(path,&fileDetails) != -1)
-          {
-             
-             if  ( S_ISDIR( fileDetails.st_mode ))
-             {
-                
-                if (strcmp(dirEntry.d_name,".")==0 ||
-                   strcmp(dirEntry.d_name, "..") == 0)
-                {
-                   continue;
-                }
-                else if (chdir(path) != -1)
-                {
-                   openDirectory(path,fp,fileType);
-                }
-                if ( fileType == CWS_TYPE_DIR )
-                {
-                    fprintf(
-                        fp,
-                        "%s %ld %ld %ld %ld %o\n",
-                        path,
-                        fileDetails.st_size,
-                        fileDetails.st_ctime,
-                        fileDetails.st_atime,
-                        fileDetails.st_mtime,
-                        fileDetails.st_mode);
-                }
-             }
-             if ( fileType == CWS_TYPE_PLAIN )
-             {
-                 fprintf(
-                     fp,
-                     "%s %ld %ld %ld %ld %o\n",
-                     path,
-                     fileDetails.st_size,
-                     fileDetails.st_ctime,
-                     fileDetails.st_atime,
-                     fileDetails.st_mtime,
-                     fileDetails.st_mode);
-             }
-          }
-          
-       }
-       closedir(dirPoint);
+      cc=NULL;
     }
-    else
-    {
-      return errno;
-    }
-    return 0;
+  }
+  return cc;
 }
 
 int CWS_Next_Enum(void *handle, CWS_FILE* cwsf)

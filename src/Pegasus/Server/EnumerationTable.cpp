@@ -158,7 +158,7 @@ EnumerationTable::EnumerationTable(
     PEG_METHOD_EXIT();
 }
 
-/* remove all contexts and delete them
+/* remove all contexts and delete them. Only used on system shutdown.
 */
 EnumerationTable::~EnumerationTable()
 {
@@ -223,6 +223,7 @@ EnumerationContext* EnumerationTable::createContext(
     sprintf(t, "-%u", (unsigned int)_enumContextCounter.get());
     ecn.append(t);
 
+    // KS_TODO clean up the next two lines.  Don't need ecn at all.
     ec->_enumerationContextName = ecn;
     enumerationContextName = ecn;
 
@@ -241,6 +242,9 @@ EnumerationContext* EnumerationTable::createContext(
         removeExpiredContexts();
     }
 #endif
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "CreateContext ContextId= %s", (const char*)ecn.getCString()));
+    ec->trace();    // KS_TEMP
     return ec;
 }
 
@@ -279,6 +283,7 @@ Boolean EnumerationTable::_remove(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationTable::_remove");
     PEGASUS_ASSERT(en->valid());            // KS_TEMP
+    tableValidate();
 
     // If it is valid and providers are complete, we can delete
     // the enumerationContext.  If providers not complete, only
@@ -287,7 +292,7 @@ Boolean EnumerationTable::_remove(EnumerationContext* en)
     if (en != 0 && en->_providersComplete)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-            "remove Context from ptr %s",
+            "EnumerationContext Remove. ContextId= %s",
             (const char *)en->getContextName().getCString() ));
         // Remove from enumerationTable.
 
@@ -302,6 +307,8 @@ Boolean EnumerationTable::_remove(EnumerationContext* en)
 
         // Delete the enumerationContext object
         delete en;
+
+        tableValidate();
 
         PEG_METHOD_EXIT();
         return true;
@@ -367,7 +374,7 @@ EnumerationContext* EnumerationTable::find(
 */
 void EnumerationTable::removeExpiredContexts()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::findExpiredContexts");
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::removeExpiredContexts");
 
     AutoMutex autoMut(tableLock);
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
@@ -399,6 +406,21 @@ void EnumerationTable::removeExpiredContexts()
     PEG_METHOD_EXIT();
     return;
 }
+
+// Validate every entry in the table.
+void EnumerationTable::tableValidate()
+{
+    for (HT::Iterator i = ht.start(); i; i++)
+    {
+        EnumerationContext* en = i.value();
+        if (!en->valid())
+        {
+            trace();
+            PEGASUS_ASSERT(en->valid());             // diagnostic. KS_TEMP
+        }
+    }
+}
+
 void EnumerationTable::dispatchTimerThread(Uint32 interval)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::dispatchTimerThread");

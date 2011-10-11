@@ -40,30 +40,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
- * NamespaceClassList holds the indication subclasses with the
- * associated source namespace. This is used in the providerClassList
- * to keep track of the indication subclasses serviced by the provider
- * for each source namespace.
-*/
-struct NamespaceClassList
-{
-    CIMNamespaceName nameSpace;
-    Array<CIMName> classList;
-};
-
-/**
- * SubscriptionWithSrcNamespace holds the subscription with the associated
- * source namespace. This is used by the getMatchingSubscriptions() function
- * to return the matched subscriptions with the source namespace of their
- * service. 
-*/
-struct SubscriptionWithSrcNamespace
-{
-    CIMNamespaceName nameSpace;
-    CIMInstance subscription;
-};
-
-/**
     Entry for list of indication providers
  */
 struct providerClassList
@@ -73,7 +49,7 @@ struct providerClassList
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
     Uint32 matchedIndCountPerSubscription;
 #endif
-    Array <NamespaceClassList> classList;
+    Array <CIMName> classList;
    // Enabling Indications on Remote CMPI -V 5245
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
     Boolean isRemoteNameSpace;

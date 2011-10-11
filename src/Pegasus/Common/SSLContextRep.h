@@ -59,23 +59,15 @@ extern "C"
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_HAS_SSL
 struct FreeX509STOREPtr
 {
     void operator()(X509_STORE* ptr)
     {
+#ifdef PEGASUS_HAS_SSL
         X509_STORE_free(ptr);
-    }
-};
-#else
-struct FreeX509STOREPtr
-{
-    void operator()(X509_STORE*)
-    {
-    }
-};
 #endif
-
+    }
+};
 
 #ifdef PEGASUS_HAS_SSL
 
@@ -110,15 +102,11 @@ public:
             "In ~SSLEnvironmentInitializer(), _instanceCount is %d",
             _instanceCount));
 
-
         if (_instanceCount == 0)
         {
-            EVP_cleanup();
-            CRYPTO_cleanup_all_ex_data();
             ERR_free_strings();
             _uninitializeCallbacks();
         }
-        ERR_remove_state(0);
     }
 
 private:
@@ -174,8 +162,8 @@ private:
     static void _lockingCallback(
         int mode,
         int type,
-        const char*,
-        int)
+        const char* file,
+        int line)
     {
         if (mode & CRYPTO_LOCK)
         {
@@ -244,8 +232,7 @@ public:
         const String& crlPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY,
-        const String& cipherSuite = String::EMPTY,
-        const Boolean& sslCompatibility = false);
+        const String& cipherSuite = String::EMPTY);
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
@@ -302,7 +289,6 @@ private:
     String _crlPath;
     String _randomFile;
     String _cipherSuite;
-    Boolean _sslCompatibility;
     SSL_CTX * _sslContext;
 
     Boolean _verifyPeer;

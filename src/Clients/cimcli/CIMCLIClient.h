@@ -60,15 +60,23 @@ static const char MSG_PATH [] = "pegasus/pegasusCLI";
 // returned by CIM Exception and cimcli passes any such received exception
 // codes back through cimcli completion. Therefore we start the internal
 // error codes outside of this range
+// NOTE: Please coordinate the rtnExitCodeToString(...) function in
+// CIMCLICommon with any changes to the following defines
 //
 #define CIMCLI_RTN_CODE_PEGASUS_EXCEPTION 50
+
+// codes for failures based on user input or general issues
 #define GENERAL_CLI_ERROR_CODE 51
 #define CIMCLI_RTN_CODE_UNKNOWN_EXCEPTION 52
 #define CIMCLI_INPUT_ERR 53
 #define CIMCLI_CONNECTION_FAILED 54
 
+// codes for cimcli test failures.
 #define CIMCLI_RTN_CODE_ERR_COMPARE_FAILED 60
 #define CIMCLI_RTN_COUNT_TEST_FAILED 61
+
+// CIMCLI internal logic failures (i.e. These should NEVER happen :-)
+#define CIMCLI_INTERNAL_ERR 70
 
 /////////////////////////////////////////////////////////////////////////////
 // ************* cimcli operations ******************************************

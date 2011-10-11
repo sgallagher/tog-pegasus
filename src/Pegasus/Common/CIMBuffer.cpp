@@ -47,7 +47,6 @@
 #include "StringInline.h"
 #include "Buffer.h"
 #include "SCMOStreamer.h"
-#include "Pegasus_inl.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
 #define CLASS_MAGIC 0xA8D7DE41
@@ -184,7 +183,12 @@ void CIMBuffer::_grow(size_t size)
     if (size > n)
         cap += size;
 
-    _data = (char*)peg_inln_realloc(_data, cap);
+    _data = (char*)realloc(_data, cap);
+
+    if (!_data)
+    {
+        throw PEGASUS_STD(bad_alloc)();
+    }
 
     _end = _data + cap;
     _ptr = _data + m;
@@ -386,7 +390,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                     false, false);
                 break;
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -446,7 +450,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                 putObject(*((CIMObject*)rep->u._instanceValue), false, false);
                 break;
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -622,7 +626,7 @@ bool CIMBuffer::getValue(CIMValue& x)
                 return true;
             }
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -767,7 +771,7 @@ bool CIMBuffer::getValue(CIMValue& x)
                 return true;
             }
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -1617,18 +1621,12 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
         new(&x) CIMPropertyList(names);
       
         Uint32 tagCount;
-        if (!getUint32(tagCount))
-        {
-            return false;
-        }
+        getUint32(tagCount);
 
         for(Uint32 j=0;j<tagCount;j++)
         {
             Uint32 tag;
-            if (!getUint32(tag))
-            {
-                return false;
-            }
+            getUint32(tag);
             x.appendCIMNameTag(tag);
         }
 

@@ -122,10 +122,6 @@ void CIMInstanceRep::resolve(
                     (CIMName (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))) ||
                 (className.equal
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))) ||
-#ifdef  PEGASUS_ENABLE_PROTOCOL_WSMAN
-                (className.equal
-                    (CIMName (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))) ||
-#endif
                 (className.equal
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))) ||
                 (className.equal
@@ -138,9 +134,6 @@ void CIMInstanceRep::resolve(
                 (className.equal
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))) ||
 #endif
-                (className.equal
-                    (CIMName (PEGASUS_CLASSNAME_LSTNRDST_FILE))) ||
-
                 (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&
                 ((property.getName ().equal
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR))) ||
@@ -257,9 +250,9 @@ CIMObjectPath CIMInstanceRep::buildPath(
     return CIMObjectPath(String(), CIMNamespaceName(), className, keyBindings);
 }
 void CIMInstanceRep::filter(
-    Boolean,
-    Boolean,
-    const CIMPropertyList&)
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     return;
 }

@@ -39,6 +39,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 static Mutex writeMutex;
 
+////////////////////////////////////////////////////////////////////////////////
+//   On other platforms prepares the file handle (open file etc.).
+//   Implementation of this function is platform specific
+//
+//   Note: The current implementation on Windows does nothing.
+//         Should be optimized out by the compiler
+////////////////////////////////////////////////////////////////////////////////
+void TraceFileHandler::prepareFileHandle(void)
+{
+    return;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //   Writes message to file.
@@ -50,31 +61,20 @@ static Mutex writeMutex;
 ////////////////////////////////////////////////////////////////////////////////
 void TraceFileHandler::handleMessage(
     const char* message,
-    Uint32,
+    Uint32 msgLen,
     const char* fmt,
     va_list argList)
 {
     Uint32 retCode;
-    
 
     if (_configHasChanged)
     {
         _reConfigure();
     }
 
-    if (!_fileHandle)
+    if (_fileHandle)
     {
-        // The trace file is not open, which means an earlier fopen() was
-        // unsuccessful.  Stop now to avoid logging duplicate error messages.
-        return;
-    }
-  
-    AutoMutex writeLock(writeMutex);
-
-    if(!_fileExists(_fileName))
-    {
-        return;
-    }       
+        AutoMutex writeLock(writeMutex);
 
         //Move to the End of File
         fseek(_fileHandle,0,SEEK_SET);
@@ -101,7 +101,7 @@ void TraceFileHandler::handleMessage(
             // thus allow writing of errors to log again
             _logErrorBitField = 0;
         }
-    
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,28 +112,18 @@ void TraceFileHandler::handleMessage(
 //         Will have to be enhanced to support synchronous write operations to
 //         the same file.
 ////////////////////////////////////////////////////////////////////////////////
-void TraceFileHandler::handleMessage(const char* message, Uint32)
+void TraceFileHandler::handleMessage(const char* message, Uint32 msgLen)
 {
     Uint32 retCode;
-   
+
     if (_configHasChanged)
     {
         _reConfigure();
     }
 
-    if (!_fileHandle)
+    if (_fileHandle)
     {
-        // The trace file is not open, which means an earlier fopen() was
-        // unsuccessful.  Stop now to avoid logging duplicate error messages.
-        return;
-    }
-
-    AutoMutex writeLock(writeMutex);
-
-    if(!_fileExists(_fileName))
-    {
-        return;
-    }
+        AutoMutex writeLock(writeMutex);
 
         //Move to the End of File
         fseek(_fileHandle,0,SEEK_SET);
@@ -157,7 +147,7 @@ void TraceFileHandler::handleMessage(const char* message, Uint32)
             // thus allow writing of errors to log again
             _logErrorBitField = 0;
         }
-    
+    }
 }
 
 

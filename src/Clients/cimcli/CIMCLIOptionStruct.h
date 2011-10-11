@@ -45,31 +45,40 @@ PEGASUS_NAMESPACE_BEGIN
 **          Data structure definitions for the Output Type
 **          Defines a data type, enums for the various output types
 **          and a table to map
+**          The type strings are defined in CIMCLIOptionStruct.cpp
 **
 ******************************************************************************/
 
-typedef int     OutputType;
-const OutputType    OUTPUT_XML                  = 1;
-const OutputType    OUTPUT_MOF                  = 2;
-const OutputType    OUTPUT_TEXT                 = 3;
-const OutputType    OUTPUT_FILE                 = 4;
-const OutputType    OUTPUT_TABLE                = 5;
+// List of possible output types.  Type Strings are defined in
+// CIMCLIOptionStruct.cpp and also there is a constanct string in
+// CIMCLIOptions.cpp that defines the strings for help.
+enum OutputType {
+    OUTPUT_TYPE_ILLEGAL = 0,
+    OUTPUT_XML   = 1,
+    OUTPUT_MOF   = 2,
+    OUTPUT_TEXT  = 3,
+    OUTPUT_TABLE = 4
+};
 
-struct  OUTPUT_STRUCT
+// Structure defining output type enum / string
+struct  OutputTypeStruct
 {
-    int OutputType;
+    OutputType OutputTypeValue;
     const char* OutputName;
+
+    // Methods
+
+    // Return Output type corresponding to input String or
+    // OUTPUT_TYPE_ILLEGAL if not found.  This is a noCase
+    // compare
+    static OutputType getOutputType(String& OutputTypeName);
+    // Return String containing all valid output types for display.
+    // They are separated by comma/space
+    static String listOutputTypes();
+
+    static String getTypeStr(OutputType x);
 };
 
-static OUTPUT_STRUCT OutputTable[] =
-{
-    // Output Type      OutputName
-    {   OUTPUT_XML,     "xml"   },
-    {   OUTPUT_MOF,     "mof"   },
-    {   OUTPUT_TEXT,    "txt"   },
-    {   OUTPUT_TABLE,   "table" }
-};
-static const Uint32 NUM_OUTPUTS = sizeof(OutputTable) / sizeof(OutputTable[0]);
 
 
 /******************************************************************************
@@ -130,9 +139,7 @@ struct  OptionStruct
     String cimCmd;                // Command name
 
     // output format pamameter information
-    String outputFormat;
-    Boolean isXmlOutput;
-    int outputFormatType;
+    String outputTypeParamStr;
     OutputType outputType;
 
     // CIM operation parameter input parameters
@@ -205,9 +212,6 @@ struct  OptionStruct
 
 typedef struct OptionStruct Options;
 
-
-
 PEGASUS_NAMESPACE_END
 
-#endif
-
+#endif  // _CLI_CLIOPTIONSSTRUCT_H

@@ -110,7 +110,7 @@ public:
 
     void shutdownProviders();
     void shutdownCimomServices();
-    void waitUntilNoMoreRequests(Boolean requestPending);
+    Boolean waitUntilNoMoreRequests(Boolean requestPending);
 
 protected:
 

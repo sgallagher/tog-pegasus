@@ -235,11 +235,8 @@ endif
 # option of the mof compiler needs to be set.
 # *****
 
-## Sets default CIM Schema if PEGASUS_CIM_SCHEMA not defined.
-## NOTE: If the default below is changed, please update the definition
-## of default for this variable in pegasus/doc/BuildAndReleaseOptions.html
 ifndef PEGASUS_CIM_SCHEMA
-    PEGASUS_CIM_SCHEMA=CIM236
+    PEGASUS_CIM_SCHEMA=CIM228
 endif
 
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
@@ -385,6 +382,19 @@ endif
 ifeq ($(PEGASUS_HAS_ICU),true)
     DEFINES += -DPEGASUS_HAS_ICU
 
+    ##################################
+    ##
+    ## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root
+    ## resource bundle, default is to uppercase the root resource bundle
+    ##
+    ##################################
+
+    ifdef ICU_NO_UPPERCASE_ROOT
+        CNV_ROOT_FLAGS =
+    else
+        CNV_ROOT_FLAGS = -u
+    endif
+
     ####################################
     ##
     ## ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root
@@ -480,9 +490,47 @@ ifdef PEGASUS_MAX_THREADS_PER_SVC_QUEUE
   DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=$(PEGASUS_MAX_THREADS_PER_SVC_QUEUE)
 endif
 
+##############################################################################
+##
+## PEGASUS_INDICATIONS_Q_THRESHOLD
+##
+## Controls if indications providers are stalled if the indications
+## service queue is too large.
+##
+##      defaults to not set.
+##
+## 	It can be set to any positive value.
+##
+## If not set providers are never stalled. This implies that the
+## indications service queue may become as large as neccesary to hold all
+## the indicaitons generated.
+##
+## If set to any value then providers are stalled by forcing them to sleep
+## when they try to deliver an indication and the indications service queue
+## exceeds this value. They are resumed when the queue count falls 10 percent
+## below this value.
+##
+## Stall and resume log entries are made to inform the administrator
+## the condition has occured.
+##
+## WARNING: This also affects the Out of Process Providers (OOP Providers)
+##    The OOP Providers use two one way pipes for communication.
+##    By stalling the Provider this prevents the pipe from being read
+##    which will cause the pipe to fill up and the remote side will block.
+##    OOP Prividers mix indications and operations on these two pipes.
+##    This means the operations will also be blocked as a side effect of
+##    the indications being stalled.
+##
+##
+
+ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
+  DEFINES += -DPEGASUS_INDICATIONS_Q_THRESHOLD=$(PEGASUS_INDICATIONS_Q_THRESHOLD)
+endif
+
+
 # Allow PEGASUS_ASSERT statements to be disabled.
 ifdef PEGASUS_NOASSERTS
-    DEFINES += -DNDEBUG -DPEGASUS_NOASSERTS
+    DEFINES += -DNDEBUG
 endif
 
 # do not compile trace code. sometimes it causes problems debugging
@@ -682,27 +730,22 @@ ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
 endif
 
 # Controls snmp indication handler to use NET-SNMP to deliver trap
-ifdef PEGASUS_USE_NET_SNMP   
-   ifeq ($(PEGASUS_USE_NET_SNMP),true)
-      DEFINES += -DPEGASUS_USE_NET_SNMP
-   else
-      ifneq ($(PEGASUS_USE_NET_SNMP),false)
-         $(error PEGASUS_USE_NET_SNMP ($(PEGASUS_USE_NET_SNMP)) invalid, must be true or false)
-      endif
-   endif
+ifdef PEGASUS_USE_NET_SNMP
+    DEFINES += -DPEGASUS_USE_NET_SNMP
 endif
+
 # Controls snmp indication handler to use NET-SNMP V3 features. 
 ifndef PEGASUS_ENABLE_NET_SNMPV3
-    ifeq ($(PEGASUS_USE_NET_SNMP),true)
-       PEGASUS_ENABLE_NET_SNMPV3=true
+    ifdef PEGASUS_USE_NET_SNMP
+        PEGASUS_ENABLE_NET_SNMPV3=true
     else
         PEGASUS_ENABLE_NET_SNMPV3=false
     endif
 endif
 
 ifeq ($(PEGASUS_ENABLE_NET_SNMPV3),true)
-    ifneq ($(PEGASUS_USE_NET_SNMP),true)
-        $(error PEGASUS_USE_NET_SNMP should be set to true when PEGASUS_ENABLE_NET_SNMPV3 is true)
+    ifndef PEGASUS_USE_NET_SNMP
+        $(error PEGASUS_USE_NET_SNMP should be set when PEGASUS_ENABLE_NET_SNMPV3 is true)
     endif
     DEFINES += -DPEGASUS_ENABLE_NET_SNMPV3
 else
@@ -1146,6 +1189,10 @@ ifdef PEGASUS_DEBUG
         DEFINES += -DPEGASUS_INDICATION_HASHTRACE
     endif
 
+    # Setup the conditional compile for client displays.
+    ifdef PEGASUS_CLIENT_TRACE_ENABLE
+        DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
+    endif
 endif
 
 # compile in the experimental APIs
@@ -1212,6 +1259,16 @@ endif
 # Allow remote CMPI functionality to be enabled
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     DEFINES += -DPEGASUS_ENABLE_REMOTE_CMPI
+endif
+
+############################################################
+#
+# Set any vendor-specific compile flags
+#
+############################################################
+
+ifdef PEGASUS_VENDOR_HP
+    DEFINES+= -DPEGASUS_VENDOR_HP
 endif
 
 
@@ -1362,41 +1419,6 @@ endif
 
 ##==============================================================================
 ##
-## PEGASUS_PAM_SESSION_SECURITY
-##
-## This is a new method to handle authentication with PAM in case it is required
-## to keep the PAM session established by pam_start() open across an
-## entire CIM request.
-##
-## This feature contradicts PEGASUS_PAM_AUTHENTICATION and
-## PEGASUS_USE_PAM_STANDALONE_PROC
-## Because of the additional process this feature is not compatible with
-## Privilege Separation.
-##
-##==============================================================================
-
-ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
-    ifdef PEGASUS_PAM_AUTHENTICATION
-        $(error "PEGASUS_PAM_AUTHENTICATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
-    endif
-    ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-        $(error "PEGASUS_USE_PAM_STANDALONE_PROC must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
-    endif
-    ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-        $(error "PEGASUS_ENABLE_PRIVILEGE_SEPARATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
-    endif
-    # Compile in the code required for PAM 
-    # and compile out the code that uses the password file.
-    DEFINES += -DPEGASUS_PAM_SESSION_SECURITY -DPEGASUS_NO_PASSWORDFILE
-    # Link with libpam only where it is needed.
-    ifeq ($(HAS_PAM_DEPENDENCY),true)
-        SYS_LIBS += -lpam
-    endif
-endif
-
-
-##==============================================================================
-##
 ## PEGASUS_PAM_AUTHENTICATION
 ##
 ##==============================================================================
@@ -1419,10 +1441,7 @@ endif
 ##==============================================================================
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-   ifndef PEGASUS_PAM_AUTHENTICATION
-       $(error "PEGASUS_PAM_AUTHENTICATION must be defined when PEGASUS_USE_PAM_STANDALONE_PROC is defined")
-   endif
-   DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
+  DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
 endif
 
 ##==============================================================================
@@ -1482,29 +1501,6 @@ else
   endif
 endif
 
-
-##==============================================================================
-##
-## PEGASUS_ENABLE_PROTOCOL_WEB
-##
-##     Enables the GET-Method for files in order to act as a web-server
-##
-##
-##
-##
-##==============================================================================
-ifndef PEGASUS_ENABLE_PROTOCOL_WEB
-  PEGASUS_ENABLE_PROTOCOL_WEB = true
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_WEB
-else
-  ifneq ($(PEGASUS_ENABLE_PROTOCOL_WEB),false)
-    $(error "PEGASUS_ENABLE_PROTOCOL_WEB must be true or false")
-  endif
-endif
-
 ## ======================================================================
 ##
 ## PLATFORM_CORE_PATTERN
@@ -1553,19 +1549,3 @@ ifdef PEGASUS_INITIAL_THREADSTACK_SIZE
 DEFINES += -DPEGASUS_INITIAL_THREADSTACK_SIZE=$(PEGASUS_INITIAL_THREADSTACK_SIZE)
 endif
 
-ifndef PEGASUS_INTEROP_NAMESPACE
-    PEGASUS_INTEROP_NAMESPACE=root/PG_InterOp
-else
-ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
-DEFINES += -DNS_ROOT_INTEROP
-    endif
-ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
-DEFINES += -DNS_INTEROP
-endif
-endif
-
-##These namespaces will be used in Makefiles.
-
-NAMESPACE_INTEROP = interop
-
-NAMESPACE_ROOT_INTEROP = root/interop

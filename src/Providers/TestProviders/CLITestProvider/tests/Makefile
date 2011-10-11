@@ -1178,15 +1178,6 @@ testErrorInput:
 
 	@$(ECHO) 24. +++++ Test Errors on Input
 	@$(ECHO) 24. +++++ Test Errors on Input   >> $(RESULTFILE)
-
-testniallOperation:
-	@$(ECHO) 25. +++++ Test niall operation
-	@$(ECHO) 25. +++++ Test niall operation  >> $(RESULTFILE)
-## Because this operation returns dynamic information only very limited
-## fixed tests can be executed. 
-	@cimcli niall --sum -n test/cimv2 >> $(RESULTFILE)
-	@$(ECHO) 25. +++++ Test niall operation
-	@$(ECHO) 25. +++++ Test niall operation   >> $(RESULTFILE)
 ##############################################################################
 ### Execute the set of test targets defined
 poststarttests:
@@ -1223,7 +1214,6 @@ poststarttests:
 	$(MAKE) testExecQuery
 	$(MAKE) testEmptyKeyBindings
 	$(MAKE) testErrorInput
-	$(MAKE) testniallOperation
 
 	@$(ECHO) +++++ Compare Result files
 ##      diffsort used because there is at least one instance where

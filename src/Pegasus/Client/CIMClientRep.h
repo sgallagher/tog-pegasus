@@ -412,10 +412,15 @@ public:
 
     void setBinaryRequest(bool x) { _binaryRequest = x; }
 
+    void connectLocalBinary();
+
+    bool _binaryResponse;
+
 private:
 
     void _connect(bool binaryRequest, bool binaryResponse);
     void _disconnect();
+    void _connectLocal(bool binary);
 
     Message* _doRequest(
         AutoPtr<CIMRequestMessage>& request,
@@ -452,7 +457,6 @@ private:
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;
     bool _binaryRequest;
-    bool _binaryResponse;
     bool _localConnect;
 };
 

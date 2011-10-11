@@ -103,9 +103,6 @@ usage2: FORCE
 	$(USAGE)"slptests                - Executes the slptests"
 	$(USAGE)"run_Cmpi_Sub            - Executes the CMPI subscription tests"
 	$(USAGE)
-	$(USAGE)"The following requires wseventsink to be installed on the server and is not run"
-	$(USAGE)"as part of Primary target tests suites."
-	$(USAGE)"run_WSMAN_TS            - Executes the WSMAN indication deliver test"
 
 
 ##########################################################
@@ -291,9 +288,6 @@ servertests: servertestsclean servertestssetup serversuite
 
 serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Server/tests -f Makefile commandtests
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/slp/tests/srv_reg/ -f Makefile tests
-endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
@@ -317,13 +311,9 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
 endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimprovagt32tests
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile chgdhoststests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout2
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_providerLifecycleIndicationTests
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimListenAddress
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_interfaceRestrictionTest
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_providerReregisterTests 
 
 #####################
 #
@@ -557,33 +547,6 @@ run_INDSSL_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_INDSSL_TS1"
 endif
 
-
-###############################################################################
-##  WSMAN Indication test suite : WSMAN Indication Testing over HTTPS
-##
-##  Configuration Options:  (none for cimserver)
-##     wsevensink should be installed as the wsman listner.
-##
-##  There is no WSMAN listner in OP as of now. Therefore, wseventsink of
-##  openwsman is used. This is available only on Linux. On other OSes, the
-##  destination of the subcription/indication should be changed to a Linux
-##  system where wseventsink is running.
-##  Once we have a wsman listner in OP we include this test in Nigthly tests.
-##  As of now, this has to be run explicitly. 
-##
-###############################################################################
-ifeq ($(OS),linux) 
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-INDWSMAN_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=false
-INDWSMAN_TS1a_TEST_CMDS = \
-	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationTestProvider/wsmanTestClient@@-f@@Makefile@@runWSMANtests
-
-run_WSMAN_TS: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS="$(INDWSMAN_CONFIG_OPTIONS)" \
-            TESTSUITE_CMDS="$(INDWSMAN_TS1a_TEST_CMDS)"
-endif
-endif
 
 ###############################################################################
 
@@ -941,21 +904,6 @@ else
 	@$(ECHO) "PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT not defined, skipping 32-bit tests..."
 endif
 
-#############################################################################
-##
-## CIMServer with overridden hostnames testing
-##
-#############################################################################
-
-TEST_CHGD_HOSTS_OPTIONS = "hostname=hugo fullyQualifiedHostName=hugo.bert"
-TEST_CHGD_HOSTS_CMDS = \
-       $(MAKE)@@--directory \
-            $(PEGASUS_ROOT)/src/Pegasus/Config/tests/ChgdHosts@@chgdhoststest
-chgdhoststests: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS=$(TEST_CHGD_HOSTS_OPTIONS) \
-            TESTSUITE_CMDS="$(TEST_CHGD_HOSTS_CMDS)"
-
 
 #############################################################################
 ##
@@ -973,52 +921,6 @@ run_providerLifecycleIndicationTests: FORCE
 	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/TestProviderLifecycleIndications/testclient -f Makefile deletePLISubscription
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/TestProviderLifecycleIndications/testclient -f Makefile testLogFile
-
-
-#############################################################################
-#
-# Provider reregistration tests.
-#
-##############################################################################
-run_providerReregisterTests:FORCE
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
-	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient -f Makefile createSubscriptions
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
-	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient -f Makefile reregister_providerTests
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	
-
-#############################################################################
-##
-## Network Interface restriction tests
-##
-##  Configuration Options: enableHttpsConnection=true
-##                         enableHttpConnection=true
-##                         listenAddress=x.y.x.z
-##
-#############################################################################
-startcimListenAddress: FORCE
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableHttpConnection=true enableHttpsConnection=true listenAddress=::1,127.0.0.1"
-	$(SLEEP) 5
-
-
-
-LISTENING_ADD = $(shell TestListenAddress getSystemInterface)
-RESTRICT_INTRFC_TEST_CONFIG_OPTIONS= enableHttpConnection=true enableHttpsConnection=true listenAddress=$(LISTENING_ADD) 
-RESTRICT_INTRFC_TEST_CMDS=$(MAKE)@@--directory $(PEGASUS_ROOT)/src/Pegasus/Server/tests/InterfaceRestriction@@-f@@Makefile@@RestrictionTest
-
-ifneq ($(strip $(LISTENING_ADD)),)
-run_interfaceRestrictionTest:FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-	    CIMSERVER_CONFIG_OPTIONS="$(RESTRICT_INTRFC_TEST_CONFIG_OPTIONS)" \
-	    TESTSUITE_CMDS="$(RESTRICT_INTRFC_TEST_CMDS)"
-else
-run_interfaceRestrictionTest:FORCE
-	@ $(ECHO) "+++++ No Network Interface Detected: Skipping Network Restriction Test+++++++"
-endif
-	
 
 ##############################################################################
 ##
@@ -1555,7 +1457,7 @@ ConfigureAuthorizations:
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/cimv2 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/cimv2 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_Internal -R -W
-	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n $(PEGASUS_INTEROP_NAMESPACE) -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_InterOp -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/benchmark -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/sampleprovider -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/static -R -W

@@ -908,7 +908,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
                 break;
 
             case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE :
-                handleEnumerateInstancesResponseAggregation(poA);
+                handleEnumerateInstancesResponseAggregation(poA,true);
                 break;
 
             case CIM_ASSOCIATORS_REQUEST_MESSAGE :
@@ -1017,8 +1017,30 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
 
             EnumerationContext* en =
                 (EnumerationContext*)poA->_enumerationContext;
+
             PEGASUS_ASSERT(en);          // KS_TEMP    
             PEGASUS_ASSERT(en->valid()); // KS_TEMP
+            enumerationTable.valid();    // KS_TEMP
+            en->trace();                 // KS_TEMP
+            
+            enumerationTable.tableValidate();
+
+            EnumerationContext* enTest = enumerationTable.find(
+                en->getContextName());
+
+            if (enTest == 0)
+            {
+                cout << "Error, EnumContext not found " 
+                    << en->getContextName() << endl;
+                en->trace();
+                PEGASUS_ASSERT(false);
+            }
+
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
+                "before call to EnumerationContextPutCache context = %s "
+                "iscomplete = %s",
+                (const char *)en->getContextName().getCString()
+                       , _toCharP(isComplete)));
 
             // If this is an exception set the error in EnumerationContext
             if (response->cimException.getCode())
@@ -1029,9 +1051,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
             // Send to the EnumerationContext cache along with the
             // isComplete indicator. Note that this may remove the
             // enumerationContext.
+
             en->putCache(poA->getRequestType(), response, isComplete);
-
-
 
             delete response;
         }
@@ -2229,12 +2250,12 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     // the ENTIRE response to the request.
     Boolean providersComplete;
     PEGASUS_ASSERT(poA->valid());           // KS_TEMP
-//  if (poA->_pullOperation)
-//  {
-//      PEGASUS_ASSERT(poA->_enumerationContext); //KS_TEMP
+    if (poA->_pullOperation)                // KS_TEMP
+    {
+        PEGASUS_ASSERT(poA->_enumerationContext); //KS_TEMP
 //      providersComplete = service->_enqueuePullAggregateResponse(
 //          poA,response);
-//  }
+    }
 //  else
         providersComplete = service->_enqueueAggregateResponse(poA, response);
 
@@ -3322,6 +3343,11 @@ struct ProviderRequests
     
         dispatcher->_enqueueResponse(request, response.release());
 
+        if (enumerationContext->isClosed())
+        {
+            enumerationContext->removeContext();
+        }
+
 
         } // end issuePullResponse
     };
@@ -4336,15 +4362,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         // in the specified class.
         if (!request->deepInheritance && request->propertyList.isNull())
         {
-            Array<CIMName> propertyNameArray;
             Uint32 numProperties = cimClass.getPropertyCount();
+            Array<String>  propertyListArray;
             for (Uint32 i = 0; i < numProperties; i++)
             {
-                propertyNameArray.append(cimClass.getProperty(i).getName());
+                propertyListArray.append(
+                    cimClass.getProperty(i).getName().getString());          
             }
-
-            request->propertyList.set(propertyNameArray);
+            request->propertyList.append(propertyListArray);
         }
+        
     }
 
     //
@@ -4461,7 +4488,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         if (numberResponses > 0)
         {
-            handleEnumerateInstancesResponseAggregation(poA);
+            handleEnumerateInstancesResponseAggregation(poA,true);
 
             CIMResponseMessage* response = poA->removeResponse(0);
             
@@ -5916,12 +5943,21 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         CIMResponseData::RESP_INSTANCES,
         enContextIdStr);
 
+    // KS_TEMP debugging code. Delete. OCT2011
+    if (enumerationContext->responseCacheSize() != 0)
+    {
+        cout << "Error in responseCacheSize() " << enContextIdStr
+             << endl;
+        enumerationContext->valid();
+        enumerationContext->trace();
+        enumerationTable.trace();
+    }
     PEGASUS_ASSERT(enumerationContext->responseCacheSize() == 0);  // KS_TEMP
-    //
+
     // Set up an aggregate object and save a copy of the original request.
     // NOTE: Build the poA for the EnumerateRequest, not the corresponding
     // pull operation.
-    //
+
     OperationAggregate* poA= new OperationAggregate(
         new CIMEnumerateInstancesRequestMessage(*enumRequest),
         enumRequest->getType(),
@@ -6040,7 +6076,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         {
             // Converts all responses to a single response message
 
-            handleEnumerateInstancesResponseAggregation(poA);
+            handleEnumerateInstancesResponseAggregation(poA, true);
 
             CIMResponseMessage* repositoryResponse = poA->removeResponse(0);
 
@@ -6086,7 +6122,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         // if there were no repository responses, set complete now.
         if (totalIssued == 0)
         {
-                enumerationContext->setProvidersComplete();
+            enumerationContext->setProvidersComplete();
         }
     }
     else
@@ -6163,6 +6199,11 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
                                     request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
+
+    if (enumerationContext->isClosed())
+    {
+        enumerationContext->removeContext();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -6473,6 +6514,11 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
 
     _enqueueResponse(request, openResponse.release());
 
+    if (enumerationContext->isClosed())
+    {
+        enumerationContext->removeContext();
+    }
+
     PEG_METHOD_EXIT();
 }
 
@@ -6701,7 +6747,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // Temp hack because resequencing a single object causes problems
     //if (enumResponse.get() != 0)
     Uint32 totalIssued = 0;
-    if (cimObjects.size() != 0 || cimObjects.size() == 0)
+////////  KS_TODO   if (cimObjects.size() != 0 || cimObjects.size() == 0)
+    if (cimObjects.size() != 0)
     {
         AutoPtr<CIMReferencesResponseMessage> enumResponse;
         enumResponse.reset(dynamic_cast<CIMReferencesResponseMessage*>(
@@ -6843,6 +6890,11 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         cimAggregationLocalHost, request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
+
+    if (enumerationContext->isClosed())
+    {
+        enumerationContext->removeContext();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -7055,7 +7107,9 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     // If any return from repository, send it to aggregator.
     Uint32 totalIssued = 0;
-    if (instanceNames.size() != 0 || instanceNames.size() == 0)
+/////////////////// KS_TODO   if (instanceNames.size() != 0 ||
+// instanceNames.size() == 0)
+    if (instanceNames.size() != 0)
     {
         AutoPtr<CIMReferenceNamesResponseMessage> enumResponse;
         enumResponse.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
@@ -7192,6 +7246,11 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         cimAggregationLocalHost, request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
+
+    if (enumerationContext->isClosed())
+    {
+        enumerationContext->removeContext();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -7449,7 +7508,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // Temp hack because resequencing a single object causes problems
     //if (enumResponse.get() != 0)
 
-    if (cimObjects.size() != 0 || cimObjects.size() == 0)
+///// KS_TODO Why    if (cimObjects.size() != 0 || cimObjects.size() == 0)
+    if (cimObjects.size() != 0)
     {
         AutoPtr<CIMAssociatorsResponseMessage> enumResponse;
         enumResponse.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
@@ -7468,8 +7528,9 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
             enumResponse.release());
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenRAssociatorInstances 8. ProviderCount = %u",
-        providerInfos.providerCount));
+        "OpenAssociatorInstances reposiotry _forwardForAggregation."
+        " ProviderCount= %u objectCount= %u",
+        providerInfos.providerCount, cimObjects.size() ));
     }
     else
     {
@@ -7581,6 +7642,11 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         cimAggregationLocalHost, request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
+
+    if (enumerationContext->isClosed())
+    {
+        enumerationContext->removeContext();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -7804,7 +7870,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     providerInfos.providerCount, objectNames.size()));
 
     // If any return from repository, send it to aggregator.
-    if (objectNames.size() != 0 || objectNames.size() == 0)
+/////// KS_TODO     if (objectNames.size() != 0 || objectNames.size() == 0)
+    if (objectNames.size() != 0)
     {
         AutoPtr<CIMAssociatorNamesResponseMessage> enumResponse;
         enumResponse.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
@@ -7940,6 +8007,11 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
+
+    if (enumerationContext->isClosed())
+    {
+        enumerationContext->removeContext();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -8308,7 +8380,8 @@ void CIMOperationRequestDispatcher::
 */
 void CIMOperationRequestDispatcher::
     handleEnumerateInstancesResponseAggregation(
-        OperationAggregate* poA)
+        OperationAggregate* poA,
+        bool hasPropList)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
@@ -8325,11 +8398,18 @@ void CIMOperationRequestDispatcher::
         CSTRING(poA->_className.getString()),
         poA->numberResponses()));
 
-// Tied only to the trace below
-//  CIMEnumerateInstancesRequestMessage* request =
-//      (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
-
     CIMResponseData & to = toResponse->getResponseData();
+
+    CIMEnumerateInstancesRequestMessage* request =
+        (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
+
+    // Re-add the property list as stored from request after deepInheritance fix
+    // since on OOP on the response message the property list gets lost
+    if (hasPropList)
+    {
+        to.setPropertyList(request->propertyList);
+    }
+
     // Work backward and delete each response off the end of the array
     for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {

@@ -33,7 +33,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include "DestinationQueue.h"
@@ -43,44 +42,17 @@ PEGASUS_NAMESPACE_BEGIN
 // Initialize with default values.
 Uint16 DestinationQueue::_maxDeliveryRetryAttempts = 3;
 Uint64 DestinationQueue::_minDeliveryRetryIntervalUsec = 20 * 1000000;
-Uint64 DestinationQueue::_minSubscriptionRemovalTimeIntervalUsec
-    = 2592000 * 1000000ULL; // Default 30 days, Refer DSP1054.
 Uint64 DestinationQueue::_sequenceIdentifierLifetimeUsec = 600 * 1000000;
-
 String DestinationQueue::_indicationServiceName = "PG:IndicationService";
 String DestinationQueue::_objectManagerName = "Pegasus";
-Uint32 DestinationQueue::_indicationServiceQid;
 
-DestinationQueue::IndDiscardedReasonMsgs
-    DestinationQueue::indDiscardedReasonMsgs[] = {
-    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_LD_DELETED",
-     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\" was"
-         " not delivered due to the corresponding listener destination"
-         " instance was removed."},
-
-    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_"
-         "SUBSCRIPTION_DELETED",
-     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\" was"
-         " not delivered due to the corresponding subscription was disabled"
-         " or deleted."},
-
-    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_"
-         "DESTINATIONQUEUE_FULL",
-     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
-         " was discarded due to the destination queue was full."},
-
-    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_SIL_EXPIRED",
-     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
-         " was not delivered due to the sequence identifier lifetime expired."},
-
-    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_DRA_EXCEEDED",
-     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
-         " was not delivered due to the maximum delivery retry"
-         " attempts exceeded. Exception : $2"},
-
-    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_CIMSERVER_SHUTDOWN",
-     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
-          " was not delivered due to the cimserver shutdown."}
+const char* DestinationQueue::_indDiscardedReasons[] = {
+    "Listener not active",
+    "Subscription not active",
+    "DestinationQueue full",
+    "SequenceIdentifierLifetTime expired",
+    "DeliveryRetryAttempts exceeded",
+    "CIMServer shutdown"
 };
 
 Uint64 DestinationQueue::_serverStartupTimeUsec
@@ -142,16 +114,6 @@ void DestinationQueue::_initIndicationServiceProperties()
        // See DSP 1054 ver 1.1.0 Sec 7.10
     _sequenceIdentifierLifetimeUsec = _maxDeliveryRetryAttempts *
         _minDeliveryRetryIntervalUsec * 10;
-
-    Uint32 subRemoveIntervalValue;
-    instance.getProperty(
-        instance.findProperty(
-            _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL)).getValue().
-                get(subRemoveIntervalValue);
-
-    _minSubscriptionRemovalTimeIntervalUsec =
-        subRemoveIntervalValue * 1000000ULL;
-
     PEG_METHOD_EXIT();
 }
 
@@ -187,8 +149,6 @@ DestinationQueue::DestinationQueue(
                     "Initializaing the Destination Queue");
                 _initIndicationServiceProperties();
                 _initObjectManagerProperties();
-                _indicationServiceQid = MessageQueueService::find_service_qid(
-                  PEGASUS_QUEUENAME_INDICATIONSERVICE);
             }
             catch(const Exception &e)
             {
@@ -212,8 +172,6 @@ DestinationQueue::DestinationQueue(
     _sequenceContext.append("-");
     _sequenceContext.append(_objectManagerName);
     _sequenceContext.append("-");
-
-    _connection = 0;
 
     Uint32 len = 0;
     char buffer[22];
@@ -245,11 +203,10 @@ DestinationQueue::DestinationQueue(
     _retryAttemptsExceededIndications = 0;
     _subscriptionDeleteDroppedIndications = 0;
     _calcMaxQueueSize = true;
+    _lastSuccessfulDeliveryTimeUsec = 0;
     _maxIndicationDeliveryQueueSize = 2400;
 
-    _lastSuccessfulDeliveryTimeUsec =
-        _queueCreationTimeUsec = System::getCurrentTimeUsec();
-
+    _queueCreationTimeUsec = System::getCurrentTimeUsec();
     PEG_METHOD_EXIT();
 }
 
@@ -262,7 +219,6 @@ DestinationQueue::~DestinationQueue()
     {
         _cleanup(LISTENER_NOT_ACTIVE);
     }
-    delete _connection;
 
     PEG_METHOD_EXIT();
 }
@@ -334,29 +290,21 @@ void DestinationQueue::_logDiscardedIndication(
     const CIMInstance &indication,
     const String &message)
 {
+
     PEGASUS_ASSERT(reasonCode <
-        sizeof(indDiscardedReasonMsgs)/sizeof(IndDiscardedReasonMsgs));
+        sizeof(_indDiscardedReasons)/sizeof(const char*));
 
-    if (reasonCode == DRA_EXCEEDED)
-    {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                indDiscardedReasonMsgs[reasonCode].key,
-                indDiscardedReasonMsgs[reasonCode].msg,
-                (const char*)_getSequenceContext(indication).getCString(),
-                _getSequenceNumber(indication),
-                (const char*)message.getCString()));
-    }
-    else
-    {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                indDiscardedReasonMsgs[reasonCode].key,
-                indDiscardedReasonMsgs[reasonCode].msg,
-                (const char*)_getSequenceContext(indication).getCString(),
-                _getSequenceNumber(indication)));
-
-    }
+    String logMessage = _indDiscardedReasons[reasonCode];
+    logMessage.append(Char16('.'));
+    logMessage.append(message);
+    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+        MessageLoaderParms(
+            "HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED",
+            "Failed to deliver an indication with SequenceContext \"$0\" "
+                "and SequenceNumber \"$1\" : $2.",
+            (const char*)_getSequenceContext(indication).getCString(),
+            _getSequenceNumber(indication),
+            (const char*)logMessage.getCString()));
 }
 
 void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
@@ -400,21 +348,12 @@ void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
     }
     indication.addProperty(prop);
 
-    DeliveryStatusAggregator *aggregator = 0;
-    if (message->deliveryStatusAggregator &&
-        message->deliveryStatusAggregator->waitUntilDelivered)
-    {
-        aggregator = message->deliveryStatusAggregator;
-    }
-
     IndicationInfo *info = new IndicationInfo(
         message->indicationInstance,
         message->subscriptionInstance,
         message->operationContext,
         message->nameSpace.getString(),
-        this,
-        aggregator);
-
+        this);
     _queue.insert_back(info);
 
     info->lastDeliveryRetryTimeUsec = 0;
@@ -439,7 +378,6 @@ void DestinationQueue::updateDeliveryRetrySuccess(IndicationInfo *info)
         "DestinationQueue::updateDeliveryRetrySuccess");
 
     AutoMutex mtx(_queueMutex);
-
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastSuccessfulDeliveryTimeUsec = System::getCurrentTimeUsec();
     _lastDeliveryRetryStatus = SUCCESS;
@@ -464,30 +402,9 @@ void DestinationQueue::updateDeliveryRetryFailure(
 
     AutoMutex mtx(_queueMutex);
 
-    // We should not have any connection object here because indication
-    // delivery has failed.
-    PEGASUS_ASSERT(!_connection);
-
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastDeliveryRetryStatus = FAIL;
     info->deliveryRetryAttemptsMade++;
-
-    // If the last successful delivery time is greater than or equal to
-    // SubscriptionRemovalTimeInterval, send message to indication service
-    // to reconcile OnFatalErrorPolicy
-    if (System::getCurrentTimeUsec() - _lastSuccessfulDeliveryTimeUsec >=
-        _minSubscriptionRemovalTimeIntervalUsec)
-    {
-        CIMProcessIndicationResponseMessage *response =
-            new CIMProcessIndicationResponseMessage(
-                XmlWriter::getNextMessageId(),
-                CIMException(CIM_ERR_FAILED),
-                QueueIdStack(_indicationServiceQid),
-                String(),
-                info->subscription);
-        response->dest = _indicationServiceQid;
-        MessageQueueService::SendForget(response);
-    }
 
     // Check for DeliveryRetryAttempts by adding the original delivery attempt.
     if (info->deliveryRetryAttemptsMade >= _maxDeliveryRetryAttempts + 1)
@@ -619,13 +536,6 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
     {
         // Maximum expiration time is equals to DeliveryRetryInterval.
         nextIndDRIExpTimeUsec = _minDeliveryRetryIntervalUsec;
-
-        // If there are no indications in the queue, delete connection.
-        if (!_queue.size() && _lastDeliveryRetryStatus != PENDING)
-        {
-            delete _connection;
-            _connection = 0;
-        }
         return 0;
     }
 
@@ -671,13 +581,13 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
             if (info->lastDeliveryRetryTimeUsec)
             {
                 elapsedDeliveryRetryAttempts =
-                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec)
+                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec) 
                         / _minDeliveryRetryIntervalUsec);
             }
             else
             {
-                elapsedDeliveryRetryAttempts =
-                    ((timeNowUsec - info->arrivalTimeUsec)
+                elapsedDeliveryRetryAttempts = 
+                    ((timeNowUsec - info->arrivalTimeUsec) 
                         / _minDeliveryRetryIntervalUsec);
             }
 
@@ -721,23 +631,6 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
     return 0;
 }
 
-void DestinationQueue::setDeliveryRetryAttempts( Uint16 DeliveryRetryAttempts )
-{
-    AutoMutex mtx(_intializeMutex);
-    _maxDeliveryRetryAttempts = DeliveryRetryAttempts ;
-    _sequenceIdentifierLifetimeUsec = _maxDeliveryRetryAttempts *
-        _minDeliveryRetryIntervalUsec * 10;
-}
-
-void DestinationQueue::setminDeliveryRetryInterval(
-    Uint32 minDeliveryRetryInterval)
-{
-    AutoMutex mtx(_intializeMutex);
-    _minDeliveryRetryIntervalUsec =  Uint64(minDeliveryRetryInterval)*1000000 ;
-    _sequenceIdentifierLifetimeUsec = _maxDeliveryRetryAttempts *
-        _minDeliveryRetryIntervalUsec * 10;
-}
-
 void DestinationQueue::getInfo(QueueInfo &qinfo)
 {
     AutoMutex mtx(_queueMutex);
@@ -755,12 +648,8 @@ void DestinationQueue::getInfo(QueueInfo &qinfo)
     qinfo.retryAttemptsExceededIndications = _retryAttemptsExceededIndications;
     qinfo.subscriptionDisableDroppedIndications =
         _subscriptionDeleteDroppedIndications;
-    /* If the last successful delivery time is equals to the queue creation
-     * time, indication delivery for this destination was never successful
-     */
-    qinfo.lastSuccessfulDeliveryTimeUsec =
-      _lastSuccessfulDeliveryTimeUsec == _queueCreationTimeUsec ? 0 :
-          _lastSuccessfulDeliveryTimeUsec;
+    qinfo.lastSuccessfulDeliveryTimeUsec = _lastSuccessfulDeliveryTimeUsec;
 }
 
 PEGASUS_NAMESPACE_END
+

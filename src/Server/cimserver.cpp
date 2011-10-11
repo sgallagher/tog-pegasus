@@ -132,21 +132,11 @@ PEGASUS_USING_STD;
 
 //Windows service variables are not defined elsewhere in the product
 //enable ability to override these
-#ifndef PEGASUS_FLAVOR
 #ifndef PEGASUS_SERVICE_NAME
 #define PEGASUS_SERVICE_NAME "Pegasus CIM Object Manager";
 #endif
 #ifndef PEGASUS_SERVICE_DESCRIPTION
 #define PEGASUS_SERVICE_DESCRIPTION "Pegasus CIM Object Manager Service";
-#endif
-#else
-#ifndef PEGASUS_SERVICE_NAME
-#define PEGASUS_SERVICE_NAME PEGASUS_FLAVOR " Pegasus CIM Object Manager"
-#endif
-#ifndef PEGASUS_SERVICE_DESCRIPTION
-#define PEGASUS_SERVICE_DESCRIPTION PEGASUS_FLAVOR \
-            " Pegasus CIM Object Manager Service";
-#endif
 #endif
 
 #ifdef PEGASUS_OS_PASE
@@ -237,6 +227,10 @@ static const char OPTION_HELP        = 'h';
 static const char OPTION_HOME        = 'D';
 
 static const char OPTION_SHUTDOWN    = 's';
+
+static const char LONG_HELP[]        = "help";
+
+static const char LONG_VERSION[]     = "version";
 
 static const char OPTION_DEBUGOUTPUT = 'X';
 
@@ -445,32 +439,6 @@ static void _initConfigProperty(const String &propName, Uint32 value)
         value,
         n);
     ConfigManager::getInstance()->initCurrentValue(propName, String(startP, n));
-}
-static void _restrictListening(
-    ConfigManager* configManager,
-    const String &listenOn,
-    const Uint32 &portNumberHttp,
-    const Boolean useSSL)
-{
-    static Array<HostAddress> laddr = configManager ->getListenAddress( 
-                                          listenOn);
-    for(Uint32 i = 0, n = laddr.size(); i < n; ++i)
-    {
-        if(laddr[i].getAddressType() == HostAddress::AT_IPV6)
-        {
-#ifdef PEGASUS_ENABLE_IPV6
-            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                    portNumberHttp, useSSL, 
-                    &laddr[i]);
-#endif
-        }
-        else if(laddr[i].getAddressType() == HostAddress::AT_IPV4)
-        {
-            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                    portNumberHttp, useSSL, 
-                    &laddr[i]);
-        }
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -867,14 +835,6 @@ int CIMServerProcess::cimserver_run(
         //
         if (shutdownOption)
         {
-#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
-            // This checks whether user is authorized to stop the
-            // CIM Server. When unauthorized a message is logged to
-            // to the user and program exits.
-            shutdownCheckProfileCIMSERVclassWBEM();
-            // Depending on the success of the previous check we may not
-            // reach this code!!!
-#endif
             String configTimeout =
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue =
@@ -924,12 +884,6 @@ int CIMServerProcess::cimserver_run(
         _cimServerProcess->getCompleteVersion() << endl;
 #endif
 
-    // Force initialization of hostname and fullyQualifiedHostName through
-    // retrieving current value from Configuration Manager
-    // - this will run getCurrentValue() in DefaultPropertyOwner.cpp
-    configManager->getCurrentValue("hostname");
-    configManager->getCurrentValue("fullyQualifiedHostName");
-
     // reset message loading to NON-process locale
     MessageLoader::_useProcessLocale = false;
 
@@ -974,18 +928,17 @@ int CIMServerProcess::cimserver_run(
 
     // Start up the CIM Server
 
-#if defined(PEGASUS_OS_TYPE_UNIX)
-    //
-    // Lock the CIMSERVER_LOCK_FILE during CIM Server start-up to prevent
-    // concurrent writes to this file by multiple cimserver processes
-    // starting at the same time.
-    //
-    CString startupLockFileName = ConfigManager::getHomedPath(
-       PEGASUS_CIMSERVER_START_LOCK_FILE).getCString();
-
     try
     {
-    
+#if defined(PEGASUS_OS_TYPE_UNIX)
+        //
+        // Lock the CIMSERVER_LOCK_FILE during CIM Server start-up to prevent
+        // concurrent writes to this file by multiple cimserver processes
+        // starting at the same time.
+        //
+        CString startupLockFileName = ConfigManager::getHomedPath(
+            PEGASUS_CIMSERVER_START_LOCK_FILE).getCString();
+
         // Make sure the start-up lock file exists
         FILE* startupLockFile;
         if ((startupLockFile = fopen(startupLockFileName, "w")) != 0)
@@ -994,9 +947,6 @@ int CIMServerProcess::cimserver_run(
         }
 
         AutoFileLock fileLock(startupLockFileName);
-#else
-    try
-    {
 #endif
 
 #if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
@@ -1087,7 +1037,7 @@ int CIMServerProcess::cimserver_run(
         {
             Uint32 portNumberHttp = 0;
             String httpPort = configManager->getCurrentValue("httpPort");
-            if (httpPort.size() == 0)
+            if (httpPort == String::EMPTY)
             {
                 //
                 // Look up the WBEM-HTTP port number
@@ -1098,35 +1048,28 @@ int CIMServerProcess::cimserver_run(
             }
             else
             {
-                Uint64 longNumber;
-                // use the current value which has been checked for validity at
-                // load(fct. GetOptions), see DefaultPropertyOwner::isValid()
-                StringConversion::decimalStringToUint64(
-                    httpPort.getCString(),
-                    longNumber);
-                portNumberHttp = longNumber & 0xffff;
-            }
-
-            String listenOn = configManager->getCurrentValue("listenAddress");
-            if(String::equalNoCase(listenOn, "All"))
-            {
-                if (addIP6Acceptor)
+                //
+                // user-specified
+                //
+                CString portString = httpPort.getCString();
+                char* end = 0;
+                portNumberHttp = strtol(portString, &end, 10);
+                if (!(end != 0 && *end == '\0'))
                 {
-                    _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                        portNumberHttp, false);
-                }
-                if (addIP4Acceptor)
-                {
-                    _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                        portNumberHttp, false);
+                    throw InvalidPropertyValue("httpPort", httpPort);
                 }
             }
-            else // Restricted listening
-            {
-                _restrictListening(
-                    configManager, listenOn, portNumberHttp, false);
-            }
 
+            if (addIP6Acceptor)
+            {
+                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                    portNumberHttp, false);
+            }
+            if (addIP4Acceptor)
+            {
+                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                    portNumberHttp, false);
+            }
             // The port number is converted to a string to avoid the
             //  addition of localized characters (e.g., "5,988").
             char scratchBuffer[22];
@@ -1148,7 +1091,7 @@ int CIMServerProcess::cimserver_run(
         {
             Uint32 portNumberHttps = 0;
             String httpsPort = configManager->getCurrentValue("httpsPort");
-            if (httpsPort.size() == 0)
+            if (httpsPort == String::EMPTY)
             {
                 //
                 // Look up the WBEM-HTTPS port number
@@ -1159,35 +1102,27 @@ int CIMServerProcess::cimserver_run(
             }
             else
             {
-                Uint64 longNumber;
-                // use the current value which has been checked for validity at
-                // load(fct. GetOptions), see DefaultPropertyOwner::isValid()
-                StringConversion::decimalStringToUint64(
-                    httpsPort.getCString(),
-                    longNumber);
-                portNumberHttps = longNumber & 0xffff;
-            }
-
-            String listenOn = configManager->getCurrentValue("listenAddress");
-            if(String::equalNoCase(listenOn, "All"))
-            {
-                if (addIP6Acceptor)
+                //
+                // user-specified
+                //
+                CString portString = httpsPort.getCString();
+                char* end = 0;
+                portNumberHttps = strtol(portString, &end, 10);
+                if (!(end != 0 && *end == '\0'))
                 {
-                    _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                        portNumberHttps, true);
-                }
-                if (addIP4Acceptor)
-                {
-                    _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                        portNumberHttps, true);
+                    throw InvalidPropertyValue("httpsPort", httpsPort);
                 }
             }
-            else //Restricted
+            if (addIP6Acceptor)
             {
-                _restrictListening(
-                    configManager, listenOn, portNumberHttps, true);
+                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                    portNumberHttps, true);
             }
-
+            if (addIP4Acceptor)
+            {
+                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                    portNumberHttps, true);
+            }
             // The port number is converted to a string to avoid the
             //  addition of localized characters (e.g., "5,989").
             char scratchBuffer[22];
@@ -1338,18 +1273,10 @@ int CIMServerProcess::cimserver_run(
             parms);
         cerr << MessageLoader::getMessage(parms) << endl;
 
-    //delete the start up lock file
-#if defined(PEGASUS_OS_TYPE_UNIX)
-    System::removeFile(startupLockFileName);
-#endif
         deleteCIMServer();
         return 1;
     }
 
-    //delete the start up lock file
-#if defined(PEGASUS_OS_TYPE_UNIX)
-    System::removeFile(startupLockFileName);
-#endif
     deleteCIMServer();
     return 0;
 }

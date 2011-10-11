@@ -417,6 +417,7 @@ void CMPIProvider::terminate()
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
         "CMPIProvider::terminate()");
+    Status savedStatus=_status;
     if (_status == INITIALIZED)
     {
         try

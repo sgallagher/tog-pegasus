@@ -35,14 +35,12 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/Pegasus_inl.h>
 
 #include "CIMCLIClient.h"
 #include "ObjectBuilder.h"
 #include "CIMCLICommon.h"
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/ArrayIterator.h>
-#include <Clients/cliutils/CsvStringParse.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -58,6 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 bool verboseTest = false;
 #define VCOUT if (verboseTest) cout << "LINE=" << __LINE__ << " TST "
 
+class csvStringParse;
 
 // Cleans an input array by removing the { } tokens that surround
 // the array parameters.  Does nothing if they do not exist.  If there is
@@ -125,11 +124,16 @@ Uint32 _includesType(const String& name)
 // return String for the tokenType. This is a diagnostic tool only.
 String tokenTypeToString(TokenType tokenType)
 {
+    String rtn;
     static const char * tokenTypeString[] =
     {
         "UNKNOWN","ILLEGAL", "VALUE", "NO_VALUE", "EXCLAM", "NAME_ONLY",
              "EMBED", "END_EMBED", "EMBED_NEXT_ARRAY_ITEM"
     };
+    static const Uint32 _NUM_TYPES =
+        sizeof(tokenTypeString) / sizeof(tokenTypeString[0]);
+
+    PEGASUS_ASSERT((Uint32)tokenType <= _NUM_TYPES);
     return tokenTypeString[tokenType];
 }
 
@@ -137,8 +141,7 @@ tokenItem::tokenItem (const String& inputParam, String& name, String& value,
     TokenType& type)
     :
     tokenInput(inputParam),tokenValue(value),
-    tokenType(type),
-    duplicate(false)
+    tokenType(type)
 {
     if (name.size() != 0)
     {
@@ -165,8 +168,6 @@ String tokenItem::toString()
     x.append(tokenTypeToString(tokenType));
     x.append(", input=");
     x.append(tokenInput);
-    x.append(", duplicate=");
-    x.append(boolToString(duplicate));
     x.append(" Instance count=");
     x.append(Uint32ToString(tmp, _instances.size(), cvtSize));
     for (Uint32 i = 0 ; i < _instances.size(); i++)
@@ -211,6 +212,7 @@ tokenItem parseInputParam(const String& input)
     TokenType tokenType = UNKNOWN;
     String value;
     String name;
+    Uint32 pos;
 
     // Scan the input string for a terminator character.
     Uint32 index = 0;
@@ -305,6 +307,112 @@ tokenItem parseInputParam(const String& input)
     return ti;
 }
 
+/******************************************************************************
+   Parser for comma-separated-strings (csv). This parser takes into
+   account quoted strings the " character and returns everything
+   within a quoted block in the string in one batch.  It also
+   considers the backslash "\" escape character to escape single
+   double quotes.
+   Example:
+     csvStringParse x (inputstring, ",");
+     while (x.more())
+        rtnString = x.next();
+******************************************************************************/
+class csvStringParse
+{
+public:
+    /* Define a string to parse for comma separated values and the
+       separation character
+    */
+    csvStringParse(const String& csvString, const int separator)
+    {
+        _inputString = csvString;
+        _separator = separator;
+        _idx = 0;
+        _end = csvString.size();
+    }
+
+    /* determine if there is more to parse
+       @return true if there is more to parse
+    */
+    Boolean more()
+    {
+        return (_idx < _end)? true : false;
+    }
+
+    /* get next string from input. Note that this will continue to
+       return empty strings if you parse past the point where more()
+       returns false.
+       @return String
+    */
+    String next()
+    {
+        String rtnValue;
+        parsestate state = NOTINQUOTE;
+
+        while ((_idx <= _end) && (_inputString[_idx]))
+        {
+            char idxchar = _inputString[_idx];
+            switch (state)
+            {
+                case NOTINQUOTE:
+                    switch (idxchar)
+                    {
+                        case '\\':
+                            state = INSQUOTE;
+                            break;
+
+                        case '"':
+                            state = INDQUOTE;
+                            break;
+
+                        default:
+                            if (idxchar == _separator)
+                            {
+                                _idx++;
+                                return rtnValue;
+                            }
+                            else
+                            {
+                                rtnValue.append(idxchar);
+                            }
+                            break;
+                    }
+                    break;
+
+                // add next character and set NOTINQUOTE State
+                case INSQUOTE:
+                    rtnValue.append(idxchar);
+                    state = NOTINQUOTE;
+                    break;
+
+                // append all but quote character
+                case INDQUOTE:
+                    switch (idxchar)
+                    {
+                        case '"':
+                            state = NOTINQUOTE;
+                            break;
+                        default:
+                            rtnValue.append(idxchar);
+                            break;
+                    }
+            }
+            _idx++;
+        }   // end while
+
+        return rtnValue;
+    }
+
+private:
+    enum parsestate {INDQUOTE, INSQUOTE, NOTINQUOTE};
+    Uint32 _idx;
+    int _separator;
+    Uint32 _end;
+    String _inputString;
+};
+
+
 /* Convert a single string provided as input into a new CIM variable
    and place it in a CIMValue.  This function does not process
    Embedded instances/objects since they are not represented as a single
@@ -360,9 +468,7 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
         case CIMTYPE_REFERENCE:
             return CIMValue(CIMObjectPath(str));
 
-        case CIMTYPE_CHAR16:
-        case CIMTYPE_OBJECT:
-        case CIMTYPE_INSTANCE:
+        default:
             cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
                 "Data type $0 build from string not allowed",
                 cimTypeToString(type));
@@ -390,6 +496,7 @@ Boolean _stringToArrayValue(
     CIMValue& val)
 {
     CIMType type = val.getType();
+    Uint32 arrayDimension = val.getArraySize();
     String parseStr(str);
 
     csvStringParse strl(parseStr, ',');
@@ -564,9 +671,7 @@ Boolean _stringToArrayValue(
             break;
         }
 
-        case CIMTYPE_CHAR16:
-        case CIMTYPE_OBJECT:
-        case CIMTYPE_INSTANCE:
+        default:
             cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
                 "Data type $0 build from string not allowed",
                 cimTypeToString(type));
@@ -584,18 +689,6 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
 {
     VCOUT <<"_buildValueFromToken cimType=" << cimTypeToString(cimType)
           << " token=" << token.toString() << endl;
-
-    if (!iv.isArray())
-    {
-        // FUTURE: Should this be an error or warning?  The question exists
-        // because we consider unknown property names as warnings.
-        if (token.duplicate)
-        {
-            cimcliMsg::exit(CIMCLI_INPUT_ERR,
-                "Duplicate scalar property Name. $0",
-                   token.tokenInput);
-        }
-    }
 
     switch (token.tokenType)
     {
@@ -638,8 +731,6 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
         }
 
         // Embedded token. should contain embedded instance built earlier
-        // This will create either an embedded instance/object in CIMType
-        // CIMInstance or CIMObject or a reference in a REF CIMType property
         case EMBED:
         {
             // Array of Instances should be in place here to put into property.
@@ -655,7 +746,6 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
                         insts.append(token._instances[0]);
                         iv.set(insts);
                     }
-
                     else if (iv.getType() == CIMTYPE_OBJECT)
                     {
                         Array<CIMObject> objects;
@@ -663,39 +753,16 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
                         objects.append((CIMObject)token._instances[0]);
                         iv.set(objects);
                     }
-
-                    else if (iv.getType() == CIMTYPE_REFERENCE)
-                    {
-                        // augment the array of paths and set into the value
-                        Array<CIMObjectPath> paths;
-                        iv.get(paths);
-                        CIMObjectPath thisPath =
-                            token._instances[0].buildPath(token._class);
-                        paths.append(thisPath);
-                        iv.set(paths);
-                    }
-
                     else
                     {
                         cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-                            "Invalid CIM datatype on embedded object. "
-                            "CIMType=Token=$0"
-                            " token = $1", cimTypeToString(iv.getType()),
+                            "Invalid CIM datatype on embedded object. Token=$0",
                             token.toString());
                     }
                 }
 
                 else // Scalar. set token to property value
                 {
-                    // Since this is a scalar, there should only be a
-                    // single instance.
-                    if (token._instances.size() > 1 )
-                    {
-                        cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-                            "Multiple instances generated for "
-                            "scalar property $0 at input parameter $1",
-                            token.tokenName.getString(), token.tokenInput);
-                    }
                     CIMInstance inst = token._instances[0];
 
                     VCOUT << "buildInstance EMBED Instance found"
@@ -708,28 +775,14 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
                     {
                         iv.set(inst);
                     }
-
                     else if (cimType == CIMTYPE_OBJECT)
                     {
                         iv.set((CIMObject)inst);
                     }
-
-                    else if (iv.getType() == CIMTYPE_REFERENCE)
-                    {
-                        // Build the path from the instance in the token
-                        // and class in the token.
-
-                        CIMObjectPath thisPath = inst.buildPath(token._class);
-                        iv.set(thisPath);
-                    }
-
                     else
                     {
                         cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-                            "Invalid CIM datatype on embedded object. "
-                            "CIMType=$0"
-                            " Token=$1",
-                            cimTypeToString(iv.getType()),
+                            "Invalid CIM datatype on embedded object. Token=$0",
                             token.toString());
                     }
                 }
@@ -746,14 +799,11 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
 
         // In case of no value, just pass value existing in input CIMValue
         case NO_VALUE:
-        {        default:
+        {
             break;
         }
-        case UNKNOWN:
-        case ILLEGAL:
-        case NAME_ONLY:
-        case END_EMBED:
-        case EMBED_NEXT_ARRAY_ITEM:
+
+        default:
         {
             cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
                 "Invalid token on building CIMValue. Token=$0",
@@ -824,14 +874,14 @@ class iterateArray
 public:
     // construct an iterator for an array
     iterateArray(Array<String> input)
-    : _array(input), _pos(0), _prev(String())
+    : _array(input), _pos(0), _prev(String()), _start(0)
     {
     }
 
     // Create new iterator starting from nonzero position
     // in input array
     iterateArray(Array<String> input, Uint32 pos)
-    : _array(input), _pos(pos), _prev(String())
+    : _array(input), _pos(pos), _prev(String()), _start(pos)
     {
     }
 
@@ -893,6 +943,7 @@ private:
     Array<String> _array;
     Uint32 _pos;
     String _prev;
+    Uint32 _start;
 };
 
 /******************************************************************
@@ -967,8 +1018,7 @@ void ObjectBuilder::scanInputList(CIMClient& client,
                 // Append new instance into any existing array of instances
                 // for this token and append the token to the token list
                 ti._instances.append(_instance);
-
-                appendToken(ti);
+                _tokens.append(ti);
                 break;
             }
 
@@ -986,29 +1036,30 @@ void ObjectBuilder::scanInputList(CIMClient& client,
 
                 else
                 {
-                    // END_EMBED found, build instance
-                    // with current tokens to be returned. Return it in
-                    // CIMInstance parameter. includeQualifiers and
-                    // includeClassOrigin are false.
-                    // buildInstance(...) insures that an instance is built
+                // End when the END_EMBED found and build instance
+                // with current tokens to be returned. Return it in
+                // CIMInstance parameter. includeQualifiers and
+                // includeClassOrigin are false.
+                // buildInstance(...) insures that an instance is built
+                _instance = buildInstance(false, false,
+                    CIMPropertyList());
 
-                    // If this is the NEXT_ARRAY marker "},{" continue scan
-                    // by reinserting <featureName>{<classname> into the
-                    // input parameter list which fully defines the next item
-                    // as an array item of the same featureName.
-                    if (ti.tokenType == EMBED_NEXT_ARRAY_ITEM)
-                    {
-                        String x = featureName.getString();
-                        x.append("{");
-                        x.append(_className.getString());
-                        ia.insert(x);
+                // If this is the NEXT_ARRAY item continue scan
+                // by reinserting <featureName>{<classname> into the
+                // input parameter list which fully defines the next item
+                // as an array item of the same featureName.
+                if (ti.tokenType == EMBED_NEXT_ARRAY_ITEM)
+                {
+                    String x = featureName.getString();
+                    x.append("{");
+                    x.append(_className.getString());
+                    ia.insert(x);
 
-                        // Diagnostic
-                        ia.printList();
-                    }
-                    // set flag to stop since end embed tag found
-                    embEndTokenFound = true;
+                    // Diagnostic
+                    ia.printList();
                 }
+                // set flag to stop since end embed tag found
+                embEndTokenFound = true;                }
                 break;
             }
 
@@ -1023,13 +1074,9 @@ void ObjectBuilder::scanInputList(CIMClient& client,
                           "No Name Component" : "") );
             }
 
-        case UNKNOWN:
-        case VALUE:
-        case NO_VALUE:
-        case EXCLAM:
-        case NAME_ONLY:
+            default:
             {
-                appendToken(ti);
+                _tokens.append(ti);
             }
         }  // end case
 
@@ -1109,7 +1156,7 @@ ObjectBuilder::ObjectBuilder(
 ObjectBuilder::ObjectBuilder(iterateArray& ia,
     CIMClient& client,
     const CIMNamespaceName& nameSpace,
-    tokenItem& tiInput,
+    const tokenItem& tiInput,
     const CIMPropertyList& cimPropertyList,         // used to getClass
     Boolean verbose,
     CIMInstance& rtnInstance,
@@ -1132,18 +1179,11 @@ ObjectBuilder::ObjectBuilder(iterateArray& ia,
     _thisClass = client.getClass(nameSpace, _className,
                         false,true,true,cimPropertyList);
 
-    tiInput._class = _thisClass;
-
-    // Scan the input parameters to build a list of tokens representing
-    // a single embedded definition ( between ={ and }
+    // Scan the input parameters to build an embedded object.
     scanInputList(client, nameSpace, cimPropertyList, ia,
         recurseLevel, featureName);
 
-    // Build the resulting instance and return it as a parameter from the
-    // token set createeated in the scan. Always build an instance since
-    // that is used eve even to build reference properties.
-    rtnInstance = buildInstance(false, false,
-        CIMPropertyList());
+    rtnInstance = _instance;
 
     recurseLevel--;
 }
@@ -1437,19 +1477,6 @@ CIMValue ObjectBuilder::buildPropertyValue(
     {   // scalar
         return _stringToScalarValue(value.getCString(), vp.getType());
     }
-}
-void ObjectBuilder::appendToken(tokenItem ti)
-{
-    for (Uint32 i = 0; i <_tokens.size() ; i++)
-    {
-        {
-            if (_tokens[i].tokenName == ti.tokenName)
-            {
-                ti.duplicate = true;
-            }
-        }
-    }
-    _tokens.append(ti);
 }
 
 void  ObjectBuilder::print()

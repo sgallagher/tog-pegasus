@@ -287,8 +287,10 @@ void CIMOperationResponseEncoder::sendResponsePull(
             // NOTE: even if this error occurs in the middle, HTTPConnection
             // will flush the entire queued message and reformat.
             if (isChunkRequest == false)
+            {
                 message =
                     formatError(name, messageId, httpMethod, cimException);
+            }
 
             // uri encode the error (for the http header) only when it is
             // non-chunking or the first error with chunking
@@ -367,6 +369,7 @@ void CIMOperationResponseEncoder::sendResponsePull(
         new HTTPMessage(message, 0, &cimException));
     httpMessage->setComplete(isLast);
     httpMessage->setIndex(messageIndex);
+    httpMessage->binaryResponse = response->binaryResponse;
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {

@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////
 
 /**
-    This is Security property owner class that extends ConfigPropertyOwner
+    This is Log property owner class that extends ConfigPropertyOwner
     class and provide implementation.
 */
 class PEGASUS_CONFIG_LINKAGE SecurityPropertyOwner : public ConfigPropertyOwner
@@ -78,13 +78,6 @@ public:
     void getPropertyInfo(
         const String& name,
         Array<String>& propertyInfo) const;
-
-    /**
-       Supplemental help information above and beyond
-       getPropertyHelp.  Overrides function in ConfigPropertyOwner
-       to provide possible values.
-     */
-////    String getPropertyHelpSupplement(const String& name) const;
 
     /**
         Get default value of the specified property.
@@ -209,7 +202,6 @@ private:
     AutoPtr<struct ConfigProperty> _sslTrustStoreUserName;
     AutoPtr<struct ConfigProperty> _enableSubscriptionsForNonprivilegedUsers;
     AutoPtr<struct ConfigProperty> _cipherSuite;
-    AutoPtr<struct ConfigProperty> _sslBackwardCompatibility;
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     AutoPtr<struct ConfigProperty> _authorizedUserGroups;

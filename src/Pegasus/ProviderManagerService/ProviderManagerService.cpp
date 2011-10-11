@@ -512,9 +512,8 @@ void ProviderManagerService::handleCimRequest(
 
     if(!cimResponse->isAsyncResponsePending)
     {
-        // constructor of object is putting itself into a linked list
-        // DO NOT remove the new operator
-        new AsyncLegacyOperationResult(
+        AsyncLegacyOperationResult * async_result =
+            new AsyncLegacyOperationResult(
             op,
             response.release());
 
@@ -665,9 +664,10 @@ void ProviderManagerService::asyncResponseCallback(
         response->cimException = CIMException(CIM_ERR_FAILED, String());
     }
 
-    // constructor of object is putting itself into a linked list
-    // DO NOT remove the new operator
-    new AsyncLegacyOperationResult(op, response);
+    AsyncLegacyOperationResult * async_result =
+        new AsyncLegacyOperationResult(
+            op,
+            response);
 
     providerManagerService->_complete_op_node(op);
  
@@ -1086,7 +1086,7 @@ void ProviderManagerService::_updateProviderModuleStatus(
             MessageLoaderParms(
                 "ProviderManager.ProviderManagerService."
                     "SET_MODULE_STATUS_FAILED",
-                "Failed to update the provider module status."));
+                "set module status failed."));
     }
 
     operationalStatusProperty.setValue(CIMValue(operationalStatus));
@@ -1134,6 +1134,81 @@ void ProviderManagerService::_indicationDeliveryRoutine(
         request);
 
     providerManagerService->SendForget(asyncRequest);
+
+
+
+
+#ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
+
+    // See Comments in config.mak asociated with
+    //  PEGASUS_INDICATIONS_Q_THRESHOLD
+    //
+    // if INDICATIONS_Q_STALL THRESHOLD is gt 0
+    // then if there are over INDICATIONS_Q_STALL_THRESHOLD
+    //           indications in the queue
+    //      then force this provider to sleep until the queue count
+    //      is lower than INDICATIONS_Q_RESUME_THRESHOLD
+
+static Mutex   indicationThresholdReportedLock;
+static Boolean indicationThresholdReported = false;
+
+#define INDICATIONS_Q_STALL_THRESHOLD PEGASUS_INDICATIONS_Q_THRESHOLD
+#define INDICATIONS_Q_RESUME_THRESHOLD \
+    (int)(PEGASUS_INDICATIONS_Q_THRESHOLD*.90)
+#define INDICATIONS_Q_STALL_DURATION 250 // milli-seconds
+
+    MessageQueue* indicationsQueue =
+        MessageQueue::lookup(_indicationServiceQueueId);
+
+    if (((MessageQueueService *)indicationsQueue)->getIncomingCount() >
+            INDICATIONS_Q_STALL_THRESHOLD)
+    {
+        AutoMutex indicationThresholdReportedAutoMutex(
+            indicationThresholdReportedLock);
+        if (!indicationThresholdReported)
+        {
+            indicationThresholdReported = true;
+            indicationThresholdReportedAutoMutex.unlock();
+
+            // make log entry to record que max exceeded
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "Indication generation stalled: maximum queue count ($0) "
+                    "exceeded.",
+                INDICATIONS_Q_STALL_THRESHOLD);
+        }
+        else
+        {
+            indicationThresholdReportedAutoMutex.unlock();
+        }
+
+        while (((MessageQueueService *)indicationsQueue)->getIncomingCount() >
+                   INDICATIONS_Q_RESUME_THRESHOLD)
+        {
+            Threads::sleep(INDICATIONS_Q_STALL_DURATION);
+        }
+
+        AutoMutex indicationThresholdReportedAutoMutex1(
+            indicationThresholdReportedLock);
+
+        if (indicationThresholdReported)
+        {
+            indicationThresholdReported = false;
+            indicationThresholdReportedAutoMutex1.unlock();
+
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "Indication generation resumed: current queue count = $0",
+                ((MessageQueueService *)indicationsQueue)->getIncomingCount());
+
+        }
+        else
+        {
+            indicationThresholdReportedAutoMutex1.unlock();
+        }
+    }
+#endif /* INDICATIONS_Q_STALL_THRESHOLD */
+
 }
 
 void ProviderManagerService::providerModuleGroupFailureCallback(
@@ -1183,7 +1258,7 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             MessageLoaderParms(
-                "ProviderManager.ProviderManagerService."
+                "ProviderManager.OOPProviderManagerRouter."
                     "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED",
                 "A failure was detected in provider module $0 with "
                     "user context $1.",
@@ -1194,7 +1269,7 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             MessageLoaderParms(
-                "ProviderManager.ProviderManagerService."
+                "ProviderManager.OOPProviderManagerRouter."
                     "OOP_PROVIDER_MODULE_FAILURE_DETECTED",
                 "A failure was detected in provider module $0.",
                 moduleName));
@@ -1378,7 +1453,7 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
                             System::CIMSERVER,
                             Logger::WARNING,
                             MessageLoaderParms(
-                                "ProviderManager.ProviderManagerService."
+                                "ProviderManager.OOPProviderManagerRouter."
                                    "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
                                  "The generation of indications by providers"
                                      " in module $0 may be affected. To ensure"

@@ -183,6 +183,7 @@ public:
         PEGASUS_PROVIDERMODULEGROUPFAIL_CALLBACK_T 
             providerModuleGroupFailCallback,
         PEGASUS_ASYNC_RESPONSE_CALLBACK_T asyncResponseCallback,
+        Boolean subscriptionInitComplete,
         ThreadPool * threadPool);
 
     ~ProviderAgentContainer();
@@ -206,7 +207,6 @@ public:
     */
     void cleanDisconnectedClientRequests();
     static void setAllProvidersStopped();
-    static void setSubscriptionInitComplete(Boolean value);
     void sendResponse(CIMResponseMessage *response);
 private:
     //
@@ -420,7 +420,7 @@ private:
         For more information, please see the description of the
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
-    static Boolean _subscriptionInitComplete;
+    Boolean _subscriptionInitComplete;
 
 
     /**
@@ -434,7 +434,6 @@ private:
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
 Mutex ProviderAgentContainer::_numProviderProcessesMutex;
 Boolean ProviderAgentContainer::_allProvidersStopped = false;
-Boolean ProviderAgentContainer::_subscriptionInitComplete = false;
 
 // Set this to a value that no valid CIMResponseMessage* will have.
 CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
@@ -449,6 +448,7 @@ ProviderAgentContainer::ProviderAgentContainer(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     PEGASUS_PROVIDERMODULEGROUPFAIL_CALLBACK_T providerModuleGroupFailCallback,
     PEGASUS_ASYNC_RESPONSE_CALLBACK_T asyncResponseCallback,
+    Boolean subscriptionInitComplete,
     ThreadPool* threadPool)
     :
       _bitness(bitness),
@@ -460,6 +460,7 @@ ProviderAgentContainer::ProviderAgentContainer(
       _providerModuleGroupFailCallback(providerModuleGroupFailCallback),
       _asyncResponseCallback(asyncResponseCallback),
       _isInitialized(false),
+      _subscriptionInitComplete(subscriptionInitComplete),
       _threadPool(threadPool)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -509,11 +510,6 @@ ProviderAgentContainer::~ProviderAgentContainer()
 void ProviderAgentContainer::setAllProvidersStopped()
 {
     _allProvidersStopped = true;
-}
-
-void ProviderAgentContainer::setSubscriptionInitComplete(Boolean value)
-{
-    _subscriptionInitComplete = value;
 }
 
 void ProviderAgentContainer::_startAgentProcess()
@@ -658,6 +654,8 @@ void ProviderAgentContainer::_initialize()
         maxProviderProcessesString.getCString(),
         v);
     Uint32 maxProviderProcesses = (Uint32)v;
+
+    char* end = 0;
 
     {
         AutoMutex lock(_numProviderProcessesMutex);
@@ -811,7 +809,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                  i != 0; i++)
             {
                 Boolean sendResponseNow = false;
-                CIMResponseMessage *response = 0;
+                CIMResponseMessage *response;
 
                 MessageType msgType = i.value()->requestMessage->getType();
 
@@ -938,7 +936,8 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                             CIM_ERR_FAILED,
                             MessageLoaderParms("ProviderManager."
                                 "OOPProviderManagerRouter."
-                                "REQUEST_RETRY_THREAD_ALLOCATION_FAILED",
+                                    "REQUEST_RETRY_THREAD_"
+                                "ALLOCATION_FAILED",
                                 "Failed to allocate a thread to "
                                    "retry a request in \"$0\".",
                                 _moduleOrGroupName));
@@ -1028,16 +1027,21 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
         if (response == _REQUEST_NOT_PROCESSED)
         {
             // Check for request message types that should not be retried.
-            if ((msgType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-                (msgType == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
-                (msgType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
-                (msgType == CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
-                (msgType == CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
+            if ((request->getType() ==
+                     CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
             {
                 response = request->buildResponse();
                 break;
             }
-            else if (msgType == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+            else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
             {
                 response = request->buildResponse();
                 CIMDisableModuleResponseMessage* dmResponse =
@@ -1159,7 +1163,6 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                 origProviderId.reset(new ProviderIdContainer(
                     pidc.getModule(), pidc.getProvider(),
                     pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
-                origProviderId->setProvMgrPath(pidc.getProvMgrPath());
                 if (_providerModuleCache.isUninitialized() ||
                     (!pidc.getModule().identical(_providerModuleCache)))
                 {
@@ -1217,9 +1220,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     // Remove this OutstandingRequestTable entry
                     {
                         AutoMutex tableLock(_outstandingRequestTableMutex);
-                        PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                            true,
-                            _outstandingRequestTable.remove(uniqueMessageId));
+                        Boolean removed =
+                            _outstandingRequestTable.remove(uniqueMessageId);
+                        PEGASUS_ASSERT(removed);
                     }
 
                     // A response value of _REQUEST_NOT_PROCESSED indicates
@@ -1254,9 +1257,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                 // Remove the OutstandingRequestTable entry for this request
                 {
                     AutoMutex tableLock(_outstandingRequestTableMutex);
-                    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                        true,
-                        _outstandingRequestTable.remove(uniqueMessageId));
+                    Boolean removed =
+                        _outstandingRequestTable.remove(uniqueMessageId);
+                    PEGASUS_ASSERT(removed);
                 }
                 PEG_METHOD_EXIT();
                 throw;
@@ -1570,10 +1573,9 @@ void ProviderAgentContainer::_processResponses()
                     if(foundEntry)
                     {  
                         // Remove the completed request from the table
-                        PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                            true,
-                            _outstandingRequestTable.remove(
-                                response->messageId));
+                        Boolean removed = _outstandingRequestTable.remove( \
+                            response->messageId);
+                        PEGASUS_ASSERT(removed);
                     }
 
                 }
@@ -1680,6 +1682,7 @@ OOPProviderManagerRouter::OOPProviderManagerRouter(
     _responseChunkCallback = responseChunkCallback;
     _providerModuleGroupFailCallback = providerModuleGroupFailCallback;
     _asyncResponseCallback = asyncResponseCallback;
+    _subscriptionInitComplete = false;
     _threadPool = 
         new ThreadPool(0, "OOPProviderManagerRouter", 0, 0, deallocateWait);;
     PEG_METHOD_EXIT();
@@ -1729,7 +1732,7 @@ void OOPProviderManagerRouter::_handleIndicationDeliveryResponse(
         return;
     }
 
-    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+    PEGASUS_ASSERT(false);
 }
 
 Message* OOPProviderManagerRouter::processMessage(Message* message)
@@ -1810,7 +1813,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     else if (request->getType () ==
         CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
     {
-        ProviderAgentContainer::setSubscriptionInitComplete(true);
+        _subscriptionInitComplete = true;
 
         //
         //  Forward the CIMSubscriptionInitCompleteRequestMessage to
@@ -1821,7 +1824,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     else if (request->getType () ==
         CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
     {
-        ProviderAgentContainer::setSubscriptionInitComplete(false);
+        _subscriptionInitComplete = false;
 
         //
         //  Forward the CIMIndicationServiceDisabledRequestMessage to
@@ -2106,6 +2109,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
             _indicationCallback, _responseChunkCallback,
             _providerModuleGroupFailCallback,
             _asyncResponseCallback,
+            _subscriptionInitComplete,
             _threadPool);
         _providerAgentTable.insert(key, pa);
     }
@@ -2129,24 +2133,6 @@ Array<ProviderAgentContainer*> OOPProviderManagerRouter::_lookupProviderAgents(
     return paArray;
 }
 
-Array<ProviderAgentContainer*>
-    OOPProviderManagerRouter::_getProviderAgentContainerCopy()
-{
-    Array<ProviderAgentContainer*> paContainerArray;
-    
-    AutoMutex tableLock(_providerAgentTableMutex);
-    
-    for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
-         i != 0; i++)
-    {
-        if(i.value()->isInitialized())
-        {
-            paContainerArray.append(i.value());
-        }
-    }
-    return paContainerArray;
-}
-
 CIMResponseMessage* OOPProviderManagerRouter::_forwardRequestToAllAgents(
     CIMRequestMessage* request)
 {
@@ -2156,8 +2142,18 @@ CIMResponseMessage* OOPProviderManagerRouter::_forwardRequestToAllAgents(
     // Get a list of the ProviderAgentContainers.  We need our own array copy
     // because we cannot hold the _providerAgentTableMutex while calling
     // _ProviderAgentContainer::processMessage().
-    Array<ProviderAgentContainer*> paContainerArray=
-        _getProviderAgentContainerCopy();
+    Array<ProviderAgentContainer*> paContainerArray;
+    {
+        AutoMutex tableLock(_providerAgentTableMutex);
+        for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
+             i != 0; i++)
+        {
+            if(i.value()->isInitialized())
+            {
+                paContainerArray.append(i.value());
+            }
+        }
+    }
 
     Boolean responsePending = false;
     CIMResponseMessage *response = request->buildResponse();
@@ -2197,8 +2193,15 @@ void OOPProviderManagerRouter::idleTimeCleanup()
     // because we cannot hold the _providerAgentTableMutex while calling
     // ProviderAgentContainer::unloadIdleProviders() & 
     // ProviderAgentContainer::cleanDisconnectedClientRequests().
-    Array<ProviderAgentContainer*> paContainerArray=
-        _getProviderAgentContainerCopy();
+    Array<ProviderAgentContainer*> paContainerArray;
+    {
+        AutoMutex tableLock(_providerAgentTableMutex);
+        for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
+             i != 0; i++)
+        {
+            paContainerArray.append(i.value());
+        }
+    }
 
     // Iterate through the _providerAgentTable unloading idle providers
     for (Uint32 j = 0; j < paContainerArray.size(); j++)

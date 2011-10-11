@@ -82,7 +82,8 @@ private:
         const CIMPropertyList& propertyList,CIMInstance & newInstance);
 
     CIMHandleIndicationResponseMessage* _handleIndication(
-        CIMHandleIndicationRequestMessage* request);
+        CIMHandleIndicationRequestMessage* request,
+        Boolean &aggregationComplete);
 
     HandlerTable _handlerTable;
 
@@ -98,8 +99,7 @@ private:
         CIMInstance& indicationInstance,
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationSubscriptionInstance,
-        CIMException& cimException,
-        IndicationExportConnection **connection);
+        CIMException& cimException);
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
@@ -118,16 +118,6 @@ private:
     */
     CIMNotifyListenerNotActiveResponseMessage* _handleListenerNotActiveRequest(
         CIMNotifyListenerNotActiveRequestMessage *message);
-
-    /**
-        This method is called when HandlerService receives the
-        CIMNotifyConfigChangeRequestMessage. Property DeliveryRetryAttempts
-        & DeliveryRetryInterval get updated  
-    */
-    CIMNotifyConfigChangeResponseMessage*
-        _handlePropertyUpdateRequest(
-            CIMNotifyConfigChangeRequestMessage *message);
-
 
     /**
         This method is called to stop dispatcher thread when HandlerService
@@ -170,24 +160,7 @@ private:
         _handleEnumerateInstanceNamesRequest(
             CIMEnumerateInstanceNamesRequestMessage *message);
 
-     CIMResponseMessage*
-         _handleGetInstanceRequest(
-             CIMGetInstanceRequestMessage *message);
-
-    Array<CIMInstance> _getDestinationQueues(
-        const CIMObjectPath &getInstanceName,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList &propList);
-
     /**
-        This method Cleanup all DestinationQueues
-        Depending on flag _needDestinationQueueCleanup, this method is called
-        either from IndicationHandlerService dtor or from _handleIndication 
-   */
-    void _destinationQueuesCleanup(); 
- 
-   /**
         Gets the Queue name from either subscriptionName or handlerName,
         constructed as follows.
         namespace:ClassName.Name=\"HandlerName\".
@@ -211,8 +184,6 @@ private:
     Thread _dispatcherThread;
     AtomicInt _stopDispatcherThread;
     const Uint32 _maxDeliveryThreads;
-    Uint16 _maxDeliveryRetry;
-    Boolean _needDestinationQueueCleanup; 
     Semaphore _dispatcherWaitSemaphore;
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _dispatcherRoutine(void *param);

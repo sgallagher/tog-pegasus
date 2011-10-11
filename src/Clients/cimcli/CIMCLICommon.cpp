@@ -36,7 +36,6 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMStatusCode.h>
-#include <Pegasus/Common/Pegasus_inl.h>
 #include "CIMCLICommon.h"
 #include "CIMCLIClient.h"
 #include <cstdarg>
@@ -187,27 +186,44 @@ void cimcliMsg::msg(
     cout << Formatter::format(formatString, arg0, arg1, arg2) << endl;
 }
 
-void _print(Boolean x)
+
+
+/* Convert Boolean parameter to String "true" or "false"
+*/
+String _toString(Boolean x)
 {
-    cout << boolToString(x);
+    return(x ? "true" : "false");
 }
 
-String _toString(Array<CIMName> array)
+void _print(Boolean x)
+{
+    cout << _toString(x);
+}
+
+// Convert a CIMPropertyList parameter to CIM String
+String _toString(const CIMPropertyList& pl)
 {
     String rtn;
-    for (Uint32 i = 0 ; i < array.size(); i++)
-    {
-        rtn.append(" ");
+    Array<CIMName> pls = pl.getPropertyNameArray();
+    if (pl.isNull())
+        return("NULL");
 
-        rtn.append(array[i].getString());
+    if (pl.size() == 0)
+        return("EMPTY");
+
+    for (Uint32 i = 0 ; i < pls.size() ; i++)
+    {
+        if (i != 0)
+            rtn.append(", ");
+        rtn.append(pls[i].getString());
     }
-    return rtn;
+    return(rtn);
 }
 
 // Output a CIMPropertyList to cout
 void _print(const CIMPropertyList& pl)
 {
-    cout << pl.toString();
+    cout << _toString(pl);
 }
 
 String _toString(const Array<CIMNamespaceName>& nsList)
@@ -248,7 +264,7 @@ void _print(const Array<String>& strList)
     cout << _toString(strList);
 }
 
-/* tokenize an input string into an array of Strings,
+/** tokenize an input string into an array of Strings,
  * separating the tokens at the separator character
  * provided
  * @param input String
@@ -258,7 +274,7 @@ void _print(const Array<String>& strList)
  * @returns Array of separated strings
  * Terminates
  *  after first if all = false.
- */
+ * */
 Array<String> _tokenize(const String& input,
                         const Char16 separator,
                         bool allTokens)
@@ -374,36 +390,18 @@ Real64 strToReal(const char * str, CIMType type)
     return r64;
 }
 
-// Local function that tests exitCode against expectedExitCode and
-// returns proper result. Used only by cimcliExit and cimcliExitRtn
-Uint32 _cimcliExitLocal(Uint32 exitCode)
+void cimcliExit(Uint32 exitCode)
 {
     // This should be the only use of exit in cimcli.
     // all other exits should use cimcliExit
     if (expectedExitCode == exitCode)
     {
-        return 0;
+        exit(0);
     }
-
-    // Do not print a warning message if the expected return code is
-    // zero (success) since a more precise exception message was
-    // printed already. The warning does not contain additional user-relevant
-    // information in this case but can be misleading.
-    if ( 0 != expectedExitCode )
-    {
-        cerr << "WARNING: Expected exit code " << expectedExitCode
-             << ". Program delivered exit code (" << exitCode
-             << ") " << rtnExitCodeToString(exitCode) << endl;
-    }
-    return exitCode;
-}
-Uint32 cimcliExitRtn(Uint32 exitCode)
-{
-    return _cimcliExitLocal(exitCode);
-}
-void cimcliExit(Uint32 exitCode)
-{
-    exit(_cimcliExitLocal(exitCode));
+    cerr << "WARNING: Expected exit code " << expectedExitCode
+         << ". Program delivered exit code (" << exitCode
+         << ") " << rtnExitCodeToString(exitCode) << endl;
+    exit(exitCode);
 }
 
 void setExpectedExitCode(Uint32 exitCode)
@@ -419,7 +417,7 @@ void setExpectedExitCode(Uint32 exitCode)
 **  issues internally.
 **
 ***************************************************************************/
-//  Function to return a formatted char*  from a va_list.
+//  function to return a formatted char*  from a va_list.
 //  Allocates space for the returned char* and repeats the
 //  build process until the allocated space is large enough
 //  to hold the result.  This is internal only and the core function
@@ -456,12 +454,12 @@ static char* charVPrintf(const char* format, va_list ap)
         // expected size and negative is error.
         allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
 
-    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
+    } while((p = (char*)realloc(p, allocSize)) != NULL);
 
     // return error code if realloc failed
     return 0;
 }
-// Formatting function that returns a Pegasus String object.
+// formatting function that returns a Pegasus String object.
 String stringPrintf(const char* format, ...)
 {
     va_list ap;
@@ -476,16 +474,6 @@ String stringPrintf(const char* format, ...)
     free(rtnCharPtr);
 
     return(rtnString);
-}
-
-String fillString(Uint32 count,  const char x)
-{
-    String str;
-    for (Uint32 i = 0 ; i < count ; i++)
-    {
-        str.append(x);
-    }
-    return str;
 }
 
 /* Remap a long string into a multi-line string that can be positioned on a
@@ -520,7 +508,7 @@ String foldString(const String& input, Uint32 startPos, Uint32 foldPos)
             case ' ':
             {
                 // if next word overflows line. move it to output String
-                            // and start new line
+                // and start new line
                 if ((line.size() + word.size()) >= foldPos)
                 {
                     strOut.append(line);
@@ -528,9 +516,9 @@ String foldString(const String& input, Uint32 startPos, Uint32 foldPos)
                     line = _fill(startPos);
                 }
 
-                    line.append(word);
-                    word.clear();
-                    word.append(input[i]);
+                line.append(word);
+                word.clear();
+                word.append(input[i]);
                 break;
             }
 

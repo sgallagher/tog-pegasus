@@ -86,6 +86,7 @@ timeout of providers for unload, they will be discarded.
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -204,6 +205,7 @@ void CLITestProvider::invokeMethod(
     const Array<CIMParamValue> & inParameters,
     MethodResultResponseHandler & handler)
 {
+//  cout << "invokeMethod Method Name=" << methodName.getString();
     initializeProvider(objectReference.getNameSpace());
 
     // convert a fully qualified reference into a local reference
@@ -217,7 +219,7 @@ void CLITestProvider::invokeMethod(
 
     handler.processing();
 
-    String outString = "CLITestProvider  Tests : ";
+    String outString = "CLITestProvider Tests : ";
 
     if (objectReference.getClassName().equal("Test_CLITestProviderClass"))
     {
@@ -269,7 +271,7 @@ void CLITestProvider::invokeMethod(
                 //Returns all input parameters
                 handler.deliverParamValue(inParameters);
             }
-        handler.deliver(Uint32(0));
+            handler.deliver(Uint32(0));
         }
 
         // This simply returns all parameters and
@@ -325,6 +327,36 @@ void CLITestProvider::invokeMethod(
             _substituteHostName = String();
             handler.deliver(0);
         }
+        else
+        {
+            cout << "Invalid method name= " 
+                << methodName.getString()
+                << " ignored" << endl;
+        }
+    }
+    else if (objectReference.getClassName().equal("Test_CLITestEmbeddedClass"))
+    {
+        if (methodName.equal("embeddedInstParamMethod"))
+        {
+            if (inParameters.size() > 0)
+            {
+                //Returns all input parameters
+                handler.deliverParamValue(inParameters);
+            }
+            handler.deliver(Uint32(0));
+        }
+        else 
+        {
+            cout << "Invalid method name= " 
+                << methodName.getString()
+                << " ignored" << endl;          
+        }
+    }
+    else
+    {
+        cout << "Invalid Classname= " 
+            << objectReference.getClassName().getString()
+            << " ignored" << endl;
     }
     handler.complete();
 }
@@ -353,8 +385,6 @@ void CLITestProvider::getInstance(
         _addParam(text, "includeQualifiers", _toString(includeQualifiers));
         _addParam(text, "includeClassOrigin", _toString(includeClassOrigin));
 
-        // clone and filter the returned instance. Clone so the original
-        // not modified by filter.
         try
         {
             CIMInstance temp = _instances[index].clone();
@@ -374,7 +404,6 @@ void CLITestProvider::getInstance(
             temp.getProperty(temp.findProperty("requestInputParameters"))
                 .setValue(text);
 
-            temp.filter(includeQualifiers,includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
@@ -400,6 +429,7 @@ void CLITestProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
+//  cout << "Enter EnumerateInstances" << endl;
     initializeProvider(ref.getNameSpace());
 
     handler.processing();
@@ -439,8 +469,6 @@ void CLITestProvider::enumerateInstances(
                     temp.findProperty("requestInputParameters"))
                     .setValue(text);
 
-                temp.filter(includeQualifiers,includeClassOrigin,
-                            propertyList);
                 handler.deliver(temp);
             }
             catch(CIMException& e)
@@ -523,7 +551,7 @@ void CLITestProvider::modifyInstance(
     if ((index = findInstance(localRef)) != PEG_NOT_FOUND)
     {
         // Modify the existing instance
-        Uint32 pos;
+
         for (Uint32 j = 0 ;  j < instanceObject.getPropertyCount() ; j++)
         {
             CIMConstProperty r1 = instanceObject.getProperty(j);
@@ -599,7 +627,7 @@ void CLITestProvider::createInstance(
         }
         else
         {
-            throw CIMPropertyNotFoundException("Id");
+            throw CIMOperationFailedException("Key Property Id required");
         }
     }
 
@@ -725,8 +753,6 @@ void CLITestProvider::associators(
                 rtnObjectName.setHost(_getHostName());
             }
             temp.setPath(rtnObjectName);
-            temp.filter(includeQualifiers,
-                        includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
@@ -860,10 +886,6 @@ void CLITestProvider::references(
 
         assocInstance.setPath(objectPath);
 
-        // complete processing the request
-        assocInstance.filter(includeQualifiers,
-                    includeClassOrigin, propertyList);
-
         handler.deliver(assocInstance);
     }
     handler.complete();
@@ -972,6 +994,9 @@ Uint32 CLITestProvider::findInstance(const CIMObjectPath& path)
 
     for (Uint32 i = 0; i < _instances.size(); i++)
     {
+//      cout << "localPath = " << localPath.toString()
+//           << " testing path " << _instances[i].getPath().toString()
+//           << endl;
         if(localPath == _instances[i].getPath())
         {
             return i;
@@ -989,7 +1014,8 @@ Uint32 CLITestProvider::findInstance(const CIMObjectPath& path)
 
 void CLITestProvider::createInstances(const CIMNamespaceName& ns)
 {
-
+//  cout << "Enter createInstances" << endl;
+    // Create instances of Test_CLITestProviderClass class
     CIMClass theClass = _getClass(
         CIMName("Test_CLITestProviderClass"),
         ns);
@@ -1096,6 +1122,100 @@ void CLITestProvider::createInstances(const CIMNamespaceName& ns)
     instance.setPath(p);
 
     _instances.append(instance);
+
+    // Create instance of Test_CLITestEmbedded1 Class
+
+    // Create an embedded instance
+    CIMClass embeddedClass1 = _getClass(CIMName("Test_CLITestEmbedded1"), ns);
+
+    CIMInstance embedded1 = embeddedClass1.buildInstance(
+        true, true, CIMPropertyList());
+
+    embedded1.getProperty(embedded1.findProperty("Id")).setValue(
+        CIMValue(String("100")));
+
+    embedded1.getProperty(embedded1.findProperty("name")).setValue(
+        CIMValue(String("Ronald")));
+
+    embedded1.getProperty(embedded1.findProperty("comment")).setValue(
+        CIMValue(String("Instance created by provider.")));
+
+    CIMObjectPath p1("Test_CLITestEmbedded1.Id=100");
+    embedded1.setPath(p1);
+
+    cout << "Created Test_CLITestEmbedded1 instance " << endl;
+
+    // Create instance of Test_CLITestEmbedded3 Class
+
+    CIMClass embedded3Class = _getClass(CIMName("Test_CLITestEmbedded3"), ns);
+
+    CIMInstance embedded3 = embedded3Class.buildInstance(
+        true, true, CIMPropertyList());
+
+    embedded3.getProperty(embedded3.findProperty("Id")).setValue(
+        CIMValue(String("103")));
+
+    embedded3.getProperty(embedded3.findProperty("name")).setValue(
+        CIMValue(String("McDonald")));
+
+    embedded3.getProperty(embedded3.findProperty("comment")).setValue(
+        CIMValue(String("Instance created by provider.")));
+
+    CIMObjectPath p3("Test_CLITestEmbedded3.Id=100");
+    embedded3.setPath(p3);
+
+    cout << "Created Test_CLITestEmbedded3 instance " << endl;
+
+    // Create instance of Test_CLITestEmbedded2 Class
+    CIMClass embedded2Class = _getClass(CIMName("Test_CLITestEmbedded2"), ns);
+
+    CIMInstance embedded2 = embedded2Class.buildInstance(
+        true, true, CIMPropertyList());
+
+    embedded2.getProperty(embedded2.findProperty("Id")).setValue(
+        CIMValue(String("102")));
+
+    embedded2.getProperty(embedded2.findProperty("name")).setValue(
+        CIMValue(String("Ronald")));
+
+    embedded2.getProperty(embedded2.findProperty("comment")).setValue(
+        CIMValue(String("Instance created by provider.")));
+
+    embedded2.getProperty(
+        embedded2.findProperty("recursiveEmbeddedInst")).setValue(
+        CIMValue(CIMInstance(embedded3)));
+
+    CIMObjectPath p2("Test_CLITestEmbedded2.Id=102");
+    embedded2.setPath(p2);
+
+    cout << "Created Test_CLITestEmbedded2 instance " << endl;
+    
+    // build the instance that embedds the above instance
+    CIMClass embeddingClass = _getClass(
+        CIMName("Test_CLITestEmbeddedClass"), ns);
+
+    CIMInstance embeddedingClassInst = embeddingClass.buildInstance(
+        true, true, CIMPropertyList());
+
+    embeddedingClassInst.getProperty(
+        embeddedingClassInst.findProperty("Id")).setValue(
+        CIMValue(String("101")));
+
+    embeddedingClassInst.getProperty(
+        embeddedingClassInst.findProperty("embeddedInst")).setValue(
+        CIMValue(CIMInstance(embedded1)));
+
+    embeddedingClassInst.getProperty(
+        embeddedingClassInst.findProperty("embeddedInst2")).setValue(
+        CIMValue(CIMInstance(embedded2)));
+
+    cout << "Created Embedding instance " << endl;
+
+    CIMObjectPath p4("Test_CLITestEmbeddedClass.Id=101");
+
+    embeddedingClassInst.setPath(p4);
+
+    _instances.append(embeddedingClassInst);
 }
 
 void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
@@ -1111,4 +1231,5 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
         }
     }
 }
+
 

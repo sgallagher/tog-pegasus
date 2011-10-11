@@ -72,7 +72,12 @@ TEST_DIRS = \
 	TestGoodInstanceProvider \
 	DeliveryRetryTestProvider \
 	ResponseStressTestProvider \
-        ResponseStressTestProvider/testclient
+        ResponseStressTestProvider/testclient \
+	DeliveryRetryTestProvider \
+        TestProviderLifecycleIndications \
+        TestProviderLifecycleIndications/testclient \
+        TestProviderLifecycleIndications/testconsumer
+
 
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)

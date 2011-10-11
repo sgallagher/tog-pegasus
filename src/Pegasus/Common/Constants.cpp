@@ -69,12 +69,8 @@ const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML      =
     CIMNameCast("CIM_ListenerDestinationCIMXML");
 const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      =
     CIMNameCast("PG_IndicationHandlerSNMPMapper");
-const CIMName PEGASUS_CLASSNAME_INDHANDLER_WSMAN =
-    CIMNameCast("CIM_ListenerDestinationWSManagement");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG  =
     CIMNameCast("PG_ListenerDestinationSystemLog");
-const CIMName PEGASUS_CLASSNAME_LSTNRDST_FILE       =
-    CIMNameCast("PG_ListenerDestinationFile");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL       =
     CIMNameCast("PG_ListenerDestinationEmail");
 const CIMName PEGASUS_CLASSNAME_INDFILTER            =
@@ -177,17 +173,6 @@ const CIMName PEGASUS_PROPERTYNAME_MODULE_BITNESS =
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION =
     CIMNameCast("Destination");
 
-
-/**
-    The property names for WSMAN Indication Handler
-*/
-// Delivery Mode
-const CIMName PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE =
-    CIMNameCast("DeliveryMode");
-
-const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_FILE =
-    CIMNameCast("File");
-
 /**
     The name of the CreationTime property for PG_ListenerDestinationQueue.
 */
@@ -265,12 +250,6 @@ const CIMName PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE =
     CIMNameCast("SubscriptionState");
 
 /**
-    The name of the SubscriptionInfo property for Formatted Indication
-    Subscription class
-*/
-const CIMName _PROPERTY_SUBSCRIPTION_INFO = CIMNameCast("SubscriptionInfo");
-
-/**
     The name of the Query property for indication filter class
  */
 const CIMName PEGASUS_PROPERTYNAME_QUERY =
@@ -302,13 +281,6 @@ const CIMName PEGASUS_PROPERTYNAME_PERSISTENCETYPE =
     CIMNameCast("PersistenceType");
 
 /**
-    The name of the SubscriptionRemovalTimeInterval property of
-    IndicationService class.
-*/
-const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL =
-    CIMNameCast("SubscriptionRemovalTimeInterval");
-
-/**
     The name of the SNMP Version property for SNMP Mapper Indication Handler
     subclass
  */
@@ -319,17 +291,8 @@ const CIMName PEGASUS_PROPERTYNAME_SNMPVERSION =
 // CIM Namespace Names
 //
 
-#if defined NS_ROOT_INTEROP
-const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP=
-    CIMNamespaceName ("root/interop");   
-#elif defined NS_INTEROP
-const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP=
-    CIMNamespaceName ("interop");
-#else
-const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP=
+const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP  =
     CIMNamespaceName ("root/PG_InterOp");
-#endif
-
 const CIMNamespaceName PEGASUS_NAMESPACENAME_INTERNAL =
     CIMNamespaceName ("root/PG_Internal");
 const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMV2    =

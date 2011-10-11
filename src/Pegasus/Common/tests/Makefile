@@ -41,6 +41,7 @@ DIRS = \
     AuthenticationInfo \
     Base64 \
     Buffer \
+    CIMBuffer \
     CIMName \
     ClassDecl \
     Compare \
@@ -114,10 +115,6 @@ endif
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS += \
 	Attribute
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
-    DIRS += CIMBuffer
 endif
 
 include $(ROOT)/mak/recurse.mak

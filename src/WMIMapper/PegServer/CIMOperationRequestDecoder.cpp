@@ -2493,7 +2493,6 @@ CIMOperationRequestDecoder::decodeReferenceNamesRequest(
    Boolean gotResultClass = false;
    Boolean gotRole = false;
    Boolean emptyTag;
-   Boolean isClassNameElement;
 
    for (const char* name;
        XmlReader::getIParamValueTag(parser, name, emptyTag);)
@@ -2501,10 +2500,9 @@ CIMOperationRequestDecoder::decodeReferenceNamesRequest(
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
          XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-         isClassNameElement = XmlReader::getObjectNameElement(parser,
-             objectName);
-         duplicateParameter = gotObjectName;
-         gotObjectName = true;
+     XmlReader::getObjectNameElement(parser, objectName);
+     duplicateParameter = gotObjectName;
+     gotObjectName = true;
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
@@ -2515,8 +2513,8 @@ CIMOperationRequestDecoder::decodeReferenceNamesRequest(
          {
             XmlReader::getClassNameElement(parser, resultClass, false);
          }
-         duplicateParameter = gotResultClass;
-         gotResultClass = true;
+     duplicateParameter = gotResultClass;
+     gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
@@ -2527,12 +2525,12 @@ CIMOperationRequestDecoder::decodeReferenceNamesRequest(
          {
             XmlReader::getStringValueElement(parser, role, false);
          }
-         duplicateParameter = gotRole;
-         gotRole = true;
+     duplicateParameter = gotRole;
+     gotRole = true;
       }
       else
       {
-         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       if (!emptyTag)
@@ -2542,7 +2540,7 @@ CIMOperationRequestDecoder::decodeReferenceNamesRequest(
 
       if (duplicateParameter)
       {
-         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
@@ -2553,15 +2551,14 @@ CIMOperationRequestDecoder::decodeReferenceNamesRequest(
 
    AutoPtr<CIMReferenceNamesRequestMessage> request(
       new CIMReferenceNamesRequestMessage(
-         messageId,
-         nameSpace,
-         objectName,
-         resultClass,
-         role,
-         QueueIdStack(queueId, _returnQueueId),
-         isClassNameElement,
-         authType,
-         userName));
+     messageId,
+     nameSpace,
+     objectName,
+     resultClass,
+     role,
+     QueueIdStack(queueId, _returnQueueId),
+     authType,
+     userName));
 
    STAT_SERVERSTART
 
@@ -2593,7 +2590,6 @@ CIMOperationRequestDecoder::decodeReferencesRequest(
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
    Boolean emptyTag;
-   Boolean isClassNameElement;
 
    for (const char* name;
        XmlReader::getIParamValueTag(parser, name, emptyTag);)
@@ -2601,10 +2597,9 @@ CIMOperationRequestDecoder::decodeReferencesRequest(
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
          XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-         isClassNameElement = XmlReader::getObjectNameElement(parser,
-             objectName);
-         duplicateParameter = gotObjectName;
-         gotObjectName = true;
+     XmlReader::getObjectNameElement(parser, objectName);
+     duplicateParameter = gotObjectName;
+     gotObjectName = true;
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
@@ -2615,8 +2610,8 @@ CIMOperationRequestDecoder::decodeReferencesRequest(
          {
             XmlReader::getClassNameElement(parser, resultClass, false);
          }
-      duplicateParameter = gotResultClass;
-      gotResultClass = true;
+     duplicateParameter = gotResultClass;
+     gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
@@ -2687,18 +2682,17 @@ CIMOperationRequestDecoder::decodeReferencesRequest(
 
    AutoPtr<CIMReferencesRequestMessage> request(
       new CIMReferencesRequestMessage(
-         messageId,
-         nameSpace,
-         objectName,
-         resultClass,
-         role,
-         includeQualifiers,
-         includeClassOrigin,
-         propertyList,
-         QueueIdStack(queueId, _returnQueueId),
-         isClassNameElement,
-         authType,
-         userName));
+     messageId,
+     nameSpace,
+     objectName,
+     resultClass,
+     role,
+     includeQualifiers,
+     includeClassOrigin,
+     propertyList,
+     QueueIdStack(queueId, _returnQueueId),
+     authType,
+     userName));
 
    STAT_SERVERSTART
 
@@ -2728,7 +2722,6 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
    Boolean gotRole = false;
    Boolean gotResultRole = false;
    Boolean emptyTag;
-   Boolean isClassNameElement;
 
    for (const char* name;
        XmlReader::getIParamValueTag(parser, name, emptyTag);)
@@ -2736,10 +2729,9 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
          XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-         isClassNameElement = XmlReader::getObjectNameElement(parser,
-             objectName);
-         duplicateParameter = gotObjectName;
-         gotObjectName = true;
+     XmlReader::getObjectNameElement(parser, objectName);
+     duplicateParameter = gotObjectName;
+     gotObjectName = true;
       }
       else if (System::strcasecmp(name, "AssocClass") == 0)
       {
@@ -2750,8 +2742,8 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
          {
             XmlReader::getClassNameElement(parser, assocClass, false);
          }
-         duplicateParameter = gotAssocClass;
-         gotAssocClass = true;
+     duplicateParameter = gotAssocClass;
+     gotAssocClass = true;
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
@@ -2762,8 +2754,8 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
          {
             XmlReader::getClassNameElement(parser, resultClass, false);
          }
-         duplicateParameter = gotResultClass;
-         gotResultClass = true;
+     duplicateParameter = gotResultClass;
+     gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
@@ -2774,8 +2766,8 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
          {
             XmlReader::getStringValueElement(parser, role, false);
          }
-         duplicateParameter = gotRole;
-         gotRole = true;
+     duplicateParameter = gotRole;
+     gotRole = true;
       }
       else if (System::strcasecmp(name, "ResultRole") == 0)
       {
@@ -2786,12 +2778,12 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
          {
             XmlReader::getStringValueElement(parser, resultRole, false);
          }
-         duplicateParameter = gotResultRole;
-         gotResultRole = true;
+     duplicateParameter = gotResultRole;
+     gotResultRole = true;
       }
       else
       {
-          throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
       if (!emptyTag)
@@ -2801,7 +2793,7 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
 
       if (duplicateParameter)
       {
-          throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
       }
    }
 
@@ -2820,7 +2812,6 @@ CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
      role,
      resultRole,
      QueueIdStack(queueId, _returnQueueId),
-     isClassNameElement,
      authType,
      userName));
 
@@ -2858,7 +2849,6 @@ CIMOperationRequestDecoder::decodeAssociatorsRequest(
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
    Boolean emptyTag;
-   Boolean isClassNameElement;
 
    for (const char* name;
        XmlReader::getIParamValueTag(parser, name, emptyTag);)
@@ -2866,10 +2856,9 @@ CIMOperationRequestDecoder::decodeAssociatorsRequest(
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
          XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-         isClassNameElement =XmlReader::getObjectNameElement(parser,
-             objectName);
-         duplicateParameter = gotObjectName;
-         gotObjectName = true;
+     XmlReader::getObjectNameElement(parser, objectName);
+     duplicateParameter = gotObjectName;
+     gotObjectName = true;
       }
       else if (System::strcasecmp(name, "AssocClass") == 0)
       {
@@ -2987,7 +2976,6 @@ CIMOperationRequestDecoder::decodeAssociatorsRequest(
      includeClassOrigin,
      propertyList,
      QueueIdStack(queueId, _returnQueueId),
-     isClassNameElement,
      authType,
      userName));
 

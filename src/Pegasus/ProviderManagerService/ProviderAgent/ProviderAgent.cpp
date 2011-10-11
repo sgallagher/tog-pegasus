@@ -74,8 +74,9 @@ class ProviderAgentRequest
 {
 public:
     ProviderAgentRequest(ProviderAgent* agent_, CIMRequestMessage* request_)
-        :agent(agent_),request(request_)
     {
+        agent = agent_;
+        request = request_;
     }
 
     ProviderAgent* agent;
@@ -140,21 +141,6 @@ ProviderAgent::~ProviderAgent()
     PEG_METHOD_EXIT();
 }
 
-//get the shutdown timeout value
-static Uint32 getShutdownTimeout()
-{
-    ConfigManager *cfgManager = ConfigManager::getInstance();
-    String shutdnTimestr = cfgManager ->getCurrentValue( "shutdownTimeout");
-
-    Uint64 shutdownTimeout = 0;
-
-    StringConversion::decimalStringToUint64(
-            shutdnTimestr.getCString(), shutdownTimeout);
-
-    return (Uint32) shutdownTimeout;
-}
-
-
 void ProviderAgent::run()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::run");
@@ -218,8 +204,11 @@ void ProviderAgent::run()
                 //
                 CIMStopAllProvidersRequestMessage *stopRequest =
                     new CIMStopAllProvidersRequestMessage("0", QueueIdStack(0));
-
-                stopRequest->shutdownTimeout = getShutdownTimeout();
+                Uint64 shutdownTimeout = 0;
+                StringConversion::stringToUnsignedInteger(
+                    PEGASUS_DEFAULT_SHUTDOWN_TIMEOUT_SECONDS_STRING,
+                    shutdownTimeout);
+                stopRequest->shutdownTimeout= Uint32(shutdownTimeout);
                 _processStopAllProvidersRequest(stopRequest);
             }
         }
@@ -227,6 +216,7 @@ void ProviderAgent::run()
         {
             //
             // Stop agent process when no more providers are loaded
+            //
             try
             {
                 if (!_providerManagerRouter.hasActiveProviders() &&
@@ -236,14 +226,9 @@ void ProviderAgent::run()
                         "No active providers.  Exiting.");
                     _terminating = true;
                 }
-                else //clean up threads may still be busy
+                else
                 {
                     _threadPool.cleanupIdleThreads();
-                    if (!_providerManagerRouter.hasActiveProviders() &&
-                              (_threadPool.runningCount() == 0))
-                    {
-                        _terminating = true;
-                    }
                 }
             }
             catch (...)
@@ -267,11 +252,14 @@ Boolean ProviderAgent::_readAndProcessRequest()
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
         "ProviderAgent::_readAndProcessRequest");
 
+    CIMRequestMessage* request;
+
     //
     // Read the request from CIM Server
     //
     CIMMessage* cimMessage;
     AnonymousPipe::Status readStatus = _pipeFromServer->readMessage(cimMessage);
+    request = dynamic_cast<CIMRequestMessage*>(cimMessage);
 
     // Read operation was interrupted
     if (readStatus == AnonymousPipe::STATUS_INTERRUPT)
@@ -307,9 +295,6 @@ Boolean ProviderAgent::_readAndProcessRequest()
         PEG_METHOD_EXIT();
         return false;
     }
-
-    CIMRequestMessage* request = 0;
-    request = dynamic_cast<CIMRequestMessage*>(cimMessage);
 
     // The message was not a request message.
     if (request == 0)
@@ -353,24 +338,19 @@ Boolean ProviderAgent::_readAndProcessRequest()
         if (!_providerManagerRouter.hasActiveProviders())
         {
             // No active providers, so do not start an idle unload thread
-            PEG_METHOD_EXIT();
             return false;
         }
 
-        if(!_unloadIdleProviders())
+        try
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
-                "unloading can not be completed now.");
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "ProviderManager.ProviderAgent.ProviderAgent."
-                    "PROVIDERS_FAILED_TO_UNLOAD",
-                    "Provider agent \"{0}\" failed to unload and exit within"
-                    "\"{1}\" seconds during idle cleanup."
-                    " It will be exited in the next idle clean up.",
-                    _agentId, getShutdownTimeout() ));
+            _unloadIdleProviders();
         }
-
+        catch (...)
+        {
+            // Ignore exceptions from idle provider unloading
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                "Ignoring exception from _unloadIdleProviders()");
+        }
         PEG_METHOD_EXIT();
         return false;
     }
@@ -585,16 +565,16 @@ Boolean ProviderAgent::_readAndProcessRequest()
             // CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
             // CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
             // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
-            // CIM_EXPORT_INDICATION_REQUEST_MESSAGE
+            // CIM_EXPORT_INDICATION_REQUEST_MESSAGE 
             // All the above have already been handled differently
             // except for CIM_EXPORT_INDICATION_REQUEST_MESSAGE,
             // CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE and
             // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE.
             if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES &&
                 (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE ||
-                 request->getType() ==
+                 request->getType() == 
                      CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
-                 request->getType() ==
+                 request->getType() == 
                      CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE))
             {
                 Threads::yield();
@@ -623,7 +603,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
                     Logger::put_l(Logger::STANDARD_LOG,
                         System::CIMSERVER,Logger::WARNING,msgLoaderPrms);
                 }
-
+                
                 delete agentRequest;
                 delete request;
 
@@ -716,33 +696,6 @@ void ProviderAgent::_processStopAllProvidersRequest(CIMRequestMessage* request)
     PEG_METHOD_EXIT();
 }
 
-inline void _completeHostNameAndNamespace(
-    CIMRequestMessage* request,
-    Message* response)
-{
-    // if defined in request, complete HostNameAndNamespace
-    MessageType msgType = request->getType();
-
-    if (msgType == CIM_ASSOCIATORS_REQUEST_MESSAGE ||
-        msgType == CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE ||
-        msgType == CIM_REFERENCES_REQUEST_MESSAGE ||
-        msgType == CIM_REFERENCE_NAMES_REQUEST_MESSAGE)
-    {
-        // can do this cast here since we know request to be one of the four
-        // association request messages
-        CIMOperationRequestMessage* reqMsg=
-            (CIMOperationRequestMessage*) request;
-        // Can use System::getHostName() reliably here since it was initialized
-        // through the ConfigManager at start of ProviderAgent.
-        CIMResponseDataMessage * rspMsg= (CIMResponseDataMessage*) response;
-        CIMResponseData & rspData = rspMsg->getResponseData();
-
-        rspData.completeHostNameAndNamespace(
-            System::getHostName(),
-            reqMsg->nameSpace);
-    }
-}
-
 Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_processRequest");
@@ -753,10 +706,6 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     {
         // Forward the request to the ProviderManager
         response = _providerManagerRouter.processMessage(request);
-
-        // for association operations we need to complete hostname and
-        // namespace before the response data gets binary encoded in 
-        _completeHostNameAndNamespace(request,response);
     }
     catch (Exception& e)
     {
@@ -950,58 +899,31 @@ void ProviderAgent::_responseChunkCallback(
     PEG_METHOD_EXIT();
 }
 
-
-Boolean ProviderAgent::_unloadIdleProviders()
+void ProviderAgent::_unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_unloadIdleProviders");
-    try
+    ThreadStatus rtn = PEGASUS_THREAD_OK;
+    // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
+    _unloadIdleProvidersBusy++;
+    if ((_unloadIdleProvidersBusy.get() == 1) &&
+        ((rtn =_threadPool.allocate_and_awaken(
+             (void*)this,
+             ProviderAgent::_unloadIdleProvidersHandler)) == PEGASUS_THREAD_OK))
     {
-        ThreadStatus rtn = PEGASUS_THREAD_OK;
-
-        //Ensure that only one _unloadIdleProvidersHandler thread runs at a time
-        _unloadIdleProvidersBusy++;
-
-        if ((_unloadIdleProvidersBusy.get() == 1) &&
-                ((rtn =_threadPool.allocate_and_awaken(
-                    (void*)this,
-                    ProviderAgent::_unloadIdleProvidersHandler))
-                 == PEGASUS_THREAD_OK))
-        {
-            // _unloadIdleProvidersBusy is decremented in
-            // _unloadIdleProvidersHandler
-        }
-        else
-        {
-            // If we fail to allocate a thread, don't retry now.
-            _unloadIdleProvidersBusy--;
-        }
-        if (rtn != PEGASUS_THREAD_OK)
-        {
-            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
-                    "Could not allocate thread to unload idle providers.");
-        }
-
-        // Wait for the cleanup thread to finish
-        Uint32 shutdownTimeout = getShutdownTimeout();
-        while (_unloadIdleProvidersBusy.get() > 0 && shutdownTimeout > 0 )
-        {
-            Threads::yield();
-            Threads::sleep(1000);
-            shutdownTimeout--;
-        }
+        // _unloadIdleProvidersBusy is decremented in
+        // _unloadIdleProvidersHandler
     }
-    catch ( ...)
+    else
     {
-         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
-             "Unexpected exception during unload idle providers.");
-
-         PEG_METHOD_EXIT();
-         return false;
-
+        // If we fail to allocate a thread, don't retry now.
+        _unloadIdleProvidersBusy--;
     }
-
+    if (rtn != PEGASUS_THREAD_OK)
+    {
+         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
+             "Could not allocate thread to unload idle providers.");
+    }
     PEG_METHOD_EXIT();
-    return _unloadIdleProvidersBusy.get() == 0;
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL
@@ -1041,7 +963,7 @@ ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
     }
 
     // PEG_METHOD_EXIT();    // Note: This statement could throw an exception
-    return ThreadReturnType(0);
+    return(ThreadReturnType(0));
 }
 
 void ProviderAgent::_terminateSignalHandler(

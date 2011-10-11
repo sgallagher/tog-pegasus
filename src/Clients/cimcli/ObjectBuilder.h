@@ -86,13 +86,10 @@ public:
     CIMName tokenName;            // Token name (property or param name)
     String tokenValue;            // Value Component string
     TokenType tokenType;          // Type determined by separator
-    Boolean duplicate;            // if true, tokenName is not unique in array
-                                  // Used to determine multiple definitions.
 
     // Instances produced by analyzing embedded token type. Saved in token
     // to be inserted in parent instance/property/parameter.
     Array<CIMInstance> _instances;
-    CIMClass _class;
 
     // Construct a single token item with
     // @param inputParam - The input parameter that was the source of this
@@ -225,7 +222,7 @@ private:
     ObjectBuilder(iterateArray& ia,
         CIMClient& client,
         const CIMNamespaceName& nameSpace,
-        tokenItem& ti,
+        const tokenItem& ti,
         const CIMPropertyList& cimPropertyList,
         Boolean verbose,
         CIMInstance& rtnInstance,
@@ -239,11 +236,6 @@ private:
 
     // Diagnostic to print all tokens created
     void printTokens(String message = String());
-
-    // Append a new tokenItem to the array for this instance. if the
-    // name already exists, mark it as duplicate. NOTE: duplicate is
-    // name only test.
-    void appendToken(tokenItem ti);
 
     // Internal data for object builder
     // Array of tokens created

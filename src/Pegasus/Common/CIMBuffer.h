@@ -373,7 +373,7 @@ public:
             Uint16 * p = (Uint16*) malloc(x_size << 1);
             size_t utf8_error_index;
             size_t new_size = _convert(p, x, x_size, utf8_error_index);
-            putUint32(new_size);
+            putUint32((Uint32)new_size);
             putBytes(p, new_size << 1);
             free(p);
         }
@@ -485,7 +485,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putString(x[i]);
     }
 
@@ -494,7 +494,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putDateTime(x[i]);
     }
 
@@ -1093,7 +1093,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putName(x[i]);
     }
 
@@ -1124,7 +1124,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putObjectPath(x[i], includeHostAndNamespace);
     }
 
@@ -1185,7 +1185,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putClass(x[i]);
     }
 
@@ -1217,7 +1217,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putObject(x[i], includeHostAndNamespace, includeKeyBindings);
     }
 
@@ -1246,7 +1246,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putParamValue(x[i]);
     }
 
@@ -1275,7 +1275,7 @@ public:
         Uint32 n = x.size();
         putUint32(n);
 
-        for (size_t i = 0; i < n; i++)
+        for (Uint32 i = 0; i < n; i++)
             putQualifierDecl(x[i]);
     }
 
@@ -1470,12 +1470,12 @@ private:
 
     Real32 _swapReal32(Real32 x)
     {
-        return _swapUint32(*((Uint32*)(void*)&x));
+        return (Real32)_swapUint32(*((Uint32*)(void*)&x));
     }
 
     Real64 _swapReal64(Real64 x)
     {
-        return _swapSint64(*((Sint64*)(void*)&x));
+        return (Real64)_swapSint64(*((Sint64*)(void*)&x));
     }
 
     void _swapUint16Data(Uint16* p, Uint32 n)

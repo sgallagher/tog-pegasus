@@ -34,25 +34,24 @@
 
 en:table {
 
-        // ==========================================================
+	// ==========================================================
         // Messages for CIMConfigCommand
-        //  Please use message prefix "PGC00200"
+	//  Please use message prefix "PGC00200"
         // ==========================================================
 
 
         /**
-        * @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
-        *    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters,
-        *    preserves the indenting,
-        *    and ends with a newline character (\n).
-        */
-        Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
+	* @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
+	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+	*    When translating this message, make sure that each line fits in 80 characters,
+	*    preserves the indenting,
+	*    and ends with a newline character (\n).
+	*/
+	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
     "Usage: cimconfig -g name [ -c ] [ -p ] [ -d ]\n"
     "                 -s name=value [ -c ] [ -p ] [ -t ]\n"
     "                 -u name [ -c ] [ -p ] [ -t ]\n"
     "                 -l [-c | -p]\n"
-    "                 -H name\n"
     "                 -h\n"
     "                 --help\n"
     "                 --version\n"
@@ -61,20 +60,15 @@ en:table {
     "     -c          - Use the current configuration.\n"
     "     -p          - Configuration user on the next CIM server start.\n"
     "     -d          - Use the default configuration.\n"
-    "     -H          - Get help on specified configuration property\n"
-    "     -h, --help  - Display this help message.\n"
     "     -s          - Add or update configuration property value.\n"
     "     -u          - Reset the configuration property to its default value.\n"
     "     -l          - Display all the configuration properties.\n"
-    "     -t          - Timeout value in seconds for updating the current or\n"
+    "     -t          - Timeout value in seconds for updating the current or"
     "                   planned value.\n"
-    "     --version   - Display CIM server version number.\n\n"
-    "Usage note: The cimconfig command can be used to update the next planned\n"
-    "    configuration without having the CIM Server running. All other options\n"
-    "    except -h, --help and --version of the cimconfig command require that the\n"
-    "    CIM Server is running.\n"
+    "     -h, --help  - Display this help message.\n"
+    "     --version   - Display CIM server version number.\n"
     "\n"
-        }
+	}
 
         /**
         * @note PGC00200:
@@ -888,91 +882,34 @@ en:table {
         *    and ends with a newline character (\n).
         */
         Clients.cimsub.CIMSubCommand.MENU.STANDARD:string {
-        "Cimsub Command Line Interface is used to manage CIM Indication "
-        "Subscriptions.\n\n"
-        "Usage: cimsub -c f [fnamespace:]filtername -Q query [-L querylanguage]\n"
-        "                  [-N sourcenamespace]\n"
-        "       cimsub -c h [hnamespace:][hclassname.]handlername [-D destination]|\n"
-        "                  [-M mailto [-C mailcc] -S mailsubject]|\n"        
-        "                  [-T snmptargethost [-P snmpportnumber] -V snmpversion]\n"
-        "                      [-U snmpsecurityname] [-E snmpengineid]]\n"
-        "       cimsub -c s [-n namespace] -F [fnamespace:]filtername\n"
-        "                  -H [hnamespace:][hclassname.]handlername\n"
-        "       cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername]\n"
-        "                  [-H [hnamespace:][hclassname.]handlername]\n"
-        "       cimsub -e [-n namespace] -F [fnamespace:]filtername\n"
-        "                  -H [hnamespace:][hclassname.]handlername\n"
-        "       cimsub -d [-n namespace] -F [fnamespace:]filtername\n"
-        "                  -H [hnamespace:][hclassname.]handlername\n"
-        "       cimsub -r s|f|h|a [-n namespace] [-F [fnamespace:]filtername]\n"
-        "                  [-H [hnamespace:][hclassname.]handlername]\n"
-        "       cimsub -b batchfile [ -n namespace]\n"
-        "       cimsub --help\n"
-        "       cimsub --version\n"
+        "Usage: cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername] \n"
+        "                  [-H [hnamespace:][hclassname.]handlername] \n"
+        "cimsub -e [-n namespace] -F [fnamespace:]filtername \n"
+        "                  -H [hnamespace:][hclassname.]handlername \n"
+        "cimsub -d [-n namespace] -F [fnamespace:]filtername \n"
+        "                  -H [hnamespace:][hclassname.]handlername \n"
+        "cimsub -r s|f|h|a [-n namespace] [-F[fnamespace:]filtername] \n"
+        "                  [-H[hnamespace:][hclassname.]handlername] \n"
+        "cimsub --help \n"
+        "cimsub --version \n"
         "Options :\n"
-        "    -c         - Create specified subscription, filter,\n"
-        "                   handler(CIM_ListenerDestinationCIMXML,\n"
-        "                       if hclassname is not specified)\n"
         "    -l         - List and display information\n"
-        "    -e         - Enable specified subscription\n"
+        "    -e         - Enable specified subscription \n"
         "                   (set SubscriptionState to Enabled)\n"
-        "    -d         - Disable specified subscription\n"
+        "    -d         - Disable specified subscription \n"
         "                   (set SubscriptionState to Disabled)\n"
         "    -r         - Remove specified subscription, handler, filter\n"
-        "    -b filename\n"
-        "               - Execute cimsub batch file. Filename is path to the "
-        "batch file\n"
         "    -v         - Include verbose information\n"
         "    -F         - Specify Filter Name of subscription for the operation\n"
-        "    -Q         - Specify Query Expression of a Filter\n"
-        "    -L         - Specify Query Language of a Filter\n"
-        "    -N         - To Use SourceNamespaces property,Specify multiple "
-        "SourceNamespaces\nwith coma separated or append comma to the single"
-        " SourceNamespace.\nBy default SourceNamespace property is  populated "
-        "if the single\nSourceNamespace is specified.\n"
         "    -H         - Specify Handler Name of subscription for the operation\n"
-        "    -D         - Specify Destination of a CIM_IndicationHandlerCIMXML Handler.\n"
-        "                   Required option for CIM_IndicationHandlerCIMXML or\n"
-        "                   CIM_ListenerDestinationCIMXML Handler\n"
-        "    -M         - Specify Mailto of a PG_ListenerDestinationEmail Handler \n"
-        "                   Required option for Email Handler\n"
-        "    -C         - Specify Mailcc of a PG_ListenerDestinationEmail Handler\n"
-        "    -S         - Specify Subject of a PG_ListenerDestinationEmail Handler\n"
-        "                   Required option for Email handler\n"
-        "    -T         - Specify Target Host of PG_IndicationHandlerSNMPMapper Handler.\n"
-        "                   Required option for SNMPMapper handler\n"
-        "    -U         - Specify Security Name of PG_IndicationHandlerSNMPMapper Handler\n"
-        "    -P         - Specify Port Number of a PG_IndicationHandlerSNMPMapper Handler\n"
-        "                   (default 162)\n"
-        "    -V         - Specify SNMPVersion of a PG_IndicationHandlerSNMPMapper Handler\n"
-        "                   2 : SNMPv1 Trap\n"
-        "                   3 : SNMPv2C Trap\n"
-        "                   4 : SNMPv2C Inform\n"
-        "                   5 : SNMPv3 Trap\n"
-        "                   6 : SNMPv3 Inform\n"
-        "                   Required option for SNMPMapper Handler\n"
-        "    -E         - Specify Engine ID of a PG_IndicationHandlerSNMPMapper Handler\n"
-        "    -n         - Specify namespace of subscription\n"
-        "                   (interop namespace, if not specified)\n"
+        "    -n         - Specify namespace of subscription \n"
+        "                   (root/PG_InterOp, if not specified)\n"
         "    --help     - Display this help message\n"
         "    --version  - Display CIM Server version number\n"
         "\n"
         "Usage note: The cimsub command requires that the CIM Server is running.\n"
-        "Batch File Format\n"
-        "-----------------\n"
-        "\n"
-        "A cimsub batch file contains multiple cimsub commands, one per line.Lines\n"
-        "that start with the '#' character and blank lines are ignored.The Execution\n"
-        "of Batch file will stop when it encounters any syntax error or an exception\n"
-        "in the command.\n"
-        "\n"
-        "The namespace option (-n) when used with batch execution (-b) uses the\n"
-        "namespace to populate the namespace values of filter, handler and\n"
-        "subscription. Any namespace specified for any or all of these is specified\n"
-        "inside the batchcommand, they will be overridden.\n"
         "\n"
         }
-
 
         Clients.cimsub.CIMSubCommand.REQUIRED_OPTION_MISSING:string {"PGC01400: Required option missing."}
 
@@ -1049,7 +986,7 @@ en:table {
         "    Return nonzero status code if test fails. Default(29346)\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_HELP:string {
-        "ni    enumerateInstanceNames Enumerate instance names of <classname>\n"}
+        "ni    enumerateInstanceNames Enumerate instancenames of <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_EXAMPLE:string {
         "cimcli ni -n test/TestProvider TST_Person\n"
@@ -1073,10 +1010,7 @@ en:table {
         "Examples :\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP:string {
-        "niall enumallInstanceNames   Enumerate all instance names and count of\n"
-        " instances of [ <classname> ] in <namespace>.\n"
-        " Classname optional and default is to enumerate"
-        " instances of entire namespace"}
+        "niall enumallInstanceNames   Enumerate all instancenames in <namespace>.\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP:string {
         "ei    enumerateInstances     Enumerate instances of <classname>\n"}
@@ -1209,26 +1143,16 @@ en:table {
         Clients.cimcli.CIMCLIClient.SOFF_COMMAND_HELP:string {
         "soff  Turn Off Statistics    Turn off CIM Server Statistics Gathering\n"}
 
-        Clients.cimcli.CIMCLIClient.CCI_COMMAND_HELP:string {
-        "cci  countInstances Count all Instances in Namespace and sort by ClassName.\n"
-        "     Warning: Could request large number of instances from Server"}
-
-        Clients.cimcli.CIMCLIClient.CT_COMMAND_HELP:string {
-        "ct  classTree    Display graphic tree of classesin a namespace\n"}
-
         Clients.cimcli.CIMCLIClient.?_COMMAND_HELP:string {
         "?     show command options   Show List of Commands\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE:string {
-        "cimcli niall\n"
-        "    -- Enumerate Instance Names and count instances of all classes\n"
-        "       in the default namespace\n"
-        "cimcli niall CIM_ComputerSystem -n root/interop\n"
-        "    -- Enumerate Instance Names and count instances of all classes\n"
-        "       in namespace root/interop starting at CIM_ComputerSystem"}
+        "cimcli niall -n root/cimv2\n"
+        "    -- Enumerate Instance Names of  all classes under\n"
+        "       the namespace root/cimv2\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS:string {
-        "    -n --sum (count only, no instanceNames output) classname\n"}
+        "    -n, -di, classname\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE:string {
         "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n"}
@@ -1409,18 +1333,6 @@ en:table {
         Clients.cimcli.CIMCLIClient.SOFF_COMMAND_EXAMPLE:string {
         "cimcli soff  -- Switch OFF's the statistical information on CIMServer\n"}
 
-        Clients.cimcli.CIMCLIClient.CCI_COMMAND_EXAMPLE:string {
-        "cimcli cci  -- Display count of instances in namespace\n"}
-
-        Clients.cimcli.CIMCLIClient.CT_COMMAND_EXAMPLE:string {
-        "cimcli ct CIM_ManagedElement  -- Displays tree of class hiearchy"
-        "    starting at CIM_ManagedElement.\n"}
-
-        Clients.cimcli.CIMCLIClient.CT_COMMAND_OPTIONS:string {
-        "    -nlo displays tree of superclasses.\n"
-        "    -di displays association information\n"
-        "    -count and output options( -o and -x) do not apply"}
-
         Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE:string {
         "cimcli ?  -- Displays help command \n"}
 
@@ -1512,8 +1424,9 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP:
         string {"-ip  inputParameters. Deprecated and Removed. Replaced by use of\n"
-	    "    use of the same name/value pair syntax as properties in create\n"
-	    "    and modify instance.\n" }
+	"    use of the same name/value pair syntax as properties in create\n"
+	"    and modify instance.\n"
+	}
 
         Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP:string {
         "-f  filter. Defines a filter to use for query. Single String input. Default()\n"}
@@ -1561,7 +1474,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.SETRTNHOSTNAMES_OPTION_HELP:string {
         "-setRtnHostNames  setRtnHostNames. Set namespace component of reference and path outputs parameter.\n"
         "    Used to allow comparison of paths and instances without"
-	    " involving the variable of host namespaces. Default(false)\n"}
+	" involving the variable of host namespaces. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP:string {
         "-trace  trace. Set Pegasus Common Components Trace. Sets the Trace level.\n"

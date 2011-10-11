@@ -48,7 +48,6 @@ typedef Array<Sint8> ArraySint8;
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
 public:
@@ -67,13 +66,20 @@ public:
         RESP_OBJECTS = 4,
         RESP_OBJECTPATHS = 5
     };
-
+    //includeClassOrigin & _includeQualifiers are set to true by default.
+    //_propertyList is initialized to an empty propertylist to enable
+    // sending all properties by default.
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content),_size(0)
-    {};
+        _encoding(0),_mapObjectsToIntances(false),_dataType(content), _size(0),
+         _includeQualifiers(true),_includeClassOrigin(true),
+        _propertyList(CIMPropertyList())
+    {
+        PEGASUS_ASSERT(valid()); // KS_TEMP
+    }
 
     CIMResponseData(const CIMResponseData & x):
         _encoding(x._encoding),
+        _mapObjectsToIntances(x._mapObjectsToIntances),
         _dataType(x._dataType),
         _size(x._size),
         _referencesData(x._referencesData),
@@ -86,16 +92,27 @@ public:
         _instanceNames(x._instanceNames),
         _instances(x._instances),
         _objects(x._objects),
-        _scmoInstances(x._scmoInstances)
-    {};
+        _scmoInstances(x._scmoInstances),
+        _includeQualifiers(x._includeQualifiers),
+        _includeClassOrigin(x._includeClassOrigin),
+        _propertyList(x._propertyList),
+        _magic(x._magic)
+    {
+        /////PEGASUS_ASSERT(x.valid());     // KS_TEMP
+        PEGASUS_ASSERT(valid());            // KS_TEMP
+    }
 
     // Construct an empty object.  Issue here in that we would like to
     // assure that this is invalid but if we add the _dataType parameter
     // it must be a valid one.  The alternative would be to define an
     // invalid enum but that would cost us in all case/if statements.
+    // Therefore up to the user to create and then use correctly.
+    // KS_TODO fix this so that the empty state is somehow protected.
     CIMResponseData():
-        _encoding(0),_size(0)
-    {};
+        _encoding(0),_mapObjectsToIntances(false), _size(0),
+        _includeQualifiers(true), _includeClassOrigin(true),
+        _propertyList(CIMPropertyList())
+    {}
 
     /**
      * Move CIM objects from another CIMResponse data object to this
@@ -129,6 +146,8 @@ public:
     // object.
     Boolean setDataType(ResponseDataContent content)
     {
+        PEGASUS_ASSERT(valid());
+        PEGASUS_ASSERT(_size == 0);      // KS_TODO_TEMP or debug mode.
         _dataType = content;
         return true;
     }
@@ -136,6 +155,7 @@ public:
     // get the datatype property
     ResponseDataContent getResponseDataContent()
     {
+        PEGASUS_ASSERT(valid());            // KS_TEMP KS_TODO
         return _dataType;
     }
     // C++ objects interface handling
@@ -155,10 +175,13 @@ public:
 
     void setInstance(const CIMInstance& x)
     {
+        SVALID();
         _instances.clear();
         _instances.append(x);
         _size++;
         _encoding |= RESP_ENC_CIM;
+
+        SVALID();
     }
 
     // Instances handling
@@ -177,12 +200,16 @@ public:
 
     void setInstances(const Array<CIMInstance>& x)
     {
+        SVALID();
         _instances=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
+        SVALID();
     }
+
     void appendInstance(const CIMInstance& x)
     {
+        PEGASUS_ASSERT(valid());
         _instances.append(x);
         _encoding |= RESP_ENC_CIM;
         _size += 1;
@@ -190,6 +217,7 @@ public:
 
     void appendInstances(const Array<CIMInstance>& x)
     {
+        PEGASUS_ASSERT(valid());
         _instances.appendArray(x);
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
@@ -199,12 +227,14 @@ public:
     Array<CIMObject>& getObjects();
     void setObjects(const Array<CIMObject>& x)
     {
+        PEGASUS_ASSERT(valid());
         _objects=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
     }
     void appendObject(const CIMObject& x)
     {
+        PEGASUS_ASSERT(valid());
         _objects.append(x);
         _encoding |= RESP_ENC_CIM;
         _size += 1;
@@ -218,6 +248,7 @@ public:
 
     void appendSCMO(const Array<SCMOInstance>& x)
     {
+        PEGASUS_ASSERT(valid());
         _scmoInstances.appendArray(x);
         _encoding |= RESP_ENC_SCMO;
         _size += x.size();
@@ -268,6 +299,28 @@ public:
 
     // diagnostic tests magic number in context to see if valid object
     Boolean valid();
+
+    // official Xml format(CIM over Http) used to communicate to clients
+    void encodeXmlResponse(Buffer& out);
+  
+    //This function is called from buildResponce to set CIMResponcedata 
+    //with respective values of IncludeQualifiers,IncludeClassOrigin and
+    //propertyFilter.
+    void setRequestProperties(
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    void setPropertyList(const CIMPropertyList& propertyList)
+    {
+        _propertyList = propertyList;
+    }
+    CIMPropertyList & getPropertyList()
+    {
+        return _propertyList;
+    }
+
+    void SVALID();                   //KS_TEMP
 
 private:
 
@@ -332,6 +385,9 @@ private:
 
     // SCMO encoding
     Array<SCMOInstance> _scmoInstances;
+    Boolean _includeQualifiers; 
+    Boolean _includeClassOrigin;
+    CIMPropertyList _propertyList;
 
     // magic number to use with valid function to confirm validity
     // of response data.

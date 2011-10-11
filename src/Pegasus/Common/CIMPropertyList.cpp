@@ -119,7 +119,7 @@ void CIMPropertyList::set(const Array<CIMName>& propertyNames)
         }
     }
     _rep = _copyOnWriteCIMPropertyListRep(_rep);
-
+    
     _rep->propertyNames = propertyNames;
     _rep->cimNameTags.clear();
     _rep->isNull = false;
@@ -154,7 +154,7 @@ void CIMPropertyList::clear()
         _rep->propertyNames.clear();
         _rep->isNull = true;
         if(_rep->isCimNameTagsUpdated)
-        {
+        { 
             _rep->cimNameTags.clear();
             _rep->isCimNameTagsUpdated = false;
         }
@@ -183,7 +183,7 @@ Array<CIMName> CIMPropertyList::getPropertyNameArray() const
 
 Uint32 CIMPropertyList::getCIMNameTag(Uint32 index) const
 {
-    return _rep->cimNameTags[index];
+    return _rep->cimNameTags[index]; 
 }
 void CIMPropertyList::append(Array<String> & propertyListArray)
 {
@@ -222,27 +222,6 @@ void CIMPropertyList::appendCIMNameTag(Uint32 nameTag)
 {
     _rep = _copyOnWriteCIMPropertyListRep(_rep);
     _rep->cimNameTags.append(nameTag);
-}
-
-String CIMPropertyList::toString() const
-{
-    if (_rep->isNull)
-    {
-        return("NULL");
-    }
-
-    if (_rep->propertyNames.size() == 0)
-    {
-        return("EMPTY");
-    }
-
-    String rtn(_rep->propertyNames[0].getString());
-    for (Uint32 i = 1 ; i < _rep->propertyNames.size() ; i++)
-    {
-        rtn.append(", ");
-        rtn.append(_rep->propertyNames[i].getString());
-    }
-    return(rtn);
 }
 
 PEGASUS_NAMESPACE_END

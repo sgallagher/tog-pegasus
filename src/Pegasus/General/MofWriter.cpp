@@ -132,7 +132,7 @@ inline void _mofWriter_appendValue(Buffer& out, Char16 x)
     \f // \x000C: form feed FF
     \r // \x000D: carriage return CR
     \" // \x0022: double quote "
-    \' // \x0027: single quote '
+    \’ // \x0027: single quote '
     \\ // \x005C: backslash \
     \x<hex> // where <hex> is one to four hex digits
     \X<hex> // where <hex> is one to four hex digits
@@ -171,16 +171,16 @@ inline void _mofWriter_appendValue(Buffer& out, const String& x)
                 out.append("\\r",2);
                 break;
 
-           case '\'':
+           /* case '\'':
                 out.append("\\'", 2);
-                break;
+                break;*/
 
             case '"':
                 out.append("\\\"", 2);
                 break;
 
             default:
-                out<<x[i];
+                out.append(Sint8(x[i]));
         }
 
     }
@@ -397,7 +397,7 @@ void MofWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+                PEGASUS_ASSERT(false);
         }
     }
     else
@@ -539,7 +539,7 @@ void MofWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+                PEGASUS_ASSERT(false);
         }
     }
 }
@@ -579,12 +579,11 @@ void MofWriter::appendClassElement(
     const CIMClassRep* rep = cimClass._rep;
 
     // Get and format the class qualifiers
-    out << STRLIT("\n// ===================================================");
-    out << STRLIT("\n// ") << rep->getClassName();
-    out << STRLIT("\n// ===================================================\n");
-
+    out << STRLIT("\n//    Class ") << rep->getClassName();
+    out.append('\n');
     if (rep->getQualifierCount())
     {
+        out.append('\n');
         out.append('[');
         for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
         {
@@ -592,14 +591,13 @@ void MofWriter::appendClassElement(
                 out << STRLIT(", \n");
             MofWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
-        out << STRLIT("]\n");
-    }
-    else
-    {
-        out.append('\n');
+        out.append(']');
     }
 
-    // output class statement with new line.
+    // Separate qualifiers from Class Name
+    out.append('\n');
+
+    // output class statement
     out << STRLIT("class ") << rep->getClassName();
 
     if (!rep->getSuperClassName().isNull())
@@ -720,7 +718,7 @@ void MofWriter::appendInstanceElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendPropertyElement(
-    Boolean isClassDeclaration,
+    Boolean isDeclaration,
     Buffer& out,
     const CIMConstProperty& property)
 {
@@ -743,25 +741,15 @@ void MofWriter::appendPropertyElement(
 
     // Output the Type and name on a new line
     out << '\n';
-    if (isClassDeclaration)
+    if (isDeclaration)
     {
-        if (rep->getValue().getType() == CIMTYPE_REFERENCE)
-        {
-            out << rep->getReferenceClassName().getString();
-            out << " REF";
-
-        }
-        else
-        {
-            out << cimTypeToString(rep->getValue().getType());
-        }
-
+        out << cimTypeToString(rep->getValue().getType());
         out.append(' ');
     }
     out << rep->getName();
 
     // If array put the Array indicator "[]" and possible size after name.
-    if (isClassDeclaration)
+    if (isDeclaration)
     {
         if (rep->getValue().isArray())
         {
@@ -782,7 +770,7 @@ void MofWriter::appendPropertyElement(
         out << STRLIT(" = ");
         MofWriter::appendValueElement(out, rep->getValue());
     }
-    else if (!isClassDeclaration)
+    else if (!isDeclaration)
     {
         out << STRLIT(" = NULL");
     }
@@ -831,7 +819,7 @@ void MofWriter::appendMethodElement(
         out.append(']');
     }
 
-    // output the type, MethodName and ParameterList, left enclosure
+    // output the type, MethodName and ParmeterList left enclosure
     out.append('\n');
     out << cimTypeToString(rep->getType());
     out.append(' ');
@@ -917,10 +905,7 @@ void MofWriter::appendParameterElement(
 // appendQualifierElement()
 //
 //    qualifier          = qualifierName [ qualifierParameter ] [ ":" 1*flavor]
-//    Effective DSP 0004 V2.6 the ABNF rule [ ":" 1*flavor ] is deprecated
-//    Removed flavor inserting code
-//    because is was used for the concept of implicityly defined qualifier
-//    types.
+//
 //    qualifierParameter = "(" constantValue ")" | arrayInitializer
 //
 //    arrayInitializer   = "{" constantValue*( "," constantValue)"}"
@@ -941,8 +926,10 @@ void MofWriter::appendQualifierElement(
        the way MOF is shown.  Note that we should really be checking
        the qualifierdecl to compare with the default.
        Also if the value is Null, we do not put out a value because
-       no value has been set.
+       no value has been set.  Assumes that qualifiers are built
+       with NULL set if no value has been placed in the qualifier.
     */
+    Boolean hasValueField = false;
     if (!rep->getValue().isNull())
     {
         if (rep->getValue().getType() == CIMTYPE_BOOLEAN)
@@ -958,22 +945,29 @@ void MofWriter::appendQualifierElement(
         {
             if (!rep->getValue().isArray())
             {
-                out << STRLIT(" ( ");
+                out << STRLIT(" (");
             }
             else
             {
                 out << STRLIT(" ");
             }
 
+            hasValueField = true;
+
             MofWriter::appendValueElement(out, rep->getValue());
 
             if (!rep->getValue().isArray())
             {
-                out << STRLIT(" )");
+                out.append(')');
             }
         }
-        //    Effective DSP 004 V2.6 the ABNF rule [ ":" 1*flavor ] deprecated
-        //    so code that attached flavor information removed
+    }
+
+    // output the flavors
+    String flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
+    if (flavorString.size())
+    {
+        out << STRLIT(" : ") << flavorString;
     }
 }
 
@@ -1018,34 +1012,32 @@ void MofWriter::appendQualifierDeclElement(
             out.append(buffer, n);
         }
         else
-        {
             out << STRLIT("[]");
-        }
-        if (!rep->getValue().isNull())
-        {
-            out << STRLIT(" = ");
-            MofWriter::appendValueElement(out, rep->getValue());
-        }
-    }
-    else
-    {
-        out << STRLIT(" = ");
-        MofWriter::appendValueElement(out, rep->getValue());
     }
 
+    Boolean hasValueField = false;
+    // KS think through the following test
+    //if (!rep->getValue().isNull() ||
+    //    !(rep->getValue().getType() == CIMTYPE_BOOLEAN))
+    //{
+        out << STRLIT(" = ");
+        hasValueField = true;
+        MofWriter::appendValueElement(out, rep->getValue());
+    //}
+
     // Output Scope Information
-    String scopeString = MofWriter::getQualifierScope(rep->getScope());
-    if (scopeString.size())
-    {
+    String scopeString;
+    scopeString = MofWriter::getQualifierScope(rep->getScope());
+    //if (scopeString.size())
+    //{
         out << STRLIT(", Scope(") << scopeString << STRLIT(")");
-    }
+    //}
     // Output Flavor Information
     String flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
     if (flavorString.size())
     {
         out << STRLIT(", Flavor(") << flavorString << STRLIT(")");
     }
-
     // End each qualifier declaration with newline
     out << STRLIT(";\n");
 }
@@ -1089,36 +1081,21 @@ void MofWriter::appendQualifierDeclElement(
 
 String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
 {
-    String flavorStr;
+    String tmp;
 
-    // special case. Default flavors only, return nothing.
-    if (flavor.equal(CIMFlavor(CIMFlavor::DEFAULTS)))
-    {
-        return flavorStr;
-    }
+    if (!(flavor.hasFlavor (CIMFlavor::OVERRIDABLE)))
+        tmp.append("DisableOverride, ");
 
-    if ((flavor.hasFlavor (CIMFlavor::ENABLEOVERRIDE)))
-        flavorStr.append("EnableOverride, ");
-
-    if (((flavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE))))
-        flavorStr.append("DisableOverride, ");
-
-    if ((flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
-        flavorStr.append("ToSubclass, ");
-
-    if (flavor.hasFlavor (CIMFlavor::RESTRICTED))
-        flavorStr.append("Restricted, ");
+    if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
+        tmp.append("Restricted, ");
 
     if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
-        flavorStr.append("Translatable, ");
+        tmp.append("Translatable, ");
 
-    if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
-        flavorStr.append("ToInstance, ");
+    if (tmp.size())
+        tmp.remove(tmp.size() - 2);
 
-    if (flavorStr.size())
-        flavorStr.remove(flavorStr.size() - 2);
-
-    return flavorStr;
+    return tmp;
 }
 
 //------------------------------------------------------------------------------

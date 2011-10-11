@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 IndicationOperationAggregate::IndicationOperationAggregate(
     CIMRequestMessage* origRequest,
     const String &controlProviderName,
-    const Array<NamespaceClassList>& indicationSubclasses)
+    const Array<CIMName>& indicationSubclasses)
 :   _origRequest(origRequest),
     _controlProviderName(controlProviderName),
     _indicationSubclasses(indicationSubclasses),
@@ -96,8 +96,7 @@ Boolean IndicationOperationAggregate::requiresResponse() const
     }
 }
 
-Array<NamespaceClassList>&
-    IndicationOperationAggregate::getIndicationSubclasses()
+Array<CIMName>& IndicationOperationAggregate::getIndicationSubclasses()
 {
     return _indicationSubclasses;
 }
@@ -175,10 +174,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                         (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    NamespaceClassList nscl;
-                    nscl.nameSpace = request->nameSpace;
-                    nscl.classList = request->classNames;
-                    provider.classList.append(nscl);
+                    provider.classList = request->classNames;
                     provider.controlProviderName = _controlProviderName;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                     provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
@@ -195,10 +191,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                         (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    NamespaceClassList nscl;
-                    nscl.nameSpace = request->nameSpace;
-                    nscl.classList = request->classNames;
-                    provider.classList.append(nscl);
+                    provider.classList = request->classNames;
                     provider.controlProviderName = _controlProviderName;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                     provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
@@ -206,10 +199,14 @@ ProviderClassList IndicationOperationAggregate::findProvider(
 #endif
                     break;
                 }
+
                 default:
                 {
-                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-                    break;
+                    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
+                        "Unexpected request type %s in findProvider",
+                        MessageTypeToString(getRequest(i)->getType())));
+                    PEGASUS_ASSERT(false);
+                break;
                 }
             }
 
@@ -220,7 +217,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     //
     //  No request found with message ID matching message ID from response
     //
-    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+    PEGASUS_ASSERT(false);
     return provider;
 }
 

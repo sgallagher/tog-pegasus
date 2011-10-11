@@ -58,7 +58,6 @@
 #include "StrLit.h"
 #include "IDFactory.h"
 #include "StringConversion.h"
-
 PEGASUS_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
@@ -723,12 +722,20 @@ void XmlWriter::printValueElement(
 
 void XmlWriter::appendValueObjectWithPathElement(
     Buffer& out,
-    const CIMObject& objectWithPath)
+    const CIMObject& objectWithPath,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
     appendValueReferenceElement(out, objectWithPath.getPath (), false);
-    appendObjectElement(out, objectWithPath);
+    appendObjectElement(
+        out,
+        objectWithPath,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
 
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
 }
@@ -816,12 +823,20 @@ void XmlWriter::printValueReferenceElement(
 
 void XmlWriter::appendValueNamedInstanceElement(
     Buffer& out,
-    const CIMInstance& namedInstance)
+    const CIMInstance& namedInstance,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
 
     appendInstanceNameElement(out, namedInstance.getPath ());
-    appendInstanceElement(out, namedInstance);
+    appendInstanceElement(
+        out,
+        namedInstance,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
 
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
@@ -837,12 +852,20 @@ void XmlWriter::appendValueNamedInstanceElement(
 // EXP_PULL_TBD checkout the INSTANCEPATH vs NAMEDINSTANCE
 void XmlWriter::appendValueInstanceWithPathElement(
     Buffer& out,
-    const CIMInstance& namedInstance)
+    const CIMInstance& namedInstance,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList)
 {
     out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
 
     appendInstancePathElement(out, namedInstance.getPath ());
-    appendInstanceElement(out, namedInstance);
+    appendInstanceElement(
+        out,
+        namedInstance,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
 
     out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
 }
@@ -923,7 +946,10 @@ void XmlWriter::printClassElement(
 
 void XmlWriter::appendInstanceElement(
     Buffer& out,
-    const CIMConstInstance& instance)
+    const CIMConstInstance& instance,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     CheckRep(instance._rep);
     const CIMInstanceRep* rep = instance._rep;
@@ -935,14 +961,47 @@ void XmlWriter::appendInstanceElement(
         << STRLIT("\" >\n");
 
     // Append Instance Qualifiers:
+    if(includeQualifiers)
+    {
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+    }
+    if(propertyList.isNull())
+    { 
+        for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
+        {
+            XmlWriter::appendPropertyElement(
+                out,
+                rep->getProperty(i),
+                includeQualifiers,includeClassOrigin);
+        }
+    }
+    else
+    {
+        for (Uint32 i = 0, n = propertyList.size(); i < n; i++)
+        {
+            CIMName name = propertyList[i];
+            Uint32 pos = rep->_properties.find(
+                propertyList[i],
+                propertyList.getCIMNameTag(i));
+            if(pos != PEG_NOT_FOUND)
+            {
+                PEG_TRACE((TRC_XML,Tracer::LEVEL4,
+                    "XmlWriter::appendInstanceElement"
+                        " Filtering the property name:%s for the className:%s"
+                    "since it was not filtered by the provider.",
+                    (const char *)name.getString().getCString(),
+                    (const char *)instance.getClassName().
+                        getString().getCString()));
 
-    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-        XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+                XmlWriter::appendPropertyElement(
+                    out,
+                    rep->getProperty(pos),
+                    includeQualifiers,includeClassOrigin);
+            }
+        }
 
-    // Append Properties:
-
-    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
-        XmlWriter::appendPropertyElement(out, rep->getProperty(i));
+    }
 
     // Instance closing element:
 
@@ -968,7 +1027,10 @@ void XmlWriter::printInstanceElement(
 
 void XmlWriter::appendObjectElement(
     Buffer& out,
-    const CIMConstObject& object)
+    const CIMConstObject& object,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     if (object.isClass())
     {
@@ -978,7 +1040,12 @@ void XmlWriter::appendObjectElement(
     else if (object.isInstance())
     {
         CIMConstInstance i(object);
-        appendInstanceElement(out, i);
+        appendInstanceElement(
+            out,
+            i,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
     }
     // else PEGASUS_ASSERT(0);
 }
@@ -1013,7 +1080,9 @@ void XmlWriter::appendObjectElement(
 
 void XmlWriter::appendPropertyElement(
     Buffer& out,
-    const CIMConstProperty& property)
+    const CIMConstProperty& property,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
     CheckRep(property._rep);
     const CIMPropertyRep* rep = property._rep;
@@ -1116,7 +1185,7 @@ void XmlWriter::appendPropertyElement(
             out.append('"');
         }
 
-        if (!rep->getClassOrigin().isNull())
+        if(includeClassOrigin && !rep->getClassOrigin().isNull())
         {
             out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
             out.append('"');
@@ -1128,9 +1197,11 @@ void XmlWriter::appendPropertyElement(
         }
 
         out << STRLIT(">\n");
-
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        if(includeQualifiers)
+        {
+            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
 
         XmlWriter::appendValueElement(out, rep->getValue());
 
@@ -1146,8 +1217,7 @@ void XmlWriter::appendPropertyElement(
             out << STRLIT(" REFERENCECLASS=\"") << rep->getReferenceClassName();
             out.append('"');
         }
-
-        if (!rep->getClassOrigin().isNull())
+        if(includeClassOrigin && !rep->getClassOrigin().isNull())
         {
             out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
             out.append('"');
@@ -1159,9 +1229,11 @@ void XmlWriter::appendPropertyElement(
         }
 
         out << STRLIT(">\n");
-
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        if(includeQualifiers)
+        {  
+            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
 
         XmlWriter::appendValueElement(out, rep->getValue());
 
@@ -1170,8 +1242,7 @@ void XmlWriter::appendPropertyElement(
     else
     {
         out << STRLIT("<PROPERTY NAME=\"") << rep->getName() << STRLIT("\" ");
-
-        if (!rep->getClassOrigin().isNull())
+        if(includeClassOrigin && !rep->getClassOrigin().isNull())
         {
             out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
             out.append('"');
@@ -1253,9 +1324,11 @@ void XmlWriter::appendPropertyElement(
         }
 
         out << STRLIT(">\n");
-
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        if(includeQualifiers)
+        {
+            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
 
         XmlWriter::appendValueElement(out, rep->getValue());
 
@@ -1735,7 +1808,7 @@ void XmlWriter::appendMethodCallHeader(
     }
     else
     {
-        out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+        out << STRLIT("Content-Type: application/xml; charset=utf-8\r\n");
     }
 
     if (binaryResponse)
@@ -1853,7 +1926,7 @@ void XmlWriter::appendMethodResponseHeader(
      }
      else
      {
-         out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+         out << STRLIT("Content-Type: application/xml; charset=utf-8\r\n");
      }
 
      OUTPUT_CONTENTLENGTH(out, contentLength);
@@ -3042,7 +3115,7 @@ void XmlWriter::appendEMethodRequestHeader(
       out << STRLIT("POST ") << requestUri << STRLIT(" HTTP/1.1\r\n");
     }
     out << STRLIT("HOST: ") << host << STRLIT("\r\n"
-                  "Content-Type: application/xml; charset=\"utf-8\"\r\n");
+                  "Content-Type: application/xml; charset=utf-8\r\n");
     OUTPUT_CONTENTLENGTH(out, contentLength);
 
     if (acceptLanguages.size() > 0)
@@ -3106,7 +3179,7 @@ void XmlWriter::appendEMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n"
-                  "Content-Type: application/xml; charset=\"utf-8\"\r\n");
+                  "Content-Type: application/xml; charset=utf-8\r\n");
     OUTPUT_CONTENTLENGTH(out, contentLength);
 
     if (contentLanguages.size() > 0)

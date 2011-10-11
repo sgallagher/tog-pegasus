@@ -48,9 +48,10 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE BinaryCodec
 {
 public:
-
     // Peform hex dump of the given data.
+#if defined(PEGASUS_DEBUG)
     static void hexDump(const void* data, size_t size);
+#endif /* defined(PEGASUS_DEBUG) */
 
     static bool encodeRequest(
         Buffer& out,
@@ -68,17 +69,13 @@ public:
        Decode a serialized CIMOperationRequestMessage received in a Buffer.
     */
     static CIMOperationRequestMessage* decodeRequest(
-        const Buffer& in,
+        CIMBuffer& in,
         Uint32 queueId,
         Uint32 returnQueueId);
 
-    /**
-       Decode an input Buffer containing a serialized message stream into 
-       a single CIMResponseMessage. 
-    */
-    static CIMResponseMessage* decodeResponse(
+    // KS_TODO - Do we need this any more???
+    CIMResponseMessage* decodeResponse(
         const Buffer& in);
-
     /**
        Decode an input CIMBuffer containing a serialized message stream 
        into a singe CIMResponseMessage.

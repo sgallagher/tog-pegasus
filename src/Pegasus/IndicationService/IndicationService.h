@@ -53,8 +53,6 @@ ProviderRegistrationManager.h>
 # include <Pegasus/IndicationService/IndicationServiceConfiguration.h>
 #endif
 
-#include <Pegasus/General/SubscriptionKey.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 // Holds information of control providers servicing the indications.
@@ -124,69 +122,6 @@ public:
 
     static Mutex _mutex;
 
-    /**
-        Sets property with name SystemName to sysname if existant. If
-        property does not exist on instance, adds it.
-        Should be used for instances of classes Filter, Handler only
-        Does not change the objectPath of the instance !!!
-
-        @param   instance              instance to set property on
-        @param   sysname               system name to set
-     */
-
-    static void _setOrAddSystemNameInHandlerFilter(
-        CIMInstance& instance,
-        const String& sysname);
-
-    /**
-        Sets key binding with name SystemName to string if existant. Should be
-        used with Handler and Filter object paths only
-
-        @param   objPath              object path to change keybinding on
-        @param   sysname              system name to set
-     */
-    static void _setSystemNameInHandlerFilter(
-        CIMObjectPath& objPath,
-        const String& sysname);
-
-    /**
-        Replace the value of SystemName in a String created from a Handler or
-        Filter reference
-      */
-    static void _setSystemNameInHandlerFilterReference(
-        String& reference,
-        const String& sysname);
-
-    /**
-        Sets key binding with name SystemName in the two keybinding references
-        Filter and Handler of a Subscription object path
-
-        @param   objPath              object path to change SystemNames on
-        @param   sysname              system name to set
-     */
-    static void _setSubscriptionSystemName(
-        CIMObjectPath& objPath,
-        const String& sysname);
-
-    /** Replaces value in all occurences of SystemName key with String sysname
-        used for Handler, Filter and Subscription object paths
-
-        @param   objPath              object path to change SystemNames on
-        @param   sysname              system name to set
-     */
-    static void _setSystemName(CIMObjectPath& objPath, const String& sysname);
-
-    /** Replaces value in all occurences of SystemName key and SystemName
-        property with String sysname
-
-        Used for Handler, Filter and Subscription object paths
-
-        @param   instance             instance to change
-        @param   sysname              system name to set
-     */
-    static void _setSystemName(CIMInstance& instance, const String& sysname);
-
-
 private:
 
     void _initialize();
@@ -221,7 +156,6 @@ private:
     void _handleDeleteInstanceRequest(const Message * message);
 
     void _handleProcessIndicationRequest(Message* message);
-    void _handleProcessIndicationResponse(Message* message);
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
@@ -462,6 +396,7 @@ private:
         @param   otherPropertyName     name of Other___ property to be validated
         @param   defaultValue          default value for property
         @param   otherValue            "Other" value for property
+        @param   validValues           set of valid values for property
         @param   supportedValues       set of supported values for property
 
         @exception   CIM_ERR_INVALID_PARAMETER  if value of property or Other___
@@ -473,6 +408,7 @@ private:
         const CIMName& otherPropertyName,
         const Uint16 defaultValue,
         const Uint16 otherValue,
+        const Array<Uint16>& validValues,
         const Array<Uint16>& supportedValues);
 
     /**
@@ -589,12 +525,25 @@ private:
         const Boolean isArray = false);
 
     /**
+        Validates that all properties in the instance are supported properties,
+        and throws an exception if an unknown, unsupported property is found.
+
+        @param   instance              instance to be validated
+
+        @exception   CIM_ERR_NOT_SUPPORTED      if instance includes an unknown,
+                                                unsupported property
+     */
+    void _checkSupportedProperties(
+        const CIMInstance& instance);
+
+    /**
         Validates value of the specified Uint16 property in the instance.
         If the value of the property is not a valid value, or is not a
         supported value, an exception is thrown.
 
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
+        @param   validValues           set of valid values for property
         @param   supportedValues       set of supported values for property
 
         @exception   CIM_ERR_NOT_SUPPORTED      if the property value is not
@@ -605,6 +554,7 @@ private:
     void _checkValue(
         const CIMInstance& instance,
         const CIMName& propertyName,
+        const Array<Uint16>& validValues,
         const Array<Uint16>& supportedValues);
 
     /**
@@ -677,7 +627,7 @@ private:
 
         @return   list of CIMInstance subscriptions
      */
-    Array<SubscriptionWithSrcNamespace> _getMatchingSubscriptions(
+    Array<CIMInstance> _getMatchingSubscriptions(
         const CIMName& supportedClass,
         const Array<CIMNamespaceName> nameSpaces,
         const CIMPropertyList& supportedProperties,
@@ -718,8 +668,8 @@ private:
         const Array<CIMNamespaceName>& oldNameSpaces,
         const CIMPropertyList& newProperties,
         const CIMPropertyList& oldProperties,
-        Array<SubscriptionWithSrcNamespace>& newSubscriptions,
-        Array<SubscriptionWithSrcNamespace>& formerSubscriptions);
+        Array<CIMInstance>& newSubscriptions,
+        Array<CIMInstance>& formerSubscriptions);
 
     /**
         Determines if all of the required properties in the specified list
@@ -769,18 +719,18 @@ private:
         Retrieves the list of indication providers that serve the specified
         indication subclasses.
 
-        @param   query                 the query
-        @param   queyLang              the query language
+        @param   queryExpression       the query expression
+        @param   nameSpace             the namespace name
         @param   indicationClassName   the indication class name
         @param   indicationSubclasses  the list of indication subclass names
 
         @return  list of ProviderClassList structs
      */
     Array<ProviderClassList> _getIndicationProviders(
-        const String &query,
-        const String &queryLang,
+        const QueryExpression& queryExpression,
+        const CIMNamespaceName& nameSpace,
         const CIMName& indicationClassName,
-        const Array<NamespaceClassList>& indicationSubclasses) const;
+        const Array<CIMName>& indicationSubclasses) const;
 
     /**
         Retrieves the list of required properties (all the properties
@@ -870,16 +820,6 @@ private:
     void _deleteExpiredSubscription(
         CIMObjectPath& subscription);
 
-#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
-    /**
-        Deletes filter and handler of the specified subscription
-
-        @param   subscription instance
-     */
-     void _deleteFilterHandler(
-         CIMInstance &subscriptionInstance);
-#endif
-
     /**
         Gets the Subscription Time Remaining property
 
@@ -931,6 +871,7 @@ private:
                                            classes
         @param   propertyList          Output list of properties required by the
                                            subscription
+        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
@@ -938,9 +879,10 @@ private:
      */
     void _getCreateParams(
         const CIMInstance& subscriptionInstance,
-        Array<NamespaceClassList>& indicationSubclasses,
+        Array<CIMName>& indicationSubclasses,
         Array<ProviderClassList>& indicationProviders,
         CIMPropertyList& propertyList,
+        CIMNamespaceName& sourceNameSpace,
         String& condition,
         String& query,
         String& queryLanguage);
@@ -954,6 +896,7 @@ private:
                                            class in filter query
         @param   propertyList          Output list of properties required by the
                                            subscription
+        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
@@ -961,8 +904,9 @@ private:
      */
     void _getCreateParams(
         const CIMInstance& subscriptionInstance,
-        Array<NamespaceClassList>& indicationSubclasses,
+        Array<CIMName>& indicationSubclasses,
         CIMPropertyList& propertyList,
+        CIMNamespaceName& sourceNameSpace,
         String& condition,
         String& query,
         String& queryLanguage);
@@ -973,12 +917,14 @@ private:
         @param   subscriptionInstance  Input subscription instance
         @param   indicationSubclasses  Output list of subclasses of indication
                                            class in filter query
+        @param   sourceNameSpace       Output source namespace for filter query
 
         @return  List of providers with associated classes to Delete
      */
     Array<ProviderClassList> _getDeleteParams(
         const CIMInstance& subscriptionInstance,
-        Array<NamespaceClassList>& indicationSubclasses);
+        Array<CIMName>& indicationSubclasses,
+        CIMNamespaceName& sourceNameSpace);
 
     /**
         Sends Create subscription request for the specified subscription
@@ -994,8 +940,8 @@ private:
         In case (3), there is no original request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1019,6 +965,7 @@ private:
      */
     void _sendAsyncCreateRequests(
         const Array<ProviderClassList>& indicationProviders,
+        const CIMNamespaceName& nameSpace,
         const CIMPropertyList& propertyList,
         const String& condition,
         const String& query,
@@ -1027,7 +974,7 @@ private:
         const AcceptLanguageList& acceptLangs,
         const ContentLanguageList& contentLangs,
         const CIMRequestMessage * origRequest,
-        const Array<NamespaceClassList>& indicationSubclasses,
+        const Array<CIMName>& indicationSubclasses,
         const String& userName,
         const String& authType = String::EMPTY);
 
@@ -1046,8 +993,8 @@ private:
         response is required.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1068,6 +1015,7 @@ private:
      */
     Array<ProviderClassList> _sendWaitCreateRequests(
         const Array<ProviderClassList>& indicationProviders,
+        const CIMNamespaceName& nameSpace,
         const CIMPropertyList& propertyList,
         const String& condition,
         const String& query,
@@ -1093,8 +1041,8 @@ private:
         request to which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1113,6 +1061,7 @@ private:
      */
     void _sendWaitModifyRequests(
         const Array<ProviderClassList>& indicationProviders,
+        const CIMNamespaceName& nameSpace,
         const CIMPropertyList& propertyList,
         const String& condition,
         const String& query,
@@ -1139,8 +1088,8 @@ private:
         orginal request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1156,11 +1105,12 @@ private:
      */
     void _sendAsyncDeleteRequests(
         const Array<ProviderClassList>& indicationProviders,
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& subscription,
         const AcceptLanguageList& acceptLangs,
         const ContentLanguageList& contentLangs,
         const CIMRequestMessage * origRequest,
-        const Array<NamespaceClassList>& indicationSubclasses,
+        const Array<CIMName>& indicationSubclasses,
         const String& userName,
         const String& authType = String::EMPTY);
 
@@ -1175,8 +1125,8 @@ private:
         Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1188,6 +1138,7 @@ private:
      */
     void _sendWaitDeleteRequests(
         const Array<ProviderClassList>& indicationProviders,
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& subscription,
         const AcceptLanguageList& acceptLangs,
         const ContentLanguageList& contentLangs,
@@ -1304,6 +1255,17 @@ private:
         String& creator) const;
 
     /**
+        Validates the specified SubscriptionState property value.
+
+        @param   state                 SubscriptionState property value
+
+        @return  True, if the SubscriptionState property value is valid;
+                 False otherwise
+     */
+    Boolean _validateState(
+        const Uint16 state) const;
+
+    /**
         This function peforms an authorization test based on the
         value of the enableSubscriptionForNonprivilegedUsers.
 
@@ -1384,7 +1346,7 @@ private:
         const CIMNamespaceName& nameSpace,
         const CIMInstance& indicationProvider,
         Array<CIMInstance>& subscriptions,
-        Array<SubscriptionKey>& subscriptionKeys);
+        Array<String>& subscriptionKeys);
 
     /**
         Evaluate if the specified subscription matches the indication based on:
@@ -1465,20 +1427,19 @@ private:
         @param  subscription           The accepted subscription.
         @param  acceptedProviders      Subscription accepted providers list.
         @param  indicationSubclasses   The indication subclasses for the
-                                       subscription with the source namespace.
+                                           subscription
+        @param  sourceNameSpace        The nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
+                                           property of the CIM_IndicationFilter
+                                           instance for the specified
+                                           subscription
 
     */
     void _updateAcceptedSubscription(
         CIMInstance &subscription,
         const Array<ProviderClassList> &acceptedProviders,
-        const Array<NamespaceClassList> &indicationSubclasses);
-
-    Array<ProviderClassList> _getIndicationProvidersWithNamespaceClassList(
-        const Array<ProviderClassList> &providers);
-
-    void _addProviderToAcceptedProviderList(
-        Array<ProviderClassList> &acceptedProviders,
-        ProviderClassList &provider);
+        const Array<CIMName> &indicationSubclasses,
+        const CIMNamespaceName &sourceNameSpace);
 
     void _deliverWaitingIndications();
     void _beginCreateSubscription(const CIMObjectPath &objPath);
@@ -1567,12 +1528,17 @@ private:
     void _buildInternalControlProvidersRegistration();
 
     Array<ProviderClassList> _getInternalIndProviders(
-        const Array<NamespaceClassList>& indicationSubclasses) const;
+        const CIMNamespaceName& nameSpace,
+        const Array<CIMName>& indicationSubclasses) const;
 
     /**
         Arrays of valid and supported property values
 
         Notes:
+        Valid values are defined by the CIM Event Schema MOF
+        Supported values are a subset of the valid values
+        Some valid values, as defined in the MOF, are not currently supported
+            by the Pegasus IndicationService
 
         Supported Values
         SubscriptionState: Enabled, Disabled
@@ -1581,12 +1547,28 @@ private:
         PersistenceType: Permanent, Transient
         SNMPVersion: SNMPv1 Trap, SNMPv2C Trap
      */
+    Array<Uint16> _validStates;
+    Array<Uint16> _validRepeatPolicies;
+    Array<Uint16> _validErrorPolicies;
+    Array<Uint16> _validPersistenceTypes;
+    Array<Uint16> _validSNMPVersion;
     Array<Uint16> _supportedStates;
     Array<Uint16> _supportedRepeatPolicies;
     Array<Uint16> _supportedErrorPolicies;
     Array<Uint16> _supportedPersistenceTypes;
     Array<Uint16> _supportedSNMPVersion;
 
+    /**
+        Arrays of names of supported properties for each class
+     */
+    Array<CIMName> _supportedSubscriptionProperties;
+    Array<CIMName> _supportedFormattedSubscriptionProperties;
+    Array<CIMName> _supportedFilterProperties;
+    Array<CIMName> _supportedCIMXMLHandlerProperties;
+    Array<CIMName> _supportedCIMXMLListenerDestinationProperties;
+    Array<CIMName> _supportedSNMPHandlerProperties;
+    Array<CIMName> _supportedSyslogListenerDestinationProperties;
+    Array<CIMName> _supportedEmailListenerDestinationProperties;
     ControlProvIndRegTable _controlProvIndRegTable;
 };
 

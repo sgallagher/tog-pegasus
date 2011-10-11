@@ -108,13 +108,6 @@ private:
         const CIMInstance& providerModule,
         CIMRequestMessage* request);
 
-    /** Function creates a copy of _providerAgentTable. Do NOT inline this 
-        method ever since it needs obtain the _providerAgentTableMutex and also
-        does have to release the mutex before returning. When inlined the
-        AutoMutex will not unlock.
-      */
-    Array<ProviderAgentContainer*> _getProviderAgentContainerCopy();
-
     /**
         Return an array of pointers to ProviderAgentContainers for the
         specified moduleName.

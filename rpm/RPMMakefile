@@ -74,53 +74,47 @@ endif
 ##
 ###############################################################################
 ifeq ($(IDISTRO),RedHatEnterpriseServer)
-  DISTRO:=REDHAT
-  export PEGASUS_DISTRO_SUFFIX:= \
-    $(if $(filter $(RELEASE),4.92 4.93 5 5.1 5.2 5.3),el5, \
-    $(if $(filter $(RELEASE),6 6.0),el6, \
-    $(if $(filter $(RELEASE),7 7.0),el7,xxx)))
-else
-  ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
     DISTRO:=REDHAT
-    ifeq ($(findstring 7, $(RELEASE)),7)
-      export PEGASUS_DISTRO_SUFFIX=rhel7
-    else
-      ifeq ($(findstring 6, $(RELEASE)),6)
-        export PEGASUS_DISTRO_SUFFIX=rhel6
-      else
-        ifeq ($(findstring 5, $(RELEASE)),5)
-          export PEGASUS_DISTRO_SUFFIX=rhel5
+    export PEGASUS_DISTRO_SUFFIX:= \
+        $(if $(filter $(RELEASE),4.92 4.93 5 5.1 5.2 5.3),el5,$(if $(filter $(RELEASE),6 6.0),el6,xxx))
+else
+    ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
+        DISTRO:=REDHAT
+        ifeq ($(findstring 6, $(RELEASE)),6)
+           export PEGASUS_DISTRO_SUFFIX=rhel6
         else
-          ifeq ($(findstring 4, $(RELEASE)),4)
-            export PEGASUS_DISTRO_SUFFIX=rhel4
-          else
-            ifeq ($(findstring 3, $(RELEASE)),3)
-              export PEGASUS_DISTRO_SUFFIX=rhel3
+            ifeq ($(findstring 5, $(RELEASE)),5)
+                export PEGASUS_DISTRO_SUFFIX=rhel5
             else
-              export PEGASUS_DISTRO_SUFFIX=xxx
+                ifeq ($(findstring 4, $(RELEASE)),4)
+           export PEGASUS_DISTRO_SUFFIX=rhel4
+        else
+                   ifeq ($(findstring 3, $(RELEASE)),3)
+                export PEGASUS_DISTRO_SUFFIX=rhel3
+            else
+                export PEGASUS_DISTRO_SUFFIX=xxx
             endif
-          endif
         endif
-      endif
+            endif
+        endif
+    else
+        ifeq ($(findstring SUSE,$(IDISTRO)),SUSE)
+            DISTRO:=SUSE
+            ifeq ($(RELEASE),9)
+                export PEGASUS_DISTRO_SUFFIX=sles9
+            else
+                ifeq ($(RELEASE),10)
+                    export PEGASUS_DISTRO_SUFFIX=sles10
+                else
+                   ifeq ($(RELEASE),11)
+                       export PEGASUS_DISTRO_SUFFIX=sles11
+                   else
+                    export PEGASUS_DISTRO_SUFFIX=xxx
+                endif
+            endif
+        endif
     endif
-  else
-   ifeq ($(findstring SUSE,$(IDISTRO)),SUSE)
-     DISTRO:=SUSE
-     ifeq ($(RELEASE),9)
-       export PEGASUS_DISTRO_SUFFIX=sles9
-     else
-       ifeq ($(RELEASE),10)
-         export PEGASUS_DISTRO_SUFFIX=sles10
-       else
-         ifeq ($(RELEASE),11)
-           export PEGASUS_DISTRO_SUFFIX=sles11
-         else
-           export PEGASUS_DISTRO_SUFFIX=xxx
-         endif
-       endif
-     endif
-   endif
-  endif
+endif
 endif
 
 ###############################################################################

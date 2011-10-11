@@ -91,8 +91,6 @@ public:
         </pre>
         @param propertyNames An Array of CIMNames specifying the property
             names in the list.
-        @Exception UninitializedObjectException if any CIMName in
-                   the array argument is NULL
     */
     CIMPropertyList(const Array<CIMName>& propertyNames);
 
@@ -115,8 +113,6 @@ public:
         </pre>
         @param propertyNames An Array of CIMNames specifying the property
             names in the list.
-        @Exception UninitializedObjectException if any CIMName in
-                   the array argument is NULL
     */
     void set(const Array<CIMName>& propertyNames);
 
@@ -181,16 +177,6 @@ public:
     void append(Array<String> & propertyListArray);
 
     void appendCIMNameTag(Uint32 nameTag);
-
-    /**
-        Return as a String the comma-separated list of properties in
-        a property list.  If the list is empty or NULL set the
-        corresponding string value (EMPTY or NULL).  This method is
-        only for display of information in a property list.
-        @return String containing the list of properties
-                comma-separated.
-     */
-    String toString() const;
 
 private:
 

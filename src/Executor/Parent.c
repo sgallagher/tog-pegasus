@@ -58,9 +58,6 @@
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
-#else
-/* PAM_SUCCESS is defined to 0 by PAM */
-#define PAM_SUCCESS 0
 #endif
 
 /*
@@ -264,6 +261,8 @@ static void HandleOpenFileRequest(int sock)
 static void HandleStartProviderAgentRequest(int sock)
 {
     int status;
+    int uid;
+    int gid;
     int pid;
     int to[2];
     int from[2];
@@ -311,8 +310,6 @@ static void HandleStartProviderAgentRequest(int sock)
 
         /* Look up the user ID and group ID of the specified user. */
 
-        int uid;
-        int gid;
         if (GetUserInfo(request.userName, &uid, &gid) != 0)
         {
             Log(LL_WARNING, "User %s does not exist on this system, " 
@@ -613,6 +610,8 @@ static void HandleAuthenticatePasswordRequest(int sock)
     int status;
     struct ExecutorAuthenticatePasswordRequest request;
     struct ExecutorAuthenticatePasswordResponse response;
+    int gid;
+    int uid;
 
     memset(&response, 0, sizeof(response));
 
@@ -634,29 +633,16 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-        status = PAMAuthenticate(request.username, request.password);
+        if (PAMAuthenticate(request.username, request.password) != 0)
+        {
+            status = -1;
+            break;
+        }
 
-        if (status == PAM_SUCCESS)
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, successful.",
-                request.username);
-        }
-        else
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, failed with PAM return code= %d.",
-                request.username,
-                status);
-        }
-        
+
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         {
-            int gid;
-            int uid;
             if (GetUserInfo(request.username, &uid, &gid) != 0)
             {
                 status = -1;
@@ -679,13 +665,13 @@ static void HandleAuthenticatePasswordRequest(int sock)
             }
         }
 
-        Log(LL_TRACE, "Basic authentication attempt: username = %s, "
-            "successful = %s",
-            request.username, status == PAM_SUCCESS ? "TRUE" : "FALSE" );
-
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
     }
     while (0);
+
+    Log(LL_TRACE, "Basic authentication attempt: username = %s, "
+        "successful = %s",
+        request.username, status == 0 ? "TRUE" : "FALSE" );
 
     /* Send response message. */
 
@@ -725,7 +711,8 @@ static void HandleValidateUserRequest(int sock)
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-    status = PAMValidateUser(request.username);
+    if (PAMValidateUser(request.username) != 0)
+        status = -1;
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 

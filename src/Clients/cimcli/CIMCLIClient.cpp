@@ -47,6 +47,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/General/MofWriter.h>
+#include <Pegasus/Common/Print.h>
 
 #include "CIMCLIClient.h"
 
@@ -158,7 +159,19 @@ Boolean _testRcvTooManyElements(
     return(false);
 }
 
-
+// Map the keybinding values from any CIMObjectPath that was input into
+// our standard input form for use by objectBuilder.
+void mapKeyBindingsToInputParameters(Options& opts)
+{
+    Array<CIMKeyBinding> keys = opts.getTargetObjectName().getKeyBindings();
+    for (Uint32 i = 0 ; i < keys.size() ; i++)
+    {
+        String param = keys[i].getName().getString();
+        param.append("=");
+        param.append(keys[i].getValue());
+        opts.valueParams.append(param);
+    }
+}
 
 /*************************************************************
 *
@@ -173,7 +186,6 @@ Boolean _testRcvTooManyElements(
     @param what String that defines for the output string what type
     of items the select is based on (ex: "Instance Names");
     @return Uint32 representing the item to be selected.
-    TODO: Find a way to do a reject.
 */
 Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 {
@@ -235,6 +247,11 @@ Boolean _selectInstance(Options& opts,
     // return false if nothing in list
     if (list.size() == 0)
     {
+        if (opts.verboseTest)
+        {
+            cout << "No instances exist for class " << className.getString()
+                 << endl;
+        }
         return false;
     }
 
@@ -276,59 +293,187 @@ Boolean _conditionalSelectInstance(Options& opts,
     return true;
 }
 
+// Display detailed differences between two properties. They are assumed
+// to be the same property with the same name. Displays the xml definition
+// of the property and details about which characteristics differ.
+// If testDetails true, attributes other than simply the value are tested
+// for differences.
+Boolean _compareProperty(CIMProperty& propTest,
+                         CIMProperty& propRtnd,
+                         const Options& opts,
+                         Boolean detailedTest = false,
+                         Boolean display = false)
+{
+    bool rtn = true;
+
+    if (propTest.getName() != propRtnd.getName())
+    {
+        if (display)
+        {
+            cout << "Names differ. "
+                 << propTest.getName().getString()
+                 << " vs. "
+                 << propRtnd.getName().getString()
+                 << endl;
+        }
+        rtn = false;
+    }
+
+    if (propTest.getType() != propRtnd.getType())
+    {
+        if (display)
+        {
+            cout << "Types differ. "
+                 << propTest.getType()
+                 << " vs. "
+                 << propRtnd.getType()
+                 << endl;
+        }
+        rtn = false;
+    }
+
+    if (propTest.getValue() != propRtnd.getValue())
+    {
+        if (display)
+        {
+            cout << "Values differ" << endl;
+            cout << ". Test Instance ";
+            CIMCLIOutput::displayProperty(opts, propTest);
+            cout << endl <<"Returned instance ";
+            CIMCLIOutput::displayProperty(opts ,propRtnd);
+            cout << endl;
+        }
+        rtn = false;
+    }
+    if (propTest.isArray() != propRtnd.isArray())
+    {
+        if (display)
+        {
+            cout << "isArray Attributes differ differ. "
+                 << _toString(propTest.isArray())
+                 << " vs. "
+                 << _toString(propRtnd.isArray())
+                 << endl;
+        }
+        rtn = false;
+    }
+
+    // if detailed test specified, we test arraysize, classOrigin,
+    // propagated, and qualifiers also
+    if (detailedTest)
+    {
+        if (propTest.getArraySize() !=
+            propRtnd.getArraySize())
+        {
+            if (display)
+            {
+                cout << "ArraySize Attributes differ differ. "
+                     << propTest.getArraySize()
+                     << " vs. "
+                     << propRtnd.getArraySize()
+                     << endl;
+            }
+            rtn = false;
+        }
+
+        if (propTest.getClassOrigin() !=
+             propRtnd.getClassOrigin())
+        {
+            if (display)
+            {
+                cout << "ClassOrigin values differ.  "
+                     << propTest.getClassOrigin().getString()
+                     << " vs. "
+                     << propRtnd.getClassOrigin().getString()
+                     << endl;
+            }
+            rtn = false;
+        }
+        if (propTest.getPropagated() !=
+             propRtnd.getPropagated())
+        {
+            if (display)
+            {
+                cout << "getPropagated values differ.  "
+                     << _toString(propTest.getPropagated())
+                     << " vs. "
+                     << _toString(propRtnd.getPropagated())
+                     << endl;
+            }
+            rtn = false;
+        }
+
+        if (propTest.getQualifierCount() !=
+             propRtnd.getQualifierCount())
+        {
+            if (display)
+            {
+                cout << "ClassOrigin values differ. "
+                     << propTest.getQualifierCount()
+                     << " vs. "
+                     << propRtnd.getQualifierCount()
+                     << endl;
+            }
+            rtn = false;
+        }
+    }
+    return rtn;
+}
 /*
     Compare two instances for equality in terms of number and names of
     properties and property values
+    ASSUMPTION: Firstproperty is test, second is returned instance. We use
+    this assumption in outputs
 */
 Boolean _compareInstances(CIMInstance& inst1,
                           CIMInstance& inst2,
-                          Boolean verbose,
-                          Options& opts)
+                          Options& opts,
+                          Boolean detailedTest,
+                          Boolean verbose)
 {
     Boolean returnValue = true;
 
-    //CIMCLIOutput::displayInstance(opts, inst1);
-    //CIMCLIOutput::displayInstance(opts, inst2);
-
+    // for each property in the test instance.
+    // If there are extra properties in the returned instance we do not not
+    // that here.  See next set of tests.
     for (Uint32 i = 0 ; i < inst1.getPropertyCount(); i++)
     {
         CIMProperty inst1Property = inst1.getProperty(i);
         CIMName testName = inst1Property.getName();
-        //cout << "test property " << testName.getString() << endl;
         Uint32 pos;
+
+        // test for property in returned instance
         if ((pos = inst2.findProperty(testName)) != PEG_NOT_FOUND)
         {
             CIMProperty inst2Property = inst2.getProperty(pos);
 
+            // if the instances are identical pass the test
+            // else we will compare in detail
             if (!inst1Property.identical(inst2Property))
             {
-                returnValue = false;
-                if (verbose)
-                {
-                    cout << "Error in Property. "<< testName.getString()
-                         << "Test Instance Property ";
-                    CIMCLIOutput::displayProperty(opts,inst1Property);
-
-                    cout << endl <<"Returned instance Property";
-
-                    CIMCLIOutput::displayProperty(opts,inst2Property);
-                    cout << endl;
-                }
-
+                // compare the properties.  Normally we test primarily
+                // on value but there is a detailed test for all of the
+                // attributes.
+                returnValue = _compareProperty(inst1Property,
+                                               inst2Property,
+                                               opts,
+                                               detailedTest,
+                                               verbose);
             }
         }
+
         else   // Property not found in second instance
         {
             returnValue = false;
             if (verbose)
             {
                 cout << "Error: Property " << testName.getString()
-                    << "not found in second instance" << endl;
+                    << "not found in returned instance" << endl;
             }
         }
 
         // If the number of properties not the same in the two instances
-        // inst2 must have more than inst1.
+        // rtnd instance  must have more than test instance.
         if (inst1.getPropertyCount() != inst2.getPropertyCount())
         {
             returnValue = false;
@@ -341,7 +486,7 @@ Boolean _compareInstances(CIMInstance& inst1,
                     if (inst1.findProperty(testName) == PEG_NOT_FOUND)
                     {
                         cout << "Error: property " << testName.getString()
-                            << " not found in first instance" << endl;
+                            << " not found in test instance" << endl;
                     }
                 }
             }
@@ -363,7 +508,7 @@ Boolean _compareInstances(CIMInstance& inst1,
     CIM_Namespace class in that namespace.
     If the interop namespace found, the instances of CIM_Namespace are
     returned in the instances parameter.
-    TODO: Determine a more complete algorithm for determining the
+    FUTURE: Determine a more complete algorithm for determining the
     interop namespace.  Simply the existence of this class may not always
     be sufficient.
 */
@@ -605,7 +750,7 @@ void _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
     {
         cerr << "Error: -niq and -iq parameters cannot be used together"
              << endl;
-        exit(CIMCLI_INPUT_ERR);
+        cimcliExit(CIMCLI_INPUT_ERR);
     }
     // if default is true (ex class operations), we test for -niq received
     // depend only on the -niq input.
@@ -1379,7 +1524,7 @@ int execQuery(Options& opts)
     make the decision.
     @param opts -  Input arg, options specified by the user
     @param thisPath - Output arg,  CIMObjectPath which either contains the path
-    to be used or an empty path if there is no path for the operation.
+    to be used or an empty CIMObjectPath if there is no path for the operation.
     @return Returns true if CIMObjectPath returned have keybindings else false.
 */
 
@@ -1408,7 +1553,13 @@ Boolean _getObjectPath(Options& opts, CIMObjectPath &thisPath)
                 CIMPropertyList(),
                 opts.verboseTest);
 
-           thisPath = ob.buildCIMObjectPath();
+            thisPath = ob.buildCIMObjectPath();
+            if (opts.verboseTest && thisPath.getKeyBindings().size() == 0)
+            {
+                cout << "No valid object path defined. "
+                     << thisPath.toString()
+                     << endl;
+            }
         }
         else  // no extra parameters.
         {
@@ -1444,9 +1595,9 @@ int deleteInstance(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
-
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {
@@ -1470,7 +1621,9 @@ int deleteInstance(Options& opts)
        - Class only in objectName plus entries in extra parameters - cimcli
          builds instance from extra parameters and then builds path from
          instance to retrieve.
-         TODO: Test if properties suppled include all key properties.
+         FUTURE: Test if properties suppled include all key properties. At best
+         we would issue a warning since we do not want to eliminate
+         ability to make error calls
 */
 int getInstance(Options& opts)
 {
@@ -1489,8 +1642,9 @@ int getInstance(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {
@@ -1502,6 +1656,7 @@ int getInstance(Options& opts)
             opts.includeClassOrigin,
             opts.propertyList);
         _stopCommandTimer(opts);
+
         CIMCLIOutput::displayInstance(opts, cimInstance);
     }
 
@@ -1636,7 +1791,9 @@ int testInstance(Options& opts)
 
     // If there is no input property list substitute a list created from
     // the test instance. This means we acquire only the properties that were
-    // defined on input as part of the test instance.
+    // defined on input as part of the test instance. Note that this may
+    // not work since not all providers honor the propertylist but we test for
+    // correct response later.
     if (opts.propertyList.size() == 0)
     {
         opts.propertyList = _buildPropertyList(testInstance);
@@ -1651,15 +1808,39 @@ int testInstance(Options& opts)
                                         opts.includeClassOrigin,
                                         opts.propertyList);
 
-    // Compare created and returned instances
-    if (!_compareInstances(testInstance, rtndInstance, true, opts))
+    // Compare the property count of the request and response.
+    // Put out a warning if they do not have the same property count.
+    // If they do not match filter the response so that we actually
+    // test the properties defined as of interest by the parameters in
+    // the request. The warning is simply a flag for the user.
+    if (rtndInstance.getPropertyCount() != opts.propertyList.size())
     {
-        cerr << "Error:Test Instance differs from Server returned Instance."
+        cerr << "Warning: Response returned different property"
+            " set than requested."
+            << "\nRequested = " << _toString(opts.propertyList) << endl
+            << "Returned = " << _toString(_buildPropertyList(rtndInstance))
+            << "\nContinuing and testing against requested property list"
+            << endl;
+        rtndInstance.instanceFilter(opts.includeQualifiers,
+            opts.includeClassOrigin,
+            opts.propertyList);
+    }
+
+    // Compare created and returned (possibly modified) instances
+    Boolean detailedTest = false;
+
+    // This test compares and if there are differences displays the difference
+    // depending on opt.verbose.  It also conducts either a detailed test
+    // or a value only test depending on the detailedTest parameter
+    if (!_compareInstances(testInstance, rtndInstance, opts, detailedTest,
+                           opts.verboseTest))
+    {
+        cerr << "Error: Test Instance differs from Server returned Instance."
             << "Rtn Code " << CIMCLI_RTN_CODE_ERR_COMPARE_FAILED << endl;
 
-        //FUTURE: Create a cleaner display that simply shows the
-        //differences not all of the two instances
-        if (opts.verboseTest)
+        // optional display of all the instances if you really have problems
+        // finding differences.
+        if (opts.verboseTest && opts.debug)
         {
             cout << "Test Instance =" << endl;
             CIMCLIOutput::displayInstance(opts, testInstance);
@@ -1669,7 +1850,7 @@ int testInstance(Options& opts)
         return CIMCLI_RTN_CODE_ERR_COMPARE_FAILED;
     }
     else
-        cout << "test instance " << opts.targetObjectName.toString()
+        cout << "Test instance " << opts.targetObjectName.toString()
              << " OK" << endl;
 
     _stopCommandTimer(opts);
@@ -1711,12 +1892,12 @@ int testInstance(Options& opts)
     cim object path, the logic uses that as the instance name and the
     extra parameters to build the instance.
 
-    If only the classname is provided or not provide any key property, 
+    If only the classname is provided or not provide any key property,
     an interactive operation is executed
 ***/
+
 int modifyInstance(Options& opts)
 {
-    // FUTURE - TODO add flag for interactive operation.
     if (opts.verboseTest)
     {
         cout << "modifyInstance "
@@ -1726,6 +1907,33 @@ int modifyInstance(Options& opts)
                 _toString(opts.propertyList)
             << endl;
         _showValueParameters(opts);
+    }
+
+    // Determine if the input form was with an object path or with individual
+    // properties listed including the key properties or specifically
+    // interactive (-i) where an enumerateinstance names will be used tl
+    // determine object path.
+    Array<CIMKeyBinding> keys = opts.getTargetObjectName().getKeyBindings();
+    if (!opts.targetObjectNameClassOnly())
+    {
+        mapKeyBindingsToInputParameters(opts);
+    }
+    else
+    {
+        if (opts.interactive)
+        {
+            if (_conditionalSelectInstance(opts, opts.targetObjectName))
+            {
+                mapKeyBindingsToInputParameters(opts);
+            }
+            else
+            {
+                cerr << "Error: no path for instance set" << endl;
+                cimcliExit(CIMCLI_INPUT_ERR);
+            }
+
+
+        }
     }
 
     // build the instance from all input properties. It is allowable
@@ -1743,23 +1951,8 @@ int modifyInstance(Options& opts)
         opts.includeClassOrigin,
         CIMPropertyList());
 
-    const CIMClass thisClass = ob.getTargetClass();
-
     opts.targetObjectName = ob.buildCIMObjectPath();
-    
-    // If the objectName keybindings are zero create the path from the
-    // built instance,then ask the user to select from existing instances.
 
-    if (opts.targetObjectNameClassOnly())
-    {
-        //Force enter to interactive mode,
-        //if the objectName keybindings are zero.
-        opts.interactive = 1;
-        if (!_conditionalSelectInstance(opts, opts.targetObjectName))
-        {
-            opts.targetObjectName = modifiedInstance.buildPath(thisClass);
-        }
-    }
     // put the path into the modifiedInstance
     modifiedInstance.setPath(opts.targetObjectName);
 
@@ -1927,8 +2120,9 @@ int getProperty(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
 
     if (_getObjectPath(opts, thisPath))
@@ -1974,8 +2168,9 @@ int setProperty(Options& opts)
         _showValueParameters(opts);
     }
 
-    // build or get path based in info in opts.  This function returns NULL
-    // cimobject path if there is an error.
+    // Build or get path based in info in opts. If function returns false
+    // (valid object path not provided), return OK without executing
+    // CIM Operation
     CIMObjectPath thisPath;
     if (_getObjectPath(opts, thisPath))
     {
@@ -1985,10 +2180,10 @@ int setProperty(Options& opts)
                 thisPath.getClassName(),
                 CIMPropertyList(),
                 opts.verboseTest);
-        
-        CIMValue cimValue = 
+
+        CIMValue cimValue =
             ob.buildPropertyValue(opts.propertyName,opts.newValue);
-        
+
         _startCommandTimer(opts);
 
         opts.client.setProperty( opts.nameSpace,
@@ -2113,7 +2308,7 @@ int enumerateQualifiers(Options& opts)
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY
+        const String& role = String()
 */
 int referenceNames(Options& opts)
 {
@@ -2232,7 +2427,6 @@ int references(Options& opts)
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY
     );
-
 */
 int associatorNames(Options& opts)
 {
@@ -2344,7 +2538,6 @@ int associators(Options& opts)
     return CIMCLI_RTN_CODE_OK;
 }
 
-
 /***************************** invokeMethod  ******************************/
 /*
     CIMValue invokeMethod(
@@ -2354,8 +2547,6 @@ int associators(Options& opts)
         const Array<CIMParamValue>& inParameters,
         Array<CIMParamValue>& outParameters
 */
-
-
 /***************************** invokeMethod  ******************************/
  int invokeMethod(Options& opts)
  {
@@ -2382,9 +2573,7 @@ int associators(Options& opts)
             CIMPropertyList(),
             opts.verboseTest);
 
-        ob.setMethod(opts.methodName);
-
-        Array<CIMParamValue> params = ob.buildMethodParameters();
+        Array<CIMParamValue> params = ob.buildMethodParameters(opts.methodName);
 
          // Create array for output parameters
         CIMValue retValue;
@@ -2403,14 +2592,9 @@ int associators(Options& opts)
 
         // Display the return value CIMValue
         cout << "Return Value= ";
-        if (opts.outputType == OUTPUT_XML)
-        {
-            XmlWriter::printValueElement(retValue, cout);
-        }
-        else
-        {
-            cout << retValue.toString() << endl;
-        }
+
+        CIMCLIOutput::displayValue(opts, retValue);
+        cout << endl;
 
         // Display any outparms
 

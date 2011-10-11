@@ -62,8 +62,7 @@ public:
         const String& crlStore,
         Boolean callback,
         const String& randFile,
-        const String& cipherSuite,
-        const Boolean& sslCompatibility);
+        const String& cipherSuite);
 
     /**
         Reload the trust store used by either the CIM Server or

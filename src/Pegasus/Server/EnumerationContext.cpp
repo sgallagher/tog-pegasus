@@ -277,10 +277,13 @@ Boolean EnumerationContext::setErrorState(CIMException x)
 
 void EnumerationContext::trace()
 {
+    PEGASUS_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        " Name %s. namespace %s timeOut %lu operationTimer %lu"
+        " EnumerationContext.ContextId= %s."
+        " namespace %s timeOut %lu operationTimer %lu"
         " continueOnError %s pull msg Type %s"
         " providers complete %s"
+        " closed %s"
         " timeOpen %lu millisec totalPullCount %u"
         " cache highWaterMark %u",
         (const char *)_enumerationContextName.getCString(),
@@ -290,6 +293,7 @@ void EnumerationContext::trace()
         _toCharP(_continueOnError),
         MessageTypeToString(_pullRequestType),
         _toCharP(_providersComplete),
+        _toCharP(_closed),
         (long unsigned int)
             (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
         _pullOperationCounter,
@@ -303,6 +307,7 @@ void EnumerationContext::trace()
  */
 Boolean EnumerationContext::valid()
 {
+    _responseCache.valid(); // KS_TEMP TODO DELETE
     return _magic;
 }
 
@@ -344,6 +349,15 @@ void EnumerationContext::putCache(MessageType type,
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
     PEGASUS_ASSERT(valid());   // KS_TEMP;
+    trace();                   // KS_TEMP
+
+    if (_providersComplete)
+    {
+        cout << "ERROR in Providers Complete "<< __FILE__ << __LINE__ << endl;
+        trace();
+    }
+
+    PEGASUS_ASSERT(!_providersComplete);
 
     // set providersComplete flag in context.
     _providersComplete = isComplete;
@@ -358,9 +372,12 @@ void EnumerationContext::putCache(MessageType type,
     // then remove the Context.
     if (_closed)
     {
+        // if providers are complete, we can remove context
+        /// KS_TODO. Is this correct. Is there any chance of a response
+        /// in process at this point??
         if (isComplete)
         {
-            removeContext();
+            ///// TODO Confirm this. removeContext();
         }
     }
     else
@@ -399,6 +416,9 @@ void EnumerationContext::putCache(MessageType type,
 void EnumerationContext::_insertResponseIntoCache(MessageType type,
                                   CIMResponseMessage*& response)
 {
+
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContext::_insertResponseIntoCache");
     CIMResponseData& to = _responseCache;
 
     AutoMutex autoMut(_responseCacheMutex);
@@ -469,6 +489,8 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
             PEGASUS_ASSERT(0);
             break;
     } // end switch
+
+    PEG_METHOD_EXIT();
 }
 
 /***************************************************************************** 
@@ -516,8 +538,11 @@ Boolean EnumerationContext::getCacheResponseData(
 
 Uint32 EnumerationContext::responseCacheSize()
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContext::responseCacheSize");
     PEGASUS_ASSERT(valid());   // KS_TEMP
     PEGASUS_ASSERT(_responseCache.valid());   // KS_TEMP
+    PEG_METHOD_EXIT();
     return _responseCache.size();
 }
 
@@ -705,7 +730,7 @@ Boolean EnumerationContext::setClosed()
     if (_providersComplete)
     {
         // Providers are complete, close the context
-        removeContext();
+        ///// KS_TODO Clean this up.  Do not remove yet.removeContext();
     }
     else
     {

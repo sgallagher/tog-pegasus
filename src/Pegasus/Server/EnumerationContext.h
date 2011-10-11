@@ -312,6 +312,9 @@ public:
     // Only one is allowed.
     CIMException _cimException;
 
+    // remove this entry from the enumerationTable
+    void removeContext();
+
 private:
 
     friend class EnumerationTable;
@@ -352,9 +355,6 @@ private:
     Boolean _providersComplete;
     Boolean _active;
     Boolean _error;
-
-    // remove this entry from the enumerationTable
-    void removeContext();
 
     // Object cache for this context.  All pull responses feed their
     // CIMResponseData into this cache using putCache(..) and all 

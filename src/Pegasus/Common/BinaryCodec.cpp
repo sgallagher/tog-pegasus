@@ -375,13 +375,20 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
 static void _encodeEnumerateInstancesResponseBody(
     CIMBuffer& out,
     CIMResponseData& data,
-    CIMName& name)
+    CIMName& name,
+    bool isFirst)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("EnumerateInstances");
     name = NAME;
 
+    // Only write the property list on the first provider response
+    if (isFirst)
+    {
+        // [PROPERTY-LIST]
+        out.putPropertyList(data.getPropertyList());
+    }    
     data.encodeBinaryResponse(out);
 }
 
@@ -405,6 +412,15 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
     CIMResponseData& responseData = msg->getResponseData();
+
+    // [PROPERTY-LIST]
+    CIMPropertyList propertyList;
+    if (!in.getPropertyList(propertyList))
+    {
+        return 0;
+    }
+    responseData.setPropertyList(propertyList);
+
     responseData.setRemainingBinaryData(in);
 
     msg->binaryRequest=true;
@@ -3115,7 +3131,6 @@ static CIMOpenEnumerateInstancesRequestMessage*
     Boolean continueOnError = flags & CONTINUE_ON_ERROR;
 
     // [NAMESPACE]
-
     CIMNamespaceName nameSpace;
     if (!in.getNamespaceName(nameSpace))
         return 0;
@@ -3554,7 +3569,7 @@ static CIMOpenReferenceInstancesResponseMessage*
         return 0;
 
     CIMOpenReferenceInstancesResponseMessage* msg =
-        new CIMOpenReferenceInstancesResponseMessage(
+        new CIMOpenReferenceInstancesResponseMessage(      
             messageId,
             cimException,
             endOfSequence,
@@ -4679,23 +4694,22 @@ void BinaryCodec::hexDump(const void* data, size_t size)
 //==============================================================================
 
 CIMOperationRequestMessage* BinaryCodec::decodeRequest(
-    const Buffer& in,
+    CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId)
 {
-    CIMBuffer buf((char*)in.getData(), in.size());
-    CIMBufferReleaser buf_(buf);
 
     // Turn on validation:
 #if defined(ENABLE_VALIDATION)
-    buf.setValidate(true);
+    in.setValidate(true);
 #endif
 
     Uint32 flags;
     String messageId;
     Operation operation;
 
-    if (!_getHeader(buf, flags, messageId, operation))
+
+    if (!_getHeader(in, flags, messageId, operation))
     {
         return 0;
     }
@@ -4704,115 +4718,115 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
     {
         case OP_EnumerateInstances:
             return _decodeEnumerateInstancesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateInstanceNames:
             return _decodeEnumerateInstanceNamesRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_GetInstance:
             return _decodeGetInstanceRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_CreateInstance:
             return _decodeCreateInstanceRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_ModifyInstance:
             return _decodeModifyInstanceRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_DeleteInstance:
             return _decodeDeleteInstanceRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_Associators:
             return _decodeAssociatorsRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_AssociatorNames:
             return _decodeAssociatorNamesRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_References:
             return _decodeReferencesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_ReferenceNames:
             return _decodeReferenceNamesRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_GetClass:
             return _decodeGetClassRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateClasses:
             return _decodeEnumerateClassesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateClassNames:
             return _decodeEnumerateClassNamesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
         case OP_CreateClass:
             return _decodeCreateClassRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_DeleteClass:
             return _decodeDeleteClassRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_ModifyClass:
             return _decodeModifyClassRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_SetQualifier:
             return _decodeSetQualifierRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_GetQualifier:
             return _decodeGetQualifierRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_DeleteQualifier:
             return _decodeDeleteQualifierRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_EnumerateQualifiers:
             return _decodeEnumerateQualifiersRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_GetProperty:
            return _decodeGetPropertyRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_SetProperty:
            return _decodeSetPropertyRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_InvokeMethod:
            return _decodeInvokeMethodRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_ExecQuery:
            return _decodeExecQueryRequest(
-                buf, queueId, returnQueueId, messageId);
+                in, queueId, returnQueueId, messageId);
         case OP_OpenEnumerateInstances:
             return _decodeOpenEnumerateInstancesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_OpenEnumerateInstancePaths:
             return _decodeOpenEnumerateInstancePathsRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_OpenReferenceInstances:
             return _decodeOpenReferenceInstancesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_OpenReferenceInstancePaths:
             return _decodeOpenReferenceInstancePathsRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_OpenAssociatorInstances:
             return _decodeOpenAssociatorInstancesRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_OpenAssociatorInstancePaths:
             return _decodeOpenAssociatorInstancePathsRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_PullInstancesWithPath:
             return _decodePullInstancesWithPathRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_PullInstancePaths:
             return _decodePullInstancePathsRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_CloseEnumeration:
             return _decodeCloseEnumerationRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
         case OP_EnumerationCount:
             return _decodeEnumerationCountRequest(
-                buf, queueId, returnQueueId, flags, messageId);
+                in, queueId, returnQueueId, flags, messageId);
             break;
 
         default:
@@ -4840,7 +4854,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
 CIMResponseMessage* BinaryCodec::decodeResponse(
     CIMBuffer& buf)
 {
-    // Turn on validation:
+    // Turn on validation: This is a debugging tool
 #if defined(ENABLE_VALIDATION)
     buf.setValidate(true);
 #endif
@@ -4965,8 +4979,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
     }
 
     if (!msg)
-        throw CIMException(CIM_ERR_FAILED,
-            "Received corrupted binary message");
+        throw CIMException(CIM_ERR_FAILED, "Received corrupted binary message");
 
     return msg;
 }
@@ -4989,12 +5002,17 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     Boolean isLast)
 {
     Buffer out;
+
     if (isFirst == true)
     {
         // Write HTTP header:
         XmlWriter::appendMethodResponseHeader(out, httpMethod,
             httpContentLanguages, 0, serverResponseTime, true);
 
+        for (size_t i=out.size(), k=CIMBuffer::round(i); i<k;i++)
+        {
+            out.append('\0');
+        }
         // Binary message header:
         CIMBuffer cb(128);
         _putHeader(cb, 0, messageId, _NameToOp(iMethodName));
@@ -5288,6 +5306,23 @@ bool BinaryCodec::encodeRequest(
         true, /* binaryRequest */
         binaryResponse);
 
+    // Need to pad the Buffer to the 64bit border since CIMBuffer is 64bit
+    // aligned, but Buffer only 8bit
+    Uint32 extraAlignBytes = CIMBuffer::round(out.size()) - out.size();
+    for (Uint32 i=0; i < extraAlignBytes;i++)
+    {
+        out.append('\0');
+    }
+    // Need fix-up Content-length value...
+    char * contentLengthValueStart = 
+        (char*) strstr(out.getData(), "content-length");
+    contentLengthValueStart += sizeof("content-length: ")-1;
+    // using sprintf to stay equal to the macro OUTPUT_CONTENTLENGTH definition
+    // defined in XMLGenerator.h
+    char contentLengthP[11];
+    sprintf(contentLengthP,"%.10u", (unsigned int)buf.size()+extraAlignBytes);
+    memcpy(contentLengthValueStart,contentLengthP,10);
+
     out.append(buf.getData(), buf.size());
 
     return true;
@@ -5313,7 +5348,8 @@ bool BinaryCodec::encodeResponseBody(
             _encodeEnumerateInstancesResponseBody(
                 buf,
                 ((CIMEnumerateInstancesResponseMessage*)msg)->getResponseData(),
-                name);
+                name,
+                (msg->getIndex() == 0));
             break;
         }
 

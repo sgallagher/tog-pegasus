@@ -133,25 +133,6 @@ public:
 
     virtual ~ProviderRegistrationManager();
 
-    /**
-        Lookup Instance, association, or query provider in table of
-        registered providers depending on input parameters.
-
-        @param nameSpace CIMNamespaceName defining namespace for provider
-        @param classname CIMName defining class for provider
-        @param provider CIMInstance returned with instance of PG_Provider
-            if successful
-        @param providerModule CIMInstance returned with instance of
-            providerModule class for provider if successful
-        @param is_assoc Boolean optional parameter. If set this is a request
-            to lookup an association provider rather than an instance
-            provider.  Normally this is used only by RegistrationManager
-            lookupAssociationProvider function
-        @param has_no_query optional parameter defines whether instance or
-            instanceQuery provider to be looked up. If exists the parameter
-            is not NULL and instance Query provider exists, returns true.
-        @return Boolean true if provider found.
-    */
     Boolean lookupInstanceProvider(
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
@@ -160,18 +141,6 @@ public:
         Boolean is_assoc = false,
         Boolean * has_no_query = NULL);
 
-    /**
-        Lookup Method Provider in table of registered providers for
-        the nameSpace, classname provided.
-
-        @param nameSpace CIMNamespaceName defining namespace for provider
-        @param classname CIMName defining class for provider
-        @param provider CIMInstance returned with instance of PG_Provider
-            if successful
-        @param providerModule CIMInstance returned with instance of
-            providerModule class for provider if successful
-        @return Boolean true if provider found
-    */
     Boolean lookupMethodProvider(
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
@@ -179,35 +148,12 @@ public:
         CIMInstance & provider,
         CIMInstance & providerModule);
 
-    /**
-        Lookup Association Provider in table of registered providers for
-        the nameSpace, classname defined.
-
-        @param nameSpace CIMNamespaceName defining namespace for provider
-        @param assocClassname CIMName defining class for provider
-        @param provider CIMInstance returned with instance of PG_Provider
-            if successful
-        @param providerModule CIMInstance returned with instance of
-            providerModule class for provider if successful
-        @return Boolean true if provider found
-    */
     Boolean lookupAssociationProvider(
         const CIMNamespaceName & nameSpace,
         const CIMName & assocClassName,
         Array<CIMInstance>& provider,
         Array<CIMInstance>& providerModule);
 
-    /**
-        Lookup IndicationConsumer in table of registered providers for
-        the destination path input.
-
-        @param String destinationPath defined for the consumer
-        @param provider CIMInstance returned with instance of PG_Provider
-            if successful
-        @param providerModule CIMInstance returned with instance of
-            providerModule class for provider if successful
-        @return Boolean true if provider found
-    */
     Boolean lookupIndicationConsumer(
         const String & destinationPath,
             CIMInstance & provider,
@@ -422,36 +368,13 @@ private:
 
     /**
         Adds an entry to the registration table for the specified
-        instances and key.  This method is intended for
-        use in the initialization routine.  The caller must first
-        lock _registrationTableLock for write access.
+        instances.  This method is intended for use in the initialization
+        routine.  The caller must first lock _registrationTableLock for
+        write access.
     */
     void _addInitialInstancesToTable(
         const String & key,
         const Array<CIMInstance> & instances);
-    /**
-        Adds generates a capability key and entry to the registration table
-        for the specified instance.  This method is intended for use
-        in the initialization routine.  The caller must first lock
-        _registrationTableLock for write access.
-    */
-    void _addOneInitialInstanceToTable(
-        const CIMInstance & instance,
-        const String & namespaceName,
-        const CIMName & className,
-        const String & providerType);
-    /**
-        Adds generates a capability key and entry to the registration table
-        for the specified instance.  This method is intended for use
-        in the initialization routine.  The caller must first lock
-        _registrationTableLock for write access.
-    */
-    void _addOneInitialMethodInstanceToTable(
-        const CIMInstance & instance,
-        const String & namespaceName,
-        const CIMName & className,
-        const String & methodName,
-        const String & providerType);
 
     /**
         Get the provider instance and module instance corresponding to
@@ -501,10 +424,7 @@ private:
         Unregister a provider.  The caller must first lock
         _registrationTableLock for write access.
     */
-    void _deleteInstance(
-        const CIMObjectPath & ref,
-        Operation flag,
-        CIMInstance &deletedInstance);
+    void _deleteInstance(const CIMObjectPath & ref, Operation flag);
 
     /**
         Set the status of the specified provider module instance and
@@ -531,18 +451,6 @@ private:
     */
     Array<Uint16> _getProviderModuleStatus(
         const String& providerModuleName);
-
-    /**
-        Get the namespaces from the Namespaces property of the defined
-        instance and set into the return value.
-        @param    instance CIMInstance containing property named
-                           PROPERTY_NAMESPACES
-
-        @return   Array<CIMNamespaceName> with the namespaces from the
-                  values in the property
-    */
-    Array<CIMNamespaceName> _getNamespaceNames(const CIMInstance& instance,
-                                               Array<String>& nameSpaces);
 };
 
 class PEGASUS_PRM_LINKAGE WildCardNamespaceNames
@@ -552,6 +460,7 @@ class PEGASUS_PRM_LINKAGE WildCardNamespaceNames
     static Array<Uint32> _nsl;
 public:
     static String add(String ns);
+//   static String & check(const String & in);
     static const CIMNamespaceName & check(const CIMNamespaceName & in);
     static void remap(
         CIMRepository *repos,

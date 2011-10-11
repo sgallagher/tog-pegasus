@@ -140,7 +140,7 @@ static int _compareKeyBinding(const CIMKeyBinding& kb1,
                     }
                 }
                 break;
-            case CIMKeyBinding::STRING:
+            default:
                 // no conversion required.  Compare as Strings.
                 rtn = String::compare(kb1.getValue(), kb2.getValue());
                 break;
@@ -250,6 +250,39 @@ static void _Sort(Array<CIMInstance>& x)
     }
 }
 
+// Sort array of CIMObjects.  If the object is a class, compare the
+// class names.  If it is an instance, compare the paths.
+static int _compareObjects(const void* p1, const void* p2)
+{
+    const CIMObject* o1 = (const CIMObject*)p1;
+    const CIMObject* o2 = (const CIMObject*)p2;
+    if (o1->isClass())
+    {
+        return String::compareNoCase(
+            o1->getClassName().getString(),
+            o2->getClassName().getString());
+    }
+    else if (o1->isInstance())
+    {
+        return _compareObjectPaths(o1->getPath() , o2->getPath());
+    }
+    else
+    {
+        cout << "ERROR object not class or instance" << endl;
+        return 0;
+    }
+}
+static void _Sort(Array<CIMObject>& x)
+{
+    CIMObject* data = (CIMObject*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMInstance), _compareObjects);
+    }
+}
+
 // Sort array of qualifier decls based on the name
 static int _compareQualDecls(const void* p1, const void* p2)
 {
@@ -297,7 +330,7 @@ static void _Sort(Array<CIMParamValue>& x)
 //------------------------------------------------------------------------------
 
 // Set new line and indent per definition of level and indentSize
-static void _indent(PEGASUS_STD(ostream)& os,
+static void _indent(String& output,
                     Uint32 level,
                     Uint32 indentSize,
                     Uint32& count, Boolean lf = true)
@@ -306,12 +339,12 @@ static void _indent(PEGASUS_STD(ostream)& os,
     count = n;
     if (lf)
     {
-        os<<"\n";
+        output.append("\n");
     }
 
     for (Uint32 i = 0; i < n; i++)
     {
-        os<<" ";
+        output.append(" ");
     }
 }
 
@@ -321,6 +354,7 @@ void mofFormat(PEGASUS_STD(ostream)& os,
     const char* text,
     Uint32 indentSize)
 {
+    String output;
 
     // Copy to avoid changes to input text.
     char* var = new char[strlen(text)+1];
@@ -361,12 +395,12 @@ void mofFormat(PEGASUS_STD(ostream)& os,
                 // where we nave nl } nl and avoids extra space.
                 if (*tmp != '}')
                 {
-                    _indent(os, indent, indentSize, count);
+                    _indent(output, indent, indentSize, count);
                 }
                 break;
 
             case '\"':               // quote. Set quoted state.
-                os<<c;
+                output.append(c);
                 // if insize quotes, ignore \escaped quote sequence.
                 if (quoteState && (prevchar != '\\'))
                 {
@@ -379,19 +413,19 @@ void mofFormat(PEGASUS_STD(ostream)& os,
                 break;
 
             case ' ':                // space. conditional line break;
-                os<<c;
+                output.append(c);
                 if (count > 66)
                 {
                     // if in quotes, extra indent
                     if (quoteState)
                     {
-                        os<<"\"";
-                        _indent(os, indent + 1, indentSize, count);
-                        os<<"\"";
+                        output.append("\"");
+                        _indent(output, indent + 1, indentSize, count);
+                        output.append("\"");
                     }
                     else
                     {
-                        _indent(os, indent + 1,  indentSize, count);
+                        _indent(output, indent + 1,  indentSize, count);
                     }
                 }
                 break;
@@ -399,23 +433,23 @@ void mofFormat(PEGASUS_STD(ostream)& os,
             case '[':  // represents indent for qualifiers
                 if (quoteState)
                 {
-                    os<<c;
+                    output.append(c);
                     break;
                 }
                 // First qualifier
                 if (prevchar == '\n')
                 {
                     //indent++;
-                    _indent(os, ++indent,  indentSize, count);
+                    _indent(output, ++indent,  indentSize, count);
                     qualifierState = true;
                 }
-                os<<c;
+                output.append(c);
                 break;
 
             case ']':
                 if (quoteState)
                 {
-                    os<<c;
+                    output.append(c);
                     break;
                 }
                 if (qualifierState)
@@ -424,16 +458,16 @@ void mofFormat(PEGASUS_STD(ostream)& os,
                         indent--;
                     qualifierState = false;
                 }
-                os<<c;
+                output.append(c);
                 break;
 
             case '{':  // represents indent for internals of object
                 if (quoteState)
                 {
-                    os<<c;
+                    output.append(c);
                     break;
                 }
-                if (prevchar == '\n')
+                if ((prevchar == '\n'))
                 {
                     indent++;
                     insideState++;
@@ -443,13 +477,13 @@ void mofFormat(PEGASUS_STD(ostream)& os,
                 {
                     indent++;
                 }
-                os<<c;
+                output.append(c);
                 break;
 
             case '}':   // end of indent for internals of class
                 if (quoteState)
                 {
-                    os<<c;
+                    output.append(c);
                     break;
                 }
                 // cover cases where "nl } nl"  "nl } ;"
@@ -464,23 +498,24 @@ void mofFormat(PEGASUS_STD(ostream)& os,
                 // class or instance definition.
                 if (prevchar == '\n')
                 {
-                    _indent(os, indent, indentSize, count);
+                    _indent(output, indent, indentSize, count);
                 }
                 else if((*tmp == '\n') || ((*tmp == ';') && (*(tmp+1) == 0)))
                 {
-                    _indent(os, indent, indentSize, count);
+                    _indent(output, indent, indentSize, count);
                 }
 
-                os<<c;
+                output.append(c);
                 break;
 
             default:
-                os<<c;
+                output.append(c);
         }
         prevchar = c;
     }
     delete [] var;
 
+    os << output;
 }
 
 /*************************************************************
@@ -678,7 +713,7 @@ static void _outputPath(Options& opts, const CIMObjectPath& path,
     {
         cout << endl << description;
     }
-    cout << tmpPath.toString().getCString() << endl;
+    cout << tmpPath.toString() << endl;
 }
 
 /*
@@ -1053,7 +1088,7 @@ void CIMCLIOutput::displayPaths(Options& opts,
     Array<CIMObjectPath>& paths,
     const String& description)
 {
-    // FUTURE: Don't show anything if size = 0 and have the caller
+    // KS-TODO: Don't show anything if size = 0 and have the caller
     // setup the class somewhere external.
     if (opts.summary)
     {

@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SCMO_H_
@@ -50,8 +45,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 //  Constants defining the size of the hash table used in the PropertySet
-//  implementation.if size need to be changed, ensure size is power of two
-//  to simplify moudulus calculation .
+//  implementation.
 
 #define PEGASUS_PROPERTY_SCMB_HASHSIZE 64
 #define PEGASUS_KEYBINDIG_SCMB_HASHSIZE 32
@@ -531,13 +525,30 @@ typedef SCMBKeyBindingValue SCMBInstanceKeyBindingArray[];
 // the default value of the class has to be used.
 typedef SCMBValue   SCMBInstancePropertyArray[];
 
+// It is a bit mask to filter properties from the instance.
+// The index of a property in the property set is eqal to the index with in
+// the property filter.
+// If a bit is not set (0), the property is filtered out then it cannot be set
+// and is not eligible to be returned to requester.
+// If a bit is set (1) then a property is eligible to be set and returned
+// to the requester.
+// The array size of the property filter is (numberOfProperties / 64)
+typedef Uint64        SCMBPropertyFilter[];
+
 // It is a bit mask to identify key properties of an instance or class.
 // The index of a key property in the property set is eqal to the index with in
 // the key property mask.
 // If a bit is not set (0) then it is not a key property.
 // If a bit is set (1) then it is a key property.
+// The key property maks is overruling the property filter. That means if a
+// property is a key property it cannot be filtered out.
 // The array size of the key property mask is (numberOfProperties / 64)
 typedef Uint64        SCMBKeyPropertyMask[];
+
+// If a filer is applied to this the instance (flag.isFiltered=1)
+// the SCMBPropertyFilterIndexMap array is used to ensure that one
+// can iterate streight  from 0 to filterProperties.
+typedef Uint32      SCMBPropertyFilterIndexMap[];
 
 // The static definition of the common SCMO memory functions
 inline const void* _resolveDataPtr(

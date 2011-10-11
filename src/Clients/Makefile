@@ -31,8 +31,10 @@ ROOT = ../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
+    cimcli \
     cliutils \
     cimconfig \
+    cimuser \
     cimauth \
     cimprovider \
     osinfo \
@@ -41,7 +43,6 @@ DIRS = \
     cimperf \
     repupgrade  \
     cimsub \
-    cimcli \
     repupgrade/SSPModules/SampleSSPModule \
     loadxml
 
@@ -90,11 +91,6 @@ endif
 ifneq ($(OS_TYPE),windows)
     DIRS += cimreparchive
     TEST_DIRS += cimreparchive/tests
-endif
-
-# Have cimuser as a crude replacement of PAM
-ifndef PEGASUS_PAM_AUTHENTICATION
-    DIRS += cimuser
 endif
 
 #The following tests are NOT included as part of the standard

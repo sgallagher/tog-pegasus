@@ -73,7 +73,7 @@
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
 
 # define PEGASUS_PRODUCT_STATUS  "Development"
-# define PEGASUS_PRODUCT_VERSION "2.14.0"
+# define PEGASUS_PRODUCT_VERSION "2.12.0"
 
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"
 // If the following is non-zero length it becomes SLP description.
@@ -103,8 +103,7 @@
 #  define COMPONENT_BUILD_DATE __DATE__
 # endif
 
-#if defined (PEGASUS_PLATFORM_HPUX_IA64_ACC) || \
-    defined (PEGASUS_PLATFORM_HPUX_IA64_GNU)
+#ifdef PEGASUS_PLATFORM_HPUX_IA64_ACC
 #pragma VERSIONID \
     "@(#)" PEGASUS_PRODUCT_NAME " " PEGASUS_PRODUCT_VERSION " "\
         PEGASUS_PRODUCT_STATUS "(" PLATFORM_BUILD_DATE ")" "\n@(#)"\
@@ -148,6 +147,6 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 // CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when
 // integrating with versions prior to 2.5.1.
 //
-#define PEGASUS_VERSION_NUMBER 0x02140000
+#define PEGASUS_VERSION_NUMBER 0x02120000
 
 #endif /* Pegasus_Version_h */

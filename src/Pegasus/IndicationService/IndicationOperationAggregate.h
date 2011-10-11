@@ -71,7 +71,7 @@ public:
     IndicationOperationAggregate(
         CIMRequestMessage* origRequest,
         const String &controlProviderName,
-        const Array<NamespaceClassList>& indicationSubclasses);
+        const Array<CIMName>& indicationSubclasses);
 
     ~IndicationOperationAggregate();
 
@@ -110,7 +110,7 @@ public:
 
         @return  the list of indication subclasses
     */
-    Array<NamespaceClassList>& getIndicationSubclasses();
+    Array<CIMName>& getIndicationSubclasses();
 
     /**
         Gets the number of requests to be issued for this aggregation.
@@ -225,7 +225,7 @@ private:
 
     CIMRequestMessage* _origRequest;
     String _controlProviderName;
-    Array<NamespaceClassList> _indicationSubclasses;
+    Array<CIMName> _indicationSubclasses;
     Uint32 _numberIssued;
     Array<CIMRequestMessage*> _requestList;
     Mutex _appendRequestMutex;

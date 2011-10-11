@@ -178,6 +178,9 @@ public:
     // Diagnostic tool
     Boolean valid();
 
+    // KS_TEMP TODO This diagnostic should be removed
+    void tableValidate();
+
 protected:
 
     // timers for timer thread in seconds

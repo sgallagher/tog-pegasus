@@ -143,7 +143,6 @@ void test03(const T*)
 
     arr.remove(0);
     PEGASUS_TEST_ASSERT(arr.size() == 0);
-
 }
 
 void test04()

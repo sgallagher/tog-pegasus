@@ -38,11 +38,9 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/IndicationRouter.h>
 
 #include <Pegasus/HandlerService/Linkage.h>
 #include <Pegasus/HandlerService/IndicationHandlerConstants.h>
-#include <Pegasus/Handler/CIMHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,32 +58,21 @@ public:
         const CIMInstance &subscription_,
         const OperationContext &context_,
         const String &nameSpace_,
-        DestinationQueue *queue_,
-        DeliveryStatusAggregator *deliveryStatusAggregator_):
+        DestinationQueue *queue_):
             indication(indication_),
             subscription(subscription_),
             context(context_),
             nameSpace(nameSpace_),
             queue(queue_),
-            deliveryStatusAggregator(deliveryStatusAggregator_),
             deliveryRetryAttemptsMade(0)
     {
     }
 
-    ~IndicationInfo()
-    {
-        if (deliveryStatusAggregator)
-        {
-            deliveryStatusAggregator->complete();
-        }
-    }
-    
     CIMInstance indication;
     CIMInstance subscription;
     OperationContext context;
     String nameSpace;
     DestinationQueue *queue;
-    DeliveryStatusAggregator *deliveryStatusAggregator;
     Uint16 deliveryRetryAttemptsMade;
     Uint64 arrivalTimeUsec;
     Uint64 lastDeliveryRetryTimeUsec;
@@ -154,10 +141,6 @@ public:
     {
         return Uint32(_minDeliveryRetryIntervalUsec / 1000000);
     }
-   
-    static void setDeliveryRetryAttempts(Uint16 DeliveryRetryAttempts);
-
-    static void setminDeliveryRetryInterval(Uint32 minDeliveryRetryInterval);
 
     void enqueue(
         CIMHandleIndicationRequestMessage *message);
@@ -220,11 +203,6 @@ public:
 
     void getInfo(QueueInfo &qinfo);
 
-    IndicationExportConnection** getConnectionPtr()
-    {
-        return &_connection;
-    }
-
 private:
     void _cleanup(int reasonCode);
     CIMInstance _getInstance(const CIMName &className);
@@ -243,7 +221,6 @@ private:
         const String &message =  String());
 
     CIMInstance _handler;
-    IndicationExportConnection *_connection;
     List<IndicationInfo,NullLock> _queue;
     Mutex _queueMutex;
     Uint32 _lastDeliveryRetryStatus;
@@ -254,20 +231,11 @@ private:
     static Uint16 _maxDeliveryRetryAttempts;
     static Uint64 _minDeliveryRetryIntervalUsec;
     static Uint64 _sequenceIdentifierLifetimeUsec;
-    static Uint64 _minSubscriptionRemovalTimeIntervalUsec;
     static Uint64 _serverStartupTimeUsec;
     static Boolean _initialized;
     static String _indicationServiceName;
     static String _objectManagerName;
-    static Uint32    _indicationServiceQid;
-
-    struct IndDiscardedReasonMsgs
-    {
-        const char *key;
-        const char *msg;
-    };
-
-    static IndDiscardedReasonMsgs indDiscardedReasonMsgs[];
+    static const char* _indDiscardedReasons[];
 
     Uint64 _queueFullDroppedIndications;
     Uint64 _lifetimeExpiredIndications;

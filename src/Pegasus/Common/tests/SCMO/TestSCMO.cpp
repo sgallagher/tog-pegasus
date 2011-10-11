@@ -27,12 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements test cases for PEP#348 - The CMPI infrastructure using
-// SCMO (Single Chunk Memory Objects). Specifically it tests integrity of the
-// object model.
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "TestSCMO.h"
@@ -152,7 +146,6 @@ void CIMClassToSCMOClass()
 
     SCMOClass theSCMOClass(theCIMClass);
 
-#ifdef PEGASUS_DEBUG
     const char TestCSMOClassLog[]="TestSCMOClass.log";
     SCMODump dump(&(TestCSMOClassLog[0]));
 
@@ -166,7 +159,6 @@ void CIMClassToSCMOClass()
 
     dump.closeFile();
     dump.deleteFile();
-#endif
 
     VCOUT << "Creating CIMClass out of SCMOClass." << endl;
     CIMClass newCimClass;
@@ -289,7 +281,6 @@ void SCMOClassQualifierTest()
 
     VCOUT << endl << "SCMOClass qualifer test ..." << endl;
 
-#ifdef PEGASUS_DEBUG
     String masterFile (getenv("PEGASUS_ROOT"));
     masterFile.append(MASTERQUALIFIER);
 
@@ -300,7 +291,6 @@ void SCMOClassQualifierTest()
     PEGASUS_TEST_ASSERT(dump.compareFile(masterFile));
 
     dump.deleteFile();
-#endif
 
     VCOUT << "Done." << endl;
 }
@@ -1688,14 +1678,14 @@ void SCMOInstanceKeyBindingsTest()
             returnKeyBindType,
             &returnKeyBindValue);
 
-        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+        PEGASUS_ASSERT(rc==SCMO_OK);
 
         rc = SCMO_TESTClass2_Inst.setKeyBinding(
             returnName,
             returnKeyBindType,
             returnKeyBindValue);
 
-        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+        PEGASUS_ASSERT(rc==SCMO_OK);
 
         if (returnKeyBindType == CIMTYPE_STRING)
         {
@@ -1756,7 +1746,7 @@ void SCMOInstanceConverterTest()
 }
 
 
-int main (int, char *argv[])
+int main (int argc, char *argv[])
 {
 
     CIMClass CIM_TESTClass2;

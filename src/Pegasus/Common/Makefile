@@ -191,8 +191,10 @@ SOURCES2 = \
     CIMBuffer.cpp \
     CIMInternalXmlEncoder.cpp \
     SCMOInternalXmlEncoder.cpp \
-    AsyncRequestExecutor.cpp
-
+    AsyncRequestExecutor.cpp \
+    CIMBinMsgSerializer.cpp \
+    CIMBinMsgDeserializer.cpp \
+    IndicationRouter.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp
@@ -207,14 +209,6 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
-    SOURCES2 += CIMBinMsgSerializer.cpp
-    SOURCES2 += CIMBinMsgDeserializer.cpp
-else
-    SOURCES2 += CIMMessageSerializer.cpp
-    SOURCES2 += CIMMessageDeserializer.cpp
 endif
 
 SOURCES = $(SOURCES1) $(SOURCES2)

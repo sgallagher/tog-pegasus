@@ -63,7 +63,7 @@ PEGASUS_NAMESPACE_BEGIN
 
        Tracer::setTraceComponents("Config,Repository");
 */
-char const* Tracer::TRACE_COMPONENT_LIST[] =
+static char const* TRACE_COMPONENT_LIST[] =
 {
     "Xml",
     "XmlIO",
@@ -101,18 +101,9 @@ char const* Tracer::TRACE_COMPONENT_LIST[] =
     "IndicationReceipt",
     "CMPIProviderInterface",
     "WsmServer",
-    "RsServer",
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    "WebServer",
-#endif
     "LogMessages",
-    "WMIMapperConsumer",
-    "InternalProvider"
+    "WMIMapperConsumer"
 };
-
-// Set the number of defined components
-const Uint32 Tracer::_NUM_COMPONENTS =
-    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 
 // Defines the value values for trace facilities
@@ -147,6 +138,10 @@ Tracer* Tracer::_tracerInstance = 0;
 
 // Set component separator
 const char Tracer::_COMPONENT_SEPARATOR = ',';
+
+// Set the number of defined components
+const Uint32 Tracer::_NUM_COMPONENTS =
+    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 // Set the line maximum
 const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
@@ -331,7 +326,7 @@ char* Tracer::_formatHexDump(
         len = sprintf(targetBuffer, "%02X", c);
         targetBuffer+=len;
 
-        if ( ((col+1) & 3) == 0 )
+        if ( ((col+1)%4) == 0 )
         {
             *targetBuffer = ' ';
             targetBuffer++;
@@ -456,7 +451,9 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
     char* sep;
     const char* line = requestBuf.get();
 
-    while ((sep = HTTPMessage::findSeparator(line)) && (line != sep))
+    while ((sep = HTTPMessage::findSeparator(
+        line, (Uint32)(requestSize - (line - requestBuf.get())))) &&
+        (line != sep))
     {
         if (HTTPMessage::expectHeaderToken(line, "Authorization") &&
              HTTPMessage::expectHeaderToken(line, ":") &&
@@ -610,6 +607,11 @@ void Tracer::_traceCString(
     }
     else
     {
+        //
+        // Since the message is blank, form a string using the pid and tid
+        //
+        char* tmpBuffer;
+
         //
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
@@ -1101,71 +1103,5 @@ void Tracer::traceCIMException(
 }
 
 #endif /* !PEGASUS_REMOVE_TRACE */
-
-//set the trace file size only when the tracing is on a file
-void Tracer::setMaxTraceFileSize(const String &size) 
-{  
-    Tracer *inst = _getInstance();
-    if ( inst->getTraceFacility() == TRACE_FACILITY_FILE )
-    {
-        Uint32 traceFileSizeKBytes = 0;
-        tracePropertyToUint32(size, traceFileSizeKBytes);
-
-        //Safe to typecast here as we know that handler is of type file
-        TraceFileHandler *hdlr = (TraceFileHandler*) (inst->_traceHandler);
-
-        hdlr->setMaxTraceFileSize(traceFileSizeKBytes*1024);
-
-    }
-} 
-
-//set the trace file number for rolling only when the tracing is on a file
-void Tracer::setMaxTraceFileNumber(const String &maxTraceFileNumber)
-{
-    Tracer *inst = _getInstance();
-
-    if ( inst->getTraceFacility() == TRACE_FACILITY_FILE )
-    {
-        Uint32 numberOfTraceFiles = 0;
-        tracePropertyToUint32(maxTraceFileNumber, numberOfTraceFiles);
-
-        //Safe to typecast here as we know that handler is of type file
-        TraceFileHandler *hdlr = (TraceFileHandler*) (inst->_traceHandler);
-
-        hdlr->setMaxTraceFileNumber(numberOfTraceFiles);
-     }
-}
-
-//
-// Converts the quantifiable trace  proprties string into a Uint32 value.
-// It returns false and the bufferSize is set to 0 if the string was not valid.
-//
-Boolean Tracer::tracePropertyToUint32(
-    const String& traceProperty, Uint32& valueInUint32 )
-{
-    Boolean retCode = false;
-    Uint64 uInt64BufferSize;
-
-    valueInUint32 = 0;
-    CString stringBufferSize = traceProperty.getCString();
-
-
-    retCode = StringConversion::decimalStringToUint64(stringBufferSize,
-                                                      uInt64BufferSize);
-
-    if (retCode )
-    {
-        retCode = StringConversion::checkUintBounds(uInt64BufferSize,
-                                                    CIMTYPE_UINT32);
-    }
-
-    if (retCode )
-    {
-        valueInUint32 = (Uint32)uInt64BufferSize;
-    }
-
-    return retCode;
-}
-
 
 PEGASUS_NAMESPACE_END

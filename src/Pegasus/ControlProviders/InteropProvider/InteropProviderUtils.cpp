@@ -85,6 +85,30 @@ PEGASUS_NAMESPACE_BEGIN
  *                                                             *
  ***************************************************************/
 
+const char * boolToString(Boolean x)
+{
+    return (x ? "true" : "false");
+}
+
+//
+// Utility function used to produce trace/logging statements
+//
+String propertyListToString(const CIMPropertyList& pl)
+{
+    if(pl.isNull())
+        return "NULL";
+    else if(pl.size() == 0)
+        return "EMPTY";
+
+    String tmp;
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        if (i > 0)
+            tmp.append(", ");
+        tmp.append(pl[i].getString());
+    }
+    return tmp;
+}
 
 //
 // function that creates an object path given a class definition, an
@@ -128,8 +152,7 @@ bool namespaceSupported(const CIMObjectPath & path)
     // return;
     if(path.getNameSpace().getString() == PEGASUS_NAMESPACENAME_INTEROP)
       return true;
-    //// If this is ever reinstalled please review which Exception should
-    //// be used. Not clear that NotSupported is correct
+
     throw CIMNotSupportedException(path.getClassName().getString() +
       " in namespace " + path.getNameSpace().getString());
 
@@ -360,7 +383,7 @@ Boolean validateRequiredProperty(
     const String & value)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::validateRequiredProperty()");
+            "InteropProvider::_validateRequiedProperty()");
     Array<CIMKeyBinding> kbArray = objectPath.getKeyBindings();
     Boolean retVal = false;
     // find the correct key binding
@@ -382,7 +405,7 @@ Boolean validateRequiredProperty(
 // return an indicator as to which one it is.
 // @param - Classname
 // @return - Enum value indicating type
-// @Exceptions - throws CIMOperationFailedException if invalid class.
+// @Exceptions - throws CIMNotSupportedException if invalid class.
 //
 TARGET_CLASS translateClassInput(const CIMName& className)
 {
@@ -453,19 +476,13 @@ TARGET_CLASS translateClassInput(const CIMName& className)
 
     else if(className.equal(PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT))
         return PG_SERVICEAFFECTSELEMENT;
-
-    else if(className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
-        return CIM_INDICATIONSERVICE;
 #endif
 
     // Last entry, reverse test and throw exception if not PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4
     else if(!className.equal(PEGASUS_CLASSNAME_PGNAMESPACE))
-    {
-        throw CIMOperationFailedException
-            (className.getString() +
-               " Class not supported by Interop Provider");
-    }
+        throw CIMNotSupportedException
+            (className.getString() + " not supported by Interop Provider");
 
     return PG_NAMESPACE;
 }
@@ -498,9 +515,8 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
     // PG_SubProfileRequiresProfile
     else if(!className.equal(PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE))
     {
-        throw CIMOperationFailedException(className.getString() +
-          " Class not supported by association operations in the "
-              "Interop Provider");
+        throw CIMNotSupportedException(className.getString() +
+          " not supported by association operations in the Interop Provider");
     }
 
     return PG_SUBPROFILEREQUIRESPROFILE;
@@ -522,9 +538,7 @@ void setPropertyValue(CIMInstance& instance, const CIMName& propertyName,
     //return bool? would be pos != PEG_NOT_FOUND
     unsigned int pos = instance.findProperty(propertyName);
     if(pos != PEG_NOT_FOUND)
-    {
         instance.getProperty(pos).setValue(value);
-    }
 }
 
 //

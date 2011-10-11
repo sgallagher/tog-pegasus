@@ -80,9 +80,7 @@ void CIMInternalXmlEncoder::_putXMLInstance(
         }
         else
         {
-            // add ValueReferenceElement with VALUE.REFERENCE as instancePath
-            // and with VALUE.REFERENCE wrapper
-            XmlWriter::appendValueReferenceElement(buf, cop, false, true);
+            XmlWriter::appendValueReferenceElement(buf, cop, true);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -206,11 +204,6 @@ void CIMInternalXmlEncoder::_putXMLObject(
 }
 
 
-// Calls appendInstanceName the other calls appendValueReference
-// This is a shortcut function that puts VALUE.REFERENCE around
-// InstanceNameElement directly.  It bypasses host and namespace components
-// and assumes that it is an instance. Note mechanisms above to add
-// host and namespace info different per function
 void CIMInternalXmlEncoder::_appendValueReferenceElement(
     Buffer& out,
     const CIMObjectPath& reference)

@@ -247,7 +247,14 @@ private:
     static Boolean _initialized;
     static String _indicationServiceName;
     static String _objectManagerName;
-    static const char* _indDiscardedReasons[];
+
+    struct IndDiscardedReasonMsgs
+    {
+        const char *key;
+        const char *msg;
+    };
+
+    static IndDiscardedReasonMsgs indDiscardedReasonMsgs[];
 
     Uint64 _queueFullDroppedIndications;
     Uint64 _lifetimeExpiredIndications;

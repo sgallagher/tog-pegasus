@@ -46,13 +46,36 @@ Uint64 DestinationQueue::_sequenceIdentifierLifetimeUsec = 600 * 1000000;
 String DestinationQueue::_indicationServiceName = "PG:IndicationService";
 String DestinationQueue::_objectManagerName = "Pegasus";
 
-const char* DestinationQueue::_indDiscardedReasons[] = {
-    "Listener not active",
-    "Subscription not active",
-    "DestinationQueue full",
-    "SequenceIdentifierLifetTime expired",
-    "DeliveryRetryAttempts exceeded",
-    "CIMServer shutdown"
+DestinationQueue::IndDiscardedReasonMsgs
+    DestinationQueue::indDiscardedReasonMsgs[] = {
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_LD_DELETED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\" was"
+         " not delivered due to the corresponding listener destination"
+         " instance was removed."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_"
+         "SUBSCRIPTION_DELETED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\" was"
+         " not delivered due to the corresponding subscription was disabled"
+         " or deleted."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_"
+         "DESTINATIONQUEUE_FULL",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+         " was discarded due to the destination queue was full."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_SIL_EXPIRED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+         " was not delivered due to the sequence identifier lifetime expired."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_DRA_EXCEEDED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+         " was not delivered due to the maximum delivery retry"
+         " attempts exceeded. Exception : $2"},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_CIMSERVER_SHUTDOWN",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+          " was not delivered due to the cimserver shutdown."}
 };
 
 Uint64 DestinationQueue::_serverStartupTimeUsec
@@ -290,21 +313,29 @@ void DestinationQueue::_logDiscardedIndication(
     const CIMInstance &indication,
     const String &message)
 {
-
     PEGASUS_ASSERT(reasonCode <
-        sizeof(_indDiscardedReasons)/sizeof(const char*));
+        sizeof(indDiscardedReasonMsgs)/sizeof(IndDiscardedReasonMsgs));
 
-    String logMessage = _indDiscardedReasons[reasonCode];
-    logMessage.append(Char16('.'));
-    logMessage.append(message);
-    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-        MessageLoaderParms(
-            "HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED",
-            "Failed to deliver an indication with SequenceContext \"$0\" "
-                "and SequenceNumber \"$1\" : $2.",
-            (const char*)_getSequenceContext(indication).getCString(),
-            _getSequenceNumber(indication),
-            (const char*)logMessage.getCString()));
+    if (reasonCode == DRA_EXCEEDED)
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                indDiscardedReasonMsgs[reasonCode].key,
+                indDiscardedReasonMsgs[reasonCode].msg,
+                (const char*)_getSequenceContext(indication).getCString(),
+                _getSequenceNumber(indication),
+                (const char*)message.getCString()));
+    }
+    else
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                indDiscardedReasonMsgs[reasonCode].key,
+                indDiscardedReasonMsgs[reasonCode].msg,
+                (const char*)_getSequenceContext(indication).getCString(),
+                _getSequenceNumber(indication)));
+            
+    }
 }
 
 void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)

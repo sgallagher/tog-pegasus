@@ -416,9 +416,9 @@ void EnumerationContext::putCache(MessageType type,
 void EnumerationContext::_insertResponseIntoCache(MessageType type,
                                   CIMResponseMessage*& response)
 {
-
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::_insertResponseIntoCache");
+
     CIMResponseData& to = _responseCache;
 
     AutoMutex autoMut(_responseCacheMutex);

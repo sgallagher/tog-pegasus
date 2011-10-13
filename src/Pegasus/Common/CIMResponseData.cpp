@@ -645,6 +645,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
         PEGASUS_ASSERT(false);   // KS_TEMP
+
         // Binary does NOT need a marker as it consists of C++ and SCMO
         const Array<Uint8>& data = _binaryData;
         out.putBytes(data.getData(), data.size());

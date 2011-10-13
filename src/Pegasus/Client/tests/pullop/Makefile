@@ -58,11 +58,14 @@ CxxCL = Sample_InstanceProviderClass
 CxxAssocOB = Test_CLITestProviderClass.Id=\"Mike\"
 CxxAssocNS = test/TestProvider
 
+HOSTID = -H localhost
+CIMCLIHOSTID = -l localhost
+
 ## Unit test. This is not a compelete test since this is a test program
 ## Simply assures that we do not crash when help executed.
 tests:
 	pullop -h
-	pullop --help
+	$(PROGRAM) --help
 
 ## Tests conducted with pullop
 ## We are moving the test so that many of them will be direct rather than
@@ -116,62 +119,79 @@ poststarttests:
 
 ## enumerate a class that is probably all repository
 pe1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T
+	$(PROGRAM) e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
 ## test variations of open max object count and pull max object count
 enumerateMaxObjectSizeVariations:
-	$(PROGRAM) e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) e -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) e -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) e -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) e -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) e -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) e -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T
+	$(PROGRAM) e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 ## test variations of open max object count and pull max object count
 enumeratePathsMaxObjectSizevariations:
-	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) en -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) en -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) en -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) en -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) en -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T
-	$(PROGRAM) en -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T
+	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
 ## enumerate a class that is probably all repository
 pn1:
-	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C
+	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C $(HOSTID)
 
 ## Simple pull ref and assoc operations.
 pr1:
-	pullop r  -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C
+	$(PROGRAM) r  -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 prn1:
-	pullop rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C
+	$(PROGRAM) r  -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+
+pr2:
+	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+
+prn2:
+	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 pa1:
-	pullop a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C
+	$(PROGRAM) a -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 pan1:
-	pullop an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C
+	$(PROGRAM) an -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
+pa2:
+	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+
+pan2:
+	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+
+## With repository entry
+pa3:
+	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+pan3:
+	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 
 peall:
-	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -C
+	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -C $(HOSTID)
 
-## do all objects in the test/TestProvider namespace
+## Enumerate all objects in the test/TestProvider namespace
 peall2:
-	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n test/TestProvider
+	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
 
 removefornow:
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp
+	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 penall:
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp
+	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement $(HOSTID)
+	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## Test Empty response.
 pempty:
-	pullop e -c CIM_ConcreteIdentity -n root/cimv2
+	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 
 ## test with large scale response provider
 ## Execute the large scale test with just one property in response.
@@ -180,58 +200,58 @@ pempty:
 ## of subsequent instances to the CIMOM and therefore is not constant.
 ## Included list of properties to return to make this test valid.
 stresse1:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000
-	pullop e -c $(CL) get -n $(NS) -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CL) get -n $(NS) -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
 
 stressen1:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000
-	pullop en -c $(CL) -n $(NS) -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) en -c $(CL) -n $(NS) -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
 
 stressVariation:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000
-	pullop e -c $(CL) -n $(NS) -M 10 -N 10 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3
-	pullop e -c $(CL) -n $(NS) -M 100 -N 100 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3
-	pullop e -c $(CL)  -n $(NS) -M 1000 -N 1000 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 10 -N 10 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 100 -N 100 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CL)  -n $(NS) -M 1000 -N 1000 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
 
-	pullop e -c $(CL)  -n $(NS) -M 10000 -N 10000 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3
+	$(PROGRAM) e -c $(CL)  -n $(NS) -M 10000 -N 10000 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
 ### Error Tests 
 ## These tests actually return exit 0 because the -R option reverses the
 ## exit codes so the following should actually return positive exits for
 ## make
 pullClassParamError:
-	pullop e -c blah -R
-	pullop en -c blah -R
+	$(PROGRAM) e -c blah -R $(HOSTID)
+	$(PROGRAM) en -c blah -R $(HOSTID)
 
 # the following tests should pass Makefile exit error tests.
 filterParamError:
-	pullop e Test_Person -f abc -R
-	pullop e Test_Person -l WQL -R
-	pullop en Test_Person -f abc -R
-	pullop en Test_Person -l WQL -R
-	pullop r Test_Person -f abc -R
-	pullop r Test_Person -l WQL -R
-	pullop rn Test_Person -f abc -R
-	pullop rn Test_Person -l WQL -R
-	pullop a Test_Person -f abc -R
-	pullop a Test_Person -l WQL -R
-	pullop an Test_Person -f abc -R
-	pullop an Test_Person -l WQL -R
+	$(PROGRAM) e Test_Person -f abc -R $(HOSTID)
+	$(PROGRAM) e Test_Person -l WQL -R $(HOSTID)
+	$(PROGRAM) en Test_Person -f abc -R $(HOSTID)
+	$(PROGRAM) en Test_Person -l WQL -R $(HOSTID)
+	$(PROGRAM) r Test_Person -f abc -R $(HOSTID)
+	$(PROGRAM) r Test_Person -l WQL -R $(HOSTID)
+	$(PROGRAM) rn Test_Person -f abc -R $(HOSTID)
+	$(PROGRAM) rn Test_Person -l WQL -R $(HOSTID)
+	$(PROGRAM) a Test_Person -f abc -R $(HOSTID)
+	$(PROGRAM) a Test_Person -l WQL -R $(HOSTID)
+	$(PROGRAM) an Test_Person -f abc -R $(HOSTID)
+	$(PROGRAM) an Test_Person -l WQL -R $(HOSTID)
 
 # test continueOnError Parameter.  Should return error in all cases
 continueOnErrorError:
-	pullop e Test_Person  -R -x
-	pullop en Test_Person  -R -x
-	pullop r -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x
-	pullop rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x
-	pullop a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x
-	pullop an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x
+	$(PROGRAM) e Test_Person  -R -x $(HOSTID)
+	$(PROGRAM) en Test_Person  -R -x $(HOSTID)
+	$(PROGRAM) r -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
+	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
+	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
+	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
 
 # test for invalid objecPath (class only) on associaton requests
 invalidAssocObjectPath:
-	pullop r -c Test_Person -R
-	pullop rn -c Test_Person -R
-	pullop a -c Test_Person -R
-	pullop an -c Test_Person -R
+	$(PROGRAM) r -c Test_Person -R $(HOSTID)
+	$(PROGRAM) rn -c Test_Person -R $(HOSTID)
+	$(PROGRAM) a -c Test_Person -R $(HOSTID)
+	$(PROGRAM) an -c Test_Person -R $(HOSTID)
 
 ################################
 #### Close tests
@@ -239,27 +259,27 @@ invalidAssocObjectPath:
 ### responses. Then call pullop to get small set of objects and then
 ### close
 testenumclose: 
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000
-	pullop e -c $(CL) -n $(NS) -M 9 -N 50 -o 4
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 9 -N 50 -o 4 $(HOSTID)
 
 testenumpathsclose: 
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000
-	pullop en -c $(CL) -n $(NS) -M 9 -N 50 -o 4
-
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) en -c $(CL) -n $(NS) -M 9 -N 50 -o 4 $(HOSTID)
+pr: pr1 pr2
 #################################
 #### timeout test. Set interoptime to 5 sec and sleep to 10 sec. This
 #### test should timeout after with the first pull.
 testtimeout:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000
-	pullop e -c $(CL) -n $(NS) -M 1 -N 1 -t 2 -T -s 4 -R
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 1 -N 1 -t 2 -T -s 4 -R $(HOSTID)
 
 ##################################
 ## CMPI Provider tests
 pcmpia1:
-	$(PROGRAM) a -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T
+	$(PROGRAM) a -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
 
 pcmpian1:
-	$(PROGRAM) an -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T
+	$(PROGRAM) an -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
 
 ####################################################
 ##
@@ -267,41 +287,37 @@ pcmpian1:
 ##
 ###################################################
 
+## test all operations against all classes in the defined namespace
 all:
-	pullop all -n root/cimv2 -C -T -v 3
+	$(PROGRAM) all -n root/cimv2 -C -T -v 3 $(HOSTID)
 
 clirep:
-	cimcli pei Test_Person -n test/TestProvider
+	cimcli pei Test_Person -n test/TestProvider $(CIMCLIHOSTID)
 
 cliprov:
-	cimcli pei Sample_InstanceProviderClass -n root/SampleProvider
-
+	cimcli pei Sample_InstanceProviderClass -n root/SampleProvider $(CIMCLIHOSTID)
+pr: pr1 pr2
 e1:
-	cimcli ei Sample_InstanceProviderClass -n root/SampleProvider
+	cimcli ei Sample_InstanceProviderClass -n root/SampleProvider $(CIMCLIHOSTID)
 
 e2:
-	cimcli ei Test_Person -n test/TestProvider
+	cimcli ei Test_Person -n test/TestProvider $(CIMCLIHOSTID)
 
 r2:
-	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider
-
-pr: pr1 pr2
+	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
 
 pe: pe1 pe2
 
-pr2:
-	pullop r -n test/TestProvider -c Test_CLITestProviderClass.Id=\"Mike\" -C
-
 pr3:
-	pullop r -M 9 -N 1 -n test/TestProvider -c Test_CLITestProviderClass.Id=\"Mike\"
+	$(PROGRAM) r -M 9 -N 1 -n test/TestProvider -c Test_CLITestProviderClass.Id=\"Mike\" $(HOSTID)
 
 ## Tests for reference names and pull referencenames.
 r1:
-	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider
+	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
 rn1:
-	cimcli rn Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider
+	cimcli rn Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
 an1:
-	cimcli an Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider
+	cimcli an Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
 
 ##########################
 ##
@@ -326,61 +342,61 @@ checkinvalidroleparam:
 ## Tests with StressTestProvider
 
 rsgc:
-	cimcli gc $(CL) -n $(NS)
+	cimcli gc $(CL) -n $(NS) $(CIMCLIHOSTID)
 
 rsget:
-	cimcli im $(CL) get -n $(NS)
+	cimcli im $(CL) get -n $(NS) $(CIMCLIHOSTID)
 
 rsset:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000
+	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 
 rsset1:
-	cimcli im set $(CL) -n $(NS)
+	cimcli im set $(CL) -n $(NS) $(CIMCLIHOSTID)
 
 ## cimcli enumerateInstances
 rsei: rsset
-	cimcli ei $(CL) get -n $(NS) --sum --t
+	cimcli ei $(CL) get -n $(NS) --sum --t $(CIMCLIHOSTID)
 
 rseip:
-	cimcli pei $(CL) get -n $(NS) --sum --t
+	cimcli pei $(CL) get -n $(NS) --sum --t $(CIMCLIHOSTID)
 
 ## pull the number of objects defined by rsset with Timing and comparison
 rseip1: rsset
-	pullop e -c $(CL) -n $(NS) -M 9 -N 100 -T -C
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 9 -N 100 -T -C $(HOSTID)
 
 rseipn:
-	cimcli ni $(CL) get -n $(NS) --sum
+	cimcli ni $(CL) get -n $(NS) --sum $(CIMCLIHOSTID)
 
 ##################################################
 ## Test with pull operations in cimcli
 cimclipei:
-	cimcli pei $(CL) -n $(NS) -mo 1 --sum
-	cimcli pni $(CL) -n $(NS) -mo 1
+	cimcli pei $(CL) -n $(NS) -mo 1 --sum $(CIMCLIHOSTID)
+	cimcli pni $(CL) -n $(NS) -mo 1 $(CIMCLIHOSTID)
 
 cmpigc:
-	cimcli gc $(CMPICL) -n root/SampleProvider
+	cimcli gc $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)
 
 cmpie1:
-	cimcli ei $(CMPICL) -n root/SampleProvider
+	cimcli ei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)
 
 pcmpie1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T
+	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 
 pcmpien1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T
+	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 
 ## reference tests
 cmpir1:
-	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider
+	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 pcmpir1:
-	$(PROGRAM) r -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T
+	$(PROGRAM) r -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID) 
 
 pcmpirn1:
-	$(PROGRAM) rn -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T
+	$(PROGRAM) rn -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T  $(HOSTID)
 
 ## Association tests
 cmpia1:
-	cimcli a $(CMPIASSOCOBJ) -n test/TestProvider
+	cimcli a $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 

@@ -7107,6 +7107,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     // If any return from repository, send it to aggregator.
     Uint32 totalIssued = 0;
+
 /////////////////// KS_TODO   if (instanceNames.size() != 0 ||
 // instanceNames.size() == 0)
     if (instanceNames.size() != 0)

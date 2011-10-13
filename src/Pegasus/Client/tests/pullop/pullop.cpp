@@ -1819,7 +1819,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
 }
 
 // find all classes in the defined namespace that have instances and
-// execute enumerate and enumeratepaths tests on them
+// execute enumerate enumeratepaths and the 4 associator operations on them
 // The other parameters (timing, compare, apply)
 void testAllClasses(CIMClient& client, CIMNamespaceName ns,
                     Boolean skipEmpty = true)

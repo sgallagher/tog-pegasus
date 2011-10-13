@@ -1230,6 +1230,14 @@ void EnableIndicationsResponseHandler::deliver(
         contentLangs = getLanguages();
     }
 
+    Uint32 timeoutMilliSec = 0;
+    if (context.contains(TimeoutContainer::NAME))
+    {
+        TimeoutContainer timeoutContainer =
+            context.get(TimeoutContainer::NAME);
+        timeoutMilliSec = timeoutContainer.getTimeOut();
+    }
+
     // create message
     CIMProcessIndicationRequestMessage* request =
         new CIMProcessIndicationRequestMessage(
@@ -1238,7 +1246,8 @@ void EnableIndicationsResponseHandler::deliver(
         cimInstance,
         subscriptionInstanceNames,
         _provider,
-        QueueIdStack());  // Must be filled in by the callback function
+        QueueIdStack(),  // Must be filled in by the callback function
+        timeoutMilliSec);
 
     request->operationContext = context;
 

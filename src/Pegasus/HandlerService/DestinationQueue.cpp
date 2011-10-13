@@ -353,7 +353,10 @@ void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
         message->subscriptionInstance,
         message->operationContext,
         message->nameSpace.getString(),
-        this);
+        this,
+        message->deliveryStatusAggregator->waitUntilDelivered ?
+            message->deliveryStatusAggregator : 0);
+
     _queue.insert_back(info);
 
     info->lastDeliveryRetryTimeUsec = 0;

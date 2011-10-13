@@ -424,7 +424,10 @@ private:
         Unregister a provider.  The caller must first lock
         _registrationTableLock for write access.
     */
-    void _deleteInstance(const CIMObjectPath & ref, Operation flag);
+    void _deleteInstance(
+        const CIMObjectPath & ref,
+        Operation flag,
+        CIMInstance &deletedInstance);
 
     /**
         Set the status of the specified provider module instance and

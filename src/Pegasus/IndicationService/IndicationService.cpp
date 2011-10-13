@@ -3079,6 +3079,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
 
     Array<CIMInstance> matchedSubscriptions;
     Array<String> matchedSubscriptionsKeys;
+    Uint32 timeout = request->timeoutMilliSec;
 
     CIMInstance indication = request->indicationInstance;
     
@@ -3094,7 +3095,8 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
             new DeliveryStatusAggregator(
                 request->messageId,
                 qids.top(),
-                request->oopAgentName));
+                request->oopAgentName,
+                request->timeoutMilliSec));
 #endif
     }
 

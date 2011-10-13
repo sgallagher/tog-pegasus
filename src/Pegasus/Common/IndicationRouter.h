@@ -106,7 +106,8 @@ public:
     DeliveryStatusAggregator(
         const String &origMessageId_,
         Uint32 responseQid_,
-        const String &oopAgentName_);
+        const String &oopAgentName_,
+        Boolean waitUntilDelivered_);
 
     // Verifies if the ExpectedResponseCount matches the CurrentResponseCount
     // and delivers the CIMProcessIndicationResponseMessage to the waiter.
@@ -123,6 +124,9 @@ public:
     String origMessageId;
     Uint32 responseQid;
     String oopAgentName;
+    // If this flag is set to true, CIMProcessIndicationResponseMessage will
+    // be sent only after the indication is delivered.
+    Boolean waitUntilDelivered;
 private:
     void _sendDeliveryStausResponse();
     DeliveryStatusAggregator(

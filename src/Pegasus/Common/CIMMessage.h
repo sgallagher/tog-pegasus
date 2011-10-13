@@ -988,6 +988,7 @@ public:
         const Array<CIMObjectPath> & subscriptionInstanceNames_,
         const CIMInstance & provider_,
         const QueueIdStack& queueIds_,
+        Uint32 timeoutMilliSec_ = 0,
         String oopAgentName_ = String())
     : CIMRequestMessage(
         CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -995,6 +996,7 @@ public:
         indicationInstance(indicationInstance_),
         subscriptionInstanceNames(subscriptionInstanceNames_),
         provider(provider_),
+        timeoutMilliSec(timeoutMilliSec_),
         oopAgentName(oopAgentName_)
     {
     }
@@ -1005,6 +1007,7 @@ public:
     CIMInstance indicationInstance;
     Array<CIMObjectPath> subscriptionInstanceNames;
     CIMInstance provider;
+    Uint32 timeoutMilliSec;
     String oopAgentName;
 };
 

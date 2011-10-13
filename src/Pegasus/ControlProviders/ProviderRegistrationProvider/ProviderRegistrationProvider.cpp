@@ -201,7 +201,17 @@ void ProviderRegistrationProvider::_sendIndication(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT);
         indication.setPath (path);
-        _indicationResponseHandler->deliver(indication);
+        if (cause == PM_DISABLED_CIMSERVER_STOP)
+        {
+            OperationContext context;
+            // Default 20 seconds timeout to deliver the indication.
+            context.insert(TimeoutContainer(20 * 1000));
+            _indicationResponseHandler->deliver(context, indication);
+        }
+        else
+        {
+            _indicationResponseHandler->deliver(indication);
+        }
     }
     catch(const Exception &e)
     {

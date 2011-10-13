@@ -38,6 +38,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/IndicationRouter.h>
 
 #include <Pegasus/HandlerService/Linkage.h>
 #include <Pegasus/HandlerService/IndicationHandlerConstants.h>
@@ -58,21 +59,32 @@ public:
         const CIMInstance &subscription_,
         const OperationContext &context_,
         const String &nameSpace_,
-        DestinationQueue *queue_):
+        DestinationQueue *queue_,
+        DeliveryStatusAggregator *deliveryStatusAggregator_):
             indication(indication_),
             subscription(subscription_),
             context(context_),
             nameSpace(nameSpace_),
             queue(queue_),
+            deliveryStatusAggregator(deliveryStatusAggregator_),
             deliveryRetryAttemptsMade(0)
     {
     }
 
+    ~IndicationInfo()
+    {
+        if (deliveryStatusAggregator)
+        {
+            deliveryStatusAggregator->complete();
+        }
+    }
+    
     CIMInstance indication;
     CIMInstance subscription;
     OperationContext context;
     String nameSpace;
     DestinationQueue *queue;
+    DeliveryStatusAggregator *deliveryStatusAggregator;
     Uint16 deliveryRetryAttemptsMade;
     Uint64 arrivalTimeUsec;
     Uint64 lastDeliveryRetryTimeUsec;

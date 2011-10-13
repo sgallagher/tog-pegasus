@@ -1,3 +1,4 @@
+Alert - Provider module(s) disabled due to CIMServer shutdown
 Alert - Provider module(s) enabled due to CIMServer start/restart
 Alert - Provider module created, ProviderModule - TestProviderLifecycleIndicationProviderModule2
 Alert - Provider is added to the provider module, ProviderModule - TestProviderLifecycleIndicationProviderModule2 Provider TestProviderLifecycleIndicationProvider2

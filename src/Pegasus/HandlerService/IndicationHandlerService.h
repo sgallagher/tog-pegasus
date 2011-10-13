@@ -82,8 +82,7 @@ private:
         const CIMPropertyList& propertyList,CIMInstance & newInstance);
 
     CIMHandleIndicationResponseMessage* _handleIndication(
-        CIMHandleIndicationRequestMessage* request,
-        Boolean &aggregationComplete);
+        CIMHandleIndicationRequestMessage* request);
 
     HandlerTable _handlerTable;
 

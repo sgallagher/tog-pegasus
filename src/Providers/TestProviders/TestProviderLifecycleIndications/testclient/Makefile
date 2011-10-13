@@ -69,7 +69,6 @@ setupLogFile:
 	@$(RM) $(LOGFILE)
 
 testLogFile:
-	@$(STRIPL) "Alert" "shutdown" $(LOGFILE)
 	@$(call DIFFSORT,$(LOGFILE).good,$(LOGFILE))
 	@$(RM) $(LOGFILE)
 

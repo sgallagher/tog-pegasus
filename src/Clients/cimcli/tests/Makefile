@@ -67,6 +67,7 @@ PROVNSOPT = -n $(PROVIDERNS)
 # single definition for the class name and namespace used for the
 # embedded instance tests.
 EMBED_CLASS_DEF = -n $(PROVIDERNS) Test_CLITestEmbeddedClass
+ASSOC_CLASS_DEF = -n $(PROVIDERNS) Test_CLITestProviderLinkClass
 
 depend:
 
@@ -102,10 +103,12 @@ clean:
 	-$(MAKE) d1
 
 ## Create instance tests
-createEmbeddedInstanceTests: ct1 ct2 ct3 ct4 ct5 ct6 ct7 ct8 ct9 ct10 ct11
+createEmbeddedInstanceTests: ct1 ct2 ct3 ct4 ct5 ct6 ct7 ct8 ct9 ct10 ct11 \
+                             ct12
 
 ##############################################################################
-# simple create without embedded property
+# simple create without embedded property. Tests modifyInstance by modifying
+# this property and testing the result.
 c1:
 	$(CIMCLI) ci $(EMBED_CLASS_DEF) Id=111 \
 	    comment="test with no embedded instance"   >> $(RESULTFILE)
@@ -115,13 +118,32 @@ t1:
 	    comment="test with no embedded instance"   >> $(RESULTFILE)
 
 d1:
-	$(CIMCLI) di $(EMBED_CLASS_DEF) Id=111 \
-		>> $(RESULTFILE)
-g1:
-	$(CIMCLI) gi $(EMBED_CLASS_DEF) Id=111 \
-		>> $(RESULTFILE)
+	$(CIMCLI) di $(EMBED_CLASS_DEF) Id=111 >> $(RESULTFILE)
 
-ct1: c1 g1 t1 d1
+g1:
+	$(CIMCLI) gi $(EMBED_CLASS_DEF) Id=111 >> $(RESULTFILE)
+
+#       modify instance with propertyList
+m1:
+	$(CIMCLI) mi $(EMBED_CLASS_DEF) Id=111 \
+	    comment="test with no embedded instance Changed" -pl comment \
+	    >> $(RESULTFILE)
+
+#       modify instance without propertyList
+m1a:
+	$(CIMCLI) mi $(EMBED_CLASS_DEF) Id=111 \
+	    comment="test with no embedded instance Changed2"\
+	    >> $(RESULTFILE)
+
+tm1:
+	$(CIMCLI) mi $(EMBED_CLASS_DEF) Id=111 \
+	    comment="test with no embedded instance Changed" >> $(RESULTFILE)
+
+tm1a:
+	$(CIMCLI) mi $(EMBED_CLASS_DEF) Id=111 \
+	    comment="test with no embedded instance Changed2" >> $(RESULTFILE)
+
+ct1: c1 g1 t1 m1 tm1 m1a tm1a d1
 	@$(ECHO) +++++ passed test ct1
 
 ##############################################################################
@@ -190,7 +212,7 @@ c4:
 	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=401 \
 	    comment="test with single embedded object" \
 	    embeddedObj{Test_CLITestEmbedded1 Id=402 \
-		    comment="Property is embedded object" } \
+	    comment="Property is embedded object" } \
 		>> $(RESULTFILE)
 
 t4:
@@ -402,7 +424,6 @@ ct10: c10 g10 t10 d10
 	@$(ECHO) +++++ passed test ct10
 ############################################################################	
 ## create instance with space after embed start marker 
-
 c11:
 	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1101 \
 	    comment="test with embedded instance with space after {" \
@@ -425,10 +446,41 @@ d11:
 
 ct11: c11 g11 t11 d11
 	@$(ECHO) +++++ passed test ct11
+
+############################################################################
+## generate an association instance with the embedded object format
+## LIMITATION: CLITestProvider does NOT check for validity of end points
+c12:
+	$(CIMCLI) ci $(ASSOC_CLASS_DEF) \
+	    parent={Test_CLITestProviderClass id=100 } \
+	    child={Test_CLITestProviderClass id=100 } \
+		>> $(RESULTFILE)
+
+g12:
+	$(CIMCLI) gi $(ASSOC_CLASS_DEF) \
+	    parent={Test_CLITestProviderClass id=100 } \
+	    child={Test_CLITestProviderClass id=100 } \
+		>> $(RESULTFILE)
+
+t12:
+	$(CIMCLI) ti $(ASSOC_CLASS_DEF) \
+	    parent={Test_CLITestProviderClass id=100 } \
+	    child={Test_CLITestProviderClass id=100 } \
+		>> $(RESULTFILE)
+
+d12:
+	$(CIMCLI) di $(ASSOC_CLASS_DEF) \
+	    parent={Test_CLITestProviderClass id=100 } \
+	    child={Test_CLITestProviderClass id=100 } \
+		>> $(RESULTFILE)
+
+ct12: c12 g12 t12 d12
+
+	@$(ECHO) +++++ passed test ct112
 ##############################################################################
 ## Embedded instance method tests
 
-invokeEmbeddedInstMethodTests: im1 im2 im3 im4 im5 im6 im7
+invokeEmbeddedInstMethodTests: im1 im2 im3 im4 im5 im6 im7 im8 im9 im10 im11
 
 ## control test. im without embedded instance
 im1:
@@ -436,17 +488,12 @@ im1:
 	    embeddedInstParamMethod firstArg="test string" \
 		>> $(RESULTFILE)
 
-## test for multiple entry of scalar argument.  Code added this release.
-im1err:
-      o  $(CIMCLI) im $(EMBED_CLASS_DEF) \
-	    embeddedInstParamMethod firstArg="test simple im" arg1=blah \
-		>> $(RESULTFILE)
-
 ## im with single embedded instance.  The method embeddedInstParamMethod
 ## returns exactly what was input.
 im2:
 	$(CIMCLI) im $(EMBED_CLASS_DEF) \
-	    embeddedInstParamMethod firstArg="test single embedded instance parameter" \
+	    embeddedInstParamMethod \
+	    firstArg="test single embedded instance parameter" \
 	    embedInstArg{Test_CLITestEmbedded1 Id=501 } \
 	    lastArg="last parameter" \
 		>> $(RESULTFILE)
@@ -454,7 +501,8 @@ im2:
 ## im with single embedded object.
 im3:
 	$(CIMCLI) im $(EMBED_CLASS_DEF) \
-	    embeddedInstParamMethod firstArg="test single embedded object parameter" \
+	    embeddedInstParamMethod \
+	    firstArg="test single embedded object parameter" \
 	    embedObjArg{Test_CLITestEmbedded1 Id=501 } \
 	    lastArg="Last Parameter" \
 		>> $(RESULTFILE)
@@ -462,7 +510,8 @@ im3:
 ## im with array of embedded instances. 
 im4:
 	$(CIMCLI) im $(EMBED_CLASS_DEF) \
-	    embeddedInstParamMethod firstArg="test embedded instance array parameter" \
+	    embeddedInstParamMethod \
+	    firstArg="test embedded instance array parameter" \
 	    embedInstArrayArg{Test_CLITestEmbedded1 Id=501 } \
 	    embedInstArrayArg{Test_CLITestEmbedded1 Id=502 } \
 	    lastArg="last parameter" \
@@ -471,7 +520,8 @@ im4:
 ## im with array of embedded objects.
 im5:
 	$(CIMCLI) im $(EMBED_CLASS_DEF) \
-	    embeddedInstParamMethod firstArg="test embedded object array parameter" \
+	    embeddedInstParamMethod \
+	    firstArg="test embedded object array parameter" \
 	    embedObjArrayArg{Test_CLITestEmbedded1 Id=501 } \
 	    embedObjArrayArg{Test_CLITestEmbedded1 Id=502 } \
             lastArg="last parameter" \
@@ -494,6 +544,35 @@ im7:
 	    arrayString=one,two,three arrayString=four \
 		>> $(RESULTFILE)
 
+## test create reference parameter
+im8:
+	$(CIMCLI) im Test_CLITestEmbeddedClass -n test/TestProvider \
+	    embeddedInstParamMethod \
+	    referenceParam=Test_CLITestProviderClass.id=\"100\" \
+		>> $(RESULTFILE)
+## test create reference parameter
+im9:
+	$(CIMCLI) im Test_CLITestEmbeddedClass -n test/TestProvider \
+	    embeddedInstParamMethod \
+	    referenceParam={Test_CLITestProviderClass id=100 } \
+		>> $(RESULTFILE)
+
+## test create reference parameter array with object path input syntax
+im10:
+	$(CIMCLI) im Test_CLITestEmbeddedClass -n test/TestProvider \
+	    embeddedInstParamMethod \
+	    referenceParamArray=Test_CLITestProviderClass.id=\"100\" \
+	    referenceParamArray=Test_CLITestProviderClass.id=\"101\" \
+		>> $(RESULTFILE)
+
+## test create reference parameter array with object type input syntax
+im11:
+	$(CIMCLI) im Test_CLITestEmbeddedClass -n test/TestProvider \
+	    embeddedInstParamMethod \
+	    referenceParamArray={Test_CLITestProviderClass id=100 } \
+	    referenceParamArray={Test_CLITestProviderClass id=101 } \
+		>> $(RESULTFILE)
+
 ###############################################################################
 ## Error tests
 
@@ -504,27 +583,31 @@ EmbeddedInstanceErrorTests:
 	@$(ECHO) +++++ passed test errors tests \
 		>> $(RESULTFILE)
 
-createEmbeddedInstanceErrors: cier1 cier2 cier3 cier5 cier6 cier7 cier8
+#d list of specific createEmbbedInstance Errors to execute
+createEmbeddedInstanceErrors: cier1 cier2 cier3 cier5 cier6 cier7 cier8 \
+        cier9 cier9 cier10 cier11 cier12 cier13
+	@$(ECHO) +++++ passed createEmbeddedInstance error tests \
+	    >> $(RESULTFILE)
 
 ###########################################################################
 ## Error tests for embedded instances
 ## test for error no embedded end mark
 cier1:
-	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=301 \
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1201 \
 	    comment="test error, no embedded instance end mark" \
 	    embeddedInst{Test_CLITestEmbedded1 Id=401  --expExit 53 \
 		>> $(RESULTFILE) 2>&1
 
 ## test for error, to many end embedded marks
 cier2:
-	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=301 \
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1202 \
 	    comment="test with embedded instance. To many embedded end tags." \
 	    embeddedInst{Test_CLITestEmbedded1 Id=401 } } --expExit 53 \
 		>> $(RESULTFILE) 2>&1
 
 ## test for error, embedded end marks with no embedded property
 cier3:
-	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=301 \
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1203 \
 	    comment="test with embedded instance. Missing embedded end tag." } \
 	    --expExit 53 >> $(RESULTFILE) 2>&1
 
@@ -543,16 +626,16 @@ cier5:
 
 ## test for invalid input of parameter, no property name
 cier6:
-	$(CIMCLI) ci $(EMBED_CLASS_DEF) =301 \
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) =1204 \
 	    comment="test error, input with no property name" \
 	    embeddedInst{Test_CLITestEmbedded1 Id=401  --expExit 53 \
 		>> $(RESULTFILE) 2>&1
 
 ## test for error no name on embedded instance mark
 cier7:
-	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=301 \
-	    comment="test error, no embedded instance property name" \
-	    {Test_CLITestEmbedded1 Id=401  --expExit 53 \
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1205 \
+	    comment="test error,--expExit 53  no embedded instance property name" \
+	    {Test_CLITestEmbedded1 Id=401 }  --expExit 53 \
 		>> $(RESULTFILE) 2>&1
 
 ## test creating instance with no properties defined. In this case, cimcli
@@ -562,16 +645,56 @@ cier8:
 	$(CIMCLI) ci -n test/TestProvider Test_CLITestEmbeddedClass \
 	  --expExit 1 >> $(RESULTFILE) 2>&1
 
-## test creating array input on non-array property TODO
+## Error generated because key property not defined.  Note that
+## this error is specific to the test provider and not really a characteristic
+## of cimcli. Just the reporting is cimcli.
 cier9:
+	$(CIMCLI) ci $(ASSOC_CLASS_DEF) \
+	    parent={Test_CLITestProviderClass id=100 } --expExit 1 \
+            >> $(RESULTFILE) 2>&1
+
+## Test creating array input with non-array property. See tests 12 and
+## 13 for other tests of duplication. Note that this test creates the
+## instance but with only the first entry of the array input. It is
+## deleted immediatly.
+cier10:
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1210 \
+	    comment="test error, input with no property name","secondString" \
+            >> $(RESULTFILE) 2>&1
+	$(CIMCLI) di $(EMBED_CLASS_DEF) id=1210
+
+## Creates instance with warning message about unknown property. Good
+## but with warning message output.
+cier11:
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id=1211 \
+	    nosuchProperty= \
+             >> $(RESULTFILE) 2>&1
+	$(CIMCLI) di $(EMBED_CLASS_DEF) id=1211
+
+## Test create error with duplicate scalar property name. cimcli does not
+## create the instance and returns the input parse error code.
+cier12:
+	$(CIMCLI) ci $(EMBED_CLASS_DEF)  Id=12000 \
+	    comment="test error, input duplicate scalar property" \
+	    comment="Whoops second def for scalar" \
+            --expExit 53 >> $(RESULTFILE) 2>&1
+cier13:
+	$(CIMCLI) ci $(ASSOC_CLASS_DEF) \
+	    parent={Test_CLITestProviderClass id=100 } \
+	    child={Test_CLITestProviderClass id=100 } \
+	    parent={Test_CLITestProviderClass id=101 } \
+            --expExit 53 >> $(RESULTFILE) 2>&1
 
 ############################################################################
 ## Invoke method error tests
 
-invokeEmbeddedInstanceMethodErrors: imer1 imer2 imer3
+invokeEmbeddedInstanceMethodErrors: imer1 imer2 imer3 imer4 imer5 imer6 \
+        imer7 imer8 imer9
+	@$(ECHO) +++++ passed invokeEmbeddedInstanceMethod error tests \
+	    >> $(RESULTFILE)
 
 ## error input. Attempt to input multiple scalar properties with same 
-## name. 
+## name.
 imer1:
 	$(CIMCLI) im Test_CLITestProviderClass -n test/TestProvider \
 	    InOutParamTest \
@@ -591,4 +714,54 @@ imer3:
 	$(CIMCLI) im Test_CLITestProviderClass -n test/TestProvider \
 	    InOutParamTest  >> $(RESULTFILE) 2>&1
 
+## test for embedded instances with no embedded end mark
+imer4:
+	$(CIMCLI) im $(EMBED_CLASS_DEF) \
+	    embeddedInstParamMethod firstArg="test Error, no End embed mark" \
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=501 } \
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=502 \
+	    lastArg="last parameter" --expExit 53 \
+		>> $(RESULTFILE)  2>&1
 
+## test for embedded instances with no embedded end mark
+imer5:
+	$(CIMCLI) im $(EMBED_CLASS_DEF) \
+	    embeddedInstParamMethod firstArg="test Error, no End embed mark" \
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=501 \
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=502 } \
+	    lastArg="last parameter" --expExit 53 \
+		>> $(RESULTFILE) 2>&1
+
+## test for embedded instances endmark with no space
+imer6:
+	$(CIMCLI) im $(EMBED_CLASS_DEF) \
+	    embeddedInstParamMethod firstArg="test Error, no End embed mark" \
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=501}\
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=502 } \
+	    lastArg="last parameter" --expExit 53 \
+		>> $(RESULTFILE) 2>&1
+
+## test for embedded instances endmark with extra end mark
+imer7:
+	$(CIMCLI) im $(EMBED_CLASS_DEF) \
+	    embeddedInstParamMethod firstArg="test Error, extra before End embed mark" \
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=501 }\
+	    embedInstArrayArg{Test_CLITestEmbedded1 Id=502 } } \
+	    lastArg="last parameter" --expExit 53 \
+		>> $(RESULTFILE) 2>&1
+
+## error. array definition on scalar embedded object parameter
+imer8:
+	$(CIMCLI) im Test_CLITestEmbeddedClass -n test/TestProvider \
+	    embeddedInstParamMethod \
+	    referenceParam={Test_CLITestProviderClass id=100 } \
+	    referenceParam={Test_CLITestProviderClass id=101 } \
+	    --expExit 53 >> $(RESULTFILE) 2>&1
+
+## error. Property name in parameter definition is not property in class
+##        cimcli passes with warning.  System returns error
+imer9:
+	$(CIMCLI) im Test_CLITestEmbeddedClass -n test/TestProvider \
+	    embeddedInstParamMethod \
+	    referenceParam={Test_CLITestProviderClass idx=100 } \
+	    --expExit 50 >> $(RESULTFILE) 2>&1

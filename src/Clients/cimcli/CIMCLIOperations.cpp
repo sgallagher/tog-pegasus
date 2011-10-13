@@ -75,7 +75,7 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     {ID_GetInstance,             "getInstance",   2 ,       "gi",
     "Clients.cimcli.CIMCLIClient.GI_COMMAND_HELP",
     "Get instance of <objectname> | <classname> (interactive) |"
-    " <classname>  *<PropertyName=value> for equal property values."},
+    " <classname>  *<PropertyName=value> defining key property values."},
 
     {ID_CreateInstance,          "createInstance",2 ,       "ci",
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP",
@@ -92,7 +92,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
                         "\n"
                         "  | <propName>{<classname> [<propertyDef>]* }\n"
                         "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance where:\n"
+                        "     defines embedded instance or \n"
+                        "              embedded objectPath  where:\n"
                         "       -classname - embedded class\n"
                         "       -propertyDef - embedded instance property"},
 
@@ -112,7 +113,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
                         "\n"
                         "  | <propName>{<classname> [<propertyDef>]* }\n"
                         "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance where:\n"
+                        "     defines embedded instance or \n"
+                        "              embedded objectPath  where:\n"
                         "       -classname - embedded class\n"
                         "       -propertyDef - embedded instance property"},
 
@@ -142,7 +144,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
                         "\n"
                         "  | <propName>{<classname> [<propertyDef>]* }\n"
                         "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance where:\n"
+                        "     defines embedded instance or \n"
+                        "              embedded objectPath  where:\n"
                         "       -classname - embedded class\n"
                         "       -propertyDef - embedded instance property"},
 
@@ -291,6 +294,12 @@ OperationExampleEntry OperationExamples[] = {
         "        C2 with properties:\n"
         "           p1 embedded instance property with value 3\n"
         "           p2 embedded instance string property with value \"ab cd\""
+    "cimcli ci -n test/TestProviderAssoc assoc1\\\n"
+        "    child={{C2 id=3 } parent={C2.id=4 }\n\n"
+        "    -- Create instance of class assoc1with properties:\n"
+        "       child - reference to class C2 with key property = 3\n"
+        "       parent ref to class C2 with key property id = 4\n"
+
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
     "    -n\n"},
 

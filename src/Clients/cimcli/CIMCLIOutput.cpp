@@ -1088,7 +1088,7 @@ void CIMCLIOutput::displayPaths(Options& opts,
     Array<CIMObjectPath>& paths,
     const String& description)
 {
-    // KS-TODO: Don't show anything if size = 0 and have the caller
+    // FUTURE: Don't show anything if size = 0 and have the caller
     // setup the class somewhere external.
     if (opts.summary)
     {

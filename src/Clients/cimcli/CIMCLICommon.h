@@ -330,8 +330,11 @@ String PEGASUS_CLI_LINKAGE stringPrintf(const char* format, ...);
    New lines are created when the current line length exceeds
    lineLength or a EOL is identified in the input string.
 
-   NOTE: The first line is started a 0 position, not pos.
-   TODO: Correct the above or extend so either option allowed.
+   NOTE: The first line is started a 0 position, not the indent.
+   This is based on assumption that it appends to other data on
+   the first line.
+   FUTURE: Extend so we start the first line either at 0 or the
+   indent position
 
    @param input const char * - input string.  May contain EOL
                 characters

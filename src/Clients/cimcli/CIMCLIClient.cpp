@@ -535,7 +535,7 @@ Array<CIMNamespaceName> _getNameSpacesWith__namespace(Options& opts)
     // the root for all namespaces. That  is a hole is the spec,
     // not in our code.
 
-    // TODO: Determine why we need the following statement
+    // Determine why we need the following statement
     namespaceNames.append(opts.nameSpace);
 
     Uint32 start = 0;
@@ -1845,7 +1845,7 @@ int references(Options& opts)
 
 /***************************** associatorNames  ******************************/
 /*
-    Uaw the client associatorNames operation to return associated classes
+    Use the client associatorNames operation to return associated classes
     or instances for the target inputs. Note that this operation uses the
     interactive option.
 

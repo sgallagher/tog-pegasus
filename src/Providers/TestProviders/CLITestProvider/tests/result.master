@@ -5,8 +5,10 @@
 
     [Version ("2.5.0") : Restricted, Translatable, 
     Description ("Class to test input and output of all property types "
-        "that can be handled by cimcli. Does not cover embedded types.") 
-        : Translatable]
+        "that can be handled by cimcli. Does not cover embedded types. "
+        "See other classes in this file for handling of the embedded "
+        "entity classes. The REF data type in methods is also covered "
+        "in other classes today.") : Translatable]
 class Test_CLITestProviderClass
 {
     
@@ -62,8 +64,8 @@ class Test_CLITestProviderClass
         reference OutParam1, [out : DisableOverride] reference OutParam2[]);
     
         [Description ("Method to test input and output of all parameter "
-            "types. Provider is expected to return all parameters input.") 
-            : Translatable]
+            "types except REF and embedded entity. Provider is expected "
+            "to return all parameters input.") : Translatable]
     uint32 InOutParamTest([in : DisableOverride, 
     out : DisableOverride] boolean scalBool, [in : DisableOverride, 
         
@@ -133,13 +135,30 @@ class Test_CLITestProviderClass
         datetime outScalDateTime);
     
         [Description ("Method to set parameters to modify provider behavior") 
-            : Translatable]
+            : Translatable, 
+        static : DisableOverride]
     uint32 setProviderParameters([in : DisableOverride, 
     out : DisableOverride] string substituteHostName);
     
-        [Description ("Method to reset all parameters provider behavior "
-            " parameters") : Translatable]
+        [Description ("Method to reset all parameters that control provider "
+            "behavior ") : Translatable, 
+        static : DisableOverride]
     uint32 resetProviderParameters();
+    
+        [Description ("Method to reset provider to initial state. Resets "
+            "parameters same as resetProviderParameters and also restores "
+            "internal instance cache to initial state. ") : Translatable, 
+            
+        static : DisableOverride]
+    uint32 reset();
+    
+        [Description ("Method to set or reset debug mode for the provider. "
+            "In debug mode, the provider displays information when called. "
+            "Parameter is new state. Returns 0 if state changed. Rtn "
+            "1 if same state.  Else return 2, as error ") : Translatable, 
+            
+        static : DisableOverride]
+    uint32 debugMode(boolean newState);
 };
 
 //    Class Test_CLITestProviderLinkClass
@@ -148,7 +167,8 @@ class Test_CLITestProviderClass
     [ASSOCIATION : DisableOverride, 
     Version ("1.0.0") : Restricted, Translatable, 
     Description ("Defines the relationship between parents and children. "
-        "Test Ref/Assoc functions in cimli") : Translatable]
+        "Used to test Ref/Assoc functions and creation/modification "
+        "of instances in cimli") : Translatable]
 class Test_CLITestProviderLinkClass
 {
     
@@ -157,6 +177,10 @@ class Test_CLITestProviderLinkClass
     
         [key : DisableOverride]
     reference child;
+    
+        [Description ("This property returns a String defining the input "
+            "parameters the provider saw on any operation involving "
+            "this class.") : Translatable]
     string requestInputParameters;
 };
 
@@ -181,7 +205,7 @@ class Test_CLITestProviderLinkClass
     </QUALIFIER>
     <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
         <VALUE>
-            Defines the relationship between parents and children. Test Ref/Assoc functions in cimli
+            Defines the relationship between parents and children. Used to test Ref/Assoc functions and creation/modification of instances in cimli
         </VALUE>
     </QUALIFIER>
     <PROPERTY.REFERENCE NAME="parent" REFERENCECLASS="Test_CLITestProviderClass">
@@ -199,6 +223,11 @@ class Test_CLITestProviderLinkClass
         </QUALIFIER>
     </PROPERTY.REFERENCE>
     <PROPERTY NAME="requestInputParameters" TYPE="string">
+        <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
+            <VALUE>
+                This property returns a String defining the input parameters the provider saw on any operation involving this class.
+            </VALUE>
+        </QUALIFIER>
     </PROPERTY>
 </CLASS>
 <CLASS NAME="Test_CLITestProviderLinkClass">
@@ -214,7 +243,7 @@ class Test_CLITestProviderLinkClass
     </QUALIFIER>
     <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
         <VALUE>
-            Defines the relationship between parents and children. Test Ref/Assoc functions in cimli
+            Defines the relationship between parents and children. Used to test Ref/Assoc functions and creation/modification of instances in cimli
         </VALUE>
     </QUALIFIER>
     <PROPERTY.REFERENCE NAME="parent" REFERENCECLASS="Test_CLITestProviderClass" CLASSORIGIN="Test_CLITestProviderLinkClass">
@@ -232,6 +261,11 @@ class Test_CLITestProviderLinkClass
         </QUALIFIER>
     </PROPERTY.REFERENCE>
     <PROPERTY NAME="requestInputParameters" CLASSORIGIN="Test_CLITestProviderLinkClass" TYPE="string">
+        <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
+            <VALUE>
+                This property returns a String defining the input parameters the provider saw on any operation involving this class.
+            </VALUE>
+        </QUALIFIER>
     </PROPERTY>
 </CLASS>
 8. +++++ Test QualifierDecl Operations
@@ -2189,7 +2223,8 @@ substituteHostName=
     [ASSOCIATION : DisableOverride, 
     Version ("1.0.0") : Restricted, Translatable, 
     Description ("Defines the relationship between parents and children. "
-        "Test Ref/Assoc functions in cimli") : Translatable]
+        "Used to test Ref/Assoc functions and creation/modification "
+        "of instances in cimli") : Translatable]
 instance of Test_CLITestProviderLinkClass
 {
     
@@ -2198,6 +2233,10 @@ instance of Test_CLITestProviderLinkClass
     
         [key : DisableOverride]
     child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
+    
+        [Description ("This property returns a String defining the input "
+            "parameters the provider saw on any operation involving "
+            "this class.") : Translatable]
     requestInputParameters = "role=; resultClass=Test_CLITestProviderLinkClass; "
         "includeQualifiers=true; includeClassOrigin=false; propertyList=NULL";
 };
@@ -2208,7 +2247,8 @@ instance of Test_CLITestProviderLinkClass
     [ASSOCIATION : DisableOverride, 
     Version ("1.0.0") : Restricted, Translatable, 
     Description ("Defines the relationship between parents and children. "
-        "Test Ref/Assoc functions in cimli") : Translatable]
+        "Used to test Ref/Assoc functions and creation/modification "
+        "of instances in cimli") : Translatable]
 instance of Test_CLITestProviderLinkClass
 {
     
@@ -2217,6 +2257,10 @@ instance of Test_CLITestProviderLinkClass
     
         [key : DisableOverride]
     child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
+    
+        [Description ("This property returns a String defining the input "
+            "parameters the provider saw on any operation involving "
+            "this class.") : Translatable]
     requestInputParameters = "role=parent; resultClass=Test_CLITestProviderLinkClass; "
         "includeQualifiers=true; includeClassOrigin=false; propertyList=NULL";
 };
@@ -2229,7 +2273,8 @@ instance of Test_CLITestProviderLinkClass
     [ASSOCIATION : DisableOverride, 
     Version ("1.0.0") : Restricted, Translatable, 
     Description ("Defines the relationship between parents and children. "
-        "Test Ref/Assoc functions in cimli") : Translatable]
+        "Used to test Ref/Assoc functions and creation/modification "
+        "of instances in cimli") : Translatable]
 instance of Test_CLITestProviderLinkClass
 {
     
@@ -2238,6 +2283,10 @@ instance of Test_CLITestProviderLinkClass
     
         [key : DisableOverride]
     child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
+    
+        [Description ("This property returns a String defining the input "
+            "parameters the provider saw on any operation involving "
+            "this class.") : Translatable]
     requestInputParameters = "role=child; resultClass=Test_CLITestProviderLinkClass; "
         "includeQualifiers=true; includeClassOrigin=false; propertyList=parent, "
         "child, requestInputParameters";
@@ -2313,6 +2362,8 @@ class Test_CLITestProviderClass
         datetime outScalDateTime);
     uint32 setProviderParameters(string substituteHostName);
     uint32 resetProviderParameters();
+    uint32 reset();
+    uint32 debugMode(boolean newState);
 };
 1 associator names
 //ChangedHostName/test/TestProvider:Test_CLITestProviderClass

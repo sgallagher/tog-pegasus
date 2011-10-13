@@ -58,7 +58,9 @@ instance of PG_ProviderCapabilities
     SupportedMethods = { "ReferenceParamTest",
 			 "InOutParamTest",
                          "setProviderParameters",
-			 "resetProviderParameters" };
+			 "resetProviderParameters",
+			 "debugMode",
+			 "reset" };
 };
 
 instance of PG_ProviderCapabilities

@@ -141,6 +141,9 @@ public:
 
 protected:
     Array<CIMInstance> _instances;
+    Array<CIMClass> _classes;
+    ////CIMNamespaceName _namespace;
+    Boolean _debugMode;
 
 private:
 
@@ -160,9 +163,10 @@ private:
     Boolean _initialized;
     // Tells provider whether to use real or substitute name.
     // Substiture name would be defined by the subsituteHostName Parameter
-    // in th set invoke method.
+    // in the set invoke method.
     Boolean _useSubstituteHostName;
     String _substituteHostName;
+
     // list of properties in the class
     CIMPropertyList _propertyList;
 };

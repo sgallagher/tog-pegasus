@@ -87,7 +87,7 @@ ec    enumerateClasses      Enumerate classes of [ <classname> ]. Classname
 gc    getClass              Get class of <classname>
 gi    getInstance           Get instance of <objectname> | <classname>
                             (interactive) | <classname>  *<PropertyName=value>
-                            for equal property values.
+                            defining key property values.
 ci    createInstance        Create instance of a class. Input Format is:
                               <className> [<propertyDef>]*
                            where propertyDef is:
@@ -101,7 +101,8 @@ ci    createInstance        Create instance of a class. Input Format is:
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 ti    testInstance          Test instance  of <objectname>  [<propertyDef>]* |
@@ -117,7 +118,8 @@ ti    testInstance          Test instance  of <objectname>  [<propertyDef>]* |
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 di    deleteInstance        Delete Instance of <objectname> | <classname>
@@ -138,7 +140,8 @@ mi    modifyInstance        Modify Instance of a class. Input formats are:
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 dc    deleteClass           Delete Class of <classname>
@@ -322,7 +325,7 @@ ec    enumerateClasses      Enumerate classes of [ <classname> ]. Classname
 gc    getClass              Get class of <classname>
 gi    getInstance           Get instance of <objectname> | <classname>
                             (interactive) | <classname>  *<PropertyName=value>
-                            for equal property values.
+                            defining key property values.
 ci    createInstance        Create instance of a class. Input Format is:
                               <className> [<propertyDef>]*
                            where propertyDef is:
@@ -336,7 +339,8 @@ ci    createInstance        Create instance of a class. Input Format is:
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 ti    testInstance          Test instance  of <objectname>  [<propertyDef>]* |
@@ -352,7 +356,8 @@ ti    testInstance          Test instance  of <objectname>  [<propertyDef>]* |
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 di    deleteInstance        Delete Instance of <objectname> | <classname>
@@ -373,7 +378,8 @@ mi    modifyInstance        Modify Instance of a class. Input formats are:
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 dc    deleteClass           Delete Class of <classname>
@@ -485,7 +491,8 @@ mi    modifyInstance        Modify Instance of a class. Input formats are:
                            
                              | <propName>{<classname> [<propertyDef>]* }
                              | <propName>={<classname> [<propertyDef>]* }
-                                defines embedded instance where:
+                                defines embedded instance or 
+                                         embedded objectPath  where:
                                   -classname - embedded class
                                   -propertyDef - embedded instance property
 Example : 

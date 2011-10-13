@@ -102,7 +102,14 @@ void ServerProcess::cimserver_set_process(void* p)
     if (_server_proc && _shutdown)
         _server_proc->cimserver_stop();
 
+ #ifndef PEGASUS_FLAVOR
     pegasus_service = Service(getProcessName());
+ #else
+    String serviceName(PEGASUS_FLAVOR);
+    serviceName.append(Char16('-'));
+    serviceName.append(getProcessName());
+    pegasus_service = Service(serviceName.getCString());
+ #endif
 }
 
 void signal_shutdown()

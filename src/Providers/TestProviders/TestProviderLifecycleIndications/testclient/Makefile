@@ -69,7 +69,12 @@ setupLogFile:
 	@$(RM) $(LOGFILE)
 
 testLogFile:
+ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 	@$(call DIFFSORT,$(LOGFILE).good,$(LOGFILE))
+else
+	@$(STRIPL) "Alert" "shutdown" $(LOGFILE)
+	@$(call DIFFSORT,$(LOGFILE).good.noIndProfile,$(LOGFILE))
+endif
 	@$(RM) $(LOGFILE)
 
 poststarttests:

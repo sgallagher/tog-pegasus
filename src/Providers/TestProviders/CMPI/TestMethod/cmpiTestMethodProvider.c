@@ -398,8 +398,6 @@ _createInstance()
   CMPIObjectPath *temp_objPath = NULL;
   CMPIString *objName = NULL;
   CMPIInstance *inst = NULL;
-  CMPIString *str;
-  CMPIValue v;
 
   PROV_LOG("Calling CMNewObjectPath for %s", _ClassName );
   objPath  = CMNewObjectPath (_broker, _Namespace, "TestCMPI_Instance", &rc);
@@ -409,10 +407,6 @@ _createInstance()
   PROV_LOG("Calling CMNewInstance ");
   inst = CMNewInstance(_broker, objPath, &rc);
   PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
-
-  str = CMNewString (_broker, "", 0);
-  v.string = str;
-  CMSetProperty(inst, "s", &v, CMPI_string);
 
   // Get the object path
   PROV_LOG("Calling CMGetObjectPath");
@@ -1959,32 +1953,6 @@ static int _testCMPIInstance ()
 
     objPath = make_ObjectPath(_broker, _Namespace, _ClassName);
     instance = make_Instance(objPath);
-
-    // Check for default null values
-    returnedData1 = CMGetProperty(instance, name1, &rc);
-    PROV_LOG("++++  CMGetProperty, Default Nullvalue. rc: (%s)",
-        strCMPIStatus (rc));
-    PROV_LOG("++++  CMGetProperty value state: (%s)",
-        (returnedData1.state == CMPI_nullValue) ?
-            "CMPI_nullValue" : "Unexpected" );
-
-    // Set Null value tests
-    rc = CMSetProperty(instance, name1, 0, type);
-    returnedData1 = CMGetProperty(instance, name1, &rc);
-    PROV_LOG("++++  CMGetProperty, Set Nullvalue. rc: (%s)",
-        strCMPIStatus (rc));
-    PROV_LOG("++++  CMGetProperty value state: (%s)",
-        returnedData1.state == CMPI_nullValue ?
-            "CMPI_nullValue" : "Unexpected" );
-
-    // Property not found in schema tests
-    returnedData1 = CMGetProperty(instance, "NotAProp", &rc);
-    PROV_LOG("++++  CMGetProperty, not a valid property. rc: (%s)",
-        strCMPIStatus (rc));
-    PROV_LOG("++++  CMGetProperty, not a valid property. Value state: (%s)",
-        returnedData1.state == (CMPI_nullValue|CMPI_notFound) ?
-            "CMPI_nullValue|CMPI_notFound" : "Unexpected" );
-
     value1.uint32 = 10;
     rc = CMSetProperty(instance, name1, &value1, type);
     PROV_LOG("++++  CMSetProperty-1 : (%s)", strCMPIStatus (rc));
@@ -3280,19 +3248,11 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
     else if(strncmp("processEmbeddedInstance", methodName,
       strlen ("processEmbeddedInstance"))== 0)
     {
-        CMPIData d;
-
         PROV_LOG("++++ Creating instance for processEmbeddedInstance");
         instance = _createInstance();
         PROV_LOG("++++ Getting inputInstance arg");
         data = CMGetArg(in, "inputInstance", &rc);
         PROV_LOG("++++ (%s)", strCMPIStatus (rc));
-        
-        d  = CMGetProperty(data.value.inst, "s", &rc);
-        if (rc.rc == CMPI_RC_OK && d.state == CMPI_nullValue)
-        {
-           PROV_LOG("++++ Error, Null value for empty string");
-        }
 
         PROV_LOG("++++ Cloning inputInstance arg");
         paramInst = data.value.inst->ft->clone(
@@ -3433,7 +3393,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         inst2->ft->release(inst2);
         inst3->ft->release(inst3);
         emInst2->ft->release(emInst2);
-        emInst3->ft->release(emInst3);
+        emInst3->ft->release(emInst3);        
     }
     else if (
         strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
@@ -3475,8 +3435,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);
-          rc.rc = CMPI_RC_ERR_NOT_FOUND;
-          rc.msg=_broker->eft->newString(_broker,methodName,0);
+          CMSetStatusWithChars (_broker, &rc,
+                                CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
   PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

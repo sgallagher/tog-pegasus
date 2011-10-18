@@ -175,7 +175,11 @@ SCMOInstance* CMPIProviderManager::getSCMOClassFromRequest(
         throw cimException;
     }
 
-    return new SCMOInstance(*scmoClass);
+    SCMOInstance *objectPath = new SCMOInstance(*scmoClass);
+    objectPath->setHostName(
+        (const char*)System::getHostName().getCString());
+
+    return objectPath;
 }
 
 SCMOInstance* CMPIProviderManager::getSCMOObjectPathFromRequest(
@@ -2082,8 +2086,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         SCMOInstance * indClassPathSCMO =
             getSCMOClassFromRequest(nameSpace, className);
-        indClassPathSCMO->setHostName(
-            (const char*)System::getHostName().getCString());
         eSelx->classNamesSCMO.append(*indClassPathSCMO);
         delete indClassPathSCMO;
 
@@ -2138,8 +2140,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
                 SCMOInstance * classPathSCMO =
                     getSCMOClassFromRequest(nameSpace, subClassName);
-                classPathSCMO->setHostName(
-                    (const char*)System::getHostName().getCString());
                 CMPI_ObjectPathOnStack eRef(classPathSCMO);
 
                 if (pr.getIndMI()->ft->ftVersion >= 100)

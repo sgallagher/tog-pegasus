@@ -1156,6 +1156,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 arr++;
             }
             out << STRLIT("</VALUE.REFARRAY>\n");
+            break;
         }
         case CIMTYPE_OBJECT:
         case CIMTYPE_INSTANCE:

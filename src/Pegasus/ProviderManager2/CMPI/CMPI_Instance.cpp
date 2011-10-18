@@ -220,6 +220,7 @@ extern "C"
             {
             case SCMO_NOT_FOUND:
                 {
+                    data.state = CMPI_nullValue | CMPI_notFound;
                     CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
                     return data;
                 }
@@ -229,25 +230,11 @@ extern "C"
                 {
                     // A NullValue does not indicate an error, but simply that
                     // no value has been set for the property.
-
-                    // TBD: Though the CMPI specification mandates to return a
-                    // nullvalue when a property exists on an instance but has
-                    // not yet been assigned a value, for compatibility with
-                    // previous versions we return CMPI_RC_ERR_NO_SUCH_PROPERTY
-                    // in this case.
-                    // If SCMO would distinguish between nullvalues and values
-                    // that have not been set at all on an instance, we could
-                    // be more precise here.
-                    /*
-                         // Correct code for nullvalues
-                         data.type = type2CMPIType(type, isArray);
-                         data.state = CMPI_nullValue;
-                         data.value.uint64 = 0;
-                    */
-                    // Code for properties that have not been set
-                    CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
+                    data.type = type2CMPIType(type, isArray);
+                    data.value.uint64 = 0;
+                    data.state = CMPI_nullValue;
+                    CMSetStatus(rc, CMPI_RC_OK);
                     return data;
-
                 }
                 break;
 

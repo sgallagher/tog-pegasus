@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/SCMO.h>
@@ -230,38 +225,6 @@ inline void _deleteArrayExtReference(
             ptr[i].extRefPtr = 0;
         }
     }
-}
-
-static void _deleteExternalReferenceInternal(
-    SCMBMgmt_Header* memHdr, SCMOInstance *extRefPtr)
-{
-    Uint32 nuExtRef = memHdr->numberExtRef;
-    char * base = ((char*)memHdr);
-    Uint64* array =
-        (Uint64*)&(base[memHdr->extRefIndexArray.start]);
-    Uint32 extRefIndex = PEG_NOT_FOUND;
-
-    for (Uint32 i = 0; i < nuExtRef; i++)
-    {
-         if (((SCMBUnion*)(&(base[array[i]])))->extRefPtr == extRefPtr)
-         {
-             extRefIndex = i;
-             break;
-         }
-    }
-    PEGASUS_ASSERT (extRefIndex != PEG_NOT_FOUND);
-
-   // Shrink extRefIndexArray
-
-    for (Uint32 i = extRefIndex + 1; i < nuExtRef; i++)
-    {
-        array[i-1] = array[i];
-    }
-
-    array[nuExtRef-1] = 0;
-    memHdr->numberExtRef--;
-
-    delete extRefPtr;
 }
 
 /*****************************************************************************
@@ -575,7 +538,7 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
     tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
-      cls.hdr->keyBindingSet.hashTable[tag&(PEGASUS_KEYBINDIG_SCMB_HASHSIZE-1)];
+        cls.hdr->keyBindingSet.hashTable[tag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE];
     // there is no entry in the hash table on this hash table index.
     if (hashIdx == 0)
     {
@@ -630,7 +593,7 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
     tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
-      cls.hdr->propertySet.hashTable[tag&(PEGASUS_PROPERTY_SCMB_HASHSIZE -1)];
+        cls.hdr->propertySet.hashTable[tag%PEGASUS_PROPERTY_SCMB_HASHSIZE];
     // there is no entry in the hash table on this hash table index.
     if (hashIdx == 0)
     {
@@ -797,8 +760,7 @@ void SCMOClass::_insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->keyBindingSet.hashTable;
 
     // calculate the new hash index of the new property.
-    Uint32 hash = newKeyNode->nameHashTag & 
-        (PEGASUS_KEYBINDIG_SCMB_HASHSIZE - 1);
+    Uint32 hash = newKeyNode->nameHashTag % PEGASUS_KEYBINDIG_SCMB_HASHSIZE;
 
     // 0 is an invalid index in the hash table
     if (hashTable[hash] == 0)
@@ -849,8 +811,8 @@ void SCMOClass::_insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->propertySet.hashTable;
 
     // calcuate the new hash index of the new property.
-    Uint32 hash = newPropNode->theProperty.nameHashTag &
-        (PEGASUS_PROPERTY_SCMB_HASHSIZE -1);
+    Uint32 hash = newPropNode->theProperty.nameHashTag %
+        PEGASUS_PROPERTY_SCMB_HASHSIZE;
 
     // 0 is an invalid index in the hash table
     if (hashTable[hash] == 0)
@@ -922,7 +884,7 @@ void SCMOClass::_setPropertyAsKeyInMask(Uint32 i)
 
     // Create a filter to set the bit.
     // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i & 63));
+    Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
     keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
@@ -942,7 +904,7 @@ Boolean SCMOClass::_isPropertyKey(Uint32 i)
 
     // Create a filter to check if the bit is set:
     // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i & 63));
+    Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
     keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
@@ -1261,13 +1223,16 @@ SCMOInstance::SCMOInstance(SCMOClass& baseClass)
 SCMOInstance::SCMOInstance(
     SCMOClass& baseClass,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    Boolean includeClassOrigin,
+    const char** propertyList)
 {
 
     _initSCMOInstance(new SCMOClass(baseClass));
 
     inst.hdr->flags.includeQualifiers=includeQualifiers;
     inst.hdr->flags.includeClassOrigin=includeClassOrigin;
+
+    setPropertyFilter(propertyList);
 
 }
 
@@ -1543,9 +1508,7 @@ void SCMOInstance::_destroyExternalKeyBindings()
             // only references can be a key binding
             if (theClassKeyBindNodeArray[i].type == CIMTYPE_REFERENCE)
             {
-               _deleteExternalReferenceInternal(
-                   inst.mem,
-                   theInstanceKeyBindingNodeArray[i].data.extRefPtr);
+               delete theInstanceKeyBindingNodeArray[i].data.extRefPtr;
             }
         }
     }// for all key bindings
@@ -1564,9 +1527,7 @@ void SCMOInstance::_destroyExternalKeyBindings()
                 // only references can be a key binding.
                 if (theUserDefKBElement->type == CIMTYPE_REFERENCE)
                 {
-                   _deleteExternalReferenceInternal(
-                       inst.mem,
-                       theUserDefKBElement->value.data.extRefPtr);
+                    delete theUserDefKBElement->value.data.extRefPtr;
                 }
             }
 
@@ -1612,35 +1573,55 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
         }
     }
 
-    if (inst.hdr->flags.exportSetOnly)
+    if (inst.hdr->flags.isFiltered)
     {
-        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
-        {
-            SCMBValue* theInstPropArray =
-                (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
+        // Get absolut pointer to property filter index map of the instance
+        Uint32* propertyFilterIndexMap =
+            (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
 
-            // was the property set by the provider ?
-            if(theInstPropArray[i].flags.isSet)
-            {
-                // no filtering. Counter is node index
-                CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
-
-                newInstance._rep->_properties.append(theProperty);
-            }
-        }
-    }
-    else
-    {
-        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+        for(Uint32 i = 0, k = inst.hdr->filterProperties; i<k; i++)
         {
-            // Set all properties in the CIMInstance gegarding they
-            // are part of the SCMOInstance or the SCMOClass.
-            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+            // Get absolut pointer to property filter index map
+            // of the instance get the real node index of the property.
+            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(
+                propertyFilterIndexMap[i]);
 
             newInstance._rep->_properties.append(theProperty);
         }
-    }
 
+    }
+    else
+    {
+
+        if (inst.hdr->flags.exportSetOnly)
+         {
+             for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+             {
+                 SCMBValue* theInstPropArray =
+                     (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
+
+                 // was the property set by the provider ?
+                 if(theInstPropArray[i].flags.isSet)
+                 {
+                     // no filtering. Counter is node index
+                     CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+
+                     newInstance._rep->_properties.append(theProperty);
+                 }
+             }
+         }
+         else
+         {
+             for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+             {
+                 // Set all properties in the CIMInstance gegarding they
+                 // are part of the SCMOInstance or the SCMOClass.
+                 CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+
+                 newInstance._rep->_properties.append(theProperty);
+             }
+         }
+    }
     cimInstance = newInstance;
 
     return rc;
@@ -2228,7 +2209,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -2350,6 +2331,17 @@ void SCMOInstance::setHostName(const char* hostName)
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
 
+void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
+{
+    // Copy on Write is only necessary if a realloc() becomes necessary
+    if (inst.mem->freeBytes < ((len+8) & ~7))
+    {
+        _copyOnWrite();
+    }
+    // copy including trailing '\0'
+    _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
+}
+
 const char* SCMOInstance::getHostName() const
 {
     return _getCharString(inst.hdr->hostName,inst.base);
@@ -2466,33 +2458,6 @@ const char* SCMOInstance::getNameSpace_l(Uint32 & length) const
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 
-void SCMOInstance::completeHostNameAndNamespace(
-    const char* hn,
-    Uint32 hnLen,
-    const char* ns,
-    Uint32 nsLen)
-{
-    // hostName is Null or empty String ?
-    if (0 == inst.hdr->hostName.size ||
-        0 == inst.base[inst.hdr->hostName.start])
-    {
-        // Copy on Write is only necessary if a realloc() becomes necessary
-        if (inst.mem->freeBytes < ((hnLen+8) & ~7))
-        {
-            _copyOnWrite();
-        }
-        // copy including trailing '\0'
-        _setBinary(hn,hnLen+1,inst.hdr->hostName,&inst.mem);
-    }
-    // namespace is Null or empty String ?
-    if (0 == inst.hdr->instNameSpace.size ||
-        0 == inst.base[inst.hdr->instNameSpace.start])
-    {
-        setNameSpace_l(ns,nsLen);
-    }
-}
-
-
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
     Uint32 propNode;
@@ -2507,9 +2472,6 @@ void SCMOInstance::buildKeyBindingsFromProperties()
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
     SCMBValue* theInstPropNodeArray=
         (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
-
-    inst.hdr->numberKeyBindings =
-        inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
 
     for (Uint32 i = 0, k = inst.hdr->numberKeyBindings; i < k; i++)
     {
@@ -2668,7 +2630,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -2852,6 +2814,18 @@ SCMO_RC SCMOInstance::getProperty(
         return rc;
     }
 
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
+    {
+        // Is the property NOT in the property filter ?
+        if(!_isPropertyInFilter(node))
+        {
+            // The named propery is not part of this instance
+            // due to filtering.
+            return SCMO_NOT_FOUND;
+        }
+    }
+
     return  _getPropertyAtNodeIndex(node,&pname,type,pOutVal,isArray,size);
 }
 
@@ -2867,13 +2841,35 @@ SCMO_RC SCMOInstance::getPropertyAt(
     *pOutVal = 0;
     isArray = false;
     size = 0;
+    Uint32 node;
 
-    if (idx >= inst.hdr->numberProperties)
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
     {
-        return SCMO_INDEX_OUT_OF_BOUND;
+        // check the number of properties part of the filter
+        if (idx >= inst.hdr->filterProperties)
+        {
+            return SCMO_INDEX_OUT_OF_BOUND;
+        }
+
+        // Get absolut pointer to property filter index map of the instance
+        Uint32* propertyFilterIndexMap =
+        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
+
+        // get the real node index of the property.
+        node = propertyFilterIndexMap[idx];
+    }
+    else
+    {
+        // the index is used as node index.
+        node = idx;
+        if (node >= inst.hdr->numberProperties)
+        {
+            return SCMO_INDEX_OUT_OF_BOUND;
+        }
     }
 
-    return  _getPropertyAtNodeIndex(idx,pname,type,pOutVal,isArray,size);
+    return  _getPropertyAtNodeIndex(node,pname,type,pOutVal,isArray,size);
 }
 
 SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
@@ -2919,6 +2915,18 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
         return rc;
     }
 
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
+    {
+        // Is the property NOT in the property filter ?
+        if(!_isPropertyInFilter(node))
+        {
+            // The named propery is not part of this instance
+            // due to filtering.
+            return SCMO_NOT_FOUND;
+        }
+    }
+
     // check class origin if set.
     if (origin!= 0)
     {
@@ -2949,6 +2957,17 @@ SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
     if (node >= inst.hdr->numberProperties)
     {
         return SCMO_INDEX_OUT_OF_BOUND;
+    }
+
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
+    {
+        // Is the property NOT in the property filter ?
+        if(!_isPropertyInFilter(node))
+        {
+            // The proptery of the is not set due to filtering.
+            return SCMO_OK;
+        }
     }
 
     // Is the traget type OK ?
@@ -3151,7 +3170,7 @@ void SCMOInstance::_setSCMBUnion(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3645,7 +3664,7 @@ void SCMOInstance::_setUnionArrayValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3921,7 +3940,7 @@ void SCMOInstance::_setUnionValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -4240,6 +4259,11 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
 
 Uint32 SCMOInstance::getPropertyCount() const
 {
+    if (inst.hdr->flags.isFiltered)
+    {
+        return(inst.hdr->filterProperties);
+    }
+
     return(inst.hdr->numberProperties);
 }
 
@@ -4291,6 +4315,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             {
                 return(u);
             }
+            break;
         }
 
     case CIMTYPE_STRING:
@@ -4324,11 +4349,12 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
                 ptr->extString.length = u->stringValue.size-1;
             }
 
-            return(ptr);
+             return(ptr);
+            break;
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -4352,12 +4378,6 @@ void SCMOInstance::clearKeyBindings()
           inst.hdr->keyBindingArray,
           sizeof(SCMBKeyBindingValue)*inst.hdr->numberKeyBindings,
           &inst.mem);
-
-    // Clear the keybindings after the allocation. Setting the keybindings
-    // later causes this value to be reinitialized.
-    inst.hdr->numberKeyBindings = 0;
-
-    markAsCompromised();
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const
@@ -4569,22 +4589,26 @@ CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
                         return CIMTYPE_REAL64;
                     }
                 }
+                break;
             }
 
 
         case CIMKeyBinding::STRING:
         {
             return CIMTYPE_STRING;
+            break;
         }
 
         case CIMKeyBinding::BOOLEAN:
         {
             return CIMTYPE_BOOLEAN;
+            break;
         }
 
         case CIMKeyBinding::REFERENCE:
         {
             return CIMTYPE_REFERENCE;
+            break;
         }
 
         default:
@@ -4795,6 +4819,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             // Can cause reallocation !
             _setString(kbs,scmoKBV.data.stringValue,&inst.mem);
             return true;
+            break;
         }
     case CIMTYPE_REFERENCE:
         {
@@ -4831,10 +4856,11 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
         {
             // From PEP 194: EmbeddedObjects cannot be keys.
             throw TypeMismatchException();
+            break;
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -4917,15 +4943,6 @@ SCMO_RC SCMOInstance::setKeyBinding(
 
     _copyOnWrite();
 
-    // If keybindings exists and cleared using the clearKeyBindings()
-    // method, reset the value to the actual keybindings count exists
-    // in the class.
-    if (!inst.hdr->numberKeyBindings)
-    {
-        inst.hdr->numberKeyBindings =
-            inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
-    }
-
     rc = inst.hdr->theClass.ptr->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
@@ -4975,16 +4992,6 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     }
 
     _copyOnWrite();
-
-    // If keybindings exists and cleared using the clearKeyBindings()
-    // method, reset the value to the actual keybindings count exists
-    // in the class.
-    if (!inst.hdr->numberKeyBindings)
-    {
-        inst.hdr->numberKeyBindings =
-            inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
-    }
-
 
    // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->
@@ -5072,6 +5079,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u8=Uint8(keyValue->simple.val.u64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT16:
@@ -5079,6 +5087,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u16=Uint16(keyValue->simple.val.u64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT32:
@@ -5086,6 +5095,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u32=Uint32(keyValue->simple.val.u64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT64:
@@ -5093,15 +5103,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u64=keyValue->simple.val.u64;
+                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
-        return SCMO_OK;
-        
     }
 
     if (setType == CIMTYPE_SINT64)
@@ -5114,6 +5124,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s8=Sint8(keyValue->simple.val.s64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT16:
@@ -5121,6 +5132,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s16=Sint16(keyValue->simple.val.s64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT32:
@@ -5128,6 +5140,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s32=Sint32(keyValue->simple.val.s64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT64:
@@ -5135,14 +5148,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s64=keyValue->simple.val.s64;
+                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
-        return SCMO_OK;
     }
 
     if (setType == CIMTYPE_REAL64)
@@ -5154,6 +5168,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.r32=Real32(keyValue->simple.val.r64);
+                return SCMO_OK;
                 break;
             }
         case CIMTYPE_REAL64:
@@ -5161,14 +5176,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.r64=keyValue->simple.val.r64;
+                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
-        return SCMO_OK;
     }
     else
     {
@@ -5193,10 +5209,12 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 _setSCMBUnion(keyValue,classType,false, 0,kbValue.data);
                 return SCMO_OK;
+                break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
+                break;
             }
         }
     }
@@ -5205,8 +5223,185 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
 
 }
 
-// class SCMODump only in debug builds available
-#ifdef PEGASUS_DEBUG
+static int _indexComp(const void* left, const void* right)
+{
+    return((*(Uint32 *)left)-(*(Uint32 *)right));
+}
+
+void SCMOInstance::setPropertyFilter(const char **propertyList)
+{
+    SCMO_RC rc;
+    Uint32 node,i = 0;
+
+    _copyOnWrite();
+
+    if (inst.hdr->propertyFilter.start == 0)
+    {
+        // Allocate the SCMBPropertyFilter
+        _getFreeSpace(
+            inst.hdr->propertyFilter,
+            sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1),
+            &inst.mem);
+
+        // Allocate the SCMBPropertyFilterIndexMap
+        _getFreeSpace(
+            inst.hdr->propertyFilterIndexMap,
+            sizeof(Uint32)*inst.hdr->numberProperties,
+            &inst.mem);
+    }
+    // Get absolut pointer to property filter index map of the instance
+    Uint32* propertyFilterIndexMap =
+        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
+
+    // All properties are accepted
+    if (propertyList == 0)
+    {
+        // Clear filtering:
+        // Switch filtering off.
+        inst.hdr->flags.isFiltered = false;
+
+        // Clear filter index map
+        memset(
+            propertyFilterIndexMap,
+            0,
+            sizeof(Uint32)*inst.hdr->numberProperties);
+
+        //reset number filter properties to all
+        inst.hdr->filterProperties = inst.hdr->numberProperties;
+
+        return;
+    }
+
+    // Switch filtering on.
+    inst.hdr->flags.isFiltered = true;
+
+    // intit the filter with the key properties
+    inst.hdr->filterProperties=_initPropFilterWithKeys();
+
+    // add the properties to the filter.
+    while (propertyList[i] != 0)
+    {
+        // the hash index of the property if the property name is found
+        rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,propertyList[i]);
+
+        // if property is already in the filter
+        // ( eg. key properties ) do not add them !
+        if (rc == SCMO_OK && !_isPropertyInFilter(node))
+        {
+            // The property name was found. Otherwise ignore this property name.
+            // insert the hash index into the filter index map
+            propertyFilterIndexMap[inst.hdr->filterProperties]=node;
+            // increase number of properties in filter.
+            inst.hdr->filterProperties++;
+            // set bit in the property filter
+            _setPropertyInPropertyFilter(node);
+        }
+        // Proceed with the next property name.
+        i++;
+    }
+
+    // sort the filter index to be in order as properties stored in the class.
+    qsort(
+        propertyFilterIndexMap,
+        inst.hdr->filterProperties,
+        sizeof(Uint32),
+        _indexComp);
+}
+
+Uint32 SCMOInstance::_initPropFilterWithKeys()
+{
+
+    // Get absolut pointer to the key property mask of the class.
+    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->keyPropertyMask.start;
+    Uint64* keyMask =(Uint64*)&(inst.hdr->theClass.ptr->cls.base)[idx];
+
+    // Get absolut pointer to property filter mask
+    Uint64* propertyFilterMask =
+        (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
+
+    // copy the key mask to the property filter mask
+    memcpy(
+        propertyFilterMask,
+        keyMask,
+        sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1));
+
+    // Get absolut pointer to key index list of the class
+    idx=inst.hdr->theClass.ptr->cls.hdr->keyIndexList.start;
+    Uint32* keyIndex = (Uint32*)&(inst.hdr->theClass.ptr->cls.base)[idx];
+
+    // Get absolut pointer to property filter index map of the instance
+    Uint32* propertyFilterIndexMap =
+        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
+
+    Uint32 noKeys = inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
+    memcpy(propertyFilterIndexMap,keyIndex,sizeof(Uint32)*noKeys);
+
+    // return the number of properties already in the filter index map
+    return noKeys;
+
+}
+
+void SCMOInstance::_clearPropertyFilter()
+{
+    Uint64 *propertyFilter;
+
+    // Calculate the real pointer to the Uint64 array
+    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
+
+    // the number of Uint64 in the key mask is :
+    // Decrease the number of properties by 1
+    // since the array is starting at index 0!
+    // Divide with the number of bits in a Uint64.
+    // e.g. number of Properties = 68
+    // (68 - 1) / 64 = 1 --> The mask consists of 2 Uint64
+
+    memset(propertyFilter,
+           0,
+           sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1));
+
+}
+void SCMOInstance::_setPropertyInPropertyFilter(Uint32 i)
+{
+    Uint64 *propertyFilter;
+
+    // In which Uint64 of key mask is the bit for property i ?
+    // Divide with the number of bits in a Uint64.
+    // 47 / 64 = 0 --> The key bit for property i is in in keyMask[0].
+    Uint32 idx = i/64 ;
+
+    // Create a filter to set the bit.
+    // Modulo division with 64. Shift left a bit by the remainder.
+    Uint64 filter = ( (Uint64)1 << (i%64));
+
+    // Calculate the real pointer to the Uint64 array
+    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
+
+    propertyFilter[idx] = propertyFilter[idx] | filter ;
+}
+
+Boolean SCMOInstance::_isPropertyInFilter(Uint32 i) const
+{
+    Uint64 *propertyFilter;
+
+    // In which Uint64 of key mask is the bit for property i ?
+    // Divide with the number of bits in a Uint64.
+    // e.g. number of Properties = 68
+    // 47 / 64 = 0 --> The key bit for property i is in in keyMask[0].
+    Uint32 idx = i/64 ;
+
+    // Create a filter to check if the bit is set:
+    // Modulo division with 64. Shift left a bit by the remainder.
+    Uint64 filter = ( (Uint64)1 << (i%64));
+
+    // Calculate the real pointer to the Uint64 array
+    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
+
+    // If the bit is set the property is NOT filtered.
+    // So the result has to be negated!
+    return propertyFilter[idx] & filter ;
+
+}
+
 /******************************************************************************
  * SCMODump Print and Dump functions
  *****************************************************************************/
@@ -5215,9 +5410,9 @@ SCMODump::SCMODump()
     _out = stderr;
     _fileOpen = false;
 
-# ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_OS_ZOS
     setEBCDICEncoding(fileno(_out));
-# endif
+#endif
 
 }
 
@@ -5243,9 +5438,9 @@ void SCMODump::openFile(const char* filename)
 
     _fileOpen = true;
 
-# ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_OS_ZOS
     setEBCDICEncoding(fileno(_out));
-# endif
+#endif
 
 }
 
@@ -5331,6 +5526,8 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
            (insthdr->flags.includeQualifiers ? "True" : "False"));
     fprintf(_out,"\n   includeClassOrigin: %s",
            (insthdr->flags.includeClassOrigin ? "True" : "False"));
+    fprintf(_out,"\n   isFiltered: %s",
+           (insthdr->flags.isFiltered ? "True" : "False"));
     fprintf(_out,"\n   isClassOnly: %s",
            (insthdr->flags.isClassOnly ? "True" : "False"));
     fprintf(_out,"\n   isCompromised: %s",
@@ -5346,8 +5543,31 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
 
     dumpSCMOInstanceKeyBindings(testInst);
 
+    dumpSCMOInstancePropertyFilter(testInst);
+
     dumpInstanceProperties(testInst);
     fprintf(_out,"\n\n");
+
+}
+
+void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const
+{
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+
+    if (!insthdr->flags.isFiltered)
+    {
+        fprintf(_out,"\n\nNo propterty filter!\n\n");
+        return;
+    }
+
+    fprintf(_out,"\n\nInstance Property Filter :");
+    fprintf(_out,"\n==========================");
+    fprintf(_out,"\n\nNumber of properties in the filter : %u\n"
+        ,insthdr->filterProperties);
+
+    dumpPropertyFilter(testInst);
+
+    dumpPropertyFilterIndexMap(testInst);
 
 }
 
@@ -5370,12 +5590,122 @@ void SCMODump::dumpInstanceProperties(
     {
         fprintf(_out,"\n\nInstance property (#%3u) %s\n",i,
                 NULLSTR(insthdr->theClass.ptr->_getPropertyNameAtNode(i)));
-
-        printSCMOValue(val[i],instbase,verbose);
+        if(insthdr->flags.isFiltered && !testInst._isPropertyInFilter(i))
+        {
+            fprintf(_out,"\nProperty is filtered out!");
+        }
+        else
+        {
+            printSCMOValue(val[i],instbase,verbose);
+        }
     }
 
 }
 
+void SCMODump::dumpPropertyFilterIndexMap(SCMOInstance& testInst) const
+{
+
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    if (!insthdr->flags.isFiltered)
+    {
+        fprintf(_out,"\n\nNo propterty filter!\n\n");
+        return;
+    }
+
+    fprintf(_out,"\n\nProperty Filter Index Max:");
+    fprintf(_out,"\n==========================\n");
+
+    // Get absolut pointer to key index list of the class
+    Uint32* keyIndex =
+        (Uint32*)&(instbase)[insthdr->propertyFilterIndexMap.start];
+
+    Uint32 line,j,i,k = insthdr->filterProperties;
+
+    for (j = 0; j < k; j = j + line)
+    {
+        if ((insthdr->filterProperties-j)/16)
+        {
+            line = 16 ;
+        }
+        else
+        {
+            line = insthdr->filterProperties%16;
+        }
+
+
+        fprintf(_out,"Index :");
+        for (i = 0; i < line; i++)
+        {
+            fprintf(_out," %3u",j+i);
+        }
+
+        fprintf(_out,"\nNode  :");
+        for (i = 0; i < line; i++)
+        {
+            fprintf(_out," %3u",keyIndex[j+i]);
+        }
+
+        fprintf(_out,"\n\n");
+
+    }
+
+}
+
+void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
+{
+
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    if (!insthdr->flags.isFiltered)
+    {
+        fprintf(_out,"\n\nNo propterty filter!");
+        return;
+    }
+
+    Uint64 *thePropertyFilter =
+        (Uint64*)&(instbase[insthdr->propertyFilter.start]);
+     Uint32 end, noProperties = insthdr->numberProperties;
+     Uint32 noMasks = (noProperties-1)/64;
+     Uint64 printMask = 1;
+
+     for (Uint32 i = 0; i <= noMasks; i++ )
+     {
+         printMask = 1;
+         if (i < noMasks)
+         {
+             end = 64;
+         }
+         else
+         {
+             end = noProperties%64;
+         }
+
+         fprintf(_out,"\npropertyFilter[%02u]= ",i);
+
+         for (Uint32 j = 0; j < end; j++)
+         {
+             if (j > 0 && !(j%8))
+             {
+                 fprintf(_out," ");
+             }
+
+             if (thePropertyFilter[i] & printMask)
+             {
+                 fprintf(_out,"1");
+             }
+             else
+             {
+                 fprintf(_out,"0");
+             }
+
+             printMask = printMask << 1;
+         }
+         fprintf(_out,"\n");
+     }
+}
 
 void SCMODump::dumpSCMOInstanceKeyBindings(
     SCMOInstance& testInst,
@@ -5584,7 +5914,7 @@ void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
         }
         else
         {
-            line = clshdr->propertySet.number & 15;
+            line = clshdr->propertySet.number%16;
         }
 
 
@@ -5651,7 +5981,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
 
         fprintf(_out,"\nHash Tag %3u Hash Index %3u",
                nodeArray[i].nameHashTag,
-               nodeArray[i].nameHashTag & (PEGASUS_KEYBINDIG_SCMB_HASHSIZE -1));
+               nodeArray[i].nameHashTag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE);
 
         fprintf(_out,"\nType: %s",cimTypeToString(nodeArray[i].type));
 
@@ -5711,7 +6041,7 @@ void SCMODump::_dumpClassProperty(
 
     fprintf(_out,"\nHash Tag %3u Hash Index %3u",
            prop.nameHashTag,
-           prop.nameHashTag & (PEGASUS_PROPERTY_SCMB_HASHSIZE -1));
+           prop.nameHashTag%PEGASUS_PROPERTY_SCMB_HASHSIZE);
     fprintf(_out,"\nPropagated: %s isKey: %s",
            (prop.flags.propagated?"TRUE":"FALSE"),
            (prop.flags.isKey?"TRUE":"FALSE")
@@ -5745,7 +6075,7 @@ void SCMODump::dumpHashTable(Uint32* hashTable,Uint32 size) const
         }
         else
         {
-            line = size & 15;
+            line = size%16;
         }
 
 
@@ -5863,14 +6193,14 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
          }
          else
          {
-             end = noProperties & 63;
+             end = noProperties%64;
          }
 
          fprintf(_out,"\nkeyPropertyMask[%02u]= ",i);
 
          for (Uint32 j = 0; j < end; j++)
          {
-             if (j > 0 && !(j & 7))
+             if (j > 0 && !(j%8))
              {
                  fprintf(_out," ");
              }
@@ -5941,7 +6271,7 @@ void SCMODump::_hexDump(char* buffer,Uint64 length) const
         }
 
         printLine[1][p] = item/16;
-        printLine[2][p] = item & 15;
+        printLine[2][p] = item%16;
 
     }
 }
@@ -6222,7 +6552,7 @@ void SCMODump::printArrayValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -6370,14 +6700,13 @@ void SCMODump::printUnionValue(
         }
     default:
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
             break;
         }
     }
 
   return;
 }
-#endif // PEGASUS_DEBUG (class SCMODump only in debug builds available)
 
 
 /*****************************************************************************

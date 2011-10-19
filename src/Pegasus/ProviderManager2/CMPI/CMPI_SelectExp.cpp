@@ -573,6 +573,17 @@ extern "C"
                     PEG_METHOD_EXIT();
                     return NULL;
                 }
+                catch( ... )
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: Unknown Exception in selxGetDOC for WQL");
+                    delete dnf;
+                    CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
+                    return NULL;
+                }
                 sx->wql_dnf = dnf;
                 sx->tableau = sx->wql_dnf->getTableau ();
             }
@@ -613,6 +624,17 @@ extern "C"
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     if( dnf )
                         delete dnf;
+                    PEG_METHOD_EXIT();
+                    return NULL;
+                }
+                catch( ... )
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: Unknown Exception in selxGetDOC for CQL");
+                    delete dnf;
+                    CMSetStatus (rc, CMPI_RC_ERR_FAILED);
                     PEG_METHOD_EXIT();
                     return NULL;
                 }

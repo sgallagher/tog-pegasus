@@ -685,7 +685,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     String indProfileId = buildProfileInstanceId(
         DMTF_NAME,
-        "Indication",
+        "Indications",
         DMTF_VER_100);
 
     String indicationServiceSoftwareIdentity(PEGASUS_MODULE_NAME);

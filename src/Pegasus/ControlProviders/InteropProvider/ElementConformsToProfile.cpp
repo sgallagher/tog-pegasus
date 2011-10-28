@@ -280,7 +280,8 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
     Uint32 updateVer)
 {
     static const String SMISProfileName("SMI-S");
-    static const String IndicationProfileName("Indication");
+    static const String SNIAIndicationProfileName("Indication");
+    static const String DMTFIndicationProfileName("Indications");
     static const String ServerProfileName("Server");
     static const String SoftwareProfileName("Software");
 
@@ -323,7 +324,10 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
         if (regOrg == regOrgNo)
         {
             if (profileName == ServerProfileName ||
-                profileName == IndicationProfileName ||
+                (regOrg == SNIA_NUM &&
+                    profileName == SNIAIndicationProfileName) ||
+                (regOrg == DMTF_NUM
+                    && profileName == DMTFIndicationProfileName) ||
                 profileName == SoftwareProfileName)
             {
                 if (VersionUtil::isVersionGreaterOrEqual(

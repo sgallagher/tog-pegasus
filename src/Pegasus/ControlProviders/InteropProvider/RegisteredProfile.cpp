@@ -537,12 +537,12 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         String indProfileId = buildProfileInstanceId(
             DMTF_NAME,
-            "Indication",
+            "Indications",
             DMTF_VER_100);
         instances.append(
             buildRegisteredProfile(
             indProfileId,
-            "Indication",
+            "Indications",
             DMTF_VER_100,
             DMTF_NUM,
             String::EMPTY,
@@ -561,7 +561,7 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
 
         String indProfileId = buildProfileInstanceId(
             DMTF_NAME,
-            "Indication",
+            "Indications",
             DMTF_VER_100);
 
         instances.append(

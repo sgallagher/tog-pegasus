@@ -41,7 +41,7 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
 {
     if(String::equalNoCase(className, "CLITestProvider"))
     {
-        return(new CLITestProvider());
+        return new CLITestProvider();
     }
 
     return(0);

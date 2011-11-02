@@ -94,14 +94,14 @@ requests received (i.e. the references can be to non-existent instances.
 
 4. createInstance is weak and does not completely validate instances input.
 The user can add non-existent properties and change property types without
-the provider figuring it out. 
- 
-5. Provider uses a mixture of Provider exceptions and the general Server 
-exceptions (CIMException) rather than all provider exceptions. 
+the provider figuring it out.
+
+5. Provider uses a mixture of Provider exceptions and the general Server
+exceptions (CIMException) rather than all provider exceptions.
 
 It is intended to run a set of tests fairly rapidly so does not hold itself in
-memory.  Therefore, if instances are put into the array after the normal Pegasus
-timeout of providers for unload, they will be discarded.
+memory.  Therefore, if instances are put into the array after the normal
+Pegasus timeout of providers for unload, they will be discarded.
 
 */
 
@@ -209,6 +209,9 @@ static Mutex instanceArrayMutex;
 CLITestProvider::CLITestProvider()
 {
     _initialized = false;
+    _debugMode - false;
+    _useSubstituteHostName = false;
+    _propertyList = CIMPropertyList();
 }
 
 CLITestProvider::~CLITestProvider()
@@ -222,6 +225,8 @@ void CLITestProvider::initialize(CIMOMHandle & cimom)
 
 void CLITestProvider::terminate()
 {
+    _instances.clear();
+    _classes.clear();
     delete this;
 }
 
@@ -520,8 +525,7 @@ void CLITestProvider::getInstance(
                     "Test_CLITestProviderClass"),
                     instanceReference.getNameSpace());
 
-                Uint32 pos = tmpClass.
-findProperty("requestInputParameters");
+                Uint32 pos = tmpClass.findProperty("requestInputParameters");
 
                 temp.addProperty(tmpClass.getProperty(pos));
             }
@@ -554,7 +558,11 @@ void CLITestProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-//  cout << "Enter EnumerateInstances" << endl;
+    if (_debugMode)
+    {
+        cout << "Enter EnumerateInstances "
+             << ref.toString() << endl;
+    }
     initializeProvider(ref.getNameSpace());
 
     handler.processing();
@@ -612,6 +620,11 @@ void CLITestProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
+    if (_debugMode)
+    {
+        cout << "Enter EnumerateInstanceNames "
+             << classReference.toString() << endl;
+    }
     initializeProvider(classReference.getNameSpace());
 
     handler.processing();
@@ -875,6 +888,11 @@ void CLITestProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
+    if (_debugMode)
+    {
+        cout << "Enter createInstance "
+             << instanceReference.toString() << endl;
+    }
     initializeProvider(instanceReference.getNameSpace());
 
     handler.processing();
@@ -907,11 +925,11 @@ void CLITestProvider::createInstance(
         if (c.findProperty(p.getName()) == PEG_NOT_FOUND)
         {
             throw CIMPropertyNotFoundException(
-                "Property " + p.getName().getString());          
+                "Property " + p.getName().getString());
         }
         // To be completely valid we should also check type, etc.
     }
-    
+
     // determine that key properties exist in the instance.  Do we
     // really need to do this or simply take whatever is there?
 
@@ -948,13 +966,17 @@ void CLITestProvider::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler & handler)
 {
+    if (_debugMode)
+    {
+        cout << "Enter deleteInstance "
+             << instanceReference.toString() << endl;
+    }
     initializeProvider(instanceReference.getNameSpace());
 
     handler.processing();
 
     // convert a fully qualified reference into a local reference
     // (class name and keys only).
-        
 
     AutoMutex autoMut(instanceArrayMutex);
 
@@ -976,7 +998,7 @@ void CLITestProvider::deleteInstance(
 /*
     Processing of associator/Reference Operation Requests
 
-    NOTE: This code is not based on any clear definition of the
+    NOTE: This association code is not based on any definition of the
     relationship between objects but simply returning information
     on instances that exist in the repository. Thus typically it returns
     the target instance itself (i.e. association of an instance with
@@ -1000,6 +1022,16 @@ void CLITestProvider::associators(
     const CIMPropertyList& propertyList,
     ObjectResponseHandler& handler)
 {
+    if (_debugMode)
+    {
+        cout << "Enter associators "
+             << objectName.toString()
+             << "associationClass " << associationClass.getString()
+             << "resultClass " << resultClass.getString()
+             << "role " << role
+             << "resultRole " << resultRole << endl;
+    }
+
     initializeProvider(objectName.getNameSpace());
 
     // Get the namespace and host names to create the CIMObjectPath
@@ -1550,13 +1582,8 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
     if (!_initialized)
     {
         AutoMutex autoMut(instanceArrayMutex);
-        if (!_initialized)
-        {
-            createInstances(ns);
-            _initialized = true;
-            _useSubstituteHostName = false;
-            _debugMode = false;
-        }
+        createInstances(ns);
+        _initialized = true;
     }
 }
 

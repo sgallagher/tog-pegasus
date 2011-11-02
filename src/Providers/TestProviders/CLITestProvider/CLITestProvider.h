@@ -139,11 +139,7 @@ public:
         const String& role,
         ObjectPathResponseHandler& handler);
 
-protected:
-    Array<CIMInstance> _instances;
-    Array<CIMClass> _classes;
-    ////CIMNamespaceName _namespace;
-    Boolean _debugMode;
+
 
 private:
 
@@ -169,6 +165,15 @@ private:
 
     // list of properties in the class
     CIMPropertyList _propertyList;
+
+    // Diagnostic display flag. Set true to display disgonstic output from
+    // provider
+    Boolean _debugMode;
+
+    // arrays for storage of classes acquired from cimom and instances
+    // built at startup and created/modified from client
+    Array<CIMInstance> _instances;
+    Array<CIMClass> _classes;
 };
 
 #endif

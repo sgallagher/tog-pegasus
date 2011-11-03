@@ -306,6 +306,8 @@ private:
         const CIMPropertyList &propertyList = CIMPropertyList());
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    Array<CIMInstance> enumIndicationServiceInstances(
+        const OperationContext &opContext);
     Array<CIMInstance> enumElementCapabilityInstances(
         const OperationContext & opContext);
     Array<CIMInstance> enumHostedIndicationServiceInstances(

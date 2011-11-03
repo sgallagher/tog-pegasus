@@ -476,6 +476,9 @@ TARGET_CLASS translateClassInput(const CIMName& className)
 
     else if(className.equal(PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT))
         return PG_SERVICEAFFECTSELEMENT;
+
+    else if(className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
+        return CIM_INDICATIONSERVICE;
 #endif
 
     // Last entry, reverse test and throw exception if not PG_Namespace

@@ -267,6 +267,28 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                 elementConformsClass));
 
     }
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    // Now add the  association between the Indication profile
+    // and IndicationService
+    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
+    {
+        CIMObjectPath serverProfile = buildDependencyReference(
+            hostName,
+            buildProfileInstanceId(DMTF_NAME, "Indications", DMTF_VER_100),
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+        // Retrieve the IndicationService instance
+        Array<CIMInstance> indService =
+            enumIndicationServiceInstances(OperationContext());
+
+        instances.append(
+            buildElementConformsToProfile(
+                serverProfile,
+                indService[0].getPath(),
+                elementConformsClass));
+    }
+#endif
+
     return instances;
 }
 

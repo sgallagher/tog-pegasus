@@ -499,6 +499,11 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
             instances = enumServiceAffectsElementInstances(context);
             break;
         }
+        case CIM_INDICATIONSERVICE:
+        {
+            instances = enumIndicationServiceInstances(context);
+            break;
+        }
 #endif
         default:
             PEG_METHOD_EXIT();
@@ -545,6 +550,9 @@ bool InteropProvider::validAssocClassForObject(
         // that has implemented a registered profile.
         if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP ||
             (originClass != PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE &&
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+             originClass != PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE &&
+#endif
              originClass != PEGASUS_CLASSNAME_PG_OBJECTMANAGER ))
         {
             //
@@ -812,6 +820,11 @@ bool InteropProvider::validAssocClassForObject(
           {
               expectedTargetRole = PROPERTY_DEPENDENT;
               expectedOriginRole = PROPERTY_ANTECEDENT;
+          }
+          else if (originClassEnum == CIM_INDICATIONSERVICE)
+          {
+              expectedTargetRole = PROPERTY_ANTECEDENT;
+              expectedOriginRole = PROPERTY_DEPENDENT;
           }
           break;
 #endif

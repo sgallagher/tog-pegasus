@@ -734,6 +734,23 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
+Array<CIMInstance> InteropProvider::enumIndicationServiceInstances(
+    const OperationContext &opContext)
+{
+    Array<CIMInstance> instances = cimomHandle.enumerateInstances(
+        opContext,
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
+        true,
+        false,
+        true,
+        true,
+        CIMPropertyList());
+    PEGASUS_ASSERT(instances.size() == 1);
+
+    return instances;
+}
+
 CIMInstance InteropProvider::buildAssociationInstance(
     const CIMName &className,
     const CIMName &propName1,

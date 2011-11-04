@@ -139,6 +139,7 @@ const String SNIA_VER_120("1.2.0");
 const String DMTF_NAME("DMTF");
 const Uint16 DMTF_NUM = 2;
 const String DMTF_VER_100("1.0.0");
+const String DMTF_VER_110("1.1.0");
 
 const String INTEROP_PROVIDER_NAME("Interoperability Provider");
 const String INDICATION_SERVICE_NAME("Indication Service");

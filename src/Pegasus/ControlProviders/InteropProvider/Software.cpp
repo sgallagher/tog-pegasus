@@ -686,7 +686,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     String indProfileId = buildProfileInstanceId(
         DMTF_NAME,
         "Indications",
-        DMTF_VER_100);
+        DMTF_VER_110);
 
     String indicationServiceSoftwareIdentity(PEGASUS_MODULE_NAME);
     indicationServiceSoftwareIdentity.append("+");

@@ -275,7 +275,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
     {
         CIMObjectPath serverProfile = buildDependencyReference(
             hostName,
-            buildProfileInstanceId(DMTF_NAME, "Indications", DMTF_VER_100),
+            buildProfileInstanceId(DMTF_NAME, "Indications", DMTF_VER_110),
             PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
         // Retrieve the IndicationService instance
         Array<CIMInstance> indService =

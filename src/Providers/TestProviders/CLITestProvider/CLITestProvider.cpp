@@ -148,6 +148,7 @@ static String _toString(const CIMPropertyList& pl)
     }
     return s;
 }
+
 /*
     Add the name value pair to the String target.  The result is the pair
     added to target in the form
@@ -162,7 +163,9 @@ void _addParam(String& target, const String& name, const String& value)
     target.append(name);
     target.append("=");
     target.append(value);
-}/*
+}
+
+/*
     Complete the host and namespace fields of an object path if there are
     empty.
 */
@@ -188,6 +191,7 @@ CIMObjectPath _localPath(const CIMObjectPath& inputPath)
         inputPath.getKeyBindings());
     return localPath;
 }
+
 // Gets a host name, either the real host name or a substitute for testing.
 // The substitute name  option allows CLI test program to get a dependable
 // host name for result comparisons.
@@ -209,7 +213,7 @@ static Mutex instanceArrayMutex;
 CLITestProvider::CLITestProvider()
 {
     _initialized = false;
-    _debugMode - false;
+    _debugMode = false;
     _useSubstituteHostName = false;
     _propertyList = CIMPropertyList();
 }
@@ -1582,8 +1586,11 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
     if (!_initialized)
     {
         AutoMutex autoMut(instanceArrayMutex);
-        createInstances(ns);
-        _initialized = true;
+        if (!_initialized)
+        {
+            createInstances(ns);
+            _initialized = true;
+        }
     }
 }
 

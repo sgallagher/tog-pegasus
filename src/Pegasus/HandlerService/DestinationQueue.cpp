@@ -379,14 +379,21 @@ void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
     }
     indication.addProperty(prop);
 
+    DeliveryStatusAggregator *aggregator = 0;
+    if (message->deliveryStatusAggregator &&
+        message->deliveryStatusAggregator->waitUntilDelivered)
+    {
+        aggregator = message->deliveryStatusAggregator;
+    }
+
+
     IndicationInfo *info = new IndicationInfo(
         message->indicationInstance,
         message->subscriptionInstance,
         message->operationContext,
         message->nameSpace.getString(),
         this,
-        message->deliveryStatusAggregator->waitUntilDelivered ?
-            message->deliveryStatusAggregator : 0);
+        aggregator);
 
     _queue.insert_back(info);
 

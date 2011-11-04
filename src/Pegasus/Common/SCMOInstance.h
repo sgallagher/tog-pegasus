@@ -389,10 +389,6 @@ public:
      */
     void buildKeyBindingsFromProperties();
     
-    //This function is not implemented and now Property filtering is done by
-    //the CIMOM infrastructure 
-    void setPropertyFilter(const char **propertyList);
-    
     /**
      * Gets the hash index for the named property. Filtering is ignored.
      * @param theName The property name
@@ -405,8 +401,6 @@ public:
 
     /**
      * Set/replace a property in the instance at node index.
-     * Note: If node is filtered, the property is not set but the return value
-     * is still SCMO_OK.
      * @param index The node index.
      * @param type The CIMType of the property
      * @param pInVal A pointer to the value to be set at the named property.
@@ -922,14 +916,6 @@ private:
         const SCMBUnion** pdata) const;
 
     void _copyKeyBindings(SCMOInstance& targetInst) const;
-
-    Uint32 _initPropFilterWithKeys();
-
-    void _setPropertyInPropertyFilter(Uint32 i);
-
-    Boolean _isPropertyInFilter(Uint32 i) const;
-
-    void _clearPropertyFilter();
 
     void _setKeyBindingFromSCMBUnion(
         CIMType type,

@@ -5198,17 +5198,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
 
 }
 
-static int _indexComp(const void* left, const void* right)
-{
-    return((*(Uint32 *)left)-(*(Uint32 *)right));
-}
-
-void SCMOInstance::setPropertyFilter(const char **propertyList)
-{
-    return;
-}
-
-
 /******************************************************************************
  * SCMODump Print and Dump functions
  *****************************************************************************/

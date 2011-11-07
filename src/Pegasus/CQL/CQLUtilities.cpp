@@ -172,8 +172,8 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     // eventual sign (negative numbers can be bigger than positive ones)
     // ********************
 
-    // if hexidecimal
-    else if ( (*p == '0') && (p[1] == 'x') || (p[1] == 'X'))
+    // if hexadecimal
+    else if ( (*p == '0') && (p[1] == 'x' || p[1] == 'X'))
     {
         // Convert a hexadecimal string
         if (!StringConversion::stringToSint64(

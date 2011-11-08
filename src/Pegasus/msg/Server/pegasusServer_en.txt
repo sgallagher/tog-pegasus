@@ -6423,7 +6423,7 @@ CIM server listening on HTTPS port {0}."}
 
         // ==========================================================
         // Messages for CMPIProviderManager
-        //  Please use message prefix "PGS16500 - PGS16599"
+        //  Please use message prefix "PGS16500 - PGS16549"
         // ==========================================================
 
         /**
@@ -6523,6 +6523,18 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.CMPI.CMPIProvider.MESSAGE_WAS:string {"{0}, message was: {1}"}
 
+        // ==========================================================
+        // Messages for CMPI_xxx
+        //  Please use message prefix "PGS16550 - PGS16599"
+        // ==========================================================
+ 
+        /**
+        * @note PGS16550
+        *    Substitution {0} is the property name
+        *    Substitution {1} is the class name
+        */
+        ProviderManager.CMPI.CMPI_Instance.NO_SUCH_PROPERTY:string {"Property {0} not set on the created instance of class {1}"}
+        
         // ==========================================================
         // Messages for EmailListenerDestination
         //  Please use message prefix "PGS16600 - PGS16699""

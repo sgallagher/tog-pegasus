@@ -707,6 +707,7 @@ int Monitor::solicitSocketMessages(
                 _entries[index].type = type;
                 _entries[index].status = MonitorEntry::STATUS_IDLE;
 
+                PEG_METHOD_EXIT();
                 return (int)index;
             }
         }

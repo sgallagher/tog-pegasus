@@ -959,7 +959,7 @@ void IndicationService::_handleInvokeMethodRequest(Message *message)
     CIMName className = request->instanceName.getClassName().getString();
 
     Uint32 retCode = _RETURNCODE_COMPLETEDWITHNOERROR;
-    Uint16 requestedState;
+    Uint16 requestedState = _ENABLEDSTATE_UNKNOWN;
 
     if(!nameSpace.equal(PEGASUS_NAMESPACENAME_INTEROP))
     {
@@ -1007,6 +1007,13 @@ void IndicationService::_handleInvokeMethodRequest(Message *message)
                 retCode = _RETURNCODE_INVALIDPARAMETER;
                 break;
             }
+        }
+        if (requestedState == _ENABLEDSTATE_UNKNOWN)
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER,
+                _PARAM_REQUESTEDSTATE.getString());
+            retCode = _RETURNCODE_INVALIDPARAMETER;
         }
     }
 

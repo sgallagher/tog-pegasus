@@ -481,6 +481,7 @@ const Uint16 _ENABLEDSTATE_SHUTTINGDOWN = 4;
 const Uint16 _ENABLEDSTATE_STARTING = 10;
 const Uint16 _ENABLEDSTATE_ENABLED = 2;
 const Uint16 _ENABLEDSTATE_DISABLED = 3;
+const Uint16 _ENABLEDSTATE_UNKNOWN = 0;
 
 /**
     Service health States. See CIM_ManagedSystemElement.HealthState

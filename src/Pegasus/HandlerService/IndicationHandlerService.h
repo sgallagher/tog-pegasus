@@ -98,7 +98,8 @@ private:
         CIMInstance& indicationInstance,
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationSubscriptionInstance,
-        CIMException& cimException);
+        CIMException& cimException,
+        IndicationExportConnection **connection);
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 

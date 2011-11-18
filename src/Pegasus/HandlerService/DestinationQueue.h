@@ -42,6 +42,7 @@
 
 #include <Pegasus/HandlerService/Linkage.h>
 #include <Pegasus/HandlerService/IndicationHandlerConstants.h>
+#include <Pegasus/Handler/CIMHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -215,6 +216,11 @@ public:
 
     void getInfo(QueueInfo &qinfo);
 
+    IndicationExportConnection** getConnectionPtr()
+    {
+        return &_connection;
+    }
+
 private:
     void _cleanup(int reasonCode);
     CIMInstance _getInstance(const CIMName &className);
@@ -233,6 +239,7 @@ private:
         const String &message =  String());
 
     CIMInstance _handler;
+    IndicationExportConnection *_connection;
     List<IndicationInfo,NullLock> _queue;
     Mutex _queueMutex;
     Uint32 _lastDeliveryRetryStatus;

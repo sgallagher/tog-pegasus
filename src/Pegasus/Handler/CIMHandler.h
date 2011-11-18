@@ -41,6 +41,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+ * Indication export connection interface for the handlers.
+ */
+
+class PEGASUS_HANDLER_LINKAGE IndicationExportConnection
+{
+public:
+    IndicationExportConnection() { };
+
+    virtual ~IndicationExportConnection() { };
+};
+
 class PEGASUS_HANDLER_LINKAGE CIMHandler
 {
 public:
@@ -61,6 +73,31 @@ public:
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationSubscriptionInstance,
         ContentLanguageList& contentLanguages) = 0;
+
+    // IndicationExportConnection object is returned if requested incase of
+    // successful indication delivery. Connection object SHOULD not be
+    // returned incase of delivery failure.
+    virtual void handleIndication(
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indicationInstance,
+        CIMInstance& indicationHandlerInstance,
+        CIMInstance& indicationSubscriptionInstance,
+        ContentLanguageList& contentLanguages,
+        IndicationExportConnection **connection)
+    {
+        if (connection)
+        {
+            *connection = 0;
+        }
+        handleIndication(
+            context,
+            nameSpace,
+            indicationInstance,
+            indicationHandlerInstance,
+            indicationSubscriptionInstance,
+            contentLanguages);
+    }
 
     // These are the method to initialize and terminate handler. Actual need
     // and implementation way these methods are yet to be finalized.

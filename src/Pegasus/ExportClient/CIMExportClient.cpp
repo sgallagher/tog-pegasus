@@ -342,6 +342,12 @@ Message* CIMExportClient::_doRequest(
         PEG_METHOD_EXIT();
         throw NotConnectedException();
     }
+    
+    if (_connected && _httpConnection->needsReconnect())
+    {
+        _disconnect();
+        _doReconnect = true;
+    }
 
     if (_doReconnect)
     {

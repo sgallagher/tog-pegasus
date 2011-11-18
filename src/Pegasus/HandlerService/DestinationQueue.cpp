@@ -196,6 +196,8 @@ DestinationQueue::DestinationQueue(
     _sequenceContext.append(_objectManagerName);
     _sequenceContext.append("-");
 
+    _connection = 0;
+
     Uint32 len = 0;
     char buffer[22];
     const char* ptr = Uint64ToString(buffer, _serverStartupTimeUsec,len);
@@ -242,6 +244,7 @@ DestinationQueue::~DestinationQueue()
     {
         _cleanup(LISTENER_NOT_ACTIVE);
     }
+    delete _connection;
 
     PEG_METHOD_EXIT();
 }
@@ -386,7 +389,6 @@ void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
         aggregator = message->deliveryStatusAggregator;
     }
 
-
     IndicationInfo *info = new IndicationInfo(
         message->indicationInstance,
         message->subscriptionInstance,
@@ -419,6 +421,7 @@ void DestinationQueue::updateDeliveryRetrySuccess(IndicationInfo *info)
         "DestinationQueue::updateDeliveryRetrySuccess");
 
     AutoMutex mtx(_queueMutex);
+
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastSuccessfulDeliveryTimeUsec = System::getCurrentTimeUsec();
     _lastDeliveryRetryStatus = SUCCESS;
@@ -442,6 +445,10 @@ void DestinationQueue::updateDeliveryRetryFailure(
         "DestinationQueue::updateDeliveryRetryFailure");
 
     AutoMutex mtx(_queueMutex);
+
+    // We should not have any connection object here because indication
+    // delivery has failed.
+    PEGASUS_ASSERT(!_connection);
 
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastDeliveryRetryStatus = FAIL;
@@ -577,6 +584,13 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
     {
         // Maximum expiration time is equals to DeliveryRetryInterval.
         nextIndDRIExpTimeUsec = _minDeliveryRetryIntervalUsec;
+
+        // If there are no indications in the queue, delete connection.
+        if (!_queue.size() && _lastDeliveryRetryStatus != PENDING)
+        {
+            delete _connection;
+            _connection = 0;
+        }
         return 0;
     }
 
@@ -622,13 +636,13 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
             if (info->lastDeliveryRetryTimeUsec)
             {
                 elapsedDeliveryRetryAttempts =
-                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec) 
+                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec)
                         / _minDeliveryRetryIntervalUsec);
             }
             else
             {
-                elapsedDeliveryRetryAttempts = 
-                    ((timeNowUsec - info->arrivalTimeUsec) 
+                elapsedDeliveryRetryAttempts =
+                    ((timeNowUsec - info->arrivalTimeUsec)
                         / _minDeliveryRetryIntervalUsec);
             }
 

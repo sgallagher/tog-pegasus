@@ -463,7 +463,8 @@ Boolean IndicationHandlerService::_loadHandler(
                 request->indicationInstance,
                 request->handlerInstance,
                 request->subscriptionInstance,
-                cimException);
+                cimException,
+                0);
 }
 
 Boolean IndicationHandlerService::_loadHandler(
@@ -472,7 +473,8 @@ Boolean IndicationHandlerService::_loadHandler(
     CIMInstance& indicationInstance,
     CIMInstance& handlerInstance,
     CIMInstance& subscriptionInstance,
-    CIMException& cimException)
+    CIMException& cimException,
+    IndicationExportConnection **connection)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_loadHandler()");
@@ -495,7 +497,8 @@ Boolean IndicationHandlerService::_loadHandler(
                 indicationInstance,
                 handlerInstance,
                 subscriptionInstance,
-                langs);
+                langs,
+                connection);
         }
         else
         {
@@ -793,7 +796,8 @@ void IndicationHandlerService::_deliverIndication(IndicationInfo *info)
         info->indication,
         info->queue->getHandler(),
         info->subscription,
-        cimException);
+        cimException,
+        info->queue->getConnectionPtr());
 
    if (deliveryOk)
    {

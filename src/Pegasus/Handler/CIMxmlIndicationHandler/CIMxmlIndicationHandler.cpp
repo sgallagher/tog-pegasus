@@ -45,6 +45,41 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
+class CIMXMLExportConnection : public IndicationExportConnection
+{
+public:
+    CIMXMLExportConnection(
+        Monitor         *monitor,
+        HTTPConnector   *connector,
+        CIMExportClient *client,
+        String           uri):
+            _monitor(monitor),_connector(connector),_client(client),_uri(uri)
+    {
+    };
+
+    ~CIMXMLExportConnection()
+    {
+        delete _client;
+        delete _connector;
+        delete _monitor;
+    }
+
+    CIMExportClient* getClient() const
+    {
+        return _client;
+    }
+
+    String getURI() const
+    {
+        return _uri;
+    }
+ 
+private:
+    Monitor         *_monitor;
+    HTTPConnector   *_connector;
+    CIMExportClient *_client;
+    String           _uri;
+};
 
 static Boolean verifyListenerCertificate(SSLCertificateInfo& certInfo)
 {
@@ -83,15 +118,82 @@ public:
     }
 
     void handleIndication(
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indicationInstance,
+        CIMInstance& indicationHandlerInstance,
+        CIMInstance& indicationSubscriptionInstance,
+        ContentLanguageList& contentLanguages)
+    {
+
+        handleIndication(
+            context,
+            nameSpace,
+            indicationInstance,
+            indicationHandlerInstance,
+            indicationSubscriptionInstance,
+            contentLanguages,
+            0);
+    }
+
+    void handleIndication(
     const OperationContext& context,
     const String nameSpace,
     CIMInstance& indicationInstance,
     CIMInstance& indicationHandlerInstance,
     CIMInstance& indicationSubscriptionInstance,
-    ContentLanguageList& contentLanguages)
+    ContentLanguageList& contentLanguages,
+    IndicationExportConnection **connection)
     {
         PEG_METHOD_ENTER(TRC_IND_HANDLER,
             "CIMxmlIndicationHandler::handleIndication()");
+
+        // If connection already exists, use it for indication delivery.
+        // In case of errors (listener closed the connection in between)
+        // reconnect (CIMExportClient does this) and try to deliver the
+        // indication. If there are any errors, delete the existing
+        // connection and report the error.
+        if (connection)
+        {
+            if (*connection)
+            {
+                CIMXMLExportConnection *conn = 
+                    dynamic_cast<CIMXMLExportConnection*> (*connection);
+                PEGASUS_ASSERT(conn);
+                
+                String errorMsg;
+                try
+                {
+                    conn->getClient()->exportIndication(
+                        conn->getURI(),
+                        indicationInstance,
+                        contentLanguages);
+                }
+                catch(const Exception &e)
+                {
+                    errorMsg = e.getMessage();
+                }
+                catch(...)
+                {
+                    errorMsg = "Unknown error";
+                }
+                if (errorMsg.size())
+                {
+                    delete conn;
+                    *connection = 0;
+                    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL1,
+                        "Failed to deliver indication using the "
+                            "existing connection with reconnect : %s ",
+                        (const char*)errorMsg.getCString()));
+
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errorMsg);
+                }
+                PEG_METHOD_EXIT();
+                return;
+            }
+            *connection = 0;
+        }
 
         //get destination for the indication
         Uint32 pos = indicationHandlerInstance.findProperty(
@@ -180,10 +282,13 @@ public:
                 ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-            Monitor monitor;
-            HTTPConnector httpConnector(&monitor);
+            AutoPtr<Monitor> monitor(new Monitor());
+            AutoPtr<HTTPConnector> httpConnector(
+                new HTTPConnector(monitor.get()));
 
-            CIMExportClient exportclient(&monitor, &httpConnector);
+            AutoPtr<CIMExportClient> exportclient(
+                new CIMExportClient(monitor.get(), httpConnector.get()));
+
             Uint32 colon = dest.find (":");
             Uint32 portNumber = 0;
             Boolean useHttps = false;
@@ -292,7 +397,7 @@ public:
 
                 SSLContext sslcontext(trustPath,
                     certPath, keyPath, verifyListenerCertificate, randFile);
-                exportclient.connect (hostName, portNumber, sslcontext);
+                exportclient->connect (hostName, portNumber, sslcontext);
 #else
                 PEG_TRACE((
                     TRC_DISCARDED_DATA, Tracer::LEVEL1,
@@ -316,28 +421,39 @@ public:
             }
             else
             {
-                exportclient.connect (hostName, portNumber);
+                exportclient->connect (hostName, portNumber);
             }
 #else
             // On zOS the ATTLS facility is using the port number(s) defined
             // of the outbound policy to decide if the indication is
             // delivered through a SSL secured socket. This is totally
             // transparent to the CIM Server.
-            exportclient.connect (hostName, portNumber);
+            exportclient->connect (hostName, portNumber);
 
 #endif
             // check destStr, if no path is specified, use "/" for the URI
             Uint32 slash = destStr.find ("/");
+            String uri = "/";
             if (slash != PEG_NOT_FOUND)
             {
-                exportclient.exportIndication(
-                    destStr.subString(slash), indicationInstance,
-                    contentLanguages);
+                uri = destStr.subString(slash);
+                exportclient->exportIndication(
+                    uri, indicationInstance, contentLanguages);
             }
             else
             {
-                exportclient.exportIndication(
-                    "/", indicationInstance, contentLanguages);
+                exportclient->exportIndication(
+                    uri, indicationInstance, contentLanguages);
+            }
+
+            // Save the connection if requested for future use.
+            if (connection)
+            {
+                *connection =  new CIMXMLExportConnection(
+                    monitor.release(),
+                    httpConnector.release(),
+                    exportclient.release(),
+                    uri);
             }
 
         }

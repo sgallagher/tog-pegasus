@@ -501,7 +501,7 @@ static void _waitForNextMaxSequenceNumber(CIMClient &client)
     while (iteration < MAX_WAITTIME)
     {
         System::sleep(3);
-        iteration =+ 3;
+        iteration += 3;
         Array<CIMInstance> queues = _getDestinationQueues(client);
         if (queues.size() == HANDLER_COUNT)
         {

@@ -32,6 +32,7 @@
 #ifndef CWSUTIL_H
 #define CWSUTIL_H
 
+#include <stdio.h>
 #include <time.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h> // Only needed for CMPI_EXTERN_C
 #ifdef __cplusplus
@@ -80,6 +81,7 @@ typedef struct _CWS_FILE CWS_FILE;
 
 
 
+CMPI_EXTERN_C int openDirectory(char * topdir,FILE* fp,char fileType);
 CMPI_EXTERN_C void* CWS_Begin_Enum(const char *topdir, int filetype);
 CMPI_EXTERN_C int CWS_Next_Enum(void *handle, CWS_FILE* cwsf);
 CMPI_EXTERN_C void CWS_End_Enum(void *handle);
@@ -92,7 +94,6 @@ CMPI_EXTERN_C int CWS_Get_FileType(
                       const char *file,
                       char* typestring,
                       size_t tslen);
-
 #ifdef __cplusplus
 /*}*/
 #endif

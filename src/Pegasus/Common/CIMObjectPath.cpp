@@ -276,7 +276,6 @@ Boolean CIMKeyBinding::equal(CIMValue value)
         case CIMTYPE_INSTANCE:
             // From PEP 194: EmbeddedObjects cannot be keys.
             return false;
-            break;
         default:  // Numerics
             if (getType() != NUMERIC) return false;
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
@@ -314,11 +313,9 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
             // If CIMObjectPath parsing fails, just compare strings
             return String::equal(x.getValue(), y.getValue());
         }
-        break;
     case CIMKeyBinding::BOOLEAN:
         // Case-insensitive comparison is sufficient for booleans
         return String::equalNoCase(x.getValue(), y.getValue());
-        break;
     case CIMKeyBinding::NUMERIC:
         // Note: This comparison assumes XML syntax for integers
         // First try comparing as unsigned integers
@@ -348,10 +345,8 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         // Note: Keys may not be real values, so don't try comparing as reals
         // We couldn't parse the numbers, so just compare the strings
         return String::equal(x.getValue(), y.getValue());
-        break;
     default:  // CIMKeyBinding::STRING
         return String::equal(x.getValue(), y.getValue());
-        break;
     }
 
     PEGASUS_UNREACHABLE(return false;)

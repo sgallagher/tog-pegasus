@@ -1356,21 +1356,6 @@ void RepositoryUpgrade::_processClasses(
                 continue;
             }
 
-            /** Ignore any "CIM_" classes in pegasus namespaces,
-             *  except root/cimv2.
-                Since they don't exist in 2.7 they must have been renamed
-                or deleted.
-            */
-            if ( ( (namespaceName == PEGASUS_NAMESPACENAME_INTEROP) ||
-                   (namespaceName == "root/PG_Internal")) &&
-                   (oldClasses[oldclasses].getString().subString(0,4))=="CIM_")
-            {
-#ifdef REPUPGRADE_DEBUG
-                cout << "Now ignoring: " << oldClasses[oldclasses] << endl;
-#endif
-                continue;
-            }
-
 #ifdef REPUPGRADE_DEBUG
             cout << "Now appending to missing: "
                  << oldClasses[oldclasses] << endl;

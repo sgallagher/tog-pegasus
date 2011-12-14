@@ -209,7 +209,6 @@ private:
 /**
  * convert a Boolean to a String ("true" or "false")
  */
-
 String  PEGASUS_CLI_LINKAGE _toString(Boolean x);
 
 /**
@@ -225,20 +224,24 @@ void  PEGASUS_CLI_LINKAGE _print(Boolean x);
  */
 String  PEGASUS_CLI_LINKAGE _toString(const CIMPropertyList& pl);
 /**
- * convert a PropertyList object to displayable form
+ * Convert a PropertyList object to displayable form
  * @param pl propertyList to print
  * @return String containing propertyList in displayable form
  */
 void  PEGASUS_CLI_LINKAGE _print(const CIMPropertyList& pl);
 
 /**
-    return a String with display representation of and Array of
+    Return a String with display representation of an Array of
     Strings. The form is comma separated on a single line
 */
 String  PEGASUS_CLI_LINKAGE _toString(const Array<String>& strList);
+/**
+    Display a String representation of the array of Strings to cout.
+ */
 void  PEGASUS_CLI_LINKAGE _print(const Array<String>& strList);
 
-/** Generate comma separated list of namespace names
+/**
+    Generate comma separated list of namespace names
 */
 String PEGASUS_CLI_LINKAGE _toString(const Array<CIMNamespaceName>& List);
 void PEGASUS_CLI_LINKAGE _print(const Array<CIMNamespaceName>& List);
@@ -250,7 +253,6 @@ void PEGASUS_CLI_LINKAGE _print(const Array<CIMNamespaceName>& List);
  * @param input
  * @param separator
  * @param allTokens
- *
  * @return Array<String>
  */
 Array<String>  PEGASUS_CLI_LINKAGE _tokenize(
@@ -258,18 +260,27 @@ Array<String>  PEGASUS_CLI_LINKAGE _tokenize(
     const Char16 separator,
     bool allTokens);
 
-/* Build a property list from all of the property names in the input instance
+/**
+   Build a property list from all of the property names in the input instance
    @param inst CIMInstance from which propertylist built
    @return CIMPropertyList will all names from the instance
 */
-CIMPropertyList PEGASUS_CLI_LINKAGE _buildPropertyList(const CIMInstance& inst);
+CIMPropertyList PEGASUS_CLI_LINKAGE _buildPropertyList(
+    const CIMInstance& inst);
 
-/*
+/**
     Common functions for conversion of char* strings to CIMTypes defined
     by the type variable.  Note that all of these functions execute an exit
     if the conversion fails with the exit code set to CIMCLI_INPUT_ERR.
     They are intended for parsing of input from command line, config files,
     etc. All allow input in binary, octal or decimal formats.
+    @param str const char* containing the ASCII definition of the input
+    @param type CIMType definition for the conversion process.  Note that
+    while the type is used to validate input (i.e. max size) the return is
+    always 64 bit values.
+
+    @return 64 bit output of unsigned int, signed int, or Real.  Note that
+    the
 */
 Sint64 PEGASUS_CLI_LINKAGE strToSint(const char* str, CIMType type);
 
@@ -278,7 +289,7 @@ Uint64 PEGASUS_CLI_LINKAGE strToUint(const char* str, CIMType type);
 Real64 PEGASUS_CLI_LINKAGE strToReal(const char * str, CIMType type);
 
 /**
- * exit cimcli. This function executes an exit of cimcli after
+ * Exit cimcli. This function executes an exit of cimcli after
  * testing the exitCode provided against the code defined in the
  * --expExit option.
  * NOTE: In the future, insure that this is only local to common
@@ -314,6 +325,7 @@ void setExpectedExitCode(Uint32 expectedExitCode);
  *        the format definition input parameter
  * @return String with formatted string.
  */
+
 String PEGASUS_CLI_LINKAGE stringPrintf(const char* format, ...);
 
 /**
@@ -349,9 +361,10 @@ String PEGASUS_CLI_LINKAGE foldString (const String& input,
     Uint32 pos,
     Uint32 lineLength);
 
-// Return a string description for each possible return code
+/**
+    Return a string description for each possible return code
+*/
 String rtnExitCodeToString(Uint32 rtnCode);
-
 
 PEGASUS_NAMESPACE_END
 

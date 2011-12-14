@@ -2699,3 +2699,6 @@ INPUT ERROR: Value conversion error. 1234blah. type uint32
 INPUT ERROR: Value conversion error. 9999999. type uint8
 
 24. +++++ Test Errors on Input
+25. +++++ Test niall operation
+test/cimv2 Total Classes=777, with Instances=0, Instances=0
+25. +++++ Test niall operation

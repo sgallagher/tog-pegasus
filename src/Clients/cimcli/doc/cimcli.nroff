@@ -893,18 +893,22 @@ options parameter.
 
 .SS niall enumerateallinstanceNames
 Execute an enumerateinstancenames on all classes to get all class names 
-within the defined namespace.  This function searches the complete 
-namespace using the CIM getClass operation to get the classes and the 
+within the defined namespace or class hiearchy below the target input class.
+if no class name is psecified on input this function enumerates the complete 
+set of classes namespace to get the classes and the 
 enumerateInstanceNames command to enumerate all of the instances for each 
 class.  It returns the list of all of the instance names found in the 
-namespace.  
+namespace and a summary of the number of instances of each class that has
+instances. 
 
 The syntax for this operation is:
 
-.B        cimcli niall [options]
+.B        cimcli niall [className] [options]
 
 where the options include any of the universal options (ex.  namespace, 
-location, etc.) 
+location, etc.). Specifically the --sum option allows returning only the
+summary information including count of instances for each class that has
+instances in the namespace.
 
 .B Examples:
 .EX
@@ -914,6 +918,9 @@ location, etc.)
         test/testproviders by executing
         enumerateinstancenames on each class in
         the namespace.
+    cimcli niall CIM_OperatingSystem
+        Returns all instance names in the namespace root/cimv2 for
+        classes in the hiearchy starting at PG_OperatingSystem.
 .EE
 
 .SS gi    GetInstance

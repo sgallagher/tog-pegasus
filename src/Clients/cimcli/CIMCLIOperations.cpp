@@ -54,7 +54,10 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP" ,
-    "Enumerate all instance names in <namespace>."},
+    "Enumerate all instance names and count of"
+        " instances of [ <classname> ] in <namespace>."
+        " Classname optional and default is to enumerate instances of"
+        " entire namespace"},
 
     {ID_EnumerateInstances,      "enumerateInstances",2 ,   "ei",
     "Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP" ,
@@ -241,11 +244,14 @@ OperationExampleEntry OperationExamples[] = {
     "    -n\n"},
 
     {"Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE",
-    "cimcli niall -n root/cimv2\n"
-        "    -- Enumerate Instance Names of  all classes under\n"
-        "       the namespace root/cimv2\n",
+    "cimcli niall\n"
+        "    -- Enumerate Instance Names and count instances of all classes\n"
+        "       in the default namespace\n"
+    "cimcli niall CIM_ComputerSystem -n root/interop\n"
+        "    -- Enumerate Instance Names and count instances of all classes\n"
+        "       in namespace root/interop starting at CIM_ComputerSystem",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS",
-    "    -n, -di\n"},
+    "    -n --sum (count only, no instanceNames output) classname\n"},
 
     {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
     "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",

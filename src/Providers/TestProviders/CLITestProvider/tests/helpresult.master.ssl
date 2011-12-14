@@ -85,7 +85,10 @@ This command executes single CIM Operations.
 Options vary by command consistent with CIM Operations
 
 ni    enumerateInstanceNames Enumerate instancenames of <classname>
-niall enumallInstanceNames  Enumerate all instance names in <namespace>.
+niall enumallInstanceNames  Enumerate all instance names and count of
+                            instances of [ <classname> ] in <namespace>.
+                            Classname optional and default is to enumerate
+                            instances of entire namespace
 ei    enumerateInstances    Enumerate instances of <classname>
 nc    enumerateClassNames   Enumerate Class Names of [ <classname> ].
                             Classname optional
@@ -181,10 +184,12 @@ Examples :
 cimcli ni -n test/TestProvider TST_Person
     -- Enumerate Instance Names of class TST_Person
 
-cimcli niall -n root/cimv2
-    -- Enumerate Instance Names of  all classes under
-       the namespace root/cimv2
-
+cimcli niall
+    -- Enumerate Instance Names and count instances of all classes
+       in the default namespace
+cimcli niall CIM_ComputerSystem -n root/interop
+    -- Enumerate Instance Names and count instances of all classes
+       in namespace root/interop starting at CIM_ComputerSystem
 cimcli ei PG_ComputerSystem   -- Enumerate Instances of class
 
 cimcli nc -- Enumerate class names from root/cimv2.
@@ -323,7 +328,10 @@ cimcli ?  -- Displays help command
 
 
 ni    enumerateInstanceNames Enumerate instancenames of <classname>
-niall enumallInstanceNames  Enumerate all instance names in <namespace>.
+niall enumallInstanceNames  Enumerate all instance names and count of
+                            instances of [ <classname> ] in <namespace>.
+                            Classname optional and default is to enumerate
+                            instances of entire namespace
 ei    enumerateInstances    Enumerate instances of <classname>
 nc    enumerateClassNames   Enumerate Class Names of [ <classname> ].
                             Classname optional

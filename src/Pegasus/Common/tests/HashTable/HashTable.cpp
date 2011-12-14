@@ -99,8 +99,8 @@ void test02()
 
     for (Uint32 i = 0; i < N; i++)
     {
-    sum += 2 * i;
-    ht.insert(i, i);
+        sum += 2 * i;
+        ht.insert(i, i);
     }
 
     HT ht2 = ht;
@@ -134,6 +134,55 @@ void test03()
     PEGASUS_TEST_ASSERT(n == 0);
 }
 
+// test use of lookupReference function
+void test04()
+{
+    // Test lookupReference for simple value of Uint32
+
+    typedef HashTable<Uint32, Uint32, EqualFunc<Uint32>, HashFunc<Uint32> > HT;
+    HT ht;
+
+    Uint32 sum = 0;
+    const Uint32 N = 10000;
+    Uint32 expectedSum = 0;
+
+    Uint32 n = 0;
+    for (Uint32 i = 0; i < N; i++)
+    {
+        sum += 2 * i;
+        ht.insert(i, i);
+    }
+
+    for (HT::Iterator i = ht.start(); i; i++)
+    {
+        n++;
+        expectedSum += i.value() + i.key();
+    }
+    PEGASUS_TEST_ASSERT(expectedSum == sum);
+    PEGASUS_TEST_ASSERT(n == N);
+    // test changing the value through lookupReference. Increment the
+    // value of each entry.
+    for (HT::Iterator i = ht.start(); i; i++)
+    {
+        Uint32* value;
+        Uint32 key = i.key();
+        ht.lookupReference(key,value);
+        *value = *value + 1;
+    }
+
+    n = 0;
+    expectedSum = 0;
+    for (HT::Iterator i = ht.start(); i; i++)
+    {
+        n++;
+        expectedSum += i.value() + i.key();
+    }
+
+    PEGASUS_TEST_ASSERT(expectedSum == sum + N);
+    PEGASUS_TEST_ASSERT(n == N);
+
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -141,6 +190,7 @@ int main(int argc, char** argv)
     test01();
     test02();
     test03();
+    test04();    // test lookupReference
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

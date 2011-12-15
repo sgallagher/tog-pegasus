@@ -553,7 +553,7 @@ fi
 %dir %attr(755,root,pegasus) /etc/Pegasus
 %dir %attr(755,cimsrvr,cimsrvr) /var/run/tog-pegasus
 %dir %attr(1755,cimsrvr,cimsrvr) /var/run/tog-pegasus/socket
-%dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
+%dir %attr(1777,cimsrvr,cimsrvr) /var/lib/Pegasus/cache/trace
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
 %config(noreplace) %attr(644,root,root) /etc/Pegasus/cimserver_planned.conf

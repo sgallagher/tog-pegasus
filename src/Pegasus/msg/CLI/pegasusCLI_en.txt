@@ -1010,7 +1010,7 @@ en:table {
         "Examples :\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP:string {
-        "niall enumallInstanceNames   Enumerate all instance names and count of\n"}
+        "niall enumallInstanceNames   Enumerate all instance names and count of\n"
         " instances of [ <classname> ] in <namespace>.\n"
         " Classname optional and default is to enumerate"
         " instances of entire namespace"}

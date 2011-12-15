@@ -2095,7 +2095,6 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         request->className.equal(
             PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
     {
-        _checkNonprivilegedAuthorization(userName);
         instance = _indicationServiceConfiguration->getInstance(
             request->nameSpace,
             request->instanceName,
@@ -2279,7 +2278,6 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         request->className.equal(
             PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
     {
-        _checkNonprivilegedAuthorization(userName);
         returnedInstances = _indicationServiceConfiguration->
             enumerateInstancesForClass(
                 request->nameSpace,
@@ -2491,7 +2489,6 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
         request->className.equal(
             PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
     {
-        _checkNonprivilegedAuthorization(userName);
         enumInstanceNames = _indicationServiceConfiguration->
             enumerateInstanceNamesForClass(
                 request->nameSpace,

@@ -1441,7 +1441,10 @@ endif
 ##==============================================================================
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-  DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
+   ifndef PEGASUS_PAM_AUTHENTICATION
+       $(error "PEGASUS_PAM_AUTHENTICATION must be defined when PEGASUS_USE_PAM_STANDALONE_PROC is defined")
+   endif
+   DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
 endif
 
 ##==============================================================================

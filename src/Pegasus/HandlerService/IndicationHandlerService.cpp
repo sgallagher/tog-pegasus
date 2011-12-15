@@ -143,6 +143,12 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                            (CIMEnumerateInstanceNamesRequestMessage*)
                            legacy.get()));
                    break;
+               case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+                   response.reset(
+                       _handleGetInstanceRequest(
+                           (CIMGetInstanceRequestMessage*)
+                           legacy.get()));
+                   break;
 #endif
                default:
                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -562,6 +568,29 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
 CIMResponseMessage*
+     IndicationHandlerService::_handleGetInstanceRequest(
+         CIMGetInstanceRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handleGetInstanceRequest");
+
+    CIMGetInstanceResponseMessage* response =
+         dynamic_cast<CIMGetInstanceResponseMessage*>
+             (message->buildResponse());
+
+    response->getResponseData().setInstances(
+        _getDestinationQueues(
+            message->instanceName,
+            message->includeQualifiers,
+            message->includeClassOrigin,
+            message->propertyList));
+
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+CIMResponseMessage*
      IndicationHandlerService::_handleEnumerateInstancesRequest(
          CIMEnumerateInstancesRequestMessage *message)
 {
@@ -572,6 +601,25 @@ CIMResponseMessage*
          dynamic_cast<CIMEnumerateInstancesResponseMessage*>
              (message->buildResponse());
 
+    response->getResponseData().setInstances(
+        _getDestinationQueues(
+            CIMObjectPath(),
+            message->includeQualifiers,
+            message->includeClassOrigin,
+            message->propertyList));
+
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+Array<CIMInstance> IndicationHandlerService::_getDestinationQueues(
+    const CIMObjectPath &getInstanceName,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList &propertyList)
+{
+    Boolean found = false;
     CIMClass cimClass =
         _repository->getClass(
             PEGASUS_NAMESPACENAME_INTERNAL,
@@ -618,9 +666,36 @@ CIMResponseMessage*
         queue = i.value();
         queue->getInfo(qinfo);
 
+        Array<CIMKeyBinding> kbArray;
+        kbArray.append(
+            CIMKeyBinding(
+                _PROPERTY_LSTNRDST_NAME,
+                _getQueueName(queue->getHandler().getPath()),
+                CIMKeyBinding::STRING));
+
+        CIMObjectPath instanceName = CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,
+            kbArray);
+
+        if (getInstanceName.getKeyBindings().size())
+        {
+            if (instanceName.identical(getInstanceName))
+            {
+                found = true;
+            }
+            else
+            {
+                continue;
+            }
+        }
+
         CIMInstance instance = sInstance.clone();
 
-        instance.getProperty(propArray[0]).setValue(
+        instance.setPath(instanceName);
+
+       instance.getProperty(propArray[0]).setValue(
                 CIMValue(_getQueueName(qinfo.handlerName)));
 
         instance.getProperty(propArray[1]).setValue(
@@ -655,18 +730,21 @@ CIMResponseMessage*
 
         instance.getProperty(propArray[11]).setValue(
                 CIMValue(qinfo.lastSuccessfulDeliveryTimeUsec));
-        filterInstance(message->includeQualifiers,
-            message->includeClassOrigin,
-            message->propertyList,
+
+        filterInstance(
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList,
             instance);
 
         instances.append(instance);
+        if (found)
+        {
+            return instances;
+        }
     }
 
-    response->getResponseData().setInstances(instances);
-    PEG_METHOD_EXIT();
-
-    return response;
+    return instances;
 }
 
 CIMResponseMessage*

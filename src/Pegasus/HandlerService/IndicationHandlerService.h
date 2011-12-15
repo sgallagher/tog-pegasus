@@ -160,6 +160,16 @@ private:
         _handleEnumerateInstanceNamesRequest(
             CIMEnumerateInstanceNamesRequestMessage *message);
 
+     CIMResponseMessage*
+         _handleGetInstanceRequest(
+             CIMGetInstanceRequestMessage *message);
+
+    Array<CIMInstance> _getDestinationQueues(
+        const CIMObjectPath &getInstanceName,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList &propList);
+
     /**
         Gets the Queue name from either subscriptionName or handlerName,
         constructed as follows.

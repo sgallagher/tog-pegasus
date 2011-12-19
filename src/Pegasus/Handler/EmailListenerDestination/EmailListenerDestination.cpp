@@ -247,8 +247,6 @@ void EmailListenerDestination::_sendViaEmail(
 
     unlink(mailFile);
 
-    PEG_METHOD_EXIT();
-
 #else
 
     PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,

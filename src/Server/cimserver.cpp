@@ -845,6 +845,14 @@ int CIMServerProcess::cimserver_run(
         //
         if (shutdownOption)
         {
+#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
+            // This checks whether user is authorized to stop the
+            // CIM Server. When unauthorized a message is logged to
+            // to the user and program exits.
+            shutdownCheckProfileCIMSERVclassWBEM();
+            // Depending on the success of the previous check we may not
+            // reach this code!!!
+#endif
             String configTimeout =
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue =

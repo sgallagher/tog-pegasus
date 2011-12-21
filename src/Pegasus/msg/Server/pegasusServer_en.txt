@@ -4934,6 +4934,14 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager2.ProviderManagerzOS_inline.PTHREAD_EMVSSAFEXTRERR:string {"PGS12530E: Cannot switch to user {0} because a SAF authorization error occurred. For the reason, see the SAF RACROUTE EXTRACT service reason code 0x{1}."}
 
         /**
+        * @note  PGS12531E:
+        * @version 2.11
+        *    Substitution {0} is the user ID
+        *    Substitution {1} is the return code
+        */
+        Server.cimserver_zOSinline.UNAUTHORIZED4SHUTDOWN:string {"PGS12531E: User {0} is not authorized to shutdown the CIM server. {1}"}
+
+        /**
         * @note PGS12532:
         *    Substitution {0} is the ARM element name.
         *    Do not translate CIM and ARM since it is the name of a product.

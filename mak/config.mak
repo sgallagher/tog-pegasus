@@ -235,6 +235,9 @@ endif
 # option of the mof compiler needs to be set.
 # *****
 
+## Sets default CIM Schema if PEGASUS_CIM_SCHEMA not defined.
+## NOTE: If the default below is changed, please update the definition
+## of default for this variable in pegasus/doc/BuildAndReleaseOptions.html
 ifndef PEGASUS_CIM_SCHEMA
     PEGASUS_CIM_SCHEMA=CIM228
 endif

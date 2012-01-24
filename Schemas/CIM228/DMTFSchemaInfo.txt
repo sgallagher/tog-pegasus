@@ -12,7 +12,7 @@ running the script:
     at the top of all other includes.
 
     #pragma include ("DMTF/System/CIM_ComputerSystem.mof")
-    before the include of "DMTF/System/CIM_ComputerSystem.mof"
+    before the include of "DMTF/Core/CIM_LastAppliedSnapshot.mof"
 
     #pragma include ("DMTF/Device/CIM_PowerAllocationSettingData.mof")
     before the include of "DMTF/Core/CIM_PowerUtilizationManagementService.mof"

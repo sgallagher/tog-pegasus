@@ -187,6 +187,11 @@ const CIMName _PROPERTY_ELEMENTNAME = CIMNameCast("ElementName");
 const CIMName _PROPERTY_SOURCENAMESPACE = CIMNameCast("SourceNamespace");
 
 /**
+    The name of the Source Namespaces property for indication filter class
+ */
+const CIMName _PROPERTY_SOURCENAMESPACES = CIMNameCast("SourceNamespaces");
+
+/**
     The name of the System Name property for indication filter and indications
     handler classes
  */

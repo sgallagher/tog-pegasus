@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603, 3602
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SubscriptionTable_h
@@ -170,13 +165,12 @@ public:
         @param   subscription            the subscription instance
         @param   providers               the list of providers
         @param   indicationSubclassNames the list of indication subclass names
-        @param   sourceNamespaceName     the source namespace name
+                                         with the source namespace name
      */
     void insertSubscription (
         const CIMInstance & subscription,
         const Array <ProviderClassList> & providers,
-        const Array <CIMName> & indicationSubclassNames,
-        const CIMNamespaceName & sourceNamespaceName);
+        const Array <NamespaceClassList> & indicationSubclassNames);
 
     /**
         Updates an entry in the Active Subscriptions table to either add a
@@ -200,11 +194,13 @@ public:
 
         @param   subscriptionPath        the subscription object path
         @param   provider                the provider
+        @param   nameSpace               namespace to add or remove
         @param   className               the class to be added or removed
      */
     void updateClasses (
         const CIMObjectPath & subscriptionPath,
         const CIMInstance & provider,
+        const CIMNamespaceName &nameSpace,
         const CIMName & className);
 
     /**
@@ -213,14 +209,13 @@ public:
 
         @param   subscription            the subscription instance
         @param   indicationSubclassNames the list of indication subclass names
-        @param   sourceNamespaceName     the source namespace name
+                                         with the source namespace name
         @param   providers               the list of providers that had been
                                          serving the subscription
      */
     void removeSubscription (
         const CIMInstance & subscription,
-        const Array <CIMName> & indicationSubclassNames,
-        const CIMNamespaceName & sourceNamespaceName,
+        const Array <NamespaceClassList>& indicationSubclassNames,
         const Array <ProviderClassList> & providers);
 
     /**
@@ -252,9 +247,9 @@ public:
                                           checked
         @param   provider             the provider (used if checkProvider True)
 
-        @return   list of CIMInstance subscriptions
+        @return   list of subscriptions with the source namespace
      */
-    Array <CIMInstance> getMatchingSubscriptions (
+    Array <SubscriptionWithSrcNamespace> getMatchingSubscriptions (
         const CIMName & supportedClass,
         const Array <CIMNamespaceName> nameSpaces,
         const Boolean checkProvider = false,
@@ -327,19 +322,21 @@ public:
 
         @param   provider              the provider instance
         @param   tableValue            the Active Subscriptions Table entry
-
+        @param   nameSpace             namespace of the provider
         @return  The index of the provider in the list, if found;
                  PEG_NOT_FOUND otherwise
     */
     Uint32 providerInList
         (const CIMInstance & provider,
-         const ActiveSubscriptionsTableEntry & tableValue) const;
+         const ActiveSubscriptionsTableEntry & tableValue,
+         const CIMNamespaceName &nameSpace = CIMNamespaceName()) const;
 
     /**
         Determines if the specified class is in the list of indication
         subclasses served by the specified provider, serving the subscription.
 
         @param   className             the class name
+        @param   nameSpace             namespace to lookup
         @param   providerClasses       a provider serving the subscription,
                                            with the indication classes served
 
@@ -348,6 +345,7 @@ public:
     */
     Uint32 classInList
         (const CIMName & className,
+         const CIMNamespaceName &nameSpace,
          const ProviderClassList & providerClasses) const;
 
     /**

@@ -52,7 +52,7 @@ instance of PG_ProviderCapabilities
     ProviderName = "IndicationStressTestProvider";
     CapabilityID = "1";
     ClassName = "IndicationStressTestClass";
-    Namespaces = { "test/TestProvider" };
+    Namespaces = { "test/TestProvider" , "test/testIndSrcNS1", "test/testIndSrcNS2"};
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
     SupportedMethods = {"SendTestIndicationNormal"};

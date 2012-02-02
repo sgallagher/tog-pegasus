@@ -779,7 +779,7 @@ Boolean SubscriptionRepository::isTransient (
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
     String & query,
-    CIMNamespaceName & sourceNameSpace,
+    Array<CIMNamespaceName> &sourceNameSpaces,
     String & queryLanguage,
     String & filterName)
 {
@@ -839,8 +839,6 @@ void SubscriptionRepository::getFilterProperties (
     query = filterInstance.getProperty (filterInstance.findProperty
         (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
-    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
-        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     queryLanguage = filterInstance.getProperty
         (filterInstance.findProperty (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
@@ -850,13 +848,90 @@ void SubscriptionRepository::getFilterProperties (
         (filterInstance.findProperty (PEGASUS_PROPERTYNAME_NAME)).
         getValue ().toString ();
 
+    getSourceNamespaces(
+        filterInstance,
+        nameSpaceName,
+        sourceNameSpaces);
+
     PEG_METHOD_EXIT ();
+}
+
+void SubscriptionRepository::getSourceNamespaces(
+    const CIMInstance &instance,
+    const CIMNamespaceName &defaultNameSpace,
+    Array<CIMNamespaceName> &sourceNamespaces)
+{
+    Uint32 srcNSPos = instance.findProperty(_PROPERTY_SOURCENAMESPACE);
+    Uint32 srcNSSPos = instance.findProperty(_PROPERTY_SOURCENAMESPACES);
+
+    CIMValue srcNSValue;
+    if (srcNSPos != PEG_NOT_FOUND)
+    {
+        srcNSValue = instance.getProperty(srcNSPos).getValue();
+    }
+    CIMValue srcNSSValue;
+    if (srcNSSPos != PEG_NOT_FOUND)
+    {
+        srcNSSValue = instance.getProperty(srcNSSPos).getValue();
+    }
+
+    if (!srcNSSValue.isNull())
+    {
+        Array<String> srcNamespaces;
+        srcNSSValue.get(srcNamespaces);
+        for(Uint32 i = 0, n = srcNamespaces.size(); i < n; ++i)
+        {
+            sourceNamespaces.append(srcNamespaces[i]);
+        }
+    }
+
+    if (!srcNSValue.isNull())
+    {
+        String srcNS;
+        srcNSValue.get(srcNS);
+        // If both sourceNamespace and sourceNamespaces properties exist,
+        // sourceNamespaces value should contain sourceNamespace value.
+        if (sourceNamespaces.size())
+        {
+            Boolean found = false;
+            for (Uint32 i = 0; i < sourceNamespaces.size(); ++i)
+            {
+                if (sourceNamespaces[i].equal(srcNS))
+                {
+                    found =true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                throw PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms(
+                        "IndicationService.IndicationService."
+                            "_INVALID_SOURCENAMESPACE_VALUE",
+                        "The values in the SourceNamespaces property and the "
+                            "SourceNamespace property are not additive. If both"
+                            " sourceNamespace and SourceNamespaces are non NULL"
+                            ", the namespace defined in sourceNamespace must"
+                            "also exist in sourceNamespaces."));
+            }
+        }
+        else
+        {
+            sourceNamespaces.append(srcNS);
+        }
+    }
+
+    if (sourceNamespaces.size() == 0)
+    {
+        sourceNamespaces.append(defaultNameSpace);
+    }
 }
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
     String & query,
-    CIMNamespaceName & sourceNameSpace)
+    Array<CIMNamespaceName> &sourceNameSpaces)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -899,8 +974,11 @@ void SubscriptionRepository::getFilterProperties (
     query = filterInstance.getProperty (filterInstance.findProperty
         (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
-    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
-        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
+    
+    getSourceNamespaces(
+        filterInstance,
+        nameSpaceName,
+        sourceNameSpaces);
 
     PEG_METHOD_EXIT ();
 }

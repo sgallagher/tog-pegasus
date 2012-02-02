@@ -627,7 +627,7 @@ private:
 
         @return   list of CIMInstance subscriptions
      */
-    Array<CIMInstance> _getMatchingSubscriptions(
+    Array<SubscriptionWithSrcNamespace> _getMatchingSubscriptions(
         const CIMName& supportedClass,
         const Array<CIMNamespaceName> nameSpaces,
         const CIMPropertyList& supportedProperties,
@@ -668,8 +668,8 @@ private:
         const Array<CIMNamespaceName>& oldNameSpaces,
         const CIMPropertyList& newProperties,
         const CIMPropertyList& oldProperties,
-        Array<CIMInstance>& newSubscriptions,
-        Array<CIMInstance>& formerSubscriptions);
+        Array<SubscriptionWithSrcNamespace>& newSubscriptions,
+        Array<SubscriptionWithSrcNamespace>& formerSubscriptions);
 
     /**
         Determines if all of the required properties in the specified list
@@ -719,18 +719,18 @@ private:
         Retrieves the list of indication providers that serve the specified
         indication subclasses.
 
-        @param   queryExpression       the query expression
-        @param   nameSpace             the namespace name
+        @param   query                 the query
+        @param   queyLang              the query language
         @param   indicationClassName   the indication class name
         @param   indicationSubclasses  the list of indication subclass names
 
         @return  list of ProviderClassList structs
      */
     Array<ProviderClassList> _getIndicationProviders(
-        const QueryExpression& queryExpression,
-        const CIMNamespaceName& nameSpace,
+        const String &query,
+        const String &queryLang,
         const CIMName& indicationClassName,
-        const Array<CIMName>& indicationSubclasses) const;
+        const Array<NamespaceClassList>& indicationSubclasses) const;
 
     /**
         Retrieves the list of required properties (all the properties
@@ -871,7 +871,6 @@ private:
                                            classes
         @param   propertyList          Output list of properties required by the
                                            subscription
-        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
@@ -879,10 +878,9 @@ private:
      */
     void _getCreateParams(
         const CIMInstance& subscriptionInstance,
-        Array<CIMName>& indicationSubclasses,
+        Array<NamespaceClassList>& indicationSubclasses,
         Array<ProviderClassList>& indicationProviders,
         CIMPropertyList& propertyList,
-        CIMNamespaceName& sourceNameSpace,
         String& condition,
         String& query,
         String& queryLanguage);
@@ -896,7 +894,6 @@ private:
                                            class in filter query
         @param   propertyList          Output list of properties required by the
                                            subscription
-        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
@@ -904,9 +901,8 @@ private:
      */
     void _getCreateParams(
         const CIMInstance& subscriptionInstance,
-        Array<CIMName>& indicationSubclasses,
+        Array<NamespaceClassList>& indicationSubclasses,
         CIMPropertyList& propertyList,
-        CIMNamespaceName& sourceNameSpace,
         String& condition,
         String& query,
         String& queryLanguage);
@@ -917,14 +913,12 @@ private:
         @param   subscriptionInstance  Input subscription instance
         @param   indicationSubclasses  Output list of subclasses of indication
                                            class in filter query
-        @param   sourceNameSpace       Output source namespace for filter query
 
         @return  List of providers with associated classes to Delete
      */
     Array<ProviderClassList> _getDeleteParams(
         const CIMInstance& subscriptionInstance,
-        Array<CIMName>& indicationSubclasses,
-        CIMNamespaceName& sourceNameSpace);
+        Array<NamespaceClassList>& indicationSubclasses);
 
     /**
         Sends Create subscription request for the specified subscription
@@ -940,8 +934,8 @@ private:
         In case (3), there is no original request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the nameSpace name of the resource being
-                                           monitored, from the SourceNamespace
+                                       with the nameSpace name of the resource
+                                       being monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -965,7 +959,6 @@ private:
      */
     void _sendAsyncCreateRequests(
         const Array<ProviderClassList>& indicationProviders,
-        const CIMNamespaceName& nameSpace,
         const CIMPropertyList& propertyList,
         const String& condition,
         const String& query,
@@ -974,7 +967,7 @@ private:
         const AcceptLanguageList& acceptLangs,
         const ContentLanguageList& contentLangs,
         const CIMRequestMessage * origRequest,
-        const Array<CIMName>& indicationSubclasses,
+        const Array<NamespaceClassList>& indicationSubclasses,
         const String& userName,
         const String& authType = String::EMPTY);
 
@@ -993,8 +986,8 @@ private:
         response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the nameSpace name of the resource being
-                                           monitored, from the SourceNamespace
+                                       with the nameSpace name of the resource
+                                       being monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1015,7 +1008,6 @@ private:
      */
     Array<ProviderClassList> _sendWaitCreateRequests(
         const Array<ProviderClassList>& indicationProviders,
-        const CIMNamespaceName& nameSpace,
         const CIMPropertyList& propertyList,
         const String& condition,
         const String& query,
@@ -1041,8 +1033,8 @@ private:
         request to which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the nameSpace name of the resource being
-                                           monitored, from the SourceNamespace
+                                       with the nameSpace name of the resource
+                                       being monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1061,7 +1053,6 @@ private:
      */
     void _sendWaitModifyRequests(
         const Array<ProviderClassList>& indicationProviders,
-        const CIMNamespaceName& nameSpace,
         const CIMPropertyList& propertyList,
         const String& condition,
         const String& query,
@@ -1088,8 +1079,8 @@ private:
         orginal request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the nameSpace name of the resource being
-                                           monitored, from the SourceNamespace
+                                       with the nameSpace name of the resource
+                                       being monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1105,12 +1096,11 @@ private:
      */
     void _sendAsyncDeleteRequests(
         const Array<ProviderClassList>& indicationProviders,
-        const CIMNamespaceName& nameSpace,
         const CIMInstance& subscription,
         const AcceptLanguageList& acceptLangs,
         const ContentLanguageList& contentLangs,
         const CIMRequestMessage * origRequest,
-        const Array<CIMName>& indicationSubclasses,
+        const Array<NamespaceClassList>& indicationSubclasses,
         const String& userName,
         const String& authType = String::EMPTY);
 
@@ -1125,8 +1115,8 @@ private:
         Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the nameSpace name of the resource being
-                                           monitored, from the SourceNamespace
+                                       with the nameSpace name of the resource
+                                       being monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1138,7 +1128,6 @@ private:
      */
     void _sendWaitDeleteRequests(
         const Array<ProviderClassList>& indicationProviders,
-        const CIMNamespaceName& nameSpace,
         const CIMInstance& subscription,
         const AcceptLanguageList& acceptLangs,
         const ContentLanguageList& contentLangs,
@@ -1427,19 +1416,20 @@ private:
         @param  subscription           The accepted subscription.
         @param  acceptedProviders      Subscription accepted providers list.
         @param  indicationSubclasses   The indication subclasses for the
-                                           subscription
-        @param  sourceNameSpace        The nameSpace name of the resource being
-                                           monitored, from the SourceNamespace
-                                           property of the CIM_IndicationFilter
-                                           instance for the specified
-                                           subscription
+                                       subscription with the source namespace.
 
     */
     void _updateAcceptedSubscription(
         CIMInstance &subscription,
         const Array<ProviderClassList> &acceptedProviders,
-        const Array<CIMName> &indicationSubclasses,
-        const CIMNamespaceName &sourceNameSpace);
+        const Array<NamespaceClassList> &indicationSubclasses);
+
+    Array<ProviderClassList> _getIndicationProvidersWithNamespaceClassList(
+        const Array<ProviderClassList> &providers);
+
+    void _addProviderToAcceptedProviderList(
+        Array<ProviderClassList> &acceptedProviders,
+        ProviderClassList &provider);
 
     void _deliverWaitingIndications();
     void _beginCreateSubscription(const CIMObjectPath &objPath);
@@ -1528,8 +1518,7 @@ private:
     void _buildInternalControlProvidersRegistration();
 
     Array<ProviderClassList> _getInternalIndProviders(
-        const CIMNamespaceName& nameSpace,
-        const Array<CIMName>& indicationSubclasses) const;
+        const Array<NamespaceClassList>& indicationSubclasses) const;
 
     /**
         Arrays of valid and supported property values

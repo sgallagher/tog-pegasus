@@ -50,6 +50,7 @@
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
+
 /**
     This record is created for each indication provider to keep track of
     CMPI_SelectExp objects they are servicing.
@@ -106,32 +107,69 @@ public:
 
     Boolean lookupSelectExp(
         const CIMObjectPath &path,
+        const CIMNamespaceName &nameSpace,
         CMPI_SelectExp *&eSelx)
     {
-        return selectExpTab.lookup(path, eSelx);
+        return selectExpTab.lookup(_getKey(path, nameSpace), eSelx);
     }
 
     Boolean addSelectExp(
         const CIMObjectPath &path,
+        const CIMNamespaceName &nameSpace,
         CMPI_SelectExp *eSelx)
     {
-        return selectExpTab.insert(path, eSelx);
+        return selectExpTab.insert(_getKey(path, nameSpace), eSelx);
     }
 
     Boolean deleteSelectExp(
-        const CIMObjectPath &path)
+        const CIMObjectPath &path,
+        const CIMNamespaceName &nameSpace)
     {
-        return selectExpTab.remove(path);
+        return selectExpTab.remove(_getKey(path, nameSpace));
     }
 
+    struct IndProvRecKey
+    {
+        CIMNamespaceName sourceNamespace;
+        CIMObjectPath subscriptionName;
+    };
+
+    struct IndProvRecKeyHash
+    {
+        static Uint32 hash (const IndProvRecKey &key)
+        {
+            return key.subscriptionName.makeHashCode() +
+                HashLowerCaseFunc::hash(key.sourceNamespace.getString());
+        }
+    };
+
+    struct IndProvRecKeyEqual
+    {
+        static Boolean equal (const IndProvRecKey &x, const IndProvRecKey &y)
+        {
+            return x.sourceNamespace == y.sourceNamespace &&
+                x.subscriptionName.identical(y.subscriptionName);
+        }
+    };
+
 private:
+    IndProvRecKey _getKey(
+        const CIMObjectPath &path,
+        const CIMNamespaceName &nameSpace)
+    {
+        IndProvRecKey key;
+        key.sourceNamespace = nameSpace;
+        key.subscriptionName = path;
+        return key;
+    }
+
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
     String _remoteInfo;
 #endif
     EnableIndicationsResponseHandler* _handler;
 
-    typedef HashTable<CIMObjectPath, CMPI_SelectExp*,
-        EqualFunc<CIMObjectPath>, HashFunc<CIMObjectPath> > SelectExpTab;
+    typedef HashTable<IndProvRecKey, CMPI_SelectExp*,
+        IndProvRecKeyEqual, IndProvRecKeyHash > SelectExpTab;
 
     SelectExpTab selectExpTab;
 };

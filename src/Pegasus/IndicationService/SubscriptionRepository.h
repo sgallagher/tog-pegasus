@@ -202,7 +202,7 @@ public:
 
         @param   subscription      Input subscription instance
         @param   query             Output query for the filter
-        @param   sourceNameSpace   Output source namespace for the filter
+        @param   sourceNameSpaces   Output source namespaces for the filter
                                        subscription
         @param   queryLanguage     Output query language in which the filter
                                        query is expressed
@@ -211,7 +211,7 @@ public:
     void getFilterProperties (
         const CIMInstance & subscription,
         String & query,
-        CIMNamespaceName & sourceNameSpace,
+        Array<CIMNamespaceName> &sourceNameSpaces,
         String & queryLanguage,
         String & filterName);
 
@@ -221,13 +221,13 @@ public:
 
         @param   subscription      Input subscription instance
         @param   query             Output query for the filter
-        @param   sourceNameSpace   Output source namespace for the filter
+        @param   sourceNameSpaces  Output source namespaces for the filter
                                        subscription
      */
     void getFilterProperties (
         const CIMInstance & subscription,
         String & query,
-        CIMNamespaceName & sourceNameSpace);
+        Array<CIMNamespaceName> &sourceNameSpaces);
 
     /**
         Retrieves the value of the filter query property
@@ -375,6 +375,11 @@ public:
     Array <CIMObjectPath> enumerateInstanceNamesForClass (
         const CIMNamespaceName & nameSpace,
         const CIMName & className);
+
+    void getSourceNamespaces(
+        const CIMInstance &instance,
+        const CIMNamespaceName &defaultNameSpace,
+        Array<CIMNamespaceName> &sourceNamespaces);
 
     void beginCreateSubscription(const CIMObjectPath &subPath);
     void cancelCreateSubscription(const CIMObjectPath &subPath);

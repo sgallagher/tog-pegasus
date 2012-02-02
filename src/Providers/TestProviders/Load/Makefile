@@ -40,6 +40,9 @@ include $(ROOT)/mak/configschema.mak
 
 TESTPROVIDERNS=test/TestProvider
 
+TESTINDSRCNS1=test/TestIndSrcNS1
+TESTINDSRCNS2=test/TestINdSrcNS2
+
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 CREATE_REMOTE_NAMESPACE = CreateExtNS2
 REMOTE_TESTPROVIDERNS = test/Remote/Localhost
@@ -213,6 +216,36 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
 endif
 
 ##
+##  Indication filter source namespaces testing
+##
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS1) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(TESTINDSRCNS1) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS1) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS1)" IndicationStressTestProviderSchema.mof
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS1) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS1)" TestCMPI_ProviderSchema.mof
+endif
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS2) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(TESTINDSRCNS2) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS2) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS2)" IndicationStressTestProviderSchema.mof
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS2) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTINDSRCNS2)" TestCMPI_ProviderSchema.mof
+endif
+
+
+
+##
 ## Load the test MOF with cimmof.
 ##
 repositoryServer:
@@ -333,6 +366,34 @@ endif
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ echo +++++ Creating remote namespace ...
 	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_DIR)/$(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
+endif
+
+##
+##  Indication filter source namespaces testing
+##
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS1) namespace ...
+	@ cimmof -n$(TESTINDSRCNS1) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS1) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS1)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS1) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS1)" IndicationStressTestProviderSchema.mof
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS1) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS1)" TestCMPI_ProviderSchema.mof
+endif
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTINDSRCNS2) namespace ...
+	@ cimmof -n$(TESTINDSRCNS2) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(TESTINDSRCNS2) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS2)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading IndicationStressTest class definition into $(TESTINDSRCNS2) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS2)" IndicationStressTestProviderSchema.mof
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTINDSRCNS2) namespace ...
+	@ cimmof "-n$(TESTINDSRCNS2)" TestCMPI_ProviderSchema.mof
 endif
 
 

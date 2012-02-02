@@ -776,6 +776,7 @@ void IndicationService::_initialize()
     _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
     _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_NAME);
     _supportedFilterProperties.append(_PROPERTY_SOURCENAMESPACE);
+    _supportedFilterProperties.append(_PROPERTY_SOURCENAMESPACES);
     _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_QUERY);
     _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_QUERYLANGUAGE);
 
@@ -1292,16 +1293,18 @@ Boolean IndicationService::_deleteActiveSubscriptions(Uint32 timeoutSeconds)
                     contentLangsString);
             }
         }
-        CIMNamespaceName sourceNameSpace;
-        Array<CIMName> indicationSubclasses;
+        Array<NamespaceClassList> indicationSubclasses;
 
-        _getCreateParams (instance,
-            indicationSubclasses, requiredProperties,
-            sourceNameSpace, condition, query, queryLanguage);
+        _getCreateParams (
+            instance,
+            indicationSubclasses,
+            requiredProperties,
+            condition,
+            query,
+            queryLanguage);
 
         _sendAsyncDeleteRequests(
             subscriptionsEntries[i].providers,
-            sourceNameSpace,
             instance,
             acceptLangs,
             contentLangs,
@@ -1424,8 +1427,7 @@ void IndicationService::_sendListenerNotActiveMessagetoHandlerService(
 void IndicationService::_updateAcceptedSubscription(
     CIMInstance &subscription,
     const Array<ProviderClassList> &acceptedProviders,
-    const Array<CIMName> &indicationSubclasses,
-    const CIMNamespaceName &sourceNameSpace)
+    const Array<NamespaceClassList> &indicationSubclasses)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_updateAcceptedSubscription");
@@ -1452,8 +1454,7 @@ void IndicationService::_updateAcceptedSubscription(
             _subscriptionTable->insertSubscription(
                 subscription,
                 acceptedProviders,
-                indicationSubclasses,
-                sourceNameSpace);
+                indicationSubclasses);
 
 #if 0
             //
@@ -1501,8 +1502,7 @@ void IndicationService::_updateAcceptedSubscription(
         _subscriptionTable->insertSubscription(
             subscription,
             acceptedProviders,
-            indicationSubclasses,
-            sourceNameSpace);
+            indicationSubclasses);
     }
 
     PEG_METHOD_EXIT();
@@ -1601,11 +1601,15 @@ Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
             continue;
         }
 
-        CIMNamespaceName sourceNameSpace;
-        Array<CIMName> indicationSubclasses;
-        _getCreateParams(activeSubscriptions[i], indicationSubclasses,
-            indicationProviders, propertyList, sourceNameSpace, condition,
-            query, queryLanguage);
+        Array<NamespaceClassList> indicationSubclasses;
+        _getCreateParams(
+            activeSubscriptions[i],
+            indicationSubclasses,
+            indicationProviders,
+            propertyList,
+            condition,
+            query,
+            queryLanguage);
 
         if (indicationProviders.size() == 0)
         {
@@ -1626,8 +1630,10 @@ Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
             {
                 noProviderSubscriptions.append(activeSubscriptions[i]);
 
-                _subscriptionTable->insertSubscription(activeSubscriptions[i],
-                    indicationProviders, indicationSubclasses, sourceNameSpace);
+                _subscriptionTable->insertSubscription(
+                    activeSubscriptions[i],
+                    indicationProviders,
+                    indicationSubclasses);
             }
             continue;
         }
@@ -1687,7 +1693,6 @@ Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
         {
             _sendAsyncCreateRequests(
                 indicationProviders,
-                sourceNameSpace,
                 propertyList,
                 condition,
                 query,
@@ -1717,7 +1722,6 @@ Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
             Array<ProviderClassList> acceptedProviders;
             acceptedProviders = _sendWaitCreateRequests(
                 indicationProviders,
-                sourceNameSpace,
                 propertyList,
                 condition,
                 query,
@@ -1730,8 +1734,7 @@ Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
             _updateAcceptedSubscription(
                 activeSubscriptions[i],
                 acceptedProviders,
-                indicationSubclasses,
-                sourceNameSpace);
+                indicationSubclasses);
         }
     }  // for each active subscription
 
@@ -1965,8 +1968,7 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
         String query;
         String queryLanguage;
         CIMPropertyList requiredProperties;
-        CIMNamespaceName sourceNameSpace;
-        Array<CIMName> indicationSubclasses;
+        Array<NamespaceClassList> indicationSubclasses;
         Array<ProviderClassList> indicationProviders;
 
         if ((instance.getClassName().equal(
@@ -1996,9 +1998,14 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
                 if ((subscriptionState == STATE_ENABLED) ||
                     (subscriptionState == STATE_ENABLEDDEGRADED))
                 {
-                    _getCreateParams(instance, indicationSubclasses,
-                        indicationProviders, requiredProperties,
-                        sourceNameSpace, condition, query, queryLanguage);
+                    _getCreateParams(
+                        instance,
+                        indicationSubclasses,
+                        indicationProviders,
+                        requiredProperties,
+                        condition,
+                        query,
+                        queryLanguage);
 
                     if (indicationProviders.size() == 0)
                     {
@@ -2015,14 +2022,19 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
                     //
                     //  Send Create request message to each provider
                     //
-                    _sendAsyncCreateRequests(indicationProviders,
-                        sourceNameSpace, requiredProperties, condition,
-                        query, queryLanguage, instance,
+                    _sendAsyncCreateRequests(
+                        indicationProviders,
+                        requiredProperties,
+                        condition,
+                        query,
+                        queryLanguage,
+                        instance,
                         acceptLangs,
                         contentLangs,
                         request,
                         indicationSubclasses,
-                        userName, request->authType);
+                        userName,
+                        request->authType);
 
                     //
                     //  Response is sent from _handleCreateResponseAggregation
@@ -2755,11 +2767,10 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
             //
             Array<ProviderClassList> indicationProviders;
             CIMPropertyList requiredProperties;
-            CIMNamespaceName sourceNameSpace;
             String condition;
             String query;
             String queryLanguage;
-            Array<CIMName> indicationSubclasses;
+            Array<NamespaceClassList> indicationSubclasses;
 
             if (((newState == STATE_ENABLED) ||
                  (newState == STATE_ENABLEDDEGRADED))
@@ -2770,9 +2781,14 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                 //  Subscription was previously not enabled but is now to
                 //  be enabled
                 //
-                _getCreateParams(instance, indicationSubclasses,
-                    indicationProviders, requiredProperties,
-                    sourceNameSpace, condition, query, queryLanguage);
+                _getCreateParams(
+                    instance,
+                    indicationSubclasses,
+                    indicationProviders,
+                    requiredProperties,
+                    condition,
+                    query,
+                    queryLanguage);
 
                 if (indicationProviders.size() == 0)
                 {
@@ -2823,7 +2839,6 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
 
                 _sendAsyncCreateRequests(
                     indicationProviders,
-                    sourceNameSpace,
                     requiredProperties,
                     condition,
                     query,
@@ -2851,8 +2866,8 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                 //
                 instanceReference.setNameSpace(request->nameSpace);
                 instance.setPath(instanceReference);
-                indicationProviders = _getDeleteParams(instance,
-                    indicationSubclasses, sourceNameSpace);
+                indicationProviders =
+                    _getDeleteParams(instance, indicationSubclasses);
 
                 //
                 //  Send Delete requests
@@ -2861,7 +2876,6 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                 {
                     _sendAsyncDeleteRequests(
                         indicationProviders,
-                        sourceNameSpace,
                         instance,
                         acceptLangs,
                         contentLangs,
@@ -2981,16 +2995,14 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
                 (subscriptionState == STATE_ENABLEDDEGRADED))
             {
                 Array<ProviderClassList> indicationProviders;
-                Array<CIMName> indicationSubclasses;
-                CIMNamespaceName sourceNamespaceName;
+                Array<NamespaceClassList> indicationSubclasses;
                 CIMObjectPath instanceReference = request->instanceName;
                 instanceReference.setNameSpace(request->nameSpace);
                 subscriptionInstance.setPath(instanceReference);
 
                 indicationProviders = _getDeleteParams(
                     subscriptionInstance,
-                    indicationSubclasses,
-                    sourceNamespaceName);
+                    indicationSubclasses);
 
                 if (indicationProviders.size() > 0)
                 {
@@ -2999,7 +3011,6 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
                     //
                     _sendAsyncDeleteRequests(
                         indicationProviders,
-                        sourceNamespaceName,
                         subscriptionInstance,
                         ((AcceptLanguageListContainer)
                             request->operationContext.get(
@@ -3033,7 +3044,6 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
                     _subscriptionTable->removeSubscription(
                         subscriptionInstance,
                         indicationSubclasses,
-                        sourceNamespaceName,
                         indicationProviders);
                 }
             }
@@ -3184,17 +3194,20 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                 String filterQuery;
                 String queryLanguage;
                 String filterName;
-                CIMNamespaceName sourceNameSpace;
+                Array<CIMNamespaceName> sourceNameSpaces;
 
                 //
                 //  Get filter query expression of the subscription
                 //
-                _subscriptionRepository->getFilterProperties
-                    (subscriptions[i], filterQuery, sourceNameSpace,
-                     queryLanguage, filterName);
+                _subscriptionRepository->getFilterProperties(
+                     subscriptions[i],
+                     filterQuery,
+                     sourceNameSpaces,
+                     queryLanguage,
+                     filterName);
 
                 queryExpr = _getQueryExpression(
-                    filterQuery, queryLanguage, sourceNameSpace);
+                    filterQuery, queryLanguage, request->nameSpace);
 
                 //
                 // Evaluate if the subscription matches the indication by
@@ -3206,7 +3219,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                 //    indication
                 //
                 if (_subscriptionMatch (subscriptions[i], indication,
-                    supportedPropertyList, queryExpr, sourceNameSpace))
+                    supportedPropertyList, queryExpr, request->nameSpace))
                 {
                     PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
                         "%s Indication %s satisfies filter %s:%s query "
@@ -3214,7 +3227,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                             (const char*)(indication.getClassName().
                                 getString().getCString()),
                             (const char*)(request->messageId.getCString()),
-                            (const char*)(sourceNameSpace.getString().
+                            (const char*)(request->nameSpace.getString().
                                 getCString()),
                             (const char*)(filterName.getCString()),
                             (const char*)(filterQuery.getCString())));
@@ -3421,8 +3434,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMPropertyList newPropertyNames = request->newPropertyNames;
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
 
-    Array<CIMInstance> newSubscriptions;
-    Array<CIMInstance> formerSubscriptions;
+    Array<SubscriptionWithSrcNamespace> newSubscriptions;
+    Array<SubscriptionWithSrcNamespace> formerSubscriptions;
     Array<ProviderClassList> indicationProviders;
     ProviderClassList indicationProvider;
 
@@ -3482,7 +3495,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     //
     indicationProvider.provider = provider;
     indicationProvider.providerModule = providerModule;
-    indicationProvider.classList.append (className);
+    NamespaceClassList nscl;
+    nscl.classList.append(className);
+    indicationProvider.classList.append (nscl);
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
     indicationProvider.isRemoteNameSpace = isRemoteNameSpace;
     indicationProvider.remoteInfo = remoteInfo;
@@ -3496,17 +3511,23 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         String query;
         String queryLanguage;
 
-        //
         //  Send Create or Modify request for each subscription that can newly
         //  be supported
         //
         for (Uint32 i = 0; i < newSubscriptions.size (); i++)
         {
-            CIMNamespaceName sourceNameSpace;
-            Array<CIMName> indicationSubclasses;
-            _getCreateParams (newSubscriptions[i], indicationSubclasses,
-                requiredProperties, sourceNameSpace, condition,
-                query, queryLanguage);
+            indicationProviders[0].classList[0].nameSpace =
+                newSubscriptions[i].nameSpace;
+
+            Array<NamespaceClassList> indicationSubclasses;
+            _getCreateParams (
+                newSubscriptions[i].subscription,
+                indicationSubclasses,
+                requiredProperties,
+                condition,
+                query,
+                queryLanguage);
+
 
             //
             //  NOTE: These Create or Modify requests are not associated with a
@@ -3518,7 +3539,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  the IndicationService's internal hash tables, and thus
             //  each instance is known to have a valid Creator property
             //
-            CIMInstance instance = newSubscriptions[i];
+            CIMInstance instance = newSubscriptions[i].subscription;
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
@@ -3558,7 +3579,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //
             ActiveSubscriptionsTableEntry tableValue;
             if (_subscriptionTable->getSubscriptionEntry
-                (newSubscriptions[i].getPath (), tableValue))
+                (newSubscriptions[i].subscription.getPath (), tableValue))
             {
                 //
                 //  If the provider is already in the subscription's list,
@@ -3571,10 +3592,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
                     //  Send Modify requests
                     //
-                    _sendWaitModifyRequests (indicationProviders,
-                        sourceNameSpace,
-                        requiredProperties, condition, query, queryLanguage,
-                        newSubscriptions[i],
+                    _sendWaitModifyRequests (
+                        indicationProviders,
+                        requiredProperties,
+                        condition,
+                        query,
+                        queryLanguage,
+                        newSubscriptions[i].subscription,
                         acceptLangs,
                         contentLangs,
                         creator);
@@ -3585,10 +3609,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //  Send Create requests
                     //
                     Array<ProviderClassList> acceptedProviders;
-                    acceptedProviders = _sendWaitCreateRequests
-                        (indicationProviders,
-                        sourceNameSpace, requiredProperties, condition,
-                        query, queryLanguage, newSubscriptions[i],
+                    acceptedProviders = _sendWaitCreateRequests(
+                        indicationProviders,
+                        requiredProperties,
+                        condition,
+                        query,
+                        queryLanguage,
+                        newSubscriptions[i].subscription,
                         acceptLangs,
                         contentLangs,
                         creator);
@@ -3600,7 +3627,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         //  subscription; add provider to the list
                         //
                         _subscriptionTable->updateProviders
-                            (instance.getPath (), indicationProvider, true);
+                            (instance.getPath (), indicationProviders[0], true);
                     }
                 }
             }
@@ -3636,14 +3663,15 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  Get Provider Name, Subscription Filter Name and Handler Name
             //
             String logString2 = _getSubscriptionLogString
-                (newSubscriptions[j]);
+                (newSubscriptions[j].subscription);
 
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING,
                 MessageLoaderParms(
                     _MSG_PROVIDER_NOW_SERVING_KEY,
                     _MSG_PROVIDER_NOW_SERVING, logString1, logString2,
-                    newSubscriptions[j].getPath().getNameSpace().getString()));
+                    newSubscriptions[j].subscription.getPath().
+                        getNameSpace().getString()));
         }
     }
 
@@ -3660,6 +3688,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         for (Uint32 i = 0; i < formerSubscriptions.size (); i++)
         {
+            indicationProviders[0].classList[0].nameSpace =
+                formerSubscriptions[i].nameSpace;
             //
             //  NOTE: These Delete or Modify requests are not associated with a
             //  user request, so there is no associated authType or userName
@@ -3670,7 +3700,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  from the IndicationService's internal hash tables, and thus
             //  each instance is known to have a valid Creator property
             //
-            CIMInstance instance = formerSubscriptions[i];
+            CIMInstance instance = formerSubscriptions[i].subscription;
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
             AcceptLanguageList acceptLangs;
@@ -3710,17 +3740,20 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //
             ActiveSubscriptionsTableEntry tableValue;
             if (_subscriptionTable->getSubscriptionEntry
-                (formerSubscriptions[i].getPath (), tableValue))
+                (formerSubscriptions[i].subscription.getPath (), tableValue))
             {
                 Uint32 providerIndex = _subscriptionTable->providerInList
                     (provider, tableValue);
                 if (providerIndex != PEG_NOT_FOUND)
                 {
-                    CIMNamespaceName sourceNameSpace;
-                    Array<CIMName> indicationSubclasses;
-                    _getCreateParams (formerSubscriptions[i],
-                        indicationSubclasses, requiredProperties,
-                        sourceNameSpace, condition, query, queryLanguage);
+                    Array<NamespaceClassList> indicationSubclasses;
+                    _getCreateParams (
+                        formerSubscriptions[i].subscription,
+                        indicationSubclasses,
+                        requiredProperties,
+                        condition,
+                        query,
+                        queryLanguage);
 
                     //
                     //  If class list contains only the class name from the
@@ -3728,21 +3761,29 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
                     if ((tableValue.providers[providerIndex].classList.size()
                             == 1) &&
-                        (tableValue.providers[providerIndex].classList[0].equal(
-                            className)))
+                        (tableValue.providers[providerIndex].classList[0].
+                            classList[0].equal(className)))
                     {
-                        _sendWaitDeleteRequests (indicationProviders,
-                            sourceNameSpace,
-                            formerSubscriptions[i],
-                            acceptLangs,
-                            contentLangs,
-                            creator);
+                        
+                        if (tableValue.providers[providerIndex].
+                           classList[0].nameSpace ==
+                                formerSubscriptions[i].nameSpace)
+                        {
+                            _sendWaitDeleteRequests (
+                                indicationProviders,
+                                formerSubscriptions[i].subscription,
+                                acceptLangs,
+                                contentLangs,
+                                creator);
 
-                        //
-                        //
-                        //
-                        _subscriptionTable->updateProviders
-                            (instance.getPath (), indicationProvider, false);
+                            //
+                            //
+                            //
+                            _subscriptionTable->updateProviders(
+                                instance.getPath(),
+                                indicationProviders[0],
+                                false);
+                        }
                     }
 
                     //
@@ -3750,18 +3791,23 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
                     else
                     {
-                        Uint32 classIndex = _subscriptionTable->classInList
-                            (className, tableValue.providers[providerIndex]);
+                        Uint32 classIndex = _subscriptionTable->classInList(
+                            className,
+                            formerSubscriptions[i].nameSpace,
+                            tableValue.providers[providerIndex]);
+
                         if (classIndex != PEG_NOT_FOUND)
                         {
                             //
                             //  Send Modify requests
                             //
-                            _sendWaitModifyRequests (indicationProviders,
-                                sourceNameSpace,
-                                requiredProperties, condition,
-                                query, queryLanguage,
-                                formerSubscriptions[i],
+                            _sendWaitModifyRequests (
+                                indicationProviders,
+                                requiredProperties,
+                                condition,
+                                query,
+                                queryLanguage,
+                                formerSubscriptions[i].subscription,
                                 acceptLangs,
                                 contentLangs,
                                 creator);
@@ -3830,15 +3876,15 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  Get Provider Name, Subscription Filter Name and Handler Name
             //
             String logString2 = _getSubscriptionLogString
-                (formerSubscriptions[j]);
+                (formerSubscriptions[j].subscription);
 
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING,
                 MessageLoaderParms(
                     _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
                     _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
-                    formerSubscriptions[j].getPath().getNameSpace().
-                        getString()));
+                    formerSubscriptions[j].subscription.getPath().
+                        getNameSpace().getString()));
         }
     }
 
@@ -3962,7 +4008,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
     Array<CIMInstance> capabilities = request->capInstances;
 
     CIMException cimException;
-    Array<CIMInstance> subscriptions;
+    Array<SubscriptionWithSrcNamespace> subscriptions;
     Array<ProviderClassList> indicationProviders;
 
     //
@@ -3975,7 +4021,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
         CIMName className;
         Array<CIMNamespaceName> namespaceNames;
         CIMPropertyList propertyList;
-        Array<CIMInstance> currentSubscriptions;
+        Array<SubscriptionWithSrcNamespace> currentSubscriptions;
 
         try
         {
@@ -4056,10 +4102,30 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 //  matching subscriptions, add the current class to the
                 //  indication provider class list for the subscription
                 //
-                if (currentSubscriptions[c].identical (subscriptions[m]))
+                if (currentSubscriptions[c].subscription.identical(
+                    subscriptions[m].subscription))
                 {
-                    inList = true;
-                    indicationProviders[m].classList.append (className);
+                    for (Uint32 i = 0,
+                        n = indicationProviders[m].classList.size();
+                        i < n; ++i)
+                    {
+                        if (indicationProviders[m].classList[i].nameSpace
+                            == currentSubscriptions[c].nameSpace)
+                        {
+                            indicationProviders[m].classList[i].
+                                classList.append(className);
+                            inList = true;
+                            break;
+                        }
+                    }
+                    if (!inList)
+                    {
+                        NamespaceClassList nscl;
+                        nscl.nameSpace = currentSubscriptions[c].nameSpace;
+                        nscl.classList.append(className);
+                        indicationProviders[m].classList.append(nscl);
+                        inList = true;
+                    }
                     break;
                 }
             }
@@ -4075,7 +4141,10 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 ProviderClassList indicationProvider;
                 indicationProvider.provider = provider;
                 indicationProvider.providerModule = providerModule;
-                indicationProvider.classList.append (className);
+                NamespaceClassList nscl;
+                nscl.classList.append(className);
+                nscl.nameSpace = currentSubscriptions[c].nameSpace;
+                indicationProvider.classList.append (nscl);
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                 indicationProvider.isRemoteNameSpace = isRemoteNameSpace;
                 indicationProvider.remoteInfo = remoteInfo;
@@ -4099,11 +4168,15 @@ void IndicationService::_handleNotifyProviderEnableRequest
 
         for (Uint32 s = 0; s < subscriptions.size (); s++)
         {
-            CIMNamespaceName sourceNameSpace;
-            Array<CIMName> indicationSubclasses;
-            CIMInstance instance = subscriptions[s];
-            _getCreateParams (instance, indicationSubclasses,
-                requiredProperties, sourceNameSpace, condition, query,
+            Array<CIMNamespaceName> sourceNamespaces;
+            Array<NamespaceClassList> indicationSubclasses;
+            CIMInstance instance = subscriptions[s].subscription;
+            _getCreateParams (
+                instance,
+                indicationSubclasses,
+                requiredProperties,
+                condition,
+                query,
                 queryLanguage);
 
             //
@@ -4155,10 +4228,13 @@ void IndicationService::_handleNotifyProviderEnableRequest
             Array<ProviderClassList> currentIndicationProviders;
             currentIndicationProviders.append (indicationProviders[s]);
             Array<ProviderClassList> acceptedProviders;
-            acceptedProviders = _sendWaitCreateRequests
-                (currentIndicationProviders,
-                sourceNameSpace, requiredProperties, condition,
-                query, queryLanguage, instance,
+            acceptedProviders = _sendWaitCreateRequests(
+                currentIndicationProviders,
+                requiredProperties,
+                condition,
+                query,
+                queryLanguage,
+                instance,
                 acceptLangs,
                 contentLangs,
                 creator);
@@ -4188,10 +4264,19 @@ void IndicationService::_handleNotifyProviderEnableRequest
                              cn < indicationProviders[s].classList.size ();
                              cn++)
                         {
-                            _subscriptionTable->updateClasses
-                                (instance.getPath (),
-                                indicationProviders[s].provider,
-                                indicationProviders[s].classList[cn]);
+                            for(Uint32 sn = 0;
+                                sn < indicationProviders[s].classList[cn].
+                                    classList.size();
+                                ++sn)
+                            {
+                                _subscriptionTable->updateClasses(
+                                    instance.getPath (),
+                                    indicationProviders[s].provider,
+                                    indicationProviders[s].classList[cn].
+                                        nameSpace,
+                                    indicationProviders[s].classList[cn].
+                                        classList[sn]);
+                            }
                         }
                     }
                     else
@@ -4217,7 +4302,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
                         //  Get Subscription Filter Name and Handler Name
                         //
                         String logString2 = _getSubscriptionLogString
-                            (subscriptions[s]);
+                            (subscriptions[s].subscription);
 
                         //
                         //  Log a message for each subscription
@@ -4228,8 +4313,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
                                 _MSG_PROVIDER_NOW_SERVING_KEY,
                                 _MSG_PROVIDER_NOW_SERVING,
                                 logString1, logString2,
-                                subscriptions[s].getPath().getNameSpace().
-                                    getString()));
+                                subscriptions[s].subscription.getPath().
+                                    getNameSpace().getString()));
                     }
                 }
             }  //  if any provider accepted the create subscription request
@@ -4545,7 +4630,7 @@ Boolean IndicationService::_canCreate (
                         textFormatParams);
 
                     // Validates the property names in TextFormatParameters
-                    CIMNamespaceName sourceNameSpace;
+                    Array<CIMNamespaceName> sourceNamespaces;
                     String query;
                     String queryLanguage;
                     String filterName;
@@ -4553,11 +4638,11 @@ Boolean IndicationService::_canCreate (
 
                     //  Get filter properties
                     _subscriptionRepository->getFilterProperties (instance,
-                        query, sourceNameSpace, queryLanguage, filterName);
+                        query, sourceNamespaces, queryLanguage, filterName);
 
                     //  Build the query expression from the filter query
                     QueryExpression queryExpression = _getQueryExpression(query,
-                        queryLanguage, sourceNameSpace);
+                        queryLanguage, sourceNamespaces[0]);
 
                     // the select clause projection
                     propertyList = queryExpression.getPropertyList();
@@ -4654,16 +4739,32 @@ Boolean IndicationService::_canCreate (
                     CIM_ERR_NOT_SUPPORTED, queryLanguage);
             }
 #endif
+            Array<CIMNamespaceName> sourceNamespaces;
 
-            //
-            //  Default value for Source Namespace is the namespace of the
-            //  Filter registration
-            //
-            CIMNamespaceName sourceNameSpace = CIMNamespaceName(
+            _checkProperty(
+                instance,
+                _PROPERTY_SOURCENAMESPACE,
+                CIMTYPE_STRING);
+
+            _checkProperty(
+                instance,
+                _PROPERTY_SOURCENAMESPACES,
+                CIMTYPE_STRING,
+                true);
+
+            _subscriptionRepository->getSourceNamespaces(
+                instance,
+                nameSpace,
+                sourceNamespaces);
+
+            if (sourceNamespaces.size() == 1 &&
+                nameSpace == sourceNamespaces[0])
+            {
                 _checkPropertyWithDefault(
                     instance,
                     _PROPERTY_SOURCENAMESPACE,
-                    nameSpace.getString()));
+                    nameSpace.getString());
+            }
 
             //
             //  Validate the query and indication class name
@@ -4673,53 +4774,65 @@ Boolean IndicationService::_canCreate (
             String filterQuery = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
-            QueryExpression queryExpression;
-            try
+            for (Uint32 i = 0, n = sourceNamespaces.size(); i < n; ++i)
             {
-                queryExpression = _getQueryExpression(
-                    filterQuery, queryLanguage, sourceNameSpace);
-            }
-            catch (QueryLanguageInvalidException&)
-            {
-                // The filter query had an invalid language name.
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED, queryLanguage);
-            }
+                QueryExpression queryExpression;
+                try
+                {
+                    queryExpression = _getQueryExpression(
+                        filterQuery,
+                        queryLanguage,
+                        sourceNamespaces[i]);
+                }
+                catch (QueryLanguageInvalidException&)
+                {
+                    // The filter query had an invalid language name.
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_NOT_SUPPORTED, queryLanguage);
+                }
 
-            CIMName indicationClassName = _getIndicationClassName
-                (queryExpression, sourceNameSpace);
+                CIMName indicationClassName = _getIndicationClassName(
+                    queryExpression,
+                    sourceNamespaces[i]);
 
-            //
-            // Make sure that the FROM class exists in the repository.
-            //
-            CIMClass indicationClass = _subscriptionRepository->getClass
-                (sourceNameSpace, indicationClassName,
-                false, false, false, CIMPropertyList ());
+                //
+                // Make sure that the FROM class exists in the repository.
+                //
+                CIMClass indicationClass = _subscriptionRepository->getClass(
+                    sourceNamespaces[i],
+                    indicationClassName,
+                    false,
+                    false,
+                    false,
+                    CIMPropertyList ());
 
-            //
-            // Validate all the properties in the SELECT statement exist
-            // on their class context.
-            //
-            try
-            {
-              queryExpression.validate();
-            }
-            catch (QueryMissingPropertyException& qmp)
-            {
-              // A property does not exist on the class it is scoped to.
-              PEG_METHOD_EXIT();
-              throw PEGASUS_CIM_EXCEPTION
-                (CIM_ERR_INVALID_PARAMETER, qmp.getMessage());
-            }
-            catch (QueryValidationException& qv)
-            {
-              // Received some other validation error.
-              // This includes detecting an array property
-              // is in the WHERE list for WQL.
-              PEG_METHOD_EXIT();
-              throw PEGASUS_CIM_EXCEPTION
-                (CIM_ERR_NOT_SUPPORTED, qv.getMessage());
+                //
+                // Validate all the properties in the SELECT statement exist
+                // on their class context.
+                //
+                try
+                {
+                    queryExpression.validate();
+                }
+                catch (QueryMissingPropertyException& qmp)
+                {
+                    // A property does not exist on the class it is scoped to.
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_INVALID_PARAMETER,
+                        qmp.getMessage());
+                }
+                catch (QueryValidationException& qv)
+                {
+                    // Received some other validation error.
+                    // This includes detecting an array property
+                    // is in the WHERE list for WQL.
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_NOT_SUPPORTED,
+                        qv.getMessage());
+                }
             }
         }
 
@@ -5430,7 +5543,6 @@ void IndicationService::_checkProperty (
             }
         }
     }
-
     PEG_METHOD_EXIT ();
 }
 
@@ -5850,21 +5962,25 @@ Boolean IndicationService::_canDelete (
     return true;
 }
 
-Array<CIMInstance> IndicationService::_getMatchingSubscriptions (
-    const CIMName& supportedClass,
-    const Array<CIMNamespaceName> nameSpaces,
-    const CIMPropertyList& supportedProperties,
-    const Boolean checkProvider,
-    const CIMInstance& provider)
+Array<SubscriptionWithSrcNamespace>
+    IndicationService::_getMatchingSubscriptions (
+        const CIMName& supportedClass,
+        const Array<CIMNamespaceName> nameSpaces,
+        const CIMPropertyList& supportedProperties,
+        const Boolean checkProvider,
+        const CIMInstance& provider)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getMatchingSubscriptions");
 
-    Array<CIMInstance> matchingSubscriptions;
-    Array<CIMInstance> subscriptions;
+    Array<SubscriptionWithSrcNamespace> matchingSubscriptions;
+    Array<SubscriptionWithSrcNamespace> subscriptions;
 
-    subscriptions = _subscriptionTable->getMatchingSubscriptions
-        (supportedClass, nameSpaces, checkProvider, provider);
+    subscriptions = _subscriptionTable->getMatchingSubscriptions(
+        supportedClass,
+        nameSpaces,
+        checkProvider,
+        provider);
 
     for (Uint32 i = 0; i < subscriptions.size (); i++)
     {
@@ -5879,7 +5995,7 @@ Array<CIMInstance> IndicationService::_getMatchingSubscriptions (
             String filterQuery;
             String queryLanguage;
             CIMName indicationClassName;
-            CIMNamespaceName sourceNameSpace;
+            Array<CIMNamespaceName> sourceNamespaces;
             CIMPropertyList propertyList;
             String filterName;
 
@@ -5888,12 +6004,15 @@ Array<CIMInstance> IndicationService::_getMatchingSubscriptions (
                 //
                 //  Get filter properties
                 //
-                _subscriptionRepository->getFilterProperties
-                    (subscriptions[i], filterQuery, sourceNameSpace,
-                     queryLanguage, filterName);
+                _subscriptionRepository->getFilterProperties(
+                     subscriptions[i].subscription,
+                     filterQuery,
+                     sourceNamespaces,
+                     queryLanguage,
+                     filterName);
 
                 QueryExpression queryExpr = _getQueryExpression(
-                    filterQuery, queryLanguage, sourceNameSpace);
+                    filterQuery, queryLanguage, subscriptions[i].nameSpace);
 
                 // Get the class paths in the FROM list
                 // Since neither WQL nor CQL support joins, so we can
@@ -5902,7 +6021,7 @@ Array<CIMInstance> IndicationService::_getMatchingSubscriptions (
                     queryExpr.getClassPathList()[0].getClassName();
 
                 if (!_subscriptionRepository->validateIndicationClassName(
-                    indicationClassName, sourceNameSpace))
+                    indicationClassName, subscriptions[i].nameSpace))
                 {
                     // Invalid FROM class, skip the subscription
                     continue;
@@ -5924,7 +6043,7 @@ Array<CIMInstance> IndicationService::_getMatchingSubscriptions (
                 //  Also note that for CQL, this does not return
                 //  required embedded object properties.
                 propertyList = _getPropertyList (queryExpr,
-                                             sourceNameSpace,
+                                             subscriptions[i].nameSpace,
                                              supportedClass);
 
                 //
@@ -6012,15 +6131,15 @@ void IndicationService::_getModifiedSubscriptions (
     const Array<CIMNamespaceName>& oldNameSpaces,
     const CIMPropertyList& newProperties,
     const CIMPropertyList& oldProperties,
-    Array<CIMInstance>& newSubscriptions,
-    Array<CIMInstance>& formerSubscriptions)
+    Array<SubscriptionWithSrcNamespace>& newSubscriptions,
+    Array<SubscriptionWithSrcNamespace>& formerSubscriptions)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getModifiedSubscriptions");
 
-    Array<CIMInstance> newList;
-    Array<CIMInstance> formerList;
-    Array<CIMInstance> bothList;
+    Array<SubscriptionWithSrcNamespace> newList;
+    Array<SubscriptionWithSrcNamespace> formerList;
+    Array<SubscriptionWithSrcNamespace> bothList;
 
     newSubscriptions.clear ();
     formerSubscriptions.clear ();
@@ -6049,7 +6168,7 @@ void IndicationService::_getModifiedSubscriptions (
         found = -1;
         for (Uint32 q = 0; q < formerList.size (); q++)
         {
-            if (newList[p].identical (formerList[q]))
+            if (newList[p].subscription.identical (formerList[q].subscription))
             {
                 found = q;
                 bothList.append (newList[p]);
@@ -6074,23 +6193,28 @@ void IndicationService::_getModifiedSubscriptions (
         String filterQuery;
         String queryLanguage;
         CIMName indicationClassName;
-        CIMNamespaceName sourceNameSpace;
+        Array<CIMNamespaceName> sourceNamespaces;
         CIMPropertyList requiredProperties;
         String filterName;
 
         //
         //  Get filter properties
         //
-        _subscriptionRepository->getFilterProperties (newList[n], filterQuery,
-            sourceNameSpace, queryLanguage, filterName);
+        _subscriptionRepository->getFilterProperties (
+            newList[n].subscription,
+            filterQuery,
+            sourceNamespaces,
+            queryLanguage,
+            filterName);
+
         QueryExpression queryExpression = _getQueryExpression(
-            filterQuery, queryLanguage, sourceNameSpace);
+            filterQuery, queryLanguage, newList[n].nameSpace);
 
         //
         //  Get indication class name from filter query (FROM clause)
         //
         indicationClassName = _getIndicationClassName (queryExpression,
-            sourceNameSpace);
+            newList[n].nameSpace);
 
         //
         //  Get required property list from filter query (WHERE clause)
@@ -6101,7 +6225,7 @@ void IndicationService::_getModifiedSubscriptions (
         //  specific subclasses of the FROM.
         //
         requiredProperties = _getPropertyList (queryExpression,
-            sourceNameSpace, supportedClass);
+            newList[n].nameSpace, supportedClass);
 
         //
         //  Check if required properties are now supported
@@ -6132,7 +6256,7 @@ void IndicationService::_getModifiedSubscriptions (
         String filterQuery;
         String queryLanguage;
         CIMName indicationClassName;
-        CIMNamespaceName sourceNameSpace;
+        Array<CIMNamespaceName> sourceNamespaces;
         CIMPropertyList requiredProperties;
         Boolean newMatch = false;
         Boolean formerMatch = false;
@@ -6141,16 +6265,22 @@ void IndicationService::_getModifiedSubscriptions (
         //
         //  Get filter properties
         //
-        _subscriptionRepository->getFilterProperties (bothList[b], filterQuery,
-            sourceNameSpace, queryLanguage, filterName);
+        _subscriptionRepository->getFilterProperties(
+            bothList[b].subscription,
+            filterQuery,
+            sourceNamespaces,
+            queryLanguage,
+            filterName);
+
         QueryExpression queryExpression = _getQueryExpression(
-            filterQuery, queryLanguage, sourceNameSpace);
+            filterQuery, queryLanguage, bothList[b].nameSpace);
 
         //
         //  Get indication class name from filter query (FROM clause)
         //
-        indicationClassName = _getIndicationClassName (queryExpression,
-            sourceNameSpace);
+        indicationClassName = _getIndicationClassName(
+            queryExpression,
+            bothList[b].nameSpace);
 
         //
         //  Get required property list from filter query (WHERE clause)
@@ -6160,8 +6290,10 @@ void IndicationService::_getModifiedSubscriptions (
         //  class scoping operators that scope properties to
         //  specific subclasses of the FROM.
         //
-        requiredProperties = _getPropertyList (queryExpression,
-            sourceNameSpace, supportedClass);
+        requiredProperties = _getPropertyList (
+            queryExpression,
+            bothList[b].nameSpace,
+            supportedClass);
 
         //
         //  Check required properties
@@ -6321,110 +6453,150 @@ CIMName IndicationService::_getIndicationClassName (
 }
 
 Array<ProviderClassList> IndicationService::_getIndicationProviders (
-    const QueryExpression& queryExpression,
-    const CIMNamespaceName& nameSpace,
+    const String &query,
+    const String &queryLang,
     const CIMName& indicationClassName,
-    const Array<CIMName>& indicationSubclasses) const
+    const Array<NamespaceClassList>& indicationSubclasses) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getIndicationProviders");
 
-    ProviderClassList provider;
     Array<ProviderClassList> indicationProviders;
+    ProviderClassList provider;
     Array<CIMInstance> providerInstances;
     Array<CIMInstance> providerModuleInstances;
 
     CIMPropertyList requiredPropertyList;
 
+    
     //
     //  For each indication subclass, get providers
     //
     for (Uint32 i = 0, n = indicationSubclasses.size (); i < n; i++)
     {
-        //  Get required property list from filter query (WHERE clause)
-        //  from this indication subclass
-        //
-        requiredPropertyList = _getPropertyList (queryExpression,
-                                                 nameSpace,
-                                                 indicationSubclasses[i]);
+        for (Uint32 c = 0, nc = indicationSubclasses[i].classList.size();
+            c < nc; ++c)
+        {
+            QueryExpression queryExpression = _getQueryExpression(
+                query,
+                queryLang,
+                indicationSubclasses[i].nameSpace);
 
-        //
-        //  Get providers that can serve the subscription
-        //
-        providerInstances.clear ();
-        providerModuleInstances.clear ();
-        if (_providerRegManager->getIndicationProviders
-                (nameSpace,
-                 indicationSubclasses[i],
+            //  Get required property list from filter query (WHERE clause)
+            //  from this indication subclass
+            //
+            requiredPropertyList = _getPropertyList (
+                queryExpression,
+                indicationSubclasses[i].nameSpace,
+                indicationSubclasses[i].classList[c]);
+
+            //
+            //  Get providers that can serve the subscription
+            //
+            providerInstances.clear ();
+            providerModuleInstances.clear ();
+            if (_providerRegManager->getIndicationProviders(
+                 indicationSubclasses[i].nameSpace,
+                 indicationSubclasses[i].classList[c],
                  requiredPropertyList,
                  providerInstances,
                  providerModuleInstances))
-        {
-            PEGASUS_ASSERT (providerInstances.size () ==
-                            providerModuleInstances.size ());
-
-            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                "%u indication provider(s) found for class %s",
-                providerInstances.size (),
-                (const char *)
-                indicationSubclasses[i].getString ().getCString ()));
-
-            //
-            //  Merge into list of ProviderClassList structs
-            //
-            for (Uint32 j = 0, numI = providerInstances.size (); j < numI; j++)
             {
-                provider.classList.clear ();
-                Boolean duplicate = false;
+                PEGASUS_ASSERT (providerInstances.size () ==
+                    providerModuleInstances.size ());
+
+                PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                    "%u indication provider(s) found for class %s",
+                    providerInstances.size (),
+                    (const char *)indicationSubclasses[i].classList[c].
+                        getString ().getCString ()));
 
                 //
-                //  See if indication provider is already in list
+                //  Merge into list of ProviderClassList structs
                 //
-                for (Uint32 k = 0, numP = indicationProviders.size ();
-                     k < numP && !duplicate; k++)
+                for (Uint32 j = 0, numI = providerInstances.size ();
+                    j < numI; j++)
                 {
-                    if ((providerInstances[j].getPath ().identical
-                        (indicationProviders[k].provider.getPath ())) &&
-                        (providerModuleInstances[j].getPath ().identical
-                        (indicationProviders[k].providerModule.getPath ())))
+                    provider.classList.clear ();
+                    Boolean duplicate = false;
+
+                    //
+                    //  See if indication provider is already in list
+                    //
+                    for (Uint32 k = 0, numP = indicationProviders.size ();
+                        k < numP && !duplicate; k++)
+                    {
+                        if ((providerInstances[j].getPath ().identical
+                            (indicationProviders[k].provider.getPath ())) &&
+                            (providerModuleInstances[j].getPath ().identical
+                            (indicationProviders[k].providerModule.getPath ())))
+                        {
+                            //
+                            //  Indication provider is already in list
+                            //  Add subclass to provider's class list
+                            //
+                            for(Uint32 s = 0, ns = indicationProviders[k].
+                                    classList.size();
+                                s < ns;  ++s)
+                            {
+                                if (indicationProviders[k].classList[s].
+                                    nameSpace == indicationSubclasses[i].
+                                        nameSpace)
+                                {
+                                    indicationProviders[k].classList[s].
+                                        classList.append(
+                                            indicationSubclasses[i].
+                                                classList[c]);
+                                    duplicate = true;
+                                    break;
+                                }
+                            }
+                            if (!duplicate)
+                            {
+                                NamespaceClassList nscl;
+                                nscl.nameSpace =
+                                    indicationSubclasses[i].nameSpace;
+                                nscl.classList.append(
+                                    indicationSubclasses[i].classList[c]);
+                                indicationProviders[k].classList.append(nscl);
+                                duplicate = true;
+                            }
+                        }
+                    }
+
+                    if (!duplicate)
                     {
                         //
-                        //  Indication provider is already in list
-                        //  Add subclass to provider's class list
+                        //  Current provider is not yet in list
+                        //  Create new list entry
                         //
-                        indicationProviders[k].classList.append
-                            (indicationSubclasses[i]);
-                        duplicate = true;
-                    }
-                }
-
-                if (!duplicate)
-                {
-                    //
-                    //  Current provider is not yet in list
-                    //  Create new list entry
-                    //
-                    provider.provider = providerInstances[j];
-                    provider.providerModule = providerModuleInstances[j];
-                    provider.classList.append (indicationSubclasses[i]);
+                        provider.provider = providerInstances[j];
+                        provider.providerModule = providerModuleInstances[j];
+                        NamespaceClassList nscl;
+                        nscl.classList.append(
+                            indicationSubclasses[i].classList[c]);
+                        nscl.nameSpace =
+                            indicationSubclasses[i].nameSpace;
+                        provider.classList.append (nscl);
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                    String remoteInformation;
-                    Boolean isRemote = _cimRepository->isRemoteNameSpace(
-                        nameSpace, remoteInformation);
-                    provider.isRemoteNameSpace = isRemote;
-                    provider.remoteInfo = remoteInformation;
+                        String remoteInformation;
+                        Boolean isRemote = _cimRepository->isRemoteNameSpace(
+                            nameSpace, remoteInformation);
+                        provider.isRemoteNameSpace = isRemote;
+                        provider.remoteInfo = remoteInformation;
 #endif
-                    indicationProviders.append(provider);
-                }
-            }  // for each indication provider instance
-        }  // if any providers
-    }  // for each indication subclass
+                        indicationProviders.append(provider);
+                    }
+                }  // for each indication provider instance
+            }  // if any providers
+        }  // for each indication subclass
+    }  // for each source namespace
 
     // Verify if any control providers exists for this class
     if (!indicationProviders.size())
     {
-        indicationProviders = _getInternalIndProviders(
-            nameSpace, indicationSubclasses);
+        indicationProviders =
+            _getInternalIndProviders(indicationSubclasses);
     }
 
     PEG_METHOD_EXIT();
@@ -6579,11 +6751,10 @@ void IndicationService::_deleteReferencingSubscriptions(
     for (Uint32 i = 0; i < deletedSubscriptions.size(); i++)
     {
         Array<ProviderClassList> indicationProviders;
-        Array<CIMName> indicationSubclasses;
-        CIMNamespaceName sourceNamespaceName;
+        Array<NamespaceClassList> indicationSubclasses;
 
         indicationProviders = _getDeleteParams(deletedSubscriptions[i],
-            indicationSubclasses, sourceNamespaceName);
+            indicationSubclasses);
 
         //
         //  Send Delete requests
@@ -6630,7 +6801,6 @@ void IndicationService::_deleteReferencingSubscriptions(
 
         _sendAsyncDeleteRequests(
             indicationProviders,
-            sourceNamespaceName,
             deletedSubscriptions[i],
             acceptLangs,
             contentLangs,
@@ -6707,13 +6877,13 @@ void IndicationService::_deleteExpiredSubscription(
             (subscriptionState == STATE_ENABLEDDEGRADED))
         {
             Array<ProviderClassList> indicationProviders;
-            Array<CIMName> indicationSubclasses;
+            Array<NamespaceClassList> indicationSubclasses;
             CIMNamespaceName sourceNamespaceName;
 
             subscriptionInstance.setPath(subscription);
 
             indicationProviders = _getDeleteParams(subscriptionInstance,
-                indicationSubclasses, sourceNamespaceName);
+                indicationSubclasses);
 
             //
             //  Send Delete requests
@@ -6761,7 +6931,7 @@ void IndicationService::_deleteExpiredSubscription(
 
             subscriptionInstance.setPath(subscription);
             _sendAsyncDeleteRequests(indicationProviders,
-                sourceNamespaceName, subscriptionInstance,
+                subscriptionInstance,
                 acceptLangs,
                 contentLangs,
                 0, // no request
@@ -6907,10 +7077,9 @@ void IndicationService::_setTimeRemaining(
 
 void IndicationService::_getCreateParams(
     const CIMInstance& subscriptionInstance,
-    Array<CIMName>& indicationSubclasses,
+    Array<NamespaceClassList>& indicationSubclasses,
     Array<ProviderClassList>& indicationProviders,
     CIMPropertyList& propertyList,
-    CIMNamespaceName& sourceNameSpace,
     String& condition,
     String& query,
     String& queryLanguage)
@@ -6924,40 +7093,57 @@ void IndicationService::_getCreateParams(
     queryLanguage = String::EMPTY;
     String filterName;
 
+    Array<CIMNamespaceName> sourceNameSpaces;
     //
     //  Get filter properties
     //
-    _subscriptionRepository->getFilterProperties(subscriptionInstance, query,
-        sourceNameSpace, queryLanguage, filterName);
+    _subscriptionRepository->getFilterProperties(
+        subscriptionInstance,
+        query,
+        sourceNameSpaces,
+        queryLanguage,
+        filterName);
 
-    //
-    //  Build the query expression from the filter query
-    //
-    QueryExpression queryExpression = _getQueryExpression(query,
-                                                         queryLanguage,
-                                                         sourceNameSpace);
+     for (Uint32 i = 0, n = sourceNameSpaces.size(); i < n; ++i)
+     {
 
-    //
-    //  Get indication class name from filter query (FROM clause)
-    //
-    indicationClassName = _getIndicationClassName(queryExpression,
-                                                   sourceNameSpace);
+        //
+        //  Build the query expression from the filter query
+        //
+        QueryExpression queryExpression = _getQueryExpression(
+            query,
+            queryLanguage,
+            sourceNameSpaces[i]);
 
-    //
-    //  Get list of subclass names for indication class
-    //
-    indicationSubclasses = _subscriptionRepository->getIndicationSubclasses(
-        sourceNameSpace, indicationClassName);
+        //
+        //  Get indication class name from filter query (FROM clause)
+        //
+        indicationClassName = _getIndicationClassName(
+            queryExpression,
+            sourceNameSpaces[i]);
 
+        //
+        //  Get list of subclass names for indication class
+        //
+        Array<CIMName> indSubclasses =
+            _subscriptionRepository->getIndicationSubclasses(
+                sourceNameSpaces[i],
+                indicationClassName);
+        
+        NamespaceClassList namespaceClassList;
+        namespaceClassList.nameSpace = sourceNameSpaces[i];
+        namespaceClassList.classList = indSubclasses;
+        indicationSubclasses.append(namespaceClassList);
+    }
 
     //
     //  Get indication provider class lists
     //
     indicationProviders = _getIndicationProviders(
-         queryExpression,
-         sourceNameSpace,
-         indicationClassName,
-         indicationSubclasses);
+        query,
+        queryLanguage,
+        indicationClassName,
+        indicationSubclasses);
 
     if (indicationProviders.size() > 0)
     {
@@ -6968,30 +7154,38 @@ void IndicationService::_getCreateParams(
 }
 
 Array<ProviderClassList> IndicationService::_getInternalIndProviders(
-    const CIMNamespaceName& nameSpace,
-    const Array<CIMName>& indicationSubclasses) const
+    const Array<NamespaceClassList>& indicationSubclasses) const
 {
     Array<ProviderClassList> providers;
     for (Uint32 i = 0, n = indicationSubclasses.size(); i < n; ++i)
     {
-        for (ControlProvIndRegTable::Iterator j =
-            _controlProvIndRegTable.start (); j; j++)
+        for (Uint32 k = 0, m = indicationSubclasses[i].classList.size();
+            k < m; ++k)
         {
-            ControlProvIndReg reg = j.value();
-            if (indicationSubclasses[i] == reg.className &&
-                ( reg.nameSpace.isNull() || reg.nameSpace == nameSpace))
+            for (ControlProvIndRegTable::Iterator j =
+                _controlProvIndRegTable.start (); j; j++)
             {
-               String controlProviderName;
-               reg.provider.getProperty(
-                   reg.provider.findProperty(
-                       PEGASUS_PROPERTYNAME_NAME)).getValue().get(
-                           controlProviderName);
-                ProviderClassList provider;
-                provider.controlProviderName = controlProviderName;
-                provider.provider = reg.provider;
-                provider.providerModule = reg.providerModule;
-                provider.classList.append(reg.className);
-                providers.append(provider);
+                ControlProvIndReg reg = j.value();
+                if (indicationSubclasses[i].classList[k] == reg.className &&
+                    (reg.nameSpace.isNull() ||
+                    reg.nameSpace == indicationSubclasses[i].nameSpace))
+                {
+                    String controlProviderName;
+                    reg.provider.getProperty(
+                        reg.provider.findProperty(
+                           PEGASUS_PROPERTYNAME_NAME)).getValue().get(
+                               controlProviderName);
+                     ProviderClassList provider;
+                     provider.controlProviderName = controlProviderName;
+                     provider.provider = reg.provider;
+                     provider.providerModule = reg.providerModule;
+                     NamespaceClassList nscl;
+                     nscl.nameSpace =
+                         indicationSubclasses[i].nameSpace;
+                     nscl.classList.append(reg.className);
+                     provider.classList.append(nscl);
+                     providers.append(provider);
+                }
             }
         }
     }
@@ -7001,9 +7195,8 @@ Array<ProviderClassList> IndicationService::_getInternalIndProviders(
 
 void IndicationService::_getCreateParams(
     const CIMInstance& subscriptionInstance,
-    Array<CIMName>& indicationSubclasses,
+    Array<NamespaceClassList>& indicationSubclasses,
     CIMPropertyList& propertyList,
-    CIMNamespaceName& sourceNameSpace,
     String& condition,
     String& query,
     String& queryLanguage)
@@ -7015,47 +7208,64 @@ void IndicationService::_getCreateParams(
     query = String::EMPTY;
     queryLanguage = String::EMPTY;
     String filterName;
+    Array<CIMNamespaceName> sourceNamespaces;
 
     //
     //  Get filter properties
     //
-    _subscriptionRepository->getFilterProperties(subscriptionInstance, query,
-        sourceNameSpace, queryLanguage, filterName);
-    QueryExpression queryExpression = _getQueryExpression(
+    _subscriptionRepository->getFilterProperties(
+        subscriptionInstance,
         query,
+        sourceNamespaces,
         queryLanguage,
-        sourceNameSpace);
+        filterName);
 
-    //
-    //  Get indication class name from filter query (FROM clause)
-    //
-    CIMName indicationClassName =
-        _getIndicationClassName(queryExpression, sourceNameSpace);
+    for (Uint32 i = 0, n = sourceNamespaces.size(); i < n; ++i)
+    {
+        QueryExpression queryExpression = _getQueryExpression(
+            query,
+            queryLanguage,
+            sourceNamespaces[i]);
 
-    //
-    //  Get required property list from filter query (WHERE clause)
-    //
-    propertyList = _getPropertyList(queryExpression,
-        sourceNameSpace, indicationClassName);
+        //
+        //  Get indication class name from filter query (FROM clause)
+        //
+        CIMName indicationClassName =
+            _getIndicationClassName(queryExpression, sourceNamespaces[i]);
 
-    //
-    //  Get condition from filter query (WHERE clause)
-    //
-    condition = _getCondition(query);
+        //
+        //  Get required property list from filter query (WHERE clause)
+        //
+        propertyList = _getPropertyList(
+            queryExpression,
+            sourceNamespaces[i],
+            indicationClassName);
 
-    //
-    //  Get list of subclass names for indication class
-    //
-    indicationSubclasses = _subscriptionRepository->getIndicationSubclasses(
-        sourceNameSpace, indicationClassName);
+        //
+        //  Get condition from filter query (WHERE clause)
+        //
+        condition = _getCondition(query);
+
+        //
+        //  Get list of subclass names for indication class
+        //
+        Array<CIMName> indSubclasses =
+            _subscriptionRepository->getIndicationSubclasses(
+                sourceNamespaces[i],
+                indicationClassName);
+
+        NamespaceClassList namespaceClassList;
+        namespaceClassList.nameSpace = sourceNamespaces[i];
+        namespaceClassList.classList = indSubclasses;
+        indicationSubclasses.append(namespaceClassList);
+    }
 
     PEG_METHOD_EXIT();
 }
 
 Array<ProviderClassList> IndicationService::_getDeleteParams(
     const CIMInstance& subscriptionInstance,
-    Array<CIMName>& indicationSubclasses,
-    CIMNamespaceName& sourceNameSpace)
+    Array<NamespaceClassList>& indicationSubclasses)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_getDeleteParams");
@@ -7065,26 +7275,45 @@ Array<ProviderClassList> IndicationService::_getDeleteParams(
     String filterName;
     CIMName indicationClassName;
     Array<ProviderClassList> indicationProviders;
+    Array<CIMNamespaceName> sourceNamespaces;
 
     //
     //  Get filter properties
     //
-    _subscriptionRepository->getFilterProperties(subscriptionInstance,
-        filterQuery, sourceNameSpace, queryLanguage, filterName);
-    QueryExpression queryExpression =
-        _getQueryExpression(filterQuery, queryLanguage, sourceNameSpace);
+    _subscriptionRepository->getFilterProperties(
+        subscriptionInstance,
+        filterQuery,
+        sourceNamespaces,
+        queryLanguage,
+        filterName);
 
-    //
-    //  Get indication class name from filter query (FROM clause)
-    //
-    indicationClassName =
-        _getIndicationClassName(queryExpression, sourceNameSpace);
+    for(Uint32 i = 0, n = sourceNamespaces.size(); i < n; ++i)
+    {
+        QueryExpression queryExpression =
+            _getQueryExpression(
+                filterQuery,
+                queryLanguage,
+                sourceNamespaces[i]);
 
-    //
-    //  Get list of subclass names for indication class
-    //
-    indicationSubclasses = _subscriptionRepository->getIndicationSubclasses(
-        sourceNameSpace, indicationClassName);
+        //
+        //  Get indication class name from filter query (FROM clause)
+        //
+        indicationClassName =
+            _getIndicationClassName(queryExpression, sourceNamespaces[i]);
+
+        //
+        //  Get list of subclass names for indication class
+        //
+        Array<CIMName> indSubclasses =
+            _subscriptionRepository->getIndicationSubclasses(
+                sourceNamespaces[i],
+                indicationClassName);
+
+        NamespaceClassList namespaceClassList;
+        namespaceClassList.nameSpace = sourceNamespaces[i];
+        namespaceClassList.classList = indSubclasses;
+        indicationSubclasses.append(namespaceClassList);
+    }
 
     //
     //  Get indication provider class lists from Active Subscriptions table
@@ -7106,9 +7335,55 @@ Array<ProviderClassList> IndicationService::_getDeleteParams(
     return indicationProviders;
 }
 
+Array<ProviderClassList> IndicationService::
+    _getIndicationProvidersWithNamespaceClassList(
+        const Array<ProviderClassList> &providers)
+{
+    Array<ProviderClassList> indProviders;
+    for (Uint32 i = 0, n = providers.size(); i < n; ++i)
+    {
+        for (Uint32 j = 0, m = providers[i].classList.size(); j < m; ++j)
+        {
+            PEGASUS_ASSERT(
+                providers[i].classList[j].nameSpace != CIMNamespaceName());
+            ProviderClassList prcl = providers[i];
+            NamespaceClassList nscl;
+            nscl.nameSpace = providers[i].classList[j].nameSpace;
+            nscl.classList = providers[i].classList[j].classList;
+            prcl.classList.clear();
+            prcl.classList.append(nscl);
+            indProviders.append(prcl);
+            
+        }
+    }
+    return indProviders;
+}
+
+void IndicationService::_addProviderToAcceptedProviderList(
+    Array<ProviderClassList> &acceptedProviders,
+    ProviderClassList &provider)
+{
+    PEGASUS_ASSERT(provider.classList.size() == 1);
+
+    for (Uint32 i = 0, n = acceptedProviders.size(); i < n; ++i)
+    {
+        if (acceptedProviders[i].provider.getPath().identical(
+                provider.provider.getPath()) &&
+            acceptedProviders[i].providerModule.getPath().identical(
+                provider.providerModule.getPath()))
+        {
+            acceptedProviders[i].classList.append(provider.classList[0]);
+            return;
+        }
+    }
+    acceptedProviders.append(provider);
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    _providerIndicationCountTable.insertEntry(provider.provider);
+#endif
+}
+
 void IndicationService::_sendAsyncCreateRequests(
-    const Array<ProviderClassList>& indicationProviders,
-    const CIMNamespaceName& nameSpace,
+    const Array<ProviderClassList>& providers,
     const CIMPropertyList& propertyList,
     const String& condition,
     const String& query,
@@ -7117,7 +7392,7 @@ void IndicationService::_sendAsyncCreateRequests(
     const AcceptLanguageList& acceptLangs,
     const ContentLanguageList& contentLangs,
     const CIMRequestMessage * origRequest,
-    const Array<CIMName>& indicationSubclasses,
+    const Array<NamespaceClassList>& indicationSubclasses,
     const String& userName,
     const String& authType)
 {
@@ -7126,6 +7401,9 @@ void IndicationService::_sendAsyncCreateRequests(
 
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
+
+    Array<ProviderClassList> indicationProviders =
+        _getIndicationProvidersWithNamespaceClassList(providers);
 
     // If there are no providers to accept the subscription, just return
     if (indicationProviders.size() == 0)
@@ -7217,9 +7495,9 @@ void IndicationService::_sendAsyncCreateRequests(
        AutoPtr<CIMCreateSubscriptionRequestMessage> request(
             new CIMCreateSubscriptionRequestMessage(
                 XmlWriter::getNextMessageId(),
-                nameSpace,
+                indicationProviders[i].classList[0].nameSpace,
                 subscription,
-                indicationProviders[i].classList,
+                indicationProviders[i].classList[0].classList,
                 propertyList,
                 repeatNotificationPolicy,
                 query,
@@ -7255,7 +7533,10 @@ void IndicationService::_sendAsyncCreateRequests(
         request.get()->operationContext.insert(
             SubscriptionFilterConditionContainer(condition,queryLanguage));
         request.get()->operationContext.insert(
-            SubscriptionFilterQueryContainer(query,queryLanguage,nameSpace));
+            SubscriptionFilterQueryContainer(
+                query,
+                queryLanguage,
+                indicationProviders[i].classList[0].nameSpace));
         request.get()->operationContext.insert(IdentityContainer(userName));
         request.get()->operationContext.set(
             ContentLanguageListContainer(contentLangs));
@@ -7309,8 +7590,7 @@ void IndicationService::_sendAsyncCreateRequests(
 }
 
 Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
-    const Array<ProviderClassList>& indicationProviders,
-    const CIMNamespaceName& nameSpace,
+    const Array<ProviderClassList>& providers,
     const CIMPropertyList& propertyList,
     const String& condition,
     const String& query,
@@ -7323,6 +7603,9 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_sendWaitCreateRequests");
+
+    Array<ProviderClassList> indicationProviders =
+        _getIndicationProvidersWithNamespaceClassList(providers);
 
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
@@ -7355,9 +7638,9 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
         CIMCreateSubscriptionRequestMessage * request =
             new CIMCreateSubscriptionRequestMessage(
                 XmlWriter::getNextMessageId(),
-                nameSpace,
+                indicationProviders[i].classList[0].nameSpace,
                 subscription,
-                indicationProviders[i].classList,
+                indicationProviders[i].classList[0].classList,
                 propertyList,
                 repeatNotificationPolicy,
                 query,
@@ -7381,7 +7664,10 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
         request->operationContext.insert(
             SubscriptionFilterConditionContainer(condition,queryLanguage));
         request->operationContext.insert(
-            SubscriptionFilterQueryContainer(query,queryLanguage,nameSpace));
+            SubscriptionFilterQueryContainer(
+                query,
+                queryLanguage,
+                indicationProviders[i].classList[0].nameSpace));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(
             ContentLanguageListContainer(contentLangs));
@@ -7428,11 +7714,9 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
 
         if (response->cimException.getCode() == CIM_ERR_SUCCESS)
         {
-            acceptedProviders.append(indicationProviders[i]);
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-            _providerIndicationCountTable.insertEntry(
-                indicationProviders[i].provider);
-#endif
+            _addProviderToAcceptedProviderList(
+                acceptedProviders,
+                indicationProviders[i]);
         }
         else
         {
@@ -7450,14 +7734,12 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
         delete asyncRequest;
         delete asyncReply;
     }  //  for each indication provider
-
     PEG_METHOD_EXIT();
     return acceptedProviders;
 }
 
 void IndicationService::_sendWaitModifyRequests(
-    const Array<ProviderClassList>& indicationProviders,
-     const CIMNamespaceName& nameSpace,
+     const Array<ProviderClassList>& providers,
      const CIMPropertyList& propertyList,
      const String& condition,
      const String& query,
@@ -7470,6 +7752,9 @@ void IndicationService::_sendWaitModifyRequests(
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_sendWaitModifyRequests");
+
+    Array<ProviderClassList> indicationProviders =
+        _getIndicationProvidersWithNamespaceClassList(providers);
 
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
@@ -7497,9 +7782,9 @@ void IndicationService::_sendWaitModifyRequests(
         CIMModifySubscriptionRequestMessage * request =
             new CIMModifySubscriptionRequestMessage(
                 XmlWriter::getNextMessageId(),
-                nameSpace,
+                indicationProviders[i].classList[0].nameSpace,
                 subscription,
-                indicationProviders[i].classList,
+                indicationProviders[i].classList[0].classList,
                 propertyList,
                 repeatNotificationPolicy,
                 query,
@@ -7523,7 +7808,10 @@ void IndicationService::_sendWaitModifyRequests(
         request->operationContext.insert(
             SubscriptionFilterConditionContainer(condition,queryLanguage));
         request->operationContext.insert(
-            SubscriptionFilterQueryContainer(query,queryLanguage,nameSpace));
+            SubscriptionFilterQueryContainer(
+                query,
+                queryLanguage,
+                indicationProviders[i].classList[0].nameSpace));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(
             ContentLanguageListContainer(contentLangs));
@@ -7589,18 +7877,20 @@ void IndicationService::_sendWaitModifyRequests(
 }
 
 void IndicationService::_sendAsyncDeleteRequests(
-    const Array<ProviderClassList>& indicationProviders,
-    const CIMNamespaceName& nameSpace,
+    const Array<ProviderClassList>& providers,
     const CIMInstance& subscription,
     const AcceptLanguageList& acceptLangs,
     const ContentLanguageList& contentLangs,
     const CIMRequestMessage * origRequest,
-    const Array<CIMName>& indicationSubclasses,
+    const Array<NamespaceClassList>& indicationSubclasses,
     const String& userName,
     const String& authType)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_sendAsyncDeleteRequests");
+
+    Array<ProviderClassList> indicationProviders =
+        _getIndicationProvidersWithNamespaceClassList(providers);
 
     // If there are no providers to delete the subscription, just return
     if (indicationProviders.size() == 0)
@@ -7620,7 +7910,6 @@ void IndicationService::_sendAsyncDeleteRequests(
     _subscriptionTable->removeSubscription(
         subscription,
         indicationSubclasses,
-        nameSpace,
         indicationProviders);
 
     CIMRequestMessage * aggRequest = 0;
@@ -7691,9 +7980,9 @@ void IndicationService::_sendAsyncDeleteRequests(
         CIMDeleteSubscriptionRequestMessage * request =
             new CIMDeleteSubscriptionRequestMessage(
                 XmlWriter::getNextMessageId(),
-                nameSpace,
+                indicationProviders[i].classList[0].nameSpace,
                 subscription,
-                indicationProviders[i].classList,
+                indicationProviders[i].classList[0].classList,
                 QueueIdStack(_providerManager, getQueueId()),
                 authType,
                 userName);
@@ -7768,8 +8057,7 @@ void IndicationService::_sendAsyncDeleteRequests(
 }
 
 void IndicationService::_sendWaitDeleteRequests(
-    const Array<ProviderClassList>& indicationProviders,
-    const CIMNamespaceName& nameSpace,
+    const Array<ProviderClassList>& providers,
     const CIMInstance& subscription,
     const AcceptLanguageList& acceptLangs,
     const ContentLanguageList& contentLangs,
@@ -7778,6 +8066,9 @@ void IndicationService::_sendWaitDeleteRequests(
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_sendWaitDeleteRequests");
+
+    Array<ProviderClassList> indicationProviders =
+        _getIndicationProvidersWithNamespaceClassList(providers);
 
     // If there are no providers to delete the subscription, just return
     if (indicationProviders.size() == 0)
@@ -7794,9 +8085,9 @@ void IndicationService::_sendWaitDeleteRequests(
         CIMDeleteSubscriptionRequestMessage * request =
             new CIMDeleteSubscriptionRequestMessage(
                 XmlWriter::getNextMessageId(),
-                nameSpace,
+                indicationProviders[i].classList[0].nameSpace,
                 subscription,
-                indicationProviders[i].classList,
+                indicationProviders[i].classList[0].classList,
                 QueueIdStack(_providerManager, getQueueId()),
                 authType,
                 userName);
@@ -8001,10 +8292,9 @@ void IndicationService::_handleCreateResponseAggregation(
             //  If response is SUCCESS, provider accepted the subscription
             //  Add provider to list of providers that accepted subscription
             //
-            acceptedProviders.append(provider);
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-            _providerIndicationCountTable.insertEntry(provider.provider);
-#endif
+            _addProviderToAcceptedProviderList(
+                acceptedProviders,
+                provider);
         }
         else
         {
@@ -8038,8 +8328,7 @@ void IndicationService::_handleCreateResponseAggregation(
             _updateAcceptedSubscription(
                 request->subscriptionInstance,
                 acceptedProviders,
-                operationAggregate->getIndicationSubclasses(),
-                request->nameSpace);
+                operationAggregate->getIndicationSubclasses());
     }
     else
 #endif
@@ -8111,8 +8400,7 @@ void IndicationService::_handleCreateResponseAggregation(
                 _subscriptionTable->insertSubscription(
                     instance,
                     acceptedProviders,
-                    operationAggregate->getIndicationSubclasses(),
-                    request->nameSpace);
+                    operationAggregate->getIndicationSubclasses());
 
             }
         }
@@ -8127,8 +8415,7 @@ void IndicationService::_handleCreateResponseAggregation(
             _subscriptionTable->insertSubscription(
                 request->subscriptionInstance,
                 acceptedProviders,
-                operationAggregate->getIndicationSubclasses(),
-                request->nameSpace);
+                operationAggregate->getIndicationSubclasses());
         }
     }
 
@@ -8188,7 +8475,6 @@ void IndicationService::_handleDeleteResponseAggregation(
         "IndicationService::_handleDeleteResponseAggregation");
 
     CIMException cimException;
-    Array<ProviderClassList> checkProviders;
 
     //
     //  Examine provider responses
@@ -8201,7 +8487,6 @@ void IndicationService::_handleDeleteResponseAggregation(
         CIMResponseMessage * response = operationAggregate->getResponse(i);
         ProviderClassList provider = operationAggregate->findProvider(
             response->messageId);
-        checkProviders.append(provider);
 
         //
         //  If response is not SUCCESS, provider rejected the delete
@@ -8711,7 +8996,7 @@ CIMClass IndicationService::_getIndicationClass(
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
     "IndicationService::_getIndicationClass");
 
-    CIMNamespaceName sourceNameSpace;
+    Array<CIMNamespaceName> sourceNamespaces;
     String query;
     String queryLanguage;
     CIMName indicationClassName;
@@ -8720,16 +9005,16 @@ CIMClass IndicationService::_getIndicationClass(
 
     //  Get filter properties
     _subscriptionRepository->getFilterProperties(subscriptionInstance, query,
-        sourceNameSpace, queryLanguage, filterName);
+        sourceNamespaces, queryLanguage, filterName);
 
     //  Build the query expression from the filter query
     QueryExpression queryExpression = _getQueryExpression(query,
                               queryLanguage,
-                              sourceNameSpace);
+                              sourceNamespaces[0]);
 
     //  Get indication class name from filter query
     indicationClassName = _getIndicationClassName(
-    queryExpression, sourceNameSpace);
+    queryExpression, sourceNamespaces[0]);
 
     //
     //  Get the indication class object from the repository
@@ -8737,7 +9022,7 @@ CIMClass IndicationService::_getIndicationClass(
     //  Specify includeQualifiers=false because qualifiers are not needed
     //
     indicationClass = _subscriptionRepository->getClass(
-        sourceNameSpace, indicationClassName, false, false, false,
+        sourceNamespaces[0], indicationClassName, false, false, false,
         CIMPropertyList());
 
     PEG_METHOD_EXIT();

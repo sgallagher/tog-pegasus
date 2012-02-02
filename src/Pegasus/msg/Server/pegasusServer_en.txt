@@ -4176,6 +4176,13 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService.STATE_CHANGE_FAILED:string {"PGS10232: The requested state change failed : {0}. Current IndicationService EnabledState : {1}, HealthState : {2}."}
 
+        /**
+        * @note  PGS10233:
+        *    do not translate "sourceNamespace" since it is the name of a CIM property.
+        *    do not translate "sourceNamespaces" since it is the name of a CIM property.
+        */
+        IndicationService.IndicationService._INVALID_SOURCENAMESPACE_VALUE:string {"PGS10233: The values in the SourceNamespaces property and the SourceNamespace property are not additive. If both sourceNamespace and SourceNamespaces are non NULL, the namespace defined in sourceNamespace must also exist in sourceNamespaces."}
+
         // ==========================================================
         // Messages for IndicationHandlerService
         //  Please use message prefix "PGS10400"

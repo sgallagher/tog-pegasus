@@ -43,13 +43,16 @@ static Uint32 _numSubscriptions = 0;
 
 static CIMObjectPath path;
 static Array<String> correlatedIndications;
-
+static Array<String> sourceNameSpaces;
+static Uint32 _namespaceIndex = 0;
 
 IndicationStressTestProvider::IndicationStressTestProvider() throw()
 {
-    // Set the destination of indications for all threads once
+    sourceNameSpaces.append("test/testprovider");
+    sourceNameSpaces.append("test/testindsrcns1");
+    sourceNameSpaces.append("test/testindsrcns2");
 
-    path.setNameSpace("test/TestProvider");
+    // Set the destination of indications for all threads once
     path.setClassName("IndicationStressTestClass");
 }
 
@@ -151,6 +154,12 @@ void IndicationStressTestProvider::invokeMethod(
 
     inParameters[0].getValue().get(indicationSendCount);
 
+    path.setNameSpace(sourceNameSpaces[_namespaceIndex++]);
+
+    if (_namespaceIndex == 3)
+    {
+        _namespaceIndex = 0;
+    }
     if (_enabled)
     {
         handler.deliver(CIMValue(0));

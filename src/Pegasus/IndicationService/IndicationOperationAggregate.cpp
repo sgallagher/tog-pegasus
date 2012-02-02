@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 IndicationOperationAggregate::IndicationOperationAggregate(
     CIMRequestMessage* origRequest,
     const String &controlProviderName,
-    const Array<CIMName>& indicationSubclasses)
+    const Array<NamespaceClassList>& indicationSubclasses)
 :   _origRequest(origRequest),
     _controlProviderName(controlProviderName),
     _indicationSubclasses(indicationSubclasses),
@@ -96,7 +96,8 @@ Boolean IndicationOperationAggregate::requiresResponse() const
     }
 }
 
-Array<CIMName>& IndicationOperationAggregate::getIndicationSubclasses()
+Array<NamespaceClassList>&
+    IndicationOperationAggregate::getIndicationSubclasses()
 {
     return _indicationSubclasses;
 }
@@ -174,7 +175,10 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                         (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    provider.classList = request->classNames;
+                    NamespaceClassList nscl;
+                    nscl.nameSpace = request->nameSpace;
+                    nscl.classList = request->classNames;
+                    provider.classList.append(nscl);
                     provider.controlProviderName = _controlProviderName;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                     provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
@@ -191,7 +195,10 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                         (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    provider.classList = request->classNames;
+                    NamespaceClassList nscl;
+                    nscl.nameSpace = request->nameSpace;
+                    nscl.classList = request->classNames;
+                    provider.classList.append(nscl);
                     provider.controlProviderName = _controlProviderName;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                     provider.isRemoteNameSpace = pidc.isRemoteNameSpace();

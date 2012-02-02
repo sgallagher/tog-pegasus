@@ -545,7 +545,7 @@ instance of PG_ProviderCapabilities
     ProviderName = "TestCMPIIndicationStressTestProvider";
     CapabilityID = "1";
     ClassName = "TestCMPI_IndicationStressTestClass";
-    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+    Namespaces = { "test/TestProvider", "test/Remote/Localhost", "test/testIndSrcNS1", "test/testIndSrcNS2"};
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
     SupportedMethods = {"SendTestIndicationNormal","getSubscriptionCount"};
@@ -557,7 +557,7 @@ instance of PG_ProviderCapabilities
     ProviderName = "TestCMPIIndicationStressTestProvider";
     CapabilityID = "2";
     ClassName = "TestCMPI_IndicationStressTestSubClass";
-    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+    Namespaces = { "test/TestProvider", "test/Remote/Localhost", "test/testIndSrcNS1", "test/testIndSrcNS2"};
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
     SupportedMethods = {"SendTestIndicationNormal","getSubscriptionCount"};

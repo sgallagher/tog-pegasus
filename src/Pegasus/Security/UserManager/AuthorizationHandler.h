@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 // Auth Table
 //////////////////////////////////////////////////////////////////////////////
 
-typedef HashTable<String, String, EqualNoCaseFunc, HashLowerCaseFunc >
+typedef HashTable<String, String, EqualFunc <String>, HashFunc <String> >
     AuthTable;
 
 /**

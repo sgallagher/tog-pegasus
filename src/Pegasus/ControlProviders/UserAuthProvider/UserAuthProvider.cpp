@@ -140,7 +140,7 @@ void UserAuthProvider::createInstance(
     String      passwordStr;
     String      namespaceStr;
     String      authorizationStr;
-
+    Boolean     authAlreadyExists = false;
     //
     // get userName
     //
@@ -248,6 +248,18 @@ void UserAuthProvider::createInstance(
             }
 #endif
 
+            try
+            {
+                _userManager->getAuthorization(userNameStr, namespaceStr);
+                authAlreadyExists = true;
+            }
+            catch(...)
+            {
+                //if authorization does not exist, It will be created 
+                //If exist, exception is thrown later
+            }
+            if (!authAlreadyExists)
+            {
             _repository->createInstance(
                 instanceReference.getNameSpace(), myInstance);
 
@@ -256,6 +268,7 @@ void UserAuthProvider::createInstance(
             //
             _userManager->setAuthorization(
                 userNameStr, namespaceStr, authorizationStr );
+        }
         }
         catch ( InvalidUser &iu )
         {
@@ -291,6 +304,12 @@ void UserAuthProvider::createInstance(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                                  instanceReference.getClassName().getString());
+    }
+    if (authAlreadyExists)
+    {
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_ALREADY_EXISTS,
+            userNameStr);
     }
 
     handler.deliver(instanceReference);

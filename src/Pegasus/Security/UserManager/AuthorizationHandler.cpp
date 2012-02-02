@@ -125,6 +125,22 @@ static const CIMName WRITE_OPERATIONS [] =
     CIMName("DisableIndicationSubscription")
 };
 
+static String _getAuthKey(const String &userName, const String &nameSpace)
+{
+    //Separator ":" is used to distinguish "a" +"bc"
+    // and "ab"+"c" scenarios
+    String key = nameSpace;
+    key.append(Char16(':'));
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    key.append(userName);
+    key.toLower();
+#else
+    key.toLower();
+    key.append(userName);
+#endif
+
+    return key;
+}
 
 //
 // Constructor
@@ -245,7 +261,7 @@ void AuthorizationHandler::_loadAllAuthorizations()
             //
             // Add authorization to the table
             //
-            if (!_authTable.insert(userName + nameSpace, auth))
+            if (!_authTable.insert(_getAuthKey(userName, nameSpace), auth))
             {
                 throw AuthorizationCacheError();
             }
@@ -273,15 +289,16 @@ void AuthorizationHandler::setAuthorization(
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::setAuthorization()");
 
+    String key = _getAuthKey(userName, nameSpace.getString());
     //
     // Remove auth if it already exists
     //
-    _authTable.remove(userName + nameSpace.getString());
+    _authTable.remove(key);
 
     //
     // Insert the specified authorization
     //
-    if (!_authTable.insert(userName + nameSpace.getString(), auth))
+    if (!_authTable.insert(key, auth))
     {
         PEG_METHOD_EXIT();
         throw AuthorizationCacheError();
@@ -300,7 +317,7 @@ void AuthorizationHandler::removeAuthorization(
     //
     // Remove the specified authorization
     //
-    if (!_authTable.remove(userName + nameSpace.getString()))
+    if (!_authTable.remove(_getAuthKey(userName, nameSpace.getString())))
     {
         PEG_METHOD_EXIT();
         throw AuthorizationEntryNotFound(userName, nameSpace.getString());
@@ -320,7 +337,7 @@ String AuthorizationHandler::getAuthorization(
     //
     // Get authorization for the specified userName and nameSpace
     //
-    if (!_authTable.lookup(userName + nameSpace.getString(), auth))
+    if (!_authTable.lookup(_getAuthKey(userName, nameSpace.getString()), auth))
     {
         PEG_METHOD_EXIT();
         throw AuthorizationEntryNotFound(userName, nameSpace.getString());

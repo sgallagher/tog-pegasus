@@ -796,16 +796,31 @@ MessageLoader::_useProcessLocale = false;
     // try loop to bind the address, and run the server
     try
     {
-        //ATTN: Need to handle SSL cases
 
         //create DynListener
-        _cimListener = new DynamicListener(listenerPort,
-                                           consumerDir,
-                                           consumerConfigDir,
-                                           enableConsumerUnload,
-                                           consumerIdleTimeout,
-                                           shutdownTimeout);
-
+        if (httpsConnection)
+        {
+            _cimListener = new DynamicListener(
+                listenerPort,
+                consumerDir,
+                consumerConfigDir,
+                true,
+                sslKeyFilePath,
+                sslCertificateFilePath,
+                enableConsumerUnload,
+                consumerIdleTimeout,
+                shutdownTimeout);
+        }
+        else
+        {
+            _cimListener = new DynamicListener(
+                listenerPort,
+                consumerDir,
+                consumerConfigDir,
+                enableConsumerUnload,
+                consumerIdleTimeout,
+                shutdownTimeout);
+        }
         _cimListener->start();
 
         Logger::put_l(Logger::STANDARD_LOG,

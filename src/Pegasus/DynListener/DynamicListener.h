@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 #include <Pegasus/DynListener/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -73,6 +74,7 @@ public:
                     const String& consumerConfigDir,
                     Boolean useSSL,
                     SSLContext* sslContext,
+                    ReadWriteSem*  _sslContextObjectLock,
                     Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD,
                     Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT,
                     Uint32 shutdownTimeout = DEFAULT_SHUTDOWN_TIMEOUT);

@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By:
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicListener.h"
@@ -47,6 +43,7 @@
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/General/SSLContextManager.h>
 
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
@@ -75,9 +72,21 @@ public:
                        const String& consumerDir,
                        const String& consumerConfigDir,
                        SSLContext* sslContext,
+                       ReadWriteSem*  _sslContextObjectLock,
                        Boolean enableConsumerUnload,
                        Uint32 consumerIdleTimeout,
                        Uint32 shutdownTimeout);
+
+    DynamicListenerRep(
+        Uint32 portNumber,
+        const String& consumerDir,
+        const String& consumerConfigDir,
+        Boolean useSSL,
+        const String& keyPath,
+        const String& certPath,
+        Boolean enableConsumerUnload,
+        Uint32 consumerIdleTimeout,
+        Uint32 shutdownTimeout);
 
     ~DynamicListenerRep();
 
@@ -116,6 +125,8 @@ private:
     // config properties -- do we want to separate these out????
     Uint32 _port;
     SSLContext* _sslContext;
+    ReadWriteSem*  _sslContextObjectLock;
+    SSLContextManager *_sslContextMgr;
 };
 
 DynamicListenerRep::DynamicListenerRep(
@@ -123,9 +134,14 @@ DynamicListenerRep::DynamicListenerRep(
     const String& consumerDir,             //consumer mgr
     const String& consumerConfigDir,       //consumer mgr
     SSLContext* sslContext,                //listener svc
+    ReadWriteSem*  sslContextObjectLock,  // lock for accessing the ssl context
     Boolean enableConsumerUnload,          //consumer mgr
     Uint32 consumerIdleTimeout,            //consumer mgr
-    Uint32 shutdownTimeout) : _port(portNumber), _sslContext(sslContext)
+    Uint32 shutdownTimeout) :
+        _port(portNumber),
+        _sslContext(sslContext),
+        _sslContextObjectLock(sslContextObjectLock),
+        _sslContextMgr(0)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerRep::DynamicListenerRep");
 
@@ -140,6 +156,49 @@ DynamicListenerRep::DynamicListenerRep(
     PEG_METHOD_EXIT();
 }
 
+DynamicListenerRep::DynamicListenerRep(
+    Uint32 portNumber,
+    const String& consumerDir,             
+    const String& consumerConfigDir,       
+    Boolean useSSL,
+    const String& keyPath,
+    const String& certPath,
+    Boolean enableConsumerUnload,          
+    Uint32 consumerIdleTimeout,            
+    Uint32 shutdownTimeout) :
+        _port(portNumber),
+        _sslContext(0),
+        _sslContextObjectLock(0),
+        _sslContextMgr(0)
+{
+    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerRep::DynamicListenerRep");
+    
+    if (useSSL)
+    {
+        _sslContextMgr = new SSLContextManager();
+        _sslContextMgr->createSSLContext(
+            String(),
+            certPath,
+            keyPath,
+            String(),
+            true,
+            String(),
+            String());
+        _sslContext = _sslContextMgr->getSSLContext();
+        _sslContextObjectLock = _sslContextMgr->getSSLContextObjectLock();
+    }
+
+    _consumerManager = new ConsumerManager(
+        consumerDir,
+        consumerConfigDir,
+        enableConsumerUnload,
+        consumerIdleTimeout);
+
+    _listenerService = new ListenerService(_consumerManager);
+
+    PEG_METHOD_EXIT();
+}
+
 DynamicListenerRep::~DynamicListenerRep()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerRep::~DynamicListenerRep");
@@ -147,6 +206,8 @@ DynamicListenerRep::~DynamicListenerRep()
     delete _consumerManager;
 
     delete _listenerService;
+
+    delete _sslContextMgr;
 
     PEG_METHOD_EXIT();
 }
@@ -157,11 +218,16 @@ void DynamicListenerRep::start()
 
     if (_sslContext)
     {
-        _listenerService->initializeListener(_port, true, _sslContext);
+        _listenerService->initializeListener(
+            _port,
+            true,
+            _sslContext,
+            _sslContextObjectLock);
 
-    } else
+    }
+    else
     {
-        _listenerService->initializeListener(_port, false, 0);
+        _listenerService->initializeListener(_port, false, 0, 0);
     }
 
     _listenerService->runListener();
@@ -250,6 +316,7 @@ DynamicListener::DynamicListener(Uint32 portNumber,
                                   consumerDir,
                                   consumerConfigDir,
                                   0,
+                                  0,
                                   enableConsumerUnload,
                                   consumerIdleTimeout,
                                   shutdownTimeout);
@@ -267,24 +334,17 @@ DynamicListener::DynamicListener(
     Uint32 consumerIdleTimeout,
     Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
 {
-    SSLContext* sslContext = 0;
-    if (useSSL)
-    {
-        sslContext = new SSLContext(
-                             String::EMPTY,
-                             certPath,
-                             keyPath,
-                             0,
-                             String::EMPTY); //randFile);
-    }
 
-    _rep = new DynamicListenerRep(portNumber,
-                                  consumerDir,
-                                  consumerConfigDir,
-                                  sslContext,
-                                  enableConsumerUnload,
-                                  consumerIdleTimeout,
-                                  shutdownTimeout);
+    _rep = new DynamicListenerRep(
+        portNumber,
+        consumerDir,
+        consumerConfigDir,
+        useSSL,
+        keyPath,
+        certPath,
+        enableConsumerUnload,
+        consumerIdleTimeout,
+        shutdownTimeout);
 }
 
 DynamicListener::DynamicListener(
@@ -293,6 +353,7 @@ DynamicListener::DynamicListener(
     const String& consumerConfigDir,
     Boolean useSSL,
     SSLContext* sslContext,
+    ReadWriteSem*  sslContextObjectLock,
     Boolean enableConsumerUnload,
     Uint32 consumerIdleTimeout,
     Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
@@ -301,6 +362,7 @@ DynamicListener::DynamicListener(
                                   consumerDir,
                                   consumerConfigDir,
                                   sslContext,
+                                  sslContextObjectLock,
                                   enableConsumerUnload,
                                   consumerIdleTimeout,
                                   shutdownTimeout);

@@ -46,6 +46,7 @@ _dispatcher(0),
 _portNumber(0),
 _useSSL(false),
 _sslContext(0),
+_sslContextObjectLock(0),
 _initialized(0),
 _running(0),
 _dieNow(0),
@@ -77,8 +78,6 @@ ListenerService::~ListenerService()
     {
         //cleanup everything we initialized
 
-        delete _sslContext;
-
         delete _dispatcher;
 
         delete _responseEncoder;
@@ -98,8 +97,11 @@ ListenerService::ListenerService(const ListenerService& x)
 {
 }
 
-Boolean ListenerService::initializeListener(Uint32 portNumber,
-    Boolean useSSL, SSLContext* sslContext)
+Boolean ListenerService::initializeListener(
+    Uint32 portNumber,
+    Boolean useSSL,
+    SSLContext* sslContext,
+    ReadWriteSem*  sslContextObjectLock)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::initializeListener");
 
@@ -113,6 +115,7 @@ Boolean ListenerService::initializeListener(Uint32 portNumber,
     _portNumber = portNumber;
     _useSSL = useSSL;
     _sslContext = sslContext;
+    _sslContextObjectLock = sslContextObjectLock;
 
     if (_useSSL && (_sslContext == NULL))
     {
@@ -171,7 +174,7 @@ Boolean ListenerService::runListener()
                                 HTTPAcceptor::IPV6_CONNECTION,
                                 _portNumber,
                                 _sslContext,
-                                false);
+                                _sslContextObjectLock);
     }
 #ifndef PEGASUS_OS_TYPE_WINDOWS
     else
@@ -184,7 +187,7 @@ Boolean ListenerService::runListener()
                                 HTTPAcceptor::IPV4_CONNECTION,
                                 _portNumber,
                                 _sslContext,
-                                false);
+                                _sslContextObjectLock);
     }
 
     //create listening thread

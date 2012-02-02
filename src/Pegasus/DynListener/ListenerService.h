@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3654
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ListenerService_h
@@ -63,8 +59,11 @@ public:
 
     ListenerService(const ListenerService& x);
 
-    Boolean initializeListener(Uint32 portNumber, Boolean useSSL,
-        SSLContext* sslContext);
+    Boolean initializeListener(
+        Uint32 portNumber,
+        Boolean useSSL,
+        SSLContext* sslContext,
+        ReadWriteSem*  sslContextObjectLock);
 
     Boolean runListener();
 
@@ -87,6 +86,7 @@ private:
     Uint32 _portNumber;
     Boolean _useSSL;
     SSLContext* _sslContext;
+    ReadWriteSem*  _sslContextObjectLock;
 
     //ATTN: do we need to mutex the status?  The consumer mgr takes
     // care of synchronization ... but,

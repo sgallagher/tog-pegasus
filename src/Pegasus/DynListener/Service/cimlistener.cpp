@@ -796,7 +796,7 @@ MessageLoader::_useProcessLocale = false;
     // try loop to bind the address, and run the server
     try
     {
-
+#ifdef PEGASUS_HAS_SSL
         //create DynListener
         if (httpsConnection)
         {
@@ -812,6 +812,7 @@ MessageLoader::_useProcessLocale = false;
                 shutdownTimeout);
         }
         else
+#endif
         {
             _cimListener = new DynamicListener(
                 listenerPort,

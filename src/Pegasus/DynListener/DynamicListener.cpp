@@ -173,6 +173,7 @@ DynamicListenerRep::DynamicListenerRep(
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerRep::DynamicListenerRep");
     
+#ifdef PEGASUS_HAS_SSL
     if (useSSL)
     {
         _sslContextMgr = new SSLContextManager();
@@ -187,6 +188,7 @@ DynamicListenerRep::DynamicListenerRep(
         _sslContext = _sslContextMgr->getSSLContext();
         _sslContextObjectLock = _sslContextMgr->getSSLContextObjectLock();
     }
+#endif
 
     _consumerManager = new ConsumerManager(
         consumerDir,

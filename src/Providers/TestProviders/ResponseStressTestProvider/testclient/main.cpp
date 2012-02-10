@@ -103,26 +103,55 @@ public:
    //returnedPerformanceData = item;   // Copy the data to public place
 };
 
-
-// Enumerate the instance names for the defined
-void enumerateInstances(CIMClient& client, Uint64 responseCount)
+Boolean first = true;
+void _displayTimes( Uint32 objCount, Uint32 objSize, Uint64 elapsed,
+                    ClientOpPerformanceData& perfData)
 {
-    Stopwatch sw;
-    sw.start();
+    if (first)
+    {
+        if (!perfData.serverTimeKnown)
+        {
+            cout << "WARNING: Server statistics data may not be valid" << endl;
+        }
+        printf("Op ClientTime roundTripTime "
+               "serverTime  ReqSize      RespSize ObjSize "
+               " ObjCount\n");
+        first = false;
+    }
+
+    printf("%2u %10lu %13lu %10lu %8lu %12lu  %7u %9u\n",
+           perfData.operationType,
+           (long unsigned int) elapsed,
+           (long unsigned int)perfData.roundTripTime,
+           (long unsigned int)perfData.serverTime,
+           (long unsigned int) perfData.requestSize,
+           (long unsigned int) perfData.responseSize,
+           objSize, objCount);
+
+
+}
+// Enumerate the instance names for the defined
+void enumerateInstances(CIMClient& client, Uint64 responseCount,
+        Uint32 responseSize)
+{
     try
     {
+        Stopwatch sw;
+        sw.start();
         Array<CIMInstance> instances =
             client.enumerateInstances(NAMESPACE, TEST_CLASS);
 
         sw.stop();
-        double elapsed = sw.getElapsed();
+        Uint64 elapsed = sw.getElapsedUsec();
 
-        sw.printElapsed();
-        Uint64 rtTotalTime = 0;            
-        rtTotalTime = (returnedPerformanceData.roundTripTime);
-        Uint64 serverTime = returnedPerformanceData.serverTime;
+        _displayTimes(responseSize, instances.size(), elapsed,
+                      returnedPerformanceData);
+        //sw.printElapsed();
+//      Uint64 rtTotalTime = 0;
+//      rtTotalTime = (returnedPerformanceData.roundTripTime);
+//      Uint64 serverTime = returnedPerformanceData.serverTime;
         PEGASUS_TEST_ASSERT(instances.size() == responseCount);
-        
+
         // Confirm that the sequence numbers are monolithic increasing
         //
         Uint64 prevSequenceNumber = 0;
@@ -136,7 +165,7 @@ void enumerateInstances(CIMClient& client, Uint64 responseCount)
                 CIMValue v = p.getValue();
                 Uint64 sequenceNumber;
                 v.get(sequenceNumber);
-                //cout << "SequenceNumber = " << sequenceNumber 
+                //cout << "SequenceNumber = " << sequenceNumber
                 //    << " prevSequenceNumber " << prevSequenceNumber << endl;
 
                 PEGASUS_TEST_ASSERT(sequenceNumber == (prevSequenceNumber));
@@ -150,7 +179,11 @@ void enumerateInstances(CIMClient& client, Uint64 responseCount)
         exit(1);
     }
 }
-void enumerateInstanceNames(CIMClient& client, Uint64 responseCount)
+
+// Test to validate instance names. Executes the enumerate and tests the
+// number of responses against the expected response count
+void enumerateInstanceNames(CIMClient& client, Uint64 responseCount,
+                            Uint32 InstanceSize)
 {
     try
     {
@@ -199,7 +232,7 @@ void set(CIMClient& client, Uint64 instanceSize, Uint64 responseCount)
     Uint32 rc;
     returnValue.get(rc);
 
-    PEGASUS_TEST_ASSERT(rc == 0); 
+    PEGASUS_TEST_ASSERT(rc == 0);
 }
 
 // get the current provider test parameters.
@@ -291,10 +324,12 @@ int main(int argc, char** argv)
 
     // Register for Client statistics.
     ClientStatistics statistics = ClientStatistics();
+
     client.registerClientOpPerformanceDataHandler(statistics);
     try
     {
         client.connectLocal();
+        //client.connect("localhost", 5988, String(), String());
     }
     catch (Exception& e)
     {
@@ -304,20 +339,50 @@ int main(int argc, char** argv)
 
     try
     {
-        //CIMClient client = connectServer();
-    
-        testSetAndGetMethods(client);
+        // if no argument conduct simple standard test to validate the
+        // operation of the provider.
+        if (argc <=1)
+        {
+            //CIMClient client = connectServer();
 
-        // set test parameters to 150 = size, 20 = response count
-        Uint64 responseCount = 20;
-        Uint64 instanceSize = 150;
+            testSetAndGetMethods(client);
 
-        set(client, instanceSize, responseCount);
-    
-        enumerateInstanceNames(client, responseCount);
-    
-        enumerateInstances(client, responseCount);
+            // set test parameters to 150 = size, 20 = response count
+            Uint64 responseCount = 20;
+            Uint64 instanceSize = 150;
 
+            set(client, instanceSize, responseCount);
+
+            enumerateInstanceNames(client, responseCount, instanceSize);
+
+            enumerateInstances(client, responseCount, instanceSize);
+        }
+        else if (strcmp(argv[1],"test") == 0)
+        {
+            Array<Uint64> objSize;
+            objSize.append(100);
+            objSize.append(1000);
+            objSize.append(10000);
+            objSize.append(50000);
+            Array<Uint64> objCount;
+            objCount.append(100);
+            objCount.append(1000);
+            objCount.append(10000);
+            objCount.append(50000);
+            objCount.append(100000);
+            objCount.append(200000);
+            objCount.append(250000);
+            for (Uint32 x = 0; x < objSize.size() ; x++)
+            {
+                for(Uint32 y = 0; y < objCount.size(); y++)
+                {
+                    set(client, objSize[x], objCount[y]);
+
+                    enumerateInstances(client, objCount[y],
+                                           objSize[x]);
+                }
+            }
+        }
     }
     catch (Exception& e)
     {

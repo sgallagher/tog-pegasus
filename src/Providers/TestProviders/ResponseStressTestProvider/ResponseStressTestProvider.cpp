@@ -191,7 +191,7 @@ void ResponseStressTestProvider::enumerateInstances(
         // Each instance reflects time difference from previous instance
         // creation.
         Uint64 newTime = TimeValue::getCurrentTime().toMicroseconds();
-        
+
         try
         {
             CIMInstance instance = _buildInstance(i,
@@ -315,7 +315,7 @@ void ResponseStressTestProvider::invokeMethod(
                 }
             }
         }
-        
+
         // get method returns current _responseCount and instanceSize
         // parameters.
         else if (methodName.equal("get"))
@@ -342,7 +342,7 @@ void ResponseStressTestProvider::invokeMethod(
         }
         else
         {
-            cout << "Error, method name " 
+            cout << "Error, method name "
                 << methodName.getString() << " not in Provider" << endl;
             rtnCode = 2;
         }

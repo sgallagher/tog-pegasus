@@ -48,11 +48,11 @@
     2. EnumerateInstancePaths sequence
     3. Reference and ReferencePaths sequence
     4. Associator and AssociatorPaths sequence.
- 
+
     In addition special operations are included to:
- 
+
     1. all - Conduct the above tests on all instances in a namespace.
- 
+
     The goal of this test program is to be able to test 99% of the functionality
     of the pull operations excluding primarily error tests and tests
     specifically for the format of the requests and responses (which are
@@ -157,7 +157,7 @@ String password_opt = "";
 Uint32Arg timeout_opt(0);
 Uint32Arg maxObjectsOnOpen_opt(16);
 Uint32Arg maxObjectsOnPull_opt(16);
-String objectName_opt = ""; 
+String objectName_opt = "";
 bool compare_opt = false;
 Uint32 sleep_opt = 0;
 Uint32 verbose_opt = 5;
@@ -287,10 +287,10 @@ OPTIONS:\n\
              for repeat of particular open-pull sequence.
 */
 
-/************************************************************************* 
-** 
+/*************************************************************************
+**
 **    Structure to control use of a Uint32Arg based countdown
-**    Allows countdown based on the initialized value of the counter 
+**    Allows countdown based on the initialized value of the counter
 **    but only if the counter is initialized non-null.
 **    This allows simple count-down testing with the option to
 **    disable the test results simply by having the counter null.
@@ -298,7 +298,7 @@ OPTIONS:\n\
 **    The countdown is counter.ok which returns true and decrements the counter
 **    for each call until it reaches zero where it returns false. If
 **    counter is disabled it returns true.
-** 
+**
 **************************************************************************/
 struct uint32Counter
 {
@@ -388,7 +388,7 @@ void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
         return;
     }
     Uint64 enumResult = enumTime.getElapsedUsec();
-    Uint64 pullResult = pullTime.getElapsedUsec();    
+    Uint64 pullResult = pullTime.getElapsedUsec();
     Uint64 elapsedPullResult = elapsedPullTime.getElapsedUsec();
     if (compare_opt)
     {
@@ -398,19 +398,19 @@ void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
 
         cout << "stat pull=" << _showTime(pullResult)
              << " elap=" << _showTime(elapsedPullResult)
-             << " enum=" << _showTime(enumResult) 
-             << " diff=" << _showTime(diff) << " " 
+             << " enum=" << _showTime(enumResult)
+             << " diff=" << _showTime(diff) << " "
              << pullCounter << " pulls="
             << maxObjectsOnOpen_opt.getValue() << "/"
             << maxObjectsOnPull_opt.getValue();
- 
+
         // display more detailed difference info between the
-        // pull and original operations.   
+        // pull and original operations.
         if (diff != 0)
         {
             if (enumResult != 0)
             {
-                cout << " " << ( (abs(diff) * 100)/enumResult) << "%" 
+                cout << " " << ( (abs(diff) * 100)/enumResult) << "%"
                      << ((diff < 0)? " faster" : " slower") << endl;
             }
             else
@@ -421,12 +421,12 @@ void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
     }
     else    // no comparison requested so no enum times available.
     {
-        cout << "Stat Pull Execution " 
+        cout << "Stat Pull Execution "
              << _showTime(pullResult)
              << " Pull Elapsed " << _showTime(elapsedPullResult)
              << " for " << pullCounter << " pull ops." << endl;
     }
- }
+}
 //------------------------------------------------------------------------------
 //
 // Class, Instance, Object, QualifierDecl Array Sorts
@@ -658,17 +658,17 @@ void doSleep(Uint32 seconds)
 {
     if (seconds != 0)
     {
-        VCOUT5 << "Sleeping " << seconds << " seconds between operations" 
+        VCOUT5 << "Sleeping " << seconds << " seconds between operations"
                << endl;
         sleep(seconds);
     }
 }
 
-/*************************************************************************** 
-** 
+/***************************************************************************
+**
 **      Compare objects and instance functions
-** 
-****************************************************************************/ 
+**
+****************************************************************************/
 
 
 void clearHostAndNamespace(CIMObjectPath& p)
@@ -742,24 +742,24 @@ bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
 
     if (i1.getPath() != i2.getPath())
     {
-        VCOUT2 << "WARN: Paths Not identical " << i1.getPath().toString() 
+        VCOUT2 << "WARN: Paths Not identical " << i1.getPath().toString()
             << " " << i2.getPath().toString() << endl;
         warnings++;
     }
     else
     {
-        VCOUT1 << "ERROR: Instances Not identical " 
+        VCOUT1 << "ERROR: Instances Not identical "
             << i1.getPath().toString() << endl;
 
         if (i1.getPropertyCount() != i2.getPropertyCount())
         {
-            VCOUT1 << "ERROR: PropertyCounts differ " << i1.getPropertyCount() 
+            VCOUT1 << "ERROR: PropertyCounts differ " << i1.getPropertyCount()
                 << " " << i2.getPropertyCount() << endl;
         }
         if (i1.getQualifierCount() != i2.getQualifierCount())
         {
-            VCOUT1 << "ERROR: Qualifier Counts differ " 
-                << i1.getPropertyCount() 
+            VCOUT1 << "ERROR: Qualifier Counts differ "
+                << i1.getPropertyCount()
                 << " " << i2.getPropertyCount() << endl;
         }
 
@@ -772,27 +772,27 @@ bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
             {
                 if (p1.getName() != p2.getName())
                 {
-                    VCOUT1 << "ERROR: Property Names differ " 
+                    VCOUT1 << "ERROR: Property Names differ "
                          << p1.getName().getString() << " "
                          << p2.getName().getString() << endl;
                 }
 
                 else if (p1.getType() != p2.getType())
                 {
-                    VCOUT1 << "ERROR: Property Types differ " 
+                    VCOUT1 << "ERROR: Property Types differ "
                          << p1.getName().getString()
-                         << " " << p1.getType() << " " 
+                         << " " << p1.getType() << " "
                          << p2.getType() << endl;
                 }
                 else if(p1.isArray() != p2.isArray())
                 {
-                    VCOUT1 << "Property Array flags differ " 
+                    VCOUT1 << "Property Array flags differ "
                          << p1.getName().getString() << endl;
                 }
                 else if(p1.getArraySize() != p2.getArraySize())
                 {
-                    VCOUT1 << "ERROR: Property Array size parameters differ " 
-                         << p1.getName().getString() 
+                    VCOUT1 << "ERROR: Property Array size parameters differ "
+                         << p1.getName().getString()
                          <<  " " << p1.getArraySize() << " "
                          <<  p2.getArraySize() << endl;
                 }
@@ -802,15 +802,15 @@ bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
                     CIMValue v2 = p2.getValue();
                     if (!v1.equal(v2))
                     {
-                        VCOUT1 << "ERROR: Property values differ for " 
+                        VCOUT1 << "ERROR: Property values differ for "
                              << p1.getName().getString() << " "
-                             << v1.toString() << " " 
+                             << v1.toString() << " "
                              << v2.toString() << endl;
                     }
                     else
                     {
                         VCOUT1 << "ERROR: Properties Not identical in param"
-                                " other than type, value, etc " 
+                                " other than type, value, etc "
                             << i1.getPath().toString() << endl;
                     }
 
@@ -831,7 +831,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
     // Display the returned counters and msg type
     VCOUT4 <<  op << " Requested = " << expectedCount.toString()
         << " Returned = " << returnedCount
-        << " endOfSequence = " << _toCharP(endOfSequence) 
+        << " endOfSequence = " << _toCharP(endOfSequence)
         << endl;
 
     // Test for correct returns
@@ -857,7 +857,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
             VCOUT1 << "ERROR: Delivered more objects than requested."
                      << " Expected " << expectedCount.toString()
                      << ". Delivered " << returnedCount << endl;
-            return true;              
+            return true;
         }
     }
     // unreachable
@@ -897,7 +897,7 @@ Boolean compareInstances(const String& s1, const String s2,
             << endl;
         rtn = false;
     }
-    
+
     // sort the two arrays since there is no guarantee that the
     // returned with same ordering.
     _Sort(inst1);
@@ -990,17 +990,17 @@ void displayRtnSizes(const char * op, Uint32Arg& maxObjectCount,
 {
     VCOUT4 <<  op << " Requested " << maxObjectCount.toString()
         << " Returned " << returnedSize
-        << " endOfSequence = " << _toCharP(endOfSequence) 
+        << " endOfSequence = " << _toCharP(endOfSequence)
         << endl;
 }
-/****************************************************************************** 
-**  
+/******************************************************************************
+**
 **   Test Execution functions. There is a function for each Open.
 **   They conduct a complete test (open, pull (possibly close) based on
 **   input parameters.  Each also includes a test of the results against
 **   an equivalent non-pull operation to be sure getting same number and
 **   same information.
-**  
+**
 *******************************************************************************/
 
 /*
@@ -1044,7 +1044,7 @@ bool pullInstancePaths(CIMClient& client,
     // Terminated the previous loop early (max count) so issue a close.
     if (!endOfSequence)
     {
-        VCOUT4 << "Issue closeEnumeration Operation for " 
+        VCOUT4 << "Issue closeEnumeration Operation for "
              << openOpName << ". Received count " << resultArray.size()
              << endl;
         timer.start();
@@ -1092,7 +1092,7 @@ bool pullInstancesWithPath(CIMClient& client,
     // Terminated the previous loop early (max count) so issue a close.
     if (!endOfSequence)
     {
-        VCOUT4 << "Issue closeEnumeration Operation for " 
+        VCOUT4 << "Issue closeEnumeration Operation for "
              << openOpName << ". Received count " << resultArray.size()
              << endl;
         timer.start();
@@ -1160,7 +1160,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         Array<CIMInstance> cimInstances;
         CIMEnumerationContext enumerationContext;
-        
+
         VCOUT4 << "Issue openEnumerateInstances " << ClassName
                << " maxObjectCount =  " << maxObjectCount.toString()
             << ". timeout = " << timeout_opt.toString() << endl;
@@ -1227,7 +1227,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
             compareInstances("enumerateInstancesWithPath",
                              "enumerateInstances",
-                             cimInstances, cimInstancesOrig);      
+                             cimInstances, cimInstancesOrig);
         }
         if (!validateInstancePath(cimInstances))
             VCOUT1 << "Error in path return of PullInstancesWithPath" << endl;
@@ -1279,7 +1279,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
         Array<CIMObjectPath> cimObjectPaths;
         CIMEnumerationContext enumerationContext;
 
-        VCOUT4 << "Issue openEnumerateInstancesPaths. maxObjectCount = " 
+        VCOUT4 << "Issue openEnumerateInstancesPaths. maxObjectCount = "
             << maxObjectCount.toString()
             << ". timeout = " << operationTimeout.toString() << endl;
 
@@ -1309,7 +1309,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
         doSleep(sleep_opt);
 
         maxObjectCount = maxObjectsOnPull_opt;
-    
+
         //enumerationContext.print();
         // issue pulls to get remaning objects. Note that we may close
         // early depending on the maxOperationsCounter
@@ -1330,13 +1330,13 @@ void testPullEnumerationInstancePaths(CIMClient& client,
         {
             enumTime.start();
             // get the objects with monolithic operation
-            Array<CIMObjectPath> cimObjectPaths2 = 
+            Array<CIMObjectPath> cimObjectPaths2 =
                 client.enumerateInstanceNames(
                     nameSpace,
                     ClassName);
 
             enumTime.stop();
-    
+
             compareObjectPaths("PullEnumerateInstancePaths",
                          "enumerateInstanceNames",
                          cimObjectPaths, cimObjectPaths2);
@@ -1385,9 +1385,9 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         // TODO - Fix up function to test creation of cimobjectPath from
         // input since this can be such a mess.
 
-        VCOUT4 << "Issue openReferencesInstances for " << objectPath 
-            << " maxObjects " << maxObjectsOnOpen_opt.toString() 
-            << " Instances." 
+        VCOUT4 << "Issue openReferencesInstances for " << objectPath
+            << " maxObjects " << maxObjectsOnOpen_opt.toString()
+            << " Instances."
             << " timeout " << timeout_opt.toString() << endl;
 
         Stopwatch pullTime;
@@ -1447,11 +1447,11 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
                 includeClassQualifiers,
                 includeClassOrigin,
                 cimPropertyList);
-  
+
             enumTime.stop();
 
             compareInstances(operationName, "references",
-                             cimInstances, cimInstancesPull);      
+                             cimInstances, cimInstancesPull);
         }
         displayTimeDiff(pullTime, enumTime, elapsedPullTime);
     }
@@ -1495,7 +1495,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
         CIMEnumerationContext enumerationContext;
         Boolean endOfSequence;
 
-        VCOUT4 << "Issue openReferencePaths for instance paths. " 
+        VCOUT4 << "Issue openReferencePaths for instance paths. "
             << " maxObjectCount = " << maxObjectsOnOpen_opt.toString()
             << " timeout " << timeout_opt.toString() << endl;
 
@@ -1605,8 +1605,8 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
         // TODO - Fix up function to test creation of cimobjectPath from
         // input since this can be such a mess.
 
-        VCOUT4 << "Issue openAssociationInstances for " << objectPath 
-            << maxObjectCount.getValue() << " Instances." 
+        VCOUT4 << "Issue openAssociationInstances for " << objectPath
+            << maxObjectCount.getValue() << " Instances."
             << " timeout " << timeout_opt.toString() << endl;
 
         Stopwatch pullTime;
@@ -1673,10 +1673,10 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
                 cimPropertyList);
 
             enumTime.stop();
-              
+
             // note that this actually calls compare of instance to object
             compareInstances("PullAssociators", "associators",
-                             cimInstances, cimObjectsOrig);      
+                             cimInstances, cimObjectsOrig);
         }
         displayTimeDiff(pullTime, enumTime, elapsedPullTime);
     }
@@ -1724,7 +1724,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
         CIMEnumerationContext enumerationContext;
         Boolean endOfSequence;
 
-        VCOUT4 << "Issue openAssociatorInstancePaths for instance paths. " 
+        VCOUT4 << "Issue openAssociatorInstancePaths for instance paths. "
             << " maxObjectCount = " << maxObjectsOnOpen_opt.toString()
             << " timeout " << timeout_opt.toString() << endl;
 
@@ -1778,7 +1778,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
             // get the objects with monolithic operation
             enumTime.start();
 
-            Array<CIMObjectPath> cimObjectPathsOrig = 
+            Array<CIMObjectPath> cimObjectPathsOrig =
                 client.associatorNames(
                     nameSpace,
                     targetObjectPath,
@@ -1786,7 +1786,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
                     resultClass,
                     role,
                     resultRole);
-    
+
             enumTime.stop();
 
             compareObjectPaths("PullAssociatorInstancePaths",
@@ -1849,12 +1849,12 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
                  << instanceNames.size() << " instances" << endl;
         }
     }
-    VCOUT5 << "Test " << cn.size() << " classes. Total " 
+    VCOUT5 << "Test " << cn.size() << " classes. Total "
         << instanceCount << " instances." << endl;
 
     Uint32 counter;
     Stopwatch testTime;
- 
+
     //
     //  Test Pull EnumerateInstances for all classes with instances
     //
@@ -1869,7 +1869,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
         counter++;
     }
     testTime.stop();
-    VCOUT4 << "Tested PullEnumerationInstances of " << counter 
+    VCOUT4 << "Tested PullEnumerationInstances of " << counter
            << " classes in " << _showTime(testTime.getElapsed()) << endl;
 
     //
@@ -1886,7 +1886,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
         counter++;
     }
     testTime.stop();
-    VCOUT4 << "Tested PullEnumerationInstances of " << counter 
+    VCOUT4 << "Tested PullEnumerationInstances of " << counter
            << " classes in " << _showTime(testTime.getElapsed()) << endl;
 
     // Test association requests against all instances in the system
@@ -1897,7 +1897,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     {
         Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(ns,
             cn[i]);
-        
+
         for (Uint32 j = 0; j < instanceNames.size() ; j++)
         {
             CIMObjectPath objectName = instanceNames[j];
@@ -1950,12 +1950,12 @@ Boolean parseHostName(const String arg, String& hostName, Uint32& port)
     return true;
 }
 
-/****************************************************************************** 
-** 
+/******************************************************************************
+**
 **  Main - parse input options and call function defined by
 **         OperationType parameter
-** 
-******************************************************************************/ 
+**
+******************************************************************************/
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -2067,7 +2067,7 @@ int main(int argc, char** argv)
                 if (strcasecmp("null", optarg) == 0)
                 {
                     // KS_TODO - I think this should be illegal
-                    // but we leave it for a test                    
+                    // but we leave it for a test
                     maxObjectsOnPull_opt.setNullValue();
                 }
                 else
@@ -2124,7 +2124,7 @@ int main(int argc, char** argv)
                 {
                     // KS_TODO - I think this should be illegal
                     // but we leave it for a test. Besides this is
-                    // the default if not used.              
+                    // the default if not used.
                     maxOperationsCount_opt.setNullValue();
                 }
                 else
@@ -2227,7 +2227,7 @@ int main(int argc, char** argv)
             testPullReferenceInstances(client,nameSpace, ObjectName);
         }
         else if (operation == "rn")
-        {    
+        {
             testPullReferenceInstancePaths(client,nameSpace,ObjectName );
         }
         else if (operation == "a")
@@ -2282,7 +2282,7 @@ int main(int argc, char** argv)
     }
     else if (exitCode != 0)
     {
-        cout << arg0 <<" +++++ failed tests with exception generated."; 
+        cout << arg0 <<" +++++ failed tests with exception generated.";
         if (reverseExitCode_opt)
         {
             cout << " Return +++ passed tests exit (-R set) ";
@@ -2291,7 +2291,7 @@ int main(int argc, char** argv)
     }
     else if (errors != 0)
     {
-        cout << arg0 <<" +++++ failed tests with " 
+        cout << arg0 <<" +++++ failed tests with "
              <<  errors << " error(s).";
         if (reverseExitCode_opt)
         {
@@ -2302,7 +2302,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        cout << arg0 <<" +++++ passed all tests with " 
+        cout << arg0 <<" +++++ passed all tests with "
              <<  warnings << " warning(s).";
         if (reverseExitCode_opt)
         {

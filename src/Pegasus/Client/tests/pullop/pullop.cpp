@@ -106,6 +106,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/Print.h>
 
 #include <execinfo.h>
 #include <stdio.h>
@@ -115,10 +116,54 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#define LOCAL_MIN(a, b) ((a < b) ? a : b)
+#define LOCAL_MAX(a, b) ((a > b) ? a : b)
+
 static const char * _toCharP(Boolean x)
 {
     return (x? "true" : "false");
 }
+
+// Convert a CIMPropertyList parameter to CIM String
+String _toString(const CIMPropertyList& pl)
+{
+    String rtn;
+    Array<CIMName> pls = pl.getPropertyNameArray();
+    if (pl.isNull())
+        return("NULL");
+
+    if (pl.size() == 0)
+        return("EMPTY");
+
+    for (Uint32 i = 0 ; i < pls.size() ; i++)
+    {
+        if (i != 0)
+        {
+            rtn.append(", ");
+        }
+        rtn.append(pls[i].getString());
+    }
+    return(rtn);
+}
+
+// Convert a CIMPropertyList parameter to CIM String
+String _toStringProperties(const CIMInstance& inst)
+{
+    String rtn;
+
+    for (size_t i = 0 ; i < inst.getPropertyCount() ; i++)
+    {
+        if (i > 0)
+        {
+            rtn.append(" ");
+        }
+        CIMConstProperty p = inst.getProperty(i);
+        rtn.append(p.getName().getString());
+    }
+
+    return(rtn);
+}
+
 //***************************************************************************
 //
 //     Comand line option parameters
@@ -130,7 +175,7 @@ static char * verbose;
 // The level of detail of output will depend on the level defined for
 // the verbose_opt. Specifying a level on input gets that level and lower.
 /*
-    Definition What is displayed at each level
+    Definition of what is displayed at each level
     5 - Object/name details
     4 - Details of operations (i.e. data returned
     3 - Overview of each operation (send and rtn parameters)
@@ -152,6 +197,7 @@ String namespace_opt = "";
 String host_opt = "";
 String user_opt = "";
 String password_opt = "";
+
 // Spec default is null. We are using 0 for the moment.
 // should be without the (0) which would get null state.
 Uint32Arg timeout_opt(0);
@@ -725,8 +771,11 @@ void clearHostAndNamespace(CIMInstance& inst)
     clear the host and namespace fields since they will be different
     at least between enumerates and pull enumerates.
 */
-bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
-                     bool ignoreHost = true, bool verboseCompare=false)
+bool compareInstance(const String& s1, const String& s2,
+    const CIMInstance& inst1,
+    const CIMInstance& inst2,
+    bool ignoreHost = true,
+    bool verboseCompare=false)
 {
     CIMInstance i1 = inst1.clone();
     CIMInstance i2 = inst2.clone();
@@ -742,47 +791,93 @@ bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
 
     if (i1.getPath() != i2.getPath())
     {
-        VCOUT2 << "WARN: Paths Not identical " << i1.getPath().toString()
-            << " " << i2.getPath().toString() << endl;
+        VCOUT2 << "WARN: Paths Not identical " << s1 << " "
+               << i1.getPath().toString()
+               << " " << s2 << " " << i2.getPath().toString()
+               << endl;
         warnings++;
     }
+
     else
     {
         VCOUT1 << "ERROR: Instances Not identical "
             << i1.getPath().toString() << endl;
 
+        bool switchInstances = false;
         if (i1.getPropertyCount() != i2.getPropertyCount())
         {
-            VCOUT1 << "ERROR: PropertyCounts differ " << i1.getPropertyCount()
-                << " " << i2.getPropertyCount() << endl;
+            VCOUT1 << "ERROR: PropertyCounts differ " << s1 << " "
+                <<  i1.getPropertyCount()
+                << " " << s2 << " " << i2.getPropertyCount() << endl;
+
+            VCOUT1 << s1 << ": " << _toStringProperties(i1) << endl;
+            VCOUT1 << s2 << ": " << _toStringProperties(i2) << endl;
+
+            if (i2.getPropertyCount() > i1.getPropertyCount())
+            {
+                switchInstances = true;
+            }
         }
+
         if (i1.getQualifierCount() != i2.getQualifierCount())
         {
             VCOUT1 << "ERROR: Qualifier Counts differ "
-                << i1.getPropertyCount()
-                << " " << i2.getPropertyCount() << endl;
+                << s1 << " " << i1.getPropertyCount()
+                << " " << s2 << " " << i2.getPropertyCount() << endl;
         }
 
-        // Test for matching property counts
+        // Test individual properties for differences
+        // Set so the s1,i1 definition has more properties
+        String s11 = s1;
+        String s21 = s2;
+        if (switchInstances)
+        {
+            s11 = s2;
+            s21 = s1;
+
+            CIMInstance itemp = i1;
+            i1 = i2;
+            i2 = itemp;
+        }
+
         for (Uint32 i = 0 ; i < i1.getPropertyCount() ; i++)
         {
             CIMConstProperty p1 = i1.getProperty(i);
-            CIMConstProperty p2 = i2.getProperty(i);
+            CIMConstProperty p2;
+            bool found = false;
+            for (size_t j = 0 ; j < i2.getPropertyCount() ; i++)
+            {
+
+                p2 = i2.getProperty(j);
+                if (p2.getName() == p1.getName())
+                {
+                    break;
+                    found = true;
+                }
+            }
+            if (!found)
+            {
+                VCOUT1 << "Property " << p1.getName().getString()
+                       << " not found in " << s21 << endl;
+                continue;
+            }
+
             if (!p1.identical(p2))
             {
                 if (p1.getName() != p2.getName())
                 {
-                    VCOUT1 << "ERROR: Property Names differ "
-                         << p1.getName().getString() << " "
-                         << p2.getName().getString() << endl;
+                    VCOUT1 << "ERROR: Property Names differ. Property " << i
+                         << " "
+                         << s11 << " " << p1.getName().getString() << " "
+                         << s21 << " " << p2.getName().getString() << endl;
                 }
 
                 else if (p1.getType() != p2.getType())
                 {
                     VCOUT1 << "ERROR: Property Types differ "
-                         << p1.getName().getString()
+                         << s11 << " " << p1.getName().getString()
                          << " " << p1.getType() << " "
-                         << p2.getType() << endl;
+                         << s21 << " " << p2.getType() << endl;
                 }
                 else if(p1.isArray() != p2.isArray())
                 {
@@ -804,8 +899,8 @@ bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
                     {
                         VCOUT1 << "ERROR: Property values differ for "
                              << p1.getName().getString() << " "
-                             << v1.toString() << " "
-                             << v2.toString() << endl;
+                             << s11 << " " <<  v1.toString() << " "
+                             << s21 << " " << v2.toString() << endl;
                     }
                     else
                     {
@@ -815,7 +910,15 @@ bool compareInstance(const CIMInstance& inst1, const CIMInstance& inst2,
                     }
 
                 }
-            }
+                if (verbose_opt >= 1)
+                {
+                    cout << s11;
+                    PrintInstance(cout, i1);
+                    cout << s21;
+                    PrintInstance(cout, i2);
+
+                }
+            }  // end if not equal
         }
     }
     return false;
@@ -904,7 +1007,8 @@ Boolean compareInstances(const String& s1, const String s2,
     _Sort(inst2);
     for (Uint32 i = 0 ; i < inst1.size() ; i++)
     {
-        bool localRtn = compareInstance(inst1[i], inst2[i], true, verbose);
+        bool localRtn = compareInstance(s1, s2,
+                                        inst1[i], inst2[i], true, verbose);
         if (!localRtn)
         {
             rtn = false;
@@ -942,7 +1046,10 @@ Boolean compareInstances(const String& s1, const String s2,
     for (Uint32 i = 0 ; i < instances.size() ; i++)
     {
         CIMInstance instLocal = (CIMInstance)objects[i];
-        bool localRtn = compareInstance(instances[i], instLocal, true, verbose);
+        bool localRtn = compareInstance(s1, s2,
+                                        instances[i],
+                                        instLocal,
+                                        true, verbose);
         if (!localRtn)
         {
             errors++;
@@ -1157,8 +1264,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         Boolean endOfSequence = false;
         CIMPropertyList propertyList(propertyList_opt);
 
-
-        Array<CIMInstance> cimInstances;
+        Array<CIMInstance> pulledInstances;
         CIMEnumerationContext enumerationContext;
 
         VCOUT4 << "Issue openEnumerateInstances " << ClassName
@@ -1172,7 +1278,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         pullTime.start();
         elapsedPullTime.start();
 
-        cimInstances = client.openEnumerateInstances(
+        pulledInstances = client.openEnumerateInstances(
             enumerationContext,
             endOfSequence,
             nameSpace,
@@ -1189,7 +1295,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         pullTime.stop();
 
         displayAndTestReturns(operationName, endOfSequence,
-            cimInstances.size(), maxObjectCount);
+            pulledInstances.size(), maxObjectCount);
 
         doSleep(sleep_opt);
 
@@ -1202,10 +1308,10 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
-                                              cimInstances, maxObjectCount,
-                                              maxOperationsCounter,
-                                              enumerationContext,
-                                              pullTime);
+                              pulledInstances, maxObjectCount,
+                              maxOperationsCounter,
+                              enumerationContext,
+                              pullTime);
         }
 
         elapsedPullTime.stop();
@@ -1214,7 +1320,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         if (compare_opt && endOfSequence)
         {
             enumTime.start();
-            Array<CIMInstance> cimInstancesOrig = client.enumerateInstances(
+            Array<CIMInstance> enumeratedInstances = client.enumerateInstances(
                 nameSpace,
                 ClassName,
                 deepInheritance,
@@ -1225,11 +1331,11 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
             enumTime.stop();
 
-            compareInstances("enumerateInstancesWithPath",
-                             "enumerateInstances",
-                             cimInstances, cimInstancesOrig);
+            compareInstances("PullnstancesWithPath",
+                             "EnumerateInstances  ",
+                             pulledInstances, enumeratedInstances);
         }
-        if (!validateInstancePath(cimInstances))
+        if (!validateInstancePath(pulledInstances))
             VCOUT1 << "Error in path return of PullInstancesWithPath" << endl;
 
         displayTimeDiff(pullTime, enumTime, elapsedPullTime);
@@ -1397,7 +1503,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         pullTime.start();
         elapsedPullTime.start();
 
-        Array<CIMInstance> cimInstances = client.openReferenceInstances(
+        Array<CIMInstance> pulledInstances = client.openReferenceInstances(
             enumerationContext,
             endOfSequence,
             nameSpace,
@@ -1414,7 +1520,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             );
 
         displayAndTestReturns(operationName, endOfSequence,
-            cimInstances.size(), maxObjectsOnOpen_opt);
+            pulledInstances.size(), maxObjectsOnOpen_opt);
 
         doSleep(sleep_opt);
 
@@ -1425,7 +1531,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
-                                              cimInstances, maxObjectCount,
+                                              pulledInstances, maxObjectCount,
                                               maxOperationsCounter,
                                               enumerationContext,
                                               pullTime);
@@ -1439,7 +1545,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             Boolean includeClassQualifiers = false;
 
             enumTime.start();
-            Array<CIMObject> cimInstancesPull = client.references(
+            Array<CIMObject> refdInstances = client.references(
                 nameSpace,
                 targetObjectPath,
                 resultClass,
@@ -1451,7 +1557,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             enumTime.stop();
 
             compareInstances(operationName, "references",
-                             cimInstances, cimInstancesPull);
+                             pulledInstances, refdInstances);
         }
         displayTimeDiff(pullTime, enumTime, elapsedPullTime);
     }
@@ -1962,6 +2068,14 @@ int main(int argc, char** argv)
 
     const char* arg0 = argv[0];
 
+    //  Save input arg list for display
+    String argvParams;
+    for (int i = 1; i < argc ; i ++)
+    {
+        argvParams.append(" ");
+        argvParams.append(argv[i]);
+    }
+
     /*
         Analyze and set all input options. uses getopt so, by definition
         all options are proceeded by single -. We make a single exception
@@ -2161,6 +2275,9 @@ int main(int argc, char** argv)
         exit(1);
     }
     String operation = argv[0];
+
+    // conditional display of input parameters
+    VCOUT1 << "START " << arg0 << " " << argvParams << endl;
 
     CIMClient client;
     try

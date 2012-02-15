@@ -44,6 +44,10 @@ LIBRARIES = \
     pegquerycommon \
     pegcommon
 
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif
+
 SOURCES = CQLValue.cpp
 
 

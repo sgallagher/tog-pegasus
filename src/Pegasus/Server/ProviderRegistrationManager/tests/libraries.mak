@@ -36,3 +36,8 @@ LIBRARIES = \
     pegqueryexpression \
     peggeneral \
     pegcommon
+
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif
+    

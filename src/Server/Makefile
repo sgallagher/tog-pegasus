@@ -99,6 +99,10 @@ LIBRARIES += \
     peggeneral \
     pegcommon
 
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif
+
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   LIBRARIES += ILEWrapperUtils
 endif

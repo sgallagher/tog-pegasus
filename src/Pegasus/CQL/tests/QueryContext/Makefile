@@ -45,6 +45,10 @@ LIBRARIES = \
     pegquerycommon \
     pegcommon
 
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif
+
 PROGRAM = TestQueryContext
 SOURCES = TestQueryContext.cpp
 

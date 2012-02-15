@@ -34,3 +34,8 @@ LIBRARIES= \
     peguser \
     pegconfig \
     pegcommon
+
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif
+    

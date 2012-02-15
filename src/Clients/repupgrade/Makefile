@@ -45,6 +45,10 @@ LIBRARIES = \
     peggeneral \
     pegcommon
 
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif    
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = repupgrade

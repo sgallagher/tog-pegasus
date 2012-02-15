@@ -38,6 +38,10 @@ LIBRARIES = \
     peggeneral \
     pegcommon
 
+ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
+    LIBRARIES += z
+endif
+
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = tomof

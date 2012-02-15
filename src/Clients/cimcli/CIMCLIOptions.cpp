@@ -289,6 +289,7 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP",
         "Measure time for the operation and present results"},
 
+//EXP_PULL_BEGIN
         {"pullTimeout", "10", false, Option::WHOLE_NUMBER, 0, 0, "pt",
             "Clients.cimcli.CIMCLIClient.PULLTIMEOUT",
             "Pull interoperation timeout in seconds. "},
@@ -306,6 +307,7 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.PULLDELAY",
             "Delay in Seconds between pull Operations. "
             "Default zero, no delay."},
+// EXP_PULL_END
 
         {"sort", "false", false, Option::BOOLEAN, 0, 0, "-sort",
         "Clients.cimcli.CIMCLIClient.SORT_OPTION_HELP",
@@ -510,7 +512,8 @@ void lookupUint32Option(Options& opts,
     }
 }
 
-// Lookup a single Uin32 option.  NOTE: The issue here is with detecting
+//EXP_PULL_BEGIN
+// Lookup a single Uint32 option.  NOTE: The issue here is with detecting
 // whether the option exists or we should use the internal default.
 // Return from the option manager is the defined default which is itself
 // an integer.
@@ -543,6 +546,7 @@ void lookupUint32ArgOption(Options& opts,
             << endl;
     }
 }
+//EXP_PULL_END
 
 // Lookup value only if the option was resolved. Ignores default values.
 Boolean lookupUint32ResolvedOption(Options& opts,
@@ -695,9 +699,9 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     lookupUint32Option(opts, om, "connecttimeout", opts.connectionTimeout, 0,
         "seconds");
 
-    lookupUint32Option(opts, om, "connecttimeout", opts.connectionTimeout, 0,
-        "seconds");
+    lookupUint32Option(opts, om, "delay", opts.delay, 0, "seconds");
 
+//EXP_PULL_BEGIN
     // Options to support parameters on pull operations
     lookupUint32ArgOption(opts, om, "pullTimeout",
                           opts.pullOperationTimeout, 0, "seconds");
@@ -707,6 +711,7 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     lookupUint32Option(opts, om, "pullDelay", opts.pullDelay, 0, "seconds");
     lookupUint32Option(opts, om, "maxObjectsToReceive",
                        opts.maxObjectsToReceive, 0, "seconds");
+//EXP_PULL_END
 
     // Set the interactive request flag based on input
     lookupBooleanOption(opts, om,"interactive", opts.interactive);

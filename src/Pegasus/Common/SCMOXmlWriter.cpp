@@ -126,7 +126,8 @@ void SCMOXmlWriter::appendValueSCMOInstanceElements(
         } 
     } 
 }
- 
+
+// EXP_PULL_BEGIN 
 void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements( 
      Buffer& out, 
      const Array<SCMOInstance> & _scmoInstances, 
@@ -166,6 +167,7 @@ void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
         } 
     } 
 } 
+//EXP_PULL_END
 
 // KS_TODO - Show the XML statement for this function
 void SCMOXmlWriter::appendValueSCMOInstanceElement(
@@ -182,6 +184,7 @@ void SCMOXmlWriter::appendValueSCMOInstanceElement(
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
 
+// EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // appendValueInstanceWithPathElement() -- Pull Operation support
@@ -204,6 +207,7 @@ void SCMOXmlWriter::appendValueSCMOInstanceWithPathElement(
 
     out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
 }
+//EXP_PULL_END
 
 void SCMOXmlWriter::appendInstanceNameElement(
     Buffer& out,
@@ -835,6 +839,7 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
     }
 }
 
+//EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // appendValueInstanceWithPathElement()
@@ -857,6 +862,7 @@ void SCMOXmlWriter::appendValueInstanceWithPathElement(
 
     out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
 }
+//EXP_PULL_END
 
 // appendValueObjectWithPathElement()
 //     <!ELEMENT VALUE.OBJECTWITHPATH

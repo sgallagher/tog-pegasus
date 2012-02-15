@@ -841,7 +841,7 @@ void XmlWriter::appendValueNamedInstanceElement(
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
 
-//EXP_PULL
+//EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // appendValueInstanceWithPathElement()
@@ -2187,6 +2187,7 @@ void XmlWriter::_appendIParamValueElementEnd(
     out << STRLIT("</IPARAMVALUE>\n");
 }
 
+//EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // _appendParamValueElementBegin()
@@ -2211,6 +2212,7 @@ void XmlWriter::_appendParamValueElementEnd(
 {
     out << STRLIT("</PARAMVALUE>\n");
 }
+//EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // _appendSimpleRspElementBegin()
@@ -2528,7 +2530,7 @@ void XmlWriter::appendStringIParameter(
     _appendIParamValueElementEnd(out);
 }
 
-// EXP_PULL
+// EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // appendStringIParameterIfNotEmpty()
@@ -3028,7 +3030,7 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
     {
         if (body.size() != 0 || isFirst == false)
             _appendIReturnValueElementEnd(out);
-        // EXP_PULL
+        // EXP_PULL_BEGIN
         // If there are any parameters include them here.
         // Assumes that it is prebuilt with all components
         // 

@@ -29,7 +29,9 @@
 
 [Version ("2.5.0"), Description(
     "Class to test input and output of all property types that can "
-    "be handled by cimcli. Does not cover embedded types.") ]
+    "be handled by cimcli. Does not cover embedded types. See other "
+    "classes in this file for handling of the embedded entity classes. "
+    "The REF data type in methods is also covered in other classes today.") ]
 class Test_CLITestProviderClass
 {
     [key]
@@ -94,11 +96,11 @@ class Test_CLITestProviderClass
         [out] Test_CLITestProviderClass REF OutParam1,
         [out] Test_CLITestProviderClass REF OutParam2[]);
 
-   [ Description("Method to test input and output of all "
-        "parameter types. Provider is expected to return "
-	"all parameters input.") ]
-   uint32 InOutParamTest(
-        [in, out] Boolean scalBool,
+	[ Description("Method to test input and output of all "
+	"parameter types except REF and embedded entity. Provider "
+    "is expected to return all parameters input.") ]
+    uint32 InOutParamTest(
+    [in, out] Boolean scalBool,
 	[in, out] Uint8   scalUint8,
 	[in, out] Sint8   scalSint8,
 	[in, out] Uint16  scalUint16,
@@ -140,7 +142,7 @@ class Test_CLITestProviderClass
 	[in] String  inScalString,
 	[in] Datetime inScalDateTime,
 
-        [out] Boolean outScalBool,
+    [out] Boolean outScalBool,
 	[out] Uint8   outScalUint8,
 	[out] Sint8   outScalSint8,
 	[out] Uint16  outScalUint16,
@@ -154,23 +156,43 @@ class Test_CLITestProviderClass
 	[out] Datetime outScalDateTime
 	);
 
-   [ Description("Method to set parameters to modify provider behavior") ]
+       [ Description("Method to set parameters to modify provider behavior"),
+       static ]
    uint32 setProviderParameters(
         [in, out] String substituteHostName
 	);
 
-   [ Description("Method to reset all parameters provider behavior "
-       " parameters") ]
+       [ Description("Method to reset all parameters that control provider "
+       "behavior "), static ]
    uint32 resetProviderParameters();
+
+       [ Description("Method to reset provider to initial state. Resets "
+       "parameters same as resetProviderParameters and also restores "
+       "internal instance cache to initial state. "), static ]
+   uint32 reset();
+
+       [Description ("Method to set or reset debug mode for the provider. "
+       "In debug mode, the provider displays information when called. "
+       "Parameter is new state. Returns 0 if state changed. Rtn 1 if "
+       "same state.  Else return 2, as error "), static ]
+   uint32 debugMode(Boolean newState);
 };
 
-[Association, Version("1.0.0"), Description("Defines the "
-    "relationship between parents and children. "
-    "Test Ref/Assoc functions in cimli") ]
+[Association, Version("1.0.0"), Description (
+    "Defines the relationship between parents and children. "
+    "Used to test Ref/Assoc functions and creation/modification of "
+    "instances in cimli") ]
 class Test_CLITestProviderLinkClass
 {
-    [key] Test_CLITestProviderClass ref parent;
-    [key] Test_CLITestProviderClass ref child;
+        [key]
+    Test_CLITestProviderClass ref parent;
+
+        [key]
+    Test_CLITestProviderClass ref child;
+
+        [Description ("This property returns a String defining the input "
+	"parameters the provider saw on any operation involving this "
+	"class." ) ]
     String requestInputParameters;
 };
 
@@ -185,7 +207,7 @@ class Test_CLITestProviderEmpty
 // property that is an embedded instance type as well as a method that contains
 // an embedded instance
 
-// Class to embed
+// Simple class to embed
 [Version ("2.5.0"), Description(
     "Class to test handling of embedded instances and objects by "
     "cimcli. This class is to be embedded but cannot be "
@@ -226,21 +248,21 @@ class Test_CLITestEmbedded2
     // Note that there is an issue in the compiler with recursive embedded
     // instances in that it is still defining the class when it hits the
     // className in the EmbeddedInstance qualifier.
-    [EmbeddedInstance("Test_CLITestEmbedded3"),
+        [EmbeddedInstance("Test_CLITestEmbedded3"),
 	Description("Property containing embedded Instance")]
     string recursiveEmbeddedInst;
 
         [EmbeddedObject,
-	Description("Property containing embedded Instance")]
+	    Description("Property containing embedded Instance")]
     string recursiveEmbeddedObj;
      
-    [EmbeddedInstance("Test_CLITestEmbedded3"),
+        [EmbeddedInstance("Test_CLITestEmbedded3"),
 	Description("Property containing embedded Instance Array")]
     string recursiveEmbeddedInstArray[];
 
-    [EmbeddedObject,
-	Description("Property containing embedded Object Array defined with "
-	"the EmbeddedObject qualifier")]
+        [EmbeddedObject, Description (
+	"Property containing embedded Object Array defined "
+	"with the EmbeddedObject qualifier")]
     string recursiveEmbeddedObjArray[];
            
     string comment;
@@ -253,26 +275,26 @@ class Test_CLITestEmbeddedClass
 {
     [Key] string Id;
 
-    [EmbeddedInstance("Test_CLITestEmbedded1"),
-	Description("Property containing embedded Instance")]
+        [EmbeddedInstance("Test_CLITestEmbedded1"),Description (
+	"Property containing embedded Instance")]
     string embeddedInst;
     
-    [EmbeddedInstance("Test_CLITestEmbedded2"),
-	Description("Property containing embedded Instance")]
+        [EmbeddedInstance("Test_CLITestEmbedded2"), Description (
+	"Property containing embedded Instance" ) ]
     string embeddedInst2;
 
-    [EmbeddedObject,
-	Description("Property containing embedded Instance defined with "
+        [EmbeddedObject, Description (
+	"Property containing embedded Instance defined with "
 	"the EmbeddedObject qualifier")]
     string embeddedObj;
     
-    [EmbeddedInstance("Test_CLITestEmbedded1"),
+	[EmbeddedInstance("Test_CLITestEmbedded1"),
 	Description("Property containing embedded Instance Array")]
     string embeddedInstArray[];
 
-    [EmbeddedObject,
-	Description("Property containing embedded Object Array defined with "
-	"the EmbeddedObject qualifier")]
+        [EmbeddedObject, Description (
+	"Property containing embedded Object Array defined with "
+	"with the EmbeddedObject qualifier")]
     string embeddedObjArray[];
 
     string comment;
@@ -280,22 +302,50 @@ class Test_CLITestEmbeddedClass
     string requestInputParameters;
 
         [Description("Method contains parameters with embedded instance and "
-	    "embeddedObject. Implementation is expected to return all "
-	    "parameters input in exactly the same form") ]
+	"embeddedObject, both arrays and scalars Implementation is "
+	"expected to return all parameters input in exactly the "
+	"same form") ]
     uint32 embeddedInstParamMethod(
-        [In, Out] string firstArg,
-
-            [EmbeddedInstance("Test_CLITestEmbedded1"), In, Out]
-	string EmbedInstArg,
-
-        [EmbeddedObject, In, Out] string embedObjArg,
 	
-            [EmbeddedInstance("Test_CLITestEmbedded1"), In, Out]
-	string embedInstArrayArg[],
+                [In, Out ]
+	    string firstArg,
 
-        [EmbeddedObject, In, Out] string embedObjArrayArg[],
+                [In, Out, EmbeddedInstance ("Test_CLITestEmbedded1"),
+		Description (
+		"Property containing embedded Instance defined with "
+	        "the EmbeddedObject qualifier.") ]
+	    string EmbedInstArg,
+
+                [In, Out, EmbeddedObject, Description (
+		"Property containing embedded Object defined with "
+	        "the EmbeddedObject qualifier.") ]
+	    string embedObjArg,
 	
-        [In, Out] string lastArg);
+                [In, Out, EmbeddedInstance("Test_CLITestEmbedded1"),
+		Description (
+		"Property containing embedded Instance Array defined with "
+	        "the EmbeddedInstance qualifier.")]
+	    string embedInstArrayArg[],
+
+                [In, Out, EmbeddedObject, Description (
+		"Property containing embedded Object Array defined with "
+	        "the EmbeddedInstance qualifier.") ]
+            string embedObjArrayArg[],
+	
+                [In, Out]
+	    string lastArg,
+
+	        [In, Out, Description (
+		"Property containing reference data type for "
+	        "the Test_CLITestProviderClass class.") ]
+	    Test_CLITestProviderClass REF referenceParam,
+
+	        [In, Out,  Description (
+		"Property containing array of reference data type for "
+	        "the Test_CLITestProviderClass class.") ]
+	    Test_CLITestProviderClass REF referenceParamArray[]
+	);
+
 };
 
 

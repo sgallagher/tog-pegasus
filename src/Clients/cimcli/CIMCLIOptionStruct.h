@@ -201,13 +201,13 @@ struct  OptionStruct
     Stopwatch elapsedTime;
     double saveElapsedTime;
 
-//KS_PULL_BEGIN
+//EXP_PULL_BEGIN  -- Add parameters for pull operations
     Uint32Arg pullOperationTimeout;
     Uint32Arg maxPullObjects;
     Boolean continueOnError;
     Uint32 maxObjectsToReceive;
     Uint32 pullDelay;
-//KS_PULL_END
+//EXP_PULL_END
 };
 
 typedef struct OptionStruct Options;

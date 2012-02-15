@@ -1026,7 +1026,7 @@ CIMValue CIMClientRep::invokeMethod(
     return response->retValue;
 }
 
-// KS_PULL_BEGIN
+// EXP_PULL_BEGIN
 CIMResponseData CIMClientRep::openEnumerateInstances(
     CIMEnumerationContext& enumerationContext,
     Boolean& endOfSequence,
@@ -1435,7 +1435,7 @@ Uint64Arg CIMClientRep::enumerationCount(
 
         return response->count ;
 }
-// KS_PULL_END
+//EXP_PULL_END
 
 Message* CIMClientRep::_doRequest(
     AutoPtr<CIMRequestMessage>& request,

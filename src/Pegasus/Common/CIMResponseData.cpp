@@ -37,6 +37,9 @@
 #include <Pegasus/Common/CIMInternalXmlEncoder.h>
 #include <Pegasus/Common/SCMOInternalXmlEncoder.h>
 
+// KS_TODO_DELETE
+#include <Pegasus/Common/Print.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -44,23 +47,30 @@ PEGASUS_NAMESPACE_BEGIN
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 // C++ objects interface handling
 
-void CIMResponseData::SVALID()
+// KS_TODO Moved this to inline so we get better diags.
+// KS_TODO Remove this completely.
+bool CIMResponseData::sizeValid()
 {
+    TRACELINE; 
+    //////cout << _size << endl;
     PEGASUS_ASSERT(valid());
-    if (_size > 100000)
+    if (_size > 1000000)
     {
-        PEG_TRACE((TRC_XML, Tracer::LEVEL4, 
-                   "CIMResponseData::SVALID() _size too big ",_size ));
-        PEGASUS_ASSERT(false);
+        TRACELINE;
+        /////cout << _size << endl;
+        PEG_TRACE((TRC_XML, Tracer::LEVEL4,
+                   "CIMResponseData::PSVALID _size too big %u",_size ));
+        return false;
     }
     PEG_TRACE((TRC_XML, Tracer::LEVEL4,
         "CIMResponseData Size _size=%u", _size));
-    Uint32 size = _size;
+    return true;
 }
 // Instance Names handling
 Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
 {
-    SVALID();
+    TRACELINE;
+    PSVALID;
     PEGASUS_DEBUG_ASSERT(
     (_dataType==RESP_INSTNAMES || _dataType==RESP_OBJECTPATHS));
     _resolveToCIM();
@@ -75,6 +85,7 @@ Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
 // an empty instance.
 CIMInstance& CIMResponseData::getInstance()
 {
+    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCE);
     _resolveToCIM();
     if (0 == _instances.size())
@@ -87,6 +98,7 @@ CIMInstance& CIMResponseData::getInstance()
 // Instances handling
 Array<CIMInstance>& CIMResponseData::getInstances()
 {
+    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCES);
     _resolveToCIM();
     return _instances;
@@ -101,6 +113,7 @@ Array<CIMInstance>& CIMResponseData::getInstances()
 // this keeps it working for the moment.
 Array<CIMInstance>& CIMResponseData::getInstancesFromInstancesOrObjects()
 {
+    TRACELINE;
     if (_dataType == RESP_INSTANCES)
     {
         _resolveToCIM();
@@ -122,6 +135,7 @@ Array<CIMInstance>& CIMResponseData::getInstancesFromInstancesOrObjects()
 // Objects handling
 Array<CIMObject>& CIMResponseData::getObjects()
 {
+    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_OBJECTS);
     _resolveToCIM();
     return _objects;
@@ -131,6 +145,7 @@ Array<CIMObject>& CIMResponseData::getObjects()
 // object paths are represented as SCMOInstance
 Array<SCMOInstance>& CIMResponseData::getSCMO()
 {
+    TRACELINE;
     _resolveToSCMO();
     return _scmoInstances;
 }
@@ -138,7 +153,8 @@ Array<SCMOInstance>& CIMResponseData::getSCMO()
 // set an array of SCMOInstances into the response data object
 void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 {
-    SVALID();
+    TRACELINE;
+    PSVALID;
     _scmoInstances=x;
     _encoding |= RESP_ENC_SCMO;
     _size += x.size();
@@ -147,12 +163,14 @@ void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 // Binary data is just a data stream
 Array<Uint8>& CIMResponseData::getBinary()
 {
+    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_BINARY || _encoding == 0);
     return _binaryData;
 }
 
 bool CIMResponseData::setBinary(CIMBuffer& in)
 {
+    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setBinary");
 
     // Append all serial data from the CIMBuffer to the local data store.
@@ -171,6 +189,7 @@ bool CIMResponseData::setBinary(CIMBuffer& in)
 
 bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 {
+    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setRemainingBinaryData");
 
     // Append any data that has not been deserialized already from
@@ -185,7 +204,8 @@ bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 
 bool CIMResponseData::setXml(CIMBuffer& in)
 {
-    SVALID();
+    TRACELINE;
+    PSVALID;
     switch (_dataType)
     {
         case RESP_INSTANCE:
@@ -336,6 +356,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
 // one CIMResponse Object to another CIMResponse Object.
 Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 {
+    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::move(%u)", count));
 
@@ -504,8 +525,9 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 
 Uint32 CIMResponseData::size()
 {
+    TRACELINE;
     PEG_METHOD_ENTER(TRC_XML,"CIMResponseData::size()");
-    SVALID();
+    PSVALID;
 // If debug mode, add up all the individual size components to
 // determine overall size of this object.  Then compare this with
 // the _size variable.  this is a good check on the completeness of the
@@ -533,7 +555,7 @@ Uint32 CIMResponseData::size()
                 rtnSize += _instanceData.size();
                 break;
         }
-        SVALID();
+        PSVALID;
         TEMPLOG;
     }
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
@@ -549,7 +571,7 @@ Uint32 CIMResponseData::size()
 
     if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
-        SVALID();
+        PSVALID;
         TEMPLOG;
         rtnSize += _scmoInstances.size();
         TEMPLOG;
@@ -557,7 +579,7 @@ Uint32 CIMResponseData::size()
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        SVALID();
+        PSVALID;
         TEMPLOG;
         switch (_dataType)
         {
@@ -573,13 +595,13 @@ Uint32 CIMResponseData::size()
                 rtnSize += _objects.size();
                 break;
         }
-        SVALID();
+        PSVALID;
         TEMPLOG;
     }
     // Test of actual count against _size variable.
     if (rtnSize != _size)
     {
-        SVALID();
+        PSVALID;
         TEMPLOG;
         PEG_TRACE((TRC_XML, Tracer::LEVEL1,
         "CIMResponseData::size ERROR. debug size mismatch."
@@ -600,6 +622,7 @@ Uint32 CIMResponseData::size()
 // target array
 void CIMResponseData::appendResponseData(const CIMResponseData & x)
 {
+    TRACELINE;
     // Confirm that the CIMResponseData type matches the type
     // of the data being appended
 
@@ -634,10 +657,11 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
 // Encoding responses into output format
 void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 {
+    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeBinaryResponse");
 
-    SVALID();
+    PSVALID;
 
     // Need to do a complete job here by transferring all contained data
     // into binary format and handing it out in the CIMBuffer
@@ -707,6 +731,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 
 void CIMResponseData::completeNamespace(const SCMOInstance * x)
 {
+    TRACELINE;
     const char * ns;
     Uint32 len;
     ns = x->getNameSpace_l(len);
@@ -799,6 +824,7 @@ void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
     const CIMNamespaceName & ns)
 {
+    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::completeHostNameAndNamespace");
 
@@ -933,11 +959,12 @@ void CIMResponseData::completeHostNameAndNamespace(
 // are one of the pull responses or the original responsed
 void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
 {
+    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
-
+    
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
     // fallback
@@ -945,7 +972,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
     {
         _resolveBinary();
     }
-
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         switch (_dataType)
@@ -1059,6 +1085,8 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
             {
                 for (Uint32 i = 0, n = _instances.size(); i < n; i++)
                 {
+                    /// KS_TODO_DELETE
+                    ////PrintInstance(cout, _instances[i]);
                     if (isPullResponse)
                     {
                         XmlWriter::appendValueInstanceWithPathElement(
@@ -1077,7 +1105,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
                             _includeClassOrigin,
                             _propertyList);
                     }
-
                 }
                 break;
             }
@@ -1104,7 +1131,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
                             _includeClassOrigin,
                             _propertyList);
                     }
-
                 }
                 break;
             }
@@ -1197,7 +1223,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
                     SCMOXmlWriter::appendValueSCMOInstanceElements(
                         out, _scmoInstances, _propertyList);
                 }
-
                 break;
             }
             case RESP_OBJECTS:
@@ -1214,7 +1239,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
                     SCMOXmlWriter::appendValueObjectWithPathElement(
                         out, _scmoInstances, _propertyList);
                 }
-
                 break;
             }
             case RESP_OBJECTPATHS:
@@ -1249,11 +1273,11 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
 // not usable by clients
 void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 {
+    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
-
     // For mixed (CIM+SCMO) responses, we need to tell the receiver the
     // total number of instances. The totalSize variable is used to keep track
     // of this.
@@ -1342,7 +1366,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                     _scmoInstances.append(SCMOInstance());
                 }
                 SCMOInternalXmlEncoder::_putXMLInstance(
-                    out,
+                    out, 
                     _scmoInstances[0],
                     _propertyList);
                 break;
@@ -1390,6 +1414,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 
 void CIMResponseData::_resolveToCIM()
 {
+    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::_resolveToCIM(encoding=%X,content=%X)",
         _encoding,
@@ -1413,6 +1438,7 @@ void CIMResponseData::_resolveToCIM()
 
 void CIMResponseData::_resolveToSCMO()
 {
+    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::_resolveToSCMO(encoding=%X,content=%X)",
         _encoding,
@@ -1438,6 +1464,7 @@ void CIMResponseData::_resolveToSCMO()
 // avoided whenever possible
 void CIMResponseData::_resolveBinary()
 {
+    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::_resolveBinary");
 
@@ -1552,6 +1579,7 @@ void CIMResponseData::_resolveBinary()
 
 void CIMResponseData::_resolveXmlToCIM()
 {
+    TRACELINE;
     switch (_dataType)
     {
         // Xml encoding for instance names and object paths not used
@@ -1704,6 +1732,7 @@ void CIMResponseData::_resolveXmlToCIM()
 
 void CIMResponseData::_resolveXmlToSCMO()
 {
+    TRACELINE;
     // Not optimal, can probably be improved
     // but on the other hand, since using the binary format this case should
     // actually not ever happen.
@@ -1713,6 +1742,7 @@ void CIMResponseData::_resolveXmlToSCMO()
 
 void CIMResponseData::_resolveSCMOToCIM()
 {
+    TRACELINE;
     switch(_dataType)
     {
         case RESP_INSTNAMES:
@@ -1770,6 +1800,7 @@ void CIMResponseData::_resolveSCMOToCIM()
 
 void CIMResponseData::_resolveCIMToSCMO()
 {
+    TRACELINE;
     CString nsCString=_defaultNamespace.getString().getCString();
     const char* _defNamespace = nsCString;
     Uint32 _defNamespaceLen;
@@ -1884,6 +1915,7 @@ void CIMResponseData::setRequestProperties(
     const Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    TRACELINE;
     _includeQualifiers = includeQualifiers;
     _includeClassOrigin = includeClassOrigin;
     _propertyList = propertyList; 

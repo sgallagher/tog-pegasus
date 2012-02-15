@@ -49,6 +49,7 @@ IndicationRouter::IndicationRouter(
 void IndicationRouter::deliverAndWaitForStatus()
 {
     String uniqueMessageId;
+    Uint32 timeoutMilliSec = _request->timeoutMilliSec;
 
 #ifdef PEGASUS_ENABLE_INDICATION_ORDERING
     // Wait only if this indication is not coming from OOP provider.
@@ -69,10 +70,20 @@ void IndicationRouter::deliverAndWaitForStatus()
 
     if (_entry)
     {
-        // Maximum wait time is SequenceIdentifierLifetime =
-        // 10 * DeliveryRetryAttempts * DeliveryRetryInterval
-        Uint32 waitTime = 10 * 3 * 20 ; 
-        _entry->semaphore.time_wait(waitTime * 1000);
+        // Maximum wait time is equals to SequenceIdentifierLifeTime
+        // = 10 * DeliveryRetryAttempts * DeliveryRetryInterval
+        Uint32 maxWaitTimeMilliSec = 10 * 3 * 20 * 1000;
+        if (timeoutMilliSec == 0 )
+        {
+            // Minimum wait time is equals to default
+            // DeliveryRetryAttempts * DeliveryRetryInterval
+            timeoutMilliSec = 3 * 20 * 1000;
+        }
+        else if (timeoutMilliSec > maxWaitTimeMilliSec)
+        {
+            timeoutMilliSec = maxWaitTimeMilliSec;
+        }
+        _entry->semaphore.time_wait(timeoutMilliSec);
         AutoMutex mtx(_statusMutex);
         _statusTable.remove(uniqueMessageId);
     }
@@ -105,10 +116,12 @@ IndicationRouter::~IndicationRouter()
 DeliveryStatusAggregator:: DeliveryStatusAggregator(
     const String &origMessageId_,
     Uint32 responseQid_,
-    const String &oopAgentName_):
+    const String &oopAgentName_,
+    Boolean waitUntilDelivered_):
         origMessageId(origMessageId_),
         responseQid(responseQid_),
         oopAgentName(oopAgentName_),
+        waitUntilDelivered(waitUntilDelivered_),
         _expectedResponseCount(0),
         _currentResponseCount(0),
         _expectedResponseCountSetDone(false)

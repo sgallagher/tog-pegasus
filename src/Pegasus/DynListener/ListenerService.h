@@ -104,6 +104,9 @@ private:
     CIMExportResponseEncoder* _responseEncoder;
     CIMExportRequestDecoder*  _requestDecoder;
 
+    Uint32 _idleTimeout;
+    Boolean _neverUnload;
+
     //listener thread
     Thread* _listening_thread;
 

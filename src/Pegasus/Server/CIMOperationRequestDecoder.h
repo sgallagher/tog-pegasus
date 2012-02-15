@@ -255,41 +255,41 @@ public:
         const String& cimMethodName);
 
 // EXP_PULL_BEGIN
-    CIMOpenEnumerateInstancesRequestMessage* 
+    CIMOpenEnumerateInstancesRequestMessage*
         decodeOpenEnumerateInstancesRequest(
             Uint32 queueId,
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
 
-    CIMOpenReferenceInstancePathsRequestMessage* 
+    CIMOpenReferenceInstancePathsRequestMessage*
         decodeOpenReferenceInstancePathsRequest(
             Uint32 queueId,
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
 
-    CIMOpenAssociatorInstancesRequestMessage* 
+    CIMOpenAssociatorInstancesRequestMessage*
         decodeOpenAssociatorInstancesRequest(
             Uint32 queueId,
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
 
-    CIMOpenAssociatorInstancePathsRequestMessage* 
+    CIMOpenAssociatorInstancePathsRequestMessage*
         decodeOpenAssociatorInstancePathsRequest(
             Uint32 queueId,
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
 
-    CIMOpenReferenceInstancesRequestMessage* 
+    CIMOpenReferenceInstancesRequestMessage*
         decodeOpenReferenceInstancesRequest(
             Uint32 queueId,
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
-    CIMOpenEnumerateInstancePathsRequestMessage* 
+    CIMOpenEnumerateInstancePathsRequestMessage*
         decodeOpenEnumerateInstancePathsRequest(
             Uint32 queueId,
             XmlParser& parser,
@@ -314,7 +314,7 @@ public:
         const CIMNamespaceName& nameSpace);
 
 // EXP_PULL_TBD Should we carry namespace for Pull an close operations
- 
+
     CIMEnumerationCountRequestMessage* decodeEnumerationCountRequest(
         Uint32 queueId,
         XmlParser& parser,

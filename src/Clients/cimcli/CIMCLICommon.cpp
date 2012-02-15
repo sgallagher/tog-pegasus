@@ -186,8 +186,6 @@ void cimcliMsg::msg(
     cout << Formatter::format(formatString, arg0, arg1, arg2) << endl;
 }
 
-
-
 /* Convert Boolean parameter to String "true" or "false"
 */
 String _toString(Boolean x)
@@ -264,7 +262,7 @@ void _print(const Array<String>& strList)
     cout << _toString(strList);
 }
 
-/** tokenize an input string into an array of Strings,
+/* tokenize an input string into an array of Strings,
  * separating the tokens at the separator character
  * provided
  * @param input String
@@ -274,7 +272,7 @@ void _print(const Array<String>& strList)
  * @returns Array of separated strings
  * Terminates
  *  after first if all = false.
- * */
+ */
 Array<String> _tokenize(const String& input,
                         const Char16 separator,
                         bool allTokens)
@@ -417,7 +415,7 @@ void setExpectedExitCode(Uint32 exitCode)
 **  issues internally.
 **
 ***************************************************************************/
-//  function to return a formatted char*  from a va_list.
+//  Function to return a formatted char*  from a va_list.
 //  Allocates space for the returned char* and repeats the
 //  build process until the allocated space is large enough
 //  to hold the result.  This is internal only and the core function
@@ -459,7 +457,7 @@ static char* charVPrintf(const char* format, va_list ap)
     // return error code if realloc failed
     return 0;
 }
-// formatting function that returns a Pegasus String object.
+// Formatting function that returns a Pegasus String object.
 String stringPrintf(const char* format, ...)
 {
     va_list ap;
@@ -508,7 +506,7 @@ String foldString(const String& input, Uint32 startPos, Uint32 foldPos)
             case ' ':
             {
                 // if next word overflows line. move it to output String
-                // and start new line
+                            // and start new line
                 if ((line.size() + word.size()) >= foldPos)
                 {
                     strOut.append(line);
@@ -516,9 +514,9 @@ String foldString(const String& input, Uint32 startPos, Uint32 foldPos)
                     line = _fill(startPos);
                 }
 
-                line.append(word);
-                word.clear();
-                word.append(input[i]);
+                    line.append(word);
+                    word.clear();
+                    word.append(input[i]);
                 break;
             }
 

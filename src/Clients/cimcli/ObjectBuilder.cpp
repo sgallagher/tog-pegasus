@@ -141,7 +141,8 @@ tokenItem::tokenItem (const String& inputParam, String& name, String& value,
     TokenType& type)
     :
     tokenInput(inputParam),tokenValue(value),
-    tokenType(type)
+    tokenType(type),
+    duplicate(false)
 {
     if (name.size() != 0)
     {
@@ -168,6 +169,8 @@ String tokenItem::toString()
     x.append(tokenTypeToString(tokenType));
     x.append(", input=");
     x.append(tokenInput);
+    x.append(", duplicate=");
+    x.append(_toString(duplicate));
     x.append(" Instance count=");
     x.append(Uint32ToString(tmp, _instances.size(), cvtSize));
     for (Uint32 i = 0 ; i < _instances.size(); i++)
@@ -690,6 +693,18 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
     VCOUT <<"_buildValueFromToken cimType=" << cimTypeToString(cimType)
           << " token=" << token.toString() << endl;
 
+    if (!iv.isArray())
+    {
+        // FUTURE: Should this be an error or warning?  The question exists
+        // because we consider unknown property names as warnings.
+        if (token.duplicate)
+        {
+            cimcliMsg::exit(CIMCLI_INPUT_ERR,
+                "Duplicate scalar property Name. $0",
+                   token.tokenInput);                    
+        }
+    }
+
     switch (token.tokenType)
     {
         case EXCLAM:
@@ -731,6 +746,8 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
         }
 
         // Embedded token. should contain embedded instance built earlier
+        // This will create either an embedded instance/object in CIMType
+        // CIMInstance or CIMObject or a reference in a REF CIMType property
         case EMBED:
         {
             // Array of Instances should be in place here to put into property.
@@ -746,6 +763,7 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
                         insts.append(token._instances[0]);
                         iv.set(insts);
                     }
+
                     else if (iv.getType() == CIMTYPE_OBJECT)
                     {
                         Array<CIMObject> objects;
@@ -753,16 +771,39 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
                         objects.append((CIMObject)token._instances[0]);
                         iv.set(objects);
                     }
+
+                    else if (iv.getType() == CIMTYPE_REFERENCE)
+                    {
+                        // augment the array of paths and set into the value
+                        Array<CIMObjectPath> paths;
+                        iv.get(paths);
+                        CIMObjectPath thisPath =
+                            token._instances[0].buildPath(token._class);
+                        paths.append(thisPath);
+                        iv.set(paths);
+                    }
+
                     else
                     {
                         cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-                            "Invalid CIM datatype on embedded object. Token=$0",
+                            "Invalid CIM datatype on embedded object. "
+                            "CIMType=Token=$0"
+                            " token = $1", cimTypeToString(iv.getType()),
                             token.toString());
                     }
                 }
 
                 else // Scalar. set token to property value
                 {
+                    // Since this is a scalar, there should only be a
+                    // single instance.
+                    if (token._instances.size() > 1 )
+                    {
+                        cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
+                            "Multiple instances generated for "
+                            "scalar property $0 at input parameter $1",
+                            token.tokenName.getString(), token.tokenInput);
+                    }
                     CIMInstance inst = token._instances[0];
 
                     VCOUT << "buildInstance EMBED Instance found"
@@ -775,14 +816,28 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
                     {
                         iv.set(inst);
                     }
+
                     else if (cimType == CIMTYPE_OBJECT)
                     {
                         iv.set((CIMObject)inst);
                     }
+
+                    else if (iv.getType() == CIMTYPE_REFERENCE)
+                    {
+                        // Build the path from the instance in the token
+                        // and class in the token.
+
+                        CIMObjectPath thisPath = inst.buildPath(token._class);
+                        iv.set(thisPath);
+                    }
+
                     else
                     {
                         cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-                            "Invalid CIM datatype on embedded object. Token=$0",
+                            "Invalid CIM datatype on embedded object. "
+                            "CIMType=$0"
+                            " Token=$1",
+                            cimTypeToString(iv.getType()),
                             token.toString());
                     }
                 }
@@ -1018,7 +1073,8 @@ void ObjectBuilder::scanInputList(CIMClient& client,
                 // Append new instance into any existing array of instances
                 // for this token and append the token to the token list
                 ti._instances.append(_instance);
-                _tokens.append(ti);
+
+                appendToken(ti);
                 break;
             }
 
@@ -1036,30 +1092,29 @@ void ObjectBuilder::scanInputList(CIMClient& client,
 
                 else
                 {
-                // End when the END_EMBED found and build instance
-                // with current tokens to be returned. Return it in
-                // CIMInstance parameter. includeQualifiers and
-                // includeClassOrigin are false.
-                // buildInstance(...) insures that an instance is built
-                _instance = buildInstance(false, false,
-                    CIMPropertyList());
+                    // END_EMBED found, build instance
+                    // with current tokens to be returned. Return it in
+                    // CIMInstance parameter. includeQualifiers and
+                    // includeClassOrigin are false.
+                    // buildInstance(...) insures that an instance is built
 
-                // If this is the NEXT_ARRAY item continue scan
-                // by reinserting <featureName>{<classname> into the
-                // input parameter list which fully defines the next item
-                // as an array item of the same featureName.
-                if (ti.tokenType == EMBED_NEXT_ARRAY_ITEM)
-                {
-                    String x = featureName.getString();
-                    x.append("{");
-                    x.append(_className.getString());
-                    ia.insert(x);
+                    // If this is the NEXT_ARRAY marker "},{" continue scan
+                    // by reinserting <featureName>{<classname> into the
+                    // input parameter list which fully defines the next item
+                    // as an array item of the same featureName.
+                    if (ti.tokenType == EMBED_NEXT_ARRAY_ITEM)
+                    {
+                        String x = featureName.getString();
+                        x.append("{");
+                        x.append(_className.getString());
+                        ia.insert(x);
 
-                    // Diagnostic
-                    ia.printList();
+                        // Diagnostic
+                        ia.printList();
+                    }
+                    // set flag to stop since end embed tag found
+                    embEndTokenFound = true;
                 }
-                // set flag to stop since end embed tag found
-                embEndTokenFound = true;                }
                 break;
             }
 
@@ -1076,7 +1131,7 @@ void ObjectBuilder::scanInputList(CIMClient& client,
 
             default:
             {
-                _tokens.append(ti);
+                appendToken(ti);
             }
         }  // end case
 
@@ -1156,7 +1211,7 @@ ObjectBuilder::ObjectBuilder(
 ObjectBuilder::ObjectBuilder(iterateArray& ia,
     CIMClient& client,
     const CIMNamespaceName& nameSpace,
-    const tokenItem& tiInput,
+    tokenItem& tiInput,
     const CIMPropertyList& cimPropertyList,         // used to getClass
     Boolean verbose,
     CIMInstance& rtnInstance,
@@ -1179,11 +1234,18 @@ ObjectBuilder::ObjectBuilder(iterateArray& ia,
     _thisClass = client.getClass(nameSpace, _className,
                         false,true,true,cimPropertyList);
 
-    // Scan the input parameters to build an embedded object.
+    tiInput._class = _thisClass;
+
+    // Scan the input parameters to build a list of tokens representing
+    // a single embedded definition ( between ={ and }
     scanInputList(client, nameSpace, cimPropertyList, ia,
         recurseLevel, featureName);
 
-    rtnInstance = _instance;
+    // Build the resulting instance and return it as a parameter from the
+    // token set createeated in the scan. Always build an instance since
+    // that is used eve even to build reference properties.
+    rtnInstance = buildInstance(false, false,
+        CIMPropertyList());
 
     recurseLevel--;
 }
@@ -1477,6 +1539,19 @@ CIMValue ObjectBuilder::buildPropertyValue(
     {   // scalar
         return _stringToScalarValue(value.getCString(), vp.getType());
     }
+}
+void ObjectBuilder::appendToken(tokenItem ti)
+{
+    for (Uint32 i = 0; i <_tokens.size() ; i++)
+    {
+        {
+            if (_tokens[i].tokenName == ti.tokenName)
+            {
+                ti.duplicate = true;
+            }
+        }
+    }
+    _tokens.append(ti);
 }
 
 void  ObjectBuilder::print()

@@ -72,15 +72,17 @@ String StatisticalData::requestName[] =
   "SetQualifier",                   //    22          23
   "DeleteQualifier",                //    23          24
   "EnumerateQualifiers",            //    24          25
-  "OpenEnumerateInstances",          //    24
-  "OpenEnumerateInstancePaths",      //
-  "OpenReferences",
-  "OpenReferenceNames",
-  "OpenAssociators",
-  "OpenAssociatorPaths",
-  "PullInstancesWithPath",
-  "PullInstancePaths",
-  "CloseEnumeration" ,    
+//EXP_PULL_BEGIN
+  "OpenEnumerateInstances",         //    24
+  "OpenEnumerateInstancePaths",     //    KS_TODO EXP_PULL Do this
+  "OpenReferences",                 //  
+  "OpenReferenceNames",             //
+  "OpenAssociators",                //
+  "OpenAssociatorPaths",            //
+  "PullInstancesWithPath",          //
+  "PullInstancePaths",              //
+  "CloseEnumeration" ,              //
+//EXP_PULL_END
   "InvokeMethod"                    //    25          Not Present
 };
 

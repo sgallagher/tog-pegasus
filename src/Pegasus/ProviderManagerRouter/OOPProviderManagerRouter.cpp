@@ -1163,6 +1163,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                 origProviderId.reset(new ProviderIdContainer(
                     pidc.getModule(), pidc.getProvider(),
                     pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
+                origProviderId->setProvMgrPath(pidc.getProvMgrPath());
                 if (_providerModuleCache.isUninitialized() ||
                     (!pidc.getModule().identical(_providerModuleCache)))
                 {

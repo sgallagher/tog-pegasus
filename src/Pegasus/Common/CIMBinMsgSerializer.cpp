@@ -870,6 +870,7 @@ void CIMBinMsgSerializer::_putProcessIndicationRequestMessage(
     _putInstance(out, msg->indicationInstance);
     out.putObjectPathA(msg->subscriptionInstanceNames);
     _putInstance(out, msg->provider);
+    out.putUint32(msg->timeoutMilliSec);
 }
 
 void CIMBinMsgSerializer::_putDisableModuleRequestMessage(

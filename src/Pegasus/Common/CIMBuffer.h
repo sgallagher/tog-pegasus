@@ -1313,6 +1313,7 @@ public:
         return getUint32(typeMarker);
     }
 
+// EXP_PULL_BEGIN
     void putUint32Arg(Uint32Arg& x)
     {
         putBoolean(x.isNull());
@@ -1379,6 +1380,7 @@ public:
             x.setNullValue();
         }
         return true;
+// EXP_PULL_END
     }
 
 private:

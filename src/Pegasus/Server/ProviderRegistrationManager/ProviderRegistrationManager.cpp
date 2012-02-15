@@ -1444,10 +1444,16 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
     const CIMObjectPath & ref,
     const CIMInstance & instance)
 {
-    WriteLock lock(_registrationTableLock);
-
     CIMInstance createdInstance = instance.clone();
-    CIMObjectPath cimRef = _createInstance(ref, createdInstance, OP_CREATE);
+    CIMObjectPath cimRef;
+    // Don't acquire lock while delivering the provider module
+    // alert. If the indication destination is consumer provider module,
+    // lookupIndicationConsumer() method is called which tries to acquire the
+    // lock resulting the deadlock.
+    {
+        WriteLock lock(_registrationTableLock);
+        cimRef = _createInstance(ref, createdInstance, OP_CREATE);
+    }
     sendPMInstAlert(createdInstance, PM_CREATED);
 
     PEG_TRACE((
@@ -1464,10 +1470,16 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
 void ProviderRegistrationManager::deleteInstance(
     const CIMObjectPath & instanceReference)
 {
-    WriteLock lock(_registrationTableLock);
+    CIMInstance deletedInstance;
+    {
+        WriteLock lock(_registrationTableLock);
+        _deleteInstance(instanceReference, OP_DELETE, deletedInstance);
+    }
 
-    _deleteInstance(instanceReference, OP_DELETE);
-
+    if (!deletedInstance.isUninitialized())
+    {
+        sendPMInstAlert(deletedInstance, PM_DELETED);
+    }
     PEG_TRACE((
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
@@ -1610,7 +1622,8 @@ void ProviderRegistrationManager::modifyInstance(
     //
     // delete old instance
     //
-    _deleteInstance(ref, OP_MODIFY);
+    CIMInstance deletedInstance;
+    _deleteInstance(ref, OP_MODIFY, deletedInstance);
 
     //
     // create the new instance
@@ -1703,12 +1716,12 @@ Boolean ProviderRegistrationManager::setProviderModuleGroupName(
     const String& moduleGroupName,
     String &errorMsg)
 {
-    WriteLock lock(_registrationTableLock);
-
+    Array<CIMInstance> instances;
     String oldModuleGroupName;
 
     try
     {
+        WriteLock lock(_registrationTableLock);
         Array <CIMKeyBinding> moduleKeyBindings;
 
         moduleKeyBindings.append (CIMKeyBinding
@@ -1755,10 +1768,8 @@ Boolean ProviderRegistrationManager::setProviderModuleGroupName(
         //
         // add the updated instance to the table
         //
-        Array<CIMInstance> instances;
         instances.append(_instance);
         _addInstancesToTable(_moduleKey, instances);
-        sendPMInstAlert(_instance, PM_GROUP_CHANGED);
     }
     catch (const Exception & e)
     {
@@ -1780,7 +1791,8 @@ Boolean ProviderRegistrationManager::setProviderModuleGroupName(
             (const char*)providerModuleName.getCString()));
         return false;
     }
-
+    PEGASUS_ASSERT(instances.size() == 1);
+    sendPMInstAlert(instances[0], PM_GROUP_CHANGED);
     PEG_AUDIT_LOG(
         logSetProvModuleGroupName(
             providerModuleName,
@@ -3147,7 +3159,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 // Unregister a provider
 void ProviderRegistrationManager::_deleteInstance(
     const CIMObjectPath & instanceReference,
-    Operation flag)
+    Operation flag,
+    CIMInstance &deletedInstance)
 {
     CIMObjectPath cimRef;
 
@@ -3167,7 +3180,7 @@ void ProviderRegistrationManager::_deleteInstance(
 
     if (flag == OP_DELETE)
     {
-        sendPMInstAlert(instance, PM_DELETED);
+        deletedInstance = instance;
     }
 
     //

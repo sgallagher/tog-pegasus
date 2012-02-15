@@ -84,15 +84,16 @@ enum OperationID {
     ID_StatisticsOn              ,
     ID_StatisticsOff             ,
     ID_TestInstance              ,
-//KS_PULL_BEGIN
+//EXP_PULL_BEGIN
     ID_PullEnumerateInstances    ,
     ID_PullEnumerateInstancePaths,
     ID_PullReferenceInstances    ,
     ID_PullReferenceInstancePaths,
     ID_PullAssociatorInstances   ,
     ID_PullAssociatorInstancePaths,
+//EXP_PULL_END
     ID_CountInstances            ,
-//KS_PULL_END
+
 //
 //ID_Profile                   ,
 };

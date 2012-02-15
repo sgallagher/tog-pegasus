@@ -578,6 +578,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
         return;
     }
 
+    // Trace as binary display if binary request
     if(binaryRequest)
     {
         PEG_TRACE((TRC_XML,Tracer::LEVEL4,
@@ -2210,7 +2211,6 @@ CIMEnumerateInstancesRequestMessage*
     Boolean gotIncludeQualifiers = false;
     Boolean gotIncludeClassOrigin = false;
     Boolean gotPropertyList = false;
-
     Boolean emptyTag;
 
     for (const char* name;
@@ -2290,7 +2290,7 @@ CIMEnumerateInstancesRequestMessage*
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
     }
-    
+
     AutoPtr<CIMEnumerateInstancesRequestMessage> request(
         new CIMEnumerateInstancesRequestMessage(
             messageId,
@@ -4616,6 +4616,7 @@ CIMEnumerationCountRequestMessage*
 
     return request.release();
 }
+//EXP_PULL_END
 
 void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)
 {

@@ -81,15 +81,15 @@ void CIMOperationResponseEncoder::sendPullResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         // Add return elements, endOfSequence and context
-        //KS_PULL TBD. How do we handle endofsequence if there 
-        //is an error and client gets exception response and wants 
-        // to continue. 
-        //XmlWriter::appendBooleanIReturnValue(rtnParamBody, 
-        //"EndOfSequence", 
+        //KS_PULL TBD. How do we handle endofsequence if there
+        //is an error and client gets exception response and wants
+        // to continue.
+        //XmlWriter::appendBooleanIReturnValue(rtnParamBody,
+        //"EndOfSequence",
         //    response->endOfSequence);
 
        //XmlWriter::appendStringIReturnValue(rtnParamBody,
-       //    "EnumerationContext", 
+       //    "EnumerationContext",
        //    response->enumerationContext);
     }
     //sentResponseNew(response, name, isImplicit, bodyParams, bodygiven);
@@ -589,7 +589,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
             encodeInvokeMethodResponse(
                 (CIMInvokeMethodResponseMessage*)message);
             break;
-
+//EXP_PULL_BEGIN
         case CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
             encodeOpenEnumerateInstancesResponse(
                 (CIMOpenEnumerateInstancesResponseMessage*)message);
@@ -614,7 +614,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
             encodeOpenAssociatorInstancesResponse(
                 (CIMOpenAssociatorInstancesResponseMessage*)message);
             break;
-    
+
         case CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE:
             encodeOpenAssociatorInstancePathsResponse(
                 (CIMOpenAssociatorInstancePathsResponseMessage*)message);
@@ -639,7 +639,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
             encodeEnumerationCountResponse(
                 (CIMEnumerationCountResponseMessage*)message);
             break;
-
+//EXP_PULL_END
         default:
             // Unexpected message type
             PEGASUS_ASSERT(0);
@@ -745,9 +745,9 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
     sendResponse(response, "EnumerateInstances", true, &body);
 }
 
-
+//EXP_PULL_BEGIN
 /*
-    Apply the EndOfSequence and EnumerationContext parameters to the 
+    Apply the EndOfSequence and EnumerationContext parameters to the
     supplied buffer. These parameters are standard on most open
     and pull responses.  The EnumerationContext is required but
     the value component is optional if EndOfSequence = true
@@ -757,12 +757,12 @@ void _appendPullResponseParameters(Buffer& rtnParamBody,
 {
     // Insert EndOfSequence. PerDSP0200 this is required output
     // parameter
-    XmlWriter::appendBooleanParameter(rtnParamBody, "EndOfSequence", 
+    XmlWriter::appendBooleanParameter(rtnParamBody, "EndOfSequence",
         endOfSequence);
 
     // Insert EnumerationContext parameter. Per DSP0200 this is a required
     // parameter but may be NULL value if endOfSequence
-    XmlWriter::appendStringParameter(rtnParamBody, "EnumerationContext", 
+    XmlWriter::appendStringParameter(rtnParamBody, "EnumerationContext",
         (endOfSequence? String::EMPTY : enumerationContext) );
 }
 
@@ -780,7 +780,7 @@ void CIMOperationResponseEncoder::encodeOpenEnumerateInstancesResponse(
     }
 
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenEnumerateInstances",
@@ -799,7 +799,7 @@ void CIMOperationResponseEncoder::encodeOpenEnumerateInstancePathsResponse(
     }
 
     // Add return elements, endOfSequence and Enumerationontext
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenEnumerateInstancePaths",
@@ -818,7 +818,7 @@ void CIMOperationResponseEncoder::encodeOpenReferenceInstancesResponse(
     }
 
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenReferenceInstances", true,
@@ -837,7 +837,7 @@ void CIMOperationResponseEncoder::encodeOpenReferenceInstancePathsResponse(
     }
 
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenReferenceInstancePaths", true,
@@ -856,7 +856,7 @@ void CIMOperationResponseEncoder::encodeOpenAssociatorInstancesResponse(
     }
 
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenAssociatorInstances", true,
@@ -875,7 +875,7 @@ void CIMOperationResponseEncoder::encodeOpenAssociatorInstancePathsResponse(
     }
 
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenAssociatorInstancePaths", true,
@@ -894,7 +894,7 @@ void CIMOperationResponseEncoder::encodePullInstancesWithPathResponse(
     }
 
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "PullInstancesWithPath", true,
@@ -913,7 +913,7 @@ void CIMOperationResponseEncoder::encodePullInstancePathsResponse(
     }
 
     // Add return parameters-endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody, 
+    _appendPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "PullInstancePaths", true, &rtnParamBody,
@@ -936,11 +936,12 @@ void CIMOperationResponseEncoder::encodeEnumerationCountResponse(
     Buffer body;
     Buffer rtnParamBody;
 
-    XmlWriter::appendUint64ReturnValue(rtnParamBody, "Count", 
+    XmlWriter::appendUint64ReturnValue(rtnParamBody, "Count",
         response->count);
 
     sendResponsePull(response, "EnumerationCount", true, &rtnParamBody, &body);
 }
+//EXP_PULL_END
 
 void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
     CIMEnumerateInstanceNamesResponseMessage* response)

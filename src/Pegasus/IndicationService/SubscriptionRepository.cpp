@@ -166,8 +166,7 @@ CIMObjectPath SubscriptionRepository::createInstance (
     CIMName className = instance.getPath().getClassName();
 
     if ((className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML) || 
-        className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN)) &&
+        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) &&
         instance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME)
             == PEG_NOT_FOUND)
     {
@@ -1097,7 +1096,7 @@ Array <CIMName> SubscriptionRepository::getIndicationSubclasses (
 }
 
 Boolean SubscriptionRepository::reconcileFatalError (
-    const CIMInstance &subscription)
+    const CIMInstance subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::reconcileFatalError");
@@ -1191,13 +1190,9 @@ void SubscriptionRepository::modifyInstance (
         instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
         instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
-        instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
         instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
     {
         AutoMutex mtx(_handlerFilterCacheMutex);
 
@@ -1244,13 +1239,9 @@ void SubscriptionRepository::deleteInstance (
              instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
              instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
-             instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
              instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
     {
         AutoMutex mtx(_handlerFilterCacheMutex);
 
@@ -1345,7 +1336,7 @@ void SubscriptionRepository::_disableSubscription (
 }
 
 void SubscriptionRepository::_deleteSubscription (
-    const CIMInstance &subscription)
+    const CIMInstance subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::_deleteSubscription");

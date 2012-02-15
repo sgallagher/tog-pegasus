@@ -54,6 +54,7 @@ static const char* _cimMessages[] =
     "CIM_ERR_INVALID_QUERY",
     "CIM_ERR_METHOD_NOT_AVAILABLE",
     "CIM_ERR_METHOD_NOT_FOUND",
+//EXP_PULL_BEGIN     The DMTF DSP0200 v 1.4 spec added the following
     "empty",
     "empty",
     "CIM_ERR_NAMESPACE_NOT_EMPTY",
@@ -65,6 +66,7 @@ static const char* _cimMessages[] =
     "CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED",
     "CIM_ERR_SERVER_LIMITS_EXCEEDED",
     "CIM_ERR_SERVER_IS_SHUTTING_DOWN"
+//EXP_PULL_END
 };
 
 // l10n TODO - the first func should go away when all Pegasus is globalized

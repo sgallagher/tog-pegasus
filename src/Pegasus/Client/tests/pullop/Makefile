@@ -54,6 +54,7 @@ CL = TST_ResponseStressTest
 ## Simple C++ Provider classes and namespaces
 CxxNS = root/SampleProvider
 CxxCL = Sample_InstanceProviderClass
+
 ## C++ association Provider Object and Namespace
 CxxAssocOB = Test_CLITestProviderClass.Id=\"Mike\"
 CxxAssocNS = test/TestProvider
@@ -69,7 +70,7 @@ tests:
 
 ## Tests conducted with pullop
 ## We are moving the test so that many of them will be direct rather than
-## through makefile calls.  Will give us better control.  This is start
+## through makefile calls.  Will give e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)us better control.  This is start
 ##of that but commented out for now
 #poststartests1:
 #    @$(ECHO) Error Tests
@@ -88,8 +89,8 @@ poststarttests:
 	make invalidAssocObjectPath
 
 	@$(ECHO)  Enumerate and EnumerateNames tests - get to Completion
-	make pe1
-	make pn1
+	make testEnumerateInstances
+	make testEnumerateInstanceNames
 	make peall
 	make penall
 	make pcmpie1
@@ -102,7 +103,7 @@ poststarttests:
 	make pr1
 	make prn1
 	make pa1
-	make pan1
+	matestPullEnumerateInstanceNameske pan1
 	make pcmpir1
 	make pcmpirn1
 	make pcmpian1
@@ -118,8 +119,16 @@ poststarttests:
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
 ## enumerate a class that is probably all repository
-pe1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+testEnumerateInstances:
+	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+
+## KS_TODO - This does now work right now.
+testEnumerateInstancesWithPropertyList:
+	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P Message
+
+## KS_TODO - This does now work right now.
+testEnumerateInstancesEmptyPropertyList:
+	$(testPullEnumerateInstanceNamesPROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
 
 ## test variations of open max object count and pull max object count
 enumerateMaxObjectSizeVariations:
@@ -131,7 +140,7 @@ enumerateMaxObjectSizeVariations:
 	$(PROGRAM) e -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 ## test variations of open max object count and pull max object count
-enumeratePathsMaxObjectSizevariations:
+enuWith Pull ValidationmeratePathsMaxObjectSizevariations:
 	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
@@ -140,8 +149,8 @@ enumeratePathsMaxObjectSizevariations:
 	$(PROGRAM) en -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
-## enumerate a class that is probably all repository
-pn1:
+## enumerate instance names of a class that is probably all repository
+testEnumerateInstanceNames:
 	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C $(HOSTID)
 
 ## Simple pull ref and assoc operations.
@@ -178,16 +187,23 @@ pan3:
 peall:
 	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -C $(HOSTID)
 
-## Enumerate all objects in the test/TestProvider namespace
+## KS_TODO this one generates an error
+peall1:
+	$(PROGRAM) e -M 9 -N 9 -c CIM_Namespace -C -n root/PG_InterOp $(HOSTID)
+
 peall2:
+	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
+
+## Enumerate all objects in the test/TestProvider namespace
+peall3:
 	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
 
 removefornow:
 	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 penall:
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement $(HOSTID)
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
+	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement $(HOSTID)
+###	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## Test Empty response.
 pempty:
@@ -284,7 +300,7 @@ pcmpian1:
 ####################################################
 ##
 ##     Manual Test targets used during development
-##
+##nstanceWithPath
 ###################################################
 
 ## test all operations against all classes in the defined namespace
@@ -296,7 +312,9 @@ clirep:
 
 cliprov:
 	cimcli pei Sample_InstanceProviderClass -n root/SampleProvider $(CIMCLIHOSTID)
+
 pr: pr1 pr2
+
 e1:
 	cimcli ei Sample_InstanceProviderClass -n root/SampleProvider $(CIMCLIHOSTID)
 
@@ -306,7 +324,7 @@ e2:
 r2:
 	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
 
-pe: pe1 pe2
+pe: pullOneEnumerateInstances pe2
 
 pr3:
 	$(PROGRAM) r -M 9 -N 1 -n test/TestProvider -c Test_CLITestProviderClass.Id=\"Mike\" $(HOSTID)

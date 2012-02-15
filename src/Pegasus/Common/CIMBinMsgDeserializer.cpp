@@ -1398,6 +1398,7 @@ CIMBinMsgDeserializer::_getProcessIndicationRequestMessage(
     CIMInstance indicationInstance;
     Array<CIMObjectPath> subscriptionInstanceNames;
     CIMInstance provider;
+    Uint32 timeoutMilliSec;
 
     if (!_getNamespaceName(in, nameSpace))
         return false;
@@ -1411,13 +1412,17 @@ CIMBinMsgDeserializer::_getProcessIndicationRequestMessage(
     if (!_getInstance(in, provider))
         return false;
 
+    if (!in.getUint32(timeoutMilliSec))
+        return false;
+
     return new CIMProcessIndicationRequestMessage(
         String::EMPTY,
         nameSpace,
         indicationInstance,
         subscriptionInstanceNames,
         provider,
-        QueueIdStack());
+        QueueIdStack(),
+        timeoutMilliSec);
 }
 
 CIMDisableModuleRequestMessage*

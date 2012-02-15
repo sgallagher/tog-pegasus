@@ -178,6 +178,16 @@ public:
 
     void appendCIMNameTag(Uint32 nameTag);
 
+    /**
+        Return as a String the comma-separated list of properties in
+        a property list.  If the list is empty or NULL set the
+        corresponding string value (EMPTY or NULL).  This method is
+        only for display of information in a property list.
+        @return String containing the list of properties
+                comma-separated.
+     */
+    String toString() const;
+
 private:
 
     CIMPropertyListRep* _rep;

@@ -61,16 +61,35 @@ PEGASUS_USING_STD;
 #define CSTRING(ARG) (const char*) ARG.getCString()
 
 // EXP_PULL_TEMP
-// 
+//
 const char * _toCharP(Boolean x)
 {
     return (x? "true" : "false");
 }
 
-/****************************************************************************** 
-**  
+String _toString(const CIMPropertyList& pl)
+{
+    String rtn;
+    //Array<CIMName> pls = pl.getPropertyNameArray();
+    if (pl.isNull())
+        return("NULL");
+
+    if (pl.size() == 0)
+        return("EMPTY");
+
+    for (Uint32 i = 0 ; i < pl.size() ; i++)
+    {
+        if (i != 0)
+            rtn.append(",");
+        rtn.append(pl[i].getString());
+    }
+    return(rtn);
+}
+
+/******************************************************************************
+**
 **  Static variables outside of object context
-**  
+**
 ******************************************************************************/
 
 // Define the variable that controls the default pull operation timeout
@@ -88,7 +107,7 @@ const char * _toCharP(Boolean x)
 // Sets the default maximum size for the response cache in each
 // enumerationContext.  As responses are returned from providers this is the
 // maximum number that can be placed in the CIMResponseData cache waiting
-// for pull operations to move send them as responses before responses 
+// for pull operations to move send them as responses before responses
 // start backing up the providers (i.e. delaying return from the provider
 // deliver calls.
 // FUTURE: As we develop more flexible resource management this value should
@@ -101,7 +120,7 @@ const char * _toCharP(Boolean x)
 Uint32 responseCacheDefaultMaximumSize = 1000;
 //
 // Define the table that will contain enumeration contexts for Open, Pull,
-// Close, and countEnumeration operaitons.  The default interoperation 
+// Close, and countEnumeration operaitons.  The default interoperation
 // timeout is set as part of creating the table.
 //
 static EnumerationTable enumerationTable(_pullOperationDefaultTimeout,
@@ -130,9 +149,9 @@ static const char* _getServiceName(Uint32 serviceId)
     return queue ? queue->getQueueName() : "none";
 }
 
-/**************************************************************************** 
-** 
-**  Implementation of OperationAggregate  
+/****************************************************************************
+**
+**  Implementation of OperationAggregate
 **
 ******************************************************************************/
 
@@ -202,7 +221,7 @@ void OperationAggregate::decObjectCount()
     _objectCount--;
 }
 
-/*  Add one response to the responseList and 
+/*  Add one response to the responseList and
     return true if the total issued equals the number in the list.
     This return is no longer of any real value since we are dynamically
     adding to and removing from this list.
@@ -471,8 +490,8 @@ void OperationAggregate::setPullOperation(const void* enContext,
 }
 
 /*
-* 
-*   Common functions use by the request Handlers 
+*
+*   Common functions use by the request Handlers
 */
 /*
     build an array of CIMNames with all of the properties in the
@@ -499,7 +518,7 @@ Array<CIMName> _buildPropertyList(CIMConstClass& thisClass)
 //***************************************************************************
 //
 // CIMOperationRequestDispatcher Class Implementation
-// 
+//
 //***************************************************************************
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
@@ -552,7 +571,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // single pull... or open... operation. (Objects can be instances or
     // CIMObjectPaths  depending on the operation.
 #ifdef PEGASUS_PULL_OPERATION_MAXIMUM_OBJECT_COUNT
-    _systemMaxPullOperationObjectCount = 
+    _systemMaxPullOperationObjectCount =
         PEGASUS_PULL_OPERATION_MAXIMUM_OBJECT_COUNT;
 #else
     // Default setting if nothing supplied externally
@@ -568,7 +587,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 
     // define the variable that controls whether we allow 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
-    // that the server maintains no timer for the context, it may be the 
+    // that the server maintains no timer for the context, it may be the
     // decision of some implementors to not allow this value.
     // Define the maximum number of objects that the server will return for a
     // single pull... or open... operation. (Objects can be instances or
@@ -1018,11 +1037,11 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
             EnumerationContext* en =
                 (EnumerationContext*)poA->_enumerationContext;
 
-            PEGASUS_ASSERT(en);          // KS_TEMP    
+            PEGASUS_ASSERT(en);          // KS_TEMP
             PEGASUS_ASSERT(en->valid()); // KS_TEMP
             enumerationTable.valid();    // KS_TEMP
             en->trace();                 // KS_TEMP
-            
+
             enumerationTable.tableValidate();
 
             EnumerationContext* enTest = enumerationTable.find(
@@ -1030,7 +1049,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueAggregateResponse(
 
             if (enTest == 0)
             {
-                cout << "Error, EnumContext not found " 
+                cout << "Error, EnumContext not found "
                     << en->getContextName() << endl;
                 en->trace();
                 PEGASUS_ASSERT(false);
@@ -1565,7 +1584,7 @@ static String _showPropertyList(const CIMPropertyList& pl)
 ///////////////////////////////////////////////////////////////////////////
 //
 // Provider Lookup Functions
-// 
+//
 ///////////////////////////////////////////////////////////////////////////
 
 /* _lookupAllInstanceProviders - Returns the list of all subclasses of this
@@ -2396,7 +2415,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
-    PEGASUS_ASSERT(poA->getRequestType() != 
+    PEGASUS_ASSERT(poA->getRequestType() !=
         CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE);
     PEGASUS_ASSERT(serviceId);
 
@@ -2554,7 +2573,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 }
 
 /*
-    Enqueue an Exception response 
+    Enqueue an Exception response
     This is a helper function that creates a response message
     with the defined exception and queues it.
 */
@@ -2578,7 +2597,7 @@ void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
 /*
    Enqueue the response provided with the call
    Logs this operation, assures resquest and response
-   attributes are syncd, gets queue from request, 
+   attributes are syncd, gets queue from request,
    gets queue name from request,
    if internal client (queuename) does
        base::_enqueueResponse(request,response)
@@ -2881,28 +2900,28 @@ void CIMOperationRequestDispatcher::handleEnqueue()
     PEG_METHOD_EXIT();
 }
 
-/***************************************************************************** 
-**  
+/*****************************************************************************
+**
 **      Request Processing Helper Methods
-**  
+**
 *****************************************************************************/
 /*
     Helper struct/methods to issue operations requests to groups of Providers
     defined by a ProviderInfoList. This struct issues requests of the type
     defined by input to the providers defined in the providerInfoList.
- 
+
     There are separate functions for issuing:
         issueEnumRequests - enumerate operations (enumerate and enumerateNames)
         issueAssocRequests - association operations (includes references
             and associations and their corresponding name operations).
- 
+
     This struct eliminates the repeated code for issuing requests in the
     handle***Request functions for those input operation requests that issue
     provider operation requests to multiple providers based on a
     ProviderInfoList. It reduces the previously repeated code for issuing
     requests to providers in the operation request processors for these
     functions to a single line.
- 
+
     This struct not part of CIMOperationRequestDispatcher class because it
     includes template methods.
 */
@@ -2941,7 +2960,7 @@ struct ProviderRequests
         request->resultClass = providerInfo.className;
     }
 
-    /************************************************************************** 
+    /**************************************************************************
     **
     ** issueAssocRequests - Template method to issue requests for
     **     association/refernece operations.
@@ -2987,20 +3006,20 @@ struct ProviderRequests
             // Issue response (error or data). This terminates operation.
             dispatcher->_enqueueResponse(request, response.release());
         }
-        else  
+        else
         {
-            // 
+            //
             // Else Providers exist. Issue requests to providers.
             // Set up an aggregate object and save the original request message
             //
-    
+
             OperationAggregate* poA = new OperationAggregate(new REQ(*request),
                 request->getType(),
                 request->messageId,
                 request->queueIds.top(),
                 request->objectName.getClassName(),
                 request->nameSpace);
-    
+
             // Include the repository response in the aggregation, if data
             // in response
             // KS_TODO - I think this is wrong.  It creates a response
@@ -3009,8 +3028,8 @@ struct ProviderRequests
             {
                 poA->setTotalIssued(providerInfos.providerCount + 1);
                 // send the repository's results asynchronously to the
-                // correct dispatcher callback function. 
-    
+                // correct dispatcher callback function.
+
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
                     "Forwarding to provider Callback result from Repository."
                         " Total Issued: %u. total objects: %u",
@@ -3031,7 +3050,7 @@ struct ProviderRequests
                     "Forwarding to provider.. Total Issued: %u ",
                     providerInfos.providerCount));
             }
-    
+
             // loop for all classes in providerInfos
             for (Uint32 i = 0; i < providerInfos.size(); i++)
             {
@@ -3040,29 +3059,29 @@ struct ProviderRequests
                 {
                     // Make copy of request
                     REQ* requestCopy = new REQ(*request);
-    
+
                     // Set class into new request for each request type
                     setSelectedRequestFields(requestCopy, providerInfos[i]);
-    
+
                     if (providerInfos[i].providerIdContainer.get() != 0)
                         requestCopy->operationContext.insert(
                             *(providerInfos[i].providerIdContainer.get()));
-    
+
                     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                         "Forwarding to provider for class %s",
                         CSTRING(providerInfos[i].className.getString())));
-                    
+
                     dispatcher->_forwardRequestForAggregation(
                         providerInfos[i].serviceId,
                         providerInfos[i].controlProviderName, requestCopy, poA);
-                    // Note: poA must not be referenced after last 
+                    // Note: poA must not be referenced after last
                     // "forwardRequest"
                 }
             }
         }
     } // end issueAssocRequests
 
-    /************************************************************************** 
+    /**************************************************************************
     **
     ** IssueEnumerationRequests - Issue enumeration requests to providers
     **     for enumerateInstances and enumerateInstanceNames operations.
@@ -3090,7 +3109,7 @@ struct ProviderRequests
         for (Uint32 i = 0; i < numClasses; i++)
         {
             ProviderInfo& providerInfo = providerInfos[i];
-    
+
             if (providerInfo.hasProvider)
             {
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -3103,29 +3122,29 @@ struct ProviderRequests
                     (unsigned int)(i + 1),
                     (unsigned int)(numClasses),
                     (unsigned int)(poA->getAggregationSN())));
-        
+
                 REQ* requestCopy = new REQ(*request);
-        
+
                 // Test if next in list is valid class.
                 // NOTE: We really want to only check for validity except
                 //    in the case where PEGASUS_ENABLE_OBJECT_NORMALIZATION
                 //    is set.  Then we need the class.  We should be able
                 //    to optimize this somehow to eliminate the complete
-                //    class construction except when required.     
+                //    class construction except when required.
                 requestCopy->className = providerInfo.className;
-        
+
                 CIMException checkClassException;
                 CIMConstClass cimClass = dispatcher->_getClass(
                         request->nameSpace,
                         providerInfo.className,
                         checkClassException);
-        
+
                 // The following is not correct.
                 if (checkClassException.getCode() != CIM_ERR_SUCCESS)
                 {
                     CIMResponseMessage* response = request->buildResponse();
                     /// KS_TBD Does not insert exception.
-        
+
                     // Forward for completion processing.
                     // NOTE: the existence of the response indicates
                     //       that this is a completed response.
@@ -3143,7 +3162,7 @@ struct ProviderRequests
                         requestCopy->operationContext.insert(
                             *(providerInfo.providerIdContainer.get()));
                     }
-            
+
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
                     if (providerInfo.hasProviderNormalization)
                     {
@@ -3162,12 +3181,12 @@ struct ProviderRequests
         }
     }    // end issueEnumerationRequests.
 
-    /************************************************************************** 
+    /**************************************************************************
     **
     ** IssuePullResponses - Handles pullInstancesWithPath and pullInstancePaths
     **
     **************************************************************************/
-    /** 
+    /**
         Complete processing for the pull operations, pullInstancesWithPath
        and Pull InstancePaths.  This template replaces all the code in both
        pull functions including the input checking code because both operations
@@ -3201,13 +3220,13 @@ struct ProviderRequests
         EnumerationContext* enumerationContext =
              enumerationTable.find(request->enumerationContext);
 
-           
+
         // If enumeration Context not found, return invalid exception
         if (dispatcher->_rejectInValidEnumerationContext(request,
             enumerationContext))
         {
             PEG_METHOD_EXIT();
-            return;        
+            return;
         }
 
         enumerationContext->trace();          // KS_TEMP
@@ -3217,27 +3236,27 @@ struct ProviderRequests
             enumerationContext->isValidPullRequestType(request->getType())))
         {
             PEG_METHOD_EXIT();
-            return;    
+            return;
         }
-    
+
         if (dispatcher->_rejectIfContextTimedOut(request,
             enumerationContext->isTimedOut()))
         {
             PEG_METHOD_EXIT();
-            return;       
+            return;
         }
         // reject if an operation is already active on this enumeration context
         if (dispatcher->_rejectIfEnumerationContextActive(request,
             enumerationContext->isActive()))
         {
             PEG_METHOD_EXIT();
-            return;       
+            return;
         }
 
         // Set active and stop interOperation timer
         enumerationContext->setActiveState(true);
         response->enumerationContext = request->enumerationContext;
-    
+
         // We really should do this at the time of the last enqueue
         // KS_PULL_TODO - Confirm that the NULL should cause
         // response with nothing in it.
@@ -3249,22 +3268,22 @@ struct ProviderRequests
             // that we have exceeded the max allowable number of consecutive
             // zero-length pull operations. At that point we would also
             // terminate the enumeration.
-    
-            Boolean pullOverrun = 
+
+            Boolean pullOverrun =
             enumerationContext->incPullOperationCounter(true);
-    
+
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "%s Generating 0 object requested response", opSeqName));
-    
+
             response->endOfSequence = true;
             response->cimException = CIMException();
-        
+
             dispatcher->_enqueueResponse(request, response.release());
-    
+
             // set to operation inactive and start interoperation timer
 
             enumerationContext->setActiveState(false);
-    
+
             PEG_METHOD_EXIT();
             return;
         }
@@ -3273,41 +3292,41 @@ struct ProviderRequests
             Get Objects From Cache and return with end-of-sequence status
             or if errorstate, return error
         */
-    
+
         // Ignore return from increment here because this is resetting the
         //  consecutive zero length response counter
         enumerationContext->incPullOperationCounter(false);
         Uint32 localMaxObjectCount = request->maxObjectCount.getValue();
-    
+
         response->endOfSequence = false;
         response->cimException = CIMException();
-    
+
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s getting from cache. isComplete: %s cacheSize: %u error: %s",
             opSeqName,
             _toCharP(enumerationContext->ifProvidersComplete()),
             enumerationContext->responseCacheSize(),
             _toCharP(enumerationContext->isErrorState())  ));
-    
+
         CIMResponseData & to = response->getResponseData();
-    
+
         to.setDataType((enumerationContext->getCIMResponseDataType()));
-    
+
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
           "%s getCacheResponsedata. max objects %u",
           opSeqName,localMaxObjectCount ));
-    
+
         // Set type per the to datatype
         CIMResponseData from(enumerationContext->getCIMResponseDataType());
-    
+
         Boolean rtn = enumerationContext->getCacheResponseData(
             localMaxObjectCount, from);
-    
+
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s AppendResponseData. to type %u from type %u",
             opSeqName,
             to.getResponseDataContent(), from.getResponseDataContent()));
-    
+
         // If error set, send error response.
         if (enumerationContext->isErrorState())
         {
@@ -3317,7 +3336,7 @@ struct ProviderRequests
         {
             to.appendResponseData(from);
         }
-        
+
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
           "%s Send Pull response to type %u from type %u "
               "endOfSequence %s providersComplete %s cacheSize %u",
@@ -3326,7 +3345,7 @@ struct ProviderRequests
           _toCharP(response->endOfSequence),
           _toCharP(enumerationContext->ifProvidersComplete()),
           enumerationContext->responseCacheSize() ));
-    
+
         if ((response->endOfSequence = enumerationContext->
              ifEnumerationComplete()))
         {
@@ -3340,7 +3359,7 @@ struct ProviderRequests
             // set to operation inactive and start interoperation timer
             enumerationContext->setActiveState(false);
         }
-    
+
         dispatcher->_enqueueResponse(request, response.release());
 
         if (enumerationContext->isClosed())
@@ -4367,11 +4386,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             for (Uint32 i = 0; i < numProperties; i++)
             {
                 propertyListArray.append(
-                    cimClass.getProperty(i).getName().getString());          
+                    cimClass.getProperty(i).getName().getString());
             }
             request->propertyList.append(propertyListArray);
         }
-        
+
     }
 
     //
@@ -4392,7 +4411,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
 
-    if ((providerInfos.providerCount == 0) && 
+    if ((providerInfos.providerCount == 0) &&
         !(_repository->isDefaultInstanceProvider()))
     {
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
@@ -4491,7 +4510,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             handleEnumerateInstancesResponseAggregation(poA,true);
 
             CIMResponseMessage* response = poA->removeResponse(0);
-            
+
             // Forward for completed response processing
             _forwardRequestForAggregation(
                 getQueueId(),
@@ -4513,7 +4532,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         request,
         providerInfos,
         poA);
-    /************************************************* 
+    /*************************************************
       Old code before creating the template functions.  Keep until
       we are satisifed the new works and is clean
     // Loop through providerInfos, forwarding requests to providers
@@ -4567,7 +4586,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 requestCopy->operationContext.insert(
                     *(providerInfo.providerIdContainer.get()));
             }
-    
+
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
             if (providerInfo.hasProviderNormalization)
             {
@@ -4657,7 +4676,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-    if ((providerInfos.providerCount == 0) 
+    if ((providerInfos.providerCount == 0)
         && !(_repository->isDefaultInstanceProvider()))
     {
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
@@ -4692,7 +4711,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         {
             ProviderInfo& providerInfo = providerInfos[i];
 
-            // If class does not have provider call repository to 
+            // If class does not have provider call repository to
             // get instances
             if (!providerInfo.hasProvider)
             {
@@ -5802,10 +5821,10 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 //KS_PULL_BEGIN
 /*************************************************************************
-// 
-//  Pull operations introduced in Pegasus 2.11 per DMTF DSP200 - V 1.4  
-//  
-/*************************************************************************/ 
+//
+//  Pull operations introduced in Pegasus 2.12 per DMTF DSP200 - V 1.4
+//
+*************************************************************************/
 
 /**$**************************************************************************
 **
@@ -5821,12 +5840,12 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "OpenEnumerateInstances request for namespace %s class %s "
-            "propertyList.size = \"%u\" . "
-            "maxObjectCount = \"%s\" .  "
-            "operationTimeout = \"%s\" .  ",
+            "propertyList=%s "
+            "maxObjectCount=%s "
+            "operationTimeout=%s",
         (const char*)request->nameSpace.getString().getCString(),
         (const char*)request->className.getString().getCString(),
-        request->propertyList.size(),
+        (const char*)_toString(request->propertyList).getCString(),
         (const char*)request->maxObjectCount.toString().getCString(),
         (const char*)request->operationTimeout.toString().getCString() ));
 
@@ -5924,7 +5943,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             request->authType,
             request->userName);
 
-    // AutoPtr to delete at end of handler
+    // AutoPtr to delete enumRequest at end of handler
     AutoPtr<CIMEnumerateInstancesRequestMessage> dummy(enumRequest);
 
     enumRequest->operationContext = request->operationContext;
@@ -8399,11 +8418,10 @@ void CIMOperationRequestDispatcher::
         CSTRING(poA->_className.getString()),
         poA->numberResponses()));
 
-    CIMResponseData & to = toResponse->getResponseData();
-
     CIMEnumerateInstancesRequestMessage* request =
         (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
 
+    CIMResponseData & to = toResponse->getResponseData();
     // Re-add the property list as stored from request after deepInheritance fix
     // since on OOP on the response message the property list gets lost
     if (hasPropList)
@@ -8781,7 +8799,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
     class exists.
     @return false if class found or true if class not found
 */
-  
+
 Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
     CIMRequestMessage* request,
     const CIMName& className,
@@ -8811,7 +8829,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
 /*
     Check the existence of a class matchin a classname.  Note that
     this code checks for the special classname PEGASUS_CLASSNAME___NAMESPACE
-    and returns true.  
+    and returns true.
 */
 Boolean CIMOperationRequestDispatcher::_checkExistenceOfClass(
     const CIMNamespaceName& nameSpace,
@@ -8951,11 +8969,11 @@ Boolean CIMOperationRequestDispatcher::_checkNoProvidersOrRepository(
         PEG_TRACE(( TRC_DISPATCHER,Tracer::LEVEL4,
             "CIM_ERROR_NOT_SUPPORTED for %s",
             CSTRING(className.getString()) ));
-    
+
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-    
+
         _enqueueResponse(request, response);
         return true;
     }

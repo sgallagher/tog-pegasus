@@ -48,6 +48,7 @@
 
 #include <Pegasus/General/MofWriter.h>
 #include <Pegasus/Common/Print.h>
+#include <Pegasus/Common/HashTable.h>
 
 #include "CIMCLIClient.h"
 
@@ -110,6 +111,7 @@ void _showValueParameters(const Options& opts)
     cout << endl;
 }
 
+//KS_PULL_BEGIN
 // Map Uint32 to a Pegasus string
 String _toString(Uint32 i)
 {
@@ -158,6 +160,7 @@ Boolean _testRcvTooManyElements(
     // We can only return true if we sent Null
     return(false);
 }
+//KS_PULL_END
 
 // Map the keybinding values from any CIMObjectPath that was input into
 // our standard input form for use by objectBuilder.
@@ -585,7 +588,7 @@ Array<CIMNamespaceName> _getNameSpacesWith__namespace(Options& opts)
     // the root for all namespaces. That  is a hole is the spec,
     // not in our code.
 
-    // TODO: Determine why we need the following statement
+    // Determine why we need the following statement
     namespaceNames.append(opts.nameSpace);
 
     Uint32 start = 0;
@@ -786,22 +789,39 @@ void _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
    all instances.
    It is in effect enumerate classes followed by enumerate instances.
    The user may either provide a starting class or not, in which case
-   it searches the complete namespace, not simply the defined class.
+   it enumerates instance names for the complete namespace, not simply the
+   defined class.
+
+   It normally returns all instances of all classes below the input class name
+   (a single enumerateInstances)
+   unless no class was provided with the command.  Then it enumerates
+   all classes in the namespace.
+
+   If the --sum option is defined it returns only the count of instances
+   for classes that return instances.  NOTE: This is the count for each
+   class where an instance is returned. Thus inputting a single class name
+   may return a list of instances of multiple classes.  The summary enumerates
+   the number of instances of each class in the enumerateInstancesNames
+   response.
+
+   This operation also allows processing all namespaces in a Server with
+   a single request by defining the input namespace as "*".  In that case,
+   it gets a list of all namespaces and process them all. Summary results
+   are returned for each namespace.
 */
 
 int enumerateAllInstanceNames(Options& opts)
 {
     if (opts.verboseTest)
     {
-        cout << "EnumerateClasseNames "
+        cout << "enumerateAllInstanceNames (niall) "
             << "Namespace = " << opts.nameSpace
             << ", Class = " << opts.className.getString()
-            << ", deepInheritance = " << _toString(opts.deepInheritance)
             << endl;
     }
 
-    CIMName myClassName = CIMName();
-
+    // This operation allows * as namespace value which means get
+    // from all namespaces.
     Array<CIMNamespaceName> nsList;
     if (opts.nameSpace != "*")
     {
@@ -811,14 +831,21 @@ int enumerateAllInstanceNames(Options& opts)
     {
         nsList = _getNameSpaceNames(opts);
     }
+
     if (opts.verboseTest)
     {
-        cout << "Namespaces List for getNamespaces "
-             << _toString(nsList)
-             << endl;
+        cout << "Namespaces List for niall: ";
+        for (Uint32 i = 0 ; i < nsList.size() ; i++)
+        {
+            cout << ((i > 0)? ", " : "")
+                 << nsList[i].getString() << endl;
+        }
+        cout << endl;
     }
 
     CIMName saveClassName = opts.className;
+
+    // loop to process for each namespace
     for (Uint32 i = 0 ; i < nsList.size() ; i++)
     {
         opts.nameSpace = nsList[i].getString();
@@ -828,29 +855,66 @@ int enumerateAllInstanceNames(Options& opts)
         // we merge output and acquisition over multiple operations
         _startCommandTimer(opts);
 
-        // Get all class names in namespace
+        // If className is null, assume that user wants to start at
+        // class hiearchy root and we get top level class names. Else
+        // we will enumerate just the classname provided.
         opts.className = saveClassName;
+        if (opts.className.isNull())
+        {
+            if (opts.verboseTest)
+            {
+                cout << "EnumerateClassNames for namespace "
+                    << opts.nameSpace << endl;
+            }
+            try
+            {
+                classNames = opts.client.enumerateClassNames(opts.nameSpace,
+                                                    opts.className,
+                                                    false);
+            }
+            catch(CIMException& e)
+            {
+                if (e.getCode() == CIM_ERR_INVALID_CLASS)
+                {
+                    cerr << "Class " << opts.className.getString()
+                         << " does not exist in namespace "
+                         << opts.nameSpace << endl;
+                    continue;
+                }
+            }
+
+            _stopCommandTimer(opts);
+        }
+        else
+        {
+            classNames.append(opts.className);
+        }
+
         if (opts.verboseTest)
         {
-            cout << "EnumerateClassNames for namespace "
-                << opts.nameSpace << endl;
+            cout << "Evaluate for following list of classes:" << endl;
+
+            for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
+            {
+                cout << ((iClass > 0)? ", " : "")
+                     << classNames[iClass].getString();
+            }
+            cout << endl;
         }
-        classNames = opts.client.enumerateClassNames(opts.nameSpace,
-                                            opts.className,
-                                            opts.deepInheritance);
 
-        _stopCommandTimer(opts);
+        // Create associative array to count instances of each
+        // class in returned instance names list. Value function is
+        // Uint32 to count instances of each class in array
+        typedef HashTable<String, Uint32, EqualFunc<String>,
+            HashFunc<String> > InstCounter;
+        InstCounter instCounter;
 
-        // Enumerate instance names for all classes returned
+        // Enumerate instance names for all classes in list. This is
+        // tree of all classes below defined classname input or just
+        // the input classname if one was supplied with request
         Uint32 totalInstances = 0;
         for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
         {
-            // output one line with number and classname.
-
-            //// KS_TBD String s = "instance names of class";
-
-            //// KS_TBD _displaySummary(instanceNames.size(), s,
-            //// KS_TBD     classNames[iClass].getString(),opts);
             if (opts.verboseTest)
             {
                 cout << "EnumerateInstanceNames "
@@ -858,34 +922,113 @@ int enumerateAllInstanceNames(Options& opts)
                     << ", Class = " << classNames[iClass].getString()
                     << endl;
             }
+
             Array<CIMObjectPath> instanceNames;
             try
             {
                 instanceNames =
                     opts.client.enumerateInstanceNames(opts.nameSpace,
                                                        classNames[iClass]);
+                totalInstances += instanceNames.size();
             }
             catch(CIMException& e )
             {
-                cerr << "Warning: Error in niall for enumerateInstanceNames "
-                    << " Namespace = " << opts.nameSpace
-                    << " Class = " << classNames[iClass].getString()
+                cerr << "Warning: Exception in niall for"
+                        " enumerateInstanceNames "
+                    << " Namespace=" << opts.nameSpace
+                    << " Class=" << classNames[iClass].getString()
                      << ".  " << e.getMessage() << ". Continuing." << endl;
                 continue;
             }
 
-            totalInstances += instanceNames.size();
-
             String s = "instances of class";
             opts.className = classNames[iClass];
-            CIMCLIOutput::displayPaths(opts, instanceNames, s);
+            if (!opts.summary)
+            {
+                CIMCLIOutput::displayPaths(opts, instanceNames, s);
+            }
+
+            // Insert new classnames in instCounter table and
+            // increment count for existing names.
+            for (Uint32 i = 0 ; i < instanceNames.size(); i++)
+            {
+                String className = instanceNames[i].getClassName().getString();
+
+                // Insert new entry in hash table or increment
+                // current entry counter
+                if (!instCounter.insert(className, 1))
+                {
+                    Uint32* value;
+                    instCounter.lookupReference(className, value);
+                    *value = *value + 1;
+                }
+            }
         }
 
-        cout << "Total Instances in " << opts.nameSpace
-             << " = " << totalInstances
-             << " which contains " << classNames.size() << " classes"
+        // Get max size of key property to justify output columns
+        size_t maxSize = 0;
+        for (InstCounter::Iterator i = instCounter.start(); i; i++)
+            if (i.key().size() > maxSize)
+                maxSize = i.key().size();
+
+        // Output namespace, className, instance count for all classes that
+        // have nonzero instance count (i.e. all entries in the hash table
+        for (InstCounter::Iterator i = instCounter.start(); i; i++)
+        {
+            String key = i.key();
+            while (key.size() < maxSize)
+            {
+                key.append(" ");
+            }
+
+            cout << opts.nameSpace << " "
+                 << key
+                 << " " << i.value() << endl;
+        }
+
+        // get list of all classes in namespace for summary info.
+        Array<CIMName> classesNamesTotal = opts.client.enumerateClassNames(
+                                    opts.nameSpace,
+                                    CIMName(),
+                                    true);
+        // get list of all classes below specified class
+        String enumCount;
+        String enumTxt;
+        if (classNames.size() == 1)
+        {
+            try
+            {
+                Array<CIMName> classNamesEnum =
+                    opts.client.enumerateClassNames(
+                        opts.nameSpace,
+                        opts.className,
+                        true);
+                enumTxt = " Enumerated=";
+                char buf[22];
+                Uint32 sz;
+                enumTxt.append(Uint32ToString(buf,classNamesEnum.size(), sz));
+            }
+            catch(CIMException& e )
+            {
+                cerr << "Warning: Exception in niall for"
+                        " enumerateClassNames "
+                    << " Namespace=" << opts.nameSpace
+                    << " Class=" << opts.className.getString()
+                     << ".  " << e.getMessage() << ". Continuing." << endl;
+                continue;
+            }
+        }
+
+        // for this namespace, print number in each class
+        cout << opts.nameSpace
+             << " Total Classes=" << classesNamesTotal.size() + 1
+             << enumTxt
+             << ", with Instances="
+             << instCounter.size()
+             << ", Instances=" << totalInstances
              << endl;
-    }
+    }  // end processing namespace for loop
+
     return CIMCLI_RTN_CODE_OK;
 }
 
@@ -965,6 +1108,23 @@ int enumerateInstances(Options& opts)
 //KS_PULL_BEGIN
 /************************** Pull Common functions  ***************************/
 
+/*
+    These common functions serve for pulling all of the opened operations.
+    They provide a loop to pull either instances or CIMObjectPaths until one
+    of the following end conditions is met:
+        endOfSequence found
+        maxObjToReceive hit (if maxObjToReceive != 0)
+        Exception or CIMException - Handled outside these functions.
+ 
+    These functions also execute an inter-pull-operation delay if the
+    pullDelay parameter is set.
+ 
+    The complete set of instances or paths received is returned.
+    KS_TODO - Keep more detailed statistics on pull, how many received,
+    timing, etc.
+    
+*/
+
 int _pullInstances(
     Options& opts,
     Array<CIMInstance>& instances,
@@ -1005,7 +1165,6 @@ int _pullInstances(
 
             rtn = !_testRcvTooManyElements(maxPullObj,
                 cimInstancesPulled.size(), opts.verboseTest);
-
 
             instances.appendArray(cimInstancesPulled);
         }
@@ -2415,7 +2574,7 @@ int references(Options& opts)
 
 /***************************** associatorNames  ******************************/
 /*
-    Uaw the client associatorNames operation to return associated classes
+    Use the client associatorNames operation to return associated classes
     or instances for the target inputs. Note that this operation uses the
     interactive option.
 
@@ -2700,16 +2859,7 @@ int setObjectManagerStatistics(Options& opts, Boolean newState,
     return CIMCLI_RTN_CODE_OK;
 }
 
-// FUTURE
-//int showProfiles(Options& opts, const String& name)
-//{
-//    cout << "Not Supported" << endl;
-//
-//    return(CIMCLI_RTN_CODE_OK);
-//}
-
-
-
+//KS_PULL_BEGIN
 Boolean isAssociation(
     Options& opts,
     const CIMName& className)
@@ -2859,28 +3009,8 @@ int countInstances(Options& opts)
 
     return(0);
 }
-
-/*
-struct abc{
-    Uint32 s;
-    String d;
-};
-typedef abc xyz;
-
-#include <Pegasus/Common/ArrayInter.h>
-
-#define PEGASUS_ARRAY_T xyz
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T xyz
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-Array<xyz> blah;
-*/
+//KS_PULL_END
 
 PEGASUS_NAMESPACE_END
-
 // END_OF_FILE
 

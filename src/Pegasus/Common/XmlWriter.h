@@ -133,7 +133,7 @@ public:
         Boolean includeClassOrigin = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-//EXP_PULL  // KS_TODO relate this to the one above.
+//EXP_PULL_BEGIN  // KS_TODO relate this to the one above.
     static void appendValueInstanceWithPathElement(
         Buffer& out,
         const CIMInstance& namedInstance,
@@ -141,6 +141,7 @@ public:
         Boolean includeClassOrigin = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 //EXP_PULL_END
+
     static void appendClassElement(
         Buffer& out,
         const CIMConstClass& cimclass);
@@ -275,7 +276,7 @@ public:
         Buffer& out,
         const char* name,
         Boolean flag);
-
+//EXP_PULL_BEGIN
     static void appendBooleanParameter(
         Buffer& out,
         const char* name,
@@ -301,13 +302,14 @@ public:
         Buffer& out,
         const char* name,
         const Uint64Arg& val);
+//EXP_PULL_END
 
     static void appendStringIParameter(
         Buffer& out,
         const char* name,
         const String& str);
 
-//EXP_PULL
+//EXP_PULL_BEGIN
     static void appendStringIParameterIfNotEmpty(
         Buffer& out,
         const char* name,
@@ -512,10 +514,11 @@ private:
         static void _appendIMethodCallElementEnd(
         Buffer& out);
 
+//EXP_PULL_BEGIN
     static void _appendParamValueElementBegin(
         Buffer& out,
         const char* name);
-
+//EXP_PULL_END
     static void _appendParamValueElementEnd(
         Buffer& out);
 
@@ -548,8 +551,7 @@ private:
     static void _appendIReturnValueElementBegin(Buffer& out);
     static void _appendIReturnValueElementEnd(Buffer& out);
 
-    //EXP_PULL
-
+    //EXP_PULL_BEGIN
     static void _appendIReturnValueElementWithNameBegin(
         Buffer& out,
         const char* name);

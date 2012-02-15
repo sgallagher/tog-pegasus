@@ -29,27 +29,41 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/HostAddress.h>
 
+#include "CIMExportRequestEncoder.h"
+#include "CIMExportResponseDecoder.h"
 #include "CIMExportClient.h"
 
+#include <iostream>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportClient::CIMExportClient(
-    Monitor* monitor,
-    HTTPConnector* httpConnector,
-    Uint32 timeoutMilliseconds)
-    :
-    ExportClient(PEGASUS_QUEUENAME_EXPORTCLIENT,
-        httpConnector,
-        timeoutMilliseconds,
-        monitor)
+   Monitor* monitor,
+   HTTPConnector* httpConnector,
+   Uint32 timeoutMilliseconds)
+   :
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTCLIENT),
+   _monitor(monitor),
+   _httpConnector(httpConnector),
+   _httpConnection(0),
+   _timeoutMilliseconds(timeoutMilliseconds),
+   _connected(false),
+   _doReconnect(false),
+   _responseDecoder(0),
+   _requestEncoder(0)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::CIMExportClient()");
     PEG_METHOD_EXIT();
@@ -64,10 +78,202 @@ CIMExportClient::~CIMExportClient()
     PEG_METHOD_EXIT();
 }
 
+void CIMExportClient::_connect()
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_connect()");
+
+    // Create response decoder:
+
+    _responseDecoder = new CIMExportResponseDecoder(
+        this, _requestEncoder, &_authenticator);
+
+    // Attempt to establish a connection:
+
+    try
+    {
+        _httpConnection = _httpConnector->connect(_connectHost,
+            _connectPortNumber,
+            _connectSSLContext.get(),
+            _timeoutMilliseconds,
+            _responseDecoder);
+    }
+    catch (...)
+    {
+        // Some possible exceptions are CannotCreateSocketException,
+        // CannotConnectException, and InvalidLocatorException
+        delete _responseDecoder;
+        PEG_METHOD_EXIT();
+        throw;
+    }
+
+    // Create request encoder:
+
+    String connectHost = _connectHost;
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (HostAddress::isValidIPV6Address(connectHost))
+    {
+        connectHost = "[" + connectHost + "]";
+    }
+#endif
+
+    if (connectHost.size())
+    {
+        char portStr[32];
+        sprintf(portStr, ":%u", _connectPortNumber);
+        connectHost.append(portStr);
+    }
+
+    _requestEncoder = new CIMExportRequestEncoder(
+        _httpConnection, connectHost, &_authenticator);
+
+    _responseDecoder->setEncoderQueue(_requestEncoder);
+
+    _doReconnect = false;
+
+    _connected = true;
+
+    _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::_disconnect()
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_disconnect()");
+
+    if (_connected)
+    {
+        //
+        // destroy response decoder
+        //
+        delete _responseDecoder;
+        _responseDecoder = 0;
+
+        //
+        // Close the connection
+        //
+        if (_httpConnector)
+        {
+            _httpConnector->disconnect(_httpConnection);
+            _httpConnection = 0;
+        }
+
+        //
+        // destroy request encoder
+        //
+        delete _requestEncoder;
+        _requestEncoder = 0;
+
+        _connected = false;
+    }
+
+    // Reconnect no longer applies
+    _doReconnect=false;
+
+    // Let go of the cached request message if we have one
+    _authenticator.setRequestMessage(0);
+
+    // Reset the challenge status
+    _authenticator.resetChallengeStatus();
+
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber)
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::connect()");
+
+    // If already connected, bail out!
+    if (_connected)
+    {
+        PEG_METHOD_EXIT();
+        throw AlreadyConnectedException();
+    }
+
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clear();
+
+    _connectSSLContext.reset(0);
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    _connect();
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber,
+    const SSLContext& sslContext)
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::connect()");
+
+    // If already connected, bail out!
+
+    if (_connected)
+    {
+       PEG_METHOD_EXIT();
+       throw AlreadyConnectedException();
+    }
+
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clear();
+
+    _connectSSLContext.reset(new SSLContext(sslContext));
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    try
+    {
+        _connect();
+    }
+    catch (...)
+    {
+        _connectSSLContext.reset();
+        PEG_METHOD_EXIT();
+        throw;
+    }
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::disconnect()
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::disconnect()");
+    _disconnect();
+    _authenticator.clear();
+    _connectSSLContext.reset();
+    PEG_METHOD_EXIT();
+}
+
 void CIMExportClient::exportIndication(
-    const String& url,
-    const CIMInstance& instanceName,
-    const ContentLanguageList& contentLanguages)
+   const String& url,
+   const CIMInstance& instanceName,
+   const ContentLanguageList& contentLanguages)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
 
@@ -139,7 +345,7 @@ Message* CIMExportClient::_doRequest(
     
     if (_connected && _httpConnection->needsReconnect())
     {
-        _disconnect(true);
+        _disconnect();
         _doReconnect = true;
     }
 
@@ -181,7 +387,7 @@ Message* CIMExportClient::_doRequest(
     //
     request->setHttpMethod(HTTP_METHOD__POST);
 
-    _cimRequestEncoder->enqueue(request.release());
+    _requestEncoder->enqueue(request.release());
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
@@ -211,7 +417,7 @@ Message* CIMExportClient::_doRequest(
             //
             if (response->getCloseConnect() == true)
             {
-                _disconnect(true);
+                _disconnect();
                 _doReconnect = true;
                 response->setCloseConnect(false);
             }
@@ -316,7 +522,7 @@ Message* CIMExportClient::_doRequest(
                     _connect();
                 }
 
-                _cimRequestEncoder->enqueue(response.release());
+                _requestEncoder->enqueue(response.release());
 
                 nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
                 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
@@ -349,7 +555,7 @@ Message* CIMExportClient::_doRequest(
     PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
         "Connection to the listener timed out.");
 
-    _disconnect(true);
+    _disconnect();
     _doReconnect = true;
 
     //

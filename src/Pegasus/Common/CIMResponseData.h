@@ -43,10 +43,20 @@
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
+
+// The following is a Trace tool that traces ALL cimResponseData calls
+// when enabled
+// KS_TODO _ Delete this
+//#define TRACELINE cout << __FILE__ << ":" << __LINE__ << endl;
+#define TRACELINE
+
 typedef Array<Sint8> ArraySint8;
 #define PEGASUS_ARRAY_T ArraySint8
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
+
+// KS_TODO _Temp test for size validity DELETE when done
+#define PSVALID PEGASUS_ASSERT(sizeValid())
 
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
@@ -70,10 +80,10 @@ public:
     //_propertyList is initialized to an empty propertylist to enable
     // sending all properties by default.
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_mapObjectsToIntances(false),_dataType(content), _size(0),
-         _includeQualifiers(true),_includeClassOrigin(true),
-        _propertyList(CIMPropertyList())
+        _encoding(0),_dataType(content), _size(0),_includeQualifiers(true),
+        _includeClassOrigin(true),_propertyList(CIMPropertyList())
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid()); // KS_TEMP
     }
 
@@ -98,6 +108,7 @@ public:
         _propertyList(x._propertyList),
         _magic(x._magic)
     {
+        TRACELINE;
         /////PEGASUS_ASSERT(x.valid());     // KS_TEMP
         PEGASUS_ASSERT(valid());            // KS_TEMP
     }
@@ -112,7 +123,9 @@ public:
         _encoding(0),_mapObjectsToIntances(false), _size(0),
         _includeQualifiers(true), _includeClassOrigin(true),
         _propertyList(CIMPropertyList())
-    {}
+    {
+        TRACELINE;
+    }
 
     /**
      * Move CIM objects from another CIMResponse data object to this
@@ -146,6 +159,7 @@ public:
     // object.
     Boolean setDataType(ResponseDataContent content)
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());
         PEGASUS_ASSERT(_size == 0);      // KS_TODO_TEMP or debug mode.
         _dataType = content;
@@ -155,6 +169,7 @@ public:
     // get the datatype property
     ResponseDataContent getResponseDataContent()
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());            // KS_TEMP KS_TODO
         return _dataType;
     }
@@ -165,6 +180,7 @@ public:
 
     void setInstanceNames(const Array<CIMObjectPath>& x)
     {
+        TRACELINE;
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
@@ -175,13 +191,14 @@ public:
 
     void setInstance(const CIMInstance& x)
     {
-        SVALID();
+        TRACELINE;
+        PSVALID;
         _instances.clear();
         _instances.append(x);
         _size++;
         _encoding |= RESP_ENC_CIM;
 
-        SVALID();
+        PSVALID;
     }
 
     // Instances handling
@@ -200,15 +217,17 @@ public:
 
     void setInstances(const Array<CIMInstance>& x)
     {
-        SVALID();
+        TRACELINE;
+        PSVALID;
         _instances=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
-        SVALID();
+        PSVALID;
     }
 
     void appendInstance(const CIMInstance& x)
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());
         _instances.append(x);
         _encoding |= RESP_ENC_CIM;
@@ -217,6 +236,7 @@ public:
 
     void appendInstances(const Array<CIMInstance>& x)
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());
         _instances.appendArray(x);
         _encoding |= RESP_ENC_CIM;
@@ -227,6 +247,7 @@ public:
     Array<CIMObject>& getObjects();
     void setObjects(const Array<CIMObject>& x)
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());
         _objects=x;
         _encoding |= RESP_ENC_CIM;
@@ -234,6 +255,7 @@ public:
     }
     void appendObject(const CIMObject& x)
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());
         _objects.append(x);
         _encoding |= RESP_ENC_CIM;
@@ -248,6 +270,7 @@ public:
 
     void appendSCMO(const Array<SCMOInstance>& x)
     {
+        TRACELINE;
         PEGASUS_ASSERT(valid());
         _scmoInstances.appendArray(x);
         _encoding |= RESP_ENC_SCMO;
@@ -313,14 +336,16 @@ public:
 
     void setPropertyList(const CIMPropertyList& propertyList)
     {
+        TRACELINE;
         _propertyList = propertyList;
     }
     CIMPropertyList & getPropertyList()
     {
+        TRACELINE;
         return _propertyList;
     }
 
-    void SVALID();                   //KS_TEMP
+    bool sizeValid();                   //KS_TEMP
 
 private:
 
@@ -392,7 +417,6 @@ private:
     // magic number to use with valid function to confirm validity
     // of response data.
     Magic<0x57D11323> _magic;
-
 };
 
 PEGASUS_NAMESPACE_END

@@ -905,6 +905,7 @@ int main(int argc, char** argv)
                         opts, false, rtndState);
                     break;
 
+//KS_PULL_BEGIN
                 case (ID_PullEnumerateInstances):
                     if (!_getClassNameInput(argc, argv, opts, true))
                         exit(CIMCLI_INPUT_ERR);
@@ -950,6 +951,7 @@ int main(int argc, char** argv)
                         exit(CIMCLI_INPUT_ERR);
                     }
                     break;
+//KS_PULL_END
 
                 default:
                     cout << "Invalid cimcli operation name. "

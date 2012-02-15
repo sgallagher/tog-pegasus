@@ -54,7 +54,6 @@
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Common/IndicationRouter.h>
 
-
 /*   ProviderType should become part of Pegasus/Common     PEP# 99
    #include <Pegasus/ProviderManager2/ProviderType.h>
    #define TYPE_INSTANCE    ProviderType::INSTANCE
@@ -1386,6 +1385,7 @@ public:
         const Array<CIMObjectPath> & subscriptionInstanceNames_,
         const CIMInstance & provider_,
         const QueueIdStack& queueIds_,
+        Uint32 timeoutMilliSec_ = 0,
         String oopAgentName_ = String())
     : CIMRequestMessage(
         CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -1393,6 +1393,7 @@ public:
         indicationInstance(indicationInstance_),
         subscriptionInstanceNames(subscriptionInstanceNames_),
         provider(provider_),
+        timeoutMilliSec(timeoutMilliSec_),
         oopAgentName(oopAgentName_)
     {
     }
@@ -1403,6 +1404,7 @@ public:
     CIMInstance indicationInstance;
     Array<CIMObjectPath> subscriptionInstanceNames;
     CIMInstance provider;
+    Uint32 timeoutMilliSec;
     String oopAgentName;
 };
 
@@ -2369,7 +2371,7 @@ public:
     CIMName methodName;
 };
 
-//EXP_PULL
+//EXP_PULL_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesResponseMessage
     : public CIMResponseMessage
 {

@@ -53,14 +53,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/****************************************************************************** 
-** 
-**  ProviderInfo Clas - manage info about classes and providers received
+/******************************************************************************
+**
+**  ProviderInfo Class - manage info about classes and providers received
 **      from provider lookup functions. Provides info on classes and providers
 **      in enumerations and association looksups including provider type,
 **      etc. This class is private to the dispatcher.
 **
-******************************************************************************/ 
+******************************************************************************/
 
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
@@ -171,11 +171,11 @@ public:
 };
 typedef  ProviderInfoListStruct ProviderInfoList;
 
-/****************************************************************************** 
-** 
+/******************************************************************************
+**
 **  OperationAggregate Class
 **
-******************************************************************************/ 
+******************************************************************************/
 /* Class to manage the aggregation of data required by post processors. This
     class is private to the dispatcher. An instance is created by the operation
     dispatcher to aggregate request and response information and used by the
@@ -209,7 +209,7 @@ public:
 
     Boolean valid() const;
 
-    // Sets the total Operation Requests issued parameter. 
+    // Sets the total Operation Requests issued parameter.
 
     void setTotalIssued(Uint32 i);
 
@@ -261,9 +261,9 @@ public:
     /** sets the parameters required for pull operations into a new
      *  operation aggregate that was created as part of an Open...
      *  Operation.
-     * 
+     *
      * @param enContext EnumerationContext defined for this sequence
-     * @param contextString String representing the operation 
+     * @param contextString String representing the operation
      *      Context defined for this sequence
      * @param nameSpace Namespace for this sequence of Operations
      */
@@ -311,11 +311,11 @@ private:
     Magic<0xC531B144> _magic;
 };
 
-/****************************************************************************** 
-** 
+/******************************************************************************
+**
 **  CIMOperationRequestDispatcher Class
 **
-******************************************************************************/ 
+******************************************************************************/
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
@@ -663,7 +663,7 @@ protected:
         const CIMNamespaceName& nameSpace,
         CIMConstClass& cimClass);
 
-    Boolean _rejectInvalidOperationTimeout(CIMRequestMessage* request, 
+    Boolean _rejectInvalidOperationTimeout(CIMRequestMessage* request,
         const Uint32Arg& operationTimeout);
 
     Boolean _rejectInValidEnumerationContext(CIMRequestMessage* request,
@@ -695,7 +695,7 @@ protected:
         const CIMName& className,
         CIMException& cimException);
 
-    // KS TODO Bring all the error functions into a common place and with
+    // KS_TODO Bring all the error functions into a common place and with
     // common naming (ex. check...) common return mechanism.
 /*
     Check to determine if we have any providers or repository for this
@@ -720,8 +720,10 @@ protected:
         @exception CIMException if the providerCount is greater than the
             maximum allowed.
     */
-    void _checkEnumerateTooBroad(const CIMNamespaceName& nameSpace,
-        const CIMName& className, Uint32 providerCount);
+    void _checkEnumerateTooBroad(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Uint32 providerCount);
 
     CIMRepository* _repository;
 
@@ -732,7 +734,7 @@ protected:
     Boolean _enableAssociationTraversal;
     Boolean _enableIndicationService;
 
-    // Defines the maximum number of class that is the maximum that 
+    // Defines the maximum number of class that is the maximum that
     // will be allowed on input.  This allows the system to limit the
     // size of enumeration responses, at least in terms of number of
     // classes that can be included in a enumeration.

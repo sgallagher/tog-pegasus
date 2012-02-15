@@ -544,8 +544,7 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
     response->syncAttributes(this);
     return response.release();
 }
-//KS_PULL
-
+//EXP_PULL_BEGIN
 CIMResponseMessage*
     CIMOpenEnumerateInstancesRequestMessage::buildResponse() const
 {
@@ -680,7 +679,7 @@ CIMResponseMessage* CIMEnumerationCountRequestMessage::buildResponse() const
     response->syncAttributes(this);
     return response.release();
 }
-//KS_PULL_END
+//EXP_PULL_END
 
 CIMResponseMessage*
     CIMNotifySubscriptionNotActiveRequestMessage::buildResponse() const

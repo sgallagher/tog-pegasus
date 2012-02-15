@@ -48,8 +48,12 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE BinaryCodec
 {
 public:
-    // Peform hex dump of the given data.
+
 #if defined(PEGASUS_DEBUG)
+    /** 
+        Peform hex dump of the given data. This is a diagnostic
+        tool compiled only in debug mode. 
+    */
     static void hexDump(const void* data, size_t size);
 #endif /* defined(PEGASUS_DEBUG) */
 

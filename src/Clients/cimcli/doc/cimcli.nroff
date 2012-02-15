@@ -5,10 +5,9 @@ cimcli \- command line WBEM Client
 .SH SYNOPSIS
 
 .SY cimcli
-.RI Operation
-.RI [ operationTarget
-.IR ]
-.RI [ valueParameter
+.I Operation
+.RI [ OperationTarget ] 
+.RI [ ValueParameter
 .IR .\|.\|. ]
 .OP \-hc
 .OP \-h operationName
@@ -30,9 +29,8 @@ cimcli \- command line WBEM Client
 .OP \--timeout seconds
 .OP \-o XML|MOF|TABLE
 .OP \--verbose
-.OP \pl propertyList
+.OP \-pl propertyList
 .OP \-niq
-.OP \-di
 .OP \-di
 .OP \-ic
 .OP \-ac associationClassName
@@ -47,36 +45,32 @@ cimcli \- command line WBEM Client
 
 .SH DESCRIPTION 
 
-.B cimcli
-is a command line test tool for executing CIM client operations.  It 
-implements all of the DMTF CIM operations defined in the DMTF 
-specification DSP0200 (CIM Operations over HTTP) except for the modify and 
-create class/instance operations and includes several other operations 
-that are useful in working with CIM Servers. 
+\fBcimcli\fR is a command line tool for executing CIM client operations using
+the CIM/XML protocol.  It implements all of the DMTF CIM operations 
+defined in the DMTF specification DSP0200 (CIM Operations over HTTP) 
+except for the modify and create class/instance operations and includes 
+several other operations that are useful in working with CIM Servers.  
  
-cimcli is available for all platforms that support the Pegasus CIM Server. 
+\fBcimcli\fR is available for all platforms that support the Pegasus CIM Server. 
 
 For the execution of the DMTF defined CIM operations (ex.  
-enumerateInstances CIM/XML operation).  cimcli includes as command line 
+enumerateInstances CIM/XML operation).  \fBcimcli\fR includes as command line 
 options all of the parameters defined in the DMTF specification.  (ex.  
 -di for deep inheritance for the enumerateInstances operation).  
 
 In addition to the CIM Operations defined in the DMTF specification DMTF 
-DSP0200, cimcli implements a number of other operations that support 
-testing and querying CIM servers (ex.  an operation to query for 
+DSP0200, \fBcimcli\fR implements a number of other operations that support 
+testing and querying CIM servers (ex. operation to query for 
 namespaces and another to get all instances in a namespace) which require 
 multiple CIM Operations.  The additional operations include:
 
-.TP
-.B 1.
+.IP 1.
 Enumerate namespaces (ns) - Returns a list of the namespaces available
 from the CIMOM.
-.TP
-.B 2.
+.IP 2.
 Enumerate all instance names (niall) - Returns a list of all instance
 names in a single defined namespace.  
-.TP
-.B 3.
+.IP 3.
 Turn CIM Server statistics on and off (DEPRECATED) - Turns the statistics 
 flag in the Server CIMObjectManager Class on or off for the OpenPegasus 
 server.  This enables and disables execution of statistics gathering in 
@@ -86,42 +80,35 @@ release.
 
 \fBNOTE:\fR This operation may be CIMServer type specific since not all 
 CIMServers implement the statistics functions.  
-
-.TP
-.B 4.
+.IP 4.
 Test instances (ti) - Executes tests of the characteristics of an instance 
 requested from the CIM Server.  This operation extends the capabilities of 
-cimcli to actually compare information from the server with information in 
+\fBcimcli\fR to actually compare information from the server with information in 
 the command line input.  
+.P
+The format of the \fBcimcli\fR command is:
 
-.RE
-The format of the cimcli command is:
-
-.TP
 .B      cimcli [Operation] [OperationTarget] [options] [ValueParameters]
 
 Options may be interspersed with the [OperationTarget] parameter but the 
 ordering and position on the command line of [Operation] [OperationTarget] 
 is fixed and any [value parameters] MUST occur after the [OperationTarget] 
 parameter.
- 
-.TP
-.B [Operation] 
-Defines the operation to be executed.  cimcli executes all of the DMTF CIM 
+
+.SS [Operation]
+Defines the operation to be executed.  \fBcimcli\fR executes all of the DMTF CIM 
 Operations (ex.  getclass) and a set of compound operations 
 (enumeratenamespaces).  There are two forms for each [Operation] 
 definition:
-.TP
-a short form typically two characters (i.e.  gc) and 
-.TP
-the long 
-form which is the full name of the operation (i.e.  getclass).
 
-The complete set of operations can be viewed by calling cimcli with the 
+* a short form typically two characters (i.e.  gc for getclass) and 
+
+* a long form which is the full name of the operation (i.e.  getclass).
+
+The complete set of operations can be viewed by calling \fBcimcli\fR with the 
 option -hc.  
 
-.TP
-.B [OperationTarget]
+.SS [OperationTarget]
 The [OperationTarget] is the name of the object for which the the operation is
 requested. 
 
@@ -137,57 +124,50 @@ other operations, the behavior of the operation is dependent on whether
 class name or instance name is supplied. See the definition of each operation
 for detailed requirements for the [OperationTarget]
 
-The format for instance name (CIMObjectPath) is defined as the model path 
+The format for <instancename> (CIMObjectPath) is defined as the model path 
 in the CIM Specification(DMTF DSP0004) and has the form:
 
-.RS
-.B    <classname>.<keyPropertyName>=<value>[,<keypropertyName>=<value>]*
-.RE
+.B <classname>.<keyPropertyName>=<value>[,<keypropertyName>=<value>]*
 
 where:
-
-.RS
+.RS 4
 .IP
 \fB<keyPropertyName>\fR is the name of a property in \fB<className>\fR
-
 .IP
-\fB<value>\fR is either a numeric value or a string value (enveloped in quotes)
-Quote marks surrounding string values are required.
+\fB<value>\fR is a string that represents either a numeric value or a 
+string value (enveloped in quotes).  Quote marks surrounding string values 
+are required.  
 .RE
-
-To simplify inputting command line object names, cimcli offers a second
+.P
+To simplify inputting command line object names, \fBcimcli\fR offers a second
 option for defining the object name as [OperationTarget].  In this second
-form, the [OperationTarget] object is the class name and zero or more value
-parameters are used to define each feature/value.  In this case,
+form, the [OperationTarget] object is the class name and zero or more <value
+parameter>s are used to define each feature/value.  In this case,
 the quotation marks around string property values are optional and are required
 only in the case where quotation marks would be required to define a value 
 such as a string that includes quotation marks or spaces.
 
 The syntax for this form is:
 
-.RS
-.B <classname> <keyPropertyName>=<value>[,<keypropertyName>=<value>]*
-.RE
+.B <classname> <keyPropertyName>=<value> [,<keypropertyName>=<value>]*
 
 where:
-
-.RS
+.RS 4
 .IP
 \fB<keyPropertyName>\fR is the name of a property in \fB<className>\fR
-
 .IP
-\fB<value>\fR is either a numeric value or a string value (enveloped in quotes). 
+\fB<value>\fR is either a numeric value or a string value (enveloped in quotes
+only if there are spaces in the string). 
 .RE
-
-Note that each name/value definition is treated as a single commandline
+.P
+Note that each name/value definition is treated as a single command line
 parameter so that MUST not include spaces between the name and value
-components.
-
+components. (ex. name=fred, not name = fred and name=\\"freds name\\")
 
 As an example, the input for a getInstance might be:
 
 .EX
-.RS
+.RS 4
 	cimcli gi TennisPlayer.first=\\"Patrick\\",last=\\"Rafter\\"
 	or
 	cimcli gi 'TennisPlayer.first="Patrick",last="Rafter"' 
@@ -195,36 +175,32 @@ As an example, the input for a getInstance might be:
 	cimcli gi TennisPlayer first=Patrick last=Rafter
 .RE
 .EE
-
-In the second case, cimcli gets the class from the CIM Server and uses the 
+.P
+In the second case, \fBcimcli\fR gets the class from the CIM Server and uses the 
 parameters to form a correct CIMObjectPath.  In the first case, generally 
-cimcli uses the input path directly without getting the class from the 
+\fBcimcli\fR uses the input path directly without getting the class from the 
 server.  The quotation marks in the first case are required by the 
 CIMObjectPath format defined by the DMTF.  
 
-.TP
-.B [options...] 
+.SS [options...]
 Options are identified on the command line with the - or -- notation. They
-are identified in a cimcli config file with the form <name>=value where name
-is a long name for the option.  Each cimcli option has both a short name
+are identified in a \fBcimcli\fR config file with the form <name>=value where name
+is a long name for the option.  Each \fBcimcli\fR option has both a short name
 for command line use and a long name for configuration file use.
 There are several types of options:
 
-.TP 8
-.B 1.
+.IP 1.
 Execution Modification Options - Options that are universal and 
 modify or define the execution of the command or the form of the return.  
 This includes options like setting the output format for object responses 
 or requesting only summary operation.  
 
-.TP 8
-.B 2.
+.IP 2.
 Connection Options - Options that define the connection for the operation.  
 This includes options for defining the CIMServer address, namespace, and 
 security options such as user name, password and SSL settings.  
 
-.TP 8
-.B 3.
+.IP 3.
 Operation Parameter Options - Options that represent the optional 
 input parameters for operations.  The [operation] defines the CIM 
 Operation that will be executed and the options define the optional 
@@ -232,14 +208,12 @@ request parameters.  Typical context options might be -n namespace (used
 on most but not all operations) or -niq which sets includequalifiers to 
 false for operations that use the includeQualifiers optional parameter.  
 
-.TP 8
-.B 4.
+.IP 4.
 Help Options - Options to display help (-h, --help, --ho to get a 
 list of all options, and -hc to get a list of all operations).  When these 
 options are requested, no server request is executed.  
 
-.TP
-.B [value-parameters]
+.SS [value-parameter]
 Some of the operations allow or require extra parameters, for example to 
 supply property value definitions for create and modify instance.  These 
 are typically keywords or keyword/value pairs and are defined as part of 
@@ -254,126 +228,128 @@ extra parameters are required or allowed.  These may be either
 keyname/value pairs in some cases or simply strings depending on the 
 operation. 
 
-\fBNOTE:\fR cimcli does not protect the user against inputting extra options
+\fBNOTE:\fR \fBcimcli\fR does not protect the user against inputting extra options
 or parameters.  Since the options are heavily dependent on the
 operation to be executed, it ignores options that are not
 used with a particular operation.  Thus, entering the -r option (role)
-with a getClass operation is syntactically allowed but cimcli ignores
+with a getClass operation is syntactically allowed but \fBcimcli\fR ignores
 the parameter.
 
 .SH OPTIONS
 
+There are 4 types of options
+.IP \fBBoolean\fR 9
+where the option sets some condition (ex. -verbose).
+.IP \fBString\fR 9
+which require a string parameter following the option (ex. -n root/test).
+.IP \fBInteger\fR 9
+which requires an integer following the option (ex. --delay 4).
+.IP \fBKeyword\fR 9
+which requires a defined keyword following the option.
+
 .SS CONNECTION OPTIONS
 
-The following set of options which are general to all of the CIM 
+The following set of options re general to all of the CIM 
 Operations and most of the compound operations They provide parameters for 
-the initiation or execution of the operations (ie.  identify the target 
-server and set connection security parameters).
+the initiation or execution of the operations (ie. identify the target 
+server and namespace and set connection security parameters).
   
 These include:
-
 .TP
 .B \-n [namespace]
-Namespace name for this operation (ex. -n root). The default namespace
-is root/cimv2 if this parameter is not entered
+String option where [namespace] defines the namespace name for this 
+operation (ex.  -n root).  The default namespace is root/cimv2 if this 
+parameter is not entered 
 .TP
 .B \-l [location]
-Host name or IP address and optionally port for this operation. The
-default for this command if the -n option is not used is to use
-the OpenPegasus connectLocal() function to connect to the server.  Note
-that this means that a command like cimcli gc CIM_Door may not work
-when trying to connect to a server other than Pegasus on the same
-system. If cimcli is to be used to connect to a CIM Server other than
-Pegasus on the same system use -l localhost or -l 127.0.0.1 or the
-actual name or IP address.  This will force cimcli to make the
-connection in the normal way, not using connectLocal()
+String option where [location] defines the host name or IP address and 
+optionally port for this operation.  The default for this command if the 
+-n option is not used is to use the OpenPegasus connectLocal() function to 
+connect to the server.  Note that this means that a command like cimcli gc 
+CIM_Door may not work when trying to connect to a server other than 
+Pegasus on the same system.  If \fBcimcli\fR is to be used to connect to a CIM 
+Server other than Pegasus on the same system use -l localhost or -l 
+127.0.0.1 or the actual name or IP address.  This will force \fBcimcli\fR to 
+make the connection in the normal way, not using connectLocal().
 .TP
 .B \-u [user-name]
-The user name to be used in the connection to the CIM server for the 
-command
+String option where [user-name] defines he user name to be used in the 
+connection to the CIM server for the command.  
 .TP
 .B \-p [password]
-The password to be used in the connection to the CIM server for the 
-command
-
+String option where [password] defines the password to be used in the 
+connection to the CIM server for the command.  
 .TP
 .B \-s
-Connect with SSL - Boolean option that specifies that cimcli should 
+Connect with SSL - Boolean option that specifies that \fBcimcli\fR should 
 attempt to connect over a secure connection using SSL.  This option 
-causes cimcli to modify the client connect call to set the SSLContext 
+causes \fBcimcli\fR to modify the client connect call to set the SSLContext 
 option to the certificate defined with the --cert and --key options.  If 
 this option is set but neither the --cert or --key options are included, 
 the SSLContext for the connect call is submitted with the Cert and key 
 marked NULL.
 
-NOTE: Since SSL is a compile cimcli compile option, the -s options and 
-following options will not even exist in a cimcli that was compiled with 
+\fBNOTE\fR Since SSL is a compile \fBcimcli\fR compile option, the -s options and 
+following options will not even exist in a \fBcimcli\fR that was compiled with 
 the SSL capabilities disabled. 
-
 .TP
 .B \--cert [certificate file path]
-Defines the file name of a certificate to be used with the client connect 
-if the -s option is set.  This is optional and used only with the -s and 
---key options.  
-
+String options.  [certificate-file path defines the file name of a 
+certificate to be used with the client connect if the -s option is set.  
+This is optional and used only with the -s and --key options.  
 .TP
 .B \--key [client key file path]
 Defines the file name of a Client private key.  This is optional and only 
-has an effect on connections made over HTTPS using -s,
+has an effect on connections made over HTTPS using the -s option.
 
 .SS CIMCLI OPERATION MODIFICATION OPTIONS
 
 A set of options that modifies the manner in
 which the command is executed or the display of information on
 response including the following:
-
 .TP
 .B \--t
-Measure time for the operation to be completed and report it upon
-command completion. If this option is set, the time for the operation
-is recorded upon completion of the operation.  In addition, the client
-infrastructure is queried to determine if the operation execution
-times optionally measured in the infrastructure and at the server are
-available. If so, they are displayed also.  This would allow the
-user to see a) time spent in the server, b) round trip time for the
-operation, c) application round trip time for the operation. Note that
-when combined with the repeat option, the output includes maximum,
-minimum, and average times for the operation.  There are a specific
-operations in cimcli to turn control statistics generation (See son
-and soff operations) at least for the Pegasus cimserver.
-
+Boolean option.  When set measure time for the operation to be completed 
+and report it upon command completion.  If this option is set, the time 
+for the operation is recorded upon completion of the operation.  In 
+addition, the client infrastructure is queried to determine if the 
+operation execution times optionally measured in the infrastructure and at 
+the server are available.  If so, they are displayed also.  This would 
+allow the user to see a) time spent in the server, b) round trip time for 
+the operation, c) application round trip time for the operation.  Note 
+that when combined with the repeat option, the output includes maximum, 
+minimum, and average times for the operation.  There are a specific 
+operations in \fBcimcli\fR to turn control statistics generation (See son and 
+soff operations) at least for the Pegasus cimserver.  
 .TP
 .B \--sort
-A boolean option that requests cimcli to sort the returned entities for
+Boolean option that requests \fBcimcli\fR to sort the returned entities for
 multi-entity operations (ex. enumerate, reference, associator). Whereas
 the order of returned entities is random from most CIM Servers setting
 this option outputs the objects in a defined order.  The order is based
 on the Name element for classes and qualifier declarations and on the
 object path returned for instances and CIM objects.
-
 .TP
 .B \--r [repeat_count]
-Repeat the operation [repeat_count] times.  This repeats the operation 
-without disconnecting.  This option is useful for defining tests that load 
-the server with repeated calls and also for getting average times for an 
-operation by taking the average of a number of calls (when used with the 
-summary information option (--sum) and the measure time option (--t)).
-
+Integer Option.Repeat the operation [repeat_count] times.  This repeats 
+the operation without disconnecting.  This option is useful for defining 
+tests that load the server with repeated calls and also for getting 
+average times for an operation by taking the average of a number of calls 
+(when used with the summary information option (--sum) and the measure 
+time option (--t)).  
 .TP
 .B \-delay [seconds]
 Delay [seconds]seconds between connect and issuing the operation request.
-
 .TP
 .B \--sum
-Present only summary information, not full output.  Generally cimcli 
-presents counts of objects returned in place of the names or objects 
-themselves when this option is set. See also the repeat (--r) and measure
-time (--t) options.
-
+Boolean option.  When set, present only summary information, not full 
+output.  Generally \fBcimcli\fR presents counts of objects returned in place of 
+the names or objects themselves when this option is set.  See also the 
+repeat (--r) and measure time (--t) options.  
 .TP
 .B \--count [object_count]
 Defines an expected count of objects to be returned in the response.  
-cimcli is terminated with an error exit if the number of objects returned 
+\fBcimcli\fR is terminated with an error exit if the number of objects returned 
 does not match the object_count supplied with the option.  This can be 
 used in batch files to test for number of objects returned by an 
 operation.  In addition to the error status code, a message of the general 
@@ -382,7 +358,6 @@ form:
 is output to cerr.
 
 .B Example:
- 
 .EX
    cimcli en CIM_ManagedElement -count 100
 
@@ -390,60 +365,55 @@ is output to cerr.
        cimcli exits with error code 60 and the Failed count test 
        error message.
 .EE
-
 .TP
 .B \--timeout [seconds]
-Set the connect timeout to some time other than the default timeout.
-
+Integer options.  When defined, set the connect timeout [seconds] seconds 
+rather than the default timeout.  
 .TP
 .B \-o [ "xml" | "mof" | "table"]
-Output type for commands that output objects. Used with commands that
+KeyWord option. Output type for commands that output objects. Used with commands that
 present CIM objects in their response. Presents the output in the form of
 xml corresponding to DMTF CIM/XML specification, mof, or for instances a
 table of the data in each property.
-
 .TP
 .B \-verbose
-Displays details on the input options and execution of cimcli for
-the operation.
-
+Boolean Option.  When set \fBcimcli\fR displays details on the input options and 
+execution of \fBcimcli\fR for the operation.  
 .TP
 .B \--setRtnHostNames [SubstituteHostName]
 String option with a required parameter that set a substitute host name 
-which cimcli will insert into returned objects to replace host names 
+which \fBcimcli\fR will insert into returned objects to replace host names 
 returned from the server.  This option was defined because the object 
 paths/references returned by the CIM Server may include the host name as 
 part of the returned object path which makes it difficult to compare the 
 returned paths to a defined path.  Using this option forces any returned 
 host names to be changed to the string parameter supplied with the option.
-
 .TP
 .B \--expExit [exitCode]
-Integer option that defines an exit code that is expected when cimcli
-terminates.  If cimcli tries to exit with the defined code, the code is
+Integer option that defines an exit code that is expected when \fBcimcli\fR
+terminates.  If \fBcimcli\fR tries to exit with the defined code, the code is
 changed to 0 (OK). Any other exit code generates an error exit code.
 
 .SS OPERATION PARAMETER OPTIONS
 
-Options that define request parameters for specific cimcli 
+Options that define request parameters for specific \fBcimcli\fR 
 Operation requests.  These are typically optional parameters on the CIM 
 operation request that modify the behavior of the server to the request.  
 This includes things like requesting localonly, deep inheritance, etc.  
 Note that the actual behavior may be dependent on the particular operation 
 request type.  The full definition of these options is below here and 
-their use with each specific cimcli operation is defined with the 
+their use with each specific \fBcimcli\fR operation is defined with the 
 operations.  
-
 .TP
 .B \-pl [propertylist]
-Set the propertylist parameter for those operations that allow this parameter.
-The propertylist value for this parameter is a comma-separated list of 
-class properties.  This sets the propertylist optional parameter on those CIM 
-operations that allow this parameter including: getClass, getInstance, 
-modifyInstance, enumerateInstances, associators, and references.  If this 
-option is not defined on the execution of one of these operations, cimcli 
-sets the propertylist parameter to NULL indicating that all properties 
-should be returned.  
+String Option.  Set the propertylist parameter for those operations that 
+allow this parameter.  The propertylist value for this parameter is a 
+comma-separated list of class properties.  This sets the propertylist 
+optional parameter on those CIM operations that allow this parameter 
+including: getClass, getInstance, modifyInstance, enumerateInstances, 
+associators, and references.  If this option is not defined on the 
+execution of one of these operations, \fBcimcli\fR sets the propertylist 
+parameter to NULL indicating that all properties should be returned.  
  
 If a comma-separated list of one or more properties is defined as the value
 for this option, a propertylist with these values is set on the CIM request
@@ -452,8 +422,8 @@ operation.
 Since this CIM request parameter specifically allows 3 options: 1) list of 
 properties, 2) NULL which is the indicator that all properties are to be 
 returned, and 3) Empty which is the indicator that no properties are to be 
-include in the response, the cimcli options specifically allows defining 
-the empty option by setting propertylist to either "" or \\"\\".  cimcli 
+include in the response, the \fBcimcli\fR options specifically allows defining 
+the empty option by setting propertylist to either "" or \\"\\".  \fBcimcli\fR 
 accepts either an input that the command processor interprets as an empty 
 string or as a string consisting of two quotation marks.  
 
@@ -472,7 +442,6 @@ The syntax of propertylist is:
         cimcli gc CIM_ManagedElement -pl \\"\\"
             gc operation with empty property list (return no properties)
 .EE
-
 .TP
 .B \-niq
 Boolean (not_include_Qualifiers) that sets the operation parameter for 
@@ -480,54 +449,49 @@ include_qualifiers to false.  Note that this form is required because the
 default for this option in the DMTF CIM Operations is true (include 
 qualifiers).  Not including this option sets the request to include 
 qualifiers on those commands to which this option applies.
-
 .TP
 .B \-nlo
 Boolean that defines whether properties from superclasses are included in 
 the response.  the -nlo option turns this parameter off.  The default if 
 this parameter is not included is to request that the server return only 
 local properties and ignore those from superclasses.  
-
 .TP
 .B \-di
 Boolean to set the deep inheritance CIM operation parameter to true.
-
 .TP
 .B \-ic
 Boolean parameter sets the CIM operation parameter classOrigin in the
 operation request to true. the CIMServer is expected to return classOrigin
 information as part of the response.
-
 .TP
 .B \-ac [assocatonClassName]
 String defining the association Class parameter for the CIM Operation.
 Used with reference and association operations.
-
 .TP
 .B \-rc [resultClassName]
-String defining the resultClass parameter for the CIM Operation
-
+String defining the resultClass parameter for the CIM associator and 
+reference operations.
 .TP
 .B \-r [role]
-String defining the role parameter for the CIM Operation
-
+String defining the role parameter for the CIM associator and reference
+operations.
 .TP
 .B \-rr [resultrole]
-String defining the resultrole parameter for the CIM Operation
+String defining the resultrole parameter for the CIM associator and reference
+operations.
 
 .SH OPERATIONS
-This section defines the individual operations supported by cimcli. 
+This section defines the individual operations supported by \fBcimcli\fR. 
 Note that either the names (ex. EnumerateInstances) or the shortcut (ei)
 may be used in inputting an [Operation] on the command line 
 and they are case independent.
 
-.TP
-.B ci    CreateInstance
+.SS ci    CreateInstance
 The CreateInstance operation executes the DMTF CIM/XML createInstance 
 operation request.  It builds an instance of the class defined on the 
 command line building the properties of the instance from a combination of 
 the class retrieved from the CIMServer and value parameters provided with 
-the input.  cimcli issues the CIM operation createInstance with the
+the input.  \fBcimcli\fR issues the CIM operation createInstance with the
 created instance  It requires the [OperationTarget] parameter defining the class 
 for which the instance is to be created and  optional 
 set of property definition (name=value) parameters that define properties 
@@ -537,13 +501,13 @@ CreateInstance returns the object path of the created instance if the call
 to the CIM server was executed successfully.  Otherwise it returns the 
 exception from the server.  
  
-cimcli can define property values for either scalar or array properties for
+\fBcimcli\fR can define property values for either scalar or array properties for
 any of the CIM Data types including embedded instance and embedded object
 types 
 
 The syntax for createInstance is:
 
-.RS
+.RS 4
 .B cimcli ci <className> <propertyDef[,<propertyDef>]*
  
 where <propertyDef> is defined as follows:
@@ -570,10 +534,10 @@ defines a value of NULL for a String property.
 defines a property with NULL value.
 .TP
 <propertyName>={<embeddedClassName> [<propertyDef>]* }
-defines a property that is an embedded instance or embedded
-object where <embeddedClassName> is the class name for the
-embedded object or instance and <propertyDefinition>. This
-syntax is recursive so that instances of embedded classes can
+defines a property that is an embedded instance, embedded object,
+or reference(CIMObjectPath) where <embeddedClassName> is the class
+name for the embedded object or instance and <propertyDefinition>.
+ This syntax is recursive so that instances of embedded classes can
 be embedded in properties that are themselves embedded
 instance types.
 .TP
@@ -584,14 +548,14 @@ embedded object or instance and <propertyDefinition>
 .RE
 
 NOTE: The value of array properties may also be defined by repeating the 
-property multiple times with the different values.  cimcli will 
+property multiple times with the different values.  \fBcimcli\fR will 
 consolidate these multiple property definitions into an array 
 
 The use of the value parameters is further defined in the following paragraphs.
 Note that the syntax for value parameters for DMTF data types differes from
 the syntax for value parameters for embedded instances and objects.
 
-TBD TODO: How do we separate embedded vs non-embedded.??????
+./" TODO: How do we separate embedded vs non-embedded in these descriptions??????
 
 .B 1.
 Scalar property values - The string form of the property similar to MOF 
@@ -612,7 +576,7 @@ of the form :
 .fi
 
 The array MUST NOT include any spaces between the scalar value entities.  
-It must appear to cimcli as a single input parameter.  In addition, array 
+It must appear to \fBcimcli\fR as a single input parameter.  In addition, array 
 value can be input by repeating the complete parameter so that values 
 input will be appended to an already created array.  
 
@@ -635,7 +599,7 @@ is replaced with the ! (exclamation mark).
 The value defined in the name/value pair must be decodable into the 
 CIMType of the CIMClass for which the instance is being created.  For 
 example a String cannot be supplied for a property that is of type Uint32.  
-cimcli get the CIMType for the property from the server and checks this 
+\fBcimcli\fR get the CIMType for the property from the server and checks this 
 against the data input.  
 
 The execution of this operation first accesses the CIMServer for the class 
@@ -658,7 +622,7 @@ If the property defines an embedded instance or embedded object (defined in
 MOF as a CIMTYpe String but with the qualifer "embeddedInstance" or 
 "embeddedObject" the embedded instance can be built directly from the 
 command line by supplying the class name and property definitions for the
-embedded instance.  Note that cimcli builds embedded instances in any case
+embedded instance.  Note that \fBcimcli\fR builds embedded instances in any case
 (It cannot build embedded classes) but sends them to the server as either
 embedded instances or embedded objects per the MOF definiton.
 
@@ -682,7 +646,7 @@ for an embedded instance (with the same property name and same class name)
 the new definition is appended to the array.
 
 .IP \(bu 4
-Use the special terminator "},{" which allows cimcli to start a new
+Use the special terminator "},{" which allows \fBcimcli\fR to start a new
 instance definition (in effect using the comma separated values as in
 the arrays of other CIM types.
 .RE
@@ -726,10 +690,18 @@ the arrays of other CIM types.
         (embeddedInst and embeddedInst2). Each of the embedded
         instances contains 3 properties (Id, name, and comment).
 
+     // create an association with two REF properties, parent and child
+     cimcli ci Test_assoc \\
+         parent={Test_target id=301 } \\
+	 child={Test_associated id=972 }
+
+     same as defining the
+     cimcli ci Test_assoc \\
+         parent=Test_target.id=301 } \\
+	 child=Test_associated.id=972 }
 .EE
 
-.TP
-.B mi    ModifyInstance
+.SS mi    ModifyInstance
 This operation allows the modification of existing instances in the target 
 server by building the properties from a combination of the target Class 
 and properties provided with the input.  The command issues the CIM 
@@ -748,7 +720,7 @@ from the input property values.
 
 This operation also allows the specific interactive mode where the
 classname and properties to be modified (minus key properties) are supplied
-and cimcli presents a selection of instance names that can be modified.
+and \fBcimcli\fR presents a selection of instance names that can be modified.
 
 For a detailed definition of the name/value input see the createInstance
 description.
@@ -774,7 +746,8 @@ The syntax for the modifyInstance operation is as follows:
            properties
 .fi
 
-See createInstance operation for detailed definition of <propertyDef>
+See createInstance operation for detailed definition of <propertyDef> and
+more examples:
 
 .B Examples:
 .EX
@@ -787,8 +760,7 @@ See createInstance operation for detailed definition of <propertyDef>
           numericArray=1,2,3,4
 .EE
 
-.TP
-.B ec    EnumerateClasses
+.SS ec    EnumerateClasses
 Issues the enumerateClasses CIM operation which enumerates the class
 hierarchy starting at the level defined by <classname>.
 
@@ -796,7 +768,7 @@ The syntax for this operation is:
 
 .B         cimcli ec [<classname>] [options]
 
-where classname is not required.  If it is omitted, cimcli inserts an
+where classname is not required.  If it is omitted, \fBcimcli\fR inserts an
 empty classname into the CIM operation which tells the CIM Server to
 start at the top of the class inheritance tree.  The possible options
 that represent the parameters of the enumerateClasses operation are:
@@ -823,9 +795,8 @@ Optional property list for the operation.
    cimcli ec CIM_ManagedElement -di -nlo
 .EE
 
-.TP
-.B nc    EnumerateClassNames
-The EnumerateClassNames cimcli operation issues the enumerateClassNames
+.SS nc    EnumerateClassNames
+The EnumerateClassNames \fBcimcli\fR operation issues the enumerateClassNames
 CIM Operation.
 
 The syntax for this operation is:
@@ -876,8 +847,7 @@ input parameters.
         CIM_Door and return the count of instance paths returned.
 .EE
 
-.TP
-.B ei    EnumerateInstances
+.SS ei    EnumerateInstances
 Execute the CIM operation enumerateInstances. The syntax for this operation is:
 
 .B        cimcli ei [className] [<option>]*
@@ -921,21 +891,24 @@ options parameter.
         qualifiers (-niq) with deepInheritance (-di).  
 .EE
 
-.TP
-.B niall enumerateallinstanceNames
+.SS niall enumerateallinstanceNames
 Execute an enumerateinstancenames on all classes to get all class names 
-within the defined namespace.  This function searches the complete 
-namespace using the CIM getClass operation to get the classes and the 
+within the defined namespace or class hiearchy below the target input class.
+if no class name is psecified on input this function enumerates the complete 
+set of classes namespace to get the classes and the 
 enumerateInstanceNames command to enumerate all of the instances for each 
 class.  It returns the list of all of the instance names found in the 
-namespace.  
+namespace and a summary of the number of instances of each class that has
+instances. 
 
 The syntax for this operation is:
 
-.B        cimcli niall [options]
+.B        cimcli niall [className] [options]
 
 where the options include any of the universal options (ex.  namespace, 
-location, etc.) 
+location, etc.). Specifically the --sum option allows returning only the
+summary information including count of instances for each class that has
+instances in the namespace.
 
 .B Examples:
 .EX
@@ -945,10 +918,12 @@ location, etc.)
         test/testproviders by executing
         enumerateinstancenames on each class in
         the namespace.
+    cimcli niall CIM_OperatingSystem
+        Returns all instance names in the namespace root/cimv2 for
+        classes in the hiearchy starting at PG_OperatingSystem.
 .EE
 
-.TP
-.B gi    GetInstance
+.SS gi    GetInstance
 Gets the instance defined by the instance name parameter and displays it
 in the format chosen for this operation (xml, mof, or table).
 
@@ -987,6 +962,7 @@ returned.  NOTE: The use of the parameter in CIM/XML has been deprecated
 so the provider may not return qualifiers even if requested.  
 
 .B \-nlo
+
 localonly
 
 .B \-pl [propertyList]
@@ -1004,8 +980,7 @@ optional property list for the operation
             instance.
 .EE
 
-.TP
-.B di    deleteInstance
+.SS di    deleteInstance
 Delete instance executed a single deleteInstance command to the CIM
 Server.  The syntax is:
 
@@ -1016,7 +991,7 @@ is a full instance name with className and key bindings, the
 deleteInstance CIM Operation is executed directly.  If it is a class
 name with no keybindings, the  enumerateInstances CIM Operation is executed
 and the list of returned instance paths presented to the console for the
-user to select one to delete.  cimcli then executes CIM deleteInstance
+user to senroff manpages html tablect one to delete.  \fBcimcli\fR then executes CIM deleteInstance
 operation with the selected [objectname] and returns the response.
 
 The response to this operation is either an empty response if the instance 
@@ -1036,8 +1011,7 @@ was successfully deleted or an exception return if there were any errors.
         console for the user to select one instance to delete.
 .EE
 
-.TP
-.B gq    getQualifier
+.SS gq    getQualifier
 getQualifier displays the target qualifier. The syntax is:
 
 .B    cimcli gq [qualifier name] [<option>]*
@@ -1048,12 +1022,11 @@ getQualifier displays the target qualifier. The syntax is:
 
         returns the mof or XML for the abstract qualifier.
 .EE
-.TP
-.B sq    setQualifier
+
+.SS sq    setQualifier
 This command is not implemented.
 
-.TP
-.B eq    enumeratequalifiers
+.SS eq    enumeratequalifiers
 Issues the CIM Operation to enumerate all of the qualifiers defined in
 the target namespace. The syntax is:
 
@@ -1061,8 +1034,7 @@ the target namespace. The syntax is:
 
 There are no special options for this operation.
 
-.TP
-.B dq    deletequalifier
+.SS dq    deletequalifier
 Issues the CIM operation to delete the target qualifier defined by
 qualifier_name in the target namespace.
 The Syntax is:
@@ -1072,8 +1044,7 @@ The Syntax is:
 NOTE: This operation should be used with great caution as it removes 
 qualifier declarations that may be used by other components of the model.  
 
-.TP
-.B a     associators
+.SS a     associators
 Execute the CIM Operation enumerate associators for the target object name.
 The syntax for this operation is:
  
@@ -1110,8 +1081,7 @@ Interactive request - If this parameter is supplied and the objectname
 is a classname, the environment performs an enumerateInstances on the
 objectname and presents the list of possible instances for user
 selection
-.TP
-.B an    associatornames
+.SS an    associatornames
 Enumerate the associator names for the target object.  The syntax for this
 operation is:
 
@@ -1139,8 +1109,7 @@ is a classname, the environment performs an enumerateinstances on the
 objectname and presents the list of possible instances for user
 selection
 
-.TP
-.B r references
+.SS r references
 Executes the CIM references Operation. Which returns CIM Objects.
 The syntax for this the operation is:
 
@@ -1174,8 +1143,8 @@ optional property list for the operation
 Interactive request - This option is used only with commands that will 
 accept either classname or object name as input (reference, referencenames,
 associatiors, associatornames). It allows the interactive mode where the
-user picks an instance from a list returned by cimcli (similar to gi where if
-only the classname is supplied, cimcli knows that the user wants to pick from
+user picks an instance from a list returned by \fBcimcli\fR (similar to gi where if
+only the classname is supplied, \fBcimcli\fR knows that the user wants to pick from
 a list) with these commands. If this parameter is supplied and the objectname
 is a classname, the environment performs an enumerateinstances on the
 objectname and presents the list of possible instances for user
@@ -1194,8 +1163,8 @@ selection. Thus, the user can execute interactive reference, etc. operations
           pick an instance name that will be used for
           the associator request.
 .EE
-.TP
-.B rn    referencenames
+
+.SS rn    referencenames
 Executes the CIM Operation referencenames that returns CIMObject paths of the
 references of the objectname parameter.
 
@@ -1224,20 +1193,19 @@ is a classname, the environment performs an enumerateinstances on the
 objectname and presents the list of possible instances for user
 selection
 
-.TP
-.B im    invokeMethod
+.SS im    invokeMethod
 This operation executes a CIM extrinsic operation to execute a method on
 a CIM class or instance.
 
 The syntax of the command is:
 .EX
-    cimcli im [objectname] [methodname] [<parameDef>]* [<option>]*
+.B    cimcli im [objectname] [methodname] [<parameDef>]* [<option>]*
 .EE
 Note that there are two required parameters to this command, the 
 [objectname] and the [methodname]. Parameter definitions <paramDef> are
 optional.
 
-NOTE: Earlier versions of cimcli allowed only String values and
+NOTE: Earlier versions of \fBcimcli\fR allowed only String values and
 used the -ip option. This option has been removed.
 Parameters are input in the form:
 .RE
@@ -1272,7 +1240,7 @@ or instance and <paramDefinition>
 .RE
 
 NOTE: The value of array prammeters may also be defined by simply repeating
-the prameter definition multiple times with the different values.  cimcli
+the prameter definition multiple times with the different values.  \fBcimcli\fR
 will consolidate these multiple property definitions into an array
 
 The completed operations displays the return code from the command and
@@ -1293,9 +1261,8 @@ any returned parameters that are qualified as OUT parameters.
         The completed operation displays the return code from the command and
         any returned parameters that are qualified as OUT parameters.
 .EE
-       
-.TP
-.B gp    getProperty
+
+.SS gp    getProperty
 Executes the getProperty CIM operation which gets a single property from
 the server.  Note that this operation has been deprecated in the DMTF
 specifications because a) it is effectively redundant with the getInstance
@@ -1303,28 +1270,26 @@ operation and property lists b) there was an error in the design such that
 the CIM data type is not returned with the response so the client does not
 know what data type is being returned from the response data.
 
-It is implemented in cimcli but simply tries to convert the response
+It is implemented in \fBcimcli\fR but simply tries to convert the response
 to a string which means that it would get confused with a CIMInstance or
 CIMObject response.
 
 The syntax of this operation is:
-.RS
+.RS 4
 .B gp <objectPath> <propertyName>
 .RE
-   
-.TP
-.B sp    setProperty
+
+.SS sp    setProperty
 The setProperty executes the setProperty operation which attempts to set
 a single property on an instance in the CIM Server.
       
 The syntax of this operation is:
 
-.RS
+.RS 4
 .B sp <objectPath> <propertyName=<<value>
-.RE     
-       
-.TP
-.B xq    execQuery
+.RE
+
+.SS xq    execQuery
 The execQuery operation directly executes the CIM Operation execQuery
 with the input parameter supplied either by direct parameter input
 or the options for filter and querylanguage. The syntax of the operation is
@@ -1338,7 +1303,7 @@ command line as parameter or as options (-f for the query filter and
 
 The execQuery cim Operation is executed directly with the input parameters
 or options.  If neither a query_filter parameter or option are supplied
-cimcli returns an error.
+\fBcimcli\fR returns an error.
 
 .B Examples
 .EX
@@ -1347,14 +1312,14 @@ cimcli returns an error.
         cimcli xq "Select * from CIM_blah"
              uses WQL as default query language
 .EE
-.TP
-.B son
+
+.SS son
 Set the CIMServer statistics to enabled by doing a modify instance of
 the CIM_ObjectManager instance that defines the server. This depends
 on the server having implemented statistics and having also
 implemented the functionality of enabling and disabling statistics
 through setting this property in CIM_ObjectManager.  This should be
-considered a temporary operation in cimcli until a more permanent
+considered a temporary operation in \fBcimcli\fR until a more permanent
 utility is provided with OpenPegasus to manage this type of
 functionality.  The corresponding operation soff will attempt to
 disable statistics on the server.  This works with OpenPegasus servers
@@ -1366,8 +1331,7 @@ The syntax of the operation is:
 
 .B        cimcli son
 
-.TP
-.B soff
+.SS soff
 See the operation son.  This is the corresponding operation to turn
 off statistics in the server.
 
@@ -1377,8 +1341,7 @@ The syntax of the operation is:
 
 .B        cimcli soff
 
-.TP
-.B ns    enumeratenamespaces
+.SS ns    enumeratenamespaces
 Request an Enumeration of all the namespaces in the target CIM Server.
 This command uses both the CIM_Namespace class and if that fails, the
 __Namespace class to determine the list of namespaces.
@@ -1395,15 +1358,7 @@ Note that since this operation enumerates namespaces, the namespace option
 .B Examples
 .EX
         cimcli ns
-.EE
-.TP
-.B -hc     Show Command Options
-This operation shows the cimcli operations with a brief description of each
-operation.
-
-.B Examples
-.EX
-        cimcli -hc
+	   request list of all namespaces
 .EE
 
 .SH OPTIONS LIST
@@ -1441,7 +1396,7 @@ and defined the file containing the certificate.
 .TP
 .B \--count [object_count]
 Defines an expected count of objects to be returned in the response.
-cimcli is terminated with an error exit if the number of objects returned does
+\fBcimcli\fR is terminated with an error exit if the number of objects returned does
 not match the object_count supplied with the option. 
 This test can be used in batch files to test for number of 
 objects returned by an operation.  In addition to the error status code, a 
@@ -1474,26 +1429,34 @@ to different commands and is used only with the enumerate commands.
 
 .TP
 .B \-d
-More detailed debug messages from cimcli. This can be useful in the
+More detailed debug messages from \fBcimcli\fR. This can be useful in the
 case where the user is debugging CIM functionality.
 
 .TP
-. B \-h
-Prints help usage message.
+. B \-h <command-name>
+Prints the help for a particular operation including the definition
+of the operation, applicable options, and examples of usage.
+.EX
+.RS 4
+cimcli -h gc
 
+    show information on the getclass operation
+.RE
+.EE
 .TP
 .B \--help
 Prints full help message with commands, options, examples.
 
 .TP
 . B \-ho
-Prints list of cimcli options.
+Prints list of \fBcimcli\fR options with definitions.
 
 .TP
 .B \-hc
-Prints cimcli Operation command list.  This list includes the CIM
+Print \fBcimcli\fR Operation command list.  This list includes the CIM
 Operatons defined by the CIM Operations specification and other
-operations that were felt to be useful in testing CIM environments.
+operations that were felt to be useful in testing CIM environments. It 
+includes defintion and examples of each operation.
 
 .TP
 .B \-ic
@@ -1506,7 +1469,23 @@ Defines a filter to use for query. One String input . Default()
 .TP 
 .B \-o [ "xml" | "mof"  | "table" ]
 Output in xml, mof, or table format. Default(mof) if the -o options
-is not included.
+is not included. Note that the output formatting is only for CIM objects
+(classes and instances). Object paths are always displayed as strings.
+
+The meaning of the keywords is:
+.IP
+/fBxml.fR
+Display class or instance in CIM-XML format
+/fBmof/fR
+Display class or instance as MOF
+/fBtable/fR
+Display instance as a table with one column per property an a row for each
+instance returned. This format does NOT wrap at 80 columns or wrap long strings.
+
+.EX
+    -o xml
+    display the output in xml
+.EE
 
 .TP
 .B \-iq
@@ -1566,7 +1545,8 @@ See -nlo. Default(true).
 
 .TP 
 .B \-nlo
-When set, sets LocalOnly = false on the CIM operation . Default(false).
+When set, sets LocalOnly = false on the CIM operation . Default(false) meaning
+that the operation sets LocalOnly = true..
 
 .TP 
 .B \-ic
@@ -1607,7 +1587,7 @@ Defines a role string for associators operation resultRole parameter.
 .TP
 .B \--setRtnHostNames [SubstituteHostName]
 String option with a required parameter that set a substitute host name 
-which cimcli will insert into returned objects to replace host names 
+which \fBcimcli\fR will insert into returned objects to replace host names 
 returned from the server.  This option was defined because the object 
 paths/references returned by the CIM Server may include the host name as 
 part of the returned object path which makes it difficult to compare the 
@@ -1633,11 +1613,11 @@ default Pegasus client timeout which for Pegasus is normally to about
 .B \-trace [trace_level]
 Set Pegasus Common Components Trace.  Sets the Trace level.  0 is off.  
 Default(0).  The trace level can be set to 0 - 5. Note that since mose
-trace definitions have been removed from cimcli, this is of little value.
+trace definitions have been removed from \fBcimcli\fR, this is of little value.
 
 .TP
 .B \--v
-Displays cimcli and Pegasus software Version.
+Displays \fBcimcli\fR and Pegasus software Version.
 
 .TP
 .B \-v
@@ -1650,7 +1630,7 @@ is primarily a debugging tool.
 .B \--r [repeat_count]
 Number of times to repeat the function. Zero means one time. The
 option can be used to repeat an operation within a single call to
-cimcli.  It simply repeats the operation defined the number of times
+\fBcimcli\fR.  It simply repeats the operation defined the number of times
 defined by the repeat_count within the same connection.  Thus, it
 establishes the connection executes the operation repeat_count times
 and then terminates.  It can be used with the --time option to measure
@@ -1659,14 +1639,14 @@ execution times for many repetitions of an operation.
 .TP
 .B \-s
 Boolean option that specifies that the Client should attempt to connect
-over the secure connection using SSL. This option causes cimcli to
+over the secure connection using SSL. This option causes \fBcimcli\fR to
 modify the client connect call to set the SSLContext option to the
 certificate defined with the --cert and --key options.  If this option
 is set but neither the --cert or --key options are included, the
 SSLContext for the connect call is submitted with the Cert and key
 marked NULL.
 
-NOTE: since SSL is considered a compilable option with cimcli, these
+NOTE: since SSL is considered a compilable option with \fBcimcli\fR, these
 options may not even exist in a Pegasus environment that was compiled
 with the SSL capabilities disabled.
 
@@ -1674,8 +1654,8 @@ with the SSL capabilities disabled.
 .B \--sort
 Sort the output objects before display for multi-object outputs such as
 enumerates, references, associations, and their corrsponding ...names
-operations and for the enumerateQualifierDecls.  Whereever cimcli delivers
-multiple entities in the response, the use of this option tells cimcli to
+operations and for the enumerateQualifierDecls.  Whereever \fBcimcli\fR delivers
+multiple entities in the response, the use of this option tells \fBcimcli\fR to
 attempt to sort the output entities.  Generally the sort order is assending
 order using  a) class name for operations that return classes and b) CIM 
 Object Path for operations that return instances.
@@ -1736,20 +1716,20 @@ Enumerate class names from the namespace "root":
 
 .SH "RETURN VALUE"
 
-cimcli returns a significant number of error codes as follows:
+\fBcimcli\fR returns a significant number of error codes as follows:
 
 .B 0
 Successful execution of the operation.
 
 .B 1-49
-A CIM Operation executed as part of the cimcli operation returned a CIM 
+A CIM Operation executed as part of the \fBcimcli\fR operation returned a CIM 
 Exception as defined in the DMTF CIM Operations over HTTP specification.  
 The status code of the error is returned. While today only not all of the
-numbers from 1 to 49 are used for CIM Status errors, cimcli has reserved
+numbers from 1 to 49 are used for CIM Status errors, \fBcimcli\fR has reserved
 this set of numbers with the expectation that this list will expand in the
 future.
 
-cimcli will not return any error codes in this range that are not 
+\fBcimcli\fR will not return any error codes in this range that are not 
 specifically defined by DMTF error status codes and generated by the CIM 
 Operation calls.  
 
@@ -1757,7 +1737,7 @@ Operation calls.
 Pegasus Exception encountered during execution of Pegasus Functions
 
 .B 51
-CIMCLI general error not covered by other errors
+\fBcimcli\fR general error not covered by other errors
 
 .B 52
 Unknown exception occurred during execution of the operation
@@ -1769,14 +1749,14 @@ Command line or configuration file input parsing error.
 Connection to server failed error.
 
 .B 60
-cimcli failed a compare with one of the test operations such as
+\fBcimcli\fR failed a compare with one of the test operations such as
 testInstance. The returned entity did not match the properties
 of the object defined by the input parameters.
 
 .B 70
-cimcli internal error that cannot be attributed to external issues such
+\fBcimcli\fR internal error that cannot be attributed to external issues such
 as commmand line input or server response.  This usually indicates a
-bug in cimcli.
+bug in \fBcimcli\fR.
 
 .SH AUTHOR 
 

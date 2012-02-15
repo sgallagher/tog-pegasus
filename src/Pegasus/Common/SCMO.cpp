@@ -4267,7 +4267,6 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             {
                 return(u);
             }
-            break;
         }
 
     case CIMTYPE_STRING:
@@ -4301,8 +4300,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
                 ptr->extString.length = u->stringValue.size-1;
             }
 
-             return(ptr);
-            break;
+            return(ptr);
         }
     default:
         {
@@ -4545,26 +4543,22 @@ CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
                         return CIMTYPE_REAL64;
                     }
                 }
-                break;
             }
 
 
         case CIMKeyBinding::STRING:
         {
             return CIMTYPE_STRING;
-            break;
         }
 
         case CIMKeyBinding::BOOLEAN:
         {
             return CIMTYPE_BOOLEAN;
-            break;
         }
 
         case CIMKeyBinding::REFERENCE:
         {
             return CIMTYPE_REFERENCE;
-            break;
         }
 
         default:
@@ -4775,7 +4769,6 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             // Can cause reallocation !
             _setString(kbs,scmoKBV.data.stringValue,&inst.mem);
             return true;
-            break;
         }
     case CIMTYPE_REFERENCE:
         {
@@ -4812,7 +4805,6 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
         {
             // From PEP 194: EmbeddedObjects cannot be keys.
             throw TypeMismatchException();
-            break;
         }
     default:
         {
@@ -5054,7 +5046,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u8=Uint8(keyValue->simple.val.u64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT16:
@@ -5062,7 +5053,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u16=Uint16(keyValue->simple.val.u64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT32:
@@ -5070,7 +5060,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u32=Uint32(keyValue->simple.val.u64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_UINT64:
@@ -5078,15 +5067,15 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.u64=keyValue->simple.val.u64;
-                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
-                break;
             }
         }
+        return SCMO_OK;
+        
     }
 
     if (setType == CIMTYPE_SINT64)
@@ -5099,7 +5088,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s8=Sint8(keyValue->simple.val.s64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT16:
@@ -5107,7 +5095,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s16=Sint16(keyValue->simple.val.s64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT32:
@@ -5115,7 +5102,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s32=Sint32(keyValue->simple.val.s64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_SINT64:
@@ -5123,15 +5109,14 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.s64=keyValue->simple.val.s64;
-                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
-                break;
             }
         }
+        return SCMO_OK;
     }
 
     if (setType == CIMTYPE_REAL64)
@@ -5143,7 +5128,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.r32=Real32(keyValue->simple.val.r64);
-                return SCMO_OK;
                 break;
             }
         case CIMTYPE_REAL64:
@@ -5151,15 +5135,14 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 kbValue.data.simple.hasValue=true;
                 kbValue.data.simple.val.r64=keyValue->simple.val.r64;
-                return SCMO_OK;
                 break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
-                break;
             }
         }
+        return SCMO_OK;
     }
     else
     {
@@ -5184,12 +5167,10 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
                 kbValue.isSet=true;
                 _setSCMBUnion(keyValue,classType,false, 0,kbValue.data);
                 return SCMO_OK;
-                break;
             }
         default:
             {
                 return SCMO_TYPE_MISSMATCH;
-                break;
             }
         }
     }
@@ -5197,17 +5178,6 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
     return SCMO_TYPE_MISSMATCH;
 
 }
-
-static int _indexComp(const void* left, const void* right)
-{
-    return((*(Uint32 *)left)-(*(Uint32 *)right));
-}
-
-void SCMOInstance::setPropertyFilter(const char **propertyList)
-{
-    return;
-}
-
 
 /******************************************************************************
  * SCMODump Print and Dump functions

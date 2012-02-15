@@ -151,9 +151,11 @@ OptionStruct::OptionStruct():
     connectionTimeout(0),
     interactive(false),
     setRtnHostNames(false),
+//EXP_PULL_BEGIN -- parameters for pull operations
     continueOnError(false),
     maxObjectsToReceive(0),
     pullDelay(0)
+//EXP_PULL_END
 {
         // Initialize the option structure values
         location =  String();

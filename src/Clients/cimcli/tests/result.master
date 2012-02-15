@@ -11,6 +11,10 @@ instance of Test_CLITestEmbeddedClass
         "includeClassOrigin=false";
 };
 Test instance Test_CLITestEmbeddedClass.Id="111" OK
+modified
+modified
+modified
+modified
 Returned Path  Test_CLITestEmbeddedClass.Id="201"
 
 // path= Test_CLITestEmbeddedClass
@@ -211,6 +215,18 @@ instance of Test_CLITestEmbeddedClass
         "includeClassOrigin=false";
 };
 Test instance Test_CLITestEmbeddedClass.Id="1101" OK
+Returned Path  Test_CLITestProviderLinkClass.child="Test_CLITestProviderClass.Id=\"100\"",parent="Test_CLITestProviderClass.Id=\"100\""
+
+// path= Test_CLITestProviderLinkClass
+
+instance of Test_CLITestProviderLinkClass
+{
+    parent = "Test_CLITestProviderClass.Id=\"100\"";
+    child = "Test_CLITestProviderClass.Id=\"100\"";
+    requestInputParameters = "propertyList=NULL; includeQualifiers=false; "
+        "includeClassOrigin=false";
+};
+Test instance Test_CLITestProviderLinkClass.child="Test_CLITestProviderClass.Id=\"100\"",parent="Test_CLITestProviderClass.Id=\"100\"" OK
 Return Value= 0
 firstArg=test string
 Return Value= 0
@@ -277,16 +293,40 @@ arrayString=one two three
 Return Value= 0
 arraySint32=99 100 110 120 
 arrayString=one two three four 
+Return Value= 0
+referenceParam=Test_CLITestProviderClass.id="100"
+Return Value= 0
+referenceParam=Test_CLITestProviderClass.Id="100"
+Return Value= 0
+referenceParamArray=Test_CLITestProviderClass.id=100 Test_CLITestProviderClass.id=101 
+Return Value= 0
+referenceParamArray=Test_CLITestProviderClass.Id="100" Test_CLITestProviderClass.Id="101" 
 INPUT ERROR: Missing Embedded object Terminator i.e. "}"
 INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
 INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
 INPUT ERROR: "!" terminator allowed only on String type.  Parameter= scalBool!
-INPUT ERROR: No name on input parameter =301 
+INPUT ERROR: No name on input parameter =1204 
 INPUT ERROR: No name on input parameter {Test_CLITestEmbedded1 
 cimcli CIMException:  Cmd= ci Object= Test_CLITestEmbeddedClass Code= 1
-CIM_ERR_FAILED: Key Property Id required
+CIM_ERR_FAILED: Key Property(s) Required: Id
+cimcli CIMException:  Cmd= ci Object= Test_CLITestProviderLinkClass Code= 1
+CIM_ERR_FAILED: Key Property(s) Required: child
+Returned Path  Test_CLITestEmbeddedClass.Id="1210"
+Warning: property "nosuchProperty" not in class: Test_CLITestEmbeddedClass. Skipping.
+Returned Path  Test_CLITestEmbeddedClass.Id="1211"
+INPUT ERROR: Duplicate scalar property Name. comment=Whoops second def for scalar
+INPUT ERROR: Duplicate scalar property Name. parent={Test_CLITestProviderClass
++++++ passed createEmbeddedInstance error tests
 INPUT ERROR: Multiple definition of scalar parameter name=scalSint32
 INPUT ERROR: Value conversion error. 110,120s. type sint32
 
 Return Value= 0
+INPUT ERROR: Missing Embedded object Terminator i.e. "}"
+INPUT ERROR: Missing Embedded object Terminator i.e. "}"
+INPUT ERROR: Missing Embedded object Terminator i.e. "}"
+INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
+INPUT ERROR: Multiple definition of scalar parameter name=referenceParam
+Warning: property "idx" not in class: Test_CLITestProviderClass. Skipping.
+cimcli Pegasus Exception: no such property: Id. Cmd = im Object = Test_CLITestEmbeddedClass
++++++ passed invokeEmbeddedInstanceMethod error tests
 +++++ passed test errors tests

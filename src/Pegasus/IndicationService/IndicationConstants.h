@@ -213,6 +213,11 @@ extern const CIMName _PROPERTY_ELEMENTNAME;
 extern const CIMName _PROPERTY_SOURCENAMESPACE;
 
 /**
+    The name of the Source Namespaces property for indication filter class
+ */
+extern const CIMName _PROPERTY_SOURCENAMESPACES;
+
+/**
     The name of the System Name property for indication filter and indications
     handler classes
  */
@@ -481,6 +486,7 @@ const Uint16 _ENABLEDSTATE_SHUTTINGDOWN = 4;
 const Uint16 _ENABLEDSTATE_STARTING = 10;
 const Uint16 _ENABLEDSTATE_ENABLED = 2;
 const Uint16 _ENABLEDSTATE_DISABLED = 3;
+const Uint16 _ENABLEDSTATE_UNKNOWN = 0;
 
 /**
     Service health States. See CIM_ManagedSystemElement.HealthState

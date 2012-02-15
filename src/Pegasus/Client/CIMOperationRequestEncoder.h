@@ -149,7 +149,7 @@ private:
     void _encodeInvokeMethodRequest(
         CIMInvokeMethodRequestMessage* message);
 
- // KS_PULL_BEGIN
+ // EXP_PULL_BEGIN
     void _encodeOpenEnumerateInstancesRequest(
         CIMOpenEnumerateInstancesRequestMessage* message);
 
@@ -183,7 +183,7 @@ private:
 */
     void _encodeEnumerationCountRequest(
         CIMEnumerationCountRequestMessage* message);
- //KS_PULL_END
+ //EXP_PULL_END
 
     void _sendRequest(Buffer& buffer);
 

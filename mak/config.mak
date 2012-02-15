@@ -235,8 +235,11 @@ endif
 # option of the mof compiler needs to be set.
 # *****
 
+## Sets default CIM Schema if PEGASUS_CIM_SCHEMA not defined.
+## NOTE: If the default below is changed, please update the definition
+## of default for this variable in pegasus/doc/BuildAndReleaseOptions.html
 ifndef PEGASUS_CIM_SCHEMA
-    PEGASUS_CIM_SCHEMA=CIM228
+    PEGASUS_CIM_SCHEMA=CIM231
 endif
 
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
@@ -1441,7 +1444,10 @@ endif
 ##==============================================================================
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-  DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
+   ifndef PEGASUS_PAM_AUTHENTICATION
+       $(error "PEGASUS_PAM_AUTHENTICATION must be defined when PEGASUS_USE_PAM_STANDALONE_PROC is defined")
+   endif
+   DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
 endif
 
 ##==============================================================================

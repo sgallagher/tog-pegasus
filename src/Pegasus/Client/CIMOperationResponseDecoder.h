@@ -231,7 +231,7 @@ private:
         const String& methodName,
         Boolean isEmptyMethodresponseTag);
 
-// KS_PULL_BEGIN
+// EXP_PULL_BEGIN
     CIMOpenEnumerateInstancesResponseMessage*
         _decodeOpenEnumerateInstancesResponse(
             XmlParser& parser,
@@ -289,7 +289,7 @@ private:
         XmlParser& parser,
         const String& messageId,
         Boolean isEmptyImethodresponseTag);
-// KS_PULL END
+// EXP_PULL END
 
     MessageQueue*        _outputQueue;
 

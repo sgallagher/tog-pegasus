@@ -99,6 +99,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+String _toString(Boolean x)
+{
+    return((x)? "true" : "false");
+}
+
 template<class T>
 inline T* getProviderInterface(CIMProvider* provider)
 {
@@ -437,6 +442,19 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
         "ProviderMessageHandler::_handleEnumerateInstancesRequest - "
             "Object path: %s",
         (const char*) objectPath.toString().getCString()));
+
+     // KS_TODO_DELETE_PULL
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "ProviderMessageHandler::_handleEnumerateInstancesRequest "
+            "deepInheritance: %s localOnly: %s includeQualifiers: %s "
+            "includeClassOrigin: %s propertyList: %s",
+        (const char*)_toString(request->deepInheritance).getCString(),
+        (const char*)_toString(request->localOnly).getCString(),
+        (const char*)_toString(request->includeQualifiers).getCString(),
+        (const char*)_toString(request->includeClassOrigin).getCString(),
+        (const char*)request->propertyList.toString().getCString() ));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));

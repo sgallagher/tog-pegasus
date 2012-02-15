@@ -132,11 +132,21 @@ PEGASUS_USING_STD;
 
 //Windows service variables are not defined elsewhere in the product
 //enable ability to override these
+#ifndef PEGASUS_FLAVOR
 #ifndef PEGASUS_SERVICE_NAME
 #define PEGASUS_SERVICE_NAME "Pegasus CIM Object Manager";
 #endif
 #ifndef PEGASUS_SERVICE_DESCRIPTION
 #define PEGASUS_SERVICE_DESCRIPTION "Pegasus CIM Object Manager Service";
+#endif
+#else
+#ifndef PEGASUS_SERVICE_NAME
+#define PEGASUS_SERVICE_NAME PEGASUS_FLAVOR " Pegasus CIM Object Manager"
+#endif
+#ifndef PEGASUS_SERVICE_DESCRIPTION
+#define PEGASUS_SERVICE_DESCRIPTION PEGASUS_FLAVOR \
+            " Pegasus CIM Object Manager Service";
+#endif
 #endif
 
 #ifdef PEGASUS_OS_PASE
@@ -835,6 +845,14 @@ int CIMServerProcess::cimserver_run(
         //
         if (shutdownOption)
         {
+#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
+            // This checks whether user is authorized to stop the
+            // CIM Server. When unauthorized a message is logged to
+            // to the user and program exits.
+            shutdownCheckProfileCIMSERVclassWBEM();
+            // Depending on the success of the previous check we may not
+            // reach this code!!!
+#endif
             String configTimeout =
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue =

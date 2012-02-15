@@ -347,7 +347,7 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(MessageType type)
         case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
              enum_type = CIMOPTYPE_INVOKE_METHOD;
              break;
- // EXP_PULL
+ // EXP_PULL_BEGIN
         case CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
         case CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
              enum_type = CIMOPTYPE_OPEN_ENUMERATE_INSTANCES;

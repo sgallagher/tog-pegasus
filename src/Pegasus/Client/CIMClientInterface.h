@@ -354,7 +354,7 @@ public:
     virtual Uint64Arg enumerationCount(
         CIMEnumerationContext& enumerationContext
         ) = 0;
-// KS_PULL_END
+// EXP_PULL_END
 
 };
 

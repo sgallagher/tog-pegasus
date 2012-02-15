@@ -92,6 +92,7 @@ enum Operation
     OP_DeleteQualifier,
     OP_EnumerateQualifiers,
     OP_InvokeMethod,
+// EXP_PULL_BEGIN
     OP_OpenEnumerateInstances,
     OP_OpenEnumerateInstancePaths,
     OP_OpenReferenceInstances,
@@ -102,6 +103,7 @@ enum Operation
     OP_PullInstancePaths,
     OP_CloseEnumeration,
     OP_EnumerationCount,
+// EXP_PULL_END
     OP_Count
 };
 
@@ -122,8 +124,10 @@ static Operation _NameToOp(const CIMName& name)
                 return OP_CreateInstance;
             if (_EQUAL(s, "CreateClass"))
                 return OP_CreateClass;
+//EXP_PULL_BEGIN
             if (_EQUAL(s, "CloseEnumeration"))
                 return OP_CloseEnumeration;
+// EXP_PULL_END
             break;
         case 'D':
             if (_EQUAL(s, "DeleteInstance"))
@@ -169,6 +173,7 @@ static Operation _NameToOp(const CIMName& name)
             if (_EQUAL(s, "ModifyClass"))
                 return OP_ModifyClass;
             break;
+// EXP_PULL_BEGIN
         case 'O':
             if (_EQUAL(s, "OpenEnumerateInstances"))
                 return OP_OpenEnumerateInstances;
@@ -189,6 +194,7 @@ static Operation _NameToOp(const CIMName& name)
             if (_EQUAL(s, "PullInstancePaths"))
                 return OP_PullInstancePaths;
             break;
+// EXP_PULL_END
         case 'R':
             if (_EQUAL(s, "References"))
                 return OP_References;
@@ -3067,7 +3073,7 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     msg->binaryRequest = true;
     return msg;
 }
-// KS_PULL_BEGIN
+// EXP_PULL_BEGIN
 //==============================================================================
 //
 // OpenEnumerateInstances
@@ -3180,6 +3186,7 @@ static CIMOpenEnumerateInstancesRequestMessage*
 
     return request.release();
 }
+
 // For the pull Response messages the interface is the message and the,
 // not just the responseData.
 static void _encodeOpenEnumerateInstancesResponseBody(
@@ -3244,6 +3251,7 @@ static CIMOpenEnumerateInstancesResponseMessage*
     msg->binaryRequest=true;
     return msg;
 }
+
 //==============================================================================
 //
 // OpenEnumerateInstancesPaths
@@ -3639,7 +3647,8 @@ static CIMOpenReferenceInstancePathsRequestMessage*
     Uint32 flags,
     const String& messageId)
 {
-    /* See ../Server/CIMOperationRequestDecoder.cpp */
+    /* See ../
+Server/CIMOperationRequestDecoder.cpp */
 
     STAT_GETSTARTTIME
 
@@ -4630,7 +4639,7 @@ static CIMEnumerationCountResponseMessage*
     return msg;
 }
 
-// KS_PULL_END
+// EXP_PULL_END
 
 
 //==============================================================================
@@ -4788,6 +4797,7 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
         case OP_ExecQuery:
            return _decodeExecQueryRequest(
                 in, queueId, returnQueueId, messageId);
+//EXP_PULL_BEGIN
         case OP_OpenEnumerateInstances:
             return _decodeOpenEnumerateInstancesRequest(
                 in, queueId, returnQueueId, flags, messageId);
@@ -4828,7 +4838,7 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
             return _decodeEnumerationCountRequest(
                 in, queueId, returnQueueId, flags, messageId);
             break;
-
+//EXP_PULL_END
         default:
             // Unexpected message type
             PEGASUS_ASSERT(0);
@@ -4858,6 +4868,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
 #if defined(ENABLE_VALIDATION)
     buf.setValidate(true);
 #endif
+
     Uint32 flags;
     String messageId;
     Operation operation;
@@ -4944,6 +4955,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
         case OP_ExecQuery:
             msg = _decodeExecQueryResponse(buf, messageId);
             break;
+//EXP_PULL_BEGIN
         case OP_OpenEnumerateInstances:
             msg = _decodeOpenEnumerateInstancesResponse(buf, messageId);
             break;
@@ -4971,7 +4983,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
         case OP_CloseEnumeration:
             msg = _decodeCloseEnumerationResponse(buf, messageId);
             break;
-
+//EXP_PULL_END
         default:
             // Unexpected message type
             PEGASUS_ASSERT(0);
@@ -5222,6 +5234,8 @@ bool BinaryCodec::encodeRequest(
                 (CIMExecQueryRequestMessage*)msg, name);
             break;
         }
+
+//EXP_PULL_BEGIN
         case CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
         {
             _encodeOpenEnumerateInstancesRequest(buf,
@@ -5283,6 +5297,7 @@ bool BinaryCodec::encodeRequest(
                 (CIMEnumerationCountRequestMessage*)msg, name);
             break;
         }
+//EXP_PULL_END
 
         default:
             // Unexpected message type
@@ -5513,12 +5528,14 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
         {
-            _encodeExecQueryResponseBody(buf,
+            _encodeExecQueryResponseBody(
+                buf,
                 ((CIMExecQueryResponseMessage*)msg)->getResponseData(),
                 name);
             break;
         }
 
+//EXP_PULL_BEGIN
         case CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
         {
             _encodeOpenEnumerateInstancesResponseBody(buf,
@@ -5611,6 +5628,7 @@ bool BinaryCodec::encodeResponseBody(
                 name);
             break;
         }
+//EXP_PULL_END
 
         default:
             // Unexpected message type

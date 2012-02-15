@@ -43,7 +43,6 @@
 ProviderRegistrationManager.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Listener/CIMListener.h>
-#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -632,79 +631,7 @@ static void _testDeliveryRetry(CIMClient &client)
     }
 }
 
-// The code is based on test case 
-// Pegasus/ControlProviders/InteropProvider/tests/interop.cpp
-
-String _getCurrentConfigDeliveryRetryProperty(
-    const CIMName &propertyName, CIMClient &client)
-{
-    // The following assumes localconnect.
-    String _hostName;
-    _hostName.assign(System::getHostName());
-
-    CIMProperty prop;
-    Array<CIMKeyBinding> kbArray;
-    CIMKeyBinding kb;
-
-    kb.setName(CIMName ("PropertyName"));
-    kb.setValue(propertyName.getString());
-    kb.setType(CIMKeyBinding::STRING);
-
-    kbArray.append(kb);
-
-    String propertyNameValue;
-    String currentValue;
-    try
-    {
-        CIMObjectPath reference(
-            _hostName, PEGASUS_NAMESPACENAME_CONFIG,
-            PEGASUS_CLASSNAME_CONFIGSETTING, kbArray);
-
-        CIMInstance cimInstance =
-            client.getInstance(PEGASUS_NAMESPACENAME_CONFIG, reference);
-
-        Uint32 pos = cimInstance.findProperty(CIMName ("PropertyName"));
-        prop = (CIMProperty)cimInstance.getProperty(pos);
-        propertyNameValue = prop.getValue().toString();
-
-        pos = cimInstance.findProperty(CIMName ("CurrentValue"));
-        prop = (CIMProperty)cimInstance.getProperty(pos);
-        currentValue = prop.getValue().toString();
-
-        if (verbose)
-        {
-            cout << " Config return: "
-                << " Requested Name: " <<  propertyName.getString()
-                << " Returned Name: " <<  propertyNameValue
-                << " current: " << currentValue << endl;
-        }
-
-
-    }
-    catch(const CIMException& e)
-    {
-        cout << "CIM Exception during get Config " << e.getMessage() << endl;
-        return(String::EMPTY);
-    }
-
-    return (currentValue);
-}
-
- 
-
-static Uint16 _getCurrentConfigDeliveryRetryValue(String & propertyName)
-{
-
-    Uint64 deliveryRetryValue = 0;
-
-    StringConversion::decimalStringToUint64(
-         propertyName.getCString(), deliveryRetryValue);
-
-    return (Uint16) deliveryRetryValue;
-
-}
-
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try
@@ -713,20 +640,7 @@ int main(int, char** argv)
         client.setTimeout(60 * 1000);
         client.connectLocal();
 
-        
-        // The test case instruments reliable indication
-        // maxIndicationDeliveryRetryAttempts value = 0  which disables the
-        // reliable indication feature. A test for indication delivery 
-        // when reliable indication framework is not working or  disabled
-        // already exists in folder src/Providers/TestProviders
-        //  /IndicationStressTestProvider
-
-        String  currentValue = _getCurrentConfigDeliveryRetryProperty(
-            "maxIndicationDeliveryRetryAttempts" ,client);
-        if(_getCurrentConfigDeliveryRetryValue(currentValue))           
-        {
-            _testDeliveryRetry(client);
-        }
+        _testDeliveryRetry(client);
     }
     catch (Exception& e)
     {

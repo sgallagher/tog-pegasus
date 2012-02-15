@@ -1621,12 +1621,18 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
         new(&x) CIMPropertyList(names);
       
         Uint32 tagCount;
-        getUint32(tagCount);
+        if (!getUint32(tagCount))
+        {
+            return false;
+        }
 
         for(Uint32 j=0;j<tagCount;j++)
         {
             Uint32 tag;
-            getUint32(tag);
+            if (!getUint32(tag))
+            {
+                return false;
+            }
             x.appendCIMNameTag(tag);
         }
 

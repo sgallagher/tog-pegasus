@@ -53,12 +53,14 @@ public:
 
     ~CIMOperationResponseEncoder();
 
+//EXP_PULL_BEGIN
     void sendPullResponse(
         CIMResponseMessage* response,
         const String& name,
         Boolean isImplicit,
         Buffer* bodyParams,
         Buffer* bodygiven = 0);
+//EXP_PULL_END
 
     void sendResponse(
         CIMResponseMessage* response,
@@ -66,12 +68,14 @@ public:
         Boolean isImplicit,
         Buffer* bodygiven = 0);
 
+//EXP_PULL_BEGIN
     void sendResponsePull(
         CIMResponseMessage* response,
         const String& name,
         Boolean isImplicit,
         Buffer* bodyParams,
         Buffer* bodygiven = 0);
+//EXP_PULL_END
 
     virtual void enqueue(Message*);
 
@@ -113,7 +117,7 @@ public:
         CIMEnumerateInstancesResponseMessage* response);
 
 //KS_PULL_BEGIN
-//KS_PULL_TBD Rename INSTANCESWITHPATH
+//KS_PULL_TODO TBD Rename INSTANCESWITHPATH
     void encodeOpenEnumerateInstancesResponse(
         CIMOpenEnumerateInstancesResponseMessage* response);
 

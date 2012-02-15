@@ -124,6 +124,10 @@ static const char * _toCharP(Boolean x)
     return (x? "true" : "false");
 }
 
+String _toString(Boolean x)
+{
+    return (x? "true" : "false");
+}
 // Convert a CIMPropertyList parameter to CIM String
 String _toString(const CIMPropertyList& pl)
 {
@@ -210,12 +214,13 @@ Uint32 verbose_opt = 5;
 bool timeOperation_opt = false;
 bool continueOnError_opt = false;
 bool reverseExitCode_opt = false;
+bool deepInheritance_opt = true;
 
-/*
-    array of property names that is applied at the
-    propertylist for the operation.
-*/
-Array<CIMName> propertyList_opt;
+
+
+// Actual property list to be used. This should be null unless a property
+// list is provided.
+CIMPropertyList propertyList_opt;
 
 /*
     Number of times to repeat the operation.  Note that 0 means
@@ -273,12 +278,15 @@ OPTIONS:\n\
     -s seconds      Time to sleep between operations. Used to test timeouts\n\
     -T              Show results of detailed timing of the operations\n\
     -x              ContinueOnError flag set to true.\n\
+    -d              Set deepInheritance false where used (i.e enumerate\n\
+                    instances. Default: deeInheritance = true.\n\
     -M MAXOBJECTS   Integer Max objects for open operation or NULL.\n\
                      (Default 16)\n\
     -N MAXOBJECTS   Integer Max objects per pull operation. If not specified\n\
                     defaults to 16.\n\
-    -L PROPERTY     Property to include in propertyFilter.  May be repeated\n\
+    -P PROPERTY     Property to include in propertyFilter.  May be repeated\n\
                     to create a multiproperty property list.\n\
+                    Use \"\" to represent an empty property list\n\
     -C              Compare the result against old equivalent CIM operation.\n\
     -f QUERY FILTER String value for queryFilter parameterFilter.\n\
                     Note not supported in pegasus now. Default \"\".\n\
@@ -807,8 +815,8 @@ bool compareInstance(const String& s1, const String& s2,
         if (i1.getPropertyCount() != i2.getPropertyCount())
         {
             VCOUT1 << "ERROR: PropertyCounts differ " << s1 << " "
-                <<  i1.getPropertyCount()
-                << " " << s2 << " " << i2.getPropertyCount() << endl;
+                <<  i1.getPropertyCount() << " "
+                << s2 << " " << i2.getPropertyCount() << endl;
 
             VCOUT1 << s1 << ": " << _toStringProperties(i1) << endl;
             VCOUT1 << s2 << ": " << _toStringProperties(i2) << endl;
@@ -822,8 +830,8 @@ bool compareInstance(const String& s1, const String& s2,
         if (i1.getQualifierCount() != i2.getQualifierCount())
         {
             VCOUT1 << "ERROR: Qualifier Counts differ "
-                << s1 << " " << i1.getPropertyCount()
-                << " " << s2 << " " << i2.getPropertyCount() << endl;
+                << s1 << " " << i1.getQualifierCount() << " "
+                << s2 << " " << i2.getQualifierCount() << endl;
         }
 
         // Test individual properties for differences
@@ -875,8 +883,8 @@ bool compareInstance(const String& s1, const String& s2,
                 else if (p1.getType() != p2.getType())
                 {
                     VCOUT1 << "ERROR: Property Types differ "
-                         << s11 << " " << p1.getName().getString()
-                         << " " << p1.getType() << " "
+                         << s11 << " " << p1.getName().getString() << " "
+                         << p1.getType() << " "
                          << s21 << " " << p2.getType() << endl;
                 }
                 else if(p1.isArray() != p2.isArray())
@@ -887,8 +895,8 @@ bool compareInstance(const String& s1, const String& s2,
                 else if(p1.getArraySize() != p2.getArraySize())
                 {
                     VCOUT1 << "ERROR: Property Array size parameters differ "
-                         << p1.getName().getString()
-                         <<  " " << p1.getArraySize() << " "
+                         << p1.getName().getString() <<  " "
+                         << p1.getArraySize() << " "
                          <<  p2.getArraySize() << endl;
                 }
                 else
@@ -943,6 +951,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
         VCOUT2 <<"WARN: cannot test for return counts with Null maxObjectCount"
             << endl;
         warnings++;
+        return(false);
     }
     else
     {
@@ -964,7 +973,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
         }
     }
     // unreachable
-    return true;
+    PEGASUS_UNREACHABLE(return true);
 }
 
 void displayInstances(const Array<CIMInstance>& instances)
@@ -1246,7 +1255,7 @@ Boolean validateInstancePath(Array<CIMInstance> instances)
 /*
     Test function for enumerate instances sequence.  Does the complete
     sequence based on input parameters.  Some client call parameters such
-    as deepInheritance, includeClassOrigin are fixed today.
+    as includeClassOrigin are fixed today.
 */
 void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String ClassName )
@@ -1257,19 +1266,30 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
     try
     {
         String operationName = "openEnumerateInstances";
-        Boolean deepInheritance = false;
         Boolean includeClassOrigin = false;
 
+        // KS_TODO Why this????
         Uint32Arg maxObjectCount = maxObjectsOnOpen_opt;
         Boolean endOfSequence = false;
         CIMPropertyList propertyList(propertyList_opt);
+        Boolean deepInheritance = deepInheritance_opt;
 
         Array<CIMInstance> pulledInstances;
         CIMEnumerationContext enumerationContext;
 
         VCOUT4 << "Issue openEnumerateInstances " << ClassName
-               << " maxObjectCount =  " << maxObjectCount.toString()
-            << ". timeout = " << timeout_opt.toString() << endl;
+               << " namespace=" << nameSpace.getString()
+               << " deepInheritance=" << _toString(deepInheritance_opt)
+               << " propertyList=" << _toString(propertyList)
+               << " timeout=" << timeout_opt.toString()
+               << " filterQueryLanguage=" << filterQuery_opt
+               << " filterQuery_opt=" << filterQuery_opt
+               << " continueOnError=" << _toString(continueOnError_opt)
+               << " maxObjectsOnOpen=" << maxObjectsOnOpen_opt.toString()
+////               << " maxObjectCount for Operation" << maxObjectCount
+               << endl;
+//KS_TODO why did we use maxObject instead of maxObjectOnOpen. Is there
+// a max objects before we close option???
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1295,12 +1315,12 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         pullTime.stop();
 
         displayAndTestReturns(operationName, endOfSequence,
-            pulledInstances.size(), maxObjectCount);
+            pulledInstances.size(), maxObjectsOnOpen_opt);
 
         doSleep(sleep_opt);
 
         // reset the maxObjectCount to the pull parameter
-        maxObjectCount = maxObjectsOnPull_opt;
+        ///maxObjectCount = maxObjectsOnPull_opt;
 
         //enumerationContext.print();
         // issue pulls to get remaning objects. Note that we may close
@@ -1308,10 +1328,11 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
-                              pulledInstances, maxObjectCount,
-                              maxOperationsCounter,
-                              enumerationContext,
-                              pullTime);
+                pulledInstances,
+                maxObjectsOnPull_opt,
+                maxOperationsCounter,
+                enumerationContext,
+                pullTime);
         }
 
         elapsedPullTime.stop();
@@ -1365,8 +1386,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
 /*
     Test function for enumerate instancepaths sequence.  Does the complete
-    sequence based on input parameters.  Some client call parameters such
-    as deepInheritance, includeClassOrigin are fixed today.
+    sequence based on input parameters.
 */
 void testPullEnumerationInstancePaths(CIMClient& client,
     CIMNamespaceName nameSpace,
@@ -2011,8 +2031,9 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
             if (!cl.isAssociation())
             {
                 counter++;
-                VCOUT5 << "Associator Tests for " << objectName.toString()
-                    << endl;
+                VCOUT5 << "Associator Tests for "
+                       << objectName.toString()
+                       << endl;
                 // Modify test functions so the call is CIMObjectPath,
                 // not String.
                 testPullReferenceInstances(
@@ -2075,6 +2096,11 @@ int main(int argc, char** argv)
         argvParams.append(" ");
         argvParams.append(argv[i]);
     }
+    /*
+        array of property names that is applied at the
+        propertylist for the operation.
+    */
+    Array<CIMName> propertyList_builder;
 
     /*
         Analyze and set all input options. uses getopt so, by definition
@@ -2083,21 +2109,22 @@ int main(int argc, char** argv)
     */
     int opt;
     while ((opt = getopt(argc, argv,
-                         "c:hVv:n:H:u:p:t:M:N:CTf:l:L:r:o:xR-:s:")) != -1)
+                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:o:xR-:s:")) != -1)
     {
         switch (opt)
         {
-            case 'c':
+            case 'c':           // set objecName
             {
             objectName_opt = optarg;
             break;
             }
-            case 'h':
+
+            case 'h':           // -h option. Print usage
             {
                 fprintf(stderr, (char*)USAGE, argv[0]);
                 exit(0);
             }
-            case '-':    // special case --help argument
+            case '-':          // special case --help argument
             {
                 if (strcmp(optarg, "help") != 0)
                 {
@@ -2111,12 +2138,18 @@ int main(int argc, char** argv)
                 }
             }
 
-            case 'V':
+            case 'V':               // KS_TODO NOT USED
             {
                 printf("%s\n", "Don't know right now");
                 exit(0);
             }
-            case 'v':
+
+            case 'd':               // set deepInheritance = false;
+            {
+                deepInheritance_opt = false;
+                break;
+            }
+            case 'v':               // verbose display with integer
             {
                 verbose_opt = atoi(optarg);
                 cout << "verbose_opt " << verbose_opt << endl;
@@ -2127,32 +2160,40 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'L':
+            case 'P':               // set property list
             {
-                propertyList_opt.append(optarg);
+                if (strlen(optarg) == 0)
+                {
+                    propertyList_builder.clear();
+                }
+                else
+                {
+                    propertyList_builder.append(optarg);
+                }
+                propertyList_opt.set(propertyList_builder);
                 break;
             }
-            case 'n':
+            case 'n':               // set namespace
             {
                 namespace_opt = optarg;
                 break;
             }
-            case 'H':
+            case 'H':           // set hostname
             {
                 host_opt = optarg;
                 break;
             }
-             case 'u':
+             case 'u':          // set user name
             {
                 user_opt = optarg;
                 break;
             }
-            case 'p':
+            case 'p':           // set password
             {
                 password_opt = optarg;
                 break;
             }
-            case 't':
+            case 't':           // set pull timeout parameter
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
@@ -2164,7 +2205,7 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'M':
+            case 'M':           // set maxObjectsOnOpen operation parameter
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
@@ -2176,7 +2217,7 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'N':
+            case 'N':           // set maxObjectsOnPull parameter
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
@@ -2190,7 +2231,7 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'C':
+            case 'C':           // set flag to compare pull and non pull ops
             {
                 compare_opt = true;
                 break;
@@ -2200,7 +2241,7 @@ int main(int argc, char** argv)
                 timeOperation_opt = true;
                 break;
             }
-            case 'f':
+            case 'f':               // filterQuery parameter
             {
                 filterQuery_opt = optarg;
                 break;
@@ -2210,18 +2251,18 @@ int main(int argc, char** argv)
                 filterQueryLanguage_opt = optarg;
                 break;
             }
-            case 'x':
+            case 'x':           // set continueOnError flag
             {
                 continueOnError_opt = true;
                 break;
             }
-            case 'r':
+            case 'r':           // set flag to repeat operation per integer
             {
                 repeat_opt = atoi(optarg);
                 cout << "Option -r NOT IMPLEMENTED in code" << endl;
                 break;
             }
-            case 'R':
+            case 'R':           // set flag to reverse exit code
             {
                 reverseExitCode_opt = true;
                 break;
@@ -2274,6 +2315,7 @@ int main(int argc, char** argv)
         fprintf(stderr, (char*)USAGE, arg0);
         exit(1);
     }
+
     String operation = argv[0];
 
     // conditional display of input parameters

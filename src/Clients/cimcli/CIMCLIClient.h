@@ -143,6 +143,7 @@ int PEGASUS_CLI_LINKAGE setObjectManagerStatistics(Options& opts,
                                    Boolean newState,
                                    Boolean& stateAfterMod);
 
+//KS_PULL_BEGIN
 int PEGASUS_CLI_LINKAGE pullEnumerateInstances(Options& opts);
 
 int PEGASUS_CLI_LINKAGE pullEnumerateInstancePaths(Options& opts);
@@ -156,6 +157,7 @@ int PEGASUS_CLI_LINKAGE pullAssociatorInstances(Options& opts);
 int PEGASUS_CLI_LINKAGE pullAssociatorInstancePaths(Options& opts);
 
 int PEGASUS_CLI_LINKAGE countInstances(Options& opts);
+//KS_PULL_END
 
 PEGASUS_NAMESPACE_END
 

@@ -44,7 +44,6 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/General/SSLContextManager.h>
-#include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
@@ -87,9 +86,7 @@ public:
         const String& certPath,
         Boolean enableConsumerUnload,
         Uint32 consumerIdleTimeout,
-        Uint32 shutdownTimeout,
-        const String & sslCipherSuite="DEFAULT",
-        const Boolean& sslCompatibility = false);
+        Uint32 shutdownTimeout);
 
     ~DynamicListenerRep();
 
@@ -168,9 +165,7 @@ DynamicListenerRep::DynamicListenerRep(
     const String& certPath,
     Boolean enableConsumerUnload,          
     Uint32 consumerIdleTimeout,            
-    Uint32 shutdownTimeout,
-    const String & sslCipherSuite,
-    const Boolean& sslCompatibility) :
+    Uint32 shutdownTimeout) :
         _port(portNumber),
         _sslContext(0),
         _sslContextObjectLock(0),
@@ -182,7 +177,6 @@ DynamicListenerRep::DynamicListenerRep(
     if (useSSL)
     {
         _sslContextMgr = new SSLContextManager();
-
         _sslContextMgr->createSSLContext(
             String(),
             certPath,
@@ -190,8 +184,7 @@ DynamicListenerRep::DynamicListenerRep(
             String(),
             true,
             String(),
-            sslCipherSuite,
-            sslCompatibility);
+            String());
         _sslContext = _sslContextMgr->getSSLContext();
         _sslContextObjectLock = _sslContextMgr->getSSLContextObjectLock();
     }
@@ -341,10 +334,7 @@ DynamicListener::DynamicListener(
     const String& certPath,
     Boolean enableConsumerUnload,
     Uint32 consumerIdleTimeout,
-    Uint32 shutdownTimeout,
-    const String & sslCipherSuite,
-    const Boolean& sslCompatibility)
-        //ONLY IF PEGASUS_HAS_SSL
+    Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
 {
 
     _rep = new DynamicListenerRep(
@@ -356,9 +346,7 @@ DynamicListener::DynamicListener(
         certPath,
         enableConsumerUnload,
         consumerIdleTimeout,
-        shutdownTimeout,
-        sslCipherSuite,
-        sslCompatibility);
+        shutdownTimeout);
 }
 
 DynamicListener::DynamicListener(

@@ -2065,8 +2065,10 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 #endif
                 indProvTab.insert(pr.getName(), indProvRec);                
             }
-            // Note that per provider subscription path MUST be unique.
-            Boolean ok = indProvRec->addSelectExp(sPath, eSelx);
+            // Note that per provider subscription path - namespace
+            // MUST be unique.
+            Boolean ok = indProvRec->addSelectExp(
+                sPath, request->nameSpace, eSelx);
             PEGASUS_ASSERT(ok);
         }
 
@@ -2222,7 +2224,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         {
             //  Remove the select expression from the cache
             WriteLock lock(rwSemProvTab);
-            Boolean ok = indProvRec->deleteSelectExp(sPath);
+            Boolean ok = indProvRec->deleteSelectExp(sPath, request->nameSpace);
             PEGASUS_ASSERT(ok);
             delete eSelx;
             throw CIMException((CIMStatusCode)rc.rc,
@@ -2301,7 +2303,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         {
             WriteLock lock(rwSemProvTab);
             indProvTab.lookup(pr.getName(),indProvRec);
-            if (!indProvRec->lookupSelectExp(sPath, eSelx))
+            if (!indProvRec->lookupSelectExp(sPath, request->nameSpace, eSelx))
             {
                 MessageLoaderParms parms(
                     "ProviderManager.CMPI.CMPIProviderManager."
@@ -2310,7 +2312,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                 // failed to get select expression from hash table
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
-            Boolean ok = indProvRec->deleteSelectExp(sPath);
+            Boolean ok = indProvRec->deleteSelectExp(sPath, request->nameSpace);
             PEGASUS_ASSERT(ok);
         }
 

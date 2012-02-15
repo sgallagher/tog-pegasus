@@ -333,7 +333,7 @@ Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
         nameSpace,
         className).getInstanceNames();
 
-    // remover name space and host name from object paths to be
+    // remove name space and host name from object paths to be
     // instance names.
     for (Uint32 i = 0, n = p.size(); i < n ; i++)
     {
@@ -544,7 +544,6 @@ CIMValue CIMClient::invokeMethod(
 }
 
 // KS_PULL_BEGIN
-
 Array<CIMInstance> CIMClient::openEnumerateInstances(
     CIMEnumerationContext& enumerationContext,
     Boolean& endOfSequence,

@@ -46,13 +46,36 @@ Uint64 DestinationQueue::_sequenceIdentifierLifetimeUsec = 600 * 1000000;
 String DestinationQueue::_indicationServiceName = "PG:IndicationService";
 String DestinationQueue::_objectManagerName = "Pegasus";
 
-const char* DestinationQueue::_indDiscardedReasons[] = {
-    "Listener not active",
-    "Subscription not active",
-    "DestinationQueue full",
-    "SequenceIdentifierLifetTime expired",
-    "DeliveryRetryAttempts exceeded",
-    "CIMServer shutdown"
+DestinationQueue::IndDiscardedReasonMsgs
+    DestinationQueue::indDiscardedReasonMsgs[] = {
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_LD_DELETED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\" was"
+         " not delivered due to the corresponding listener destination"
+         " instance was removed."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_"
+         "SUBSCRIPTION_DELETED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\" was"
+         " not delivered due to the corresponding subscription was disabled"
+         " or deleted."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_"
+         "DESTINATIONQUEUE_FULL",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+         " was discarded due to the destination queue was full."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_SIL_EXPIRED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+         " was not delivered due to the sequence identifier lifetime expired."},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_DRA_EXCEEDED",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+         " was not delivered due to the maximum delivery retry"
+         " attempts exceeded. Exception : $2"},
+
+    {"HandlerService.DestinationQueue.INDICATION_DISCARDED_CIMSERVER_SHUTDOWN",
+     "The indication with SequenceContext \"$0\" and SequenceNumber \"$1\""
+          " was not delivered due to the cimserver shutdown."}
 };
 
 Uint64 DestinationQueue::_serverStartupTimeUsec
@@ -173,6 +196,8 @@ DestinationQueue::DestinationQueue(
     _sequenceContext.append(_objectManagerName);
     _sequenceContext.append("-");
 
+    _connection = 0;
+
     Uint32 len = 0;
     char buffer[22];
     const char* ptr = Uint64ToString(buffer, _serverStartupTimeUsec,len);
@@ -219,6 +244,7 @@ DestinationQueue::~DestinationQueue()
     {
         _cleanup(LISTENER_NOT_ACTIVE);
     }
+    delete _connection;
 
     PEG_METHOD_EXIT();
 }
@@ -290,21 +316,29 @@ void DestinationQueue::_logDiscardedIndication(
     const CIMInstance &indication,
     const String &message)
 {
-
     PEGASUS_ASSERT(reasonCode <
-        sizeof(_indDiscardedReasons)/sizeof(const char*));
+        sizeof(indDiscardedReasonMsgs)/sizeof(IndDiscardedReasonMsgs));
 
-    String logMessage = _indDiscardedReasons[reasonCode];
-    logMessage.append(Char16('.'));
-    logMessage.append(message);
-    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-        MessageLoaderParms(
-            "HandlerService.DestinationQueue.INDICATION_DELIVERY_FAILED",
-            "Failed to deliver an indication with SequenceContext \"$0\" "
-                "and SequenceNumber \"$1\" : $2.",
-            (const char*)_getSequenceContext(indication).getCString(),
-            _getSequenceNumber(indication),
-            (const char*)logMessage.getCString()));
+    if (reasonCode == DRA_EXCEEDED)
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                indDiscardedReasonMsgs[reasonCode].key,
+                indDiscardedReasonMsgs[reasonCode].msg,
+                (const char*)_getSequenceContext(indication).getCString(),
+                _getSequenceNumber(indication),
+                (const char*)message.getCString()));
+    }
+    else
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                indDiscardedReasonMsgs[reasonCode].key,
+                indDiscardedReasonMsgs[reasonCode].msg,
+                (const char*)_getSequenceContext(indication).getCString(),
+                _getSequenceNumber(indication)));
+            
+    }
 }
 
 void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
@@ -348,12 +382,21 @@ void DestinationQueue::enqueue(CIMHandleIndicationRequestMessage *message)
     }
     indication.addProperty(prop);
 
+    DeliveryStatusAggregator *aggregator = 0;
+    if (message->deliveryStatusAggregator &&
+        message->deliveryStatusAggregator->waitUntilDelivered)
+    {
+        aggregator = message->deliveryStatusAggregator;
+    }
+
     IndicationInfo *info = new IndicationInfo(
         message->indicationInstance,
         message->subscriptionInstance,
         message->operationContext,
         message->nameSpace.getString(),
-        this);
+        this,
+        aggregator);
+
     _queue.insert_back(info);
 
     info->lastDeliveryRetryTimeUsec = 0;
@@ -378,6 +421,7 @@ void DestinationQueue::updateDeliveryRetrySuccess(IndicationInfo *info)
         "DestinationQueue::updateDeliveryRetrySuccess");
 
     AutoMutex mtx(_queueMutex);
+
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastSuccessfulDeliveryTimeUsec = System::getCurrentTimeUsec();
     _lastDeliveryRetryStatus = SUCCESS;
@@ -401,6 +445,10 @@ void DestinationQueue::updateDeliveryRetryFailure(
         "DestinationQueue::updateDeliveryRetryFailure");
 
     AutoMutex mtx(_queueMutex);
+
+    // We should not have any connection object here because indication
+    // delivery has failed.
+    PEGASUS_ASSERT(!_connection);
 
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastDeliveryRetryStatus = FAIL;
@@ -536,6 +584,13 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
     {
         // Maximum expiration time is equals to DeliveryRetryInterval.
         nextIndDRIExpTimeUsec = _minDeliveryRetryIntervalUsec;
+
+        // If there are no indications in the queue, delete connection.
+        if (!_queue.size() && _lastDeliveryRetryStatus != PENDING)
+        {
+            delete _connection;
+            _connection = 0;
+        }
         return 0;
     }
 
@@ -581,13 +636,13 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
             if (info->lastDeliveryRetryTimeUsec)
             {
                 elapsedDeliveryRetryAttempts =
-                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec) 
+                    ((timeNowUsec - info->lastDeliveryRetryTimeUsec)
                         / _minDeliveryRetryIntervalUsec);
             }
             else
             {
-                elapsedDeliveryRetryAttempts = 
-                    ((timeNowUsec - info->arrivalTimeUsec) 
+                elapsedDeliveryRetryAttempts =
+                    ((timeNowUsec - info->arrivalTimeUsec)
                         / _minDeliveryRetryIntervalUsec);
             }
 

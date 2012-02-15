@@ -219,8 +219,8 @@ void CIMOperationRequestEncoder::handleEnqueue()
             _encodeInvokeMethodRequest(
                 (CIMInvokeMethodRequestMessage*)message);
             break;
- // EXP_PULL
 
+ // EXP_PULL_BEGIN
         case CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
             _encodeOpenEnumerateInstancesRequest(
                 (CIMOpenEnumerateInstancesRequestMessage*)message);

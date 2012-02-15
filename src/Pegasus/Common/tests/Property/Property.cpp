@@ -255,8 +255,8 @@ void test03()
 
     VCOUT << list1.toString() << endl;
     VCOUT << list2.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "property1, property2, property3");
-    PEGASUS_TEST_ASSERT(list2.toString() == "property1, property2, property3");
+    PEGASUS_TEST_ASSERT(list1.toString() == "property1,property2,property3");
+    PEGASUS_TEST_ASSERT(list2.toString() == "property1,property2,property3");
 
     Array<CIMName> names1a = list1.getPropertyNameArray();
     PEGASUS_TEST_ASSERT(names == names1a);
@@ -374,7 +374,7 @@ void test05()
     PEGASUS_TEST_ASSERT(gotException);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try

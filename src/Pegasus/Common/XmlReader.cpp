@@ -1283,7 +1283,7 @@ Boolean XmlReader::getStringValueElement(
     return true;
 }
 
-// PULL_OP_BEGIN
+// EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // getUint32ValueElement()
@@ -1420,7 +1420,7 @@ Boolean XmlReader::getUint64ValueElement(
 
     return true;
 }
-//PULLOP_END
+//EXP_PULL_END
 
 //----------------------------------------------------------------------------
 //
@@ -3508,7 +3508,7 @@ Boolean XmlReader::getNamedInstanceElement(
 }
 
 
-//EXP_PULL
+//EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 // getInstanceWithPathElement()
 //
@@ -3740,7 +3740,7 @@ Boolean XmlReader::getIParamValueTag(
     return true;
 }
 
-//EXP_PULL
+//EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // getIParamValueTag()
@@ -3822,7 +3822,7 @@ void XmlReader::rejectNullIParamValue(
     }
 }
 
-// EXP_PULL
+// EXP_PULL_BEGIN
 //------------------------------------------------------------------------------
 //
 // rejectNullIReturnParamValue()

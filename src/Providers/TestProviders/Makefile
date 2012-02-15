@@ -79,7 +79,6 @@ TEST_DIRS = \
         TestProviderLifecycleIndications/testconsumer
 
 
-
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 TEST_DIRS += \
 	TestServerProfileProviders

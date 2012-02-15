@@ -224,4 +224,22 @@ void CIMPropertyList::appendCIMNameTag(Uint32 nameTag)
     _rep->cimNameTags.append(nameTag);
 }
 
+String CIMPropertyList::toString() const
+{
+    if (_rep->isNull)
+        return("NULL");
+
+    if (_rep->propertyNames.size() == 0)
+        return("EMPTY");
+
+    String rtn;
+    for (Uint32 i = 0 ; i < _rep->propertyNames.size() ; i++)
+    {
+        if (i != 0)
+            rtn.append(",");
+        rtn.append(_rep->propertyNames[i].getString());
+    }
+    return(rtn);
+}
+
 PEGASUS_NAMESPACE_END

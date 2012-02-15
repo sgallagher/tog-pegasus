@@ -290,7 +290,7 @@ public:
         Array<CIMParamValue>& outParameters
     );
 
-// KS_PULL_BEGIN
+// EXP_PULL_BEGIN
     virtual CIMResponseData openEnumerateInstances(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
@@ -401,7 +401,7 @@ public:
     virtual Uint64Arg enumerationCount(
         CIMEnumerationContext& enumerationContext
         );
- // KS_PULL_END
+ //EXP_PULL_END
 
     void registerClientOpPerformanceDataHandler(
         ClientOpPerformanceDataHandler & handler);

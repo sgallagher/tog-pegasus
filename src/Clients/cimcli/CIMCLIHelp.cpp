@@ -84,8 +84,8 @@ void showExamples()
     while(operations.more())
     {
         OperationExampleEntry example = operations.getExampleEntry();
-
         cout << loadMessage(example.msgKey, example.Example) << endl;
+
 
         OperationTableEntry thisOperation = operations.next();
     }

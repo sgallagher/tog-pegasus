@@ -90,9 +90,7 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_SelectExp:selxClone()");
-
-        //initialise to silence uninitialised use warning
-        CMPI_SelectExp *new_se = NULL;
+        CMPI_SelectExp *new_se;
         CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
 
         if((

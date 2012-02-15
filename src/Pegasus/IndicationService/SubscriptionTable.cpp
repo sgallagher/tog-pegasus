@@ -63,9 +63,8 @@ Boolean SubscriptionTable::getSubscriptionEntry (
         "SubscriptionTable::getSubscriptionEntry");
 
     Boolean succeeded = false;
-    SubscriptionKey activeSubscriptionsKey =
-        SubscriptionKey(subscriptionPath);
-
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscriptionPath);
     if (_lockedLookupActiveSubscriptionsEntry
         (activeSubscriptionsKey, tableValue))
     {
@@ -78,7 +77,7 @@ Boolean SubscriptionTable::getSubscriptionEntry (
         //
         PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
             "Subscription (%s) not found in ActiveSubscriptionsTable",
-            (const char*)activeSubscriptionsKey.toString().getCString()));
+            (const char*)activeSubscriptionsKey.getCString()));
     }
 
     PEG_METHOD_EXIT ();
@@ -121,8 +120,9 @@ Array <SubscriptionWithSrcNamespace>
                     //  Check if the provider who generated this indication
                     //  accepted this subscription
                     //
-                    SubscriptionKey activeSubscriptionsKey =
-                        SubscriptionKey(subscriptions [j].getPath ());
+                    String activeSubscriptionsKey =
+                        _generateActiveSubscriptionsKey
+                            (subscriptions [j].getPath ());
                     ActiveSubscriptionsTableEntry asTableValue;
                     if (_lockedLookupActiveSubscriptionsEntry(
                             activeSubscriptionsKey, asTableValue))
@@ -215,8 +215,9 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
             //
             //  Update the entry in the active subscriptions hash table
             //
-            SubscriptionKey activeSubscriptionsKey =
-                SubscriptionKey(providerSubscriptions [k].getPath ());
+            String activeSubscriptionsKey =
+                _generateActiveSubscriptionsKey
+                    (providerSubscriptions [k].getPath ());
             ActiveSubscriptionsTableEntry asTableValue;
             if (_activeSubscriptionsTable.lookup(
                     activeSubscriptionsKey, asTableValue))
@@ -241,16 +242,14 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
                         "Provider (%s) not found in list for Subscription (%s)"
                         " in ActiveSubscriptionsTable",
                         (const char*)provider.getPath().toString().getCString(),
-                        (const char*)
-                            activeSubscriptionsKey.toString().getCString()));
+                        (const char*)activeSubscriptionsKey.getCString()));
                 }
             }
             else
             {
                 PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL2,
                     "Subscription (%s) not found in ActiveSubscriptionsTable",
-                    (const char*)
-                         activeSubscriptionsKey.toString().getCString()));
+                    (const char*)activeSubscriptionsKey.getCString()));
                 //
                 //  The subscription may have been deleted in the mean time
                 //  If so, no further update is required
@@ -379,9 +378,9 @@ SubscriptionTable::reflectProviderModuleFailure
             //
             //  Update the entry in the active subscriptions hash table
             //
-            SubscriptionKey activeSubscriptionsKey =
-                SubscriptionKey(
-                    providerModuleSubscriptions[k].subscription.getPath());
+            String activeSubscriptionsKey =
+                _generateActiveSubscriptionsKey
+                    (providerModuleSubscriptions [k].subscription.getPath ());
             ActiveSubscriptionsTableEntry asTableValue;
             if (_activeSubscriptionsTable.lookup(
                     activeSubscriptionsKey, asTableValue))
@@ -418,8 +417,66 @@ SubscriptionTable::reflectProviderModuleFailure
     return providerModuleSubscriptions;
 }
 
+String SubscriptionTable::_generateActiveSubscriptionsKey (
+    const CIMObjectPath & subscription) const
+{
+    //
+    //  Get filter and handler object paths from subscription Filter and Handler
+    //  reference property values
+    //
+    Array<CIMKeyBinding> subscriptionKB = subscription.getKeyBindings ();
+    String filterPath;
+    String handlerPath;
+    for (Uint32 i = 0; i < subscriptionKB.size (); i++)
+    {
+        if ((subscriptionKB [i].getName () == PEGASUS_PROPERTYNAME_FILTER) &&
+            (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
+        {
+            filterPath = subscriptionKB [i].getValue ();
+        }
+        else
+        if ((subscriptionKB [i].getName () == PEGASUS_PROPERTYNAME_HANDLER) &&
+            (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
+        {
+            handlerPath = subscriptionKB [i].getValue ();
+        }
+    }
+
+    //
+    //  Construct subscription key from handler and filter.
+    //  To avoid ambiguity, the hostname part is removed, since the
+    //  hostname can only point to the local machine anyway.
+    //
+    const Char16 slash = '/';
+    if ((filterPath[0]==slash) && (filterPath[1]==slash))
+    {
+        Uint32 index = filterPath.find(2,slash);
+        filterPath = filterPath.subString(index+1);
+    }
+
+    if ((handlerPath[0]==slash) && (handlerPath[1]==slash))
+    {
+        Uint32 index = handlerPath.find(2,slash);
+        handlerPath = handlerPath.subString(index+1);
+    }
+
+    //
+    //  Assuming that most subscriptions will differ in the filter and handler
+    //  names, the namespace and classname of the subscription are added at the
+    //  end of the key.
+    //
+    String activeSubscriptionsKey(filterPath);
+    activeSubscriptionsKey.append(handlerPath);
+    activeSubscriptionsKey.append(slash);
+    activeSubscriptionsKey.append(subscription.getNameSpace().getString());
+    activeSubscriptionsKey.append(slash);
+    activeSubscriptionsKey.append(subscription.getClassName().getString());
+
+    return activeSubscriptionsKey;
+}
+
 Boolean SubscriptionTable::_lockedLookupActiveSubscriptionsEntry (
-    const SubscriptionKey & key,
+    const String & key,
     ActiveSubscriptionsTableEntry & tableEntry) const
 {
     ReadLock lock(_activeSubscriptionsTableLock);
@@ -434,9 +491,8 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_insertActiveSubscriptionsEntry");
 
-    SubscriptionKey activeSubscriptionsKey =
-        SubscriptionKey(subscription.getPath ());
-
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscription.getPath ());
     ActiveSubscriptionsTableEntry entry;
     entry.subscription = subscription;
     entry.providers = providers;
@@ -444,9 +500,9 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
     //
     //  Insert returns true on success, false if duplicate key
     //
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _activeSubscriptionsTable.insert(activeSubscriptionsKey, entry));
+    Boolean succeeded = _activeSubscriptionsTable.insert
+        (activeSubscriptionsKey, entry);
+    PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     String traceString;
@@ -475,7 +531,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
 }
 
 void SubscriptionTable::_removeActiveSubscriptionsEntry (
-    const SubscriptionKey & key)
+    const String & key)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_removeActiveSubscriptionsEntry");
@@ -483,12 +539,13 @@ void SubscriptionTable::_removeActiveSubscriptionsEntry (
     //
     //  Remove returns true on success, false if not found
     //
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(true,_activeSubscriptionsTable.remove(key));
+    Boolean succeeded = _activeSubscriptionsTable.remove (key);
+    PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL4,
          "REMOVED _activeSubscriptionsTable entry: %s",
-         (const char*)key.toString().getCString()));
+         (const char*)key.getCString()));
 #endif
 
     PEG_METHOD_EXIT ();
@@ -540,9 +597,9 @@ void SubscriptionTable::_insertSubscriptionClassesEntry (
     //
     //  Insert returns true on success, false if duplicate key
     //
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _subscriptionClassesTable.insert(subscriptionClassesKey, entry));
+    Boolean succeeded = _subscriptionClassesTable.insert
+        (subscriptionClassesKey, entry);
+    PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     String traceString;
@@ -571,9 +628,8 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
     //
     //  Remove returns true on success, false if not found
     //
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _subscriptionClassesTable.remove(key));
+    Boolean succeeded = _subscriptionClassesTable.remove (key);
+    PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
@@ -585,7 +641,7 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
 }
 
 void SubscriptionTable::_updateSubscriptionProviders
-    (const SubscriptionKey & activeSubscriptionsKey,
+    (const String & activeSubscriptionsKey,
      const CIMInstance & subscription,
      const Array <ProviderClassList> & updatedProviderList)
 {
@@ -757,9 +813,8 @@ void SubscriptionTable::updateProviders (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::updateProviders");
 
-    SubscriptionKey activeSubscriptionsKey =
-        SubscriptionKey(subscriptionPath);
-
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscriptionPath);
     ActiveSubscriptionsTableEntry asTableValue;
     {
         //
@@ -793,8 +848,7 @@ void SubscriptionTable::updateProviders (
                         "in ActiveSubscriptionsTable",
                         (const char*)IndicationService::getProviderLogString(p)
                         .getCString(),
-                        (const char*)
-                            activeSubscriptionsKey.toString().getCString()));
+                        (const char*)activeSubscriptionsKey.getCString()));
                 }
             }
             else
@@ -815,8 +869,7 @@ void SubscriptionTable::updateProviders (
                         "in ActiveSubscriptionsTable",
                         (const char*)IndicationService::getProviderLogString(p)
                         .getCString(),
-                        (const char*)
-                            activeSubscriptionsKey.toString().getCString()));
+                        (const char*)activeSubscriptionsKey.getCString()));
                 }
             }
         }
@@ -824,7 +877,7 @@ void SubscriptionTable::updateProviders (
         {
             PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL2,
                 "Subscription (%s) not found in ActiveSubscriptionsTable",
-                (const char*)activeSubscriptionsKey.toString().getCString()));
+                (const char*)activeSubscriptionsKey.getCString()));
 
             //
             //  The subscription may have been deleted in the mean time
@@ -845,7 +898,8 @@ void SubscriptionTable::updateClasses (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::updateClasses");
 
-    SubscriptionKey activeSubscriptionsKey = SubscriptionKey(subscriptionPath);
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscriptionPath);
     ActiveSubscriptionsTableEntry asTableValue;
 
     {
@@ -912,8 +966,7 @@ void SubscriptionTable::updateClasses (
                     "Provider (%s) not found in list for Subscription (%s) in "
                     "ActiveSubscriptionsTable",
                     (const char*)provider.getPath().toString().getCString(),
-                    (const char*)
-                        activeSubscriptionsKey.toString().getCString()));
+                    (const char*)activeSubscriptionsKey.getCString()));
             }
         }
         else
@@ -941,8 +994,8 @@ void SubscriptionTable::removeSubscription (
     {
         WriteLock lock(_activeSubscriptionsTableLock);
 
-        _removeActiveSubscriptionsEntry(
-            SubscriptionKey(subscription.getPath()));
+        _removeActiveSubscriptionsEntry (
+            _generateActiveSubscriptionsKey (subscription.getPath ()));
     }
 
     //
@@ -1108,7 +1161,7 @@ void SubscriptionTable::getMatchingClassNamespaceSubscriptions(
     const CIMNamespaceName & nameSpace,
     const CIMInstance& provider,
     Array<CIMInstance>& matchingSubscriptions,
-    Array<SubscriptionKey>& matchingSubscriptionKeys)
+    Array<String>& matchingSubscriptionKeys)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::getMatchingClassNamespaceSubscriptions");
@@ -1121,9 +1174,8 @@ void SubscriptionTable::getMatchingClassNamespaceSubscriptions(
     //  Look up the indicationClass-sourceNamespace pair in the
     //  Subscription Classes table
     //
-    String subscriptionClassesKey =
-        _generateSubscriptionClassesKey(supportedClass, nameSpace);
-
+    String subscriptionClassesKey = _generateSubscriptionClassesKey
+        (supportedClass, nameSpace);
     SubscriptionClassesTableEntry scTableValue;
     if (_lockedLookupSubscriptionClassesEntry(
             subscriptionClassesKey, scTableValue))
@@ -1135,8 +1187,9 @@ void SubscriptionTable::getMatchingClassNamespaceSubscriptions(
             //  Check if the provider who generated this indication
             //  accepted this subscription
             //
-            SubscriptionKey activeSubscriptionsKey =
-                SubscriptionKey(subscriptions [j].getPath ());
+            String activeSubscriptionsKey =
+                _generateActiveSubscriptionsKey
+                    (subscriptions [j].getPath ());
             ActiveSubscriptionsTableEntry asTableValue;
             if (_lockedLookupActiveSubscriptionsEntry(
                     activeSubscriptionsKey, asTableValue))
@@ -1191,7 +1244,7 @@ Array<ActiveSubscriptionsTableEntry>
 
 void SubscriptionTable::updateMatchedIndicationCounts(
     const CIMInstance & providerInstance,
-    const Array<SubscriptionKey>& activeSubscriptionsKeys)
+    const Array<String>& activeSubscriptionsKeys)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "SubscriptionTable::updateMatchedIndicationCounts");
@@ -1217,8 +1270,7 @@ void SubscriptionTable::updateMatchedIndicationCounts(
             // If so, no further update is required.
             PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL2,
                 "Subscription %s not found in ActiveSubscriptionsTable",
-                (const char *)
-                    activeSubscriptionsKeys[i].toString().getCString()));
+                (const char *) activeSubscriptionsKeys[i].getCString()));
         }
     }
     PEG_METHOD_EXIT();
@@ -1536,7 +1588,7 @@ CIMObjectPath SubscriptionTable::_buildFilterPath(const String& filterName)
         CIMKeyBinding::STRING));
     filterKeys.append(CIMKeyBinding(
         "SystemName",
-        String::EMPTY,
+        System::getFullyQualifiedHostName(),
         CIMKeyBinding::STRING));
     filterKeys.append(CIMKeyBinding(
         "CreationClassName",
@@ -1588,7 +1640,7 @@ CIMObjectPath SubscriptionTable::_buildHandlerPath(const String& handlerName)
         CIMKeyBinding::STRING));
     handlerKeys.append(CIMKeyBinding(
         "SystemName",
-        String::EMPTY,
+        System::getFullyQualifiedHostName(),
         CIMKeyBinding::STRING));
     handlerKeys.append(CIMKeyBinding(
         "CreationClassName",

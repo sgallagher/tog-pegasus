@@ -108,7 +108,6 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
         AutoPtr<CIMResponseMessage> response;
 
         CIMHandleIndicationRequestMessage *handleIndicationRequest = 0;
-        Boolean aggregationComplete = false;
 
         try
         {
@@ -117,9 +116,7 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                 case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
                     handleIndicationRequest = 
                         (CIMHandleIndicationRequestMessage*) legacy.get();
-                    response.reset(_handleIndication(
-                        handleIndicationRequest,
-                        aggregationComplete));
+                    response.reset(_handleIndication(handleIndicationRequest));
                     break;
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
                case CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE:
@@ -144,6 +141,12 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                    response.reset(
                        _handleEnumerateInstanceNamesRequest(
                            (CIMEnumerateInstanceNamesRequestMessage*)
+                           legacy.get()));
+                   break;
+               case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+                   response.reset(
+                       _handleGetInstanceRequest(
+                           (CIMGetInstanceRequestMessage*)
                            legacy.get()));
                    break;
 #endif
@@ -174,7 +177,7 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                 req->op,
                 response.get()));
 
-        if (handleIndicationRequest && !aggregationComplete &&
+        if (handleIndicationRequest &&
             handleIndicationRequest->deliveryStatusAggregator)
         {
             handleIndicationRequest->deliveryStatusAggregator->complete();
@@ -206,17 +209,13 @@ void IndicationHandlerService::handleEnqueue(Message* message)
     {
         case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
         {
-            Boolean aggregationComplete = false;
             CIMHandleIndicationRequestMessage *handleIndicationRequest =
                 (CIMHandleIndicationRequestMessage*) message;
 
             AutoPtr<CIMHandleIndicationResponseMessage> response(
-                _handleIndication(
-                    handleIndicationRequest,
-                    aggregationComplete));
+                _handleIndication(handleIndicationRequest));
 
-            if (!aggregationComplete &&
-                handleIndicationRequest->deliveryStatusAggregator)
+            if (handleIndicationRequest->deliveryStatusAggregator)
             {
                 handleIndicationRequest->deliveryStatusAggregator->complete();
             }
@@ -245,13 +244,11 @@ void IndicationHandlerService::handleEnqueue()
 }
 
 CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
-    CIMHandleIndicationRequestMessage* request,
-    Boolean &aggregationComplete)
+    CIMHandleIndicationRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_handleIndication()");
 
-    aggregationComplete = false;
     Boolean handleIndicationSuccess = true;
     CIMException cimException =
         PEGASUS_CIM_EXCEPTION(CIM_ERR_SUCCESS, String::EMPTY);
@@ -303,10 +300,11 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
 //compared index 10 is not :
             else if (destination.subString(0, 10) == String("localhost/"))
             {
-                if (request->deliveryStatusAggregator)
+                if (request->deliveryStatusAggregator &&
+                    !request->deliveryStatusAggregator->waitUntilDelivered)
                 {
                     request->deliveryStatusAggregator->complete();
-                    aggregationComplete = true;
+                    request->deliveryStatusAggregator = 0;
                 }
                 Uint32 exportServer =
                     find_service_qid(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
@@ -374,16 +372,16 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
                  // profile is enabled.
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
                 _setSequenceIdentifierAndEnqueue(request);
-                if (request->deliveryStatusAggregator)
+                if (request->deliveryStatusAggregator &&
+                    request->deliveryStatusAggregator->waitUntilDelivered)
                 {
-                    request->deliveryStatusAggregator->complete();
-                    aggregationComplete = true;
+                    request->deliveryStatusAggregator = 0;
                 }
 #else
                 if (request->deliveryStatusAggregator)
                 {
                     request->deliveryStatusAggregator->complete();
-                    aggregationComplete = true;
+                    request->deliveryStatusAggregator = 0;
                 }
                 handleIndicationSuccess = _loadHandler(request, cimException);
 #endif
@@ -395,7 +393,7 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
         if (request->deliveryStatusAggregator)
         {
             request->deliveryStatusAggregator->complete();
-            aggregationComplete = true;
+            request->deliveryStatusAggregator = 0;
         }
         pos = handler.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
 
@@ -434,7 +432,7 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
         if (request->deliveryStatusAggregator)
         {
             request->deliveryStatusAggregator->complete();
-            aggregationComplete = true;
+            request->deliveryStatusAggregator = 0;
         }
         handleIndicationSuccess = _loadHandler(request, cimException);
     }
@@ -471,7 +469,8 @@ Boolean IndicationHandlerService::_loadHandler(
                 request->indicationInstance,
                 request->handlerInstance,
                 request->subscriptionInstance,
-                cimException);
+                cimException,
+                0);
 }
 
 Boolean IndicationHandlerService::_loadHandler(
@@ -480,7 +479,8 @@ Boolean IndicationHandlerService::_loadHandler(
     CIMInstance& indicationInstance,
     CIMInstance& handlerInstance,
     CIMInstance& subscriptionInstance,
-    CIMException& cimException)
+    CIMException& cimException,
+    IndicationExportConnection **connection)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_loadHandler()");
@@ -503,7 +503,8 @@ Boolean IndicationHandlerService::_loadHandler(
                 indicationInstance,
                 handlerInstance,
                 subscriptionInstance,
-                langs);
+                langs,
+                connection);
         }
         else
         {
@@ -567,6 +568,29 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
 CIMResponseMessage*
+     IndicationHandlerService::_handleGetInstanceRequest(
+         CIMGetInstanceRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handleGetInstanceRequest");
+
+    CIMGetInstanceResponseMessage* response =
+         dynamic_cast<CIMGetInstanceResponseMessage*>
+             (message->buildResponse());
+
+    response->getResponseData().setInstances(
+        _getDestinationQueues(
+            message->instanceName,
+            message->includeQualifiers,
+            message->includeClassOrigin,
+            message->propertyList));
+
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+CIMResponseMessage*
      IndicationHandlerService::_handleEnumerateInstancesRequest(
          CIMEnumerateInstancesRequestMessage *message)
 {
@@ -577,6 +601,25 @@ CIMResponseMessage*
          dynamic_cast<CIMEnumerateInstancesResponseMessage*>
              (message->buildResponse());
 
+    response->getResponseData().setInstances(
+        _getDestinationQueues(
+            CIMObjectPath(),
+            message->includeQualifiers,
+            message->includeClassOrigin,
+            message->propertyList));
+
+    PEG_METHOD_EXIT();
+
+    return response;
+}
+
+Array<CIMInstance> IndicationHandlerService::_getDestinationQueues(
+    const CIMObjectPath &getInstanceName,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList &propertyList)
+{
+    Boolean found = false;
     CIMClass cimClass =
         _repository->getClass(
             PEGASUS_NAMESPACENAME_INTERNAL,
@@ -623,9 +666,36 @@ CIMResponseMessage*
         queue = i.value();
         queue->getInfo(qinfo);
 
+        Array<CIMKeyBinding> kbArray;
+        kbArray.append(
+            CIMKeyBinding(
+                _PROPERTY_LSTNRDST_NAME,
+                _getQueueName(queue->getHandler().getPath()),
+                CIMKeyBinding::STRING));
+
+        CIMObjectPath instanceName = CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,
+            kbArray);
+
+        if (getInstanceName.getKeyBindings().size())
+        {
+            if (instanceName.identical(getInstanceName))
+            {
+                found = true;
+            }
+            else
+            {
+                continue;
+            }
+        }
+
         CIMInstance instance = sInstance.clone();
 
-        instance.getProperty(propArray[0]).setValue(
+        instance.setPath(instanceName);
+
+       instance.getProperty(propArray[0]).setValue(
                 CIMValue(_getQueueName(qinfo.handlerName)));
 
         instance.getProperty(propArray[1]).setValue(
@@ -660,18 +730,21 @@ CIMResponseMessage*
 
         instance.getProperty(propArray[11]).setValue(
                 CIMValue(qinfo.lastSuccessfulDeliveryTimeUsec));
-        filterInstance(message->includeQualifiers,
-            message->includeClassOrigin,
-            message->propertyList,
+
+        filterInstance(
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList,
             instance);
 
         instances.append(instance);
+        if (found)
+        {
+            return instances;
+        }
     }
 
-    response->getResponseData().setInstances(instances);
-    PEG_METHOD_EXIT();
-
-    return response;
+    return instances;
 }
 
 CIMResponseMessage*
@@ -801,7 +874,8 @@ void IndicationHandlerService::_deliverIndication(IndicationInfo *info)
         info->indication,
         info->queue->getHandler(),
         info->subscription,
-        cimException);
+        cimException,
+        info->queue->getConnectionPtr());
 
    if (deliveryOk)
    {

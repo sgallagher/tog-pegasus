@@ -54,7 +54,10 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP" ,
-    "Enumerate all instance names in <namespace>."},
+    "Enumerate all instance names and count of"
+        " instances of [ <classname> ] in <namespace>."
+        " Classname optional and default is to enumerate instances of"
+        " entire namespace"},
 
     {ID_EnumerateInstances,      "enumerateInstances",2 ,   "ei",
     "Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP" ,
@@ -75,7 +78,7 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     {ID_GetInstance,             "getInstance",   2 ,       "gi",
     "Clients.cimcli.CIMCLIClient.GI_COMMAND_HELP",
     "Get instance of <objectname> | <classname> (interactive) |"
-    " <classname>  *<PropertyName=value> for equal property values."},
+    " <classname>  *<PropertyName=value> defining key property values."},
 
     {ID_CreateInstance,          "createInstance",2 ,       "ci",
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP",
@@ -92,7 +95,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
                         "\n"
                         "  | <propName>{<classname> [<propertyDef>]* }\n"
                         "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance where:\n"
+                        "     defines embedded instance or \n"
+                        "              embedded objectPath  where:\n"
                         "       -classname - embedded class\n"
                         "       -propertyDef - embedded instance property"},
 
@@ -112,7 +116,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
                         "\n"
                         "  | <propName>{<classname> [<propertyDef>]* }\n"
                         "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance where:\n"
+                        "     defines embedded instance or \n"
+                        "              embedded objectPath  where:\n"
                         "       -classname - embedded class\n"
                         "       -propertyDef - embedded instance property"},
 
@@ -142,7 +147,8 @@ OPERATION_TABLE_ENTRY OperationTable[] =
                         "\n"
                         "  | <propName>{<classname> [<propertyDef>]* }\n"
                         "  | <propName>={<classname> [<propertyDef>]* }\n"
-                        "     defines embedded instance where:\n"
+                        "     defines embedded instance or \n"
+                        "              embedded objectPath  where:\n"
                         "       -classname - embedded class\n"
                         "       -propertyDef - embedded instance property"},
 
@@ -217,6 +223,7 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     "Clients.cimcli.CIMCLIClient.?_COMMAND_HELP",
     "Show List of Commands"},
 
+//KS_PULL_BEGIN
     {ID_PullEnumerateInstances,   "EunumerateInstances with Pull",2, "pei",
     "Clients.cimcli.CIMCLIClient.PEI_COMMAND_HELP",
         "Execute EnumerateInstances using the Pull Operations"},
@@ -243,15 +250,12 @@ OPERATION_TABLE_ENTRY OperationTable[] =
         "AssociatorInstance paths with Pull",2, "pan",
     "Clients.cimcli.CIMCLIClient.PAIP_COMMAND_HELP",
         "Execute Open,Pull AssociatorInstancePaths using the Pull Operations"},
+//KS_PULL_END
 
     {ID_CountInstances,   "Count All instances in Namespace",2, "cci",
     "Clients.cimcli.CIMCLIClient.CntInst_COMMAND_HELP",
         "Counts all Instances in Namespace and sorts by ClassName"},
-// FUTURE
-//  ,
-//  {ID_Profile,             "show profiles",2 ,  "?",
-//  "Clients.cimcli.CIMCLIClient.?_PROFILE_HELP",
-//  "Show List of Commands"}
+
 };
 
 const Uint32 NUM_OPERATIONS =
@@ -274,11 +278,14 @@ OperationExampleEntry OperationExamples[] = {
     "    -n\n"},
 
     {"Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE",
-    "cimcli niall -n root/cimv2\n"
-        "    -- Enumerate Instance Names of  all classes under\n"
-        "       the namespace root/cimv2\n",
+    "cimcli niall\n"
+        "    -- Enumerate Instance Names and count instances of all classes\n"
+        "       in the default namespace\n"
+    "cimcli niall CIM_ComputerSystem -n root/interop\n"
+        "    -- Enumerate Instance Names and count instances of all classes\n"
+        "       in namespace root/interop starting at CIM_ComputerSystem",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS",
-    "    -n, -di\n"},
+    "    -n --sum (count only, no instanceNames output) classname\n"},
 
     {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
     "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",
@@ -327,6 +334,12 @@ OperationExampleEntry OperationExamples[] = {
         "        C2 with properties:\n"
         "           p1 embedded instance property with value 3\n"
         "           p2 embedded instance string property with value \"ab cd\""
+    "cimcli ci -n test/TestProviderAssoc assoc1\\\n"
+        "    child={{C2 id=3 } parent={C2.id=4 }\n\n"
+        "    -- Create instance of class assoc1with properties:\n"
+        "       child - reference to class C2 with key property = 3\n"
+        "       parent ref to class C2 with key property id = 4\n"
+
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
     "    -n\n"},
 
@@ -525,12 +538,12 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
     "    No options Required"},
 
+//KS_PULL_BEGIN
     {"Clients.cimcli.CIMCLIClient.PEI_COMMAND_EXAMPLE",
     "cimcli pei PG_ComputerSystem   -- Pull Enumerate Instances of class\n",
     "Clients.cimcli.CIMCLIClient.PEI_COMMAND_OPTIONS",
     "    -n, -di, -lo, -iq, -pl\n"},
 
-    // PULL_OPERATION_EXTENSIONS
     {"Clients.cimcli.CIMCLIClient.PNI_COMMAND_EXAMPLE",
     "cimcli pni -n test/TestProvider TST_Person\n"
         "    -- Pull Enumerate Instance Names of class TST_Person\n",
@@ -606,7 +619,7 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
     "    -n, -ac, -rc, -r, -rr, -i\n"}
 
-    // END_PULL_OPERATION_EXTENSIONS
+//KS_PULL_END
 };
 
 const Uint32 NUM_EXAMPLES = sizeof(OperationExamples) /

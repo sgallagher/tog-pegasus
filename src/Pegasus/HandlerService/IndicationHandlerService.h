@@ -82,8 +82,7 @@ private:
         const CIMPropertyList& propertyList,CIMInstance & newInstance);
 
     CIMHandleIndicationResponseMessage* _handleIndication(
-        CIMHandleIndicationRequestMessage* request,
-        Boolean &aggregationComplete);
+        CIMHandleIndicationRequestMessage* request);
 
     HandlerTable _handlerTable;
 
@@ -99,7 +98,8 @@ private:
         CIMInstance& indicationInstance,
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationSubscriptionInstance,
-        CIMException& cimException);
+        CIMException& cimException,
+        IndicationExportConnection **connection);
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
@@ -159,6 +159,16 @@ private:
     CIMResponseMessage*
         _handleEnumerateInstanceNamesRequest(
             CIMEnumerateInstanceNamesRequestMessage *message);
+
+     CIMResponseMessage*
+         _handleGetInstanceRequest(
+             CIMGetInstanceRequestMessage *message);
+
+    Array<CIMInstance> _getDestinationQueues(
+        const CIMObjectPath &getInstanceName,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList &propList);
 
     /**
         Gets the Queue name from either subscriptionName or handlerName,

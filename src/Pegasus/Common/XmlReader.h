@@ -208,7 +208,7 @@ public:
         String& str,
         Boolean required);
 
-// KS_PULLOP_BEGIN
+// KS_PULL_BEGIN
     static Boolean getUint32ValueElement(
         XmlParser& parser,
         Uint32Arg& val,
@@ -218,7 +218,7 @@ public:
         XmlParser& parser,
         Uint64Arg& val,
         Boolean required);
-//KS_PULLOP_END
+//KS_PULL_END
 
     static CIMValue stringArrayToValue(
         Uint32 lineNumber,
@@ -367,7 +367,7 @@ public:
         XmlParser& parser,
         CIMInstance& namedInstance);
 
-//EXP_PULL
+//EXP_PULL_BEGIN
     static Boolean getInstanceWithPathElement(
         XmlParser& parser,
         CIMInstance& namedInstance);

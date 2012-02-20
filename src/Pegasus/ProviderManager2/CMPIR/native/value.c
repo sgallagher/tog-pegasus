@@ -205,10 +205,14 @@ char * value2Chars ( CMPIType type, CMPIValue * value )
             case CMPI_booleanString:
             case CMPI_dateTimeString:
             case CMPI_classNameString:
-                size=(unsigned int) strlen((char*)value->string->hdl);
-                p=malloc(size+8);
-                sprintf(p,"\"%s\"",(char*)value->string->hdl);
-                return strdup(p);
+                if (value->string->hdl)
+                {
+                    size = strlen((char *) value->string->hdl);
+                    p = malloc(size + 8);
+                    sprintf(p, "\"%s\"", (char *) value->string->hdl);
+                    return p;
+                }
+                break;
 
             case CMPI_dateTime:
                 break;

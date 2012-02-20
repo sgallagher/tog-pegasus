@@ -239,6 +239,7 @@ private:
         const String& propertyName,
         const String& newPropertyValue,
         const String& userName,
+        const char *queueName,
         Boolean currentValueModified);
 
     //

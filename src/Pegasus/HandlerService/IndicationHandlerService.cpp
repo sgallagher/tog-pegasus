@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
-
+#include <Pegasus/Common/StringConversion.h>
 #include "IndicationHandlerConstants.h"
 #include "IndicationHandlerService.h"
 
@@ -149,6 +149,14 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                            (CIMGetInstanceRequestMessage*)
                            legacy.get()));
                    break;
+
+               case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
+                   response.reset(
+                       _handlePropertyUpdateRequest(
+                           (CIMNotifyConfigChangeRequestMessage*)
+                               legacy.get()));
+                   break;  
+
 #endif
                default:
                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -844,6 +852,50 @@ CIMNotifyListenerNotActiveResponseMessage*
 
     return response;
 }
+
+//
+// Update the DeliveryRetryAttempts & DeliveryRetryInterval
+// with the new property value
+//
+CIMNotifyConfigChangeResponseMessage*
+    IndicationHandlerService::_handlePropertyUpdateRequest(
+        CIMNotifyConfigChangeRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handlePropertyUpdateRequest");
+
+    CIMNotifyConfigChangeRequestMessage * notifyRequest=
+           dynamic_cast<CIMNotifyConfigChangeRequestMessage*>(message);
+
+    Uint64 v;
+
+    StringConversion::decimalStringToUint64(
+        notifyRequest->newPropertyValue.getCString(),v);
+
+    if (String::equal(
+        notifyRequest->propertyName, "maxIndicationDeliveryRetryAttempts")) 
+    {
+        DestinationQueue::setDeliveryRetryAttempts(v);
+    }
+    else if(String::equal(
+        notifyRequest->propertyName, "minIndicationDeliveryRetryInterval"))
+    {
+        DestinationQueue:: setminDeliveryRetryInterval(v);
+    }
+    else
+    {
+        PEGASUS_ASSERT(0);
+    }
+
+
+    CIMNotifyConfigChangeResponseMessage *response =
+        dynamic_cast<CIMNotifyConfigChangeResponseMessage*>(
+            message->buildResponse());
+    PEG_METHOD_EXIT();
+    return response;
+}
+
+
 
 void IndicationHandlerService::_stopDispatcher()
 {

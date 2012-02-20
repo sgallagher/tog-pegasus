@@ -154,6 +154,10 @@ public:
     {
         return Uint32(_minDeliveryRetryIntervalUsec / 1000000);
     }
+   
+    static void setDeliveryRetryAttempts(Uint16 DeliveryRetryAttempts);
+
+    static void setminDeliveryRetryInterval(Uint32 minDeliveryRetryInterval);
 
     void enqueue(
         CIMHandleIndicationRequestMessage *message);

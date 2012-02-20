@@ -41,8 +41,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"maxIndicationDeliveryRetryAttempts", "3", IS_STATIC, IS_VISIBLE},
-    {"minIndicationDeliveryRetryInterval", "30", IS_STATIC, IS_VISIBLE},
+    {"maxIndicationDeliveryRetryAttempts", "3", IS_DYNAMIC, IS_VISIBLE},
+    {"minIndicationDeliveryRetryInterval", "30",IS_DYNAMIC, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

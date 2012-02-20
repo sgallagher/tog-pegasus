@@ -410,12 +410,28 @@ void ConfigSettingProvider::_modifyInstance(
                     currentValue = _configManager->getCurrentValue(
                         configPropertyName);
                 }
-
+                
+               // send notify config change message to Handler Service
+               if(String::equal(configPropertyName,
+                      "maxIndicationDeliveryRetryAttempts")||
+                  String::equal(configPropertyName,
+                      "minIndicationDeliveryRetryInterval"))
+               {
+                   _sendNotifyConfigChangeMessage(
+                       configPropertyName,
+                       currentValue,
+                       userName,
+                       PEGASUS_QUEUENAME_INDHANDLERMANAGER,
+                       true);
+               }              
+ 
                 // send notify config change message to ProviderManager Service
-                _sendNotifyConfigChangeMessage(configPropertyName,
-                                               currentValue,
-                                               userName,
-                                               true);
+                _sendNotifyConfigChangeMessage(
+                    configPropertyName,
+                    currentValue,
+                    userName,
+                    PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,        
+                    true);
 
                PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
                    preValue, currentValue, false));
@@ -447,13 +463,28 @@ void ConfigSettingProvider::_modifyInstance(
                 {
                     plannedValue = _configManager->getPlannedValue(
                         configPropertyName);
+
+                    if (String::equal(configPropertyName,
+                           "maxIndicationDeliveryRetryAttempts") ||
+                        String::equal(configPropertyName,
+                            "minIndicationDeliveryRetryInterval"))
+                    {
+                        _sendNotifyConfigChangeMessage(
+                            configPropertyName,
+                            plannedValue,
+                            userName,
+                            PEGASUS_QUEUENAME_INDHANDLERMANAGER,
+                            false);
+                    }
                 }
 
                 // send notify config change message to ProviderManager Service
-                _sendNotifyConfigChangeMessage(configPropertyName,
-                                               plannedValue,
-                                               userName,
-                                               false);
+                _sendNotifyConfigChangeMessage(
+                    configPropertyName,
+                    plannedValue,
+                    userName,
+                    PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+                    false);
 
                PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
                    preValue, plannedValue, true));
@@ -758,6 +789,7 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
     const String& propertyName,
     const String& newPropertyValue,
     const String& userName,
+    const char *queueName,
     Boolean currentValueModified)
 {
     PEG_METHOD_ENTER(TRC_CONFIG,
@@ -765,8 +797,7 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
 
     ModuleController* controller = ModuleController::getModuleController();
 
-    MessageQueue * queue = MessageQueue::lookup(
-        PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+    MessageQueue * queue = MessageQueue::lookup(queueName);
 
     MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
 

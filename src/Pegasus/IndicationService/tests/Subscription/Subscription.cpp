@@ -54,12 +54,6 @@ const CIMNamespaceName SOURCENAMESPACE =
 
 Array<String> SourceNamespaces;
 
-#ifdef PEGASUS_SNIA_EXTENSIONS
-const Boolean ERROR_ON_INVALID_KEY = false;
-#else
-const Boolean ERROR_ON_INVALID_KEY = true;
-#endif
-
 Boolean verbose;
 
 void _modifyCapabilityInstance
@@ -2236,6 +2230,7 @@ void _error (CIMClient & client)
 {
     //
     //  Filter: Invalid SystemCreationClassName key property
+    //  SNIA requires invalid name to be overridden
     //
     try
     {
@@ -2250,13 +2245,11 @@ void _error (CIMClient & client)
             SourceNamespaces);
         CIMObjectPath path =
             client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filter);
-        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
         client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
-        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     //
@@ -2307,6 +2300,7 @@ void _error (CIMClient & client)
 
     //
     //  Filter: Invalid SystemName key property
+    //  SNIA requires invalid name to be overridden
     //
     try
     {
@@ -2320,13 +2314,11 @@ void _error (CIMClient & client)
             SourceNamespaces);
         CIMObjectPath path =
             client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filter);
-        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
         client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
-        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     //
@@ -2678,6 +2670,7 @@ void _error (CIMClient & client)
 
     //
     //  Handler: Invalid SystemCreationClassName key property
+    //  SNIA requires invalid name to be overridden
     //
     try
     {
@@ -2689,13 +2682,11 @@ void _error (CIMClient & client)
             "localhost/CIMListener/test1");
         CIMObjectPath path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
-        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
         client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
-        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     //
@@ -2719,6 +2710,7 @@ void _error (CIMClient & client)
 
     //
     //  Handler: Invalid SystemName key property
+    //  SNIA requires invalid name to be overridden
     //
     try
     {
@@ -2729,13 +2721,11 @@ void _error (CIMClient & client)
             "localhost/CIMListener/test1");
         CIMObjectPath path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
-        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
         client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
-        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     //

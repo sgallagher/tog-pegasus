@@ -5457,7 +5457,6 @@ String IndicationService::_initOrValidateStringProperty (
 
     if (propertyValue != defaultValue)
     {
-#ifdef PEGASUS_SNIA_EXTENSIONS
         // SNIA requires SystemName and SystemCreationClassName to be
         // overridden with the correct values.
         if ((propertyName == _PROPERTY_SYSTEMNAME) ||
@@ -5470,7 +5469,6 @@ String IndicationService::_initOrValidateStringProperty (
             PEG_METHOD_EXIT();
             return result;
         }
-#endif
 
         //
         //  Property value specified is invalid

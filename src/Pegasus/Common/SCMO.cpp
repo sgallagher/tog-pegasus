@@ -2487,6 +2487,9 @@ void SCMOInstance::buildKeyBindingsFromProperties()
     SCMBValue* theInstPropNodeArray=
         (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
 
+    inst.hdr->numberKeyBindings =
+        inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
+
     for (Uint32 i = 0, k = inst.hdr->numberKeyBindings; i < k; i++)
     {
         // If the keybinding is not set.
@@ -4332,6 +4335,8 @@ void SCMOInstance::clearKeyBindings()
     // Clear the keybindings after the allocation. Setting the keybindings
     // later causes this value to be reinitialized.
     inst.hdr->numberKeyBindings = 0;
+
+    markAsCompromised();
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const

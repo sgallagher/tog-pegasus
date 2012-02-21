@@ -208,3 +208,14 @@ class TestCMPI_IndicationStressTestSubClass : TestCMPI_IndicationStressTestClass
 {
 };
 
+class TestCMPI_KeyReturned
+{
+    [key]
+    string Name;
+
+    [key]
+    uint32 Number;
+    
+    [key]
+    boolean Flag;
+};

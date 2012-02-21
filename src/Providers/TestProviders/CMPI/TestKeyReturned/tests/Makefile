@@ -26,55 +26,31 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-
-ROOT = ../../../..
+ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestKeyReturned/tests
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    TestUtilLib \
-    TestMethod \
-    TestMethod/tests \
-    TestError \
-    TestError/tests \
-    TestProperty/tests \
-    TestFail_1 \
-    TestFail_1/tests \
-    TestFail_2 \
-    TestFail_2/tests\
-    TestFail_3 \
-    TestFail_3/tests \
-    TestFail_4 \
-    TestFail_4/tests \
-    TestFail_5 \
-    TestFail_5/tests \
-    TestProviderThreaded \
-    TestProviderThreaded/tests \
-    TestAssociation \
-    TestAssociation/tests \
-    TestIndicationStressTestProvider \
-    TestIndicationStressTestProvider/tests \
-    TestCMPIEnumeration \
-    TestCMPIEnumeration/tests \
-    TestCMPIInstance \
-    TestCMPIInstance/tests \
-    TestKeyReturned \
-    TestKeyReturned/tests
+LIBRARIES = \
+     pegclient \
+     pegcommon
 
-ifeq ($(PEGASUS_ENABLE_CQL),true)
-DIRS += \
-    TestIndications \
-    TestIndications/tests
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-    TestCMPIBroker \
-    TestCMPIBroker/tests \
-    TestCMPIBrokerEnc \
-    TestCMPIBrokerEnc/tests \
-    TestExecQuery \
-    TestExecQuery/tests
-endif
-endif
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-include $(ROOT)/mak/recurse.mak
+SOURCES = TestCMPIKeyReturned.cpp
+
+PROGRAM = TestCMPIKeyReturned
+
+include $(ROOT)/mak/program.mak
+include $(ROOT)/test/config.mak
+
+tests:
+
+poststarttests: 
+	@$(ECHO) $(PROGRAM)
+	@$(PROGRAM)
+	@$(ECHO) +++ $(PROGRAM) passed successfully +++
+
+install:

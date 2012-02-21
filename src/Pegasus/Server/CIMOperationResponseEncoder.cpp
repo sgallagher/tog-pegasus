@@ -51,7 +51,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//KS_PULL_TEMP_BEGIN
+//KS_PULL_TEMP_BEGIN_DIAG_DELETE
 const char * _printb(Boolean x)
 {
     return ( x? "true" : "false");
@@ -749,8 +749,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 /*
     Apply the EndOfSequence and EnumerationContext parameters to the
     supplied buffer. These parameters are standard on most open
-    and pull responses.  The EnumerationContext is required but
-    the value component is optional if EndOfSequence = true
+    and pull responses.
 */
 void _appendPullResponseParameters(Buffer& rtnParamBody,
     Boolean endOfSequence, String& enumerationContext)
@@ -761,7 +760,7 @@ void _appendPullResponseParameters(Buffer& rtnParamBody,
         endOfSequence);
 
     // Insert EnumerationContext parameter. Per DSP0200 this is a required
-    // parameter but may be NULL value if endOfSequence
+    // parameter but may be NULL value if endOfSequence = true
     XmlWriter::appendStringParameter(rtnParamBody, "EnumerationContext",
         (endOfSequence? String::EMPTY : enumerationContext) );
 }

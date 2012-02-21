@@ -119,6 +119,9 @@ PEGASUS_USING_STD;
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 #define LOCAL_MAX(a, b) ((a > b) ? a : b)
 
+//#define TRACE cout << "Line " << __LINE__ << endl;
+#define TRACE
+
 static const char * _toCharP(Boolean x)
 {
     return (x? "true" : "false");
@@ -763,9 +766,10 @@ bool comparePath(CIMObjectPath& p1, CIMObjectPath p2, bool ignoreHost = true)
     }
     return true;
 }
+
+
 /* compare two instances. document all differences
 */
-
 void clearHostAndNamespace(CIMInstance& inst)
 {
     CIMObjectPath p1 = inst.getPath();
@@ -811,6 +815,12 @@ bool compareInstance(const String& s1, const String& s2,
         VCOUT1 << "ERROR: Instances Not identical "
             << i1.getPath().toString() << endl;
 
+        if (i1.getQualifierCount() != i2.getQualifierCount())
+        {
+            VCOUT1 << "ERROR: Qualifier Counts differ "
+                << s1 << " " << i1.getQualifierCount() << " "
+                << s2 << " " << i2.getQualifierCount() << endl;
+        }
         bool switchInstances = false;
         if (i1.getPropertyCount() != i2.getPropertyCount())
         {
@@ -825,13 +835,6 @@ bool compareInstance(const String& s1, const String& s2,
             {
                 switchInstances = true;
             }
-        }
-
-        if (i1.getQualifierCount() != i2.getQualifierCount())
-        {
-            VCOUT1 << "ERROR: Qualifier Counts differ "
-                << s1 << " " << i1.getQualifierCount() << " "
-                << s2 << " " << i2.getQualifierCount() << endl;
         }
 
         // Test individual properties for differences
@@ -853,14 +856,14 @@ bool compareInstance(const String& s1, const String& s2,
             CIMConstProperty p1 = i1.getProperty(i);
             CIMConstProperty p2;
             bool found = false;
-            for (size_t j = 0 ; j < i2.getPropertyCount() ; i++)
+            for (size_t j = 0 ; j < i2.getPropertyCount() ; j++)
             {
 
                 p2 = i2.getProperty(j);
                 if (p2.getName() == p1.getName())
                 {
-                    break;
                     found = true;
+                    break;
                 }
             }
             if (!found)
@@ -869,7 +872,6 @@ bool compareInstance(const String& s1, const String& s2,
                        << " not found in " << s21 << endl;
                 continue;
             }
-
             if (!p1.identical(p2))
             {
                 if (p1.getName() != p2.getName())
@@ -916,13 +918,13 @@ bool compareInstance(const String& s1, const String& s2,
                                 " other than type, value, etc "
                             << i1.getPath().toString() << endl;
                     }
-
                 }
-                if (verbose_opt >= 1)
+
+                if (verbose_opt > 0)
                 {
-                    cout << s11;
+                    cout << s11 << endl;
                     PrintInstance(cout, i1);
-                    cout << s21;
+                    cout << s21 << endl;
                     PrintInstance(cout, i2);
 
                 }

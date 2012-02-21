@@ -47,7 +47,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 // C++ objects interface handling
 
-// KS_TODO Moved this to inline so we get better diags.
 // KS_TODO Remove this completely.
 bool CIMResponseData::sizeValid()
 {
@@ -57,7 +56,6 @@ bool CIMResponseData::sizeValid()
     if (_size > 1000000)
     {
         TRACELINE;
-        /////cout << _size << endl;
         PEG_TRACE((TRC_XML, Tracer::LEVEL4,
                    "CIMResponseData::PSVALID _size too big %u",_size ));
         return false;
@@ -652,6 +650,9 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
     _instanceData.appendArray(x._instanceData);
     _hostsData.appendArray(x._hostsData);
     _nameSpacesData.appendArray(x._nameSpacesData);
+
+    // transfer property list
+    _propertyList = x._propertyList;
 }
 
 // Encoding responses into output format
@@ -960,8 +961,9 @@ void CIMResponseData::completeHostNameAndNamespace(
 void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
 {
     TRACELINE;
+
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)",
+        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X)",
         _encoding,
         _dataType));
     
@@ -1170,12 +1172,25 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
         {
             case RESP_INSTNAMES:
             {
-                for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                if (isPullResponse)
                 {
-                    SCMOXmlWriter::appendInstanceNameElement(
-                        out,
-                        _scmoInstances[i]);
+                    for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                    {
+                        SCMOXmlWriter::appendInstancePathElement(
+                            out,
+                            _scmoInstances[i]);
 
+                    }
+                }
+                else
+                {
+                    for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                    {
+                        SCMOXmlWriter::appendInstanceNameElement(
+                            out,
+                            _scmoInstances[i]);
+
+                    }
                 }
                 break;
             }

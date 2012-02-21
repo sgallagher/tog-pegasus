@@ -596,7 +596,6 @@ public:
         return true;
     }
 
-
     bool getUint64(Uint64& x)
     {
         if (_end - _ptr < 8)

@@ -133,7 +133,7 @@ public:
         Boolean includeClassOrigin = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-//EXP_PULL_BEGIN  // KS_TODO relate this to the one above.
+//EXP_PULL_BEGIN
     static void appendValueInstanceWithPathElement(
         Buffer& out,
         const CIMInstance& namedInstance,
@@ -518,9 +518,10 @@ private:
     static void _appendParamValueElementBegin(
         Buffer& out,
         const char* name);
-//EXP_PULL_END
+
     static void _appendParamValueElementEnd(
         Buffer& out);
+//EXP_PULL_END
 
     static void _appendIParamValueElementBegin(
         Buffer& out,
@@ -551,11 +552,12 @@ private:
     static void _appendIReturnValueElementBegin(Buffer& out);
     static void _appendIReturnValueElementEnd(Buffer& out);
 
-    //EXP_PULL_BEGIN
+//EXP_PULL_BEGIN
     static void _appendIReturnValueElementWithNameBegin(
         Buffer& out,
         const char* name);
-    // EXP_PULL_END
+// EXP_PULL_END
+
     static void _appendSimpleExportReqElementBegin(Buffer& out);
     static void _appendSimpleExportReqElementEnd(Buffer& out);
 

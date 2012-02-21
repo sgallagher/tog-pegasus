@@ -570,6 +570,7 @@ This command executes single CIM Operations.
  -pullDelay  pullDelay. Delay in Seconds between pull Operations. Default zero, no delay.. Default(0)
  --sort  sort. Sort the returned entities for multi-object responses (ex. enumerations, associators, etc.). Default(false)
  --expExit  expectedExitCode. Set the exit code that cimcli expects for this operation. cimcli exits code = 0 if expectedExitCode matches pgm exit code.. Default(0)
+
 Options vary by command consistent with CIM Operations
 mi    modifyInstance        Modify Instance of a class. Input formats are:
                            <objectname> [<propertyDef>]*

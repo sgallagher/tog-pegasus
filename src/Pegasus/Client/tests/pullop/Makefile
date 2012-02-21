@@ -68,17 +68,6 @@ tests:
 	pullop -h
 	$(PROGRAM) --help
 
-## Tests conducted with pullop
-## We are moving the test so that many of them will be direct rather than
-## through makefile calls.  Will give e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)us better control.  This is start
-##of that but commented out for now
-#poststartests1:
-#    @$(ECHO) Error Tests
-#    make filterParamError
-#    make pullClassParamError
-#    make continueOnErrorError
-#    make invalidAssocObjectPath
-#    @$(ECHO) Enumerate and EnumerateNames tests
 
 ## KS_TODO - Redo this list to actually put in the pullop code for each
 ## Will make it more understandable and also can work with options easier.
@@ -87,23 +76,27 @@ poststarttests:
 	make pullClassParamError
 	make continueOnErrorError
 	make invalidAssocObjectPath
+	make maxPullObjectCountError
 
 	@$(ECHO)  Enumerate and EnumerateNames tests - get to Completion
 	make testEnumerateInstances
 	make testEnumerateInstanceNames
-	make peall
-	make penall
+	make peManagedElement
+	make penManagedElement
 	make pcmpie1
 	make pcmpien1
 	make enumerateMaxObjectSizeVariations
-	make enumeratePathsMaxObjectSizevariations
+	make enumeratePathsMaxObjectSizeVariations
 	make stresse1
 	make stressen1
+
+poststarttests2:
+
 	@$(ECHO)  Associator and Reference tests - get to completion      
-	make pr1
+	make SimpleRef
 	make prn1
 	make pa1
-	matestPullEnumerateInstanceNameske pan1
+	make pan1
 	make pcmpir1
 	make pcmpirn1
 	make pcmpian1
@@ -118,17 +111,14 @@ poststarttests:
 
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
-## enumerate a class that is probably all repository
+## Enumerate a class that is a C++ Provider. Very small enumerate
 testEnumerateInstances:
 	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-
-## KS_TODO - This does now work right now.
-testEnumerateInstancesWithPropertyList:
 	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P Message
+	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
 
-## KS_TODO - This does now work right now.
-testEnumerateInstancesEmptyPropertyList:
-	$(testPullEnumerateInstanceNamesPROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
+## KS_TODO _ Do this with a much better class that has lots of objects
+## in addition to this class that just has 3 objects
 
 ## test variations of open max object count and pull max object count
 enumerateMaxObjectSizeVariations:
@@ -139,8 +129,8 @@ enumerateMaxObjectSizeVariations:
 	$(PROGRAM) e -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-## test variations of open max object count and pull max object count
-enuWith Pull ValidationmeratePathsMaxObjectSizevariations:
+
+enumeratePathsMaxObjectSizeVariations:
 	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
@@ -149,12 +139,22 @@ enuWith Pull ValidationmeratePathsMaxObjectSizevariations:
 	$(PROGRAM) en -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
-## enumerate instance names of a class that is probably all repository
+## enumerate instance names of a class in a C++ provider
 testEnumerateInstanceNames:
 	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C $(HOSTID)
 
+## KS_TODO _ move this test up to enumerates
+pcmpie1:
+	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
+	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P Message
+	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P ""
+
+## KS_TODO movet his test up to enumerates
+pcmpien1:
+	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
+
 ## Simple pull ref and assoc operations.
-pr1:
+SimpleRef:
 	$(PROGRAM) r  -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 prn1:
@@ -184,8 +184,12 @@ pa3:
 pan3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 
-peall:
+peManagedElement:
 	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -C $(HOSTID)
+
+penManagedElement:
+	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement $(HOSTID)
+###	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## KS_TODO this one generates an error
 peall1:
@@ -201,10 +205,6 @@ peall3:
 removefornow:
 	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
-penall:
-	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement $(HOSTID)
-###	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
-
 ## Test Empty response.
 pempty:
 	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
@@ -217,19 +217,21 @@ pempty:
 ## Included list of properties to return to make this test valid.
 stresse1:
 	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CL) get -n $(NS) -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CL) -n $(NS) -C \
+	    -P Pattern -P s1 -P Id -P SequenceNumber \
+	    -T -v 3 $(HOSTID)
 
 stressen1:
 	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CL) -n $(NS) -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) en -c $(CL) -n $(NS) -C -T -v 3 $(HOSTID)
 
 stressVariation:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 10 -N 10 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 100 -N 100 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
-	$(PROGRAM) e -c $(CL)  -n $(NS) -M 1000 -N 1000 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
+#	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+#	$(PROGRAM) e -c $(CL) -n $(NS) -M 10 -N 10 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+#	$(PROGRAM) e -c $(CL) -n $(NS) -M 100 -N 100 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 1000 -N 1000 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 
-	$(PROGRAM) e -c $(CL)  -n $(NS) -M 10000 -N 10000 -C -L Pattern -L s1 -L Id -L SequenceNumber -T -v 3 $(HOSTID)
+
 ### Error Tests 
 ## These tests actually return exit 0 because the -R option reverses the
 ## exit codes so the following should actually return positive exits for
@@ -238,6 +240,9 @@ pullClassParamError:
 	$(PROGRAM) e -c blah -R $(HOSTID)
 	$(PROGRAM) en -c blah -R $(HOSTID)
 
+## Generates an error because reqested object count too large
+maxPullObjectCountError:
+	$(PROGRAM) e -c $(CL) -n $(NS) -M 9999 -N 9999 -C -R -T -v 3 $(HOSTID)
 # the following tests should pass Makefile exit error tests.
 filterParamError:
 	$(PROGRAM) e Test_Person -f abc -R $(HOSTID)
@@ -394,14 +399,13 @@ cimclipei:
 cmpigc:
 	cimcli gc $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)
 
+## NONTest (i.e. no test criteria) of CMPI provider enumerate Instances
+## DELETE THIS
 cmpie1:
-	cimcli ei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)
+	cimcli pei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)
+	cimcli pei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID) -pl Message
+	cimcli pei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID) -pl ""
 
-pcmpie1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
-
-pcmpien1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 
 ## reference tests
 cmpir1:

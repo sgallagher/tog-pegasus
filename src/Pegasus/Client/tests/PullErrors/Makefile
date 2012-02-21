@@ -44,5 +44,5 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:	
-	$(PROGRAM)
+#### KS_TODO Re-enable automatic poststarttests	$(PROGRAM)
 

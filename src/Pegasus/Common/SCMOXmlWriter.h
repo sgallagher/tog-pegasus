@@ -75,24 +75,19 @@ public:
         const Array<SCMOInstance> & _scmoInstances, 
         const CIMPropertyList & propertyList); 
 
-    // EXP_PULL_BEGIN Added to support Pull Operation Xml
+    // EXP_PULL_BEGIN
     static void appendValueSCMOInstanceWithPathElement(
         Buffer& out,
         const SCMOInstance& scmoInstance,
         bool filtered, 
         const Array<Uint32> & nodes);
 
-    // KS_PULL Added to support Pull Operation Xml Differences
     static void appendValueSCMOInstanceWithPathElements(
         Buffer& out,
         const Array<SCMOInstance> & _scmoInstances,
         const CIMPropertyList & propertyList);
+    //EXP_PULL_END
 
-    // KS_PULL Added to support Pull Operation Xml Differences
-    static void appendInstanceNameSpaceElement(
-        Buffer& out,
-        const SCMOInstance& scmoInstance);
-//EXP_PULL_END
     static void appendInstanceNameElement(
         Buffer& out,
         const SCMOInstance& scmoInstance);

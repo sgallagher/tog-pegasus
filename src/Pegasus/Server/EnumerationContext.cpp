@@ -129,10 +129,11 @@ EnumerationContext::EnumerationContext(
     _providersComplete(false),    
     _active(false),
     _error(false),
+    _waiting(false),
+    _cacheTestCondMutex(Mutex::NON_RECURSIVE),
     _responseCache(contentType),
     _cimException(CIMException()),
     _cacheHighWaterMark(0),
-    _cacheTestCondMutex(Mutex::NON_RECURSIVE),
     _conditionCounter(0),
     _providerLimitConditionMutex(Mutex::NON_RECURSIVE),
     _pullOperationCounter(0),
@@ -161,6 +162,17 @@ EnumerationContext::EnumerationContext(const EnumerationContext& x)
     _active = x._active;
     _closed = x._closed;
     _error = x._error;
+    _waiting = x._waiting;
+}
+
+void EnumerationContext::setPropertyList(const CIMPropertyList& pl)
+{
+    _responseCache.setPropertyList(pl);
+
+    // KS_TODO_DELETE_THIS
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+      "EnumerationContext setPropertyList=%s",
+      (const char*)_responseCache.getPropertyList().toString().getCString() ));
 }
 
 /*
@@ -351,6 +363,7 @@ void EnumerationContext::putCache(MessageType type,
     PEGASUS_ASSERT(valid());   // KS_TEMP;
     trace();                   // KS_TEMP
 
+    // Should never enter here with Providers complete set.
     if (_providersComplete)
     {
         cout << "ERROR in Providers Complete "<< __FILE__ << __LINE__ << endl;
@@ -359,10 +372,13 @@ void EnumerationContext::putCache(MessageType type,
 
     PEGASUS_ASSERT(!_providersComplete);
 
-    // set providersComplete flag in context.
+    _waiting = true;
+
+    // set providersComplete flag from flag in context.
     _providersComplete = isComplete;
 
     CIMResponseData& to = _responseCache;
+
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Enter putCache, response isComplete %s ResponseDataType %u",
         _toCharP(isComplete), to.getResponseDataContent() ));
@@ -389,24 +405,40 @@ void EnumerationContext::putCache(MessageType type,
         {
             _cacheHighWaterMark = responseCacheSize();
         }
-            
-        // Signal that we have added to the CIMResponseData cache. Do this
-        // before waiting to be sure any cache size wait is terminated.
-        signalCacheSizeCondition();
     
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "After putCache responseCacheSize %u. CIMResponseData size %u."
             " signal CacheSizeConditon",
             responseCacheSize(), to.size() ));
-    
+
+        // Signal addition to the CIMResponseData cache. Do this
+        // before waiting to be sure any cache size wait is terminated.
+        // May lose control at this point to CacheSizeCondition.
+        signalCacheSizeCondition();
+
+        // KS_HOHO_ERROR HERE TODO_TBD - At this point we could lose control
+        // and the entire context be removed before we get control again.
+        // MAJOR ISSUE HERE. Need flag to protect against Removing context.
+        // I thought that was the closed but need to rethink.
+        // Added waiting flag so that we do not remove the context if it is
+        // in waiting mode. But, then we take responsibility for removing
+        // it.  NOTE: This means it cannot be used after the putCache call
+            
         // Wait for the cache size to drop below the limit requested here
         // before returning to caller. This blocks providers until wait
         // completed.
         if (!_providersComplete)
         {
             waitProviderLimitCondition(_responseCacheMaximumSize);
+            _waiting = false;
+        }
+        else
+        {
+            _waiting = false;
+            ////// KS_TODO removeContext();
         }
     }
+    _waiting = false;
 
     PEG_METHOD_EXIT();
 }
@@ -509,7 +541,7 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
 */
 Boolean EnumerationContext::getCacheResponseData(
     Uint32 count,
-    CIMResponseData& rtn)
+    CIMResponseData& rtnCIMResponseData)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::getCacheResponseData");
@@ -526,7 +558,28 @@ Boolean EnumerationContext::getCacheResponseData(
 
     // move the defined number of objects from the cache to the
     // return object.
-    Uint32 rtncount = rtn.moveObjects(_responseCache, count);
+    Uint32 rtncount = rtnCIMResponseData.moveObjects(_responseCache, count);
+    // KS_TODO_QUESTION. Not sure this should be at this level.
+    rtnCIMResponseData.setPropertyList(_responseCache.getPropertyList());
+
+    // KS_TODO_DELETE_DIAGNOSTIC
+    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+        "getCacheResponsedata after moveObjects \nfrom PropertyList=%s\n"
+        "to   PropertyList=%s",
+        (const char *)_responseCache.getPropertyList().toString().getCString(),
+        (const char *)
+               rtnCIMResponseData.getPropertyList().toString().getCString() ));
+
+
+    // KS_TODO_DIAG_DELETETHIS
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+      "EnumerationContext::getCacheResponseData moveObjects=%s",
+      (const char*)_responseCache.getPropertyList().toString().getCString() ));
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+      "EnumerationContext::getCacheResponseData moveObjects=%s",
+      (const char*)
+               rtnCIMResponseData.getPropertyList().toString().getCString() ));
 
     // Signal the ProviderLimitCondition that the cache size may
     // have changed.

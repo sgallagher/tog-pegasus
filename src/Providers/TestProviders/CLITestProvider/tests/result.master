@@ -1194,16 +1194,6 @@ instance of Test_CLITestProviderClass
 instance of Test_CLITestProviderClass
 {
     Id = "ScalarTest";
-    requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
-        "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
-        "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, "
-        "scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, "
-        "defaultUint16, defaultSint16, defaultUint32, defaultSint32, "
-        "defaultUint64, defaultSint64, defaultReal32, defaultReal64, "
-        "defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, "
-        "arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, "
-        "arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; "
-        "includeQualifiers=false; includeClassOrigin=false";
     scalBool = TRUE;
     scalUint8 = 12;
     scalSint8 = 12;
@@ -1214,13 +1204,6 @@ instance of Test_CLITestProviderClass
     scalUint64 = 99999;
     scalSint64 = 99999;
     scalString = "testString";
-};
-
-// path= Test_CLITestProviderClass.Id="arrayTest"
-
-instance of Test_CLITestProviderClass
-{
-    Id = "arrayTest";
     requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
         "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
         "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, "
@@ -1231,6 +1214,13 @@ instance of Test_CLITestProviderClass
         "arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, "
         "arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; "
         "includeQualifiers=false; includeClassOrigin=false";
+};
+
+// path= Test_CLITestProviderClass.Id="arrayTest"
+
+instance of Test_CLITestProviderClass
+{
+    Id = "arrayTest";
     scalString = "testString";
     scalDateTime = "19991224120000.000000+360";
     arrayBool = {TRUE, TRUE, TRUE, FALSE, TRUE};
@@ -1240,6 +1230,16 @@ instance of Test_CLITestProviderClass
     arraySint32 = {-32000, 0, 32000, -2147483648, 2147483647};
     arrayUint64 = {99, 0, 31000, 63000, 18446744073709551615};
     arraySint64 = {-32000, 0, 32000, -9223372036854775808};
+    requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
+        "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
+        "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, "
+        "scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, "
+        "defaultUint16, defaultSint16, defaultUint32, defaultSint32, "
+        "defaultUint64, defaultSint64, defaultReal32, defaultReal64, "
+        "defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, "
+        "arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, "
+        "arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; "
+        "includeQualifiers=false; includeClassOrigin=false";
 };
 Test_CLITestProviderClass.Id="Mike"
 Test_CLITestProviderClass.Id="ScalarTest"
@@ -1424,9 +1424,6 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>ScalarTest</VALUE>
 </PROPERTY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
-</PROPERTY>
 <PROPERTY NAME="scalBool"  TYPE="boolean">
 <VALUE>TRUE</VALUE>
 </PROPERTY>
@@ -1457,6 +1454,9 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
 </PROPERTY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
+</PROPERTY>
 </INSTANCE>
 
 
@@ -1464,9 +1464,6 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <INSTANCE CLASSNAME="Test_CLITestProviderClass" >
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>arrayTest</VALUE>
-</PROPERTY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
 </PROPERTY>
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
@@ -1531,6 +1528,9 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <VALUE>-9223372036854775808</VALUE>
 </VALUE.ARRAY>
 </PROPERTY.ARRAY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
+</PROPERTY>
 </INSTANCE>
 
 Test_CLITestProviderClass.Id="Mike"
@@ -1716,9 +1716,6 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>ScalarTest</VALUE>
 </PROPERTY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
-</PROPERTY>
 <PROPERTY NAME="scalBool"  TYPE="boolean">
 <VALUE>TRUE</VALUE>
 </PROPERTY>
@@ -1749,6 +1746,9 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
 </PROPERTY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
+</PROPERTY>
 </INSTANCE>
 
 
@@ -1756,9 +1756,6 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <INSTANCE CLASSNAME="Test_CLITestProviderClass" >
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>arrayTest</VALUE>
-</PROPERTY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
 </PROPERTY>
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
@@ -1823,6 +1820,9 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <VALUE>-9223372036854775808</VALUE>
 </VALUE.ARRAY>
 </PROPERTY.ARRAY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
+</PROPERTY>
 </INSTANCE>
 
 4. +++++ Test Instances modify Instance
@@ -2079,8 +2079,8 @@ instance of Test_CLITestProviderClass
 instance of Test_CLITestProviderClass
 {
     scalBool = TRUE;
-    arrayUint64 = {4, 128, 240};
     scalString = "teststring";
+    arrayUint64 = {4, 128, 240};
 };
 12. +++++ test getInstance Operation
 

@@ -149,9 +149,9 @@ EnumerationTable::EnumerationTable(
     _timeoutInterval(0),
     _nextTimeout(0),
     _enumContextCounter(1),
+    _responseCacheDefaultMaximumSize(responseCacheDefaultMaximumSize),
     _cacheHighWaterMark(0),
-    _pullOperationDefaultTimeout(defaultInteroperationTimeoutValue),
-    _responseCacheDefaultMaximumSize(responseCacheDefaultMaximumSize)
+    _pullOperationDefaultTimeout(defaultInteroperationTimeoutValue)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::EnumerationTable");
 
@@ -162,6 +162,7 @@ EnumerationTable::EnumerationTable(
 */
 EnumerationTable::~EnumerationTable()
 {
+    // remove any existing entries
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::~EnumerationTable");
     for (HT::Iterator i = ht.start(); i; i++)
     {
@@ -172,6 +173,7 @@ EnumerationTable::~EnumerationTable()
         delete enumeration;
         ht.remove(i.key());
     }
+
     PEG_METHOD_EXIT();
 }
 
@@ -257,9 +259,9 @@ Boolean EnumerationTable::remove(const String& enumerationContextName)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "remove ERRORERROR en == 0 enName %s",
-            (const char *)en->getContextName().getCString()));
+            (const char *)enumerationContextName.getCString()));
         cout << "EnumTable.remove where could not find en" << endl;
-        return true;
+        return false;
     }
    
     PEG_METHOD_EXIT();  
@@ -289,25 +291,29 @@ Boolean EnumerationTable::_remove(EnumerationContext* en)
     // the enumerationContext.  If providers not complete, only
     // completion of provider deliveries can initiate removal of
     // the enumeration context.
-    if (en != 0 && en->_providersComplete)
+    if (en != 0 && en->_providersComplete && !en->_waiting)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId= %s",
             (const char *)en->getContextName().getCString() ));
         // Remove from enumerationTable.
+        // KS_TODO_TBD - Should we remove this and depend completely on
+        // the normal flow to clean it up.
 
         if (en->_cacheHighWaterMark > _cacheHighWaterMark)
         {
             _cacheHighWaterMark = en->_cacheHighWaterMark;
         }
 
-        ht.remove(en->getContextName());
+        ///////ht.remove(en->getContextName());
 
         // KS_TODO - Do we need to clear the cache?
 
         // Delete the enumerationContext object
-        delete en;
+        // KS_TODO_TEMPORARILY DISABLE ACTUAL DELETE
+        //delete en;
 
+        // KS_TODO - Diagnostic
         tableValidate();
 
         PEG_METHOD_EXIT();
@@ -323,10 +329,12 @@ Boolean EnumerationTable::_remove(EnumerationContext* en)
         else
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "_remove ERRORERROR _!providersComplete %s",
-                (const char *)en->getContextName().getCString()));
+                "_remove ERRORERROR %s  _!providersComplete=%s  or waiting=%s",
+                (const char *)en->getContextName().getCString(),
+                (const char *)(en->_providersComplete? "true" : "false"),
+                (const char*) (en->_waiting? "true" : "false" )       ));
         }
-        cout << "remove with no providers complete ERROR" << endl;
+        cout << "remove ignored. " << (en->_waiting? "true" : "false") << endl;
         PEG_METHOD_EXIT();
         return false;
     }
@@ -374,7 +382,7 @@ EnumerationContext* EnumerationTable::find(
 */
 void EnumerationTable::removeExpiredContexts()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationTable::removeExpiredContexts");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationTable::removeExpiredContexts");
 
     AutoMutex autoMut(tableLock);
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();

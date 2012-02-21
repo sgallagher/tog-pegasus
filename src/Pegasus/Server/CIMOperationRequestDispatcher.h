@@ -222,20 +222,11 @@ public:
 
     Boolean appendResponse(CIMResponseMessage* response);
 
-    // KS_TODO - Think this can be removed.
-//  void prependResponse(CIMResponseMessage* response);
-
     Uint32 numberResponses();
 
     CIMRequestMessage* getRequest();
 
     void setRequest(CIMRequestMessage* request);
-
-//  // KS_TODO Think this can be removed
-//  Boolean isInitialResponseGenerated();
-//
-//  // KS_TODO Think this can be removed.
-//  void initialResponseGenerated(Boolean x);
 
     CIMResponseMessage* getResponse(const Uint32& pos);
 
@@ -729,22 +720,22 @@ protected:
 
     ProviderRegistrationManager* _providerRegistrationManager;
 
-    // Determines if association requests are allowed. If false, all
+    // Determine if association requests are allowed. If false, all
     // association and reference requests will be refused.
     Boolean _enableAssociationTraversal;
     Boolean _enableIndicationService;
 
-    // Defines the maximum number of class that is the maximum that
+    // Define the maximum number of class that is the maximum that
     // will be allowed on input.  This allows the system to limit the
     // size of enumeration responses, at least in terms of number of
     // classes that can be included in a enumeration.
     Uint32 _maximumEnumerateBreadth;
 
-    // Defines the maximum number of objects that the system will accept
+    // Define the maximum number of objects that the system will accept
     // for pull operation input parameter.
     Uint32 _systemMaxPullOperationObjectCount;
 
-    // Defines whether the system will accept the value zero as a valid
+    // Define whether the system will accept the value zero as a valid
     // pull interoperation timeout. Since the value of zero disables the
     // timer this would mean that the system operates with no timeout
     // between pull operations. This should be somewhere externally as

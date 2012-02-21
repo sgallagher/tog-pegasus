@@ -849,7 +849,7 @@ void XmlWriter::appendValueNamedInstanceElement(
 //     <!ELEMENT VALUE.INSTANCEWITHPATH (INSTANCEPATH,INSTANCE)>
 //
 //------------------------------------------------------------------------------
-// EXP_PULL_TBD checkout the INSTANCEPATH vs NAMEDINSTANCE
+//
 void XmlWriter::appendValueInstanceWithPathElement(
     Buffer& out,
     const CIMInstance& namedInstance,
@@ -2213,6 +2213,7 @@ void XmlWriter::_appendParamValueElementEnd(
     out << STRLIT("</PARAMVALUE>\n");
 }
 //EXP_PULL_END
+
 //------------------------------------------------------------------------------
 //
 // _appendSimpleRspElementBegin()
@@ -2978,7 +2979,7 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
 //------------------------------------------------------------------------------
 
 /*
-    Formats a IMethod Response Message.  Note that this function formats
+    Formats a IMethod Response Message.  This function formats
     messages for chunking based on the isFirst and isLast parameters.
     If isFirst is set, it outputs headers and ResponseElement begin.
     It always sends the body.  If isLast is set,  it sends the rtnParams
@@ -3030,16 +3031,14 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
     {
         if (body.size() != 0 || isFirst == false)
             _appendIReturnValueElementEnd(out);
-        // EXP_PULL_BEGIN
-        // If there are any parameters include them here.
-        // Assumes that it is prebuilt with all components
-        // 
+
+        // Insert any return parameters.
         if (rtnParams.size() != 0)
         {
             out << rtnParams;
         }
-        // 
         // //EXP_PULL_END
+
         _appendIMethodResponseElementEnd(out);
         _appendSimpleRspElementEnd(out);
         _appendMessageElementEnd(out);

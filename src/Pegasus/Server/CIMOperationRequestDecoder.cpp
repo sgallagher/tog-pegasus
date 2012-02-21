@@ -50,6 +50,48 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+/****************************************************************************** 
+** 
+**             Local Functions 
+**
+******************************************************************************/
+// KS_TODO_PULL Expand use of these two functions to all operations.
+// Create a propertyList with the internal tags set. Used for property
+// lists that involve instances. Tags used in output Xml Processing
+void _createPropertyListWithTags(XmlParser& parser, CIMPropertyList& pl)
+{
+    CIMValue val;
+    if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, val))
+    {
+        Array<String> propertyListArray;
+        val.get(propertyListArray);
+        pl.append(propertyListArray);
+    }
+}
+
+// Create a PropertyList without the propertyList internal tags.  Used for
+// propertylists on class operations.
+void _createPropertyListWithoutTags(XmlParser& parser, CIMPropertyList& pl)
+{
+    CIMValue val;
+    if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, val))
+    {
+        Array<String> propertyListArray;
+        val.get(propertyListArray);
+        Array<CIMName> cimNameArray;
+        for (Uint32 i = 0; i < propertyListArray.size(); i++)
+        {
+            cimNameArray.append(propertyListArray[i]);
+        }
+        pl.set(cimNameArray);
+    }
+}
+
+/****************************************************************************** 
+** 
+**            CIMOperationRequestDecoder Class
+**
+******************************************************************************/
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     MessageQueue* outputQueue,
     Uint32 returnQueueId)
@@ -1589,6 +1631,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
                 CIMValue pl;
                 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
                 {
+                    // Create PropertyList without tags
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
                     Array<CIMName> cimNameArray;
@@ -2049,6 +2092,7 @@ CIMGetInstanceRequestMessage*
                 CIMValue pl;
                 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
                 {
+                    // Create propertyList with Tags
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
                     propertyList.append(propertyListArray);
@@ -2140,6 +2184,7 @@ CIMModifyInstanceRequestMessage*
                 CIMValue pl;
                 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
                 {
+                    //  Create PropertyList without Taga
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
                     Array<CIMName> cimNameArray;
@@ -2203,7 +2248,6 @@ CIMEnumerateInstancesRequestMessage*
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
     CIMPropertyList propertyList;
-
     Boolean duplicateParameter = false;
     Boolean gotClassName = false;
     Boolean gotDeepInheritance = false;
@@ -2261,6 +2305,7 @@ CIMEnumerateInstancesRequestMessage*
                 CIMValue pl;
                 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
                 {
+                    // Create propertyList with Tags
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
                     propertyList.append(propertyListArray);
@@ -2800,6 +2845,7 @@ CIMReferencesRequestMessage*
                 CIMValue pl;
                 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
                 {
+                    // Create propertyList with Tags
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
                     propertyList.append(propertyListArray);
@@ -3072,6 +3118,7 @@ CIMAssociatorsRequestMessage*
                 CIMValue pl;
                 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
                 {
+                    // Create propertyList with Tags
                     Array<String> propertyListArray;
                     pl.get(propertyListArray);
                     propertyList.append(propertyListArray);
@@ -3472,18 +3519,7 @@ CIMOpenEnumerateInstancesRequestMessage*
         {
             if (!emptyTag)
             {
-                CIMValue pl;
-                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-                {
-                    Array<String> propertyListArray;
-                    pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
-                }
+                _createPropertyListWithTags(parser,propertyList);
             }
             duplicateParameter = gotPropertyList;
             gotPropertyList = true;
@@ -3729,18 +3765,7 @@ CIMOpenReferenceInstancesRequestMessage*
         {
             if (!emptyTag)
             {
-                CIMValue pl;
-                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-                {
-                    Array<String> propertyListArray;
-                    pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
-                }
+                _createPropertyListWithTags(parser,propertyList);
             }
             duplicateParameter = gotPropertyList;
             gotPropertyList = true;
@@ -4108,18 +4133,7 @@ CIMOpenAssociatorInstancesRequestMessage*
         {
             if (!emptyTag)
             {
-                CIMValue pl;
-                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-                {
-                    Array<String> propertyListArray;
-                    pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    propertyList.set(cimNameArray);
-                }
+                _createPropertyListWithTags(parser,propertyList);
             }
             duplicateParameter = gotPropertyList;
             gotPropertyList = true;

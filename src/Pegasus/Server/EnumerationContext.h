@@ -161,6 +161,14 @@ public:
         return _responseCache.getResponseDataContent();
     }
 
+    /**
+        Set the propertyList into a created Enumeration Context. Required
+        to set a propertyList into the responseCache CIMResponseData object.
+        @param pl CIMPropertyList from the Open for this operation.
+    */
+    void setPropertyList(const CIMPropertyList& pl);
+
+
     // Start the interOperation timer for this context
     void startTimer();
 
@@ -355,6 +363,9 @@ private:
     Boolean _providersComplete;
     Boolean _active;
     Boolean _error;
+    // Set to true if waiting on condition variable.  Cannot remove until
+    // this cleared.
+    Boolean _waiting;
 
     // Object cache for this context.  All pull responses feed their
     // CIMResponseData into this cache using putCache(..) and all 

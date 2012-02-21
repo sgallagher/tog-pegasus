@@ -388,7 +388,7 @@ public:
      * @exception NoSuchProperty
      */
     void buildKeyBindingsFromProperties();
-
+    
     /**
      * Gets the hash index for the named property. Filtering is ignored.
      * @param theName The property name

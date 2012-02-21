@@ -783,6 +783,7 @@ void SCMOXmlWriter::appendLocalInstancePathElement(
     out << STRLIT("</LOCALINSTANCEPATH>\n");
 }
 
+// EXP_PULL_BEGIN ????
 // appendInstancePathElement()
 //     <!ELEMENT INSTANCEPATH (NAMESPACEPATH,INSTANCENAME)>
 void SCMOXmlWriter::appendInstancePathElement(
@@ -800,6 +801,8 @@ void SCMOXmlWriter::appendInstancePathElement(
     appendInstanceNameElement(out, instancePath);
     out << STRLIT("</INSTANCEPATH>\n");
 }
+//EXP_PULL_END???
+
 void SCMOXmlWriter::appendValueObjectWithPathElement(
     Buffer& out,
     const Array<SCMOInstance> & objectWithPath,

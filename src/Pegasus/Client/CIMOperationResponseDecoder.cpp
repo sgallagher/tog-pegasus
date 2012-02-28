@@ -714,10 +714,6 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
     {
         if (response)
         {
-//#ifdef PEGASUS_SNIA_INTEROP_TEST
-//         httpMessage->printAll(cout);
-//#endif
-
             delete response;
         }
 

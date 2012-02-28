@@ -399,23 +399,15 @@ CIMName XmlReader::getCimNameAttribute(
 
     if (!CIMName::legal(name))
     {
-#ifdef PEGASUS_SNIA_INTEROP_TEST
-    // In testing, replace illegal CIMName with this value to avoid the
-    // exception and let xml parsing continue.  THIS IS TEMP.
-    name = "BADNAMESUBSTITUTEDBYPEGASUSCLIENT";
-#else
-
-    char buffer[MESSAGE_SIZE];
-    sprintf(buffer, "%s.NAME", elementName);
-
-    MessageLoaderParms mlParms(
-        "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
-        "Illegal value for $0 attribute",
-        buffer);
-
-    throw XmlSemanticError(lineNumber, mlParms);
-
-#endif
+        char buffer[MESSAGE_SIZE];
+        sprintf(buffer, "%s.NAME", elementName);
+    
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+            "Illegal value for $0 attribute",
+            buffer);
+    
+        throw XmlSemanticError(lineNumber, mlParms);
     }
 
     return CIMNameCast(name);
@@ -580,11 +572,6 @@ CIMName XmlReader::getReferenceClassAttribute(
 
     if (!CIMName::legal(name))
     {
-#ifdef PEGASUS_SNIA_INTEROP_TEST
-        name = "PEGASUS_SUBSTITUED_THIS_FOR_BAD_NAME";
-        return name;
-#endif
-
         char buffer[MESSAGE_SIZE];
         sprintf(buffer, "%s.REFERENCECLASS", elementName);
 
@@ -1024,14 +1011,10 @@ CIMValue XmlReader::stringToValue(
 
             try
             {
-                // KS 20021002 - Exception if no datetime value. Test for
-                // zero length and leave the NULL value in the variable
-                // Bugzilla 137  Adds the following if line.
-                // Expect this to become permanent but test only for now
-#ifdef PEGASUS_SNIA_INTEROP_TEST
                 if (valueStringLen != 0)
-#endif
+                {
                     tmp.set(valueString);
+                }
             }
             catch (InvalidDateTimeFormatException&)
             {
@@ -1220,18 +1203,7 @@ Boolean XmlReader::getValueElement(
 
         expectEndTag(parser, "VALUE");
     }
-#ifdef PEGASUS_SNIA_INTEROP_TEST
-    // KS 20021004 - tries to put value in even if empty.
-    // Think this is general problem with empty value
-    // Need to check meaning of (#PCDATA) - Does it allow empty.
-    // Bugzilla tbd
-    if (!empty)
-#endif
-        value = stringToValue(
-            parser.getLine(),
-            valueString,
-            valueStringLen,
-            type);
+    value = stringToValue(parser.getLine(),valueString,valueStringLen,type);
 
     return true;
 }
@@ -2075,23 +2047,7 @@ Boolean XmlReader::getHostElement(
 
     if (!testStartTag(parser, entry, "HOST"))
         return false;
-#ifdef PEGASUS_SNIA_INTEROP_TEST
-    // Temp code to allow empty HOST field.
-    // SNIA CIMOMs return empty field particularly on enumerateinstance.
-    // Simply substitute a string for the empty.
-    if (!parser.next(entry))
-        throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
-
-    if (entry.type == XmlEntry::CONTENT)
-        host = String(entry.text);
-    else
-    {
-        parser.putBack(entry);
-        host = "HOSTNAMEINSERTEDBYPEGASUSCLIENT";
-    }
-
-#else
-
+    
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
         MessageLoaderParms mlParms(
@@ -2101,7 +2057,6 @@ Boolean XmlReader::getHostElement(
     }
 
     host = String(entry.text);
-#endif
     expectEndTag(parser, "HOST");
     return true;
 }

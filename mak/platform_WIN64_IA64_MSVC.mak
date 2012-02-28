@@ -119,12 +119,6 @@ ifndef PEGASUS_ENABLE_SLP
     PEGASUS_ENABLE_SLP = true
 endif
 
-# ATTN KS 20020927 - Add flag to allow conditional testing of interoperability
-# changes during interoperability tests.
-ifdef PEGASUS_SNIA_INTEROP_TEST
-    DEFINES+= -DPEGASUS_SNIA_INTEROP_TEST
-endif
-
 RM = mu rm
 
 RMDIRHIER = mu rmdirhier

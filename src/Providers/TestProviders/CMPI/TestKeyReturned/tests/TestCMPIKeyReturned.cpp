@@ -45,24 +45,48 @@ const CIMName CLASSNAME=CIMNameCast("TestCMPI_KeyReturned");
 
 Boolean verbose;
 
+void _checkResult(const Array<CIMInstance> & instArr)
+{
+    // provider returns exactly six instances
+    PEGASUS_TEST_ASSERT(6==instArr.size());
+
+    for (int i=0; i<6;i++)
+    {
+        const CIMObjectPath& objPath = instArr[i].getPath();
+        const Array<CIMKeyBinding>& keyBinds = objPath.getKeyBindings();
+
+        // instance should have three key bindings
+        PEGASUS_TEST_ASSERT(3==keyBinds.size());
+    }
+}
+
 void _test(CIMClient & client)
 {
   try
   {
-      Array<CIMInstance> instArr=
+      // empty property list
+      Array<CIMInstance> x=
           client.enumerateInstances(PROVIDERNAMESPACE,CLASSNAME);
 
-      // provider returns exactly one instance
-      PEGASUS_TEST_ASSERT(1==instArr.size());
-      
-      // instance should have three properties
-      PEGASUS_TEST_ASSERT(3==instArr[0].getPropertyCount());
+      _checkResult(x);
 
-      const CIMObjectPath& objPath = instArr[0].getPath();
-      const Array<CIMKeyBinding>& keyBinds = objPath.getKeyBindings();
+      // property list leaving "Name" key out...
+      Array<CIMName> n;
+      n.append("Number");
+      n.append("Flag");
+      CIMPropertyList pl(n);
 
-      // instance should have three key bindings
-      PEGASUS_TEST_ASSERT(3==keyBinds.size());
+      Array<CIMInstance> y=
+          client.enumerateInstances(
+              PROVIDERNAMESPACE,
+              CLASSNAME,
+              true,          // deepInheritance
+              true,          // localOnly
+              false,         // includeQualifiers
+              false,         // includeClassOrigin
+              pl);           // property list
+
+      _checkResult(y);
   }
   catch (Exception & e)
   {

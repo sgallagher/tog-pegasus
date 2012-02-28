@@ -62,9 +62,179 @@ CMPIStatus TestCMPIKeyReturnedProviderEnumInstanceNames(
     CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-CMPIStatus TestCMPIKeyReturnedProviderEnumInstances(
-    CMPIInstanceMI * mi,
-    const CMPIContext * ctx,
+/* Test Instance A
+   - Build a new Instance from scratch grabbing namespace and classname from
+   classPath, but not adding the keys to the new CMPIObjectPath.
+*/
+void test_Instance_A(
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+    CMPIValue num;
+    CMPIValue flag;
+
+    num.uint32=39;
+    flag.boolean=1;
+
+
+    CMPIObjectPath * myObjPath=
+        CMNewObjectPath(
+            _broker,
+            CMGetCharPtr(CMGetNameSpace(ref,0)),
+            "TestCMPI_KeyReturned",
+            0);
+
+    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+
+    CMSetProperty(myInst,"Name", "TestInstanceA", CMPI_chars);
+    CMSetProperty(myInst,"Number", &num, CMPI_uint32);
+    CMSetProperty(myInst,"Flag", &flag, CMPI_boolean);
+
+    CMReturnInstance(rslt, myInst);
+    CMRelease(myObjPath);
+    CMRelease(myInst);
+}
+
+/* Test Instance B1
+   - Build a new instance from a complete new CMPIObjectPath with the key
+   properties being set, as well as instance properties
+*/
+void test_Instance_B1(
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+    CMPIValue num;
+    CMPIValue flag;
+
+    num.uint32=40;
+    flag.boolean=1;
+
+
+    CMPIObjectPath * myObjPath=
+        CMNewObjectPath(
+            _broker,
+            CMGetCharPtr(CMGetNameSpace(ref,0)),
+            "TestCMPI_KeyReturned",
+            0);
+
+    CMAddKey(myObjPath,"Name", "TestInstanceB1", CMPI_chars);
+    CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
+    CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
+
+    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+
+    CMSetProperty(myInst,"Name", "TestInstanceB1", CMPI_chars);
+    CMSetProperty(myInst,"Number", &num, CMPI_uint32);
+    CMSetProperty(myInst,"Flag", &flag, CMPI_boolean);
+
+    CMReturnInstance(rslt, myInst);
+    CMRelease(myObjPath);
+    CMRelease(myInst);
+}
+
+/* Test Instance B2
+   - Build a new instance from a complete new CMPIObjectPath with the key
+   properties being set, but NOT the instance properties
+*/
+void test_Instance_B2(
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+    CMPIValue num;
+    CMPIValue flag;
+
+    num.uint32=40;
+    flag.boolean=1;
+
+
+    CMPIObjectPath * myObjPath=
+        CMNewObjectPath(
+            _broker,
+            CMGetCharPtr(CMGetNameSpace(ref,0)),
+            "TestCMPI_KeyReturned",
+            0);
+
+    CMAddKey(myObjPath,"Name", "TestInstanceB2", CMPI_chars);
+    CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
+    CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
+
+    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+
+    CMReturnInstance(rslt, myInst);
+    CMRelease(myObjPath);
+    CMRelease(myInst);
+}
+
+/* Test Instance C1
+   - Build a new instance from the given classPath and do add the keybindings in
+   the provider as well as the properties
+*/
+void test_Instance_C1(
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+    CMPIValue num;
+    CMPIValue flag;
+
+    num.uint32=41;
+    flag.boolean=1;
+
+    /* Using ref requires a clone here */
+    CMPIObjectPath * myObjPath=CMClone(ref,0);
+
+    CMAddKey(myObjPath,"Name", "TestInstanceC2", CMPI_chars);
+    CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
+    CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
+
+    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+
+    CMSetProperty(myInst,"Name", "TestInstanceC1", CMPI_chars);
+    CMSetProperty(myInst,"Number", &num, CMPI_uint32);
+    CMSetProperty(myInst,"Flag", &flag, CMPI_boolean);
+
+    CMReturnInstance(rslt, myInst);
+    CMRelease(myObjPath);
+    CMRelease(myInst);
+}
+
+/* Test Instance C2
+   - Build a new instance from the given classPath and do add the keybindings in
+   the provider but NOT the instance properties
+*/
+void test_Instance_C2(
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+    CMPIValue num;
+    CMPIValue flag;
+
+    num.uint32=41;
+    flag.boolean=1;
+
+    /* Using ref requires a clone here */
+    CMPIObjectPath * myObjPath=CMClone(ref,0);
+
+    CMAddKey(myObjPath,"Name", "TestInstanceC2", CMPI_chars);
+    CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
+    CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
+
+    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+
+    CMReturnInstance(rslt, myInst);
+    CMRelease(myObjPath);
+    CMRelease(myInst);
+}
+
+/* Test Instance D
+   - test instance is directly built using the supplied classPath (ref)
+   but without setting the keys, instead only supplying values in the properties
+*/
+void test_Instance_D(
     const CMPIResult * rslt,
     const CMPIObjectPath * ref,
     const char **properties)
@@ -76,12 +246,46 @@ CMPIStatus TestCMPIKeyReturnedProviderEnumInstances(
     flag.boolean=1;
 
     CMPIInstance * myInst=CMNewInstance(_broker,ref,0);
-    
-    CMSetProperty(myInst,"Name", "TestInstance", CMPI_chars);    
+
+    CMSetProperty(myInst,"Name", "TestInstanceD", CMPI_chars);
     CMSetProperty(myInst,"Number", &num, CMPI_uint32);
     CMSetProperty(myInst,"Flag", &flag, CMPI_boolean);
 
     CMReturnInstance(rslt, myInst);
+    CMRelease(myInst);
+}
+
+CMPIStatus TestCMPIKeyReturnedProviderEnumInstances(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+/* - Build a new Instance from scratch grabbing namespace and classname from
+   classPath, but not adding the keys to the new CMPIObjectPath. */
+    test_Instance_A(rslt,ref,properties);
+
+/* - Build a new instance from a complete new CMPIObjectPath with the key
+   properties being set, as well as instance properties */
+    test_Instance_B1(rslt,ref,properties);
+
+/* - Build a new instance from a complete new CMPIObjectPath with the key
+   properties being set, but NOT the instance properties */
+    test_Instance_B2(rslt,ref,properties);
+
+/* - Build a new instance from the given classPath and do add the keybindings in
+   the provider as well as the properties */
+    test_Instance_C1(rslt,ref,properties);
+
+/* - Build a new instance from the given classPath and do add the keybindings in
+   the provider but NOT the instance properties */
+    test_Instance_C2(rslt,ref,properties);
+
+/* - test instance is directly built using the supplied classPath (ref) but
+   without setting the keys, instead only supplying values in the properties */
+    test_Instance_D(rslt,ref,properties);
+
     CMReturnDone(rslt);
     CMReturn(CMPI_RC_OK);
 }

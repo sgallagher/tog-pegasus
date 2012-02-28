@@ -89,8 +89,9 @@ CMPIObjectPath *makePath( const CMPIBroker *broker, const char * classname,
   op = CMNewObjectPath(broker,
                (char*)Namespace,
                (char*)classname,
-               NULL);  CMSetHostname(op,CSName());
+               NULL);
   if (!CMIsNullObject(op)) {
+    CMSetHostname(op,CSName());
     CMAddKey(op,"CSCreationClassName",CSCreationClassName(),CMPI_chars);
     CMAddKey(op,"CSName",CSName(),CMPI_chars);
     CMAddKey(op,"FSCreationClassName",FSCreationClassName(),CMPI_chars);
@@ -106,13 +107,11 @@ CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
 {
   CMPIInstance   *in = NULL;
   CMPIValue       val;
-  CMPIObjectPath *op = CMNewObjectPath(broker,
-                       (char*)Namespace,
-                       (char*)classname,
-                       NULL);  CMSetHostname(op,CSName());
+  CMPIObjectPath *op = makePath(broker,classname,Namespace,cwsf);
 
   if (!CMIsNullObject(op)) {
     in = CMNewInstance(broker,op,NULL);
+    CMRelease(op);
     if (!CMIsNullObject(in)) {
       CMSetProperty(in,"CSCreationClassName",CSCreationClassName(),CMPI_chars);
       CMSetProperty(in,"CSName",CSName(),CMPI_chars);
@@ -122,9 +121,9 @@ CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"Name",cwsf->cws_name,CMPI_chars);
       CMSetProperty(in,"FileSize",(CMPIValue*)&cwsf->cws_size,CMPI_uint64);
 #ifndef SIMULATED
-/* We don't want this code in the simulated env - time is dynamic (diff
-   timezones) and the testing system might using a diff timezone and
-   report failure */
+/* We don't want this code in the simulated env - time is dynamic
+   (diff timezones) and
+   the testing system might using a diff timezone and report failure */
       val.uint64 = cwsf->cws_ctime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
       CMSetProperty(in,"CreationDate",&val,CMPI_dateTime);

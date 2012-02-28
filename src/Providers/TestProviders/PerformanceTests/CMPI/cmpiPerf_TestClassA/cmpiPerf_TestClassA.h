@@ -42,8 +42,7 @@ static char * _ClassName = "cmpiPerf_TestClassA";
 CMPIObjectPath * _makePath_TestClassA(
     const CMPIBroker * _broker,
     const CMPIContext * ctx,
-    const CMPIObjectPath * cop,
-    CMPIStatus * rc );
+    const CMPIObjectPath * cop);
 
 
 /* method to create a CMPIInstance of this class */
@@ -52,8 +51,7 @@ CMPIInstance * _makeInst_TestClassA(
     const CMPIBroker * _broker,
     const CMPIContext * ctx,
     const CMPIObjectPath * cop,
-    const char ** properties,
-    CMPIStatus * rc );
+    const char ** properties);
 
 
 /* ----------------------------------------------*/

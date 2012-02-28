@@ -45,8 +45,7 @@
 CMPIObjectPath * _makePath_TestClassA(
     const CMPIBroker * _broker,
     const CMPIContext * ctx,
-    const CMPIObjectPath * cop,
-    CMPIStatus * rc )
+    const CMPIObjectPath * cop)
 {
    CMPIObjectPath * op = NULL;
    CMPIValue theKey;
@@ -54,22 +53,11 @@ CMPIObjectPath * _makePath_TestClassA(
 
    op=CMNewObjectPath(
        _broker,
-       CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
+       CMGetCharsPtr(CMGetNameSpace(cop,NULL), NULL),
        _ClassName,
-       rc);
+       NULL);
 
-   if ( CMIsNullObject(op) )
-   {
-      CMSetStatusWithChars(
-          _broker,
-          rc,
-          CMPI_RC_ERR_FAILED,
-          "Create CMPIObjectPath failed." );
-   }
-   else
-   {
-       CMAddKey(op, "theKey", &theKey, CMPI_uint32);
-   }
+   CMAddKey(op, "theKey", &theKey, CMPI_uint32);
    return op;
 }
 
@@ -79,11 +67,8 @@ CMPIInstance * _makeInst_TestClassA(
     const CMPIBroker * _broker,
     const CMPIContext * ctx,
     const CMPIObjectPath * cop,
-    const char ** properties,
-    CMPIStatus * rc )
+    const char ** properties)
 {
-   CMPIObjectPath * op     = NULL;
-   CMPIInstance   * ci     = NULL;
    CMPIArray       *array  = NULL;
    CMPIValue opstatus;
    CMPIValue status;
@@ -95,34 +80,14 @@ CMPIInstance * _makeInst_TestClassA(
    //
    // Construct ObjectPath
    //
-   op=CMNewObjectPath(
-       _broker,
-       CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
-       _ClassName,
-       rc);
-   if (CMIsNullObject(op))
-   {
-      CMSetStatusWithChars(
-          _broker,
-          rc,
-          CMPI_RC_ERR_FAILED,
-          "Create CMPIObjectPath failed.");
-      return ci;
-   }
+   CMPIObjectPath* op=_makePath_TestClassA(_broker,ctx,cop);
 
    //
    // Create a new instance and fill it's properties
    //
-   ci = CMNewInstance( _broker, op, rc);
-   if (CMIsNullObject(ci))
-   {
-      CMSetStatusWithChars(
-          _broker,
-          rc,
-          CMPI_RC_ERR_FAILED,
-          "Create CMPIInstance failed.");
-      return ci;
-   }
+   CMPIInstance* ci = CMNewInstance( _broker, op, NULL);
+   CMRelease(op);
+   CMSetPropertyFilter(ci,properties,NULL);
 
    //
    // Properties of CIM_ManagedElement
@@ -138,7 +103,7 @@ CMPIInstance * _makeInst_TestClassA(
    //
    // Properties of CIM_ManagedSystemElement
    //
-   array = CMNewArray(_broker,1,CMPI_uint16,rc);
+   array = CMNewArray(_broker,1,CMPI_uint16,NULL);
    CMSetArrayElementAt(array,0,&opstatus,CMPI_uint16);
    CMSetProperty(ci,"OperationalStatus",(CMPIValue*)&(array),CMPI_uint16A);
 

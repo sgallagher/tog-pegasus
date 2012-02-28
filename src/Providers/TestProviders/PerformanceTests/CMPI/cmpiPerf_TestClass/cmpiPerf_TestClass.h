@@ -40,22 +40,21 @@ static char * _ClassName = "cmpiPerf_TestClassB";
 
 
 /* method to create a CMPIObjectPath of this class                            */
-CMPIObjectPath * _makePath_TestClass( const CMPIBroker * _broker,
-                                      const CMPIContext * ctx,
-                                      const CMPIObjectPath * cop,
-                                      CMPIStatus * rc,
-                                      unsigned int theKey);
+CMPIObjectPath * _makePath_TestClass(
+    const CMPIBroker * _broker,
+    const CMPIContext * ctx,
+    const CMPIObjectPath * cop,
+    unsigned int theKey);
 
 
 /* method to create a CMPIInstance of this class                              */
 
-CMPIInstance * _makeInst_TestClass( const CMPIBroker * _broker,
-                                    const CMPIContext * ctx,
-                                    const CMPIObjectPath * cop,
-                                    const char ** properties,
-                                    CMPIStatus * rc,
-                                    unsigned int theKey);
-
+CMPIInstance * _makeInst_TestClass(
+    const CMPIBroker * _broker,
+    const CMPIContext * ctx,
+    const CMPIObjectPath * cop,
+    const char ** properties,
+    unsigned int theKey);
 
 #endif
 

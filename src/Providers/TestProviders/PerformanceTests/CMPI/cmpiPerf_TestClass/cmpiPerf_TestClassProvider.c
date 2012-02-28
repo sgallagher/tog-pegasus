@@ -108,7 +108,7 @@ CMPIStatus cmpiPerf_TestClassProviderEnumInstanceNames(
 
     for (index=0; index < numInst; index++)
     {
-        op = _makePath_TestClass( _broker, ctx, ref, &rc, index );
+        op = _makePath_TestClass( _broker, ctx, ref, index );
 
         if (op == NULL)
         {
@@ -144,7 +144,7 @@ CMPIStatus cmpiPerf_TestClassProviderEnumInstances(
 
     for (index=0; index < numInst; index++)
     {
-        ci = _makeInst_TestClass( _broker, ctx, ref, properties, &rc, index );
+        ci = _makeInst_TestClass( _broker, ctx, ref, properties, index );
 
         if (ci == NULL)
         {
@@ -169,7 +169,7 @@ CMPIStatus cmpiPerf_TestClassProviderGetInstance(
     CMPIStatus     rc = {CMPI_RC_OK, NULL};
 
 
-    ci = _makeInst_TestClass(_broker,ctx,cop,properties,&rc,1);
+    ci = _makeInst_TestClass(_broker,ctx,cop,properties,1);
 
     if (ci == NULL)
     {
@@ -196,7 +196,7 @@ CMPIStatus cmpiPerf_TestClassProviderCreateInstance(
 
     numInst = getNumberOfInstances()+1;
 
-    op = _makePath_TestClass( _broker, ctx, cop, &rc, numInst );
+    op = _makePath_TestClass( _broker, ctx, cop, numInst );
 
     CMReturnObjectPath( rslt, op );
     CMReturnDone( rslt );
@@ -275,7 +275,7 @@ CMPIStatus cmpiPerf_TestClassProviderExecQuery(
     // evaluating them against the CMPI SelectExp.
     for (index=0; index<numInst; index++)
     {
-        ci = _makeInst_TestClass( _broker, ctx, ref, NULL, &rc, index );
+        ci = _makeInst_TestClass( _broker, ctx, ref, NULL, index );
 
         // Check that the CMPIInstance was successfully retrieved, otherwise
         // return with an error.  One might consider not failing the query just

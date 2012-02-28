@@ -66,7 +66,7 @@ CMPIStatus cmpiPerf_TestClassAProviderEnumInstanceNames(
     CMPIObjectPath  * op = NULL;
     CMPIStatus        rc = {CMPI_RC_OK, NULL};
 
-    op = _makePath_TestClassA( _broker, ctx, ref, &rc);
+    op = _makePath_TestClassA( _broker, ctx, ref);
 
     CMReturnObjectPath( rslt, op );
 
@@ -84,7 +84,7 @@ CMPIStatus cmpiPerf_TestClassAProviderEnumInstances(
     CMPIInstance * ci = NULL;
     CMPIStatus     rc = {CMPI_RC_OK, NULL};
 
-    ci = _makeInst_TestClassA( _broker, ctx, ref, properties, &rc);
+    ci = _makeInst_TestClassA( _broker, ctx, ref, properties);
 
     CMReturnInstance( rslt, ci );
 
@@ -103,7 +103,7 @@ CMPIStatus cmpiPerf_TestClassAProviderGetInstance(
     CMPIStatus     rc = {CMPI_RC_OK, NULL};
 
 
-    ci = _makeInst_TestClassA( _broker, ctx, cop, properties, &rc);
+    ci = _makeInst_TestClassA( _broker, ctx, cop, properties);
 
     CMReturnInstance( rslt, ci );
     CMReturnDone(rslt);
@@ -121,7 +121,7 @@ CMPIStatus cmpiPerf_TestClassAProviderCreateInstance(
     CMPIObjectPath  * op = NULL;
     CMPIStatus rc = {CMPI_RC_OK, NULL};
 
-    op = _makePath_TestClassA( _broker, ctx, cop, &rc);
+    op = _makePath_TestClassA( _broker, ctx, cop);
 
     CMReturnObjectPath( rslt, op );
     CMReturnDone( rslt );

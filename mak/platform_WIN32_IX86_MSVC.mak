@@ -45,7 +45,7 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0600
 CL_VERSION := $(word 8, $(shell cl.exe 2>&1))
 CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 
-VC_CL_VERSIONS := 14 15
+VC_CL_VERSIONS := 14 15 16
 VC_CL_VERSION  := $(findstring $(CL_MAJOR_VERSION), $(VC_CL_VERSIONS))
 
 #
@@ -85,7 +85,7 @@ endif
 
 
 #
-# CL_MAJOR_VERSION 14 or 15 (i.e., VC 8 or VC 9)
+# CL_MAJOR_VERSION 14, 15 or 16 (i.e., VC 8, VC 9 or VC 2010)
 #
 ifeq ($(CL_MAJOR_VERSION), $(VC_CL_VERSION))
     CXX_VERSION_FLAGS := -EHsc

@@ -47,13 +47,16 @@ CMPIObjectPath * _makePath_TestClass(
     const CMPIObjectPath * ref,
     unsigned int theKey)
 {
+    CMPIValue keyValue;
+    keyValue.uint32 = theKey;
+
     CMPIObjectPath * op = CMNewObjectPath(
         _broker,
         CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
         _ClassName,
         0);
     
-    CMAddKey(op, "theKey", &theKey, CMPI_uint32);
+    CMAddKey(op, "theKey", &keyValue, CMPI_uint32);
 
     return op;
 }
@@ -69,7 +72,7 @@ CMPIInstance * _makeInst_TestClass(
 {
     CMPIValue opstatus;
     CMPIValue status;
-    char theName[20]        = {};
+    char theName[20];
     CMPIArray       *array  = NULL;
     CMPIDateTime* my_dt;
 
@@ -77,6 +80,7 @@ CMPIInstance * _makeInst_TestClass(
     opstatus.uint16 = 0;
     /* Enabled */
     status.uint16 = 2;
+    sprintf(theName, "%u", theKey);
 
 
     CMPIObjectPath* op = _makePath_TestClass(_broker,ctx,ref,NULL);
@@ -126,8 +130,6 @@ CMPIInstance * _makeInst_TestClass(
 // Properties of CIM_TestClass
 //
     CMSetProperty(ci,"theKey",&theKey , CMPI_uint32 );
-
-    sprintf(theName, "%u", theKey);
     CMSetProperty(ci,"theData",&theKey , CMPI_uint32 );
 
     CMSetProperty(ci,"theString0","Test Data Number Zero",CMPI_chars);

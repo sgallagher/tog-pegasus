@@ -73,19 +73,19 @@ void test_Instance_A(
 {
     CMPIValue num;
     CMPIValue flag;
+    CMPIObjectPath * myObjPath=NULL;
+    CMPIInstance * myInst=NULL;
 
     num.uint32=39;
     flag.boolean=1;
 
+    myObjPath= CMNewObjectPath(
+        _broker,
+        CMGetCharPtr(CMGetNameSpace(ref,0)),
+        "TestCMPI_KeyReturned",
+        0);
 
-    CMPIObjectPath * myObjPath=
-        CMNewObjectPath(
-            _broker,
-            CMGetCharPtr(CMGetNameSpace(ref,0)),
-            "TestCMPI_KeyReturned",
-            0);
-
-    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+    myInst=CMNewInstance(_broker,myObjPath,0);
 
     CMSetProperty(myInst,"Name", "TestInstanceA", CMPI_chars);
     CMSetProperty(myInst,"Number", &num, CMPI_uint32);
@@ -107,23 +107,24 @@ void test_Instance_B1(
 {
     CMPIValue num;
     CMPIValue flag;
+    CMPIObjectPath * myObjPath=NULL;
+    CMPIInstance * myInst=NULL;
 
     num.uint32=40;
     flag.boolean=1;
 
 
-    CMPIObjectPath * myObjPath=
-        CMNewObjectPath(
-            _broker,
-            CMGetCharPtr(CMGetNameSpace(ref,0)),
-            "TestCMPI_KeyReturned",
-            0);
+    myObjPath=CMNewObjectPath(
+        _broker,
+        CMGetCharPtr(CMGetNameSpace(ref,0)),
+        "TestCMPI_KeyReturned",
+        0);
 
     CMAddKey(myObjPath,"Name", "TestInstanceB1", CMPI_chars);
     CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
     CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
 
-    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+    myInst=CMNewInstance(_broker,myObjPath,0);
 
     CMSetProperty(myInst,"Name", "TestInstanceB1", CMPI_chars);
     CMSetProperty(myInst,"Number", &num, CMPI_uint32);
@@ -145,23 +146,24 @@ void test_Instance_B2(
 {
     CMPIValue num;
     CMPIValue flag;
+    CMPIObjectPath * myObjPath=NULL;
+    CMPIInstance * myInst=NULL;
 
     num.uint32=40;
     flag.boolean=1;
 
 
-    CMPIObjectPath * myObjPath=
-        CMNewObjectPath(
-            _broker,
-            CMGetCharPtr(CMGetNameSpace(ref,0)),
-            "TestCMPI_KeyReturned",
-            0);
+    myObjPath=CMNewObjectPath(
+        _broker,
+        CMGetCharPtr(CMGetNameSpace(ref,0)),
+        "TestCMPI_KeyReturned",
+        0);
 
     CMAddKey(myObjPath,"Name", "TestInstanceB2", CMPI_chars);
     CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
     CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
 
-    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+    myInst=CMNewInstance(_broker,myObjPath,0);
 
     CMReturnInstance(rslt, myInst);
     CMRelease(myObjPath);
@@ -179,18 +181,20 @@ void test_Instance_C1(
 {
     CMPIValue num;
     CMPIValue flag;
+    CMPIObjectPath * myObjPath=NULL;
+    CMPIInstance * myInst=NULL;
 
     num.uint32=41;
     flag.boolean=1;
 
     /* Using ref requires a clone here */
-    CMPIObjectPath * myObjPath=CMClone(ref,0);
+    myObjPath=CMClone(ref,0);
 
     CMAddKey(myObjPath,"Name", "TestInstanceC2", CMPI_chars);
     CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
     CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
 
-    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+    myInst=CMNewInstance(_broker,myObjPath,0);
 
     CMSetProperty(myInst,"Name", "TestInstanceC1", CMPI_chars);
     CMSetProperty(myInst,"Number", &num, CMPI_uint32);
@@ -212,18 +216,20 @@ void test_Instance_C2(
 {
     CMPIValue num;
     CMPIValue flag;
+    CMPIObjectPath * myObjPath=NULL;
+    CMPIInstance * myInst=NULL;
 
     num.uint32=41;
     flag.boolean=1;
 
     /* Using ref requires a clone here */
-    CMPIObjectPath * myObjPath=CMClone(ref,0);
+    myObjPath=CMClone(ref,0);
 
     CMAddKey(myObjPath,"Name", "TestInstanceC2", CMPI_chars);
     CMAddKey(myObjPath,"Number", &num, CMPI_uint32);
     CMAddKey(myObjPath,"Flag", &flag, CMPI_boolean);
 
-    CMPIInstance * myInst=CMNewInstance(_broker,myObjPath,0);
+    myInst=CMNewInstance(_broker,myObjPath,0);
 
     CMReturnInstance(rslt, myInst);
     CMRelease(myObjPath);
@@ -241,11 +247,12 @@ void test_Instance_D(
 {
     CMPIValue num;
     CMPIValue flag;
+    CMPIInstance * myInst=NULL;
 
     num.uint32=42;
     flag.boolean=1;
 
-    CMPIInstance * myInst=CMNewInstance(_broker,ref,0);
+    myInst=CMNewInstance(_broker,ref,0);
 
     CMSetProperty(myInst,"Name", "TestInstanceD", CMPI_chars);
     CMSetProperty(myInst,"Number", &num, CMPI_uint32);

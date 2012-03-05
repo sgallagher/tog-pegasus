@@ -73,6 +73,8 @@ CMPIInstance * _makeInst_TestClassA(
    CMPIValue opstatus;
    CMPIValue status;
    CMPIValue theKey;
+   CMPIObjectPath* op=NULL;
+   CMPIInstance* ci=NULL;
    opstatus.uint16 = 0; /* Unknown */
    status.uint16 = 2;  /* Enabled */
    theKey.uint32 = 2;
@@ -80,12 +82,12 @@ CMPIInstance * _makeInst_TestClassA(
    //
    // Construct ObjectPath
    //
-   CMPIObjectPath* op=_makePath_TestClassA(_broker,ctx,cop);
+   op=_makePath_TestClassA(_broker,ctx,cop);
 
    //
    // Create a new instance and fill it's properties
    //
-   CMPIInstance* ci = CMNewInstance( _broker, op, NULL);
+   ci = CMNewInstance( _broker, op, NULL);
    CMRelease(op);
    CMSetPropertyFilter(ci,properties,NULL);
 

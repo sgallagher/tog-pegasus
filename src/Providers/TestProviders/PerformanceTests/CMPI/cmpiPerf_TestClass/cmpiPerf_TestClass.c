@@ -48,9 +48,10 @@ CMPIObjectPath * _makePath_TestClass(
     unsigned int theKey)
 {
     CMPIValue keyValue;
+    CMPIObjectPath * op=NULL;
     keyValue.uint32 = theKey;
 
-    CMPIObjectPath * op = CMNewObjectPath(
+    op = CMNewObjectPath(
         _broker,
         CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
         _ClassName,
@@ -75,6 +76,8 @@ CMPIInstance * _makeInst_TestClass(
     char theName[20];
     CMPIArray       *array  = NULL;
     CMPIDateTime* my_dt;
+    CMPIObjectPath* op=NULL;
+    CMPIInstance* ci=NULL;
 
     /* Unknown */
     opstatus.uint16 = 0;
@@ -83,12 +86,12 @@ CMPIInstance * _makeInst_TestClass(
     sprintf(theName, "%u", theKey);
 
 
-    CMPIObjectPath* op = _makePath_TestClass(_broker,ctx,ref,NULL);
+    op = _makePath_TestClass(_broker,ctx,ref,theKey);
 
 //
 // Create a new instance and fill it's properties
 //
-    CMPIInstance* ci = CMNewInstance( _broker, op, NULL);
+    ci = CMNewInstance( _broker, op, NULL);
     CMRelease(op);
 
     CMSetPropertyFilter(ci,properties,NULL);

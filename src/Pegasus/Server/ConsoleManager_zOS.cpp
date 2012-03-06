@@ -113,25 +113,12 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
 
     String preValue;
     String currentValue;
-    String displayValue;
 
     try
     {
         ConfigManager* _configManager = ConfigManager::getInstance();
 
         preValue = _configManager->getCurrentValue(configProperty);
-        defaultValue = _configManager->getDefaultValue(configProperty);
-
-        //If currentValueIsNull is true, the updateCurrentValue() will use the
-        // default value, so we need the default value for the messages.
-        if(currentValueIsNull)
-        {
-            displayValue = defaultValue;
-        }
-        else
-        {
-            displayValue = propertyValue;
-        }
 
         if (!planned)
         {
@@ -161,7 +148,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
                         "Server.ConsoleManager_zOS."
                             "CON_MODIFY_UPDATED.PEGASUS_OS_ZOS",
                         "Updated current value for $0 to $1",
-                        configProperty, displayValue));
+                        configProperty, propertyValue));
             }
         }
         else
@@ -189,7 +176,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
                         "Server.ConsoleManager_zOS."
                             "CON_MODIFY_PLANNED.PEGASUS_OS_ZOS",
                         "Updated planned value for $0 to $1",
-                        configProperty, displayValue));
+                        configProperty, propertyValue));
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::INFORMATION,
@@ -201,13 +188,23 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
             }
         }
 
+        // It is unset, get current value which is default
+        if (currentValueIsNull)
+        {
+            currentValue = _configManager->getCurrentValue(configProperty);
+        }
+        else
+        {
+            currentValue = propertyValue;
+        }
+
         // send notify config change message to ProviderManager Service
-        _sendNotifyConfigChangeMessage(displayValue,
+        _sendNotifyConfigChangeMessage(String(configProperty),
                                        currentValue,
                                           !planned);
 
         PEG_AUDIT_LOG(logSetConfigProperty("OPERATOR",
-                                           displayValue,
+                                           configProperty,
                                            preValue,
                                            currentValue,
                                            planned));
@@ -289,7 +286,7 @@ void ZOSConsoleManager::processModifyCommand( char* command )
 
         currentPtr = skipBlanks(currentPtr);
 
-        if (*currentPtr == '\0' || *currentPtr ==',')
+        if (*currentPtr == '\0')
         {
             currentValueIsNull=true;
         }

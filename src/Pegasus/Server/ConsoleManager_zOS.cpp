@@ -49,21 +49,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ZOSCONSOLEMANAGER_TOKEN_CONFIG  "CONFIG,"
-#define ZOSCONSOLEMANAGER_TOKEN_VERSION "VERSION"
-#define ZOSCONSOLEMANAGER_TOKEN_ENV     "ENV"
+
+#define ZOSCONSOLEMANAGER_TOKEN_APPL    "CONFIG,"
 #define ZOSCONSOLEMANAGER_TOKEN_PLANNED "PLANNED"
 
-enum CommandType
-{
-    consoleCmdConfig,
-    consoleCmdVersion,
-    consoleCmdEnv,
-    consoleCmdInvalid
-};
 
-
-char* ZOSConsoleManager::_skipBlanks( char* commandPtr)
+char* ZOSConsoleManager::skipBlanks( char* commandPtr)
 {
     if (commandPtr != NULL)
     {
@@ -76,7 +67,7 @@ char* ZOSConsoleManager::_skipBlanks( char* commandPtr)
     return commandPtr;
 }
 
-void ZOSConsoleManager::_stripTrailingBlanks( char* token )
+void ZOSConsoleManager::stripTrailingBlanks( char* token )
 {
     if (token != NULL)
     {
@@ -92,66 +83,33 @@ void ZOSConsoleManager::_stripTrailingBlanks( char* token )
     return;
 }
 
-void ZOSConsoleManager::_displayServiceLevel()
+void ZOSConsoleManager::issueSyntaxError(const char* command)
 {
     PEG_METHOD_ENTER(TRC_SERVER,
-        "ZOSConsoleManager::_displayServiceLevel");
-
-    // PEGASUS_ZOS_SERVICE_STRING is defined in the z/OS platform make file
-    String serviceString(STRLIT_ARGS(PEGASUS_ZOS_SERVICE_STRING));
-
-    Logger::put_l(
-        Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-        MessageLoaderParms(
-            "Server.ConsoleManager_zOS.VERSION.PEGASUS_OS_ZOS",
-            "CIM Server Service Level: $0",
-            serviceString));
-
-    PEG_METHOD_EXIT();
-}
-
-void ZOSConsoleManager::_issueSyntaxError(const char* command)
-{
-    PEG_METHOD_ENTER(TRC_SERVER,
-        "ZOSConsoleManager::_issueSyntaxError");
-
+        "ZOSConsoleManager::issueSyntaxError");
     Logger::put_l(
         Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
         MessageLoaderParms(
             "Server.ConsoleManager_zOS.CON_SYNTAX_ERR.PEGASUS_OS_ZOS",
             "CIM MODIFY COMMAND REJECTED DUE TO SYNTAX ERROR"));
-
-    if (!strncmp(command,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_CONFIG)))
-    {
-        Logger::put_l(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Server.ConsoleManager_zOS.CON_MODIFY_SYNTAX.PEGASUS_OS_ZOS",
-                "Syntax is: "
-                    "MODIFY CFZCIM,APPL=CONFIG,<name>=<value>[,PLANNED]"));
-    } 
-    else if (!strncmp(command,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_ENV)))
-    {
-        Logger::put_l(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Server.ConsoleManager_zOS."
-                    "CON_MODIFY_ENV_SYNTAX.PEGASUS_OS_ZOS",
-                "Syntax is:"
-                    " MODIFY CFZCIM,APPL=ENV[,<varname>][=<value>]"));
-    }
+    Logger::put_l(
+        Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        MessageLoaderParms(
+            "Server.ConsoleManager_zOS.CON_MODIFY_SYNTAX.PEGASUS_OS_ZOS",
+            "Syntax is: MODIFY CFZCIM,APPL=CONFIG,<name>=<value>[,PLANNED]"));
 
     PEG_METHOD_EXIT();
+    return;
 }
 
 
-void ZOSConsoleManager::_updateConfiguration( 
-    const String& configProperty,
-    const String& propertyValue,
-    Boolean currentValueIsNull,
-    Boolean planned)
+void ZOSConsoleManager::updateConfiguration( const String& configProperty,
+                                             const String& propertyValue,
+                                             Boolean currentValueIsNull,
+                                             Boolean planned)
 {
-    PEG_METHOD_ENTER(TRC_SERVER,"ZOSConsoleManager::_updateConfiguration");
+    PEG_METHOD_ENTER(TRC_SERVER,
+        "ZOSConsoleManager::updateConfiguration");
 
     String preValue;
     String currentValue;
@@ -198,13 +156,13 @@ void ZOSConsoleManager::_updateConfiguration(
             else
             {
                 Logger::put_l(
-                    Logger::STANDARD_LOG, System::CIMSERVER,Logger::INFORMATION,
+                    Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::INFORMATION,
                     MessageLoaderParms(
                         "Server.ConsoleManager_zOS."
                             "CON_MODIFY_UPDATED.PEGASUS_OS_ZOS",
                         "Updated current value for $0 to $1",
-                        configProperty,
-                        displayValue));
+                        configProperty, displayValue));
             }
         }
         else
@@ -232,9 +190,7 @@ void ZOSConsoleManager::_updateConfiguration(
                         "Server.ConsoleManager_zOS."
                             "CON_MODIFY_PLANNED.PEGASUS_OS_ZOS",
                         "Updated planned value for $0 to $1",
-                        configProperty,
-                        displayValue));
-
+                        configProperty, displayValue));
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::INFORMATION,
@@ -258,180 +214,39 @@ void ZOSConsoleManager::_updateConfiguration(
                                            planned));
 
     }
-    catch(const Exception& e)
+    catch (const NonDynamicConfigProperty& ndcp)
     {
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             MessageLoaderParms(
                 "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
                 "MODIFY command failed: \"$0\"",
-                e.getMessage()));
+                ndcp.getMessage()));
     }
-    PEG_METHOD_EXIT();
-}
-
-
-void ZOSConsoleManager::_updateEnvironment( 
-    const char* envVarName,
-    const char* envVarValue)
-{
-    PEG_METHOD_ENTER(TRC_SERVER,
-        "ZOSConsoleManager::_updateEnvironment");
-
-    String envVarNameString(envVarName);
-
-    int rc=setenv(envVarName,envVarValue,1);
-
-    if (rc==0)
-    {
-        String envVarValueString;
-        if (envVarValue!=NULL)
-        {
-            envVarValueString.assign(envVarValue);
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Server.ConsoleManager_zOS."
-                        "CON_MODIFY_SETENV.PEGASUS_OS_ZOS",
-                    "Environment variable \"$0\" set to \"$1\" successfully.",
-                    envVarNameString, 
-                    envVarValueString));
-        }
-        else
-        {
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Server.ConsoleManager_zOS."
-                        "CON_MODIFY_DELETEENV.PEGASUS_OS_ZOS",
-                    "Environment variable \"$0\" deleted successfully.",
-                    envVarNameString));
-        }
-    }
-    else
+    catch (const InvalidPropertyValue& ipv)
     {
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             MessageLoaderParms(
-                "Server.ConsoleManager_zOS.CON_MODIFYENV_FAILED.PEGASUS_OS_ZOS",
-                "Failed to update environment variable \"$0\".",
-                envVarNameString));
+                "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
+                "MODIFY command failed: \"$0\"",
+                ipv.getMessage()));
+    }
+    catch (const UnrecognizedConfigProperty&)
+    {
+        Logger::put_l(
+            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            MessageLoaderParms(
+                "Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS",
+                "$0 is not a valid configuration property",
+                configProperty));
     }
 
-    // To be 100% complete we would need an AuditLog here.
-    // But since we don't track env vars for z/OS, this is
-    // omitted intentionally.
-
     PEG_METHOD_EXIT();
+    return;
 }
 
 
-/******************************************************************************
- Either displays the value of a specific environment variable
- (envVarName!=null) or the complete list of all currently defined
- environment variables with their values.
-******************************************************************************/
-void ZOSConsoleManager::_showEnvironment(const char* envVarName)
-{
-    PEG_METHOD_ENTER(TRC_SERVER,
-        "ZOSConsoleManager::_showEnvironment");
-
-    // See XL C/C++ Runtime Library Reference for documentation on the
-    // **environ variable
-    extern char** environ;
-
-    if ((0==envVarName) || strlen(envVarName)==0)
-    {
-        // Display list of all environment variables
-        char** var;
-        char varMessage[4080];
-        char* varMsgPtr = &(varMessage[0]);
-        unsigned int varMsgLength = 0;
-        // For each line we add 3 extra characters: '-' + ' ' + '\n'
-        const unsigned int extraCharsPerLine = 3;
-
-        var = environ;
-        while (*var != NULL)
-        {
-            int varLen = strlen(*var);
-            varMsgLength += (varLen+extraCharsPerLine);
-
-            // The Logger will not display messages longer than 4000 characters
-            // Therefore we list the environment variables in multiple messages
-            // when the size of the environment string exceeds 3900.
-            do
-            {
-                *varMsgPtr='-';     // extra char #1
-                varMsgPtr++;
-                *varMsgPtr=' ';     // extra char #2
-                varMsgPtr++;
-                memcpy(varMsgPtr,*var,varLen);
-                varMsgPtr+=varLen;
-                *varMsgPtr='\n';    // extra char #3
-                varMsgPtr++;
-
-                // Move on to the next env var
-                ++var;
-                varLen = strlen(*var);
-                varMsgLength += (varLen+extraCharsPerLine);
-            } while ((varMsgLength < 3900) && (*var != NULL));
-
-            *varMsgPtr = '\0';
-            String envVarString(varMessage);
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Server.ConsoleManager_zOS."
-                        "CON_MODIFY_DISPLAY_ALLENV.PEGASUS_OS_ZOS",
-                    "CFZENV: $0",envVarString));
-
-            varMsgPtr = &(varMessage[0]);
-            varMsgLength = 0;
-
-        } // end for
-    }
-    else
-    {
-        // Just display a single environment variable
-        String envVarNameString(envVarName);
-        const char* envVarValue = getenv(envVarName);
-        if (envVarValue)
-        {
-            String envVarValueString(envVarValue);
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Server.ConsoleManager_zOS."
-                        "CON_MODIFY_DISPLAY_ENV.PEGASUS_OS_ZOS",
-                    "CFZENV: $0=$1",
-                    envVarNameString, envVarValueString));
-        }
-        else
-        {
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Server.ConsoleManager_zOS."
-                        "CON_MODIFY_ENV_UNDEFINED.PEGASUS_OS_ZOS",
-                    "CFZENV: Variable '$0' is undefined",
-                    envVarNameString));
-        }
-    }
-    PEG_METHOD_EXIT();
-}
-
-/******************************************************************************
- Syntax for Modify command is:
-
- MODIFY <jobname>,APPL=CONFIG,<properyname>=['<value>'|<value>][,PLANNED]
-                       VERSION
-                       ENV[,<varname>][=<value>]
-
- Parameter <command> represents the string following the "APPL=" token.
-
-******************************************************************************/
 void ZOSConsoleManager::processModifyCommand( char* command )
 {
     PEG_METHOD_ENTER(TRC_SERVER,
@@ -443,62 +258,29 @@ void ZOSConsoleManager::processModifyCommand( char* command )
     char* cfgValue = NULL;
     char* planned = NULL;
     Boolean currentValueIsNull = false;
-    Boolean valueIsQuoted = false;
-    CommandType consCmd=consoleCmdInvalid;
 
 
-    currentPtr = _skipBlanks(currentPtr);
+    currentPtr = skipBlanks(currentPtr);
 
-    if (!memcmp(currentPtr,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_CONFIG)))
+    if (!memcmp(currentPtr,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_APPL)))
     {
-        currentPtr += strlen(ZOSCONSOLEMANAGER_TOKEN_CONFIG);
-        consCmd = consoleCmdConfig;
-    }
-    else if (!memcmp(currentPtr,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_VERSION)))
-    {
-        consCmd = consoleCmdVersion;
-        _displayServiceLevel();
-        PEG_METHOD_EXIT();
-        return;
-    }
-    else if (!memcmp(currentPtr,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_ENV)))
-    {
-        consCmd = consoleCmdEnv;
-        currentPtr += strlen(ZOSCONSOLEMANAGER_TOKEN_ENV);
-        if (*currentPtr == ',')
-        {
-            currentPtr++;
-        }
+        currentPtr += strlen(ZOSCONSOLEMANAGER_TOKEN_APPL);
     }
     else
     {
-        _issueSyntaxError(command);
-        PEG_METHOD_EXIT();
+        issueSyntaxError(command);
         return;
     }
 
-
-    // Here currentPtr points after the [CONFIG,|VERSION|ENV] token.
-    // Following is either the name of a variable or nothing
-    currentPtr = _skipBlanks(currentPtr);
+    currentPtr = skipBlanks(currentPtr);
 
     cfgProperty = currentPtr;
     currentPtr = strchr(currentPtr,'=');
 
     if (currentPtr==NULL)
     {
-        if (consCmd == consoleCmdEnv)
-        {
-            _showEnvironment(cfgProperty);
-            PEG_METHOD_EXIT();
-            return;
-        }
-        else
-        {
-            _issueSyntaxError(command);
-            PEG_METHOD_EXIT();
-            return;
-        }
+        issueSyntaxError(command);
+        return;
     }
     else
     {
@@ -506,7 +288,7 @@ void ZOSConsoleManager::processModifyCommand( char* command )
         *currentPtr = '\0';
         currentPtr++;
 
-        currentPtr = _skipBlanks(currentPtr);
+        currentPtr = skipBlanks(currentPtr);
 
         if (*currentPtr == '\0' || *currentPtr ==',')
         {
@@ -514,7 +296,6 @@ void ZOSConsoleManager::processModifyCommand( char* command )
         }
         else if (*currentPtr == '\'')
         {
-            // Check if value is enclosed in quotes
             char* temp = strchr(currentPtr+1,'\'');
             if (temp!=NULL)
             {
@@ -528,12 +309,10 @@ void ZOSConsoleManager::processModifyCommand( char* command )
                 // skip the ending "'"
                 *currentPtr = '\0';
                 currentPtr++;
-                valueIsQuoted = true;
             }
             else
             {
-                _issueSyntaxError(command);
-                PEG_METHOD_EXIT();
+                issueSyntaxError(command);
                 return;
             }
         }
@@ -543,7 +322,7 @@ void ZOSConsoleManager::processModifyCommand( char* command )
         }
     }
 
-    currentPtr = _skipBlanks(currentPtr);
+    currentPtr = skipBlanks(currentPtr);
 
     planned = strchr(currentPtr,',');
     if (planned!=NULL)
@@ -551,28 +330,33 @@ void ZOSConsoleManager::processModifyCommand( char* command )
         *planned = '\0';
         planned++;
 
-        planned = _skipBlanks(planned);
+        planned = skipBlanks(planned);
 
         if (memcmp(planned,STRLIT_ARGS(ZOSCONSOLEMANAGER_TOKEN_PLANNED)))
         {
-            _issueSyntaxError(command);
-            PEG_METHOD_EXIT();
+            issueSyntaxError(command);
             return;
         }
     }
 
 
-    _stripTrailingBlanks( cfgProperty );
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,"Update property: %s", cfgProperty));
+    if (cfgProperty != NULL)
+    {
+        stripTrailingBlanks( cfgProperty );
+
+        PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
+            "Update property: %s", cfgProperty));
+    }
 
     if (currentValueIsNull)
     {
         PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL4,
             "Set property with null value");
     }
-    else
+    else if (cfgValue != NULL)
     {
-        _stripTrailingBlanks( cfgValue );
+        stripTrailingBlanks( cfgValue );
+
         PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
             "Update property value to: %s", cfgValue));
     }
@@ -583,34 +367,20 @@ void ZOSConsoleManager::processModifyCommand( char* command )
             "Updating planned value");
     }
 
-    if (consCmd == consoleCmdEnv)
-    {
-        _updateEnvironment(cfgProperty, cfgValue);
-        PEG_METHOD_EXIT();
-        return;
-    }
-
     String propertyString(cfgProperty);
     String propertyValue;
 
     if (!currentValueIsNull)
     {
          propertyValue.assign(cfgValue);
-
-         if (!valueIsQuoted)
-         {
-             // All values that were not enclosed in quotes are
-             // converted to lowercase
-             propertyValue.toLower();
-         }
-
     }
 
-    _updateConfiguration(propertyString,
+    updateConfiguration(propertyString,
                         propertyValue,
                         currentValueIsNull,
                         planned);
     PEG_METHOD_EXIT();
+    return;
 }
 
 
@@ -623,7 +393,7 @@ void ZOSConsoleManager::startConsoleWatchThread(void)
 
     if ( pthread_create(&thid,
                         NULL,
-                        ZOSConsoleManager::_consoleCommandWatchThread,
+                        ZOSConsoleManager::consoleCommandWatchThread,
                         NULL) != 0 )
     {
         char str_errno2[10];
@@ -639,6 +409,7 @@ void ZOSConsoleManager::startConsoleWatchThread(void)
     }
 
     PEG_METHOD_EXIT();
+    return;
 }
 
 
@@ -646,10 +417,10 @@ void ZOSConsoleManager::startConsoleWatchThread(void)
 //
 // z/OS console interface waiting for operator stop command
 //
-void* ZOSConsoleManager::_consoleCommandWatchThread(void*)
+void* ZOSConsoleManager::consoleCommandWatchThread(void*)
 {
     PEG_METHOD_ENTER(TRC_SERVER,
-        "ZOSConsoleManager::_consoleCommandWatchThread");
+        "ZOSConsoleManager::consoleCommandWatchThread");
 
     struct __cons_msg    cons;
     int                  concmd=0;
@@ -760,9 +531,6 @@ void ZOSConsoleManager::_sendNotifyConfigChangeMessage(
             currentValueModified,
             QueueIdStack(service->getQueueId()));
 
-        notify_req->operationContext.insert(
-            IdentityContainer(System::getEffectiveUserName()));
-
         // create request envelope
         AsyncLegacyOperationStart asyncRequest(
             NULL,
@@ -780,13 +548,8 @@ void ZOSConsoleManager::_sendNotifyConfigChangeMessage(
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
         {
             CIMException e = response->cimException;
-            const CString exMsg = e.getMessage().getCString();
-            PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
-                       "Notify config changed failed with rc=%d, message = %s",
-                       e.getCode(), 
-                       (const char*)exMsg));
-
             PEG_METHOD_EXIT();
+            throw (e);
         }
     }
     PEG_METHOD_EXIT();

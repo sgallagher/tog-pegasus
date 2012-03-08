@@ -53,6 +53,8 @@ ProviderRegistrationManager.h>
 # include <Pegasus/IndicationService/IndicationServiceConfiguration.h>
 #endif
 
+#include "SubscriptionKey.h"
+
 PEGASUS_NAMESPACE_BEGIN
 
 // Holds information of control providers servicing the indications.
@@ -1335,7 +1337,7 @@ private:
         const CIMNamespaceName& nameSpace,
         const CIMInstance& indicationProvider,
         Array<CIMInstance>& subscriptions,
-        Array<String>& subscriptionKeys);
+        Array<SubscriptionKey>& subscriptionKeys);
 
     /**
         Evaluate if the specified subscription matches the indication based on:

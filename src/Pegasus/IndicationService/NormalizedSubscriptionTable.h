@@ -36,6 +36,7 @@
 #include <Pegasus/Common/ReadWriteSem.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/HashTable.h>
+#include "SubscriptionKey.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -51,15 +52,6 @@ public:
     NormalizedSubscriptionTable(const Array<CIMInstance> &subscriptions);
     ~NormalizedSubscriptionTable();
 
-    /**
-        Normalizes the subscription path. Host name will be removed from both
-        filter and handler objectPaths. Namespace will also be removed from
-        filter or handler if filter's or handler's namespace is same as
-        subscription namespace.
-        @param subPath subscription path
-        @return normalized subscription path.
-   */
-    static CIMObjectPath normalize(const CIMObjectPath &subPath);
     /**
         Adds subscription path to the subscriptionTable after
         subscription path normalization.
@@ -96,8 +88,8 @@ private:
         NormalizedSubscriptionTable maintains all the subscription objectpaths
         in normalized form.
     */
-    HashTable <CIMObjectPath, Boolean, EqualFunc <CIMObjectPath>,
-        HashFunc <CIMObjectPath> > _subscriptionTable;
+    HashTable <SubscriptionKey, Boolean, SubscriptionKeyEqualFunc,
+        SubscriptionKeyHashFunc> _subscriptionTable;
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,49 +29,75 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMInstance.h>
+#ifndef Pegasus_SubscriptionKey_h
+#define Pegasus_SubscriptionKey_h
 
-#include "NormalizedSubscriptionTable.h"
-#include "IndicationConstants.h"
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-NormalizedSubscriptionTable::NormalizedSubscriptionTable(
-    const Array<CIMInstance> &subscriptions)
-{
-    for (Uint32 i = 0; i < subscriptions.size() ; ++i)
-    {
-        if (!add(subscriptions[i].getPath()))
-        {
-            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL2,
-                "Subscription already exists : %s",
-                (const char*)
-                     subscriptions[i].getPath().toString().getCString()));
-        }
-    }
-}
+class SubscriptionKey;
 
-NormalizedSubscriptionTable::~NormalizedSubscriptionTable()
+struct SubscriptionKeyEqualFunc
 {
-}
+    static Boolean equal(const SubscriptionKey& x, const SubscriptionKey& y);
+};
 
-Boolean NormalizedSubscriptionTable:: remove(const CIMObjectPath &subPath)
+struct SubscriptionKeyHashFunc
 {
-    return _subscriptionTable.remove(SubscriptionKey(subPath));
-}
+    static Uint32 hash(const SubscriptionKey& x);
+};
 
-Boolean NormalizedSubscriptionTable::add(const CIMObjectPath &subPath,
-    const Boolean &value)
-{
-    return _subscriptionTable.insert(SubscriptionKey(subPath), value);
-}
 
-Boolean NormalizedSubscriptionTable::exists(const CIMObjectPath &subPath,
-    Boolean &value)
+/**
+    Normalizes the subscription path. Host name will be removed from both
+    filter and handler objectPaths. Namespace will also be removed from
+    filter or handler if filter's or handler's namespace is same as
+    subscription namespace.
+*/
+
+class SubscriptionKey
 {
-    return _subscriptionTable.lookup(SubscriptionKey(subPath), value);
-}
+
+public:
+    SubscriptionKey(){};
+
+    SubscriptionKey(const CIMObjectPath & subscription);
+
+    ~SubscriptionKey(){};
+
+    String toString() const;
+
+protected:
+    static void _parseObjectName(
+        const String & objectName,
+        String & name,
+        String & ns,
+        String & className);
+
+private:
+    String handlerName;
+    String filterName;
+   
+    String filterNamespace;
+    String handlerNamespace;
+    String subscriptionNamespace;
+
+    String filterClassName;
+    String handlerClassName;
+    String subscriptionClassName;
+
+
+    friend Boolean SubscriptionKeyEqualFunc::equal(
+        const SubscriptionKey&,
+        const SubscriptionKey&);
+
+    friend Uint32 SubscriptionKeyHashFunc::hash(const SubscriptionKey&);
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif  /* Pegasus_SubscriptionKey_h */

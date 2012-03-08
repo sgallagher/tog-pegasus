@@ -3092,7 +3092,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     PEGASUS_ASSERT(request != 0);
 
     Array<CIMInstance> matchedSubscriptions;
-    Array<String> matchedSubscriptionsKeys;
+    Array<SubscriptionKey> matchedSubscriptionsKeys;
     Uint32 timeout = request->timeoutMilliSec;
 
     CIMInstance indication = request->indicationInstance;
@@ -3176,7 +3176,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
         // in the subscriptionInstanceNamesContainer
         //
         Array<CIMInstance> subscriptions;
-        Array<String> subscriptionKeys;
+        Array<SubscriptionKey> subscriptionKeys;
 
         _getRelevantSubscriptions(
             request->subscriptionInstanceNames,
@@ -9033,7 +9033,7 @@ void IndicationService::_getRelevantSubscriptions(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& indicationProvider,
     Array<CIMInstance>& subscriptions,
-    Array<String>& subscriptionKeys)
+    Array<SubscriptionKey>& subscriptionKeys)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_getRelevantlSubscriptions");

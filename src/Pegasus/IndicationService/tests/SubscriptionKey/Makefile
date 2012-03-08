@@ -26,51 +26,28 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../..
-
-DIR = Pegasus/IndicationService
-
+ROOT = ../../../../..
+DIR = Pegasus/IndicationService/tests/SubscriptionKey
 include $(ROOT)/mak/config.mak
+
+LIBRARIES = \
+    pegindicationservice \
+    pegclient \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
 
-STATIC=1
-LIBRARY = pegindicationservice
+PROGRAM = TestSubscriptionKey
 
-LIBRARIES = \
-    pegprovider \
-    pegrepository \
-    pegprm \
-    pegwql \
-    pegquerycommon \
-    pegqueryexpression \
-    pegconfig \
-    peggeneral \
-    pegcommon
+SOURCES = TestSubscriptionKey.cpp
 
-SOURCES = \
-    SubscriptionKey.cpp \
-    IndicationOperationAggregate.cpp \
-    SubscriptionRepository.cpp \
-    SubscriptionTable.cpp \
-    IndicationService.cpp \
-    IndicationConstants.cpp \
-    NormalizedSubscriptionTable.cpp
+include $(ROOT)/mak/program.mak
 
-ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
-    SOURCES += \
-        ProviderIndicationCountTable.cpp
-endif
+tests:
+	@$(ECHO) "TestSubscriptionKey starting..."
+	@$(PROGRAM)
+	@$(ECHO) "+++++ TestSubscriptionKey passed all tests"
 
-ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
-    SOURCES += \
-        IndicationServiceConfiguration.cpp
-endif
-
-ifeq ($(OS_TYPE),windows)
-SYS_LIBS = ws2_32.lib advapi32.lib
-endif
-
-include $(ROOT)/mak/library.mak
+poststarttests:	

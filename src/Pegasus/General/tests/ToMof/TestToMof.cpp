@@ -64,7 +64,7 @@ bool resultTest(const Buffer& buffer, const char * result)
                  << " str2 len = " << strlen(result) << endl;
         }
         cout << "Created Buffer\n<" << bufData
-            << ">\nTest Result\n<" << result << ">" << endl;
+            << ">\nReference String\n<" << result << ">" << endl;
 
         // get min length
         Uint32 cmplen = (strlen(bufData) < strlen(result))?
@@ -74,7 +74,7 @@ bool resultTest(const Buffer& buffer, const char * result)
         {
             if (bufData[i] != result[i])
             {
-                cout << "Diff at " << i << " " << bufData[i] 
+                cout << "Diff at " << i << " " << bufData[i]
                     << " " << result[i] << endl;
             }
         }
@@ -214,7 +214,9 @@ void test04()
         MofWriter::appendQualifierDeclElement(tmp, qual1);
 
         char cimTypeQualifierDecl[] = "\nQualifier CIMTYPE :"
-                                      " string = \"\", Scope(property);\n";
+            " string = \"\", Scope(property),"
+            " Flavor(EnableOverride, ToSubclass, ToInstance);\n";
+
         PEGASUS_TEST_ASSERT(resultTest(tmp, cimTypeQualifierDecl));
 
         Buffer tmp1;
@@ -265,15 +267,16 @@ void test05()
 
     // compare with the following result.
         char classCompare[] =
-            "\n//    Class MyClass\n\n"
-            "[q1 (55) : DisableOverride, Restricted, \n"
-            "q2 (\"Hello\") : DisableOverride, Restricted]\n"
+            "\n// ===================================================\n"
+            "// MyClass\n"
+            "// ===================================================\n"
+            "[q1 ( 55 ), \n"
+            "q2 ( \"Hello\" )]\n"
             "class MyClass : YourClass\n"
             "{\n"
             "string message = \"Hello\";\n"
             "uint32 count = 77;\n"
-            "[valueMap {\"Abend\", \"Other\", \"Unknown\"} :"
-                " DisableOverride, Restricted]\n"
+            "[valueMap {\"Abend\", \"Other\", \"Unknown\"}]\n"
             "string errorType;\n"
             "boolean isActive(string hostname, uint32 port);\n"
             "};\n";
@@ -334,10 +337,12 @@ void test05()
 
     // compare with the following result.
         char classCompare[] =
-            "\n//    Class MyClass\n\n"
-            "[association : DisableOverride, Restricted, \n"
-            "q1 (55) : DisableOverride, Restricted, \n"
-            "q2 (\"Hello\") : DisableOverride, Restricted]\n"
+            "\n// ===================================================\n"
+            "// MyClass\n"
+            "// ===================================================\n"
+            "[association, \n"
+            "q1 ( 55 ), \n"
+            "q2 ( \"Hello\" )]\n"
             "class MyClass : YourClass\n"
             "{\n"
             "string message;\n"
@@ -434,27 +439,27 @@ void test05()
         MofWriter::appendClassElement(tmp, class1);
 
         char classCompare[] =
-            "\n//    Class SubClass\n\n"
-            "[abstract : DisableOverride, Restricted, \n"
-            "description (\"This is a Description of my class. This is part 2 "
-            "of the string to make it longer. "
-            "This is part 3 of the same string for nothing.\") "
-            ": DisableOverride, Restricted]\n"
+            "\n// ===================================================\n"
+            "// SubClass\n"
+            "// ===================================================\n"
+            "[abstract, \n"
+            "description ( \"This is a Description of my class. This is part 2"
+            " of the string to make it longer. "
+            "This is part 3 of the same string for nothing.\" )]\n"
             "class SubClass : SuperClass\n"
             "{\n"
-            "[read : DisableOverride, Restricted]\n"
+            "[read]\n"
             "string DriveLetter = \"A\";\n"
-            "[read : DisableOverride, Restricted, \n"
-            "Units (\"KiloBytes\") : DisableOverride, Restricted]\n"
+            "[read, \n"
+            "Units ( \"KiloBytes\" )]\n"
             "sint32 RawCapacity = 99;\n"
             "string VolumeLabel = \" \";\n"
             "boolean NoParmsMethod();\n"
-            "boolean OneParmmethod([Dangerous : DisableOverride, Restricted] "
-            "boolean FastFormat);\n"
-            "boolean TwoParmMethod([Dangerous : DisableOverride, Restricted, \n"
-            "in : DisableOverride, Restricted] boolean FirstParam, "
-            "[Dangerous : DisableOverride, Restricted, \n"
-            "in : DisableOverride, Restricted] boolean SecondParam);\n"
+            "boolean OneParmmethod([Dangerous] boolean FastFormat);\n"
+            "boolean TwoParmMethod([Dangerous, \n"
+            "in] boolean FirstParam, "
+            "[Dangerous, \n"
+            "in] boolean SecondParam);\n"
             "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
     }

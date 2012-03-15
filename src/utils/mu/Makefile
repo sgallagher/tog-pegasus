@@ -35,6 +35,14 @@ MANIFEST = .manifest
 OBJ_DIR = .
 INCLUDES = -I$(PEGASUS_ROOT)/src $(EXTRA_INCLUDES)
 
+#//When valgrind is used, all the binaries are wrapped around with
+#//a shell script.Since mu is built before everything else is build,
+#//it wont have the wrapper script. We copy the mu binary to the
+#//bin directory to overcome this.
+
+ACTUAL_BIN_DIR = $(PEGASUS_HOME)/bin
+
+
 ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp
     # Windows linker does not allow space before pgm name
@@ -101,12 +109,19 @@ $(FULL_PROGRAM): $(OBJECTS)
 	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
 	-$(COPY) $(FULL_PROGRAM_MANIFEST) $(MU_EXE_MANIFEST_LOCATION)
 	$(COPY) $(FULL_PROGRAM) $(MU_EXE_LOCATION)
+ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
+	$(MKDIRHIER) $(ACTUAL_BIN_DIR)
+	$(COPY) $(FULL_PROGRAM) $(ACTUAL_BIN_DIR)/$(FULL_PROGRAM)
+endif
 
 clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(FULL_PROGRAM)
 	-$(RM) $(MU_EXE_LOCATION)
 	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
+ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
+    $(RM) $(ACTUAL_BIN_DIR)/$(FULL_PROGRAM)
+endif
 
 tests:
 

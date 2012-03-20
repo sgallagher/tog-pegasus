@@ -53,7 +53,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose = 0;
+static Boolean verbose = 0;
 static Boolean shutdownFlag = false;
 AtomicInt expectedResults;
 AtomicInt actualResults;
@@ -168,7 +168,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 
             if (cimInstances.size() == EXPECTED_INSTANCES)
             {
-                if (true) // alternative: check verbose flag
+                if (verbose)
                 {
                     cout << "      EI thread " << uniqueID
                          << ": iteration " << iterations
@@ -238,7 +238,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 
             if (cimInstanceNames.size() == EXPECTED_INSTANCENAMES)
             {
-                if (true) // alternative: check verbose flag
+                if (verbose)
                 {
                     cout << "      NI thread " << uniqueID
                          << ": iteration " << iterations
@@ -681,7 +681,7 @@ int main(int argc, char** argv)
     expectedResults.set(0);
     actualResults.set(0);
 
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE")? true : false;
 
     if (argc <=1 || argc > 3)
     {

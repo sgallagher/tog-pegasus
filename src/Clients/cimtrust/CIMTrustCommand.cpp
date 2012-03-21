@@ -451,15 +451,26 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append("- Displays the certificates in the trust store\n");
 
     _usage.append("    -f certfile     ");
-    _usage.append("- Specifies the PEM format file containing ");
-    _usage.append("an X509 certificate\n");
+    _usage.append("- Specifies the PEM format file containing an X509\n"
+        "                      certificate\n");
 
     _usage.append("    -U certuser     ");
-    _usage.append("- Specifies the user name to be associated with the ");
-    _usage.append("certificate\n");
+    _usage.append("- Specifies the user name to be associated with the\n"
+        "                      certificate\n");
 
-    _usage.append("    -T type         ");
-    _usage.append("- Specifies the certificate type\n");
+    _usage.append("    -T (a|e|s)      ");
+    _usage.append("- Specifies the certificate type as follows:\n"
+        "                      -a (authority): root/intermediate authority\n"
+        "                         certificates. This type added to trusted\n"
+        "                         certificate store. certuser optional. If\n"
+        "                         no certUser specified certificate may not \n"
+        "                         be used to authenticate user.\n"
+        "                      -e (authority issued end-entity): Certificates\n"
+        "                         of this type are not added to trusted\n"
+        "                         certificate store. certuser is required.\n"
+        "                      -s (Self-signed identity certificate): Added\n"
+        "                         to trusted certificate store. certuser is\n"
+        "                         required.\n");
 
     _usage.append("    -i issuer       ");
     _usage.append("- Specifies the certificate issuer name\n");

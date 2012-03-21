@@ -268,10 +268,12 @@ PEGASUS_NAMESPACE_END
 //==============================================================================
 //
 // PEGASUS_PLATFORM_LINUX_PPC_GNU
+// PEGASUS_PLATFORM_LINUX_PPC64_GNU
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_PPC_GNU) || \
+    defined(PEGASUS_PLATFORM_LINUX_PPC64_GNU)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 PEGASUS_NAMESPACE_BEGIN

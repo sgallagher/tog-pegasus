@@ -28,9 +28,22 @@ Options :
     -a              - Adds the specified certificate to the trust store
     -r              - Removes the specified certificate from the trust store
     -l              - Displays the certificates in the trust store
-    -f certfile     - Specifies the PEM format file containing an X509 certificate
-    -U certuser     - Specifies the user name to be associated with the certificate
-    -T type         - Specifies the certificate type
+    -f certfile     - Specifies the PEM format file containing an X509
+                      certificate
+    -U certuser     - Specifies the user name to be associated with the
+                      certificate
+    -T (a|e|s)      - Specifies the certificate type as follows:
+                      -a (authority): root/intermediate authority
+                         certificates. This type added to trusted
+                         certificate store. certuser optional. If
+                         no certUser specified certificate may not 
+                         be used to authenticate user.
+                      -e (authority issued end-entity): Certificates
+                         of this type are not added to trusted
+                         certificate store. certuser is required.
+                      -s (Self-signed identity certificate): Added
+                         to trusted certificate store. certuser is
+                         required.
     -i issuer       - Specifies the certificate issuer name
     -n serialnumber - Specifies the certificate serial number
     -S subject      - Specifies the certificate subject

@@ -99,11 +99,13 @@ PEGASUS_NAMESPACE_END
 //
 // PEGASUS_PLATFORM_LINUX_IX86_GNU
 // PEGASUS_PLATFORM_DARWIN_IX86_GNU
+// PEGASUS_PLATFORM_LINUX_X86_64_GNU
 //
 //==============================================================================
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU)
+    defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU) || \
+    defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 // Note: this lock can be eliminated for single processor systems.
@@ -175,85 +177,6 @@ typedef AtomicIntTemplate<AtomicType> AtomicInt;
 PEGASUS_NAMESPACE_END
 
 #endif /* PEGASUS_PLATFORM_LINUX_IX86_GNU */
-
-//==============================================================================
-//
-// PEGASUS_PLATFORM_LINUX_X86_64_GNU
-//
-//==============================================================================
-
-#if defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
-# define PEGASUS_ATOMIC_INT_DEFINED
-
-// Note: this lock can be eliminated for single processor systems.
-# define PEGASUS_ATOMIC_LOCK "lock ; "
-
-PEGASUS_NAMESPACE_BEGIN
-
-struct AtomicType
-{
-    volatile int n;
-};
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
-{
-    _rep.n = n;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
-{
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline Uint32 AtomicIntTemplate<AtomicType>::get() const
-{
-    return _rep.n;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
-{
-    _rep.n = n;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::inc()
-{
-    asm volatile(
-        PEGASUS_ATOMIC_LOCK "incl %0"
-        :"=m" (_rep.n)
-        :"m" (_rep.n));
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::dec()
-{
-    asm volatile(
-        PEGASUS_ATOMIC_LOCK "decl %0"
-        :"=m" (_rep.n)
-        :"m" (_rep.n));
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
-{
-    unsigned char c;
-
-    asm volatile(
-        PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
-        :"=m" (_rep.n), "=qm" (c)
-        :"m" (_rep.n) : "memory");
-
-    return c != 0;
-}
-
-typedef AtomicIntTemplate<AtomicType> AtomicInt;
-
-PEGASUS_NAMESPACE_END
-
-#endif /* PEGASUS_PLATFORM_LINUX_X86_64_GNU */
 
 //==============================================================================
 //

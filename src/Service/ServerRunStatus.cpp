@@ -116,7 +116,7 @@ void ServerRunStatus::setServerRunning()
         }
         if ((_event != NULL) && (GetLastError() != ERROR_ALREADY_EXISTS))
         {
-            _wasAlreadyRunning = true;
+            _wasAlreadyRunning = false;
         }
     }
 }

@@ -973,19 +973,22 @@ void WMIInstanceProvider::modifyInstance(
         {
             case E_ACCESSDENIED:
                 throw CIMException(CIM_ERR_ACCESS_DENIED);
-                break;
+         
             case WBEM_E_ACCESS_DENIED:
                 throw CIMException(CIM_ERR_ACCESS_DENIED);
-                break;
+          
             case WBEM_E_NOT_FOUND:
                 throw CIMException(CIM_ERR_NOT_FOUND);
-                break;
+           
             case WBEM_E_INVALID_CLASS:
                 throw CIMException(CIM_ERR_INVALID_CLASS);
-                break;
+            
             case WBEM_E_INVALID_OBJECT:
                 throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                break;
+          
+            case WBEM_E_INVALID_PARAMETER:
+                throw CIMException(CIM_ERR_INVALID_PARAMETER);
+
             default:
                 throw CIMException(CIM_ERR_FAILED);
         }

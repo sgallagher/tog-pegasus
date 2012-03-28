@@ -260,15 +260,16 @@ void FileSystemPropertyOwner::updateCurrentValue(
     const String& userName,
     Uint32 timeoutSeconds)
 {
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
     //
     // make sure the property is dynamic before updating the value.
     //
-    if (!isDynamic(name))
+    if (configProperty->dynamic != IS_DYNAMIC)
     {
         throw NonDynamicConfigProperty(name);
     }
 
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->currentValue = value;
 }
 

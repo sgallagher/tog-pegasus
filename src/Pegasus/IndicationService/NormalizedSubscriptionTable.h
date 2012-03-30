@@ -36,7 +36,7 @@
 #include <Pegasus/Common/ReadWriteSem.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/HashTable.h>
-#include "SubscriptionKey.h"
+#include <Pegasus/General/SubscriptionKey.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

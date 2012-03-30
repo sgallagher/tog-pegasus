@@ -318,6 +318,14 @@ It is important to note that certificates are
 checked first against the CRL (if specified) and then against the
 server truststore. The <a href="#CLI">cimcrl CLI</a> should be used for
 CRL management. </p>
+<p><b>sslCipherSuite</b><br>
+This setting specifies the cipher list used by the server during the 
+SSL handshake phase. If not specified, the "DEFAULT" OpenSSL cipher 
+list is used. The cipher list should be mentioned between single 
+quotes since it can contain special characters like .+, !, -. The 
+cipher lists can be found at <a
+ href="http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT">http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT</a>
+</p>
 <h4>Configuration Limitations</h4>
 The following are configuration limitations:
 <ul>
@@ -326,12 +334,6 @@ for this is that there is currently no mechanism in Pegasus to grab the
 password needed to unencrypt it. Therefore, the best way to secure the
 file is to follow the file permissions settings specified in <a
  href="#CERTS">Creating SSL Certificates.</a></li>
-  <li>There is no property to specify supported cipher lists at this
-time. Pegasus uses the default OpenSSL cipher list. The cipher lists
-can be found at <a
- href="http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_</a>
-and <a
- href="http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_</a></li>
   <li>The verification depth cannot be specified. Pegasus uses the
 default OpenSSL depth of 9. This means the OpenSSL will only accept
 client certificate chains up to 9 levels deep.</li>
@@ -524,7 +526,7 @@ user-specified callback is optional and can be set to null).
 </p>
 <ul>
   <font face="courier"> client.connect( hostname, port, <b>SSLContext(trustStore,
-certPath, keyPath, verifyCert, randomFile),</b> username, password); </font>
+certPath, keyPath, verifyCert, randomFile, cipherSuite),</b> username, password); </font>
 </ul>
 <p></p>
 <p> Here's a code snippet that shows how to call a client constructor
@@ -558,6 +560,9 @@ servers" or to perform additional authentication checks that OpenSSL
 does not perform by default.</li>
   <li><b>randomFile</b> -- A file to seed the pseudo random number
 generator (PRNG).</li>
+  <li><b>cipherSuite</b> -- This specifies the cipher list used by the 
+client during the SSL handshake phase. This is an experimental 
+interface.</li>
 </ul>
 <p>Here are some general guidelines on implementing peer verification
 for the client:
@@ -618,11 +623,6 @@ SSLContext, there are some limitations in the client configuration:
 <ul>
   <li>The verification depth cannot be specified. Pegasus uses the
 default OpenSSL depth of 9.</li>
-  <li>The cipher list cannot be specified. Pegasus uses the default
-OpenSSL cipher list. The cipher lists can be found at <a
- href="http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_</a>
-and <a
- href="http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_</a></li>
   <li>No hostname checking is performed to ensure that the subject
 field of the distinguished name (DN) matches the hostname. If desired,
 a user-specified callback should be configured to perform this check or

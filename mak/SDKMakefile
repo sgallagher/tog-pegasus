@@ -71,6 +71,7 @@ ifeq ($(OS),linux)
       LINUX_IX86_GNU \
       LINUX_PPC64_GNU \
       LINUX_PPC_GNU \
+      LINUX_PPC_E500_GNU \
       LINUX_X86_64_GNU \
       LINUX_ZSERIES64_GNU \
       LINUX_ZSERIES_GNU

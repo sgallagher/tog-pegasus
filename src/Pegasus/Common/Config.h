@@ -76,6 +76,8 @@
 # include <Pegasus/Common/Platform_LINUX_PPC_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_PPC64_GNU)
 # include <Pegasus/Common/Platform_LINUX_PPC64_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_PPC_E500_GNU)
+# include <Pegasus/Common/Platform_LINUX_PPC_E500_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_ZSERIES_GNU)
 # include <Pegasus/Common/Platform_LINUX_ZSERIES_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_ZSERIES64_GNU)

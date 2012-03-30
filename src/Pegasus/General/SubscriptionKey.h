@@ -33,7 +33,7 @@
 #define Pegasus_SubscriptionKey_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/General/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 
@@ -72,7 +72,7 @@ public:
     String toString() const;
 
 protected:
-    static PEGASUS_SERVER_LINKAGE void _parseObjectName(
+    static PEGASUS_GENERAL_LINKAGE void _parseObjectName(
         const String & objectName,
         String & name,
         String & ns,

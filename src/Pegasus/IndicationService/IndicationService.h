@@ -53,7 +53,7 @@ ProviderRegistrationManager.h>
 # include <Pegasus/IndicationService/IndicationServiceConfiguration.h>
 #endif
 
-#include "SubscriptionKey.h"
+#include <Pegasus/General/SubscriptionKey.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

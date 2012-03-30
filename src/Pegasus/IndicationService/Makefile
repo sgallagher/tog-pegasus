@@ -51,7 +51,6 @@ LIBRARIES = \
     pegcommon
 
 SOURCES = \
-    SubscriptionKey.cpp \
     IndicationOperationAggregate.cpp \
     SubscriptionRepository.cpp \
     SubscriptionTable.cpp \

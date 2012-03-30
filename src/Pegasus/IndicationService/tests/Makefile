@@ -31,7 +31,6 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    SubscriptionKey \
     IndicationProcess \
     DisableEnable \
     DisableEnable2 \

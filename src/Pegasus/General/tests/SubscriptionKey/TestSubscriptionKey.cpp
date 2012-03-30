@@ -32,7 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/IndicationService/SubscriptionKey.h>
+#include <Pegasus/General/SubscriptionKey.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

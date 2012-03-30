@@ -39,10 +39,10 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/General/SubscriptionKey.h>
 
 #include "ProviderClassList.h"
 #include "SubscriptionRepository.h"
-#include "SubscriptionKey.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

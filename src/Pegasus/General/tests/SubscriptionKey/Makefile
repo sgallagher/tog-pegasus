@@ -27,12 +27,11 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/IndicationService/tests/SubscriptionKey
+DIR = Pegasus/General/tests/SubscriptionKey
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegindicationservice \
-    pegclient \
+    peggeneral \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

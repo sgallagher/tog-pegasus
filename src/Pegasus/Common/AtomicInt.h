@@ -935,11 +935,12 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_AIX_RS_IBMCXX
+// PEGASUS_PLATFORM_AIX_RS_IBMCXX, PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX
 //
 //==============================================================================
 
-#if defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)|| \
+    defined (PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 # include <sys/atomic_op.h>
@@ -996,8 +997,8 @@ typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PEGASUS_PLATFORM_AIX_RS_IBMCXX */
-
+#endif /* PEGASUS_PLATFORM_AIX_RS_IBMCXX, \
+        PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX */
 
 //==============================================================================
 //

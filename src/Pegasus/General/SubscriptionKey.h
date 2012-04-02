@@ -41,12 +41,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 class SubscriptionKey;
 
-struct SubscriptionKeyEqualFunc
+struct PEGASUS_GENERAL_LINKAGE SubscriptionKeyEqualFunc
 {
     static Boolean equal(const SubscriptionKey& x, const SubscriptionKey& y);
 };
 
-struct SubscriptionKeyHashFunc
+struct PEGASUS_GENERAL_LINKAGE SubscriptionKeyHashFunc
 {
     static Uint32 hash(const SubscriptionKey& x);
 };
@@ -59,7 +59,7 @@ struct SubscriptionKeyHashFunc
     subscription namespace.
 */
 
-class SubscriptionKey
+class PEGASUS_GENERAL_LINKAGE SubscriptionKey
 {
 
 public:

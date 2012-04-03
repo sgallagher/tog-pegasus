@@ -158,6 +158,7 @@ OptionStruct::OptionStruct():
         ssl = false;
         clientCert = String();
         clientKey = String();
+        clientTruststore = String();
 #endif
         nameSpace = String();
         cimCmd = "unknown";

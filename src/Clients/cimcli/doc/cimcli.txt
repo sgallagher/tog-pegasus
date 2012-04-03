@@ -9,12 +9,12 @@ SYNOPSIS
        cimcli Operation [OperationTarget] [ValueParameter ...]	[-hc]
 	      [-h operationName] [-ho] [--help] [-n namespace] [-l location]
 	      [-u user] [-p password] [-s] [--cert certFilePath]
-	      [--key keyFilePath] [--sort] [--r repeat] [-delay seconds]
-	      [--sum] [--count object] [--timeout seconds] [-o XML|MOF|TABLE]
-	      [--verbose] [-pl propertyList] [-niq] [-di] [-ic]
-	      [-ac associationClassName] [-rc resultClassName] [-r role]
-	      [-rr resultRole] [-f filter] [-ql query] [--version]
-	      [--expExit exitCode]
+	      [--key keyFilePath] [--truststore clientTrustStorePath] [--sort]
+	      [--r repeat] [-delay seconds] [--sum] [--count object]
+	      [--timeout seconds] [-o XML|MOF|TABLE] [--verbose]
+	      [-pl propertyList] [-niq] [-di] [-ic] [-ac associationClassName]
+	      [-rc resultClassName] [-r role] [-rr resultRole] [-f filter]
+	      [-ql query] [--version] [--expExit exitCode]
 
 
 DESCRIPTION
@@ -275,12 +275,20 @@ OPTIONS
 	      String options.  [certificate-file path defines the file name of
 	      a certificate to be used with  the  client  connect  if  the  -s
 	      option  is  set.	This is optional and used only with the -s and
-	      --key options.
+	      --key options. If exits, the client key (--key option) must also
+	      exist
 
        --key [client key file path]
 	      Defines the file name of a Client private key.  This is optional
-	      and  only has an effect on connections made over HTTPS using the
-	      -s option.
+	      and only has an effect on connections made over HTTPS using  the
+	      -s option. If exists the client certificate (--cert option) must
+	      also exist.
+
+
+       --truststore [clientTrustStorePath]
+	      Defines a file or directory containing  a  truststore  that  the
+	      client  uses  to	verify server certificates. Default is that no
+	      trust store exists
 
 
    CIMCLI OPERATION MODIFICATION OPTIONS
@@ -1322,17 +1330,20 @@ OPTIONS LIST
        --cert [certificateFilePath]
 	      Defines a certificate to be used with the client connect if  the
 	      -s  option  is  set. This is optional and used only  with the -s
-	      and --key options. The parameter certificateFilePath is required
-	      with  the parameter and defined the file containing the certifi-
-	      cate.
+	      and --key options. The parameter	value  certificateFilePath  is
+	      required	with the parameter and defined the file containing the
+	      certificate.  If this parameter exists the --key parameter  must
+	      also  exist  to be a valid SSL request. This represents the X509
+	      certificate of the client that will be sent to the server during
+	      an SLL handshake if the server requests it.
 
 
        --count [object_count]
-	      Defines an expected count of  objects  to  be  returned  in  the
+	      Defines  an  expected  count  of	objects  to be returned in the
 	      response.  cimcli is terminated with an error exit if the number
-	      of objects returned does not  match  the	object_count  supplied
-	      with  the  option.  This test can be used in batch files to test
-	      for number of objects returned by an operation.  In addition  to
+	      of  objects  returned  does  not match the object_count supplied
+	      with the option.	This test can be used in batch files  to  test
+	      for  number of objects returned by an operation.	In addition to
 	      the error status code, a message of the general form:
 		   "Failed count test. Expected= xx. Received= yy"
 	      is output to cerr.
@@ -1345,25 +1356,25 @@ OPTIONS LIST
 		     error message.
 
        -delay [time in seconds]
-	      Delay  between  connection  and  request	.  Default(0). example
-	      -delay 3 delays 3 seconds between the call and the  transmission
-	      of  the actual CIM operation.  This is used only in some testing
+	      Delay between  connection  and  request  .  Default(0).  example
+	      -delay  3 delays 3 seconds between the call and the transmission
+	      of the actual CIM operation.  This is used only in some  testing
 	      environments.
 
-       -di    Specifies the boolean parameter  deepInheritance	parameter  for
-	      selected	commands.  Setting this options causes the deepinheri-
-	      tance=true to be transmitted for the operation.  Note that  this
-	      means  different	things	to different commands and is used only
+       -di    Specifies  the  boolean  parameter deepInheritance parameter for
+	      selected commands. Setting this options causes  the  deepinheri-
+	      tance=true  to be transmitted for the operation.	Note that this
+	      means different things to different commands and	is  used  only
 	      with the enumerate commands.
 
 
-       -d     More detailed debug messages from cimcli. This can be useful  in
+       -d     More  detailed debug messages from cimcli. This can be useful in
 	      the case where the user is debugging CIM functionality.
 
 
        -h <command-name>
 	      Prints the help for a particular operation including the defini-
-	      tion of the  operation,  applicable  options,  and  examples  of
+	      tion  of	the  operation,  applicable  options,  and examples of
 	      usage.
 	   cimcli -h gc
 
@@ -1376,8 +1387,8 @@ OPTIONS LIST
 
 
        -hc    Print cimcli Operation command list.  This list includes the CIM
-	      Operatons defined by the CIM Operations specification and  other
-	      operations  that	were felt to be useful in testing CIM environ-
+	      Operatons  defined by the CIM Operations specification and other
+	      operations that were felt to be useful in testing  CIM  environ-
 	      ments. It includes defintion and examples of each operation.
 
 
@@ -1389,85 +1400,87 @@ OPTIONS LIST
 
 
        -o [ xml | mof | table ]
-	      Output in xml, mof, or table  format.  Default(mof)  if  the  -o
+	      Output  in  xml,	mof,  or  table format. Default(mof) if the -o
 	      options is not included. Note that the output formatting is only
 	      for CIM objects (classes and instances). Object paths are always
 	      displayed as strings.
 
 	      The meaning of the keywords is:
 
-	      /fBxml.fR  Display class or instance in CIM-XML format /fBmof/fR
+	      /fBxml.fR Display class or instance in CIM-XML format  /fBmof/fR
 	      Display class or instance as MOF /fBtable/fR Display instance as
-	      a  table with one column per property an a row for each instance
-	      returned. This format does NOT wrap at 80 columns or  wrap  long
+	      a table with one column per property an a row for each  instance
+	      returned.  This  format does NOT wrap at 80 columns or wrap long
 	      strings.
 
 		  -o xml
 		  display the output in xml
 
 
-       -iq    Specifies  the  includeQualifiers  operation input parameter for
-	      selected commands.Since the CIM/XML default for  this  parameter
-	      is  true	for  some  operations (class operations) and false for
-	      others (instance operations), the  option  is  useful  only  for
-	      instance	operations.   Also the includeQualifiers parameter has
-	      been deprecated in the CIM/XML specification so the results  for
-	      instance	operations  is	undetermined.	See  also -niq for the
+       -iq    Specifies the includeQualifiers operation  input	parameter  for
+	      selected	commands.Since	the CIM/XML default for this parameter
+	      is true for some operations (class  operations)  and  false  for
+	      others  (instance  operations),  the  option  is useful only for
+	      instance operations.  Also the includeQualifiers	parameter  has
+	      been  deprecated in the CIM/XML specification so the results for
+	      instance operations is undetermined.   See  also	-niq  for  the
 	      includeQualifiers parameter for class operations.
 
 
        --key [client key file path]
-	      Defines a Client private key. This is optional and only  has  an
-	      effect on connections made over HTTPS using the -ssl option.
+	      Defines  a  Client private key. This is optional and only has an
+	      effect on connections made over HTTPS using the -ssl option.  If
+	      this  parameter exists the client certificate parameter (--cert)
+	      must also exist to be usable.
 
 
        -l [location]
 	      Define CIM Server host address for the operation.  This includes
 	      either  name  or	IP  address  and  optional  port  number(Host-
-	      Name:port).   The  default  is  localhost:5988.  If name is used
-	      without port, port 5988 is assumed.  Examples include  -l  fred,
+	      Name:port).  The default is localhost:5988.   If	name  is  used
+	      without  port,  port 5988 is assumed.  Examples include -l fred,
 	      -l fred:9999, -l 10.1.134.66 -l 10.1.134.123:5977
 
 
-       -lo    Specifies  the  localOnly  operation parameter for selected com-
-	      mands if the option is set.  See the commands for more  informa-
+       -lo    Specifies the localOnly operation parameter  for	selected  com-
+	      mands  if the option is set.  See the commands for more informa-
 	      tion. This option is Deprecated in favor of the -nlo because the
 	      default for local only is on so that generally the -lo is simply
 	      the default.  We recommend using -nlo to turn off local only.
 
 
        -n [namespace]
-	      Defines  the  namespace for the operation.host name. The default
-	      is   root/cimv2.	 Example   -n	root/PG_Interop    sets    the
+	      Defines the namespace for the operation.host name.  The  default
+	      is    root/cimv2.    Example   -n   root/PG_Interop   sets   the
 	      root/PG_Interop namespace as the namespace for the current oper-
 	      ation.
 
 
        -p [password]
 	      Allows input of a password for server authentication of the com-
-	      mand.  (	ex.  -p  12345678). The default is that the command is
+	      mand. ( ex. -p 12345678). The default is	that  the  command  is
 	      submitted with no password.
 
 
        -u [User]
-	      Defines user name for CIM Server authentication. Default	is  no
-	      user  name  and  no authentication.  ( ex -u john) Default is no
+	      Defines  user  name for CIM Server authentication. Default is no
+	      user name and no authentication.	( ex -u john)  Default	is  no
 	      user name and no authentication from the client.
 
 
-       -lo    DEPRECATED.  This was used to set LocalOnly.   However,  default
-	      should  be  true	and  we cannot use True as default.  See -nlo.
+       -lo    DEPRECATED.   This  was used to set LocalOnly.  However, default
+	      should be true and we cannot use True  as  default.   See  -nlo.
 	      Default(true).
 
 
-       -nlo   When set,  sets  LocalOnly  =  false  on	the  CIM  operation  .
-	      Default(false)  meaning  that  the  operation  sets  LocalOnly =
+       -nlo   When  set,  sets	LocalOnly  =  false  on  the  CIM  operation .
+	      Default(false) meaning  that  the  operation  sets  LocalOnly  =
 	      true..
 
 
-       -ic    Sets includeClassOrigin = true for operation that  support  this
+       -ic    Sets  includeClassOrigin	= true for operation that support this
 	      parameter (i.e. get and enumerate classes and instances, associ-
-	      ators, and references operations).  Note that the  class	origin
+	      ators,  and  references operations).  Note that the class origin
 	      information is only output for the -o xml output operation since
 	      class origin is not part of the MOF format.
 
@@ -1475,15 +1488,15 @@ OPTIONS LIST
 
 
        -pl [propertyList]
-	      Defines a propertyName List which is an optional	parameter  for
+	      Defines  a  propertyName List which is an optional parameter for
 	      some  CIM  Operations.  Format  is  p1,p2,p3  (without  spaces).
 	      Default is that the property list is set to NULL indicating nor-
-	      mally  that  the	operation  should  return all properties.  The
+	      mally that the operation	should	return	all  properties.   The
 	      property list typically has 3 possibilities 1) empty which means
-	      return  no  properties, 2) list of properties to be returned, 3)
-	      NULL which means return all properties.  Since  the  default  is
-	      NULL,  not  applying  the  option  means that all properties are
-	      being requested.	To set this parameter to empty	use  the  form
+	      return no properties, 2) list of properties to be  returned,  3)
+	      NULL  which  means  return all properties.  Since the default is
+	      NULL, not applying the option  means  that  all  properties  are
+	      being  requested.   To  set this parameter to empty use the form
 	      -pl "".
 
 
@@ -1492,46 +1505,55 @@ OPTIONS LIST
 
 
        -rc [resultClassName]
-	      Defines  a  resultClass  string  for References and Associators.
+	      Defines a resultClass string  for  References  and  Associators.
 	      Default()
 
 
        -rr [resultRole]
-	      Defines a  role  string  for  associators  operation  resultRole
+	      Defines  a  role	string	for  associators  operation resultRole
 	      parameter.
 
 
        --setRtnHostNames [SubstituteHostName]
-	      String  option  with  a required parameter that set a substitute
-	      host name which cimcli will  insert  into  returned  objects  to
-	      replace  host  names  returned from the server.  This option was
-	      defined because the object paths/references returned by the  CIM
-	      Server  may include the host name as part of the returned object
+	      String option with a required parameter that  set  a  substitute
+	      host  name  which  cimcli  will  insert into returned objects to
+	      replace host names returned from the server.   This  option  was
+	      defined  because the object paths/references returned by the CIM
+	      Server may include the host name as part of the returned	object
 	      path which makes it difficult to compare the returned paths to a
-	      defined  path.  Using this option forces any returned host names
+	      defined path.  Using this option forces any returned host  names
 	      to be changed to the string parameter supplied with the option.
 
 
-       --sum  Displays only  summary  counts  for  enumerations,  associators,
-	      etc.This	option	is used to with the repeat option to repeat an
-	      operation without getting the full return display.   It  reduces
-	      the  display  to summary information.  It is often used with the
-	      time option --t to generate time for  execution  information  on
+       --sum  Displays	only  summary  counts  for  enumerations, associators,
+	      etc.This option is used to with the repeat option to  repeat  an
+	      operation  without  getting the full return display.  It reduces
+	      the display to summary information.  It is often used  with  the
+	      time  option  --t  to generate time for execution information on
 	      many repetitions of a command.
 
 
        --timeout [seconds]
-	      Set  the	connection timeout in seconds. If not set, the timeout
-	      is the default Pegasus client timeout which for Pegasus is  nor-
-	      mally  to about 30 seconds. This option executes the client call
+	      Set the connection timeout in seconds. If not set,  the  timeout
+	      is  the default Pegasus client timeout which for Pegasus is nor-
+	      mally to about 30 seconds. This option executes the client  call
 	      to set timeout.
 
 
        -trace [trace_level]
-	      Set Pegasus Common Components Trace.  Sets the Trace  level.   0
-	      is  off.	Default(0).  The trace level can be set to 0 - 5. Note
+	      Set  Pegasus  Common Components Trace.  Sets the Trace level.  0
+	      is off.  Default(0).  The trace level can be set to 0 - 5.  Note
 	      that since mose trace definitions have been removed from cimcli,
 	      this is of little value.
+
+
+       --truststore [clientTrustStorePath]
+	      The value of this parameter specifies a file or  directory  that
+	      is the truststore that the client uses to verify server certifi-
+	      cates. The default is that  no  truststore  is  defined  so  the
+	      client  does  not  verify  certificates  from  the server.  This
+	      parameter is used only if cimcli is compiled  with  SSL  enabled
+	      and the -s option (use SSL) is specified for the request.
 
 
        --v    Displays cimcli and Pegasus software Version.

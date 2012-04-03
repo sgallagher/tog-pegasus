@@ -121,6 +121,7 @@ struct  OptionStruct
     Boolean ssl;
     String clientCert;          // client Certificate path
     String clientKey;           // client Key path
+    String clientTruststore;    // Path name for a client truststore
 #endif
 
     // The following variables represent the input Object Name parameter,

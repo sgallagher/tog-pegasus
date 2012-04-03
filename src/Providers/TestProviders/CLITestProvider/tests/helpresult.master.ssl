@@ -21,10 +21,15 @@ This command executes single CIM Operations.
  -s  ssl. Specifies to connect over HTTPS. Default(false)
  --cert  clientCert. Specifies a client certificate file path to present to the server.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientKey must also exist. Default()
  --key  clientKey. Specifies a client private key file path.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientCert must also exist. Default()
+ --truststore  clientTruststore. Specifies a path to a client trust store cused to verify server
+    certificates. This is optional and only has an effect     on connections made over HTTPS using -s
+. Default()
  -u  User. Defines User Name for authentication. Default()
  -n  namespace. Specifies namespace to use for operation. Default(root/cimv2)
  -ic  includeClassOrigin. If set includeClassOrigin  parameter
@@ -437,10 +442,15 @@ This command executes single CIM Operations.
  -s  ssl. Specifies to connect over HTTPS. Default(false)
  --cert  clientCert. Specifies a client certificate file path to present to the server.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientKey must also exist. Default()
  --key  clientKey. Specifies a client private key file path.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientCert must also exist. Default()
+ --truststore  clientTruststore. Specifies a path to a client trust store cused to verify server
+    certificates. This is optional and only has an effect     on connections made over HTTPS using -s
+. Default()
  -u  User. Defines User Name for authentication. Default()
  -n  namespace. Specifies namespace to use for operation. Default(root/cimv2)
  -ic  includeClassOrigin. If set includeClassOrigin  parameter

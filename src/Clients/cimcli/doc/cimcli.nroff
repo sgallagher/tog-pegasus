@@ -20,6 +20,7 @@ cimcli \- command line WBEM Client
 .OP \-s
 .OP \--cert certFilePath
 .OP \--key keyFilePath
+.OP \--truststore clientTrustStorePath
 .op \--t
 .OP \--sort
 .OP \--r repeat count
@@ -296,11 +297,18 @@ the SSL capabilities disabled.
 .B \--cert [certificate file path]
 String options.  [certificate-file path defines the file name of a 
 certificate to be used with the client connect if the -s option is set.  
-This is optional and used only with the -s and --key options.  
+This is optional and used only with the -s and --key options. If exits,
+the client key (--key option) must also exist 
 .TP
 .B \--key [client key file path]
 Defines the file name of a Client private key.  This is optional and only 
-has an effect on connections made over HTTPS using the -s option.
+has an effect on connections made over HTTPS using the -s option. If exists
+the client certificate (--cert option) must also exist.
+
+.TP
+.B \--truststore [clientTrustStorePath]
+Defines a file or directory containing a truststore that the client uses to verify
+server certificates. Default is that no trust store exists
 
 .SS CIMCLI OPERATION MODIFICATION OPTIONS
 
@@ -1390,8 +1398,11 @@ CIM Operations.
 .B \--cert  [certificateFilePath]
 Defines a certificate to be used with the client connect if the -s
 option is set. This is optional and used only  with the -s and --key
-options. The parameter certificateFilePath is required with the parameter
-and defined the file containing the certificate.
+options. The parameter value certificateFilePath is required with the parameter
+and defined the file containing the certificate.  If this parameter exists
+the --key parameter must also exist to be a valid SSL request. This represents
+the X509 certificate of the client that will be sent to the server during
+an SLL handshake if the server requests it.
 
 .TP
 .B \--count [object_count]
@@ -1500,7 +1511,8 @@ See also -niq for the includeQualifiers parameter for class operations.
 .TP
 .B \--key [client key file path]
 Defines a Client private key. This is optional and only has an effect
-on connections made over HTTPS using the -ssl option.  
+on connections made over HTTPS using the -ssl option.  If this parameter
+exists the client certificate parameter (--cert) must also exist to be usable.
 
 .TP
 .B \-l [location]
@@ -1614,6 +1626,14 @@ default Pegasus client timeout which for Pegasus is normally to about
 Set Pegasus Common Components Trace.  Sets the Trace level.  0 is off.  
 Default(0).  The trace level can be set to 0 - 5. Note that since mose
 trace definitions have been removed from \fBcimcli\fR, this is of little value.
+
+.TP
+.B \--truststore [clientTrustStorePath]
+The value of this parameter specifies a file or directory that is the
+truststore that the client uses to verify server certificates. The default is
+that no truststore is defined so the client does not verify certificates from
+the server.  This parameter is used only if cimcli is compiled with SSL enabled
+and the -s option (use SSL) is specified for the request.
 
 .TP
 .B \--v

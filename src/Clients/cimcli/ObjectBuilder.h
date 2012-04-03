@@ -241,7 +241,7 @@ private:
     void printTokens(String message = String());
 
     // Append a new tokenItem to the array for this instance. if the
-    // name already exists, mark it as duplicate. NOTE: duplicate is 
+    // name already exists, mark it as duplicate. NOTE: duplicate is
     // name only test.
     void appendToken(tokenItem ti);
 

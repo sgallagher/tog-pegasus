@@ -701,7 +701,7 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
         {
             cimcliMsg::exit(CIMCLI_INPUT_ERR,
                 "Duplicate scalar property Name. $0",
-                   token.tokenInput);                    
+                   token.tokenInput);
         }
     }
 

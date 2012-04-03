@@ -1,5 +1,5 @@
-<!-- Creator     : groff version 1.20.1 -->
-<!-- CreationDate: Sun Dec 11 11:50:33 2011 -->
+<!-- Creator     : groff version 1.21 -->
+<!-- CreationDate: Tue Mar 27 13:16:07 2012 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -69,6 +69,7 @@ command line WBEM Client</p>
 [<b>&minus;p&nbsp;</b><i>password</i>] [<b>&minus;s</b>]
 [<b>&minus;-cert&nbsp;</b><i>certFilePath</i>]
 [<b>&minus;-key&nbsp;</b><i>keyFilePath</i>]
+[<b>&minus;-truststore&nbsp;</b><i>clientTrustStorePath</i>]
 [<b>&minus;-sort</b>] [<b>&minus;-r&nbsp;</b><i>repeat</i>]
 [<b>&minus;delay&nbsp;</b><i>seconds</i>]
 [<b>&minus;-sum</b>]
@@ -559,14 +560,25 @@ file path]</b></p>
 [certificate-file path defines the file name of a
 certificate to be used with the client connect if the -s
 option is set. This is optional and used only with the -s
-and --key options.</p>
+and --key options. If exits, the client key (--key option)
+must also exist</p>
 
 <p style="margin-left:11%;"><b>&minus;-key [client key file
 path]</b></p>
 
 <p style="margin-left:22%;">Defines the file name of a
 Client private key. This is optional and only has an effect
-on connections made over HTTPS using the -s option.</p>
+on connections made over HTTPS using the -s option. If
+exists the client certificate (--cert option) must also
+exist.</p>
+
+<p style="margin-left:11%;"><b>&minus;-truststore
+[clientTrustStorePath]</b></p>
+
+<p style="margin-left:22%;">Defines a file or directory
+containing a truststore that the client uses to verify
+server certificates. Default is that no trust store
+exists</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>CIMCLI
 OPERATION MODIFICATION OPTIONS</b> <br>
@@ -2079,8 +2091,12 @@ Operations.</p>
 <p style="margin-left:22%;">Defines a certificate to be
 used with the client connect if the -s option is set. This
 is optional and used only with the -s and --key options. The
-parameter certificateFilePath is required with the parameter
-and defined the file containing the certificate.</p>
+parameter value certificateFilePath is required with the
+parameter and defined the file containing the certificate.
+If this parameter exists the --key parameter must also exist
+to be a valid SSL request. This represents the X509
+certificate of the client that will be sent to the server
+during an SLL handshake if the server requests it.</p>
 
 <p style="margin-left:11%;"><b>&minus;-count
 [object_count]</b></p>
@@ -2274,7 +2290,9 @@ path]</b></p>
 
 <p style="margin-left:22%;">Defines a Client private key.
 This is optional and only has an effect on connections made
-over HTTPS using the -ssl option.</p>
+over HTTPS using the -ssl option. If this parameter exists
+the client certificate parameter (--cert) must also exist to
+be usable.</p>
 
 <p style="margin-left:11%;"><b>&minus;l [location]</b></p>
 
@@ -2468,6 +2486,17 @@ Trace. Sets the Trace level. 0 is off. Default(0). The trace
 level can be set to 0 - 5. Note that since mose trace
 definitions have been removed from <b>cimcli</b>, this is of
 little value.</p>
+
+<p style="margin-left:11%;"><b>&minus;-truststore
+[clientTrustStorePath]</b></p>
+
+<p style="margin-left:22%;">The value of this parameter
+specifies a file or directory that is the truststore that
+the client uses to verify server certificates. The default
+is that no truststore is defined so the client does not
+verify certificates from the server. This parameter is used
+only if cimcli is compiled with SSL enabled and the -s
+option (use SSL) is specified for the request.</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">

@@ -110,13 +110,13 @@ void UserAuthProvider::_verifyAuthorization(const String& user)
     PEG_METHOD_ENTER(TRC_CONFIG,
         "UserAuthProvider::_verifyAuthorization()");
 
-    if ( user.size() && !System::isPrivilegedUser(user) )
+    if ( System::isPrivilegedUser(user) == false )
     {
+        PEG_METHOD_EXIT();
         MessageLoaderParms parms(
             "ControlProviders.UserAuthProvider."
             "MUST_BE_PRIVILEGED_USER",
-            "Superuser authority is required to run this CIM operation.");
-        PEG_METHOD_EXIT();
+            "Must be a privileged user to execute this CIM operation.");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,parms);
     }
 

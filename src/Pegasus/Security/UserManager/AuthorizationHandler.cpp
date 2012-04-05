@@ -422,9 +422,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
             if (strcasecmp(nameSpChar,"root/PG_Internal") == 0
                     ||strcasecmp(nameSpChar,"root/PG_InterOp") == 0
                     ||strcasecmp(nameSpChar,"PG_Internal") == 0
-                    ||strcasecmp(nameSpChar,"PG_InterOp") == 0 
-                    ||strcasecmp(nameSpChar,"root/interop") == 0
-                    ||strcasecmp(nameSpChar,"interop") == 0 )
+                    ||strcasecmp(nameSpChar,"PG_InterOp") == 0  )
             {
                 if(!System::isPrivilegedUser(userName))
                     authorized = false;

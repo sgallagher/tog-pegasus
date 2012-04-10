@@ -308,7 +308,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 
             if (cimObjects.size() == EXPECTED_ASSOCIATORS)
             {
-                if (true) // alternative: check verbose flag
+                if (verbose) // alternative: check verbose flag
                 {
                     cout << "      A  thread " << uniqueID
                          << ": iteration " << iterations
@@ -378,7 +378,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 
             if (cimObjectNames.size() == EXPECTED_ASSOCIATORNAMES)
             {
-                if (true) // alternative: check verbose flag
+                if (verbose) // alternative: check verbose flag
                 {
                     cout << "      AN thread " << uniqueID
                          << ": iteration " << iterations
@@ -448,7 +448,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 
             if (cimObjects.size() == EXPECTED_REFERENCES)
             {
-                if (true) // alternative: check verbose flag
+                if (verbose) // alternative: check verbose flag
                 {
                     cout << "      R  thread " << uniqueID
                          << ": iteration " << iterations
@@ -518,7 +518,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 
             if (cimObjectNames.size() == EXPECTED_REFERENCENAMES)
             {
-                if (true) // alternative: check verbose flag
+                if (verbose) // alternative: check verbose flag
                 {
                     cout << "      RN thread " << uniqueID
                          << ": iteration " << iterations

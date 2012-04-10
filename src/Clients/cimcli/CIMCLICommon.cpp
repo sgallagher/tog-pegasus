@@ -198,6 +198,18 @@ void _print(Boolean x)
     cout << _toString(x);
 }
 
+String _toString(Array<CIMName> array)
+{
+    String rtn;
+    for (Uint32 i = 0 ; i < array.size(); i++)
+    {
+        rtn.append(" ");
+
+        rtn.append(array[i].getString());
+    }
+    return rtn;
+}
+
 // Convert a CIMPropertyList parameter to CIM String
 String _toString(const CIMPropertyList& pl)
 {
@@ -472,6 +484,16 @@ String stringPrintf(const char* format, ...)
     free(rtnCharPtr);
 
     return(rtnString);
+}
+
+String fillString(Uint32 count,  const char x)
+{
+    String str;
+    for (Uint32 i = 0 ; i < count ; i++)
+    {
+        str.append(x);
+    }
+    return str;
 }
 
 /* Remap a long string into a multi-line string that can be positioned on a

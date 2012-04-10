@@ -143,6 +143,9 @@ int PEGASUS_CLI_LINKAGE setObjectManagerStatistics(Options& opts,
                                    Boolean newState,
                                    Boolean& stateAfterMod);
 
+int PEGASUS_CLI_LINKAGE countInstances(Options& opts);
+
+int PEGASUS_CLI_LINKAGE classTree(Options& opts);
 PEGASUS_NAMESPACE_END
 
 #endif

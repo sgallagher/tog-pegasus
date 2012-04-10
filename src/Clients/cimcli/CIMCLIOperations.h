@@ -84,6 +84,8 @@ enum OperationID {
   ID_StatisticsOn              ,
   ID_StatisticsOff             ,
   ID_TestInstance              ,
+  ID_CountInstances            ,
+  ID_ClassTree                 ,
 //ID_Profile                   ,
 };
 /*

@@ -1146,6 +1146,13 @@ en:table {
         Clients.cimcli.CIMCLIClient.SOFF_COMMAND_HELP:string {
         "soff  Turn Off Statistics    Turn off CIM Server Statistics Gathering\n"}
 
+        Clients.cimcli.CIMCLIClient.CCI_COMMAND_HELP:string {
+        "cci  countInstances Count all Instances in Namespace and sort by ClassName.\n"
+        "     Warning: Could request large number of instances from Server"}
+
+        Clients.cimcli.CIMCLIClient.CT_COMMAND_HELP:string {
+        "ct  classTree    Display graphic tree of classesin a namespace\n"}
+
         Clients.cimcli.CIMCLIClient.?_COMMAND_HELP:string {
         "?     show command options   Show List of Commands\n"}
 
@@ -1339,6 +1346,18 @@ en:table {
         Clients.cimcli.CIMCLIClient.SOFF_COMMAND_EXAMPLE:string {
         "cimcli soff  -- Switch OFF's the statistical information on CIMServer\n"}
 
+        Clients.cimcli.CIMCLIClient.CCI_COMMAND_EXAMPLE:string {
+        "cimcli cci  -- Display count of instances in namespace\n"}
+
+        Clients.cimcli.CIMCLIClient.CT_COMMAND_EXAMPLE:string {
+        "cimcli ct CIM_ManagedElement  -- Displays tree of class hiearchy"
+        "    starting at CIM_ManagedElement.\n"}
+
+        Clients.cimcli.CIMCLIClient.CT_COMMAND_OPTIONS:string {
+        "    -nlo displays tree of superclasses.\n"
+        "    -di displays association information\n"
+        "    -count and output options( -o and -x) do not apply"}
+
         Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE:string {
         "cimcli ?  -- Displays help command \n"}
 
@@ -1430,9 +1449,8 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP:
         string {"-ip  inputParameters. Deprecated and Removed. Replaced by use of\n"
-	"    use of the same name/value pair syntax as properties in create\n"
-	"    and modify instance.\n"
-	}
+	    "    use of the same name/value pair syntax as properties in create\n"
+	    "    and modify instance.\n" }
 
         Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP:string {
         "-f  filter. Defines a filter to use for query. Single String input. Default()\n"}
@@ -1480,7 +1498,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.SETRTNHOSTNAMES_OPTION_HELP:string {
         "-setRtnHostNames  setRtnHostNames. Set namespace component of reference and path outputs parameter.\n"
         "    Used to allow comparison of paths and instances without"
-	" involving the variable of host namespaces. Default(false)\n"}
+	    " involving the variable of host namespaces. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP:string {
         "-trace  trace. Set Pegasus Common Components Trace. Sets the Trace level.\n"

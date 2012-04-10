@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.21 -->
-<!-- CreationDate: Tue Mar 27 13:16:07 2012 -->
+<!-- CreationDate: Tue Apr 10 09:45:40 2012 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -168,7 +168,7 @@ the Pegasus release.</p></td></tr>
 
 <p style="margin-left:22%; margin-top: 1em"><b>NOTE:</b>
 This operation may be CIMServer type specific since not all
-CIMServers implement the statistics functions.</p>
+CIM servers implement the statistics functions.</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
@@ -187,7 +187,38 @@ tests of the characteristics of an instance requested from
 the CIM Server. This operation extends the capabilities of
 <b>cimcli</b> to actually compare information from the
 server with information in the command line input.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p>5.</p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>classtree (ct) - Display a tree of either superclasses
+or subclasses of defined classes in the repository.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p>6.</p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>countinstance (cci) - Count the number of instances by
+class in a namespace.</p></td></tr>
 </table>
+
+
+<p style="margin-left:22%; margin-top: 1em"><b>WARNING:</b>
+This operation could cause problems if executed against a
+server which returns very large numbers of instances since
+it retrieves all of the instances and counts them in
+cimcli.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The format of
 the <b>cimcli</b> command is:</p>
@@ -253,11 +284,11 @@ form:</p>
 <p style="margin-left:11%; margin-top: 1em">where:</p>
 
 
-<p style="margin-left:28%; margin-top: 1em"><b>&lt;keyPropertyName&gt;</b>
+<p style="margin-left:22%; margin-top: 1em"><b>&lt;keyPropertyName&gt;</b>
 is the name of a property in <b>&lt;className&gt;</b></p>
 
 
-<p style="margin-left:28%; margin-top: 1em"><b>&lt;value&gt;</b>
+<p style="margin-left:22%; margin-top: 1em"><b>&lt;value&gt;</b>
 is a string that represents either a numeric value or a
 string value (enveloped in quotes). Quote marks surrounding
 string values are required.</p>
@@ -285,11 +316,11 @@ this form is:</p>
 <p style="margin-left:11%; margin-top: 1em">where:</p>
 
 
-<p style="margin-left:28%; margin-top: 1em"><b>&lt;keyPropertyName&gt;</b>
+<p style="margin-left:22%; margin-top: 1em"><b>&lt;keyPropertyName&gt;</b>
 is the name of a property in <b>&lt;className&gt;</b></p>
 
 
-<p style="margin-left:28%; margin-top: 1em"><b>&lt;value&gt;</b>
+<p style="margin-left:22%; margin-top: 1em"><b>&lt;value&gt;</b>
 is either a numeric value or a string value (enveloped in
 quotes only if there are spaces in the string).</p>
 
@@ -356,7 +387,7 @@ responses or requesting only summary operation.</p></td></tr>
 
 <p>Connection Options - Options that define the connection
 for the operation. This includes options for defining the
-CIMServer address, namespace, and security options such as
+CIM server address, namespace, and security options such as
 user name, password and SSL settings.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
@@ -612,7 +643,7 @@ with the repeat option, the output includes maximum,
 minimum, and average times for the operation. There are a
 specific operations in <b>cimcli</b> to turn control
 statistics generation (See son and soff operations) at least
-for the Pegasus cimserver.</p></td></tr>
+for the Pegasus CIM server.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -904,12 +935,12 @@ inputting an [Operation] on the command line and they are
 case independent.</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>ci
-CreateInstance</b> <br>
+CreateInstance Operation</b> <br>
 The CreateInstance operation executes the DMTF CIM/XML
 createInstance operation request. It builds an instance of
 the class defined on the command line building the
 properties of the instance from a combination of the class
-retrieved from the CIMServer and value parameters provided
+retrieved from the CIM server and value parameters provided
 with the input. <b>cimcli</b> issues the CIM operation
 createInstance with the created instance It requires the
 [OperationTarget] parameter defining the class for which the
@@ -1016,7 +1047,7 @@ defining a string that is comma-separated scalar value
 entities. of the form :</p>
 
 
-<p style="margin-left:11%; margin-top: 1em">&lt;scalarvalueString&gt;[,&lt;scalarvalueString&gt;]*</p>
+<p style="margin-left:17%; margin-top: 1em">&lt;scalarvalueString&gt;[,&lt;scalarvalueString&gt;]*</p>
 
 <p style="margin-left:11%; margin-top: 1em">The array MUST
 NOT include any spaces between the scalar value entities. It
@@ -1051,11 +1082,11 @@ CIMType for the property from the server and checks this
 against the data input.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The execution
-of this operation first accesses the CIMServer for the class
-definition and uses this information to build the proper
-value types and values for the instance. This means that
-values that cannot be decoded with values to match the CIM
-Type in the class will be rejected.</p>
+of this operation first accesses the CIM server for the
+class definition and uses this information to build the
+proper value types and values for the instance. This means
+that values that cannot be decoded with values to match the
+CIM Type in the class will be rejected.</p>
 
 <p style="margin-left:11%; margin-top: 1em">This command
 builds the instance with all of the properties for which
@@ -1091,7 +1122,7 @@ definition &quot;}&quot; to end the embedded instance
 definition as shown below:</p>
 
 
-<p style="margin-left:11%; margin-top: 1em">&lt;propertyName&gt;={&lt;embeddedClassName&gt;
+<p style="margin-left:17%; margin-top: 1em">&lt;propertyName&gt;={&lt;embeddedClassName&gt;
 [&lt;propertyDef&gt;]* }</p>
 
 <p style="margin-left:11%; margin-top: 1em">The embedded
@@ -1187,7 +1218,7 @@ CIM types.</p></td></tr>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>mi
-ModifyInstance</b> <br>
+ModifyInstance Operation</b> <br>
 This operation allows the modification of existing instances
 in the target server by building the properties from a
 combination of the target Class and properties provided with
@@ -1225,24 +1256,31 @@ list option (-pl) that defines a property list to be
 supplied to the target server with the modifyInstance CIM
 Operation.</p>
 
-<p style="margin-left:11%; margin-top: 1em">NOTE: For
-existing versions of Pegasus (though 2.10) the -pl option
-may be required to allow the server to correctly modify the
-instance since without this option the pegasus server may
-remove properties that are not in the modified instance.</p>
+<p style="margin-left:11%; margin-top: 1em">NOTE: For some
+versions of Pegasus the -pl option may be required to allow
+the server to correctly modify the instance since without
+this option the pegasus server may remove properties that
+are not in the modified instance.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The syntax for
 the modifyInstance operation is as follows:</p>
 
-<p style="margin-left:11%; margin-top: 1em">cimcli mi
+<p style="margin-left:17%; margin-top: 1em"><b>cimcli mi
 &lt;className&gt; [&lt;propertyDef&gt;]* [-pl
-&lt;propertyList] <br>
-where the properties defined MUST include the key <br>
-properties <br>
-or <br>
-cimcli mi &lt;objectPath&gt; [&lt;propertyDef&gt;]* [-pl
-&lt;propertyList] <br>
-where the properties defined do not include the key <br>
+&lt;propertyList]</b></p>
+
+<p style="margin-left:23%;">where the properties defined
+MUST include the key <br>
+properties</p>
+
+<p style="margin-left:17%;">or</p>
+
+<p style="margin-left:17%; margin-top: 1em"><b>cimcli mi
+&lt;objectPath&gt; [&lt;propertyDef&gt;]* [-pl
+&lt;propertyList]</b></p>
+
+<p style="margin-left:23%;">where the properties defined do
+not include the key <br>
 properties</p>
 
 <p style="margin-left:11%; margin-top: 1em">See
@@ -1258,11 +1296,12 @@ createInstance operation for detailed definition of
     cimcli mi &rsquo;CIM_xxx.name=&quot;abc&quot;&rsquo; size=zyx
     or
     cimcli mi CIM_xxxx name=abc arrayParam= \
-          {abc,def,ghi,&quot;jkl mno&quot;           numericArray=1,2,3,4</pre>
+          {abc,def,ghi,&quot;jkl mno&quot; \
+          numericArray=1,2,3,4</pre>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>ec
-EnumerateClasses</b> <br>
+EnumerateClasses Operation</b> <br>
 Issues the enumerateClasses CIM operation which enumerates
 the class hierarchy starting at the level defined by
 &lt;classname&gt;.</p>
@@ -1294,7 +1333,7 @@ parameter off</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>&minus;ic</b>
 Boolean parameter sets the operation parameter
-includeClassOrigin in the operation request. the CIMServer
+includeClassOrigin in the operation request. the CIM server
 is expected to return classOrigin information as part of the
 response.</p>
 
@@ -1310,7 +1349,7 @@ operation.</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>nc
-EnumerateClassNames</b> <br>
+EnumerateClassNames Operation</b> <br>
 The EnumerateClassNames <b>cimcli</b> operation issues the
 enumerateClassNames CIM Operation.</p>
 
@@ -1340,8 +1379,8 @@ localOnly</p>
             Issue getClass CIM Operation for the class CIM_Door.</pre>
 
 
-<p style="margin-left:11%;"><b>ni
-EnumerateInstanceNames</b></p>
+<p style="margin-left:11%;"><b>ni EnumerateInstanceNames
+Operation</b></p>
 
 <p style="margin-left:22%;">Execute the
 enumerateInstanceNames CIM Operation. The syntax for this
@@ -1379,7 +1418,7 @@ defined input parameters.</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>ei
-EnumerateInstances</b> <br>
+EnumerateInstances Operation</b> <br>
 Execute the CIM operation enumerateInstances. The syntax for
 this operation is:</p>
 
@@ -1387,7 +1426,7 @@ this operation is:</p>
 [className] [&lt;option&gt;]*</b></p>
 
 <p style="margin-left:11%; margin-top: 1em">This operation
-requests instances from the CIMServer and displays the
+requests instances from the CIM server and displays the
 returned instances in a user selected format.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The following
@@ -1438,7 +1477,7 @@ the output options parameter.</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>niall
-enumerateallinstanceNames</b> <br>
+enumerateallinstanceNames Operation</b> <br>
 Execute an enumerateinstancenames on all classes to get all
 class names within the defined namespace or class hiearchy
 below the target input class. if no class name is psecified
@@ -1478,7 +1517,7 @@ namespace.</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>gi
-GetInstance</b> <br>
+GetInstance Operation</b> <br>
 Gets the instance defined by the instance name parameter and
 displays it in the format chosen for this operation (xml,
 mof, or table).</p>
@@ -1554,7 +1593,7 @@ operation</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>di
-deleteInstance</b> <br>
+deleteInstance Operation</b> <br>
 Delete instance executed a single deleteInstance command to
 the CIM Server. The syntax is:</p>
 
@@ -1594,7 +1633,7 @@ were any errors.</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>gq
-getQualifier</b> <br>
+getQualifier Operation</b> <br>
 getQualifier displays the target qualifier. The syntax
 is:</p>
 
@@ -1611,11 +1650,14 @@ is:</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>sq
-setQualifier</b> <br>
-This command is not implemented.</p>
+setQualifier Operation</b> <br>
+This command is not implemented. We do not intend to
+implement this operation in cimcli because of the syntax
+complexity. Use a mof compiler to create new qualifiers in
+the CIM server</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>eq
-enumeratequalifiers</b> <br>
+enumeratequalifiers Operation</b> <br>
 Issues the CIM Operation to enumerate all of the qualifiers
 defined in the target namespace. The syntax is:</p>
 
@@ -1626,7 +1668,7 @@ defined in the target namespace. The syntax is:</p>
 special options for this operation.</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>dq
-deletequalifier</b> <br>
+deletequalifier Operation</b> <br>
 Issues the CIM operation to delete the target qualifier
 defined by qualifier_name in the target namespace. The
 Syntax is:</p>
@@ -1640,7 +1682,7 @@ qualifier declarations that may be used by other components
 of the model.</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>a
-associators</b> <br>
+associators Operation</b> <br>
 Execute the CIM Operation enumerate associators for the
 target object name. The syntax for this operation is:</p>
 
@@ -1685,7 +1727,7 @@ enumerateInstances on the objectname and presents the list
 of possible instances for user selection</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>an
-associatornames</b> <br>
+associatornames Operation</b> <br>
 Enumerate the associator names for the target object. The
 syntax for this operation is:</p>
 
@@ -1719,8 +1761,8 @@ objectname is a classname, the environment performs an
 enumerateinstances on the objectname and presents the list
 of possible instances for user selection</p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>r
-references</b> <br>
+<p style="margin-left:11%; margin-top: 1em"><b>r references
+Operation</b> <br>
 Executes the CIM references Operation. Which returns CIM
 Objects. The syntax for this the operation is:</p>
 
@@ -1790,7 +1832,7 @@ execute interactive reference, etc. operations</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>rn
-referencenames</b> <br>
+referencenames Operation</b> <br>
 Executes the CIM Operation referencenames that returns
 CIMObject paths of the references of the objectname
 parameter.</p>
@@ -1829,9 +1871,9 @@ enumerateinstances on the objectname and presents the list
 of possible instances for user selection</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>im
-invokeMethod</b> <br>
-This operation executes a CIM extrinsic operation to execute
-a method on a CIM class or instance.</p>
+invokeMethod Operation</b> <br>
+This operation sends a CIM extrinsic operation to the CIM
+server to execute a method on a CIM class or instance.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The syntax of
 the command is: <b><br>
@@ -1920,7 +1962,7 @@ parameters.</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>gp
-getProperty</b> <br>
+getProperty Operation</b> <br>
 Executes the getProperty CIM operation which gets a single
 property from the server. Note that this operation has been
 deprecated in the DMTF specifications because a) it is
@@ -1942,7 +1984,7 @@ this operation is:</p>
 &lt;propertyName&gt;</b></p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>sp
-setProperty</b> <br>
+setProperty Operation</b> <br>
 The setProperty executes the setProperty operation which
 attempts to set a single property on an instance in the CIM
 Server.</p>
@@ -1954,8 +1996,8 @@ this operation is:</p>
 &lt;objectPath&gt;
 &lt;propertyName=&lt;&lt;value&gt;</b></p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>xq
-execQuery</b> <br>
+<p style="margin-left:11%; margin-top: 1em"><b>xq execQuery
+Operation</b> <br>
 The execQuery operation directly executes the CIM Operation
 execQuery with the input parameter supplied either by direct
 parameter input or the options for filter and querylanguage.
@@ -1970,9 +2012,13 @@ as parameter or as options (-f for the query filter and -ql
 for query language.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The execQuery
-cim Operation is executed directly with the input parameters
+CIM Operation is executed directly with the input parameters
 or options. If neither a query_filter parameter or option
-are supplied <b>cimcli</b> returns an error.</p>
+are supplied <b>cimcli</b> returns an error. If the
+query_language parameter (-ql) is omitted the default is
+&quot;WQL&quot;. The operation does not validate the query
+language parameter but simply passes the input string on to
+the CIM server</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>Examples</b></p>
@@ -1984,8 +2030,9 @@ are supplied <b>cimcli</b> returns an error.</p>
              uses WQL as default query language</pre>
 
 
-<p style="margin-left:11%; margin-top: 1em"><b>son</b> <br>
-Set the CIMServer statistics to enabled by doing a modify
+<p style="margin-left:11%; margin-top: 1em"><b>son
+Operation (Deprecated)</b> <br>
+Set the CIM server statistics to enabled by doing a modify
 instance of the CIM_ObjectManager instance that defines the
 server. This depends on the server having implemented
 statistics and having also implemented the functionality of
@@ -1998,7 +2045,7 @@ to disable statistics on the server. This works with
 OpenPegasus servers starting with version 2.5.1.</p>
 
 <p style="margin-left:11%; margin-top: 1em">DEPRECATED to
-be replaced by at some time in the future</p>
+be replaced by at some time in the future.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The syntax of
 the operation is:</p>
@@ -2006,12 +2053,13 @@ the operation is:</p>
 <p style="margin-left:11%; margin-top: 1em"><b>cimcli
 son</b></p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>soff</b>
-<br>
+<p style="margin-left:11%; margin-top: 1em"><b>soff
+Operation (Deprecated)</b> <br>
 See the operation son. This is the corresponding operation
 to turn off statistics in the server.</p>
 
-<p style="margin-left:11%; margin-top: 1em">DEPRECATED</p>
+<p style="margin-left:11%; margin-top: 1em">DEPRECATED to
+be replaced by at some time in the future.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The syntax of
 the operation is:</p>
@@ -2020,14 +2068,14 @@ the operation is:</p>
 soff</b></p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>ns
-enumeratenamespaces</b> <br>
+enumeratenamespaces Operation</b> <br>
 Request an Enumeration of all the namespaces in the target
 CIM Server. This command uses both the CIM_Namespace class
 and if that fails, the __Namespace class to determine the
 list of namespaces.</p>
 
 <p style="margin-left:11%; margin-top: 1em">RETURN - It
-returns a list of the namespace names returned by the CIM
+displays a list of the namespace names returned by the CIM
 Server.</p>
 
 <p style="margin-left:11%; margin-top: 1em">The syntax for
@@ -2044,8 +2092,88 @@ this operation enumerates namespaces, the namespace option
 <p style="margin-left:11%; margin-top: 1em"><b>Examples</b></p>
 
 
-<pre style="margin-left:11%;">        cimcli ns
-        request list of all namespaces</pre>
+<pre style="margin-left:11%;">   cimcli ns
+       request list of all namespaces from the CIM server</pre>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>cci
+countInstances Operation</b> <br>
+Counts the number of instances by class in a namespace (if
+no [OperationTarget] is specified or of the subclasses of
+the class specified by [OperationTarget].</p>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>WARNING:</b>
+This operation could cause problems if executed against a
+server which returns very large numbers of instances since
+it retrieves all of the instances and counts them in
+cimcli.</p>
+
+<p style="margin-left:11%; margin-top: 1em">This operation
+counts the number of instances of each class in the class
+hiearchy. Note that an enumerateInstances returns instances
+of all classes in a hiearchy but that this operation
+actually counts the number of instances of each class
+separately.</p>
+
+<p style="margin-left:11%; margin-top: 1em">The syntax for
+this operation is:</p>
+
+<p style="margin-left:17%;"><b>cimcli cci
+&lt;[targetClass]&gt; [option]...</b></p>
+
+<p style="margin-left:11%; margin-top: 1em">The output
+option does not apply. The output is always a text display
+of classes with instances and count of number of instances.
+All association class instances are suffixed with an
+asterick(*).</p>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>Examples</b></p>
+
+<pre style="margin-left:11%;">    cimcli cci
+
+
+    cimcli cci CIM_ComputerSystem -n PG_InterOp -l localhost</pre>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>ct classtree
+Operation</b> <br>
+Display the class hiearchy for the class provided as a
+parameter with the operation request.</p>
+
+<p style="margin-left:11%; margin-top: 1em">This operation
+can display either the subclass tree or if the -nlo (no
+local only) option is specified, the superclass tree for the
+defined class. Note that the class parameter is required if
+the superclass tree is requested but not if the subclass
+tree is requested.</p>
+
+<p style="margin-left:11%; margin-top: 1em">In addition, if
+the class is an association class, the reference classes are
+included in the display if text output is requested
+(-di).</p>
+
+<p style="margin-left:11%; margin-top: 1em">The syntax is
+as follows:</p>
+
+<p style="margin-left:17%;"><b>cimcli ct &lt;classname&gt;
+[&lt;option&gt;]*</b></p>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>Examples</b></p>
+
+
+<pre style="margin-left:11%;">    cimcli ct
+        displays class tree for one namespace
+    cimcli ct CIM_ComputerSystem
+        displays class tree starting at CIM_ComputerSystem
+    cimcli ct CIM_ComputerSystem -nlo
+        displays a tree of the superclasses of CIM_ComputerSystem
+    cimcli ct CIM_ComputerSystem -o txt
+        displays class tree startign at CIM_Computer system and for
+        any association class displays the class defined for each
+        reference property</pre>
 
 
 <h2>OPTIONS LIST

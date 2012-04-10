@@ -255,7 +255,7 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
                  stringPrintf("%s", "Common Options are : \n");
 
             commonOpStr.append(commonOptions);
-            // = strcat(commonOptStr, commonOptions);
+
             cout << loadMessage("Clients.cimcli.CIMCLIClient."
                         "COMMON_OPTIONS_STRING",
                         commonOpStr.getCString())

@@ -206,10 +206,23 @@ private:
 
 };
 
+/****************************************************************************
+*
+*        Collection of toString functions that are not part of the
+*        basic objects, primitive types, or Array functions but are
+*        used in CIMCLI.
+*
+**
+*****************************************************************************/
+/**
+ * Create a string filled with the defined character
+*/
+String  PEGASUS_CLI_LINKAGE fillString(Uint32 count, const char x = ' ');
+
 /**
  * convert a Boolean to a String ("true" or "false")
  */
-String  PEGASUS_CLI_LINKAGE _toString(Boolean x);
+String PEGASUS_CLI_LINKAGE _toString(Boolean x);
 
 /**
  * print the string repesentation of a Boolean
@@ -229,6 +242,8 @@ String  PEGASUS_CLI_LINKAGE _toString(const CIMPropertyList& pl);
  * @return String containing propertyList in displayable form
  */
 void  PEGASUS_CLI_LINKAGE _print(const CIMPropertyList& pl);
+
+String _toString(Array<CIMName> array);
 
 /**
     Return a String with display representation of an Array of

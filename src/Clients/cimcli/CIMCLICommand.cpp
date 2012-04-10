@@ -1024,6 +1024,27 @@ int main(int argc, char** argv)
                         opts, false, rtndState);
                     break;
 
+                case (ID_CountInstances):
+                    if (_getClassNameInput(argc, argv, opts,  false))
+                    {
+                        opts.termCondition = countInstances(opts);
+                    }
+                    else
+                    {
+                        exit(CIMCLI_INPUT_ERR);
+                    }
+                    break;
+                case (ID_ClassTree):
+                    if (_getClassNameInput(argc, argv, opts,  false))
+                    {
+                        opts.termCondition = classTree(opts);
+                    }
+                    else
+                    {
+                        exit(CIMCLI_INPUT_ERR);
+                    }
+                    break;
+
                 default:
                     cout << "Invalid cimcli operation name. "
                             "Operation name must be first parmeter"

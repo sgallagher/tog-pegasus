@@ -169,9 +169,14 @@ im    invokeMethod          Invoke Method for <object> <method>
                              <paramName>{<embeddedClassName> *[<paramName> }
 xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
-son   Turn On Statistics    Turn on CIM Server Statistics Gathering
-soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
-?     show command options  Show List of Commands -h for all help, -hc for commands, -ho for options
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands -h for all help, -hc for commands, -ho for options
 
 Examples : 
 cimcli ni -n test/TestProvider TST_Person
@@ -317,6 +322,11 @@ cimcli son  -- Switch On's the statistical information on CIMServer
 
 cimcli soff  -- Switch OFF's the statistical information on CIMServer
 
+cimcli cci  -- Display count of instances in namespace
+
+cimcli ct CIM_ManagedElement -- Displays tree of class hiearchy
+     Starting at CIM_ManagedElement.
+
 cimcli ?  -- Displays help command
 
 
@@ -412,9 +422,14 @@ im    invokeMethod          Invoke Method for <object> <method>
                              <paramName>{<embeddedClassName> *[<paramName> }
 xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
-son   Turn On Statistics    Turn on CIM Server Statistics Gathering
-soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
-?     show command options  Show List of Commands -h for all help, -hc for commands, -ho for options
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands -h for all help, -hc for commands, -ho for options
 The options for this command are:
 
 This command executes single CIM Operations.

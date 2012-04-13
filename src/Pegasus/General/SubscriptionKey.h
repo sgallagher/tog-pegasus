@@ -72,7 +72,7 @@ public:
     String toString() const;
 
 protected:
-    static PEGASUS_GENERAL_LINKAGE void _parseObjectName(
+    static void _parseObjectName(
         const String & objectName,
         String & name,
         String & ns,

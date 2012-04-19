@@ -380,6 +380,63 @@ cimsubTest1_ignoreerror:
 	@cimsub -ls -v -F Filter15 -H Handler15 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
+
+	@$(ECHO) "Create filter." >> $(RESULTFILE)
+	@cimsub -c f filteraa -Q "select * from IndicationStressTestClass" -N test/TestProvider,test/testIndSrcNS1 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "List  all filters." >> $(RESULTFILE)
+	@cimsub -lf >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Create Handler." >> $(RESULTFILE)
+	@cimsub -c h handler01 -D /Pegasus_IndicationStressTestConsumer >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "List all Handlers." >> $(RESULTFILE)
+	@cimsub -lh >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Create subscription." >> $(RESULTFILE)
+	@cimsub -c s -F filteraa -H handler01>> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "List all subscriptions." >> $(RESULTFILE)
+	@cimsub -ls >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Disable subscription." >> $(RESULTFILE)
+	@cimsub -d -F filteraa -H handler01 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "List  all subscriptions." >> $(RESULTFILE)
+	@cimsub -ls >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Enable subscription." >> $(RESULTFILE)
+	@cimsub -e -F filteraa -H handler01 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "List all subscriptions." >> $(RESULTFILE)
+	@cimsub -ls >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "delete subscription." >> $(RESULTFILE)
+	@cimsub -r s -F filteraa -H handler01 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "delete Filter." >> $(RESULTFILE)
+	@cimsub -r f -F filteraa >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "delete Handler." >> $(RESULTFILE)
+	@cimsub -r h -H handler01 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "List all subscriptions." >> $(RESULTFILE)
+	@cimsub -ls >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
 	@$(ECHO) ++++cimsub PG_InterOp tests completed
 
 

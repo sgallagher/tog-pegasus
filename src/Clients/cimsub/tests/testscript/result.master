@@ -44,17 +44,28 @@ cimsub: argument "no_such_option" was unexpected
 cimsub: Use '--help' to obtain command syntax.
 
 Help option(long).
-Usage: cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername] 
+Usage: cimsub -c f [fnamespace:]filtername -Q query [-L querylanguage]
+                  [-N sourcenamespace(s)] 
+       cimsub -c h [hnamespace:][hclassname.]handlername [-D destination]| 
+                  [-M mailto [-C mailcc] -S mailsubject]| 
+                  [-T snmptargethost [-P snmpportnumber] -V snmpversion] 
+                      [-U snmpsecurityname] [-E snmpengineid]] 
+       cimsub -c s [-n namespace] -F [fnamespace:]filtername 
+                  -H [hnamespace:][hclassname.]handlername 
+       cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername] 
                   [-H [hnamespace:][hclassname.]handlername] 
-              -e [-n namespace] -F [fnamespace:]filtername 
+       cimsub -e [-n namespace] -F [fnamespace:]filtername 
                   -H [hnamespace:][hclassname.]handlername 
-              -d [-n namespace] -F [fnamespace:]filtername
+       cimsub -d [-n namespace] -F [fnamespace:]filtername
                   -H [hnamespace:][hclassname.]handlername 
-              -r s|f|h|a [-n namespace] [-F[fnamespace:]filtername] 
+       cimsub -r s|f|h|a [-n namespace] [-F [fnamespace:]filtername] 
                   [-H [hnamespace:][hclassname.]handlername]
-              --help
-              --version
+       cimsub --help
+       cimsub --version
 Options : 
+    -c         - Create specified subscription, filter, 
+                   handler(CIM_ListenerDestinationCIMXML, 
+                       if not specified hclassname)
     -l         - List and display information
     -e         - Enable specified subscription
                    (set SubscriptionState to Enabled) 
@@ -63,9 +74,32 @@ Options :
     -r         - Remove specified subscription, handler, filter 
     -v         - Include verbose information 
     -F         - Specify Filter Name of subscription for the operation
+    -Q         - Specify Query Expression of a Filter 
+    -L         - Specify Query Language of a Filter 
+    -N         - For SourceNamespaces property,Specify multiple source namespaces with comma
+                 separated or append comma to the single source namespace.
+                 By default SourceNamespace property is  populated if the single source namespace is specified
     -H         - Specify Handler Name of subscription for the operation
+    -D         - Specify Destination of a CIM_IndicationHandlerCIMXML Handler.
+                   Required option for CIM_IndicationHandlerCIMXML or 
+                   CIM_ListenerDestinationCIMXML Handler
+    -M         - Specify Mailto of a  PG_ListenerDestinationEmail Handler
+    -C         - Specify Mailcc of a PG_ListenerDestinationEmail Handler
+    -S         - Specify Subject of a PG_ListenerDestinationEmail Handler
+    -T         - Specify Target Host of PG_IndicationHandlerSNMPMapper Handler. Required option for SNMPMapper handler
+    -U         - Specify Security Name of PG_IndicationHandlerSNMPMapper Handler
+    -P         - Specify Port Number of a PG_IndicationHandlerSNMPMapper Handler
+                   (default 162) 
+    -V         - Specify SNMPVersion of a PG_IndicationHandlerSNMPMapper Handler
+                   2 : SNMPv1 Trap
+                   3 : SNMPv2C Trap
+                   4 : SNMPv2C Inform
+                   5 : SNMPv3 Trap
+                   6 : SNMPv3 Inform
+                   Required option for SNMPMapper Handler
+    -E         - Specify Engine ID of a PG_IndicationHandlerSNMPMapper Handler
     -n         - Specify namespace of subscription
-                   (root/PG_InterOp, if not specified) 
+                   (root/PG_InterOp, if not specified)
     --help     - Display this help message
     --version  - Display CIM Server version
 
@@ -189,7 +223,7 @@ cimsub: duplicate "-H" option
 cimsub: Use '--help' to obtain command syntax.
 
 Invalid -T option.
-cimsub: Unknown flag -T
+cimsub: Missing required value for flag T
 cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, handler option not specified.
@@ -576,58 +610,72 @@ List all filters(verbose).
 Filter:           test/CimsubTestNS0:Filter01
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter02
 Query:            "SELECT IndicationTime, IndicationIdentifier, CorrelatedIndications FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter03
 Query:            "SELECT IndicationTime FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter04
 Query:            "SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter04a
 Query:            "SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL AND CorrelatedIndications IS NOT NULL"
 Query Language:   DMTF:CQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter05
 Query:            "SELECT * FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter06
 Query:            "SELECT * FROM CIM_AlertIndication WHERE AlertType = 5"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter08
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter09
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS0:Filter15
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS1:Filter11
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS1:Filter12
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS1:Filter13
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 Filter:           test/CimsubTestNS2:Filter11
 Query:            "SELECT * FROM CIM_ProcessIndication"
 Query Language:   WQL
+Source Namespace: root/SampleProvider
 -----------------------------------------
 
 List all handlers(verbose).

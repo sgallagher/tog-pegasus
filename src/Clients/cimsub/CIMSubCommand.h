@@ -153,6 +153,198 @@ private:
         PEGASUS_STD(ostream)& errPrintWriter);
 
     /**
+        create specify filter instance
+
+        @param  filterName              The name of filter to create
+
+        @param  filterNamespace         The filter namespace where create
+
+        @param  filterQuery             The query expression of filter to create
+
+        @param  filterQueryLanguage     The query language of filter to create
+
+        @param  filterSourceNamespace   The source namespace of filter to create
+
+        @param  outPrintWriter          The stream to which command output is
+                                        written.
+
+        @param  errPrintWriter          The stream to which command errors
+                                        are written.
+
+        @return 0       if the filter instance was created
+                Other   if the filter instance was not created
+    */
+    Uint32 _createFilter(
+        const String& filterName,
+        const CIMNamespaceName& filterNamespace,
+        const String& filterQuery,
+        const String& filterQueryLanguage,
+        const Array<String>& filterSourceNamespaces,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
+
+    /**
+        create specify CIMXML handler instance
+
+        @param  handlerName             The name of handler to create
+
+        @param  handlerNamespace        The handler namespace where create
+
+        @param  handlerCreationClass    The creation class of handler to create
+
+        @param  handlerDestination      The destination of filter to create
+
+        @param  outPrintWriter          The stream to which command output is
+                                        written.
+
+        @param  errPrintWriter          The stream to which command errors
+                                        are written.
+
+        @return 0       if the filter instance was created
+                Other   if the filter instance was not created
+    */
+    Uint32 _createCimXmlHandler(
+        const String& handlerName,
+        const CIMNamespaceName& handlerNamespace,
+        const String& handlerCreationClass,
+        const String& handlerDestination,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
+
+    /**
+        create specify syslog handler instance
+
+        @param  handlerName             The name of handler to create
+
+        @param  handlerNamespace        The handler namespace where create
+
+        @param  handlerCreationClass    The creation class of handler to create
+
+        @param  outPrintWriter          The stream to which command output is
+                                        written.
+
+        @param  errPrintWriter          The stream to which command errors
+                                        are written.
+
+        @return 0       if the filter instance was created
+                Other   if the filter instance was not created
+    */
+    Uint32 _createSystemLogHandler(
+        const String& handlerName,
+        const CIMNamespaceName& handlerNamespace,
+        const String& handlerCreationClass,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
+
+    /**
+        create specify e-mail handler instance
+
+        @param  handlerName             The name of handler to create
+
+        @param  handlerNamespace        The handler namespace where create
+
+        @param  handlerCreationClass    The creation class of handler to create
+
+        @param  mailTo                  The mail to list of mial handler
+
+        @param  mailCc                  The mail cc list of mial handler
+
+        @param  mailSubject             The mail subject of mial handler
+
+        @param  outPrintWriter          The stream to which command output is
+                                        written.
+
+        @param  errPrintWriter          The stream to which command errors
+                                        are written.
+
+        @return 0       if the filter instance was created
+                Other   if the filter instance was not created
+    */
+    Uint32 _createEmailHandler(
+        const String& handlerName,
+        const CIMNamespaceName& handlerNamespace,
+        const String& handlerCreationClass,
+        const Array<String>& mailTo,
+        const Array<String>& mailCc,
+        const String& mailSubject,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
+
+    /**
+        create specify syslog handler instance
+
+        @param  handlerName             The name of handler to create
+
+        @param  handlerNamespace        The handler namespace where create
+
+        @param  handlerCreationClass    The creation class of handler to create
+
+        @param  targetHost              The target host of snmp handler
+
+        @param  snmpPort                The port number of snmp handler
+
+        @param  snmpVersion             The snmp version of snmp handler
+
+        @param  securityName            The security name of snmp handler
+
+        @param  engineId                The engine id of snmp handler
+
+        @param  outPrintWriter          The stream to which command output is
+                                        written.
+
+        @param  errPrintWriter          The stream to which command errors
+                                        are written.
+
+        @return 0       if the filter instance was created
+                Other   if the filter instance was not created
+    */
+    Uint32 _createSnmpMapperHandler(
+            const String& handlerName,
+            const CIMNamespaceName& handlerNamespace,
+            const String& handlerCreationClass,
+            const String& targetHost,
+            Uint32 snmpPort,
+            Uint32 snmpVersion,
+            const String& securityName,
+            const String& engineId,
+            ostream& outPrintWriter,
+            ostream& errPrintWriter);
+
+    /**
+        create specify subscription instance
+
+        @param  subscriptionNamespace   The subscription namespace to create
+
+        @param  filterName              The name of the filter to create
+
+        @param  filterNamespace         The namespace of the filter to create
+
+        @param  handlerName             The handler name to create
+
+        @param  handlerNamespace        The handler namespace to create
+
+        @param  handlerCreationClass    The handler creation class to create
+
+        @param  outPrintWriter          The stream to which command output is
+                                        written.
+
+        @param  errPrintWriter          The stream to which command errors
+                                        are written.
+
+        @return true    if the subscription instance was created
+                false   if the subscription instance was not created
+    */
+    Uint32 _createSubscription(
+        const CIMNamespaceName& subscriptionNamespace,
+        const String& filterName,
+        const CIMNamespaceName& filterNamespace,
+        const String& handlerName,
+        const CIMNamespaceName& handlerNamespace,
+        const String& handlerCreationClass,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
+
+    /**
         remove matching subscription instance
 
         @param  subscriptionNamespace   The subscription namespace to search
@@ -334,6 +526,9 @@ private:
         @param  queryLangsFound   The array of query language strings for each
                                   filter found
 
+        @param filterSourceNamespaces The array of source namcespace strings
+                                  for each filter found
+
         @param  outPrintWriter    The stream to which command output is
                                   written.
 
@@ -347,6 +542,7 @@ private:
         Array <Uint32>& maxColumnWidth,
         Array <ListColumnEntry>& listOutputTable,
         Array <String>& queryLangsFound,
+        Array<String>& filterSourceNamespaces,
         PEGASUS_STD(ostream)& outPrintWriter,
         PEGASUS_STD(ostream)& errPrintWriter);
 
@@ -486,7 +682,7 @@ private:
         const String& handlerName,
         const CIMNamespaceName& handlerNamespace,
         const String& handlerCC,
-        CIMObjectPath& subscriptionFound);
+        Array<CIMObjectPath>& subscriptionFound);
 
     /**
         Find a subscription and modify it's state
@@ -719,6 +915,9 @@ private:
 
         @param  queryLangs        The array of query language strings to print.
 
+        @param  filterSourceNamespaces The array of source namespace strings
+                                       to print.
+
         @param  outPrintWriter    The stream to which command output is
                                   written.
      */
@@ -726,6 +925,7 @@ private:
     void _printFiltersVerbose (
         const Array <ListColumnEntry>& listOutputTable,
         const Array <String>& queryLangs,
+        const Array<String>& filterSourceNamespaces,
         PEGASUS_STD(ostream)& outPrintWriter);
 
     /**
@@ -775,19 +975,22 @@ private:
         String& destination);
 
     /**
-        get the query string for a filter
+        get the filter information for a filter
 
         @param filterNamespace The filter namespace
         @param filterPath The filter's object path
         @param queryString The text string equivalent of the query string
         @param queryLangString The text string equivalent of the querylanguage
                    string
+        @param filterSourceNamespace The text string equivalent of the
+                   source namespace string
     */
-    void _getQueryString (
+    void _getFilterInfo (
         const CIMNamespaceName& filterNamespace,
         const CIMObjectPath& filterPath,
         String& queryString,
-        String& queryLangString);
+        String& queryLangString,
+        Array <String>& filterSourceNamespace);
 
     /**
         print a verbose listing of subscriptions
@@ -885,6 +1088,27 @@ private:
     String _filterNamespace;
 
     //
+    // The Filter Query
+    //
+    String _filterQuery;
+
+    //
+    // The Filter Query Language
+    //
+    String _filterQueryLanguage;
+
+    //
+    // The Filter SourceNamespaces
+    //
+    Array<String> _filterSourceNamespaces;
+
+    //
+    //The sourceNamespaces Property flag
+    //
+
+    Boolean _filterNSFlag;
+
+    //
     // The Handler Name
     //
     String _handlerName;
@@ -900,6 +1124,51 @@ private:
     String _handlerCreationClass;
 
     //
+    // The Handler's destination
+    //
+    String _handlerDestination;
+
+    //
+    // The Handler's maillto
+    //
+    String _handlerMailTo;
+
+    //
+    // The Handler's maillcc
+    //
+    String _handlerMailCc;
+
+    //
+    // The Handler's maill subject
+    //
+    String _handlerMailSubject;
+
+    //
+    // The Handler's SNMP Tartget Host
+    //
+    String _handlerSNMPTartgetHost;
+
+    //
+    // The Handler's SNMP Port Number
+    //
+    Uint64 _handlerSNMPPortNumber;
+
+    //
+    // The Handler's SNMP Version
+    //
+    Uint64 _handlerSNMPVersion;
+
+    //
+    // The Handler's SNMP Security Name
+    //
+    String _handlerSNMPSecurityName;
+
+    //
+    // The Handler's SNMP Engine ID
+    //
+    String _handlerSNMPEngineID;
+
+    //
     // The namespace of the subscription
     //
     String _subscriptionNamespace;
@@ -909,9 +1178,6 @@ private:
     //
     Boolean _verbose;
 
-    Boolean _filterSet;
-
-    Boolean _handlerSet;
 
     String usage;
 
@@ -959,6 +1225,11 @@ private:
         This constant represents a version display operation
      */
     static const Uint32 OPERATION_TYPE_VERSION;
+
+    /**
+        This constant represents a create operation
+     */
+    static const Uint32 OPERATION_TYPE_CREATE;
 
 };
 

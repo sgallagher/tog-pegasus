@@ -6579,7 +6579,7 @@ Array<ProviderClassList> IndicationService::_getIndicationProviders (
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                         String remoteInformation;
                         Boolean isRemote = _cimRepository->isRemoteNameSpace(
-                            nameSpace, remoteInformation);
+                            nscl.nameSpace, remoteInformation);
                         provider.isRemoteNameSpace = isRemote;
                         provider.remoteInfo = remoteInformation;
 #endif

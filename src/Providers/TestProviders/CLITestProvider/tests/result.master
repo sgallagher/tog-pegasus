@@ -2537,22 +2537,16 @@ instance of Test_CLITestProviderClass
 Test_CLITestProviderClass.Id="Mike"
 1 instances of class Test_CLITestProviderClass returned.
 Failed instances of class count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1  Test_CLITestProviderClass returned.
 Failed  count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 associators  returned.
 Failed associators count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 references  returned.
 Failed references count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 associator names Test_CLITestProviderClass returned.
 Failed associator names count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 referenceNames Test_CLITestProviderClass returned.
 Failed referenceNames count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 Return Value= 0
 21. +++++ SortInstancesTest
 Test_CLITestProviderClass.Id="Andy"

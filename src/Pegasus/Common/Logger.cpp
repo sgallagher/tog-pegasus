@@ -253,9 +253,9 @@ public:
             // info to the file name.
 
             String timeStamp = System::getCurrentASCIITime();
-            for (unsigned int i=0; i<=timeStamp.size(); i++)
+            for ( unsigned int i = 0; i < timeStamp.size(); i++ )
             {
-                if(timeStamp[i] == '/' || timeStamp[i] == ':')
+                if( timeStamp[i] == '/' || timeStamp[i] == ':')
                 {
                     timeStamp.remove(i, 1);
                 }

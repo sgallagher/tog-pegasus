@@ -26,16 +26,17 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../..
-
+ROOT = ../../../../..
 include $(ROOT)/mak/config.mak
+include $(ROOT)/src/Pegasus/Client/tests/libraries.mak
 
-DIRS = \
-    QueryContext \
-    CQLChainedIdentifier \
-    RegularExpression \
-    CQLValue \
-    Queries \
-    ExecQuery
+PROGRAM = testCQLExecQuery
 
-include $(ROOT)/mak/recurse.mak
+SOURCES = TestCQLExecQuery.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+	$(PROGRAM)

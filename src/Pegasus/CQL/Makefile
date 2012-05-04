@@ -72,6 +72,7 @@ SOURCES = \
    CQLFunctionRep.cpp \
    CQLExpression.cpp \
    CQLExpressionRep.cpp \
+   CQLQueryExpressionRep.cpp \
    CQLFactor.cpp \
    CQLFactorRep.cpp \
    CQLFactory.cpp \

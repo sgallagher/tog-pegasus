@@ -53,6 +53,7 @@ LIBRARIES = \
 	pegindicationservice \
 	pegquerycommon \
 	pegwql \
+	pegcql \
 	pegclient \
 	pegprm \
 	DefaultProviderManager \
@@ -108,7 +109,8 @@ SOURCES = \
 	CIMServerState.cpp \
 	reg_table.cpp \
 	QuerySupportRouter.cpp \
-	WQLOperationRequestDispatcher.cpp
+	WQLOperationRequestDispatcher.cpp \
+	CQLOperationRequestDispatcher.cpp
 
 ifeq ($(OS),zos)
 SOURCES += \

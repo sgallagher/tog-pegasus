@@ -24,57 +24,55 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
+
+#ifndef CQLQUERYEXPRESSIONREP_H_
+#define CQLQUERYEXPRESSIONREP_H_
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
-#include "QuerySupportRouter.h"
-
-#include <Pegasus/Server/WQLOperationRequestDispatcher.h>
-#include <Pegasus/Server/CQLOperationRequestDispatcher.h>
+#include <Pegasus/Common/QueryExpressionRep.h>
+#include "CQLSelectStatement.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean QuerySupportRouter::routeHandleExecQueryRequest(
-    CIMOperationRequestDispatcher* opThis,
-    CIMExecQueryRequestMessage* msg)
-{
-    if (msg->queryLanguage=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
-    else if(msg->queryLanguage == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
-    else return false;
+class CQLSelectStatement;
 
-    return true;
-}
-
-void QuerySupportRouter::routeHandleExecQueryResponseAggregation(
-    CIMOperationRequestDispatcher* opThis,
-    OperationAggregate* poA)
+class PEGASUS_CQL_LINKAGE CQLQueryExpressionRep : public QueryExpressionRep
 {
-    if (poA->_queryLanguage=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->
-            handleQueryResponseAggregation(poA);
-    else if(poA->_queryLanguage == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->
-            handleQueryResponseAggregation(poA);
-}
+    friend class QueryExpression;
+public:
+    CQLQueryExpressionRep(const String & queryLanguage)
+      : QueryExpressionRep(queryLanguage), _stmt(NULL) {}
+    CQLQueryExpressionRep(const String & queryLanguage, CQLSelectStatement *s)
+      : QueryExpressionRep(queryLanguage), _stmt(s){}
+    CQLQueryExpressionRep(const String & queryLanguage, String & query)
+      : QueryExpressionRep(queryLanguage,query), _stmt(NULL) {}
 
-void QuerySupportRouter::routeApplyQueryToEnumeration(
-    CIMOperationRequestDispatcher* opThis,
-    CIMResponseMessage* msg,
-    QueryExpressionRep* query)
-{
-    if (query->getQueryLanguage()=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->
-            applyQueryToEnumeration(msg,query);
-    else if(query->getQueryLanguage() == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->
-            applyQueryToEnumeration(msg,query);
-}
+    PEGASUS_HIDDEN_LINKAGE
+    virtual ~CQLQueryExpressionRep();
+
+    PEGASUS_HIDDEN_LINKAGE
+    virtual const CIMPropertyList getPropertyList() const;
+
+    PEGASUS_HIDDEN_LINKAGE
+    virtual Boolean evaluate(const CIMInstance &) const;
+
+    PEGASUS_HIDDEN_LINKAGE
+    virtual void applyProjection(CIMInstance &, Boolean allowMissing);
+
+    PEGASUS_HIDDEN_LINKAGE
+    void _parse();
+
+    CQLSelectStatement *_stmt;
+};
 
 PEGASUS_NAMESPACE_END
+
+
+
+#endif /* CQLQUERYEXPRESSIONREP_H_ */

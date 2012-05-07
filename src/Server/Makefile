@@ -66,13 +66,12 @@ LIBRARIES += \
 
 ifndef PEGASUS_DISABLE_PERFINST
     LIBRARIES += \
-       CIMOMStatDataProvider \
+       CIMOMStatDataProvider
+endif
+
+ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+    LIBRARIES += \
        InteropProvider
-else
-    ifeq ($(PEGASUS_ENABLE_SLP),true)
-        LIBRARIES += \
-            InteropProvider
-    endif
 endif
 
 ifdef PEGASUS_HAS_SSL

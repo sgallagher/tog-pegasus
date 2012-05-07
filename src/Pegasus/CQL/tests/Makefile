@@ -35,7 +35,11 @@ DIRS = \
     CQLChainedIdentifier \
     RegularExpression \
     CQLValue \
-    Queries \
-    ExecQuery
+    Queries
+
+ifdef PEGASUS_ENABLE_EXECQUERY
+    DIRS += \
+       ExecQuery
+endif
 
 include $(ROOT)/mak/recurse.mak

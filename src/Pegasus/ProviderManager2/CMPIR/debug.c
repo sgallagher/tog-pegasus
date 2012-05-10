@@ -132,6 +132,7 @@ void error_at_line(
         strerror(error));
     vfprintf(stderr, message, ap);
     fprintf(stderr, "\n");
+    va_end(ap);
 
     if (a_num < 0)
     {

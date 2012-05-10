@@ -34,7 +34,6 @@
 #include <cstdio>
 #include <cstddef>
 #include <cstring>
-#include <Pegasus/Common/PegasusAssert.h>
 
 void ErrorExit(const char* programName, const string& message)
 {
@@ -260,8 +259,12 @@ void ProcessFile(
             "Infinite include file recursion? nesting level reached 100");
     }
 
-    PEGASUS_ASSERT(fp != NULL);
-
+    if(fp == NULL)
+    {
+        ErrorExit(programName,
+            "Input error, the fp is NULL\n");
+    }
+    
     // For each line in the file:
 
     char line[4096];

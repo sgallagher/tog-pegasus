@@ -99,15 +99,31 @@ SOURCES = \
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 %$(OBJ): %.cpp
+ifeq ($(OS),zos)
+	$(CXX) -c -o $(PEGASUS_PLATFORM).o $(FLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp > $*.lst
+	@ $(ZIP) -a -m $@.lst.zip $*.lst
+	@ $(COPY) $(PEGASUS_PLATFORM).o $@
+	@ $(RM) $(PEGASUS_PLATFORM).o
+	@ $(TOUCH) $@
+	@ $(ECHO)
+else
 	$(CXX) -c $(OBJ_OUT)$@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+endif
 
 
 $(FULL_PROGRAM): $(OBJECTS)
+ifeq ($(OS),zos)
+	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES) > $(PROGRAM).llst
+	@ $(ZIP) -a -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
+else
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIB)
+endif
 	$(MKDIRHIER) $(BIN_DIR)
 	-$(RM) $(MU_EXE_LOCATION)
+ifeq ($(OS_TYPE),windows)
 	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
 	-$(COPY) $(FULL_PROGRAM_MANIFEST) $(MU_EXE_MANIFEST_LOCATION)
+endif
 	$(COPY) $(FULL_PROGRAM) $(MU_EXE_LOCATION)
 ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
 	$(MKDIRHIER) $(ACTUAL_BIN_DIR)
@@ -118,7 +134,9 @@ clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(FULL_PROGRAM)
 	-$(RM) $(MU_EXE_LOCATION)
+ifeq ($(OS_TYPE),windows)
 	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
+endif
 ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
     $(RM) $(ACTUAL_BIN_DIR)/$(FULL_PROGRAM)
 endif

@@ -47,6 +47,14 @@
 #include "SrcListCmd.h"
 #include "Files.h"
 
+#ifdef PEGASUS_OS_ZOS
+// This is inline code. No external dependency is created.
+#include <unistd.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+
+PEGASUS_USING_PEGASUS;
+#endif
+
 const char HELP[] =
 "\n"
 "MU (MakeUtility) Version 1.5.0\n"
@@ -59,6 +67,13 @@ const char HELP[] =
 
 int main(int argc, char** argv)
 {
+
+#ifdef PEGASUS_OS_ZOS
+    // For z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
+
     // Process the help option:
 
     if (argc == 2 && strcmp(argv[1], "-help") == 0 || argc < 2)

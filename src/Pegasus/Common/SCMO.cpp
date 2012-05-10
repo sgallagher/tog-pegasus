@@ -570,7 +570,7 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
     tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
-        cls.hdr->keyBindingSet.hashTable[tag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE];
+      cls.hdr->keyBindingSet.hashTable[tag&(PEGASUS_KEYBINDIG_SCMB_HASHSIZE-1)];
     // there is no entry in the hash table on this hash table index.
     if (hashIdx == 0)
     {
@@ -625,7 +625,7 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
     tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
-        cls.hdr->propertySet.hashTable[tag%PEGASUS_PROPERTY_SCMB_HASHSIZE];
+      cls.hdr->propertySet.hashTable[tag&(PEGASUS_PROPERTY_SCMB_HASHSIZE -1)];
     // there is no entry in the hash table on this hash table index.
     if (hashIdx == 0)
     {
@@ -792,7 +792,8 @@ void SCMOClass::_insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->keyBindingSet.hashTable;
 
     // calculate the new hash index of the new property.
-    Uint32 hash = newKeyNode->nameHashTag % PEGASUS_KEYBINDIG_SCMB_HASHSIZE;
+    Uint32 hash = newKeyNode->nameHashTag & 
+        (PEGASUS_KEYBINDIG_SCMB_HASHSIZE - 1);
 
     // 0 is an invalid index in the hash table
     if (hashTable[hash] == 0)
@@ -843,8 +844,8 @@ void SCMOClass::_insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->propertySet.hashTable;
 
     // calcuate the new hash index of the new property.
-    Uint32 hash = newPropNode->theProperty.nameHashTag %
-        PEGASUS_PROPERTY_SCMB_HASHSIZE;
+    Uint32 hash = newPropNode->theProperty.nameHashTag &
+        (PEGASUS_PROPERTY_SCMB_HASHSIZE -1);
 
     // 0 is an invalid index in the hash table
     if (hashTable[hash] == 0)
@@ -916,7 +917,7 @@ void SCMOClass::_setPropertyAsKeyInMask(Uint32 i)
 
     // Create a filter to set the bit.
     // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i%64));
+    Uint64 filter = ( (Uint64)1 << (i & 63));
 
     // Calculate the real pointer to the Uint64 array
     keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
@@ -936,7 +937,7 @@ Boolean SCMOClass::_isPropertyKey(Uint32 i)
 
     // Create a filter to check if the bit is set:
     // Modulo division with 64. Shift left a bit by the remainder.
-    Uint64 filter = ( (Uint64)1 << (i%64));
+    Uint64 filter = ( (Uint64)1 << (i & 63));
 
     // Calculate the real pointer to the Uint64 array
     keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
@@ -5561,7 +5562,7 @@ void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
         }
         else
         {
-            line = clshdr->propertySet.number%16;
+            line = clshdr->propertySet.number & 15;
         }
 
 
@@ -5628,7 +5629,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
 
         fprintf(_out,"\nHash Tag %3u Hash Index %3u",
                nodeArray[i].nameHashTag,
-               nodeArray[i].nameHashTag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE);
+               nodeArray[i].nameHashTag & (PEGASUS_KEYBINDIG_SCMB_HASHSIZE -1));
 
         fprintf(_out,"\nType: %s",cimTypeToString(nodeArray[i].type));
 
@@ -5688,7 +5689,7 @@ void SCMODump::_dumpClassProperty(
 
     fprintf(_out,"\nHash Tag %3u Hash Index %3u",
            prop.nameHashTag,
-           prop.nameHashTag%PEGASUS_PROPERTY_SCMB_HASHSIZE);
+           prop.nameHashTag & (PEGASUS_PROPERTY_SCMB_HASHSIZE -1));
     fprintf(_out,"\nPropagated: %s isKey: %s",
            (prop.flags.propagated?"TRUE":"FALSE"),
            (prop.flags.isKey?"TRUE":"FALSE")
@@ -5722,7 +5723,7 @@ void SCMODump::dumpHashTable(Uint32* hashTable,Uint32 size) const
         }
         else
         {
-            line = size%16;
+            line = size & 15;
         }
 
 
@@ -5840,14 +5841,14 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
          }
          else
          {
-             end = noProperties%64;
+             end = noProperties & 63;
          }
 
          fprintf(_out,"\nkeyPropertyMask[%02u]= ",i);
 
          for (Uint32 j = 0; j < end; j++)
          {
-             if (j > 0 && !(j%8))
+             if (j > 0 && !(j & 7))
              {
                  fprintf(_out," ");
              }
@@ -5918,7 +5919,7 @@ void SCMODump::_hexDump(char* buffer,Uint64 length) const
         }
 
         printLine[1][p] = item/16;
-        printLine[2][p] = item%16;
+        printLine[2][p] = item & 15;
 
     }
 }

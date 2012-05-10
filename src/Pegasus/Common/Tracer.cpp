@@ -327,7 +327,7 @@ char* Tracer::_formatHexDump(
         len = sprintf(targetBuffer, "%02X", c);
         targetBuffer+=len;
 
-        if ( ((col+1)%4) == 0 )
+        if ( ((col+1) & 3) == 0 )
         {
             *targetBuffer = ' ';
             targetBuffer++;

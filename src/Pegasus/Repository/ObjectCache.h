@@ -106,6 +106,8 @@ private:
             code(code_), path(path_), object(object_.clone()) { }
     };
 
+    // If NUM_CHAINS size need to be changed,ensure size is power
+    // of two to simplify moudulus calculation
     enum { NUM_CHAINS = 128 };
 
     Entry* _chains[NUM_CHAINS];
@@ -148,7 +150,7 @@ void ObjectCache<OBJECT>::put(
     //// Update object if it is already in cache:
 
     Uint32 code = _hash(path);
-    Uint32 index = code % NUM_CHAINS;
+    Uint32 index = code & (NUM_CHAINS -1);
 
     for (Entry* p = _chains[index]; p; p = p->hashNext)
     {
@@ -196,7 +198,7 @@ void ObjectCache<OBJECT>::put(
 
         //// Remove from hash table first.
 
-        Uint32 frontIndex = entry->code % NUM_CHAINS;
+        Uint32 frontIndex = entry->code & (NUM_CHAINS -1);
         Entry* hashPrev = 0;
 
         for (Entry* p = _chains[frontIndex]; p; p = p->hashNext)
@@ -240,7 +242,7 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object, bool clone)
     //// Search cache for object.
 
     Uint32 code = _hash(path);
-    Uint32 index = code % NUM_CHAINS;
+    Uint32 index = code & (NUM_CHAINS -1);
 
     for (Entry* p = _chains[index]; p; p = p->hashNext)
     {
@@ -300,7 +302,7 @@ bool ObjectCache<OBJECT>::evict(const String& path)
     //// Find and remove the given element.
 
     Uint32 code = _hash(path);
-    Uint32 index = code % NUM_CHAINS;
+    Uint32 index = code & (NUM_CHAINS -1);
     Entry* hashPrev = 0;
 
     for (Entry* p = _chains[index]; p; p = p->hashNext)

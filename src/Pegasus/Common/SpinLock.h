@@ -258,6 +258,8 @@ PEGASUS_NAMESPACE_END
 //
 //==============================================================================
 
+//  If PEGASUS_NUM_SHARED_SPIN_LOCKS size need to be changed,
+//  ensure size is power of two to simplify moudulus calculation
 #define PEGASUS_NUM_SHARED_SPIN_LOCKS 64
 
 PEGASUS_NAMESPACE_BEGIN
@@ -281,7 +283,7 @@ inline size_t SpinLockIndex(const void* x)
 {
     // Throw away the lower two bits since they are almost always zero
     // anyway due to alignment properties.
-    return ((size_t)x >> 2) % PEGASUS_NUM_SHARED_SPIN_LOCKS;
+    return ((size_t)x >> 2) & ( PEGASUS_NUM_SHARED_SPIN_LOCKS -1);
 }
 
 // Call this function before forking to unlock the spinlocks in the global

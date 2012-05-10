@@ -157,7 +157,7 @@ void RSApInfo::_outputHeader(ostream &outPrintWriter)
         << ">>>> Remote Service Access Point Information <<<<"
         << endl << endl;
 
-    char header[81];
+    char header[84];
 
     sprintf(
         header,
@@ -175,7 +175,7 @@ void RSApInfo::_outputHeader(ostream &outPrintWriter)
 ////////////////////////////////////////////////////////////////////////////////
 void RSApInfo::_outputInstance(ostream &outPrintWriter)
 {
-    char row[81];
+    char row[84];
 
     if (_accessInfo.size() > 31)
     {

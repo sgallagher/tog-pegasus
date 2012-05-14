@@ -1531,7 +1531,7 @@ static void TestServerMessages( CIMClient& client,
                 client.setRequestAcceptLanguages(acceptLangs1);
 
                 CIMInstance inst("PG_ProviderModule");
-                client.createInstance(i
+                client.createInstance(
                     PEGASUS_NAMESPACENAME_INTEROP.getString(),
                     inst);
 

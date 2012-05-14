@@ -38,10 +38,17 @@ PG_INTEROP_SCHEMA_VER=20
 PG_INTEROP_SCHEMA_DIR=VER$(PG_INTEROP_SCHEMA_VER)
 PG_INTEROP_MOF_PATH=$(ROOT)/Schemas/Pegasus/InterOp/$(PG_INTEROP_SCHEMA_DIR)
 
-# The INTEROPNS variable defines the absolute name of the
-# Pegasus InterOp Namespace.
 
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
+INTEROPNS=root/interop
+else
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+INTEROPNS=interop
+else
 INTEROPNS=root/PG_InterOp
+endif
+endif
+
 
 # The INTERNALNS variable defines the absolute name of the
 # Pegasus INTERNALNS Namespace.

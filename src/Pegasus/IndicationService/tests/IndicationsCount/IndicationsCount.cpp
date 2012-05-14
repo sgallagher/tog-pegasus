@@ -827,11 +827,12 @@ void _test(CIMClient& client)
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
     Array<CIMInstance> expectedSubIndDataInstances;
+    String interopNamespace = PEGASUS_NAMESPACENAME_INTEROP.getString();
     CIMInstance expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
-            "root/PG_InterOp:ICFilter01",
-            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
-            "root/PG_InterOp",
+            interopNamespace+":ICFilter01",
+            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
+            interopNamespace,
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount);
@@ -866,9 +867,9 @@ void _test(CIMClient& client)
 
     CIMObjectPath subscriptionIndDataInstanceName =
         _buildSubscriptionIndicationDataInstanceName(
-            "root/PG_InterOp:ICFilter01",
-            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
-            "root/PG_InterOp",
+            interopNamespace+":ICFilter01",
+            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
+            interopNamespace,
             "IndicationTestProviderModule",
             "IndicationTestProvider");
 
@@ -913,18 +914,18 @@ void _test(CIMClient& client)
 
     expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
-            "root/PG_InterOp:ICFilter01",
-            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
-            "root/PG_InterOp",
+            interopNamespace+":ICFilter01",
+            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
+            interopNamespace,
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount,
             false);
 
     CIMObjectPath subObjPath = _buildSubscriptionIndicationDataInstanceName(
-        "root/PG_InterOp:ICFilter01",
-        "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
-        "root/PG_InterOp",
+        interopNamespace+":ICFilter01",
+        interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
+        interopNamespace,
         "IndicationTestProviderModule",
         "IndicationTestProvider");
 
@@ -979,12 +980,12 @@ void _testReset(CIMClient& client)
             0,
             0);
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
-
+    String interopNamespace = PEGASUS_NAMESPACENAME_INTEROP.getString();
     CIMInstance expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
-            "root/PG_InterOp:ICFilter02",
-            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler02",
-            "root/PG_InterOp",
+            interopNamespace+":ICFilter02",
+            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler02",
+            interopNamespace,
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             0);
@@ -1043,9 +1044,9 @@ void _testReset(CIMClient& client)
 
     CIMInstance instance =
         _buildSubscriptionIndicationDataInstance(
-            "root/PG_InterOp:ICFilter01",
-            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
-            "root/PG_InterOp",
+            interopNamespace+":ICFilter01",
+            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
+            interopNamespace,
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             0);
@@ -1078,9 +1079,9 @@ void _testReset(CIMClient& client)
 
     expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
-            "root/PG_InterOp:ICFilter01",
-            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
-            "root/PG_InterOp",
+            interopNamespace+":ICFilter01",
+            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
+            interopNamespace,
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount);

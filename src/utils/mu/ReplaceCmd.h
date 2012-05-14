@@ -26,46 +26,14 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-MU (Make Utility)
 
-This utility is used by the make system build Pegasus.Since 'mu' is
-intended to be used for build environment, we need not to worry about
-coding standards like no STL usage etc. It implements a
-handful of commands which may be executed in this form:
+#ifndef _ReplaceCmd_h
+#define _ReplaceCmd_h
 
-    mu <command> <arguments>
+#include "Config.h"
+#include <string>
+#include <vector>
 
-For example, here's how to remove a file:
+int ReplaceCmd(const vector<string>& args);
 
-    mu rm myfile.txt
-
-This utility handles Unix C-Shell style wild cards. The following commands
-are supported:
-
-    rm - removes one or more files.
-
-    rmdirhier - removes a single directory (and the hierarchy below it).
-
-    mkdirhier - creates all directories along a path.
-
-    echo - echos its arguments to standard output.
-
-    touch - changes modification time of file to current time; creates file
-	if it does not already exist.
-
-    pwd - prints the working directory with Unix style slashes ('/').
-
-    copy - copies files.
-
-    move - moves a file (possibliy renaming it).
-
-    compare - compares two files; exits with code of zero if identical.
-
-    depend - builds header dependencies for C++ source files.
-
-    strip - strips lines from a file.
-
-    prepend - prepends lines to a file.
-
-    replace - replace the search string with another string in a file and it 
-              is case sensitive.
+#endif /* _ReplaceCmd_h */

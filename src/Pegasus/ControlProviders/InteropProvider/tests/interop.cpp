@@ -3397,8 +3397,13 @@ int main(int argc, char** argv)
             }
         }
         it.testPGProviderProfileCapabilities();
-
-        it.testNameSpacesManagement();
+        //If PEGASUS_INTEROP_NAMESPACE is set to interop, interop namespace
+        //does not come under root.The below test need not to run in 
+        //this scenario. 
+        if(PEGASUS_NAMESPACENAME_INTEROP.getString() != "interop" )
+        {
+            it.testNameSpacesManagement();
+        }
 
         it.testSharedNameSpacesManagement();
 

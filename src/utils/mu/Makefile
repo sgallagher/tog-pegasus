@@ -94,7 +94,8 @@ SOURCES = \
     SleepCmd.cpp            \
     SortCmd.cpp             \
     SrcListCmd.cpp          \
-    Dependency.cpp
+    Dependency.cpp          \
+    ReplaceCmd.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

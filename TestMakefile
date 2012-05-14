@@ -1457,7 +1457,7 @@ ConfigureAuthorizations:
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/cimv2 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/cimv2 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_Internal -R -W
-	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_InterOp -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n $(PEGASUS_INTEROP_NAMESPACE) -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/benchmark -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/sampleprovider -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/static -R -W

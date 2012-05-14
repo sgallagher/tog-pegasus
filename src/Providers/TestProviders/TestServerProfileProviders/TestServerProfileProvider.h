@@ -32,6 +32,7 @@
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_USING_PEGASUS;
 

@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Constants.h>
 
 static CIMClient _c;
-static String _nameSpace("root/PG_InterOp");
+static String _nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
 static String _providerType[] = { "Unknown", "Other", "Instance",
   "Association", "Indication", "Method" };
 static String _providerState[] = {"Unknown", "Other", "OK",

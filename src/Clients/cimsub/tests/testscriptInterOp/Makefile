@@ -36,9 +36,25 @@ include $(ROOT)/mak/commands.mak
 
 RESULTFILE =  $(TMP_DIR)/result
 ifeq ($(PEGASUS_ENABLE_CQL),true)
-    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+	ifeq ($(PEGASUS_INTEROP_NAMESPACE),$(NAMESPACE_ROOT_INTEROP))
+		MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.rootinterop
+	else
+	ifeq ($(PEGASUS_INTEROP_NAMESPACE),$(NAMESPACE_INTEROP))
+		MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.interop
+	else
+		MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+	endif
+	endif
 else
-    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql
+	ifeq ($(PEGASUS_INTEROP_NAMESPACE),$(NAMESPACE_ROOT_INTEROP))
+		MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql.rootinterop
+	else
+	ifeq ($(PEGASUS_INTEROP_NAMESPACE),$(NAMESPACE_INTEROP))
+    	MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql.interop
+	else
+    	MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql
+	endif
+	endif
 endif
 
 tests:
@@ -71,7 +87,7 @@ cimsubTest_InterOp: test_setup
 	@$(RM) $(RESULTFILE)
 
 cimsubTest1_ignoreerror:
-	@$(ECHO) ++++cimsub PG_InterOp tests
+	@$(ECHO) ++++cimsub interop tests
 	@$(ECHO)  +++++++++ Command line testing +++++++++ >> $(RESULTFILE)
 
 	@$(ECHO) "List handler with namespace and class." >> $(RESULTFILE)
@@ -91,7 +107,7 @@ cimsubTest1_ignoreerror:
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "Remove handler with different creation class." >> $(RESULTFILE)
-	@cimsub -rh -H root/PG_InterOp:Snmphandler3 >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimsub -rh -H $(PEGASUS_INTEROP_NAMESPACE):Snmphandler3 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List all subscriptions." >> $(RESULTFILE)
@@ -119,7 +135,7 @@ cimsubTest1_ignoreerror:
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List subscription with filter and handler." >> $(RESULTFILE)
-	@$(ECHO) "    Namespace is defaulted to root/PG_InterOp." >> $(RESULTFILE)
+	@$(ECHO) "    Namespace is defaulted to $(PEGASUS_INTEROP_NAMESPACE)." >> $(RESULTFILE)
 	@cimsub -ls -F Filter01 -H ListenerDestination01  >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
@@ -134,11 +150,11 @@ cimsubTest1_ignoreerror:
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List subscription with no name for handler." >> $(RESULTFILE)
-	@cimsub -ls -n root/PG_InterOp -F root/PG_InterOp:Filter01 -H root/PG_InterOp:CIM_IndicationHandlerCIMXML. >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimsub -ls -n $(PEGASUS_INTEROP_NAMESPACE) -F $(PEGASUS_INTEROP_NAMESPACE):Filter01 -H $(PEGASUS_INTEROP_NAMESPACE):CIM_IndicationHandlerCIMXML. >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List subscription with full handler path." >> $(RESULTFILE)
-	@cimsub -ls -n root/PG_InterOp -F root/PG_InterOp:Filter01 -H root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01 >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimsub -ls -n $(PEGASUS_INTEROP_NAMESPACE) -F $(PEGASUS_INTEROP_NAMESPACE):Filter01 -H $(PEGASUS_INTEROP_NAMESPACE):CIM_IndicationHandlerCIMXML.Handler01 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List test subscription." >> $(RESULTFILE)
@@ -187,7 +203,7 @@ cimsubTest1_ignoreerror:
 
 	@$(ECHO) "Disable the test subscription." >> $(RESULTFILE)
 	@$(ECHO) "    Specify subscription namespace." >> $(RESULTFILE)
-	@cimsub -d -n root/PG_InterOp -F root/cimv2:Filter12 -H test/TestProvider:ListenerDestination06 >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimsub -d -n $(PEGASUS_INTEROP_NAMESPACE) -F root/cimv2:Filter12 -H test/TestProvider:ListenerDestination06 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List test subscription." >> $(RESULTFILE)
@@ -197,7 +213,7 @@ cimsubTest1_ignoreerror:
 
 	@$(ECHO) "Re-enable the test subscription." >> $(RESULTFILE)
 	@$(ECHO) "    Specify subscription namespace." >> $(RESULTFILE)
-	@cimsub -e -n root/PG_InterOp -F root/cimv2:Filter12 -H test/TestProvider:ListenerDestination06 >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimsub -e -n $(PEGASUS_INTEROP_NAMESPACE) -F root/cimv2:Filter12 -H test/TestProvider:ListenerDestination06 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "List test subscription." >> $(RESULTFILE)
@@ -226,7 +242,7 @@ cimsubTest1_ignoreerror:
 
 	@$(ECHO) "List a filter." >> $(RESULTFILE)
 	@$(ECHO) "    Specify namespace." >> $(RESULTFILE)
-	@cimsub -lf -F root/PG_InterOp:Filter03 >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimsub -lf -F $(PEGASUS_INTEROP_NAMESPACE):Filter03 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) "Try to remove test filter." >> $(RESULTFILE)
@@ -437,7 +453,7 @@ cimsubTest1_ignoreerror:
 	@cimsub -ls >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
-	@$(ECHO) ++++cimsub PG_InterOp tests completed
+	@$(ECHO) ++++cimsub interop tests completed
 
 
 depend:

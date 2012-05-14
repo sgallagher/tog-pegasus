@@ -5,7 +5,17 @@
 
 #define REPOSITORY "'repository'"
 #define NS_PG_INTERNAL "'root/PG_Internal'"
+
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
+#define NS_PG_INTEROP  "'root/interop'"
+else
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+#define NS_PG_INTEROP  "'interop'"
+else
 #define NS_PG_INTEROP  "'root/PG_InterOp'"
+endif
+endif
+
 #define NS_CIMV2 "'root/cimv2'"
 
 ; define the Schema version to be used for building up the repository.

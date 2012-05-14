@@ -154,7 +154,7 @@ depend: buildmu
 #-----------------------
 # build target: builds all source
 #
-build: cimprovagt32depend cimprovagt32 depend all setupdevserver
+build: cimprovagt32depend cimprovagt32 depend renameinterop all setupdevserver
 
 #------------------------
 # rebuild target is being deprecated instead use "make new build"
@@ -252,6 +252,25 @@ stresstests:
 #
 buildmu: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
+
+##########################################################################
+#
+# renameinterop: This is with regard to PEP304, build time option.
+# There are many test cases and result files where namespace name
+# root/PG_InterOp is hardcoded. So this searches for root/PG_InterOp
+# and changes that to "interop" or "root/interop".
+#
+# This uses mu replace internally. The original files are all saved as
+# filename.save. These file can be restored by running 
+# make -f Makefile.interop restore
+#
+renameinterop: buildmu
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.interop replace
+endif
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.interop replace
+endif
 
 #----------------------
 # setupdevserver and cleandevserver are used to setup and clear the

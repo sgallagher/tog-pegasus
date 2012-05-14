@@ -46,6 +46,7 @@
 #include "SortCmd.h"
 #include "SrcListCmd.h"
 #include "Files.h"
+#include "ReplaceCmd.h"
 
 #ifdef PEGASUS_OS_ZOS
 // This is inline code. No external dependency is created.
@@ -63,7 +64,7 @@ const char HELP[] =
 "\n"
 "Where command is one of the following:\n"
 "    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare, depend\n"
-"    strip, prepend, sleep, sort, srclist\n";
+"    strip, prepend, sleep, sort, srclist ,replace\n";
 
 int main(int argc, char** argv)
 {
@@ -138,6 +139,8 @@ int main(int argc, char** argv)
         result = SortCmd(args);
     else if (args[0] == "srclist")
         result = SrcListCmd(args);
+    else if (args[0] == "replace")
+        result = ReplaceCmd(args);
     else
     {
         result = 1;

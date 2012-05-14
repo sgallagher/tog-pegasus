@@ -378,7 +378,8 @@ Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
         enumClass == elementConformsClass)
     {
         Array<CIMInstance> registeredProfiles = cimomHandle.enumerateInstances(
-            OperationContext(), CIMNamespaceName("root/PG_InterOp"),
+            OperationContext(),
+            CIMNamespaceName(PEGASUS_NAMESPACENAME_INTEROP.getString()),
             CIMName("PG_RegisteredProfile"), false, false, false, false,
             CIMPropertyList());
         Array<CIMObjectPath> profilePaths;

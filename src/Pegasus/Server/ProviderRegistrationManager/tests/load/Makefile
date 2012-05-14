@@ -35,7 +35,15 @@ ifndef REPOSITORYDIR
     $(error REPOSITORYDIR must be defined)
 endif
 
-NAMESPACENAME = root/PG_InterOp
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
+NAMESPACENAME=root/interop
+else
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+NAMESPACENAME=interop
+else
+NAMESPACENAME=root/PG_InterOp
+endif
+endif
 
 # Update the following two environment variables to change the version
 # of the PG_Schema to be loaded in the namespace.

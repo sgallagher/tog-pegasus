@@ -60,11 +60,11 @@ clean:
 
 repository:
 	cimmofl -I. -nroot/cimv2 $(subst .jar,,$(JAR1)).mof
-	cimmofl -I. -nroot/PG_InterOp $(subst .jar,,$(JAR1))R.mof
+	cimmofl -I. -n$(PEGASUS_INTEROP_NAMESPACE) $(subst .jar,,$(JAR1))R.mof
 	cimmofl -I. -nroot/cimv2 $(subst .jar,,$(JAR2)).mof
-	cimmofl -I. -nroot/PG_InterOp $(subst .jar,,$(JAR2))R.mof
+	cimmofl -I. -n$(PEGASUS_INTEROP_NAMESPACE) $(subst .jar,,$(JAR2))R.mof
 	cimmofl -I. -nroot/cimv2 $(subst .jar,,$(JAR3)).mof
-	cimmofl -I. -nroot/PG_InterOp $(subst .jar,,$(JAR3))R.mof
+	cimmofl -I. -n$(PEGASUS_INTEROP_NAMESPACE) $(subst .jar,,$(JAR3))R.mof
 
 $(PEGASUS_HOME)/lib/$(JAR1): $(JAR1CLASSES)
 	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)

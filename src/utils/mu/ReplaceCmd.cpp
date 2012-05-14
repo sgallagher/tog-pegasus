@@ -26,46 +26,31 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-MU (Make Utility)
 
-This utility is used by the make system build Pegasus.Since 'mu' is
-intended to be used for build environment, we need not to worry about
-coding standards like no STL usage etc. It implements a
-handful of commands which may be executed in this form:
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "ReplaceCmd.h"
 
-    mu <command> <arguments>
-
-For example, here's how to remove a file:
-
-    mu rm myfile.txt
-
-This utility handles Unix C-Shell style wild cards. The following commands
-are supported:
-
-    rm - removes one or more files.
-
-    rmdirhier - removes a single directory (and the hierarchy below it).
-
-    mkdirhier - creates all directories along a path.
-
-    echo - echos its arguments to standard output.
-
-    touch - changes modification time of file to current time; creates file
-	if it does not already exist.
-
-    pwd - prints the working directory with Unix style slashes ('/').
-
-    copy - copies files.
-
-    move - moves a file (possibliy renaming it).
-
-    compare - compares two files; exits with code of zero if identical.
-
-    depend - builds header dependencies for C++ source files.
-
-    strip - strips lines from a file.
-
-    prepend - prepends lines to a file.
-
-    replace - replace the search string with another string in a file and it 
-              is case sensitive.
+int ReplaceCmd(const vector<string>& args)
+{
+    string findString=args[2];
+    string replaceString=args[3];
+    string fileName = args[1];
+    int sz=findString.length();
+    std::ifstream ifile(fileName.c_str(),std::ios::binary);
+    ifile.seekg(0,std::ios_base::end);
+    long s=ifile.tellg();
+    char *buffer=new char[s];
+    ifile.seekg(0);
+    ifile.read(buffer,s);
+    ifile.close();
+    std::string txt(buffer,s);
+    delete[] buffer;
+    size_t off=0;
+    while ((off=txt.find(findString,off))!=std::string::npos)
+       txt.replace(off,sz,replaceString);
+    std::ofstream ofile(fileName.c_str());
+    ofile.write(txt.c_str(),txt.size());
+    return 0;
+}

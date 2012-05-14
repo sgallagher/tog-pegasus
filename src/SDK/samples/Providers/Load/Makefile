@@ -31,7 +31,15 @@
 ROOT = ../..
 include $(ROOT)/mak/config.mak
 
-INTEROPNS = root/PG_InterOp
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
+INTEROPNS=root/interop
+else
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+INTEROPNS=interop
+else
+INTEROPNS=root/PG_InterOp
+endif
+endif
 
 SAMPLECXXPROVIDERNS=SDKExamples/DefaultCXX
 SAMPLECMPIPROVIDERNS=SDKExamples/CMPI

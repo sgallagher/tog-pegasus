@@ -787,6 +787,21 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      details.<br>
 </ul>
 
+<h5>PEGASUS_INTEROP_NAMESPACE</h5>
+<ul>
+  <b>Description: </b>This variable is used for configuring the Interop 
+     namespace name. This option helps to establish a consistent Interop 
+     Namespace as mentioned in DMTF specification.(DSP1033)<br>
+  <b>Default Value: </b>root/PG_InterOp<br>
+  <b>Recommended Value (Development Build): </b>Not Set<br>
+  <b>Recommended Value (Release Build): </b>Not Set<br>   
+  <b>Required: </b>No <br>
+  <b>Considerations:&nbsp;</b>The accepted values for this environment 
+     variable are "root/PG_InterOp" or "interop" or "root/interop". For 
+     any other value, the default value will be used.With the usage of 
+     this build option, we have to start using pegasus with fresh repository.
+</ul>
+
 <h5>PEGASUS_ENABLE_IPV6</h5>
 <ul>
   <b>Description:&nbsp;</b>This variable can be used to specify

@@ -40,7 +40,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-const CIMNamespaceName interopNamespace = CIMNamespaceName("root/PG_InterOp");
+const CIMNamespaceName interopNamespace = PEGASUS_NAMESPACENAME_INTEROP; 
 
 void exitFailure(const String & msg)
 {

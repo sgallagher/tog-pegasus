@@ -81,8 +81,8 @@ repository:
 	@ cimmof  "-nroot/MCCAtest/A" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvSchema.mof
 	@ $(ECHO) +++++ Loading MCCA_TestAssocClass into root/MCCBtest/B namespace ...
 	@ cimmof  "-nroot/MCCAtest/B" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvSchema.mof
-# Registering Provider in PG_InterOp
-	@ $(ECHO) +++++ Loading  MCCA_TestAssocClass provider definitions into PG_InterOp namespace ...
+# Registering Provider in interop namespace
+	@ $(ECHO) +++++ Loading  MCCA_TestAssocClass provider definitions into $(PEGASUS_INTEROP_NAMESPACE) namespace ...
 	@ cimmof  "-n$(INTEROPNS)" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvReg.mof
 
 removeclasses:

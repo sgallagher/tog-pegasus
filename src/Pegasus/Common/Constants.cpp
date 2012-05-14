@@ -291,8 +291,17 @@ const CIMName PEGASUS_PROPERTYNAME_SNMPVERSION =
 // CIM Namespace Names
 //
 
-const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP  =
+#if defined NS_ROOT_INTEROP
+const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP=
+    CIMNamespaceName ("root/interop");   
+#elif defined NS_INTEROP
+const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP=
+    CIMNamespaceName ("interop");
+#else
+const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP=
     CIMNamespaceName ("root/PG_InterOp");
+#endif
+
 const CIMNamespaceName PEGASUS_NAMESPACENAME_INTERNAL =
     CIMNamespaceName ("root/PG_Internal");
 const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMV2    =

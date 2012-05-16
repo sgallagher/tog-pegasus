@@ -37,7 +37,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CQLOperationRequestDispatcher : public CIMOperationRequestDispatcher
+class PEGASUS_SERVER_LINKAGE CQLOperationRequestDispatcher : 
+    public CIMOperationRequestDispatcher
 {
 private:
     CQLOperationRequestDispatcher(

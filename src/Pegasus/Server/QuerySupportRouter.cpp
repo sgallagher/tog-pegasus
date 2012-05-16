@@ -45,8 +45,10 @@ Boolean QuerySupportRouter::routeHandleExecQueryRequest(
 {
     if (msg->queryLanguage=="WQL")
         ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+#ifdef PEGASUS_ENABLE_CQL
     else if(msg->queryLanguage == "DMTF:CQL")
         ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+#endif
     else return false;
 
     return true;
@@ -59,9 +61,11 @@ void QuerySupportRouter::routeHandleExecQueryResponseAggregation(
     if (poA->_queryLanguage=="WQL")
         ((WQLOperationRequestDispatcher*)opThis)->
             handleQueryResponseAggregation(poA);
+#ifdef PEGASUS_ENABLE_CQL
     else if(poA->_queryLanguage == "DMTF:CQL")
         ((CQLOperationRequestDispatcher*)opThis)->
             handleQueryResponseAggregation(poA);
+#endif
 }
 
 void QuerySupportRouter::routeApplyQueryToEnumeration(
@@ -72,9 +76,11 @@ void QuerySupportRouter::routeApplyQueryToEnumeration(
     if (query->getQueryLanguage()=="WQL")
         ((WQLOperationRequestDispatcher*)opThis)->
             applyQueryToEnumeration(msg,query);
+#ifdef PEGASUS_ENABLE_CQL
     else if(query->getQueryLanguage() == "DMTF:CQL")
         ((CQLOperationRequestDispatcher*)opThis)->
             applyQueryToEnumeration(msg,query);
+#endif
 }
 
 PEGASUS_NAMESPACE_END

@@ -48,12 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define CSTRING(ARG) (const char*) ARG.getCString()
 
-
-// Local save for host name. save host name here.  NOTE: Problem if hostname
-// changes.
-// Set by object init. Used by aggregator.
-String cimAggregationLocalHost;
-
 // A helper function that resets the Propagated and ClassOrigin attributes on
 // properties of CIMInstance and CIMClass objects. This is used during
 // Create/Modify Instance and Create/Modify Class operations, where the
@@ -343,8 +337,6 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 
     _providerManagerServiceId =
         lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)->getQueueId();
-
-    cimAggregationLocalHost = System::getHostName();
 
     PEG_METHOD_EXIT();
 }
@@ -4983,7 +4975,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
     // fill in host, namespace on all instances on all elements of array
     // if they have been left out. This is required because XML reader
     // will fail without them populated
-    to.completeHostNameAndNamespace(cimAggregationLocalHost,poA->_nameSpace);
+    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
 
     PEG_METHOD_EXIT();
 }
@@ -5021,7 +5013,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
     // fill in host, namespace on all instances on all elements of array
     // if they have been left out. This is required because XML reader
     // will fail without them populated
-    to.completeHostNameAndNamespace(cimAggregationLocalHost,poA->_nameSpace);
+    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
 
     PEG_METHOD_EXIT();
 }
@@ -5059,7 +5051,7 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
     // fill in host, namespace on all instances on all elements of array
     // if they have been left out. This is required because XML reader
     // will fail without them populated
-    to.completeHostNameAndNamespace(cimAggregationLocalHost,poA->_nameSpace);
+    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
 
     PEG_METHOD_EXIT();
 }
@@ -5097,7 +5089,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
     // fill in host, namespace on all instances on all elements of array
     // if they have been left out. This is required because XML reader
     // will fail without them populated
-    to.completeHostNameAndNamespace(cimAggregationLocalHost,poA->_nameSpace);
+    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
 
     PEG_METHOD_EXIT();
 }

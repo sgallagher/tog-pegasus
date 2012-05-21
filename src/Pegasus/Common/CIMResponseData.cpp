@@ -548,14 +548,11 @@ void CIMResponseData::completeHostNameAndNamespace(
                 for (Uint32 j = 0, n = _scmoInstances.size(); j < n; j++)
                 {
                     SCMOInstance & scmoInst=_scmoInstances[j];
-                    if (0 == scmoInst.getHostName())
-                    {
-                        scmoInst.setHostName_l(hnChars,hnLen);
-                    }
-                    if (0 == scmoInst.getNameSpace())
-                    {
-                        scmoInst.setNameSpace_l(nsChars,nsLen);
-                    }
+                    scmoInst.completeHostNameAndNamespace(
+                        hnChars,
+                        hnLen,
+                        nsChars,
+                        nsLen);
                 }
                 break;
             }

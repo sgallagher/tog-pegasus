@@ -612,13 +612,6 @@ public:
     void setHostName(const char* hostName);
 
     /**
-     * Sets the provided host name unchecked at the instance.
-     * @param hostName The host name as UTF8.
-     * @param len The strlen of the host name.
-     */
-    void setHostName_l(const char* hostName, Uint32 len);
-
-    /**
      * Get the host name of the instance. The caller has to make a copy !
      * @return The host name as UTF8.
      */
@@ -688,6 +681,20 @@ public:
      * @return The class name as UTF8.
      */
     const char* getNameSpace_l(Uint32 & length) const;
+
+    /**
+     * If hostname or namespace of the SCMOInstance are NULL or empty string,
+     * replace them with the given input.
+     * @param hn The host name to apply to the SCMOInstance.
+     * @param hnLen The length of the hostname in byte without closing zero.
+     * @param ns The namespace name to apply to the SCMOInstance.
+     * @param nsLen The length of the hostname in byte without closing zero.
+     */
+    void completeHostNameAndNamespace(
+        const char* hn,
+        Uint32 hnLen,
+        const char* ns,
+        Uint32 nsLen);
 
     /**
      * Is the name space or class name of the instance the origianl values

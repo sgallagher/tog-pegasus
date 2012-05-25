@@ -2345,17 +2345,6 @@ void SCMOInstance::setHostName(const char* hostName)
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
 
-void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
-{
-    // Copy on Write is only necessary if a realloc() becomes necessary
-    if (inst.mem->freeBytes < ((len+8) & ~7))
-    {
-        _copyOnWrite();
-    }
-    // copy including trailing '\0'
-    _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
-}
-
 const char* SCMOInstance::getHostName() const
 {
     return _getCharString(inst.hdr->hostName,inst.base);
@@ -2471,6 +2460,33 @@ const char* SCMOInstance::getNameSpace_l(Uint32 & length) const
     }
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
+
+void SCMOInstance::completeHostNameAndNamespace(
+    const char* hn,
+    Uint32 hnLen,
+    const char* ns,
+    Uint32 nsLen)
+{
+    // hostName is Null or empty String ?
+    if (0 == inst.hdr->hostName.size ||
+        0 == inst.base[inst.hdr->hostName.start])
+    {
+        // Copy on Write is only necessary if a realloc() becomes necessary
+        if (inst.mem->freeBytes < ((hnLen+8) & ~7))
+        {
+            _copyOnWrite();
+        }
+        // copy including trailing '\0'
+        _setBinary(hn,hnLen+1,inst.hdr->hostName,&inst.mem);
+    }
+    // namespace is Null or empty String ?
+    if (0 == inst.hdr->instNameSpace.size ||
+        0 == inst.base[inst.hdr->instNameSpace.start])
+    {
+        setNameSpace_l(ns,nsLen);
+    }
+}
+
 
 void SCMOInstance::buildKeyBindingsFromProperties()
 {

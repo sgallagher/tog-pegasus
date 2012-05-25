@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SCMOINSTANCE_H_
@@ -130,6 +125,10 @@ public:
      * instance.  The TOINSTANCE flavor is ignored.
      * @param includeClassOrigin A Boolean indicating whether ClassOrigin
      * attributes are to be added to the instance.
+     * @param propertyList Is an NULL terminated array of char* to property
+     * names defining the properties that are included in the created instance.
+     * If the propertyList is NULL, all properties are included to the instance.
+     * If the propertyList is empty, no properties are added.
      *
      * Note that this function does NOT generate an error if a property name
      * is supplied that is NOT in the class;
@@ -139,7 +138,8 @@ public:
     SCMOInstance(
         SCMOClass& baseClass,
         Boolean includeQualifiers,
-        Boolean includeClassOrigin);
+        Boolean includeClassOrigin,
+        const char** propertyList);
 
     /**
      * Builds a SCMOInstance from the given SCMOClass and copies all
@@ -389,6 +389,10 @@ public:
      */
     void buildKeyBindingsFromProperties();
     
+    //This function is not implemented and now Property filtering is done by
+    //the CIMOM infrastructure 
+    void setPropertyFilter(const char **propertyList);
+    
     /**
      * Gets the hash index for the named property. Filtering is ignored.
      * @param theName The property name
@@ -401,6 +405,8 @@ public:
 
     /**
      * Set/replace a property in the instance at node index.
+     * Note: If node is filtered, the property is not set but the return value
+     * is still SCMO_OK.
      * @param index The node index.
      * @param type The CIMType of the property
      * @param pInVal A pointer to the value to be set at the named property.
@@ -923,6 +929,14 @@ private:
         const SCMBUnion** pdata) const;
 
     void _copyKeyBindings(SCMOInstance& targetInst) const;
+
+    Uint32 _initPropFilterWithKeys();
+
+    void _setPropertyInPropertyFilter(Uint32 i);
+
+    Boolean _isPropertyInFilter(Uint32 i) const;
+
+    void _clearPropertyFilter();
 
     void _setKeyBindingFromSCMBUnion(
         CIMType type,

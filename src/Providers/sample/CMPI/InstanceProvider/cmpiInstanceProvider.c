@@ -52,8 +52,9 @@ static void initialize()
     CMPIInstance *instance1, *instance2, *instance3;
     CMPIObjectPath *cop1, *cop2, *cop3;
     value1.uint8 = 1;
-    value2.string = CMNewString(_broker, "Hello World", &rc);
-
+    value2.string = CMNewString(_broker, "\\x0C9C\\x0CA8\\x0CCD\\x0CAE"
+        "\\x0CA6\\x0CBF\\x0CA8\\x0CA6 \\x0CB6\\x0CC1\\x0CAD\\x0CBE"
+        "\\x0CB6\\x0CAF\\x0C97\\x0CB3\\x0CC1", &rc);
     /* create a new array to hold the instances created */
     arr_ptr = CMNewArray(_broker, initArraySize, CMPI_instance, &rc);
 
@@ -91,7 +92,8 @@ static void initialize()
 
     /* create instance 2 and add to array */
     value1.uint8 = 2;
-    value2.string = CMNewString(_broker, "Yo Planet", &rc);
+    value2.string = CMNewString(_broker, "\\x0CA8\\x0CBE\\x0CB3"
+        "\\x0CC6\\x0CA6\\x0CBF\\x0CA8", &rc);
     cop2 = CMNewObjectPath(
                 _broker,
                 "root/SampleProvider",
@@ -117,7 +119,7 @@ static void initialize()
 
     /* create instance 3 and add to array */
     value1.uint8 = 3;
-    value2.string = CMNewString(_broker, "Hey Earth", &rc);
+    value2.string = CMNewString(_broker, "\\x0C9C", &rc);
     cop3 = CMNewObjectPath(
                 _broker,
                 "root/SampleProvider",

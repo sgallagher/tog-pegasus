@@ -409,9 +409,9 @@ void cimcliExit(Uint32 exitCode)
         exit(0);
     }
 
-    // Do not print a warning message if the expected return code is 
-    // zero (success) since a more precise exception message was 
-    // printed already. The warning does not contain additional user-relevant 
+    // Do not print a warning message if the expected return code is
+    // zero (success) since a more precise exception message was
+    // printed already. The warning does not contain additional user-relevant
     // information in this case but can be misleading.
     if ( 0 != expectedExitCode )
     {

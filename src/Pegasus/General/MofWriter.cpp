@@ -180,7 +180,7 @@ inline void _mofWriter_appendValue(Buffer& out, const String& x)
                 break;
 
             default:
-                out.append(Sint8(x[i]));
+                out<<x[i];
         }
 
     }

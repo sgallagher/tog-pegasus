@@ -38,19 +38,19 @@ int ReplaceCmd(const vector<string>& args)
     string replaceString=args[3];
     string fileName = args[1];
     int sz=findString.length();
-    std::ifstream ifile(fileName.c_str(),std::ios::binary);
-    ifile.seekg(0,std::ios_base::end);
+    ifstream ifile(fileName.c_str(),ios::binary);
+    ifile.seekg(0,ios::end);
     long s=ifile.tellg();
     char *buffer=new char[s];
     ifile.seekg(0);
     ifile.read(buffer,s);
     ifile.close();
-    std::string txt(buffer,s);
+    string txt(buffer,s);
     delete[] buffer;
     size_t off=0;
-    while ((off=txt.find(findString,off))!=std::string::npos)
+    while ((off=txt.find(findString,off))!=string::npos)
        txt.replace(off,sz,replaceString);
-    std::ofstream ofile(fileName.c_str());
+    ofstream ofile(fileName.c_str());
     ofile.write(txt.c_str(),txt.size());
     return 0;
 }

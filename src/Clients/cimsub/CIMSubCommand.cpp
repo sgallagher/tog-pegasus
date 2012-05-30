@@ -51,6 +51,7 @@
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
+#include <Clients/cliutils/CsvStringParse.h>
 #include "CIMSubCommand.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -377,105 +378,6 @@ const String _SNMP_VERSION_SNMPV1_TRAP_STRING = "SNMPv1 Trap";
 const String _SNMP_VERSION_SNMPV2C_TRAP_STRING = "SNMPv2C Trap";
 const String _SNMP_VERSION_PEGASUS_RESERVED_STRING = "Pegasus Reserved";
 
-/* Parser for comma-separated-strings (csv). This parser takes into
-   account quoted strings the " character and returns everything
-   within a quoted block in the string in one batch.  It also
-   considers the backslash "\" escape character to escape single
-   double quotes.
-   Example:
-     csvStringParse x (inputstring, ',');
-     while (x.more())
-        rtnString = x.next();
-*/
-class csvStringParse
-{
-public:
-    /* Define a string to parse for comma separated values and the
-       separation character
-    */
-    csvStringParse(const String& csvString, const int separator):
-        _idx(0),_separator(separator),_end(csvString.size()),
-        _inputString(csvString)
-    {
-    }
-
-    /* determine if there is more to parse
-       @return true if there is more to parse
-    */
-    Boolean more()
-    {
-        return (_idx < _end)? true : false;
-    }
-
-    /* get next string from input. Note that this will continue to
-       return empty strings if you parse past the point where more()
-       returns false.
-       @return String
-    */
-    String next()
-    {
-        String rtnValue;
-        parsestate state = NOTINQUOTE;
-
-        while ((_idx < _end) && (_inputString[_idx]))
-        {
-            char idxchar = _inputString[_idx];
-            switch (state)
-            {
-                case NOTINQUOTE:
-                    switch (idxchar)
-                    {
-                        case '\\':
-                            state = INSQUOTE;
-                            break;
-
-                        case '"':
-                            state = INDQUOTE;
-                            break;
-
-                        default:
-                            if (idxchar == _separator)
-                            {
-                                _idx++;
-                                return rtnValue;
-                            }
-                            else
-                                rtnValue.append(idxchar);
-                            break;
-                    }
-                    break;
-
-                // add next character and set NOTINQUOTE State
-                case INSQUOTE:
-                    rtnValue.append(idxchar);
-                    state = NOTINQUOTE;
-                    break;
-
-                // append all but quote character
-                case INDQUOTE:
-                    switch (idxchar)
-                    {
-                        case '"':
-                            state = NOTINQUOTE;
-                            break;
-                        default:
-                            rtnValue.append(idxchar);
-                            break;
-                    }
-            }
-            _idx++;
-        }   // end while
-
-        return rtnValue;
-    }
-
-private:
-    enum parsestate {INDQUOTE, INSQUOTE, NOTINQUOTE};
-    Uint32 _idx;
-    int _separator;
-    Uint32 _end;
-    String _inputString;
-};
 /**
 
     Constructs a CIMSubCommand and initializes instance variables.

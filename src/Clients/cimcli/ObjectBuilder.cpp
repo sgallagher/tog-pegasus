@@ -41,6 +41,7 @@
 #include "CIMCLICommon.h"
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/ArrayIterator.h>
+#include <Clients/cliutils/CsvStringParse.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -56,7 +57,6 @@ PEGASUS_NAMESPACE_BEGIN
 bool verboseTest = false;
 #define VCOUT if (verboseTest) cout << "LINE=" << __LINE__ << " TST "
 
-class csvStringParse;
 
 // Cleans an input array by removing the { } tokens that surround
 // the array parameters.  Does nothing if they do not exist.  If there is
@@ -309,112 +309,6 @@ tokenItem parseInputParam(const String& input)
     tokenItem ti(input, name, value, tokenType);
     return ti;
 }
-
-/******************************************************************************
-   Parser for comma-separated-strings (csv). This parser takes into
-   account quoted strings the " character and returns everything
-   within a quoted block in the string in one batch.  It also
-   considers the backslash "\" escape character to escape single
-   double quotes.
-   Example:
-     csvStringParse x (inputstring, ",");
-     while (x.more())
-        rtnString = x.next();
-******************************************************************************/
-class csvStringParse
-{
-public:
-    /* Define a string to parse for comma separated values and the
-       separation character
-    */
-    csvStringParse(const String& csvString, const int separator)
-    {
-        _inputString = csvString;
-        _separator = separator;
-        _idx = 0;
-        _end = csvString.size();
-    }
-
-    /* determine if there is more to parse
-       @return true if there is more to parse
-    */
-    Boolean more()
-    {
-        return (_idx < _end)? true : false;
-    }
-
-    /* get next string from input. Note that this will continue to
-       return empty strings if you parse past the point where more()
-       returns false.
-       @return String
-    */
-    String next()
-    {
-        String rtnValue;
-        parsestate state = NOTINQUOTE;
-
-        while ((_idx <= _end) && (_inputString[_idx]))
-        {
-            char idxchar = _inputString[_idx];
-            switch (state)
-            {
-                case NOTINQUOTE:
-                    switch (idxchar)
-                    {
-                        case '\\':
-                            state = INSQUOTE;
-                            break;
-
-                        case '"':
-                            state = INDQUOTE;
-                            break;
-
-                        default:
-                            if (idxchar == _separator)
-                            {
-                                _idx++;
-                                return rtnValue;
-                            }
-                            else
-                            {
-                                rtnValue.append(idxchar);
-                            }
-                            break;
-                    }
-                    break;
-
-                // add next character and set NOTINQUOTE State
-                case INSQUOTE:
-                    rtnValue.append(idxchar);
-                    state = NOTINQUOTE;
-                    break;
-
-                // append all but quote character
-                case INDQUOTE:
-                    switch (idxchar)
-                    {
-                        case '"':
-                            state = NOTINQUOTE;
-                            break;
-                        default:
-                            rtnValue.append(idxchar);
-                            break;
-                    }
-            }
-            _idx++;
-        }   // end while
-
-        return rtnValue;
-    }
-
-private:
-    enum parsestate {INDQUOTE, INSQUOTE, NOTINQUOTE};
-    Uint32 _idx;
-    int _separator;
-    Uint32 _end;
-    String _inputString;
-};
-
 
 /* Convert a single string provided as input into a new CIM variable
    and place it in a CIMValue.  This function does not process

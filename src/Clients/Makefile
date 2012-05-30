@@ -31,7 +31,6 @@ ROOT = ../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    cimcli \
     cliutils \
     cimconfig \
     cimuser \
@@ -43,6 +42,7 @@ DIRS = \
     cimperf \
     repupgrade  \
     cimsub \
+    cimcli \
     repupgrade/SSPModules/SampleSSPModule \
     loadxml
 

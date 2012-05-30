@@ -49,6 +49,7 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
     Command.cpp \
-    CommandException.cpp
+    CommandException.cpp \
+    CsvStringParse.cpp
 
 include $(ROOT)/mak/dynamic-library.mak

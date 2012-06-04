@@ -55,6 +55,7 @@ static void initialize()
     value2.string = CMNewString(_broker, "\\x0C9C\\x0CA8\\x0CCD\\x0CAE"
         "\\x0CA6\\x0CBF\\x0CA8\\x0CA6 \\x0CB6\\x0CC1\\x0CAD\\x0CBE"
         "\\x0CB6\\x0CAF\\x0C97\\x0CB3\\x0CC1", &rc);
+
     /* create a new array to hold the instances created */
     arr_ptr = CMNewArray(_broker, initArraySize, CMPI_instance, &rc);
 

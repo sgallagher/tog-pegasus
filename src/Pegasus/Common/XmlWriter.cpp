@@ -1124,8 +1124,8 @@ void XmlWriter::appendPropertyElement(
                 // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
                 // defined, then the EmbeddedInstance qualifier will be added
 # ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE ==
-                        PEG_NOT_FOUND)
+                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+                        == PEG_NOT_FOUND)
                 {
                     // Note that addQualifiers() cannot be called on a const
                     // CIMQualifierRep.  In this case we really do want to add

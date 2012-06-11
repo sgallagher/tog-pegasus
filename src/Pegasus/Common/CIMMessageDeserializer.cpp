@@ -287,16 +287,16 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             // ATTN: No need to serialize this yet
             //message =
             //  _deserializeCIMNotifyProviderRegistrationRequestMessage(parser);
-            break;
+            //   break;
         //case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
             //message =
             //  _deserializeCIMNotifyProviderTerminationRequestMessage(parser);
-            break;
+            //  break;
         //case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
             //message = _deserializeCIMHandleIndicationRequestMessage(parser);
-            break;
+            // break;
         case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
             message = _deserializeCIMDisableModuleRequestMessage(parser);
             break;
@@ -307,7 +307,7 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             // ATTN: No need to serialize this yet
             //message =
             //    _deserializeCIMNotifyProviderEnableRequestMessage(parser);
-            break;
+            // break;
         //case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
             // ATTN: No need to deserialize this yet
             //message = _deserializeCIMNotifyProviderFailRequestMessage(parser);

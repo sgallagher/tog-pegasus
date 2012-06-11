@@ -328,7 +328,6 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIKeyData(
                 // Not supported for this CMPItype
                 data->state = CMPI_badValue;
                 return CMPI_RC_ERR_NOT_SUPPORTED;
-                break;
             }
     }
 
@@ -454,7 +453,6 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
                 {
                     // Not supported for this CMPItype
                     return CMPI_RC_ERR_NOT_SUPPORTED;
-                    break;
                 }
             }
         }

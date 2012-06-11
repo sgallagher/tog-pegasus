@@ -1138,7 +1138,6 @@ static void _testEnumerateWithWQLFilterBody(WsmReader& reader)
         case WsmFilter::NONE:
         {
             throw Exception("Filter expected for this request.");
-            break;
         }
 
         case WsmFilter::WQL:
@@ -1158,7 +1157,6 @@ static void _testEnumerateWithWQLFilterBody(WsmReader& reader)
         case WsmFilter::ASSOCIATION:
         {
             throw Exception("Association filter not expected");
-            break;
         }
     }
 }

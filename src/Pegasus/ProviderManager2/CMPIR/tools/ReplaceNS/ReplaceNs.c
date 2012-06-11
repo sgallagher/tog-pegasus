@@ -121,7 +121,7 @@ int main(int argc,char *argv[])
         strcat(buff," };\n");
         fputs(buff,stdout);
     }
-
+    fclose(fp);
     return 0;
 }
 

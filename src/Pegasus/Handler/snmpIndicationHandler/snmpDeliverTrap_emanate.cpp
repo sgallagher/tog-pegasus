@@ -193,7 +193,6 @@ void snmpDeliverTrap_emanate::deliverTrap(
                 MessageLoaderParms(
                     _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED_KEY,
                     _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED));
-            break;
         }
     }
 
@@ -497,7 +496,6 @@ void snmpDeliverTrap_emanate::deliverTrap(
                 MessageLoaderParms(
                     _MSG_VERSION_NOT_SUPPORTED_KEY,
                     _MSG_VERSION_NOT_SUPPORTED));
-            break;
         }
     }
 

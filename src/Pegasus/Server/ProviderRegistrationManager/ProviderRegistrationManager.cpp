@@ -3083,7 +3083,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 CIM_ERR_NOT_SUPPORTED,
                                 "InstanceQueryProvider must be defined in "
                                 "combination with InstanceProvider");
-                            break;
                         }
                         for (Uint32 j=0; j < namespaces.size(); j++)
                         {

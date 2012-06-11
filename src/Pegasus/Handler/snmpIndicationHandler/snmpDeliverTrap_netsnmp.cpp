@@ -407,7 +407,6 @@ void snmpDeliverTrap_netsnmp::_createSession(
                     MessageLoaderParms(
                         _MSG_VERSION_NOT_SUPPORTED_KEY,
                         _MSG_VERSION_NOT_SUPPORTED));
-                break;
             }
         }
 

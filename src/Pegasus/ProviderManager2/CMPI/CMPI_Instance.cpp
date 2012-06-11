@@ -151,7 +151,6 @@ extern "C"
                 CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
                 CMPIData rdata={0,CMPI_nullValue|CMPI_notFound,{0}};
                 return rdata;
-                break;
             }
 
             case SCMO_NULL_VALUE:

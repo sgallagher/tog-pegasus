@@ -1,7 +1,7 @@
 .\" .TA c \" lowercase initial letter of .TH name
 .TH "cimsub" "1" "" "" ""
 .SH "NAME"
-cimsub \- list, enable, disable, or remove CIM indication subscriptions
+cimsub \- list, enable, disable,remove or create CIM indication subscriptions
 .SH "SYNOPSIS"
 
 \fBcimsub\fP \fB\-l\fP \fBs\fP|\fBf\fP|\f\h\fP [\fB\-v\fP][\fB\-n\fP namespace][\fB\-F\fP [fnamespace:]filtername][\fB\-H\fP [hnamespace:][hclassname.]handlername]
@@ -11,6 +11,15 @@ cimsub \- list, enable, disable, or remove CIM indication subscriptions
 \fBcimsub\fP \fB\-d\fP [\fB\-n\fP namespace] \fB\-F\fP [fnamespace:]filtername \fB\-H\fP [hnamespace:][hclassname.]handlername
 
 \fBcimsub\fP \fB\-r\fP \fBs\fP|\fBf\fP|\f\h\fP|\fBa\fP [\fB\-n\fP namespace][\fB\-F\fP [fnamespace:]filtername][\fB\-H\fP [hnamespace:][hclassname.]handlername]
+
+\fBcimsub\fP \fB\-c\fP \fBf\fP [fnamespace:]filtername \fB\-Q\fP query [\fB\-L\fP querylanguage] [\fB\-N\fP sourcenamespace(s)]
+
+\fBcimsub\fP \fB\-c\fP \fBh\fP [hnamespace:][hclassname.]handlername [\fB\-D\fP destination]|
+            [\fB\-M\fP mailto [\fB\-C\fP mailcc] \fB\-S\fP mailsubject]|
+            [\fB\-T\fP snmptargethost [\fB\-P\fP snmpportnumber] \fB\-V\fP snmpversion] [\fB\-U\fP snmpsecurityname] [\fB\-E\fP snmpengineid]]
+
+\fBcimsub\fP \fB\-c\fP \fBs\fP [\fB\-n\fP namespace] \fB\-F\fP [fnamespace:]filtername \fB\-H\fP [hnamespace:][hclassname.]handlername
+
 
 \fBcimsub\fP \fB\-\-help\fP
 
@@ -35,7 +44,12 @@ disables the specified subscription, i.e. the subscription instance is modified 
 .PP 
 The fourth form of 
 .B cimsub 
-removes the specified subscription, filter, handler, or subscription and its referenced filter and handler, i.e. each instance is deleted from the repository, and the CIM Server will no longer have any information about the instance(s). A filter or handler may not be removed if it is referenced by any other subscription. 
+removes the specified subscription, filter, handler, or subscription and its referenced filter and handler, i.e. each instance is deleted from the repository, and the CIM Server will no longer have any information about the instance(s). A filter or handler may not be removed if it is referenced by any other subscription.
+.PP
+The fifth form of
+.B cimsub
+command creates the specified Subscription, filter, or handler. i.e each instance is created into the repository and CIM Server will get the new information about the created Instance(s). 
+
 .SS Options
 The 
 .B cimsub 
@@ -54,6 +68,9 @@ Disable the specified subscription (set the SubscriptionState to Disabled).
 .B \-r
 Remove the specified subscription ("s"), filter ("f"), handler ("h"), or subscription and its referenced filter and handler ("a") (delete the instance(s) from the repository). The -F and -H options are required with -rs or -ra. It is an error to specify the -F option with -rh. It is an error to specify the -H option with -rf. With the -rf or -rh option, fnamespace or hnamespace takes precedence over the -n namespace option if both are specified. 
 .TP 
+.B \-c
+Create the specified subscription ("s"), filter ("f") or  handler ("h"). The -F filter and -H handler options are required with -cs. The Filtername and -Q Query are required with -cf. The Handler Name is required with -ch.With the -cf or -ch option, fnamespace or hnamespace takes precedence over the -n namespace option if both are specified.
+.TP  
 .B \-v
 Include verbose information in the information displayed for each listed instance.
 .TP 
@@ -65,6 +82,48 @@ Specify the Filter Name. Omission of the filter namespace specifies that it is t
 .TP 
 .B \-H \fI[hnamespace:][classname.]handlername\fP
 Specify the Handler Name. Omission of the handler namespace specifies that it is the same as that of the subscription. Omission of the handler classname specifies that it is CIM_ListenerDestinationCIMXML. 
+.TP
+.B \-Q
+Specify the Query Expression for the Filter.
+.TP
+.B \-L
+Specify the Query Language for the Filter.
+.TP
+.B \-N
+To Use SourceNamespaces property, Specify multiple SourceNamespaces with coma separated or append comma to the single SourceNamespace. By default SourceNamespace property is populated if the single SourceNamespace is specified.
+.TP
+.B \-D        
+Specify Destination of a CIM_IndicationHandlerCIMXML Handler. Required option for CIM_IndicationHandlerCIMXML or CIM_ListenerDestinationCIMXML Handler.
+.TP
+.B \-M      
+Specify Mailto of a  PG_ListenerDestinationEmail Handler.
+.TP
+.B \-C     
+Specify Mailcc of a PG_ListenerDestinationEmail Handler.
+.TP
+.B \-S     
+Specify Subject of a PG_ListenerDestinationEmail Handler.
+.TP
+.B \-T 
+Specify Target Host of PG_IndicationHandlerSNMPMapper Handler. Required option for SNMPMapper handler.
+.TP
+.B \-U       
+Specify Security Name of PG_IndicationHandlerSNMPMapper Handler.
+.TP
+.B \-P      
+Specify Port Number of a PG_IndicationHandlerSNMPMapper Handler.(default 162)
+.TP
+.B \-V   
+Specify SNMPVersion of a PG_IndicationHandlerSNMPMapper Handler.
+                   2 : SNMPv1 Trap
+                   3 : SNMPv2C Trap
+                   4 : SNMPv2C Inform
+                   5 : SNMPv3 Trap
+                   6 : SNMPv3 Inform
+                   Required option for SNMPMapper Handler
+.TP
+.B \-E  
+Specify Engine ID of a PG_IndicationHandlerSNMPMapper Handler.
 .TP 
 .B \-\-help
 Display command usage information.
@@ -115,7 +174,7 @@ The
 .B cimsub 
 command requires the CIM Server to be running.
 .PP 
-If the enableSubscriptionsForNonprivilegedUsers configuration property is set to false, only a privileged user may list, enable, disable, or remove a subscription, filter, or handler. If the enableSubscriptionsForNonprivilegedUsers configuration property is set to true, only a privileged user or the instance creator may enable, disable, or remove a subscription, filter or handler.
+If the enableSubscriptionsForNonprivilegedUsers configuration property is set to false, only a privileged user may list, enable, disable, remove or create  a subscription, filter, or handler. If the enableSubscriptionsForNonprivilegedUsers configuration property is set to true, even a non privileged user or the instance creator may enable, disable, remove or create  a subscription, filter or handler.
 .PP
 Caution should be used when specifying the -r option, since subscriptions, filters or handlers removed may not be easily re-created, and may not be re-created using this command. 
 .SH "EXAMPLES "
@@ -158,7 +217,19 @@ Disable the subscription in namespace root/cimv2, referencing Filter with Name '
 .PP
 Remove the subscription referencing Filter with Name 'TestFilter', and referencing CIM_ListenerDestinationCIMXML Handler with Name 'TestHandler' (all in namespace root/cimv2), also removing the filter and handler instances (if not referenced by any other subscription): 
 .IP
-.B cimsub \-ra \-n root/cimv2 \-F TestFilter \-H TestHandler 
+.B cimsub \-ra \-n root/cimv2 \-F TestFilter \-H TestHandler
+.PP
+Create filter with Name 'filteraa' with the Query 'select * from IndicationStressTestClass' with SourceNamespaces test/TestProvider and test/testIndSrcNS1.
+.IP
+.B cimsub \-c f filteraa \-Q "select * from IndicationStressTestClass" \-N test/TestProvider,test/testIndSrcNS1
+.PP
+Create handler with Name 'handler01' and Destination '/Pegasus_IndicationStressTestConsumer'.
+.IP
+.B cimsub \-c h handler01 \-D /Pegasus_IndicationStressTestConsumer
+.PP
+Create Subscription with referencing Filter with Name 'TestFilter', and referencing CIM_ListenerDestinationCIMXML Handler with Name 'TestHandler' 
+.IP
+.B cimsub \-c s \-F filteraa \-H handler01 
 .SH "SEE ALSO"
 .PP 
 cimserver(1), cimconfig(1M).

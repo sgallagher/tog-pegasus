@@ -101,13 +101,6 @@ const CIMName _PROPERTY_OTHERONFATALERRORPOLICY =
     CIMNameCast("OtherOnFatalErrorPolicy");
 
 /**
-    The name of the Failure Trigger Time Interval property for Indication
-    Subscription class
- */
-const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL =
-    CIMNameCast("FailureTriggerTimeInterval");
-
-/**
     The name of the Time Of Last State Change property for Indication
     Subscription class
  */
@@ -131,40 +124,6 @@ const CIMName _PROPERTY_DURATION = CIMNameCast("SubscriptionDuration");
  */
 const CIMName _PROPERTY_TIMEREMAINING =
     CIMNameCast("SubscriptionTimeRemaining");
-
-/**
-    The name of the Repeat Notification Interval property for indication
-    subscription class
- */
-const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL =
-    CIMNameCast("RepeatNotificationInterval");
-
-/**
-    The name of the Repeat Notification Gap property for indication
-    subscription class
- */
-const CIMName _PROPERTY_REPEATNOTIFICATIONGAP =
-    CIMNameCast("RepeatNotificationGap");
-
-/**
-    The name of the Repeat Notification Count property for indication
-    subscription class
- */
-const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT =
-    CIMNameCast("RepeatNotificationCount");
-
-/**
-    The name of the TextFormatOwningEntity property for Formatted Indication
-    Subscription class
-*/
-const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY =
-    CIMNameCast("TextFormatOwningEntity");
-
-/**
-    The name of the TextFormatID property for Formatted Indication
-    Subscription class
-*/
-const CIMName _PROPERTY_TEXTFORMATID = CIMNameCast("TextFormatID");
 
 /**
     The name of the Caption property for Managed Element class
@@ -212,11 +171,6 @@ const CIMName _PROPERTY_OTHERPERSISTENCETYPE =
     CIMNameCast("OtherPersistenceType");
 
 /**
-    The name of the Owner property for Indication Handler class
- */
-const CIMName _PROPERTY_OWNER = CIMNameCast("Owner");
-
-/**
     The name of the TargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
@@ -228,38 +182,6 @@ const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMNameCast("TargetHostFormat");
  */
 const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT =
     CIMNameCast("OtherTargetHostFormat");
-
-/**
-    The name of the Port Number property for SNMP Mapper Indication Handler
-    subclass
- */
-const CIMName _PROPERTY_PORTNUMBER = CIMNameCast("PortNumber");
-
-/**
-    The name of the SNMP Security Name property for SNMP Mapper Indication
-    Handler subclass
- */
-const CIMName _PROPERTY_SNMPSECURITYNAME = CIMNameCast("SNMPSecurityName");
-
-/**
-    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler
-    subclass
- */
-const CIMName _PROPERTY_SNMPENGINEID = CIMNameCast("SNMPEngineID");
-
-const CIMName _PROPERTY_SNMPSECURITYLEVEL = CIMNameCast("SNMPSecurityLevel");
-
-const CIMName _PROPERTY_SNMPSECURITYAUTHPROTOCOL = 
-    CIMNameCast("SNMPSecurityAuthProtocol");
-
-const CIMName _PROPERTY_SNMPSECURITYAUTHKEY = 
-    CIMNameCast("SNMPSecurityAuthKey");
-
-const CIMName _PROPERTY_SNMPSECURITYPRIVPROTO = 
-    CIMNameCast("SNMPSecurityPrivProtocol");
-
-const CIMName _PROPERTY_SNMPSECURITYPRIVKEY = 
-    CIMNameCast("SNMPSecurityPrivKey");
 
 /**
     The name of the Alert Type property for Alert Indication class

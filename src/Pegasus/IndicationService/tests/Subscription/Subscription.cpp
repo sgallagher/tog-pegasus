@@ -560,15 +560,16 @@ void _checkUint64Property
     PEGASUS_TEST_ASSERT (result == value);
 }
 
-void _checkExceptionCode
-    (const CIMException & e,
-     const CIMStatusCode expectedCode)
+void _checkExceptionCode(
+    Uint32 line,
+    const CIMException & e,
+    const CIMStatusCode expectedCode)
 {
     if (verbose)
     {
         if (e.getCode() != expectedCode)
         {
-            cerr << "CIMException comparison failed.  ";
+            cerr << "CIMException comparison failed on line: " << line << endl;
             cerr << "Expected " << cimStatusCodeToString (expectedCode) << "; ";
             cerr << "Actual exception was " << e.getMessage() << "." << endl;
         }
@@ -1371,7 +1372,7 @@ void _valid (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_FOUND);
     }
 
     //
@@ -1813,7 +1814,7 @@ void _valid (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_FOUND);
     }
 
     //
@@ -2115,16 +2116,16 @@ void _errorQueries (CIMClient & client, String& qlang)
         {
           // If CQL is disabled, then a non-supported error
           // for invalid language is expected.
-          _checkExceptionCode(e, CIM_ERR_NOT_SUPPORTED);
+          _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
 
           return;
         }
         else
         {
-          _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+          _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
         }
 #else
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
 #endif
     }
 
@@ -2147,7 +2148,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2172,7 +2173,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -2196,7 +2197,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2219,7 +2220,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 }
 
@@ -2271,7 +2272,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2295,7 +2296,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2340,7 +2341,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2362,7 +2363,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2384,7 +2385,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2404,7 +2405,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2425,7 +2426,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2446,7 +2447,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2467,7 +2468,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2487,7 +2488,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2506,7 +2507,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2526,7 +2527,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2546,7 +2547,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2566,7 +2567,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2587,7 +2588,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2608,7 +2609,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -2629,7 +2630,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2651,7 +2652,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -2665,7 +2665,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -2705,7 +2705,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2744,7 +2744,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2763,7 +2763,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2782,7 +2782,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
@@ -2814,7 +2814,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2832,7 +2832,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 #endif
 
@@ -2851,7 +2851,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2870,7 +2870,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -2892,7 +2892,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2911,7 +2911,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -2930,7 +2930,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -2949,7 +2949,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2968,45 +2968,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
-
-    //
-    //  Handler: Owner property of incorrect type
-    //
-    try
-    {
-        CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-        _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination",
-            "localhost/CIMListener/test1");
-        _addUint16Property (handler, "Owner", 1);
-        CIMObjectPath path =
-            client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
-        PEGASUS_TEST_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
-
-    //
-    //  Handler: Owner property of array type
-    //
-    try
-    {
-        CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-        _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination",
-            "localhost/CIMListener/test1");
-        _addStringProperty (handler, "Owner", "arrayOwner", false, true);
-        CIMObjectPath path =
-            client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
-        PEGASUS_TEST_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3022,7 +2984,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3039,7 +3001,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3056,7 +3018,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3075,7 +3037,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -3094,7 +3055,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3114,7 +3075,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3134,7 +3095,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3153,7 +3114,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3173,7 +3134,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3193,7 +3154,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3212,7 +3173,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3232,7 +3193,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3252,7 +3213,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3273,7 +3234,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3294,7 +3254,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3315,7 +3274,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3336,7 +3294,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -3351,7 +3308,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -3370,7 +3327,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -3387,7 +3343,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -3443,7 +3399,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -3460,7 +3416,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -3517,7 +3473,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_ALREADY_EXISTS);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_ALREADY_EXISTS);
     }
 
     //
@@ -3541,7 +3497,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -3567,7 +3523,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -3614,7 +3570,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3632,7 +3588,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3654,7 +3610,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3676,7 +3632,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3698,7 +3654,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3720,7 +3676,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_CLASS);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_CLASS);
     }
 
     //
@@ -3741,7 +3697,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_CLASS);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_CLASS);
     }
 
     //
@@ -3763,7 +3719,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3785,7 +3741,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_CLASS);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_CLASS);
     }
 
     //
@@ -3806,7 +3762,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_CLASS);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_CLASS);
     }
 
     //
@@ -3827,7 +3783,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -3851,7 +3807,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3872,7 +3828,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -3893,7 +3849,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3916,7 +3872,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3940,7 +3896,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3962,7 +3918,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3983,7 +3939,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4004,7 +3960,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4028,7 +3984,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -4049,7 +4005,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4070,30 +4026,9 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
-    //
-    //  Subscription: FailureTriggerTimeInterval property of incorrect type
-    //
-    try
-    {
-        CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
-                 "Filter00"),
-             PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                 "Handler00"));
-        _addStringProperty (subscription, "FailureTriggerTimeInterval",
-            "incorrect type");
-        path =
-            client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
-        PEGASUS_TEST_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
 
     //
     //  Subscription: Unsupported property
@@ -4114,7 +4049,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4143,7 +4077,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4196,7 +4130,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     try
@@ -4216,7 +4150,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4238,7 +4172,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4261,7 +4195,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4283,7 +4217,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4305,7 +4239,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -4346,7 +4280,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_FAILED);
     }
 
     //
@@ -4360,7 +4294,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+        _checkExceptionCode(__LINE__, e, CIM_ERR_NOT_FOUND);
     }
 
     //

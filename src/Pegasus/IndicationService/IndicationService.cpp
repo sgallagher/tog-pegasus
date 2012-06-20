@@ -681,156 +681,28 @@ void IndicationService::_initialize()
     _moduleController = find_service_qid(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     //
-    //  Set arrays of valid and supported property values
+    //  Set arrays of supported property values
     //
     //  Note: Valid values are defined by the CIM Event Schema MOF
     //  Supported values are a subset of the valid values
     //  Some valid values, as defined in the MOF, are not currently supported
     //  by the Pegasus IndicationService
     //
-    _validStates.append(STATE_UNKNOWN);
-    _validStates.append(STATE_OTHER);
-    _validStates.append(STATE_ENABLED);
-    _validStates.append(STATE_ENABLEDDEGRADED);
-    _validStates.append(STATE_DISABLED);
     _supportedStates.append(STATE_ENABLED);
     _supportedStates.append(STATE_DISABLED);
-    _validRepeatPolicies.append(_POLICY_UNKNOWN);
-    _validRepeatPolicies.append(_POLICY_OTHER);
-    _validRepeatPolicies.append(_POLICY_NONE);
-    _validRepeatPolicies.append(_POLICY_SUPPRESS);
-    _validRepeatPolicies.append(_POLICY_DELAY);
     _supportedRepeatPolicies.append(_POLICY_UNKNOWN);
     _supportedRepeatPolicies.append(_POLICY_OTHER);
     _supportedRepeatPolicies.append(_POLICY_NONE);
     _supportedRepeatPolicies.append(_POLICY_SUPPRESS);
     _supportedRepeatPolicies.append(_POLICY_DELAY);
-    _validErrorPolicies.append(_ERRORPOLICY_OTHER);
-    _validErrorPolicies.append(_ERRORPOLICY_IGNORE);
-    _validErrorPolicies.append(_ERRORPOLICY_DISABLE);
-    _validErrorPolicies.append(_ERRORPOLICY_REMOVE);
     _supportedErrorPolicies.append(_ERRORPOLICY_IGNORE);
     _supportedErrorPolicies.append(_ERRORPOLICY_DISABLE);
     _supportedErrorPolicies.append(_ERRORPOLICY_REMOVE);
-    _validPersistenceTypes.append(PERSISTENCE_OTHER);
-    _validPersistenceTypes.append(PERSISTENCE_PERMANENT);
-    _validPersistenceTypes.append(PERSISTENCE_TRANSIENT);
     _supportedPersistenceTypes.append(PERSISTENCE_PERMANENT);
     _supportedPersistenceTypes.append(PERSISTENCE_TRANSIENT);
-    _validSNMPVersion.append(SNMPV1_TRAP);
-    _validSNMPVersion.append(SNMPV2C_TRAP);
-    _validSNMPVersion.append(SNMPV2C_INFORM);
-    _validSNMPVersion.append(SNMPV3_TRAP);
-    _validSNMPVersion.append(SNMPV3_INFORM);
     _supportedSNMPVersion.append(SNMPV1_TRAP);
     _supportedSNMPVersion.append(SNMPV2C_TRAP);
     _supportedSNMPVersion.append(SNMPV3_TRAP);
-
-    //
-    //  Set arrays of names of supported properties for each class
-    //
-    //  Currently, all properties in these classes in CIM 2.5 through CIM 2.9
-    //  final schemas are supported.  If support for a new class is added, a new
-    //  list of names of supported properties for the class must be added as a
-    //  private member to the IndicationService class, and the array values
-    //  must be appended here.  When support for a new property is added, the
-    //  property name must be appended to the appropriate array(s) here.
-    //
-    _supportedSubscriptionProperties.append(PEGASUS_PROPERTYNAME_FILTER);
-    _supportedSubscriptionProperties.append(PEGASUS_PROPERTYNAME_HANDLER);
-    _supportedSubscriptionProperties.append(_PROPERTY_ONFATALERRORPOLICY);
-    _supportedSubscriptionProperties.append(_PROPERTY_OTHERONFATALERRORPOLICY);
-    _supportedSubscriptionProperties.append(
-        _PROPERTY_FAILURETRIGGERTIMEINTERVAL);
-    _supportedSubscriptionProperties.append(
-        PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
-    _supportedSubscriptionProperties.append(_PROPERTY_OTHERSTATE);
-    _supportedSubscriptionProperties.append(_PROPERTY_LASTCHANGE);
-    _supportedSubscriptionProperties.append(_PROPERTY_DURATION);
-    _supportedSubscriptionProperties.append(_PROPERTY_STARTTIME);
-    _supportedSubscriptionProperties.append(_PROPERTY_TIMEREMAINING);
-    _supportedSubscriptionProperties.append(_PROPERTY_REPEATNOTIFICATIONPOLICY);
-    _supportedSubscriptionProperties.append(
-        _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
-    _supportedSubscriptionProperties.append(
-        _PROPERTY_REPEATNOTIFICATIONINTERVAL);
-    _supportedSubscriptionProperties.append(_PROPERTY_REPEATNOTIFICATIONGAP);
-    _supportedSubscriptionProperties.append(_PROPERTY_REPEATNOTIFICATIONCOUNT);
-
-    _supportedFormattedSubscriptionProperties =
-        _supportedSubscriptionProperties;
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMATOWNINGENTITY);
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMATID);
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMAT);
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMATPARAMETERS);
-
-    _supportedFilterProperties.append(_PROPERTY_CAPTION);
-    _supportedFilterProperties.append(_PROPERTY_DESCRIPTION);
-    _supportedFilterProperties.append(_PROPERTY_ELEMENTNAME);
-    _supportedFilterProperties.append(_PROPERTY_SYSTEMCREATIONCLASSNAME);
-    _supportedFilterProperties.append(_PROPERTY_SYSTEMNAME);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_NAME);
-    _supportedFilterProperties.append(_PROPERTY_SOURCENAMESPACE);
-    _supportedFilterProperties.append(_PROPERTY_SOURCENAMESPACES);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_QUERY);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_QUERYLANGUAGE);
-
-    Array<CIMName> commonListenerDestinationProperties;
-    commonListenerDestinationProperties.append(_PROPERTY_CAPTION);
-    commonListenerDestinationProperties.append(_PROPERTY_DESCRIPTION);
-    commonListenerDestinationProperties.append(_PROPERTY_ELEMENTNAME);
-    commonListenerDestinationProperties.append(
-        _PROPERTY_SYSTEMCREATIONCLASSNAME);
-    commonListenerDestinationProperties.append(_PROPERTY_SYSTEMNAME);
-    commonListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
-    commonListenerDestinationProperties.append(PEGASUS_PROPERTYNAME_NAME);
-    commonListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
-    commonListenerDestinationProperties.append(_PROPERTY_OTHERPERSISTENCETYPE);
-
-    _supportedCIMXMLHandlerProperties = commonListenerDestinationProperties;
-    _supportedCIMXMLHandlerProperties.append(_PROPERTY_OWNER);
-    _supportedCIMXMLHandlerProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
-
-    _supportedCIMXMLListenerDestinationProperties =
-        commonListenerDestinationProperties;
-    _supportedCIMXMLListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
-
-    _supportedSNMPHandlerProperties = commonListenerDestinationProperties;
-    _supportedSNMPHandlerProperties.append(_PROPERTY_OWNER);
-    _supportedSNMPHandlerProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_TARGETHOSTFORMAT);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_OTHERTARGETHOSTFORMAT);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_PORTNUMBER);
-    _supportedSNMPHandlerProperties.append(PEGASUS_PROPERTYNAME_SNMPVERSION);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYNAME);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPENGINEID);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYLEVEL);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYAUTHPROTOCOL);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYAUTHKEY);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYPRIVPROTO);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYPRIVKEY);
-
-    _supportedSyslogListenerDestinationProperties =
-        commonListenerDestinationProperties;
-
-    _supportedEmailListenerDestinationProperties =
-        commonListenerDestinationProperties;
-    _supportedEmailListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
-    _supportedEmailListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC);
-    _supportedEmailListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT);
 
     ConfigManager* configManager = ConfigManager::getInstance();
 
@@ -2622,23 +2494,7 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
             //  Get current state from instance
             //
             Uint16 currentState;
-            Boolean valid = true;
-            if (_subscriptionRepository->getState(instance, currentState))
-            {
-                valid = _validateState(currentState);
-            }
-
-            if (!valid)
-            {
-                //
-                //  This instance from the repository is corrupted
-                //
-                PEG_METHOD_EXIT();
-                MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY,
-                    _MSG_INVALID_INSTANCES);
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-            }
-
+            _subscriptionRepository->getState(instance, currentState);
             //
             //  Get new state
             //
@@ -4387,12 +4243,6 @@ Boolean IndicationService::_canCreate (
     // class?
 
     //
-    //  Validate that all properties in the instance are supported properties,
-    //  and reject create if an unknown, unsupported property is found
-    //
-    _checkSupportedProperties (instance);
-
-    //
     //  Check all required properties exist
     //  For a property that has a default value, if it does not exist or is
     //  null, add or set property with default value
@@ -4539,7 +4389,6 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERSTATE,
             (Uint16) STATE_ENABLED,
             (Uint16) STATE_OTHER,
-            _validStates,
             _supportedStates);
 
         _checkPropertyWithOther(
@@ -4548,7 +4397,6 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY,
             (Uint16) _POLICY_NONE,
             (Uint16) _POLICY_OTHER,
-            _validRepeatPolicies,
             _supportedRepeatPolicies);
 
         _checkPropertyWithOther(
@@ -4557,25 +4405,7 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERONFATALERRORPOLICY,
             (Uint16) _ERRORPOLICY_IGNORE,
             (Uint16) _ERRORPOLICY_OTHER,
-            _validErrorPolicies,
             _supportedErrorPolicies);
-
-        //
-        //  For each remaining property, verify that if the property exists in
-        //  the instance it is of the correct type
-        //
-        _checkProperty(instance, _PROPERTY_FAILURETRIGGERTIMEINTERVAL,
-            CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_LASTCHANGE, CIMTYPE_DATETIME);
-        _checkProperty(instance, _PROPERTY_DURATION, CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_STARTTIME, CIMTYPE_DATETIME);
-        _checkProperty(instance, _PROPERTY_TIMEREMAINING, CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_REPEATNOTIFICATIONINTERVAL,
-            CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_REPEATNOTIFICATIONGAP,
-            CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_REPEATNOTIFICATIONCOUNT,
-            CIMTYPE_UINT16);
 
         if (instance.getClassName().equal(
             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
@@ -4890,14 +4720,7 @@ Boolean IndicationService::_canCreate (
                 _PROPERTY_OTHERPERSISTENCETYPE,
                 (Uint16) PERSISTENCE_PERMANENT,
                 (Uint16) PERSISTENCE_OTHER,
-                _validPersistenceTypes,
                 _supportedPersistenceTypes);
-
-            //
-            //  For remaining property, verify that if the property exists in
-            //  the instance it is of the correct type
-            //
-            _checkProperty(instance, _PROPERTY_OWNER, CIMTYPE_STRING);
 
             if (instance.getClassName().equal(
                     PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
@@ -4953,28 +4776,7 @@ Boolean IndicationService::_canCreate (
                 _checkValue(
                     instance,
                     PEGASUS_PROPERTYNAME_SNMPVERSION,
-                    _validSNMPVersion,
                     _supportedSNMPVersion);
-
-                //
-                //  For each remaining property, verify that if the property
-                //  exists in the instance it is of the correct type
-                //
-                _checkProperty(instance, _PROPERTY_PORTNUMBER, CIMTYPE_UINT32);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYNAME,
-                    CIMTYPE_STRING);
-                _checkProperty(instance, _PROPERTY_SNMPENGINEID,
-                    CIMTYPE_STRING);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYLEVEL,
-                    CIMTYPE_UINT8);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYAUTHPROTOCOL,
-                    CIMTYPE_UINT8);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYAUTHKEY,
-                    CIMTYPE_UINT8,1);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYPRIVPROTO,
-                    CIMTYPE_UINT8);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYPRIVKEY,
-                    CIMTYPE_UINT8,1);
             }
 
             if (instance.getClassName().equal
@@ -5035,19 +4837,8 @@ Boolean IndicationService::_canCreate (
                     PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT,
                     CIMTYPE_STRING,
                     false);
-
-                //
-                //  For MailCc property, verify that if the property
-                //  exists in the instance it is of the correct type
-                //
-                _checkProperty(
-                    instance,
-                    PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
-                    CIMTYPE_STRING,
-                    true);
             }
         }
-
         else
         {
             //
@@ -5167,7 +4958,6 @@ void IndicationService::_checkPropertyWithOther (
     const CIMName& otherPropertyName,
     const Uint16 defaultValue,
     const Uint16 otherValue,
-    const Array<Uint16>& validValues,
     const Array<Uint16>& supportedValues)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -5235,24 +5025,6 @@ void IndicationService::_checkPropertyWithOther (
         else
         {
             theValue.get (result);
-
-            //
-            //  Validate the value
-            //
-            //  Note: Valid values are defined by the CIM Event Schema MOF
-            //
-            if (!Contains (validValues, result))
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                        _MSG_INVALID_VALUE_FOR_PROPERTY,
-                        theValue.toString(),
-                        propertyName.getString()));
-            }
-
             //
             //  Check for valid values that are not supported
             //
@@ -5544,86 +5316,9 @@ void IndicationService::_checkProperty (
     PEG_METHOD_EXIT ();
 }
 
-void IndicationService::_checkSupportedProperties (
-    const CIMInstance& instance)
-{
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_checkSupportedProperties");
-
-    CIMName className = instance.getClassName ();
-    Array<CIMName> emptyArray;
-    Array<CIMName>& supportedProperties = emptyArray;
-
-    //
-    //  Get list of supported properties for the class
-    //
-    if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
-    {
-        supportedProperties = _supportedSubscriptionProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
-    {
-        supportedProperties = _supportedFormattedSubscriptionProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDFILTER))
-    {
-        supportedProperties = _supportedFilterProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
-    {
-        supportedProperties = _supportedCIMXMLHandlerProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
-    {
-        supportedProperties = _supportedCIMXMLListenerDestinationProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
-    {
-        supportedProperties = _supportedSNMPHandlerProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
-    {
-        supportedProperties = _supportedSyslogListenerDestinationProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
-    {
-        supportedProperties = _supportedEmailListenerDestinationProperties;
-    }
-    else
-    {
-        PEGASUS_ASSERT (false);
-    }
-
-    //
-    //  Check if each property in the instance is in the list of supported,
-    //  known properties for its class
-    //
-    for (Uint32 i = 0; i < instance.getPropertyCount (); i++)
-    {
-        if (!ContainsCIMName (supportedProperties,
-            instance.getProperty (i).getName ()))
-        {
-            //
-            //  Throw an exception if an unknown, unsupported property was found
-            //
-            PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms(
-                    "IndicationService.IndicationService."
-                        "_MSG_PROPERTY_NOT_SUPPORTED",
-                    "Property $0 is not supported in class $1",
-                    instance.getProperty (i).getName ().getString (),
-                    className.getString ()));
-        }
-    }
-
-    PEG_METHOD_EXIT ();
-}
-
 void IndicationService::_checkValue (
     const CIMInstance& instance,
     const CIMName& propertyName,
-    const Array<Uint16>& validValues,
     const Array<Uint16>& supportedValues)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -5640,22 +5335,6 @@ void IndicationService::_checkValue (
         if (!(propertyValue.isNull()))
         {
             propertyValue.get(theValue);
-
-            // Validate the value
-            // Note: Valid values are defined by the PG Events MOF
-            if (!Contains(validValues, theValue))
-            {
-                PEG_METHOD_EXIT();
-
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                        _MSG_INVALID_VALUE_FOR_PROPERTY,
-                        theValue,
-                        propertyName.getString()));
-
-            }
 
             // Check for valid values that are not supported
             // Note: Supported values are a subset of the valid values
@@ -5745,7 +5424,6 @@ Boolean IndicationService::_canModify (
         _PROPERTY_OTHERSTATE,
         (Uint16) STATE_ENABLED,
         (Uint16) STATE_OTHER,
-        _validStates,
         _supportedStates);
 
     //
@@ -8816,23 +8494,6 @@ Boolean IndicationService::_getCreator(
     }
 
     PEG_METHOD_EXIT();
-    return true;
-}
-
-Boolean IndicationService::_validateState(
-    const Uint16 state) const
-{
-    //
-    //  Validate the value
-    //
-    if (!Contains(_validStates, state))
-    {
-        //
-        //  This is a corrupted/invalid instance
-        //
-        return false;
-    }
-
     return true;
 }
 

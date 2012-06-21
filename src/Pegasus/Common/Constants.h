@@ -423,14 +423,6 @@
 #define PEGASUS_DEFAULT_PROV_USERCTXT PG_PROVMODULE_USERCTXT_PRIVILEGED
 #endif
 
-/*
-  Standard Pegasus Global Prefix.
-  This prefix is used as the basis for pegasus defined classes
-  and in identity creation that would require a standard
-  Pegasus prefix
-*/
-#define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
-
 /* Constants defining the size of the hash table used in the OrderedSet
    implementation. Specific classes have their own hash table size to
    accomodate for amounts of probable members

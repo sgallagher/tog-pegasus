@@ -806,6 +806,7 @@ void RepositoryUpgrade::_updateSubscriptionInstancesInRepository(
     for (Uint32 i = 0, n = instances.size(); i < n; i++)
     {
         CIMObjectPath objPath = instances[i].getPath();
+        CIMObjectPath objPathMod;
         Boolean filterUpdated = _updateFilterHandlerReference(
             instances[i],
             PEGASUS_PROPERTYNAME_FILTER);
@@ -828,7 +829,7 @@ void RepositoryUpgrade::_updateSubscriptionInstancesInRepository(
             }
             try
             {
-                CIMObjectPath objPathMod = _newRepository->createInstance(
+                objPathMod = _newRepository->createInstance(
                     nameSpace,
                     instances[i]);
             }
@@ -1001,31 +1002,6 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
             }
         }
     }
-
-    // Now try to update Object Manager instance in the interop namespace.
-    try
-    {
-        _updateSystemNameKeyPropertyOfInstancesForClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            CIMNameCast("PG_ObjectManager"));
-    }
-    catch (const CIMException& e)
-    {
-        //
-        // Interop namespace or object manager class may not exist
-        //
-        if (e.getCode() != CIM_ERR_INVALID_CLASS &&
-            e.getCode() != CIM_ERR_INVALID_NAMESPACE)
-        {
-#ifdef REPUPGRADE_DEBUG
-            cout << "Exception caught in attempting to update "
-                << "object manager instances in new repository "
-                << (const char*)e.getMessage().getCString()
-                << endl;
-#endif
-            throw;
-        }
-    }
 }
 
 void RepositoryUpgrade::upgradeRepository()
@@ -1107,7 +1083,8 @@ void RepositoryUpgrade::upgradeRepository()
 
 #ifdef REPUPGRADE_DEBUG
         cout << "Now processing namespace : "
-                << oldNamespaces[i] << " i=" << i << endl;
+            << (const char*)oldNamespaces[i].getString().getCString()
+            << " i=" << i << endl;
 #endif
 
         //
@@ -1141,6 +1118,8 @@ void RepositoryUpgrade::upgradeRepository()
 #endif
     _addInstances ();
     _updateSystemNameKeyProperty();
+    _removeInstances();
+
 }
 
 Array<CIMNamespaceName> RepositoryUpgrade::_compareNamespaces(
@@ -1210,7 +1189,8 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
         {
 #ifdef REPUPGRADE_DEBUG
             cerr << "Ignoring qualifier creation : "
-                 << qualifiers[j].getName() << endl;
+               << (const char*)qualifiers[j].getName().getString().getCString()
+               << endl;
 #endif
             continue;
         }
@@ -1219,13 +1199,15 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
         try
         {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Now creating qualifier :" << processedQual.getName()
-             << endl;
+        cout << "Now creating qualifier :"
+            << (const char*)processedQual.getName().getString().getCString()
+            << endl;
 #endif
             _newRepository->setQualifier (namespaceName, processedQual);
 #ifdef REPUPGRADE_DEBUG
-        cout << "Qualifier created:" << processedQual.getName()
-             << endl;
+        cout << "Qualifier created:"
+            << (const char*)processedQual.getName().getString().getCString()
+            << endl;
 #endif
 
         }
@@ -1256,7 +1238,8 @@ void RepositoryUpgrade::_addNamespaces(
     for ( Uint32 i=0; i < count;  i++)
     {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Now creating namespace : " << namespaces[i] << endl;
+        cout << "Now creating namespace : "
+            << (const char*)namespaces[i].getString().getCString() << endl;
 #endif
         try
         {
@@ -1338,7 +1321,9 @@ void RepositoryUpgrade::_processClasses(
     for ( Uint32 oldclasses = 0; oldclasses < oldCount ; oldclasses++)
     {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Checking for : " << oldClasses[oldclasses] << endl;
+        cout << "Checking for : "
+            << (const char*)oldClasses[oldclasses].getString().getCString()
+            << endl;
 #endif
         if ( !Contains(newClasses, oldClasses[oldclasses]) )
         {
@@ -1351,14 +1336,17 @@ void RepositoryUpgrade::_processClasses(
                 Contains( _interopIgnoreClasses, oldClasses[oldclasses] ) )
             {
 #ifdef REPUPGRADE_DEBUG
-                cout << "Now ignoring: " << oldClasses[oldclasses] << endl;
+             cout << "Now ignoring: "
+                 << (const char*)oldClasses[oldclasses].getString().getCString()
+                 << endl;
 #endif
                 continue;
             }
 
 #ifdef REPUPGRADE_DEBUG
             cout << "Now appending to missing: "
-                 << oldClasses[oldclasses] << endl;
+                << (const char*)oldClasses[oldclasses].getString().getCString()
+                << endl;
 #endif
             missingClasses.append(oldClasses[oldclasses]);
         }
@@ -1366,7 +1354,8 @@ void RepositoryUpgrade::_processClasses(
         {
 #ifdef REPUPGRADE_DEBUG
         cout << "Now appending to existing: "
-             << oldClasses[oldclasses] << endl;
+            << (const char*)oldClasses[oldclasses].getString().getCString()
+            << endl;
 #endif
             existingClasses.append(oldClasses[oldclasses]);
         }
@@ -1404,8 +1393,11 @@ void RepositoryUpgrade::_processExistingClasses(
     Boolean         newVersionFound=false;
 
 #ifdef REPUPGRADE_DEBUG
-        cout << "In Namespace: " << namespaceName
-             << "Existing Classname: " << existingClasses[i] << endl;
+        cout << "In Namespace: "
+            << (const char*)namespaceName.getString().getCString()
+            << "Existing Classname: "
+            << (const char*)existingClasses[i].getString().getCString()
+            << endl;
 #endif
 
         try
@@ -1784,9 +1776,9 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                                           (bqe.getMessage()+". "));
                 }
             }
-            //BadQualifierType exception occured not because of 
-            //embedded instance repupgrade    
-            else 
+            //BadQualifierType exception occured not because of
+            //embedded instance repupgrade
+            else
             {
                  _logCreateClassError (namespaceName,
                                        oldClass,
@@ -1871,13 +1863,13 @@ CIMClass RepositoryUpgrade::_checkIfDependentClassExists(
 
     }
     //Embedded instance is not in old repository
-    catch (const CIMException& c) 
+    catch (const CIMException& c)
     {
         // We have an exception case here.
         String message = localizeMessage (MSG_PATH,
                              REPOSITORY_UPGRADE_FAILURE_KEY,
                              REPOSITORY_UPGRADE_FAILURE) + " " +
-                              
+
                          localizeMessage ( MSG_PATH,
                              CLASS_CREATION_ERROR_KEY,
                              CLASS_CREATION_ERROR,
@@ -1893,7 +1885,7 @@ CIMClass RepositoryUpgrade::_checkIfDependentClassExists(
         throw RepositoryUpgradeException(message);
     }
 }
- 
+
 
 void RepositoryUpgrade::_addInstances(void)
 {
@@ -1928,8 +1920,11 @@ void RepositoryUpgrade::_addInstances(void)
                 for ( Uint32 ctr=0; ctr < oldClassNames.size(); ctr++)
                 {
 #ifdef REPUPGRADE_DEBUG
-            cout << "Processing namespace : " << oldNamespaces[i]
-                 << "class name : " <<  oldClassNames[ctr] << endl;
+            cout << "Processing namespace : "
+                << (const char*)oldNamespaces[i].getString().getCString()
+                << " class name : "
+                << (const char*)oldClassNames[ctr].getString().getCString()
+                << endl;
 #endif
                     Array<CIMInstance>         instances;
                     Uint32                     ictr = 0;
@@ -2024,6 +2019,65 @@ void RepositoryUpgrade::_addInstances(void)
     }
 }
 
+void RepositoryUpgrade::_removeInstances(void)
+{
+    Array<CIMInstance> instances;
+    //
+    // Remove persistence CIM_ObjectManager instances from new repository.
+    // It is no longer persistence.
+    //
+    try
+    {
+        instances = _newRepository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_OBJECTMANAGER);
+    } 
+    catch (const CIMException& e)
+    {
+        //
+        // Interop namespace or object manager class may not exist
+        //
+        if (e.getCode() != CIM_ERR_INVALID_CLASS &&
+            e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+        {
+#ifdef REPUPGRADE_DEBUG
+            cout << "Exception caught in attempting to remove "
+                << "object manager instances in the new repository "
+                << (const char*)e.getMessage().getCString()
+                << endl;
+#endif
+            throw;
+        }
+        return;
+    }
+
+    for (Uint32 i = 0, n = instances.size(); i < n; i++)
+    {
+        CIMObjectPath objPath = instances[i].getPath();
+
+        try
+        {
+            _newRepository->deleteInstance(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objPath);
+        }
+        catch (CIMException &e)
+        {
+            _logDeleteInstanceError(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objPath,
+                e.getMessage());
+        }
+#ifdef REPUPGRADE_DEBUG
+        cout << "Delete "
+            << (const char*)
+                   PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString().getCString()
+            << " instance: "
+            << (const char*)objPath.toString().getCString()
+            << endl;
+#endif
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
 //
 // _namespaceNameToDirName()
@@ -2242,7 +2296,7 @@ void RepositoryUpgrade::_logDeleteInstanceError(
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
 
-    String errMsg = 
+    String errMsg =
         localizeMessage(
             MSG_PATH,
             REPOSITORY_UPGRADE_FAILURE_KEY,

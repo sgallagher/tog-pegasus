@@ -424,6 +424,9 @@ private:
     Boolean enableSLP;
     String httpPort;
     String httpsPort;
+
+    // Cached CIM_ObjectManager instance.
+    CIMInstance _CIMObjectManagerInst;
 };
 
 PEGASUS_NAMESPACE_END

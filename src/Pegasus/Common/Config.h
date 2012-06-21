@@ -324,8 +324,6 @@ PEGASUS_NAMESPACE_END
 ** This value can be overridden platform specific by defining the macro in
 ** the corresponding PEGASUS_PLATFORM_*.h file.
 */
-
-
 #ifndef PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME
 # ifdef PEGASUS_FLAVOR
 #  define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME PEGASUS_FLAVOR"-pegasus"
@@ -334,5 +332,20 @@ PEGASUS_NAMESPACE_END
 # endif 
 #endif
 
+/*
+** PEGASUS_INSTANCEID_GLOBAL_PREFIX
+** This macro is used to create the Name property on the PG_ObjectManager
+** instance. This value is also used in SLP announcement for service-id.
+**
+** This value can be overridden platform specific by defining the macro in
+** the corresponding PEGASUS_PLATFORM_*.h file.
+*/
+#ifndef PEGASUS_INSTANCEID_GLOBAL_PREFIX
+# ifdef PEGASUS_FLAVOR
+#  define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG-"PEGASUS_FLAVOR
+# else
+#  define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
+# endif
+#endif
 
 #endif  /* Pegasus_Config_h */

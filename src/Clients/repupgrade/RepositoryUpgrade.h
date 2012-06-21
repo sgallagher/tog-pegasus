@@ -455,6 +455,11 @@ private:
     void _addInstances ();
 
     //
+    // Removes instances from the new repository when no loger used.
+    //
+    void _removeInstances();
+
+    //
     // Adds qualifiers from the old repository into the new repository.
     // If a qualifier already exists in the new repository then it
     // is not imported.

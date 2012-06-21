@@ -162,6 +162,31 @@ void getFunctionalProfiles(
     }
 }
 
+String _getHostID()
+{
+    String ipAddress;
+    int af;
+
+    String hostName(System::getHostName());
+    if (!System::getHostIP(hostName, &af, ipAddress))
+    {
+        // There is IP address for this host.
+        // It is not reachable from out side.
+        ipAddress = String("localhost");
+        return ipAddress;
+    }
+
+    // change the dots to dashes
+    for (Uint32 i=0; i<ipAddress.size(); i++)
+    {
+        if (ipAddress[i] == Char16('.') || 
+            ipAddress[i] == Char16(':') )
+        {
+            ipAddress[i] = Char16('-');
+        }
+    }
+    return ipAddress;
+}
 //
 // Build a single instance of the CIMXMLCommunicationMechanism class using the
 // parameters provided. Builds the complete instance and sets its object path.
@@ -390,8 +415,8 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
 }
 
 //
-// Get the instance of the CIM_ObjectManager class, creating the instance if it
-// does not already exist in the repository.
+// Get the instance of the CIM_ObjectManager class, creating the instance
+// eache time the cimserve is re-started.
 //
 // @param includeQualifiers Boolean
 // @param includeClassOrigin Boolean
@@ -405,39 +430,32 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
 CIMInstance InteropProvider::getObjectManagerInstance()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::getObjectManagerInstance");
+        "InteropProvider::getObjectManagerInstance()");
 
-    // Try to get the instance from the repository.
-    CIMInstance instance;
-    bool found = false;
-    Array<CIMInstance> tmpInstances = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, false,
-        CIMPropertyList());
-    Uint32 numInstances = tmpInstances.size();
-    if(numInstances == 1)
+    if (_CIMObjectManagerInst.isUninitialized())
     {
-        instance = tmpInstances[0];
-    }
-    PEGASUS_ASSERT(numInstances <= 1);
+        PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+             " _CIMObjectManagerInst is to be initialized.");
 
-
-    if(instance.isUninitialized())
-    {
-        //
-        // No instance in the repository. Build new instance and save it.
-        //
         CIMClass omClass;
-        instance = buildInstanceSkeleton(PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, omClass);
+        CIMInstance instance;
+        instance = buildInstanceSkeleton(
+                       PEGASUS_NAMESPACENAME_INTEROP,
+                       PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
+                       false,
+                       omClass);
 
         // Set the common key properties
         setCommonKeys(instance);
 
-        setPropertyValue(instance, OM_PROPERTY_CREATIONCLASSNAME,
+        setPropertyValue(
+            instance,
+            OM_PROPERTY_CREATIONCLASSNAME,
             PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString());
-        setPropertyValue(instance, OM_PROPERTY_NAME,
-            String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + Guid::getGuid());
+        setPropertyValue(
+            instance,
+            OM_PROPERTY_NAME,
+            String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + _getHostID());
         setPropertyValue(
             instance, 
             OM_PROPERTY_ELEMENTNAME, 
@@ -445,9 +463,13 @@ CIMInstance InteropProvider::getObjectManagerInstance()
 
         Array<Uint16> operationalStatus;
         operationalStatus.append(2);
-        setPropertyValue(instance, OM_PROPERTY_OPERATIONALSTATUS,
+        setPropertyValue(
+            instance,
+            OM_PROPERTY_OPERATIONALSTATUS,
             operationalStatus);
-        setPropertyValue(instance, OM_PROPERTY_STARTED,
+        setPropertyValue(
+            instance,
+            OM_PROPERTY_STARTED,
             CIMValue(Boolean(true)));
 
         //
@@ -455,49 +477,53 @@ CIMInstance InteropProvider::getObjectManagerInstance()
         // If PEGASUS_CIMOM_DESCRIPTION is non-zero length, use it.
         // Otherwise build form the components below, as defined in
         // PegasusVersion.h.
-        String descriptionStatus;
-        String pegasusProductStatus(PEGASUS_PRODUCT_STATUS);
-        if(pegasusProductStatus.size() > 0)
-            descriptionStatus = " " + pegasusProductStatus;
+        String description = String(PEGASUS_CIMOM_DESCRIPTION);
+        if (description.size() == 0)
+        {
+            String pegasusProductStatus(PEGASUS_PRODUCT_STATUS);
 
-        String description = (String(PEGASUS_CIMOM_DESCRIPTION).size() != 0) ?
-                String(PEGASUS_CIMOM_DESCRIPTION)
-            :
-                String(PEGASUS_CIMOM_GENERIC_NAME) + " " +
-                String(PEGASUS_PRODUCT_NAME) + " Version " +
-                String(PEGASUS_PRODUCT_VERSION) +
-                descriptionStatus;
+            description.append(String(PEGASUS_CIMOM_GENERIC_NAME));
+            description.append(Char16(' '));
+            description.append(String(PEGASUS_PRODUCT_NAME));
+            description.append(" Version ");
+            description.append(String(PEGASUS_PRODUCT_VERSION));
 
+            if(pegasusProductStatus.size() > 0)
+            {
+                description.append(Char16(' '));
+                description.append(String(pegasusProductStatus));
+            }
+
+        }
         setPropertyValue(instance, OM_PROPERTY_DESCRIPTION, description);
 
         // Property GatherStatisticalData. Initially this is set to false
         // and can then be modified by a modify instance on the instance.
         Boolean gatherStatDataFlag = false;
-        setPropertyValue(instance, OM_PROPERTY_GATHERSTATISTICALDATA,
+        setPropertyValue(
+            instance,
+            OM_PROPERTY_GATHERSTATISTICALDATA,
             gatherStatDataFlag);
 
         // Set the statistics property into the Statisticaldata class so that
         // it can perform statistics gathering if necessary.
-#ifndef PEGASUS_DISABLE_PERFINST
+    #ifndef PEGASUS_DISABLE_PERFINST
         StatisticalData* sd = StatisticalData::current();
         sd->setCopyGSD(gatherStatDataFlag);
-#endif
+    #endif
 
-        // write instance to the repository
-        CIMObjectPath instancePath = repository->createInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, instance);
-        // Get an updated copy of the instance that was saved
-        instance = repository->getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, instancePath);
-        instance.setPath(instancePath);
+        // build the instance path and set into instance
+        CIMObjectPath objPath = instance.buildPath(omClass);
+        objPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+        objPath.setHost(System::getHostName());
+        instance.setPath(objPath);
+
+        _CIMObjectManagerInst = instance;
     }
 
-    CIMObjectPath currentPath = instance.getPath();
-    currentPath.setHost(hostName);
-    currentPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-    instance.setPath(currentPath);
     PEG_METHOD_EXIT();
-    return instance;
+    return _CIMObjectManagerInst;
+
 }
 
 //
@@ -513,17 +539,21 @@ void InteropProvider::modifyObjectManagerInstance(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::modifyObjectManagerInstance");
+        "InteropProvider::modifyObjectManagerInstance()");
 
     // Modification only allowed when Performance staticistics are active
 #ifndef PEGASUS_DISABLE_PERFINST
     Uint32 propListSize = propertyList.size();
     if(propListSize == 0 && !propertyList.isNull())
+    {
+        PEG_METHOD_EXIT();
         return;
+    }
 
     if(propertyList.size() != 1 ||
         propertyList[0] != OM_PROPERTY_GATHERSTATISTICALDATA)
     {
+        PEG_METHOD_EXIT();
         throw CIMNotSupportedException(String("Only modification of ") +
             OM_PROPERTY_GATHERSTATISTICALDATA.getString() + " allowed");
     }
@@ -540,6 +570,7 @@ void InteropProvider::modifyObjectManagerInstance(
         omInstance = getObjectManagerInstance();
         if(omInstance.isUninitialized())
         {
+            PEG_METHOD_EXIT();
             throw CIMObjectNotFoundException(instanceReference.toString());
         }
         statisticsFlag = getPropertyValue(modifiedIns,
@@ -555,9 +586,6 @@ void InteropProvider::modifyObjectManagerInstance(
         PEG_METHOD_EXIT();
         return;
     }
-    // Modify the instance on disk
-    repository->modifyInstance(instanceReference.getNameSpace(),
-        omInstance, false,  propertyList);
     PEG_TRACE((
         TRC_CONTROLPROVIDER,
         Tracer::LEVEL3,

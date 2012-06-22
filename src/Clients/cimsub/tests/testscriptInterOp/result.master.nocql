@@ -389,30 +389,30 @@ NAMESPACE        FILTER                    HANDLER                              
 root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
 
 List test subscription.
-NAMESPACE            FILTER               HANDLER                                                                  STATE
-test/TestProvider    root/cimv2:Filter12  root/SampleProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+NAMESPACE          FILTER               HANDLER                                                                  STATE
+test/TestProvider  root/cimv2:Filter12  root/SampleProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
 List test subscription.
-NAMESPACE            FILTER               HANDLER                                                                  STATE
-root/PG_InterOp      root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
-root/SampleProvider  root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
+NAMESPACE            FILTER               HANDLER                                                                STATE
+root/PG_InterOp      root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+root/SampleProvider  root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
 Disable the test subscription.
     Specify subscription namespace.
 
 List test subscription.
     Use default subscription namespace.
-NAMESPACE            FILTER               HANDLER                                                                  STATE
-root/PG_InterOp      root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Disabled
-root/SampleProvider  root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
+NAMESPACE            FILTER               HANDLER                                                                STATE
+root/PG_InterOp      root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Disabled
+root/SampleProvider  root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
 Re-enable the test subscription.
     Specify subscription namespace.
 
 List test subscription.
-NAMESPACE            FILTER               HANDLER                                                                  STATE
-root/PG_InterOp      root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
-root/SampleProvider  root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
+NAMESPACE            FILTER               HANDLER                                                                STATE
+root/PG_InterOp      root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+root/SampleProvider  root/cimv2:Filter12  test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
 List test subscription.
     Use all default namespaces.

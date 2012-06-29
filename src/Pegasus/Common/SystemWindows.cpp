@@ -919,6 +919,7 @@ const String System::CIMSERVER = "cimserver";  // Server system ID
 // check if a given IP address is defined on the local network interfaces
 Boolean System::isIpOnNetworkInterface(Uint32 inIP)
 {
+    Socket::initializeInterface();
     SOCKET sock;
     int interfaces = 0;
     int errcode;
@@ -959,6 +960,7 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
                 {
                     free(output_buf);
                     closesocket(sock);
+                    Socket::uninitializeInterface();
                     return true;
                 }
             }
@@ -966,10 +968,12 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
         else
         {
             free(output_buf);
+            Socket::uninitializeInterface();
             return false;
         }
         free(output_buf);
         closesocket(sock);
+        Socket::uninitializeInterface();
     }
     return false;
 }
@@ -1025,13 +1029,13 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
 
 Array<String> System::getInterfaceAddrs()
 {
+    Socket::initializeInterface();
     Array<String> ips;
-
 #ifdef PEGASUS_ENABLE_IPV6
     _getInterfaceAddrs(ips, AF_INET);
     _getInterfaceAddrs(ips, AF_INET6);
 #endif
-
+    Socket::uninitializeInterface();
     return ips;
 }
 

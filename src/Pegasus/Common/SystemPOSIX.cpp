@@ -861,7 +861,6 @@ Array<String> System::getInterfaceAddrs()
 {
     Array<String> ips;
 
-#ifdef PEGASUS_ENABLE_IPV6
 
 #if defined(PEGASUS_HAS_GETIFADDRS)
     struct ifaddrs *array, *addrs;
@@ -872,6 +871,7 @@ Array<String> System::getInterfaceAddrs()
         return ips;
     }
     Boolean ipFound;
+    int rc = 0;
     for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
     {
         ipFound = false;
@@ -885,35 +885,42 @@ Array<String> System::getInterfaceAddrs()
         switch(addrs->ifa_addr->sa_family)
         {
             case AF_INET :
-                HostAddress::convertBinaryToText(AF_INET,
-                    &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr,
-                    buff, sizeof(buff));
-                ipFound = true;
+                if( (rc = ::getnameinfo(addrs->ifa_addr,
+                    sizeof(struct sockaddr_in),
+                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST)) == 0)
+                {
+                    ipFound = true;
+                }
+                //Error detected in getting name info, 
+                //display the error string
+                else
+                {
+                    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                        "getnameinfo failed: %s", gai_strerror(rc)));
+                }
                 break;
+#ifdef PEGASUS_ENABLE_IPV6
             case AF_INET6 :
-                HostAddress::convertBinaryToText(AF_INET6,
-                    &((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr,
-                    buff, sizeof(buff));
-                ipFound = true;
+                if( ( rc = ::getnameinfo(addrs->ifa_addr,
+                    sizeof(struct sockaddr_in6),
+                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST)) == 0)
+                {
+                    ipFound = true;
+                }
+                //Error detected in getting name info, 
+                //display the error string
+                else
+                {
+                    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                        "getnameinfo failed: %s", gai_strerror(rc)));
+                }
                 break;
+#endif
         }
-        //ATTN: Some Linux implementations of getifaddrs() returning duplicate
-        // IPv6 Link-local unicast addresses. Filter the duplicates IPs.
+
         if (ipFound)
         {
-            Boolean duplicateFound = false;
-            for (Uint32 i = 0, n = ips.size(); i < n ; ++i)
-            {
-                if (String::equal(ips[i], buff))
-                {
-                    duplicateFound = true;
-                    break;
-                }
-            }
-            if (!duplicateFound)
-            {
-                 ips.append(buff);
-            }
+            ips.append(buff);
         }
     }
     if(array)
@@ -981,6 +988,7 @@ Array<String> System::getInterfaceAddrs()
                 ips.append(buff);
                 break;
 
+#ifdef PEGASUS_ENABLE_IPV6
             case AF_INET6:
                 if (System::isLoopBack(
                         AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr)))
@@ -995,6 +1003,7 @@ Array<String> System::getInterfaceAddrs()
 
                 ips.append(buff);
                 break;
+#endif
         }
     }
 
@@ -1002,6 +1011,7 @@ Array<String> System::getInterfaceAddrs()
 
 #elif defined(PEGASUS_OS_ZOS)
 
+#ifdef PEGASUS_ENABLE_IPV6
     SocketHandle sdV6=socket(AF_INET6, SOCK_DGRAM, 0);
     // Use an AutoPtr to ensure the socket handle is closed on exception
     AutoPtr<SocketHandle, CloseSocketHandle> sockV6Ptr(&sdV6);
@@ -1055,6 +1065,7 @@ Array<String> System::getInterfaceAddrs()
             } // query IPV6 interface
         } // fill ifconf header structure
     } // create IPV6 socket
+#endif
 
     // create an IPV4 socket to get the interface configurations via ioclt()
     SocketHandle sdv4=socket(AF_INET, SOCK_DGRAM, 0);
@@ -1126,6 +1137,7 @@ Array<String> System::getInterfaceAddrs()
     {
         if (ai->ai_family == AF_INET6)
         {
+#ifdef PEGASUS_ENABLE_IPV6
             char ipAddr[INET6_ADDRSTRLEN];
             struct sockaddr_in6 sockaddr6;
             struct sockaddr_in6 *in6 = (sockaddr_in6 *) (ai->ai_addr);
@@ -1145,6 +1157,7 @@ Array<String> System::getInterfaceAddrs()
                 break;
             }
             ips.append(ipAddr);
+#endif
         }
         else if (ai->ai_family == AF_INET)
         {
@@ -1177,8 +1190,6 @@ Array<String> System::getInterfaceAddrs()
 #else
 //ATTN: implement for rest of UNIX flavors.
 #endif
-
-#endif // PEGASUS_ENABLE_IPV6
 
     return ips;
 }

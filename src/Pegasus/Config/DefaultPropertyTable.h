@@ -36,6 +36,7 @@
         IS_DYNAMIC, IS_VISIBLE},
     {"idleConnectionTimeout", "0", IS_DYNAMIC, IS_VISIBLE},
     {"maxFailedProviderModuleRestarts", "3", IS_DYNAMIC, IS_VISIBLE},
+    {"listenAddress", "All", IS_STATIC, IS_VISIBLE},
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "DefaultPropertyTableLinux.h"
 #elif defined(PEGASUS_OS_SOLARIS)

@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HostAddress.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -107,7 +108,7 @@ static int _inet_ptonv4(const char *src, void *dst)
 }
 
 /*
-     Converts given ipv6 text address (ex. ::1) to binary form and stroes
+     Converts given ipv6 text address (ex. ::1) to binary form and stores
      in "dst" buffer (ex. 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1). Returns 1
      if src ipv6 address is valid or returns -1 if invalid. Returns value
      in network byte order.
@@ -310,23 +311,14 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
 }
 #endif  // defined (PEGASUS_OS_TYPE_WINDOWS) || !defined (PEGASUS_ENABLE_IPV6)
 
-void HostAddress::_init()
+HostAddress::HostAddress():    
+    _hostAddrStr(),
+    _addrType(AT_INVALID),
+    _isValid(false),
+    _isAddrLinkLocal(false),
+    _scopeID(0)
+    
 {
-    _hostAddrStr = String::EMPTY;
-    _isValid = false;
-    _addrType = AT_INVALID;
-}
-
-HostAddress::HostAddress()
-{
-    _init();
-}
-
-HostAddress::HostAddress(const String &addrStr)
-{
-    _init();
-    _hostAddrStr = addrStr;
-    _parseAddress();
 }
 
 HostAddress& HostAddress::operator =(const HostAddress &rhs)
@@ -336,6 +328,8 @@ HostAddress& HostAddress::operator =(const HostAddress &rhs)
         _hostAddrStr = rhs._hostAddrStr;
         _isValid = rhs._isValid;
         _addrType = rhs._addrType;
+        _scopeID = rhs._scopeID;
+        _isAddrLinkLocal = rhs._isAddrLinkLocal;
     }
 
     return *this;
@@ -350,24 +344,60 @@ HostAddress::~HostAddress()
 {
 }
 
-void HostAddress::setHostAddress(const String &addrStr)
+Boolean HostAddress::setHostAddress(const String &addrStr)
 {
-    _init();
-    _hostAddrStr = addrStr;
-    _parseAddress();
+
+    if (addrStr.size() != 0)
+    {
+
+        if (isValidIPV4Address(addrStr))
+        {
+            _isValid = true;
+            _addrType = AT_IPV4;
+            _hostAddrStr = addrStr;
+            _scopeID = 0;
+            _isAddrLinkLocal = false;
+            return _isValid;
+        }
+
+        if (isValidHostName(addrStr))
+        {
+            _isValid = true;
+            _addrType = AT_HOSTNAME;
+            _hostAddrStr = addrStr;
+            _scopeID = 0;
+            _isAddrLinkLocal = false;
+            return _isValid;
+        }
+
+        if (_checkIPv6AndLinkLocal( addrStr ))
+        {
+            _isValid = true;
+            _addrType = AT_IPV6;
+            return _isValid;
+        }
+
+    } // if addrStr == 0 or no valid address specified.
+
+    _hostAddrStr.clear();
+    _isValid = false;
+    _addrType = AT_INVALID;
+    _scopeID = 0;
+    _isAddrLinkLocal = false;
+    return _isValid;
 }
 
-Uint32 HostAddress::getAddressType()
+Uint32 HostAddress::getAddressType() const
 {
     return _addrType;
 }
 
-Boolean HostAddress::isValid()
+Boolean HostAddress::isValid() const
 {
     return _isValid;
 }
 
-String HostAddress::getHost()
+String HostAddress::getHost() const
 {
     return _hostAddrStr;
 }
@@ -385,26 +415,72 @@ Boolean HostAddress::equal(int af, void *p1, void *p2)
     return false;
 }
 
-void HostAddress::_parseAddress()
+Boolean HostAddress::_checkIPv6AndLinkLocal( const String &ip6add2check)
 {
-    if (_hostAddrStr.size() == 0)
-        return;
+    _isValid = false;
+    _isAddrLinkLocal = false;
+    _scopeID = 0;
 
-    if (isValidIPV4Address(_hostAddrStr))
+    String iptmp = ip6add2check;
+    String tmp = iptmp.subString(0, 4);
+    // If the IP address starts with "fe80" it is a link-local address
+    if(String::equalNoCase(tmp, "fe80"))
     {
-        _isValid = true;
-        _addrType = AT_IPV4;
+        Uint32 idx = iptmp.find('%');
+        if(idx != PEG_NOT_FOUND)
+        {
+#if defined PEGASUS_OS_TYPE_WINDOWS
+            // On Windows the zone ID/inteface index for link-local is an 
+            // integer value starting with 1.
+            _scopeID = atoi(
+                    (const char *)(iptmp.subString(idx+1).getCString()));
+#else
+            // if_nametoindex() retruns 0 when zone ID was not valid/found.
+            _scopeID = if_nametoindex(
+                    (const char *)(iptmp.subString(idx+1).getCString()));
+#endif
+            // The scope ID should not be 0, even RFC4007 specifies 0 as the 
+            // default interface. But 
+            if (0 == _scopeID) 
+            {
+                PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
+                    "The zone index of IPv6 link-local address %s is invalid.",
+                    (const char*)ip6add2check.getCString()));
+                return false;
+            }
+            // Remove the zone id before checkeing for a valid IPv6 address.
+            iptmp.remove(idx);
+            _isAddrLinkLocal = true; 
+        }
+        else
+        {
+            PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
+                "The IPv6 link-local address %s has no zone index specified.",
+                (const char*)ip6add2check.getCString()));
+            return false;
+        }
     }
-    else if (isValidIPV6Address(_hostAddrStr))
+
+    if (isValidIPV6Address(iptmp))
     {
+        _hostAddrStr = iptmp;
         _isValid = true;
-        _addrType = AT_IPV6;
+        return true;
     }
-    else if (isValidHostName(_hostAddrStr))
-    {
-        _isValid = true;
-        _addrType = AT_HOSTNAME;
-    }
+    PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
+        "Invalid IPv6 address %s specified.",
+        (const char*)ip6add2check.getCString()));
+    return false;
+}
+
+Uint32 HostAddress::getScopeID() const
+{
+    return _scopeID;
+}
+
+Boolean HostAddress::isHostAddLinkLocal() const
+{
+    return _isAddrLinkLocal;
 }
 
 Boolean HostAddress::isValidIPV6Address (const String &ipv6Address)
@@ -468,7 +544,6 @@ Boolean HostAddress::isValidIPV4Address (const String &ipv4Address)
         if ((octet == 4) && (src[i] != ':') && src[i] != char(0))
             return false;
     }
-
     return true;
 }
 

@@ -198,6 +198,7 @@ DIRS += \
 
 TEST_DIRS += \
     Server/tests \
+    Server/tests/InterfaceRestriction \
     Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/snmpIndicationHandler/tests/testclient \
     Handler/snmpIndicationHandler/tests/SnmpHandlerException

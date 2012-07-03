@@ -56,6 +56,36 @@ void testParseBooleanValue()
     PEGASUS_TEST_ASSERT(!ConfigManager::parseBooleanValue("1"));
 }
 
+void testListenAddressParsing(ConfigManager *_config)
+{
+    _config->useConfigFiles = false;
+    if(_config ->initCurrentValue(
+        String("listenAddress"),
+        String("127.0.0.1,::1")))
+    {
+
+        String value = _config ->getCurrentValue("listenAddress");
+        Array<String> ips =
+            DefaultPropertyOwner::parseAndGetListenAddress(value);
+        Array<HostAddress> interfaces = ConfigManager::getListenAddress(value);
+        PEGASUS_TEST_ASSERT(interfaces.size() == ips.size());
+        for(Uint32 i = 0, n = interfaces.size(); i < n ; ++i)
+        {
+            PEGASUS_TEST_ASSERT(ips[i] == interfaces[i].getHost());
+        }
+        if(verbose)
+        {
+            cout << "listenAddress = ";
+            for(Uint32 i = 0, n = interfaces.size(); i < n ; ++i)
+            {
+                cout << interfaces[i].getHost() << ",";
+            }
+            cout << endl;
+        }
+    }
+    _config->useConfigFiles = true;
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -117,6 +147,10 @@ int main(int argc, char** argv)
         }
 
         testParseBooleanValue();
+
+        //test for listenAddress parsing
+        testListenAddressParsing(_config);
+
     }
     catch(Exception& e)
     {

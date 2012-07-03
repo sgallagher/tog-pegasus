@@ -314,6 +314,8 @@ endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout2
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_providerLifecycleIndicationTests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimListenAddress
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_interfaceRestrictionTest
 
 #####################
 #
@@ -921,6 +923,37 @@ run_providerLifecycleIndicationTests: FORCE
 	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/TestProviderLifecycleIndications/testclient -f Makefile deletePLISubscription
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/TestProviderLifecycleIndications/testclient -f Makefile testLogFile
+
+
+#############################################################################
+##
+## Network Interface restriction tests
+##
+##  Configuration Options: enableHttpsConnection=true
+##                         enableHttpConnection=true
+##                         listenAddress=x.y.x.z
+##
+#############################################################################
+startcimListenAddress: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableHttpConnection=true enableHttpsConnection=true listenAddress=::1,127.0.0.1"
+	$(SLEEP) 5
+
+
+
+LISTENING_ADD = $(shell TestListenAddress getSystemInterface)
+RESTRICT_INTRFC_TEST_CONFIG_OPTIONS= enableHttpConnection=true enableHttpsConnection=true listenAddress=$(LISTENING_ADD) 
+RESTRICT_INTRFC_TEST_CMDS=$(MAKE)@@--directory $(PEGASUS_ROOT)/src/Pegasus/Server/tests/InterfaceRestriction@@-f@@Makefile@@RestrictionTest
+
+ifneq ($(strip $(LISTENING_ADD)),)
+run_interfaceRestrictionTest:FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	    CIMSERVER_CONFIG_OPTIONS="$(RESTRICT_INTRFC_TEST_CONFIG_OPTIONS)" \
+	    TESTSUITE_CMDS="$(RESTRICT_INTRFC_TEST_CMDS)"
+else
+run_interfaceRestrictionTest:FORCE
+	@ $(ECHO) "+++++ No Network Interface Detected: Skipping Network Restriction Test+++++++"
+endif
+	
 
 ##############################################################################
 ##

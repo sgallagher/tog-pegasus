@@ -106,15 +106,18 @@ public:
     HostAddress();
     ~HostAddress();
 
-    /**
-        Constructor. addrStr can be HostName or IPv4Address or
-        IPv6Address (without brackets).
-    */
-    HostAddress(const String &addrStr);
     HostAddress(const HostAddress &rhs);
     HostAddress& operator =(const HostAddress &rhs);
 
-    void setHostAddress(const String &addrStr);
+    /**
+    *   AddrStr can be HostName or IPv4Address or IPv6Address
+    *   (without brackets).
+    *   Returns true, if set successfully.
+    *   Returns false, if unscessfully and the HostAddress is
+    *   invalid.
+    */
+
+    Boolean setHostAddress(const String &addrStr);
 
     /**
         Returns true if the constructed HostAddress is valid.
@@ -122,7 +125,7 @@ public:
         Check if HostAddress is valid by using isValid() method
         before making any calls on HostAddress object.
     */
-    Boolean isValid();
+    Boolean isValid() const;
 
     /**
         Verifies given IPv4Address and returns true if it is valid.
@@ -181,19 +184,38 @@ public:
         Check if HostAddress is valid by using isValid() method
         before making any calls on HostAddress object.
     */
-    String getHost();
+    String getHost() const;
 
     /**
        Returns address type. It can be AT_IPV4, AT_IPV6 or AT_HOSTNAME.
     */
-    Uint32 getAddressType();
+    Uint32 getAddressType() const;
+
+    /*
+     * get the scope ID for the link-local address
+    */
+    Uint32 getScopeID() const;
+
+   //check if the address in the _hostaddrStr is link-local
+   Boolean isHostAddLinkLocal() const; 
 
 private:
-    void _init();
-    void _parseAddress();
+
     String _hostAddrStr;
     Uint16 _addrType;
     Boolean _isValid;
+    Boolean _isAddrLinkLocal;
+    Uint32 _scopeID;
+
+    /**
+    * Retruns true if ip6add is a valid IPv6 address.
+    *   set _hostAddrStr to a valid IPv6
+    *   _isAddrLinkLocal to true if ip6add is a link local address
+    *   _scopeID if it is a link local address. Other wise false.
+    * 
+    */
+    Boolean _checkIPv6AndLinkLocal(const String &ip6add);
+
 };
 
 PEGASUS_NAMESPACE_END

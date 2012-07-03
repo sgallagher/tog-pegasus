@@ -48,6 +48,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 
@@ -433,6 +434,14 @@ public:
             boolean value of 'true' or 'false'
     */
     static Boolean isValidBooleanValue(const String& propertyValue);
+   /**
+        get the ip addresses to listen on for connection
+        @param propertyValue A String containing a comma separated list of ips 
+        @return an array of ip adress specified for configuration property 
+            listenAdrress 
+    */
+    static Array<HostAddress> getListenAddress(const String& propertyValue);
+
 
 };
 

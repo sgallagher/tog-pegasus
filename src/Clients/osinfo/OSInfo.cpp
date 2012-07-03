@@ -495,8 +495,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
-                    HostAddress addr(_hostName);
-                    if (!addr.isValid())
+                    HostAddress addr;
+                    if (!addr.setHostAddress(_hostName))
                     {
                         throw InvalidLocatorException (_hostName);
                     }

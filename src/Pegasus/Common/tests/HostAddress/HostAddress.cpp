@@ -40,13 +40,16 @@ PEGASUS_USING_STD;
 void testHostAddress()
 {
     // Check for valid hostnames or addresses
-    HostAddress hostaddr("1.222.33.44");
+    HostAddress hostaddr;
+    hostaddr.setHostAddress("1.222.33.44");
     PEGASUS_TEST_ASSERT(hostaddr.isValid());
     PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(HostAddress::isValidIPV4Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(hostaddr.getHost() == String("1.222.33.44"));
     PEGASUS_TEST_ASSERT(hostaddr.getAddressType() == HostAddress::AT_IPV4);
+    PEGASUS_TEST_ASSERT(!hostaddr.isHostAddLinkLocal());
+    PEGASUS_TEST_ASSERT(!hostaddr.getScopeID());
 
     hostaddr.setHostAddress("1.2.3.4");
     HostAddress hostaddr2(hostaddr);
@@ -108,6 +111,8 @@ void testHostAddress()
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(hostaddr.getHost() == String("123.34.abcd.xyz.com"));
     PEGASUS_TEST_ASSERT(hostaddr.getAddressType() == HostAddress::AT_HOSTNAME);
+    PEGASUS_TEST_ASSERT(!hostaddr.isHostAddLinkLocal());
+    PEGASUS_TEST_ASSERT(!hostaddr.getScopeID());
 
 
     // Invalid hostnames or addresses
@@ -182,6 +187,16 @@ void testHostAddress()
     PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
+
+    //Link-local ipv6 address testing
+    hostaddr.setHostAddress("fe80::221:ccff:fe62:9346%XYZ");
+    PEGASUS_TEST_ASSERT(!hostaddr.isValid());
+    PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
+    PEGASUS_TEST_ASSERT(!hostaddr.isHostAddLinkLocal());
+    PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
+    PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
+
+
 }
 
 int main(int argc, char** argv)

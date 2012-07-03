@@ -450,6 +450,32 @@ static void _initConfigProperty(const String &propName, Uint32 value)
         n);
     ConfigManager::getInstance()->initCurrentValue(propName, String(startP, n));
 }
+static void _restrictListening(
+    ConfigManager* configManager,
+    const String &listenOn,
+    const Uint32 &portNumberHttp,
+    const Boolean useSSL)
+{
+    static Array<HostAddress> laddr = configManager ->getListenAddress( 
+                                          listenOn);
+    for(Uint32 i = 0, n = laddr.size(); i < n; ++i)
+    {
+        if(laddr[i].getAddressType() == HostAddress::AT_IPV6)
+        {
+#ifdef PEGASUS_ENABLE_IPV6
+            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                    portNumberHttp, useSSL, 
+                    &laddr[i]);
+#endif
+        }
+        else if(laddr[i].getAddressType() == HostAddress::AT_IPV4)
+        {
+            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                    portNumberHttp, useSSL, 
+                    &laddr[i]);
+        }
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////
 //  MAIN
@@ -1078,16 +1104,26 @@ int CIMServerProcess::cimserver_run(
                 }
             }
 
-            if (addIP6Acceptor)
+            String listenOn = configManager->getCurrentValue("listenAddress");
+            if(String::equalNoCase(listenOn, "All"))
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                    portNumberHttp, false);
+                if (addIP6Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                        portNumberHttp, false);
+                }
+                if (addIP4Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                        portNumberHttp, false);
+                }
             }
-            if (addIP4Acceptor)
+            else // Restricted listening
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                    portNumberHttp, false);
+                _restrictListening(
+                    configManager, listenOn, portNumberHttp, false);
             }
+
             // The port number is converted to a string to avoid the
             //  addition of localized characters (e.g., "5,988").
             char scratchBuffer[22];
@@ -1131,16 +1167,26 @@ int CIMServerProcess::cimserver_run(
                     throw InvalidPropertyValue("httpsPort", httpsPort);
                 }
             }
-            if (addIP6Acceptor)
+            String listenOn = configManager->getCurrentValue("listenAddress");
+            if(String::equalNoCase(listenOn, "All"))
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                    portNumberHttps, true);
+                if (addIP6Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                        portNumberHttps, true);
+                }
+                if (addIP4Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                        portNumberHttps, true);
+                }
             }
-            if (addIP4Acceptor)
+            else //Restricted
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                    portNumberHttps, true);
+                _restrictListening(
+                    configManager, listenOn, portNumberHttps, true);
             }
+
             // The port number is converted to a string to avoid the
             //  addition of localized characters (e.g., "5,989").
             char scratchBuffer[22];

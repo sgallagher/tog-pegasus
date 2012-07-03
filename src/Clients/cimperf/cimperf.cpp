@@ -420,8 +420,8 @@ int main(int argc, char** argv)
     //Get hostname form (option manager) command line if none use default
     String location;
     om.lookupValue("location", location);
-    HostAddress addr(location);
-    if (!addr.isValid())
+    HostAddress addr;
+    if (!addr.setHostAddress(location))
     {
         cerr << "Invalid Locator : " << location << endl;
         exit(1);

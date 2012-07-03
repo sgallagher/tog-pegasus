@@ -89,7 +89,8 @@ public:
     void addAcceptor(
         Uint16 connectionType,
         Uint32 portNumber,
-        Boolean useSSL);
+        Boolean useSSL,
+        HostAddress *ipAddress = 0);
 
     /** Bind the acceptors to the specified listen sockets.
         @exception - This function may receive exceptions from

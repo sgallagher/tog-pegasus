@@ -134,7 +134,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            Uint16 connectionType,
                            Uint32 portNumber,
                            SSLContext * sslcontext,
-                           ReadWriteSem* sslContextObjectLock)
+                           ReadWriteSem* sslContextObjectLock,
+                           HostAddress *listenOn)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
      _monitor(monitor),
      _outputMessageQueue(outputMessageQueue),
@@ -143,7 +144,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _connectionType(connectionType),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-     _sslContextObjectLock(sslContextObjectLock)
+    _sslContextObjectLock(sslContextObjectLock),
+    _listenAddress(listenOn)
 {
    PEGASUS_ASSERT(!_sslcontext == !_sslContextObjectLock);
    Socket::initializeInterface();
@@ -279,6 +281,7 @@ void HTTPAcceptor::bind()
     _bind();
 }
 
+
 /**
     _bind - creates a new server socket and bind socket to the port address.
     If PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET is not defined, the port number is
@@ -333,8 +336,38 @@ void HTTPAcceptor::_bind()
 #ifdef PEGASUS_ENABLE_IPV6
     else if (_connectionType == IPV6_CONNECTION)
     {
+        if(_listenAddress)
+        {
+            String hostAdd = _listenAddress->getHost();
+            CString ip = hostAdd.getCString();
+
+            struct sockaddr_in6 in6addr;
+            memset(&in6addr, 0, sizeof(sockaddr_in6));
+            if(_listenAddress ->isHostAddLinkLocal())
+            {
+                ::inet_pton(AF_INET6, 
+                (const char*)ip,
+                &in6addr.sin6_addr);
+                reinterpret_cast<struct sockaddr_in6*>(
+                    _rep->address)->sin6_addr = in6addr.sin6_addr;
+                reinterpret_cast<struct sockaddr_in6*>(
+                    _rep->address)->sin6_scope_id = 
+                        _listenAddress->getScopeID();
+            }
+            else
+            {
+                ::inet_pton(AF_INET6, 
+                (const char*)ip,
+                &in6addr.sin6_addr);
+                reinterpret_cast<struct sockaddr_in6*>(
+                    _rep->address)->sin6_addr = in6addr.sin6_addr;
+            }
+        }
+        else
+        {
         reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_addr =
             in6addr_any;
+        }
         reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_family =
             AF_INET6;
         reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_port =
@@ -343,8 +376,23 @@ void HTTPAcceptor::_bind()
 #endif
     else if(_connectionType == IPV4_CONNECTION)
     {
-        reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_addr.s_addr =
-            INADDR_ANY;
+        if(_listenAddress)
+        {
+            String hostAdd = _listenAddress->getHost();
+            CString ip = hostAdd.getCString();
+            struct sockaddr_in addrs;
+            ::inet_pton(
+                AF_INET, 
+                (const char*)ip,
+                &addrs.sin_addr);
+            reinterpret_cast<struct sockaddr_in*>(
+                _rep->address)->sin_addr.s_addr = addrs.sin_addr.s_addr;
+        }
+        else
+        {
+            reinterpret_cast<struct sockaddr_in*>(
+            _rep->address)->sin_addr.s_addr = INADDR_ANY;
+        }
         reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_family =
             AF_INET;
         reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_port =
@@ -474,7 +522,7 @@ void HTTPAcceptor::_bind()
         {
             MessageLoaderParms parms(
                 "Common.HTTPAcceptor.FAILED_SET_LDS_FILE_OPTION",
-                "Failed to set permission on local domain socket {0}: {1}.",
+                "Failed to set permission on local domain socket $0: $1.",
                 PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
                 PEGASUS_SYSTEM_ERRORMSG_NLS );
 
@@ -493,7 +541,7 @@ void HTTPAcceptor::_bind()
     {
         MessageLoaderParms parms(
             "Common.HTTPAcceptor.FAILED_LISTEN_SOCKET",
-            "Failed to listen on socket {0}: {1}.",
+            "Failed to listen on socket $0: $1.",
             (int)_rep->socket,PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS );
 
         delete _rep;
@@ -541,7 +589,8 @@ void HTTPAcceptor::closeConnectionSocket()
                 "HTTPAcceptor::closeConnectionSocket Unlinking local "
                     "connection.");
             ::unlink(
-                reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+                    reinterpret_cast<struct sockaddr_un*>
+                        (_rep->address)->sun_path);
 #else
             PEGASUS_ASSERT(false);
 #endif
@@ -590,7 +639,8 @@ void HTTPAcceptor::reconnectConnectionSocket()
                 "HTTPAcceptor::reconnectConnectionSocket Unlinking local "
                     "connection." );
             ::unlink(
-                reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+                    reinterpret_cast<struct sockaddr_un*>(
+                        _rep->address)->sun_path);
 #else
             PEGASUS_ASSERT(false);
 #endif
@@ -654,7 +704,8 @@ void HTTPAcceptor::unbind()
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             ::unlink(
-                reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+                    reinterpret_cast<struct sockaddr_un*>
+                    (_rep->address)->sun_path);
 #else
             PEGASUS_ASSERT(false);
 #endif

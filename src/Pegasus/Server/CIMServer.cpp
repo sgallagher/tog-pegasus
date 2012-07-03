@@ -688,7 +688,8 @@ CIMServer::~CIMServer ()
 void CIMServer::addAcceptor(
     Uint16 connectionType,
     Uint32 portNumber,
-    Boolean useSSL)
+    Boolean useSSL,
+    HostAddress *ipAddress)
 {
     HTTPAcceptor* acceptor;
 
@@ -698,7 +699,8 @@ void CIMServer::addAcceptor(
         connectionType,
         portNumber,
         useSSL ? _getSSLContext() : 0,
-        useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
+        useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0, 
+        ipAddress);
 
     _acceptors.append(acceptor);
 }

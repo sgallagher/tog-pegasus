@@ -96,7 +96,7 @@ const Uint8 _toUpperTable[256] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-// Note: this table is much faster than the system tulower(). Please do not
+// Note: this table is much faster than the system tolower(). Please do not
 // change.
 
 const Uint8 _toLowerTable[256] =

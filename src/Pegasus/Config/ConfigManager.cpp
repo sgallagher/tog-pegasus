@@ -190,7 +190,10 @@ static struct OwnerEntry _properties[] =
     {"idleConnectionTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"maxFailedProviderModuleRestarts",
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"listenAddress",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
+
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     ,{"maxIndicationDeliveryRetryAttempts",
@@ -967,6 +970,20 @@ Boolean ConfigManager::isValidBooleanValue(const String& value)
         return true;
     }
     return false;
+}
+Array<HostAddress> ConfigManager::getListenAddress(const String &propertyValue)
+{
+    Array<String> interfaces = DefaultPropertyOwner::parseAndGetListenAddress (
+        propertyValue);
+
+    HostAddress theAddress;
+    Array<HostAddress> listenAddrs;
+    for(Uint32 i = 0, n = interfaces.size(); i < n; i++)
+    {
+        theAddress.setHostAddress(interfaces[i]);
+        listenAddrs.append(theAddress);
+    }
+    return listenAddrs;
 }
 
 PEGASUS_NAMESPACE_END

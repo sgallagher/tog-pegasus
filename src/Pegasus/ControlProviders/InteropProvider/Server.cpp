@@ -348,7 +348,9 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         for (Uint32 i = 0; i < ips.size() ; ++i)
         {
             String addr = ips[i];
-            if (HostAddress::isValidIPV6Address(ips[i]))
+            HostAddress tmp;
+            tmp.setHostAddress(addr);
+            if(tmp.getAddressType() == HostAddress::AT_IPV6)
             {
                 addr = "[" + addr + "]";
             }
@@ -384,7 +386,9 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         for (Uint32 i = 0; i < ips.size() ; ++i)
         {
             String addr = ips[i];
-            if (HostAddress::isValidIPV6Address(ips[i]))
+            HostAddress tmp;
+            tmp.setHostAddress(addr);
+            if(tmp.getAddressType() == HostAddress::AT_IPV6)
             {
                 addr = "[" + addr + "]";
             }

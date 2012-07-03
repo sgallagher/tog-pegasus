@@ -1013,6 +1013,14 @@ en:table {
         */
         Config.ConfigExceptions.INVALID_DIRECTORY_PROPERTY_VALUE:string { "PGS02210: For property {0} specified value {1} is not a directory or the directory is not writeable."}
 
+        /**
+        * @note  PGS02211:
+        *    Substitution {0} is the name of the property (a string)
+        *    Substitution {1} is a network interface address
+        */
+        Config.ConfigExceptions.INVALID_LISTENADDRESS_PROPERTY_VALUE:string { "PGS02211: For property {0} specified value {1} is not a valid interface address."}
+
+
         // ==========================================================
         // Messages for ConfigManager
         //  Please use message prefix "PGS02300"

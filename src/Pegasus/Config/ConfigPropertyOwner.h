@@ -120,7 +120,7 @@ public:
         @param name The name of the property.
         @param value The current value of the property.
         @exception UnrecognizedConfigProperty if the property is not defined.
-        @exception InvalidPropertyValue if the property value is not valid.
+        @exception InvalidPropertyValue  if the property value is not valid.
     */
     virtual void initCurrentValue(const String& name, const String& value) = 0;
 

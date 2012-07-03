@@ -978,7 +978,6 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
     return false;
 }
 
-#ifdef PEGASUS_ENABLE_IPV6
 void _getInterfaceAddrs(Array<String> &ips, int af)
 {
     SOCKET sock;
@@ -990,7 +989,7 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
         char buf[2048];
         int interfaces = 0;
         char str[PEGASUS_INET6_ADDRSTR_LEN];
-        void *p;
+        void *p = 0;
         if (0 == WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
             buf, 2048, &bytesReturned, NULL,
             NULL))
@@ -1001,6 +1000,7 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
             struct sockaddr *sin;
             addr_list = (SOCKET_ADDRESS_LIST *)buf;
             addr = addr_list->Address;
+            int rc = 0;
             for (sin = (struct sockaddr *) addr->lpSockaddr ;
                 interfaces < addr_list->iAddressCount;
                 interfaces++)
@@ -1016,8 +1016,50 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
                 // Don't gather loopback addrs
                 if (!System::isLoopBack(af, p))
                 {
-                    HostAddress::convertBinaryToText(af, p, str, sizeof(str));
-                    ips.append(str);
+                    if (af == AF_INET)
+                    {
+                        if ((rc = ::getnameinfo( 
+                            sin, 
+                            sizeof(struct sockaddr_in),
+                            str,
+                            sizeof(str),
+                            NULL,
+                            0,
+                            NI_NUMERICHOST)) == 0)
+                        {
+                            ips.append(str);
+                        }
+                        //Error detected in getting name info, 
+                        //display the error string
+                        else
+                        {
+                            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                                "getnameinfo failed: %s", gai_strerror(rc)));
+                        }
+                    }
+#ifdef PEGASUS_ENABLE_IPV6
+                    else if (af == AF_INET6)
+                    {
+                        if((rc = ::getnameinfo( 
+                            sin,
+                            sizeof(struct sockaddr_in6),
+                            str,
+                            sizeof(str),
+                            NULL,
+                            0,
+                            NI_NUMERICHOST)) == 0)
+                        {
+                            ips.append(str);
+                        }
+                        //Error detected in getting name info, 
+                        //display the error string
+                        else
+                        {
+                            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                                "getnameinfo failed: %s", gai_strerror(rc)));
+                        }
+                    }
+#endif
                 }
                 addr++;
                 sin = (struct sockaddr*)addr->lpSockaddr;
@@ -1031,8 +1073,8 @@ Array<String> System::getInterfaceAddrs()
 {
     Socket::initializeInterface();
     Array<String> ips;
-#ifdef PEGASUS_ENABLE_IPV6
     _getInterfaceAddrs(ips, AF_INET);
+#ifdef PEGASUS_ENABLE_IPV6
     _getInterfaceAddrs(ips, AF_INET6);
 #endif
     Socket::uninitializeInterface();

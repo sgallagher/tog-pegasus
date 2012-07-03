@@ -36,6 +36,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/SSLContext.h>
@@ -71,6 +72,8 @@ public:
         @param sslcontext If null, this acceptor does not create SSL
         connections.  If non-null, the argument specifies an SSL context to
         use for connections established by this acceptor.
+        @param listenOn If null, listening for connection is not restricted 
+        else it is restricted to listen on specified add in listenOn
     */
     HTTPAcceptor(
         Monitor* monitor,
@@ -78,7 +81,8 @@ public:
         Uint16 connectionType,
         Uint32 portNumber,
         SSLContext * sslcontext,
-        ReadWriteSem* sslContextObjectLock = 0);
+        ReadWriteSem* sslContextObjectLock = 0,
+        HostAddress *listenOn = 0);
 
     /** Destructor. */
     ~HTTPAcceptor();
@@ -149,6 +153,7 @@ private:
 #ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
     static Mutex _socketWriteTimeoutMutex;
 #endif
+    HostAddress *_listenAddress;
 };
 
 PEGASUS_NAMESPACE_END

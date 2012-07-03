@@ -124,6 +124,71 @@ public:
 
     static Mutex _mutex;
 
+protected:
+
+    /**
+        Sets property with name SystemName to sysname if existant. If
+        property does not exist on instance, adds it.
+        Should be used for instances of classes Filter, Handler only
+        Does not change the objectPath of the instance !!!
+     
+        @param   instance              instance to set property on
+        @param   sysname               system name to set
+     */
+
+    static void _setOrAddSystemNameInHandlerFilter(
+        CIMInstance& instance,
+        const String& sysname);
+
+    /**
+        Sets key binding with name SystemName to string if existant. Should be
+        used with Handler and Filter object paths only
+     
+        @param   objPath              object path to change keybinding on
+        @param   sysname              system name to set
+     */        
+    static void _setSystemNameInHandlerFilter(
+        CIMObjectPath& objPath,
+        const String& sysname);
+
+    /**
+        Replace the value of SystemName in a String created from a Handler or
+        Filter reference
+      */    
+    static void _setSystemNameInHandlerFilterReference(
+        String& reference,
+        const String& sysname);
+    
+    /**
+        Sets key binding with name SystemName in the two keybinding references
+        Filter and Handler of a Subscription object path
+     
+        @param   objPath              object path to change SystemNames on
+        @param   sysname              system name to set
+     */        
+    static void _setSubscriptionSystemName(
+        CIMObjectPath& objPath,
+        const String& sysname);
+
+    /** Replaces value in all occurences of SystemName key with String sysname
+        used for Handler, Filter and Subscription object paths
+     
+        @param   objPath              object path to change SystemNames on
+        @param   sysname              system name to set
+     */
+    static void _setSystemName(CIMObjectPath& objPath, const String& sysname);
+
+    /** Replaces value in all occurences of SystemName key and SystemName
+        property with String sysname
+        
+        Used for Handler, Filter and Subscription object paths        
+     
+        @param   instance             instance to change
+        @param   sysname              system name to set
+     */
+    static void _setSystemName(CIMInstance& instance, const String& sysname);
+
+
 private:
 
     void _initialize();

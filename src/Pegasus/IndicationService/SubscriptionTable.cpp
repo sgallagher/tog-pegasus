@@ -1536,7 +1536,7 @@ CIMObjectPath SubscriptionTable::_buildFilterPath(const String& filterName)
         CIMKeyBinding::STRING));
     filterKeys.append(CIMKeyBinding(
         "SystemName",
-        System::getFullyQualifiedHostName(),
+        String::EMPTY,
         CIMKeyBinding::STRING));
     filterKeys.append(CIMKeyBinding(
         "CreationClassName",
@@ -1588,7 +1588,7 @@ CIMObjectPath SubscriptionTable::_buildHandlerPath(const String& handlerName)
         CIMKeyBinding::STRING));
     handlerKeys.append(CIMKeyBinding(
         "SystemName",
-        System::getFullyQualifiedHostName(),
+        String::EMPTY,
         CIMKeyBinding::STRING));
     handlerKeys.append(CIMKeyBinding(
         "CreationClassName",

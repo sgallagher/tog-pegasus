@@ -26,26 +26,28 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../..
+ROOT = ../../../../..
+
+DIR = Pegasus/Config/tests/ChgdHosts
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    IndicationProcess \
-    DisableEnable \
-    DisableEnable2 \
-    ProcessIndication \
-    Subscription \
-    IndicationService
+LIBRARIES = \
+    pegclient \
+    pegcommon
+    
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
-    DIRS += \
-        IndicationsCount
-endif
+PROGRAM = TestChgdHosts
 
-ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
-    DIRS += \
-        Configuration
-endif
+SOURCES = TestChgdHosts.cpp
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+chgdhoststest:
+	$(PROGRAM)
+
+tests:
+
+poststarttests: 
+

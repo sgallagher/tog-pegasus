@@ -98,6 +98,10 @@ private:
     friend Uint32 SubscriptionKeyHashFunc::hash(const SubscriptionKey&);
 };
 
+PEGASUS_GENERAL_LINKAGE Boolean operator==(
+    const SubscriptionKey& key1,
+    const SubscriptionKey& key2);
+
 PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_SubscriptionKey_h */

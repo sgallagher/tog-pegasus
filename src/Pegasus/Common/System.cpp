@@ -60,9 +60,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 Boolean System::bindVerbose = false;
 
-MutexType System::_mutexForGetHostName = PEGASUS_MUTEX_INITIALIZER;
+Mutex System::_mutexForGetHostName;
 
-MutexType System::_mutexForGetFQHN = PEGASUS_MUTEX_INITIALIZER;
+Mutex System::_mutexForGetFQHN;
+
+String System::_hostname;
+String System::_fullyQualifiedHostname;
+
 
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
@@ -247,14 +251,12 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
 
 String System::getHostName()
 {
-    static String _hostname;
-
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequent calls.
 
     if (0 == _hostname.size())
     {
-        mutex_lock(&_mutexForGetHostName);
+        AutoMutex lock(_mutexForGetHostName);
 
         if (0 == _hostname.size())
         {
@@ -265,8 +267,6 @@ String System::getHostName()
             hostname[sizeof(hostname)-1] = 0;
             _hostname.assign(hostname);
         }
-
-        mutex_unlock(&_mutexForGetHostName);
     }
 
     return _hostname;
@@ -337,35 +337,56 @@ static String _getFullyQualifiedHostName()
 
 String System::getFullyQualifiedHostName()
 {
-    static String _hostname;
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequent calls.
 
-    if (0 == _hostname.size())
+    if (0 == _fullyQualifiedHostname.size())
     {
-        mutex_lock(&_mutexForGetFQHN);
+        AutoMutex lock(_mutexForGetFQHN);
 
-        if (0 == _hostname.size())
+        if (0 == _fullyQualifiedHostname.size())
         {
-            try
-            {
-                _hostname = _getFullyQualifiedHostName();
-            }
-            catch (...)
-            {
-                mutex_unlock(&_mutexForGetFQHN);
-                throw;
-            }
+            _fullyQualifiedHostname = _getFullyQualifiedHostName();
         }
-
-        mutex_unlock(&_mutexForGetFQHN);
     }
 
-    return _hostname;
+    return _fullyQualifiedHostname;
 }
+
+void System::setHostName(const String & hostName)
+{
+    AutoMutex lock(_mutexForGetHostName);
+    _hostname.assign(hostName);
+}
+
+void System::setFullyQualifiedHostName(const String & fullHostName)
+{
+    AutoMutex lock(_mutexForGetFQHN);
+    _fullyQualifiedHostname.assign(fullHostName);
+}
+
 
 Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 {
+    CString hostNameCString = hostName.getCString();
+    const char* hostNamePtr;
+    
+    // In case hostName equals _hostname or _fullyQualifiedHostname
+    // we need to use the system-supplied hostname instead for IP resolution
+    // _hostname or _fullyQualifiedHostname might be configured values
+    // which cannot be resolved by the system to an IP address
+    if (String::equalNoCase(hostName, _hostname) || 
+        String::equalNoCase(hostName, _fullyQualifiedHostname))
+    {
+        char localHostName[PEGASUS_MAXHOSTNAMELEN];
+        gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
+
+        hostNamePtr= (const char*) localHostName;
+    }
+    else
+    {
+        hostNamePtr = hostNameCString;
+    }
 #ifdef PEGASUS_ENABLE_IPV6
     struct addrinfo *info, hints;
     memset (&hints, 0, sizeof(struct addrinfo));
@@ -375,7 +396,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
-    if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
+    if (!getAddrInfo(hostNamePtr, 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family,
@@ -392,7 +413,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
-    if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
+    if (!getAddrInfo(hostNamePtr, 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET6_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family,
@@ -410,8 +431,6 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     struct hostent* hostEntry;
     struct in_addr inaddr;
     String ipAddress;
-    CString hostNameCString = hostName.getCString();
-    const char* hostNamePtr = hostNameCString;
 
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
@@ -668,8 +687,16 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
 
 Boolean System::isLocalHost(const String &hostName)
 {
-    // shortcut if hostname == localhost
-    if (String::equalNoCase(hostName,String("localhost"))) return true;
+    // if value of hostName is "localhost" or equals the value of _hostname or 
+    // equals the value of _fullyQualifiedHostname we can safely assume it to
+    // be the local host
+    if (String::equalNoCase(hostName,String("localhost")) ||
+        String::equalNoCase(hostName, _hostname) || 
+        String::equalNoCase(hostName, _fullyQualifiedHostname))
+    {
+        return true;
+    }
+
 // Get all ip addresses on the node and compare them with the given hostname.
 #ifdef PEGASUS_ENABLE_IPV6
     CString csName = hostName.getCString();

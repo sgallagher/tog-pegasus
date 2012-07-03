@@ -764,7 +764,7 @@ Boolean RepositoryUpgrade::_updateFilterHandlerReference(
     Boolean changed = false;
     CIMObjectPath objPath = instance.getPath();
     CIMObjectPath ref;
-    String systemName = System::getFullyQualifiedHostName();
+    String systemName;
     Uint32 pos = instance.findProperty(propertyName);
     PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
@@ -855,7 +855,7 @@ void RepositoryUpgrade::_updateSystemNameKeyPropertyOfInstancesForClass(
     const CIMName& className)
 {
     Array<CIMInstance> instances;
-    String systemName = System::getFullyQualifiedHostName();
+    String systemName;
 
     instances = _newRepository->enumerateInstancesForClass(
         nameSpace,

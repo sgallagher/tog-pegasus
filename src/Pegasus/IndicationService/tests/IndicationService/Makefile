@@ -26,26 +26,42 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../..
-
+ROOT = ../../../../..
+DIR = Pegasus/IndicationService/tests/IndicationService
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    IndicationProcess \
-    DisableEnable \
-    DisableEnable2 \
-    ProcessIndication \
-    Subscription \
-    IndicationService
+LIBRARIES = \
+    pegindicationservice \
+    pegprovider \
+    pegrepository \
+    pegprm \
+    pegqueryexpression \
+    pegwql
 
-ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
-    DIRS += \
-        IndicationsCount
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+    LIBRARIES += \
+       pegcql
 endif
 
-ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
-    DIRS += \
-        Configuration
-endif
+LIBRARIES += \
+    pegquerycommon \
+    pegconfig \
+    peggeneral \
+    pegcommon
 
-include $(ROOT)/mak/recurse.mak
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
+
+PROGRAM = TestIndicationService
+
+SOURCES = TestIndicationService.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	@$(ECHO) "TestIndicationService starting..."
+	@$(PROGRAM)
+	@$(ECHO) "+++++ TestIndicationService passed all tests"
+
+poststarttests:	

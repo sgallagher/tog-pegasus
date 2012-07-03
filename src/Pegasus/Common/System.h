@@ -481,6 +481,13 @@ public:
 
     static void closelog();
 
+    /** Function to set hostname and thus override system supplied value */
+    static void setHostName(const String & hostName);
+
+    /** Function to set fully qualified hostname and thus override system
+        supplied value */
+    static void setFullyQualifiedHostName(const String & fullHostName);
+
     // System ID constants for Logger::put and Logger::trace
     static const String CIMSERVER;
 
@@ -488,11 +495,16 @@ public:
     static const String CIMLISTENER;
 
     // mutex used for synchronising threads calling getHostName.
-    static MutexType _mutexForGetHostName;
+    static Mutex _mutexForGetHostName;
 
     // mutex used for synchronising threads calling getFullyQualifiedHostName
-    static MutexType _mutexForGetFQHN;
+    static Mutex _mutexForGetFQHN;
 
+private:
+    // Strings caching hostnames to avoid repeated resolver lookups and to
+    // enable setting by configuration
+    static String _hostname;
+    static String _fullyQualifiedHostname;
 };
 
 /**

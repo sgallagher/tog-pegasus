@@ -211,4 +211,9 @@ Uint32 SubscriptionKeyHashFunc::hash(const SubscriptionKey& x)
         return generateHash(x.handlerName)+generateHash(x.filterName);
 };
 
+Boolean operator==(const SubscriptionKey& key1, const SubscriptionKey& key2)
+{
+    return SubscriptionKeyEqualFunc::equal(key1,key2);
+}
+
 PEGASUS_NAMESPACE_END

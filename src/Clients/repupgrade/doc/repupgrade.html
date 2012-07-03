@@ -8,7 +8,7 @@
 
 <h2>repupgrade</h2>
 <h4>NAME</h4>
-    <b>repupgrade</b> - Enables upgrading to a newer version of the CIM schema by recreating schema extensions from an old repository in a new repository that has been initialized with the new version of the schema. It also updates the SystemName key property in Filter, Handler and ObjectManager instances if mismatch found with respect to the current system name. Corresponding subscriptions are also modified with the modified filter and handler references.
+    <b>repupgrade</b> - Enables upgrading to a newer version of the CIM schema by recreating schema extensions from an old repository in a new repository that has been initialized with the new version of the schema. It also sets the SystemName key property in Filter, Handler instances to empty since SystemName is generated dynamically from the current system name. Corresponding subscriptions are also modified with the modified filter and handler references.
 <h4>SYNOPSIS</h4>
   <code>
     <p><b>repupgrade</b> -o <u>oldrepositorypath</u> -n <u>newrepositorypath</u> </p>

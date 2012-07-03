@@ -117,6 +117,13 @@ private:
     void _initPropertyTable();
 
     /**
+        Check for fixed value and return the fixed value as String if
+        Initializes the two config properties hostName and
+        fullyQualifiedHostname when defined as fixed values
+    */     
+    String _fixedValueCheck(const String& name) const;
+
+    /**
         HashTable used to identify owners.
     */
     typedef HashTable<String,

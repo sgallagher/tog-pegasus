@@ -173,6 +173,43 @@ within the CIM Server process.
 .BR Dynamic: \0No
 .PD
 .PP 
+.B hostname
+.IP 
+.BR Description: " Can be used to override the local system supplied
+hostname without domain the CIM Server is using to build objects.
+.BR If not set, querying this configuration option will report the system
+supplied hostname and behavior is not changed.
+.BR Setting this value to a valid hostname on CIM Server startup or as
+planned value will force the server to assume the configured name as the
+local hosts name. Setting this allows the administrator to set the name 
+that operations such as associator, reference etc. return with object paths.
+.BR In common setups it is not recommended to explicitly set this value.
+.PD 0
+.IP 
+.BR "Default Value: " (blank)
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
+.B fullyQualifiedHostName
+.IP 
+.BR Description: "  Can be used to override the local system supplied
+fully qualified hostname (with domain) the CIM Server is using to build objects.
+.BR If not set, querying this configuration option will report the system
+supplied fully qualified hostname and behavior is not changed.
+.BR Setting this value to a valid hostname on CIM Server startup or as planned
+value will force the server to assume the configured name as the local hosts
+name with domain. Setting this allows the administrator to set the name that
+indication operations and the CIM_ObjectManager assume for SystemName returned
+as instance and key properties.
+.BR In common setups it is not recommended to explicitly set this value.
+.PD 0
+.IP 
+.BR "Default Value: " (blank)
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
 .B idleConnectionTimeout
 .IP 
 .BR Description: " If set to a positive integer, this value specifies a

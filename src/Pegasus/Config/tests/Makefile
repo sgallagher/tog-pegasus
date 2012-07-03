@@ -32,6 +32,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
 	ConfigFileHandler \
-	ConfigManager
+	ConfigManager \
+	ChgdHosts
 
 include $(ROOT)/mak/recurse.mak

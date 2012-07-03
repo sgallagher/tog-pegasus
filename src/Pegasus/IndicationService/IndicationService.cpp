@@ -670,6 +670,137 @@ void IndicationService::handleEnqueue()
     handleEnqueue(message);
 }
 
+void IndicationService::_setOrAddSystemNameInHandlerFilter(
+    CIMInstance& instance,
+    const String& sysname)
+{
+    // Key property SystemName should be ignored by server according to
+    // DSP1054 v1.2, setting it to empty string for further processing
+    // host name will replace empty string on returning instances
+    Uint32 sysNamePos = instance.findProperty(_PROPERTY_SYSTEMNAME);
+    CIMValue x = CIMValue(sysname);
+
+    if (PEG_NOT_FOUND == sysNamePos)
+    {
+        instance.addProperty(
+            CIMProperty(_PROPERTY_SYSTEMNAME,x));
+    }
+    else
+    {
+        CIMProperty p=instance.getProperty(sysNamePos);
+        p.setValue(x);
+    }
+}
+
+void IndicationService::_setSystemNameInHandlerFilter(
+    CIMObjectPath& objPath,
+    const String& sysname)
+{
+    Array<CIMKeyBinding> keys=objPath.getKeyBindings();
+    Array<CIMKeyBinding> updatedKeys;
+
+    updatedKeys.append(keys[0]);
+    updatedKeys.append(keys[1]);
+    updatedKeys.append(keys[2]);
+    updatedKeys.append(CIMKeyBinding(
+        _PROPERTY_SYSTEMNAME,
+        sysname,
+        CIMKeyBinding::STRING));
+    objPath.setKeyBindings(updatedKeys);
+}
+
+void IndicationService::_setSystemNameInHandlerFilterReference(
+    String& reference,
+    const String& sysname)
+{
+    static const Char16 quote = 0x0022;
+
+    reference.remove(reference.size()-1);
+
+    Uint32 quotePos=reference.reverseFind(quote);
+    
+    reference.remove(quotePos+1);
+    reference.append(sysname);
+    reference.append(quote);
+}
+
+void IndicationService::_setSubscriptionSystemName(
+    CIMObjectPath& objPath,
+    const String& sysname)
+{
+    Array<CIMKeyBinding> keys=objPath.getKeyBindings();
+
+    String filterValue = keys[0].getValue();
+    String handlerValue = keys[1].getValue();
+
+    _setSystemNameInHandlerFilterReference(filterValue,sysname);
+    _setSystemNameInHandlerFilterReference(handlerValue,sysname);
+
+    Array<CIMKeyBinding> newKeys;
+
+    newKeys.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_FILTER,
+        filterValue,
+        CIMKeyBinding::REFERENCE));
+    
+    newKeys.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_HANDLER,
+        handlerValue,
+        CIMKeyBinding::REFERENCE));
+
+    objPath.setKeyBindings(newKeys);    
+}
+
+void IndicationService::_setSystemName(
+    CIMObjectPath& objPath,
+    const String& sysname)
+{
+
+    // Need different handling for subscriptions
+    if ((objPath.getClassName().equal(
+             PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
+        (objPath.getClassName().equal(
+             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+    {
+        _setSubscriptionSystemName(objPath,sysname);
+    }
+    else
+    {
+        // this is a Filter or Handler object path
+        _setSystemNameInHandlerFilter(objPath,sysname);
+    }
+}
+
+void IndicationService::_setSystemName(
+    CIMInstance& instance,
+    const String& sysname)
+{
+
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_setSystemName");
+
+    CIMObjectPath newPath=instance.getPath();
+
+    // Need different handling for subscriptions
+    if ((instance.getClassName().equal(
+             PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
+        (instance.getClassName().equal(
+             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+    {
+        _setSubscriptionSystemName(newPath,sysname);
+    }
+    else
+    {
+        // this is a Filter or Handler instance
+        _setOrAddSystemNameInHandlerFilter(instance,sysname);
+        _setSystemNameInHandlerFilter(newPath,sysname);
+
+    }
+    instance.setPath(newPath);
+
+    PEG_METHOD_EXIT();
+}
+
 void IndicationService::_initialize()
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE, "IndicationService::_initialize");
@@ -1922,6 +2053,11 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
                         instance, request->nameSpace, userName,
                         acceptLangs, contentLangs, false);
                     _commitCreateSubscription(subscriptionPath);
+
+                    // put correct SystemName in place
+                    _setSubscriptionSystemName(
+                        instanceRef,
+                        System::getFullyQualifiedHostName());
                 }
             }
             catch (...)
@@ -1938,6 +2074,12 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
             instanceRef = _subscriptionRepository->createInstance(
                 instance, request->nameSpace, userName,
                 acceptLangs, contentLangs, false);
+
+            // put correct SystemName in place
+            _setSystemNameInHandlerFilter(
+                instanceRef,
+                System::getFullyQualifiedHostName());
+
         }
     }
 
@@ -2016,12 +2158,18 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         Boolean durationAdded;
         CIMPropertyList propertyList = request->propertyList;
         CIMName className = request->instanceName.getClassName();
+
         _updatePropertyList(
             className,
             propertyList,
             setTimeRemaining,
             startTimeAdded,
             durationAdded);
+
+        // Set SystemName to empty String for internal processing
+        // the SystemName will be fixed with correct fully qualified hostname
+        // on return.
+        _setSystemName(request->instanceName,String::EMPTY);
 
         //
         //  Get instance from repository
@@ -2070,10 +2218,9 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
                 PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
         // Remove Creation Time property from CIMXML handlers
-        CIMName clsName = instance.getClassName();
 
-        if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-            clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+        if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+            className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
         {
             Uint32 idx = instance.findProperty(
                 PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
@@ -2084,6 +2231,15 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
             }
         }
 
+        // Put host name back into SystemName property if not Subscription
+        if ((!className.equal(PEGASUS_CLASSNAME_INDSUBSCRIPTION)) &&
+            (!className.equal(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+        {
+            // this is a Filter or Handler instance
+            _setOrAddSystemNameInHandlerFilter(
+                instance,
+                System::getFullyQualifiedHostName());
+        }
 
         //
         //  Remove the language properties from instance before returning
@@ -2215,14 +2371,23 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         Boolean langMismatch = false;
         Uint32 propIndex;
 
-        //
+        //  In a loop do the following to all instances to be returned:
+        //  ============================================================
         //  Remove Creator and language properties from instances before
         //  returning
+        //  Remove CreationTime property from CIMXML handlers
+        //  Fix-up Content-Language header if necessary
+        //
+        //  If a subscription with a duration, calculate subscription
+        //  time remaining, and add property to the instance
+        //
+        //  put the host name into SystemName properties and key bindings
         //
         for (Uint32 i = 0; i < enumInstances.size(); i++)
         {
+            CIMInstance adjustedInstance=enumInstances[i];
             String creator;
-            if (!_getCreator(enumInstances[i], creator))
+            if (!_getCreator(adjustedInstance, creator))
             {
                 //
                 //  This instance from the repository is corrupted
@@ -2231,7 +2396,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 continue;
             }
 
-            CIMName clsName = enumInstances[i].getClassName();
+            CIMName clsName = adjustedInstance.getClassName();
 
             // check if this is SNMP Handler
             if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_SNMP))
@@ -2244,8 +2409,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 }
             }
 
-            enumInstances[i].removeProperty(
-                enumInstances[i].findProperty(
+            adjustedInstance.removeProperty(
+                adjustedInstance.findProperty(
                     PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
             // Remove CreationTime property from CIMXML handlers
@@ -2253,30 +2418,30 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
                 clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
             {
-                Uint32 idx = enumInstances[i].findProperty(
+                Uint32 idx = adjustedInstance.findProperty(
                     PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
 
                 if (idx  != PEG_NOT_FOUND)
                 {
-                    enumInstances[i].removeProperty(idx);
+                    adjustedInstance.removeProperty(idx);
                 }
             }
 
-            propIndex = enumInstances[i].findProperty(
+            propIndex = adjustedInstance.findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             String contentLangs;
             if (propIndex != PEG_NOT_FOUND)
             {
-                enumInstances[i].getProperty(propIndex).getValue().get(
+                adjustedInstance.getProperty(propIndex).getValue().get(
                     contentLangs);
-                enumInstances[i].removeProperty(propIndex);
+                adjustedInstance.removeProperty(propIndex);
             }
 
-            propIndex = enumInstances[i].findProperty(
+            propIndex = adjustedInstance.findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                enumInstances[i].removeProperty(propIndex);
+                adjustedInstance.removeProperty(propIndex);
             }
 
             // Determine what to set into the Content-Language header back
@@ -2310,7 +2475,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             {
                 try
                 {
-                    _setTimeRemaining(enumInstances[i]);
+                    _setTimeRemaining(adjustedInstance);
                 }
                 catch (DateTimeOutOfRangeException&)
                 {
@@ -2322,17 +2487,21 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 }
                 if (startTimeAdded)
                 {
-                    enumInstances[i].removeProperty(enumInstances[i].
+                    adjustedInstance.removeProperty(adjustedInstance.
                         findProperty(_PROPERTY_STARTTIME));
                 }
                 if (durationAdded)
                 {
-                    enumInstances[i].removeProperty(
-                        enumInstances[i].findProperty(_PROPERTY_DURATION));
+                    adjustedInstance.removeProperty(
+                        adjustedInstance.findProperty(_PROPERTY_DURATION));
                 }
             }
+            // put the host name into SystemName properties and key bindings
+            _setSystemName(
+                adjustedInstance,
+                System::getFullyQualifiedHostName());
 
-            returnedInstances.append(enumInstances[i]);
+            returnedInstances.append(adjustedInstance);
         }
     }
 
@@ -2401,6 +2570,14 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
             _subscriptionRepository->enumerateInstanceNamesForClass(
                 request->nameSpace,
                 request->className);
+
+        // put the hostname back into SystemName key binding
+        for (Uint32 i=0;i<enumInstanceNames.size();i++)
+        {
+            _setSystemName(
+                enumInstanceNames[i],
+                System::getFullyQualifiedHostName());
+        }
     }
 
     // Note: not setting Content-Language in the response
@@ -2429,9 +2606,14 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
     _checkNonprivilegedAuthorization(userName);
 
     //
-    //  Get the instance name
+    //  Get modified instance and instance name from request
     //
-    CIMObjectPath instanceReference = request->modifiedInstance.getPath();
+    CIMInstance modifiedInstance = request->modifiedInstance;
+    CIMObjectPath instanceReference = modifiedInstance.getPath();
+
+    // set SystemName keybinding to empty in request's reference and instance
+    _setSystemName(instanceReference,String::EMPTY);
+    modifiedInstance.setPath(instanceReference);
 
     //
     //  Get instance from repository
@@ -2441,7 +2623,6 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
     instance = _subscriptionRepository->getInstance(
         request->nameSpace, instanceReference);
 
-    CIMInstance modifiedInstance = request->modifiedInstance;
     if (_canModify(request, instanceReference, instance, modifiedInstance))
     {
         //
@@ -2782,6 +2963,9 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
     String userName = ((IdentityContainer)request->operationContext.get(
         IdentityContainer::NAME)).getUserName();
     _checkNonprivilegedAuthorization(userName);
+
+    // set eventual SystemName keybinding to empty string
+    _setSystemName(request->instanceName,String::EMPTY);
 
     //
     //  Check if instance may be deleted -- a filter or handler instance
@@ -4313,6 +4497,26 @@ Boolean IndicationService::_canCreate (
                         PEGASUS_PROPERTYNAME_FILTER.getString()));
             }
         }
+        // Set SystemName key property to empty
+        try
+        {
+            IndicationService::_setSystemNameInHandlerFilter(
+                filterPath,
+                String::EMPTY);
+            filterValue.set(filterPath);
+            filterProperty.setValue(filterValue);
+        }
+        catch(Exception &)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    _MSG_INVALID_VALUE_FOR_PROPERTY,
+                    origFilterPath.toString(),
+                    PEGASUS_PROPERTYNAME_FILTER.getString()));
+        }
 
         CIMObjectPath origHandlerPath = handlerPath;
         if (handlerPath.getHost () != String::EMPTY)
@@ -4331,6 +4535,26 @@ Boolean IndicationService::_canCreate (
                         origHandlerPath.toString(),
                         PEGASUS_PROPERTYNAME_HANDLER.getString()));
             }
+        }
+        // Set SystemName key property to empty
+        try
+        {
+            IndicationService::_setSystemNameInHandlerFilter(
+                handlerPath,
+                String::EMPTY);
+            handlerValue.set(handlerPath);
+            handlerProperty.setValue(handlerValue);
+        }
+        catch(Exception &)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    _MSG_INVALID_VALUE_FOR_PROPERTY,
+                    origHandlerPath.toString(),
+                    PEGASUS_PROPERTYNAME_HANDLER.getString()));
         }
 
         //
@@ -4524,12 +4748,9 @@ Boolean IndicationService::_canCreate (
             instance,
             PEGASUS_PROPERTYNAME_CREATIONCLASSNAME,
             instance.getClassName().getString());
-
-        _initOrValidateStringProperty(
-            instance,
-            _PROPERTY_SYSTEMNAME,
-            System::getFullyQualifiedHostName());
-
+        
+        _setOrAddSystemNameInHandlerFilter(instance,String::EMPTY);
+        
         _initOrValidateStringProperty(
             instance,
             _PROPERTY_SYSTEMCREATIONCLASSNAME,
@@ -5229,10 +5450,9 @@ String IndicationService::_initOrValidateStringProperty (
 
     if (propertyValue != defaultValue)
     {
-        // SNIA requires SystemName and SystemCreationClassName to be
+        // SNIA requires SystemCreationClassName to be
         // overridden with the correct values.
-        if ((propertyName == _PROPERTY_SYSTEMNAME) ||
-            (propertyName == _PROPERTY_SYSTEMCREATIONCLASSNAME))
+        if (propertyName == _PROPERTY_SYSTEMCREATIONCLASSNAME)
         {
             // The property must exist after _checkPropertyWithDefault is called
             CIMProperty p =
@@ -8123,6 +8343,12 @@ void IndicationService::_handleCreateResponseAggregation(
                     operationAggregate->getOrigRequest()->buildResponse());
             PEGASUS_ASSERT(response != 0);
             response->cimException = cimException;
+            
+            // put correct SystemName in place
+            _setSubscriptionSystemName(
+                instanceRef,
+                System::getFullyQualifiedHostName());
+
             response->instanceName = instanceRef;
             _enqueueResponse(operationAggregate->getOrigRequest(), response);
         }
@@ -8718,13 +8944,17 @@ void IndicationService::_getRelevantSubscriptions(
     // specified by the indication provider that also appear in the initial
     // subscriptions list is returned.
     //
-
     if (providedSubscriptionNames.size() > 0)
     {
+        Uint32 n = providedSubscriptionNames.size();
+        Array<SubscriptionKey> provSubKeys(n);
+        for (Uint32 i = 0; i < n; i++)
+        {
+            provSubKeys.append(SubscriptionKey(providedSubscriptionNames[i]));
+        }
         for (Uint32 i = 0; i < subscriptions.size(); i++)
         {
-            if (!Contains(providedSubscriptionNames,
-                          subscriptions[i].getPath()))
+            if (!Contains(provSubKeys, subscriptionKeys[i]))
             {
                 subscriptions.remove(i);
                 subscriptionKeys.remove(i);

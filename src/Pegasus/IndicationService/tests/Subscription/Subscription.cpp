@@ -2341,7 +2341,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2744,7 +2743,6 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode(__LINE__, e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //

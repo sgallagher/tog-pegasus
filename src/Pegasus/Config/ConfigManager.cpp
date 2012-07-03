@@ -192,8 +192,11 @@ static struct OwnerEntry _properties[] =
     {"maxFailedProviderModuleRestarts",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"listenAddress",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
-
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"hostname",
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"fullyQualifiedHostName",
+        (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     ,{"maxIndicationDeliveryRetryAttempts",
@@ -497,13 +500,9 @@ Boolean ConfigManager::validatePropertyValue(
 Get default value of the specified property.
 */
 String ConfigManager::getDefaultValue(const String& name) const
-{
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue;
-
-    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+{    
+    String fixedValue = _fixedValueCheck(name);
+    if (0 != fixedValue.size())
     {
         return fixedValue;
     }
@@ -526,12 +525,8 @@ String ConfigManager::getDefaultValue(const String& name) const
 */
 String ConfigManager::getCurrentValue(const String& name) const
 {
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue;
-
-    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    String fixedValue = _fixedValueCheck(name);
+    if (0 != fixedValue.size())
     {
         return fixedValue;
     }
@@ -555,12 +550,8 @@ Get planned value of the specified property.
 */
 String ConfigManager::getPlannedValue(const String& name) const
 {
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue;
-
-    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    String fixedValue = _fixedValueCheck(name);
+    if (0 != fixedValue.size())
     {
         return fixedValue;
     }
@@ -884,6 +875,48 @@ void ConfigManager::_initPropertyTable()
                 _properties[i].propertyName, fixedValue);
         }
     }
+}
+
+String ConfigManager::_fixedValueCheck(const String& name) const
+{
+    //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue = 0;
+
+    _propertyTable->fixedValueTable.lookup(name, fixedValue);
+
+    // no fixed property 'name' in FixedPropertyTable, bail out
+    if (0 == fixedValue)
+    {
+        return String();
+    }
+    
+    // if the fixed value is set to blank, need to replace the value with
+    // the system-supplied host name
+    if (String::equalNoCase(name, "fullyQualifiedHostName"))
+    {
+        if (0 == strlen(fixedValue))
+        {
+            return System::getFullyQualifiedHostName();
+        }
+        else
+        {
+            System::setFullyQualifiedHostName(fixedValue);
+        }
+    }
+    if (String::equalNoCase(name, "hostname"))
+    {
+        if (0 == strlen(fixedValue))
+        {
+            return System::getHostName();
+        }
+        else
+        {
+            System::setHostName(fixedValue);
+        }
+    }
+    return fixedValue;
 }
 
 /**

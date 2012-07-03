@@ -928,6 +928,12 @@ int CIMServerProcess::cimserver_run(
         _cimServerProcess->getCompleteVersion() << endl;
 #endif
 
+    // Force initialization of hostname and fullyQualifiedHostName through
+    // retrieving current value from Configuration Manager
+    // - this will run getCurrentValue() in DefaultPropertyOwner.cpp
+    configManager->getCurrentValue("hostname");
+    configManager->getCurrentValue("fullyQualifiedHostName");
+
     // reset message loading to NON-process locale
     MessageLoader::_useProcessLocale = false;
 

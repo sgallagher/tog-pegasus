@@ -382,6 +382,7 @@ int main(int argc, char** argv)
         cerr << argv[0] << " Caught CIMException during init: "
              << "\n" << e.getMessage()
              << endl;
+        showUsage();
         cimcliExit(e.getCode());
     }
 
@@ -389,11 +390,13 @@ int main(int argc, char** argv)
     {
         cerr << argv[0] << ": Caught Exception during init. "
              << e.getMessage() << endl;
+        showUsage();
         cimcliExit(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
     }
     catch(...)
     {
         cerr << argv[0] << " Caught General Exception During Init:" << endl;
+        showUsage();
         cimcliExit(GENERAL_CLI_ERROR_CODE);
     }
 

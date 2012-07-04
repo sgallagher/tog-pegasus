@@ -264,11 +264,24 @@ void OptionManager::mergeCommandLine(
 
             Option* option = _lookupOptionByCommandLineOptionName(arg + 1);
 
+            // a Null option here could mean either 
+            // 1) option is missing
+            // 2) option is invalid
+            String optn = arg+1;
             if (!option)
             {
                 if (abortOnErr)
                 {
-                    throw OMMBadCmdLineOption(arg);
+                    //option is invalid
+                    if(optn.size() != 0)
+                    {
+                        throw OMMBadCmdLineOption(arg);
+                    }
+                    //option is missing 
+                    else
+                    {
+                        throw OMMissingCommandLineOptionArgument(arg);
+                    }
                 }
                 else
                 {

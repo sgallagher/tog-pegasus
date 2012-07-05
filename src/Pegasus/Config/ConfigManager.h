@@ -121,7 +121,7 @@ private:
         Initializes the two config properties hostName and
         fullyQualifiedHostname when defined as fixed values
     */     
-    String _fixedValueCheck(const String& name) const;
+    Boolean _fixedValueCheck(const String& name,String & value) const;
 
     /**
         HashTable used to identify owners.

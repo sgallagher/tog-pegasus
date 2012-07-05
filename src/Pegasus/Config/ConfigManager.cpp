@@ -501,8 +501,8 @@ Get default value of the specified property.
 */
 String ConfigManager::getDefaultValue(const String& name) const
 {    
-    String fixedValue = _fixedValueCheck(name);
-    if (0 != fixedValue.size())
+    String fixedValue;
+    if (_fixedValueCheck(name, fixedValue))
     {
         return fixedValue;
     }
@@ -525,8 +525,8 @@ String ConfigManager::getDefaultValue(const String& name) const
 */
 String ConfigManager::getCurrentValue(const String& name) const
 {
-    String fixedValue = _fixedValueCheck(name);
-    if (0 != fixedValue.size())
+    String fixedValue;
+    if (_fixedValueCheck(name, fixedValue))
     {
         return fixedValue;
     }
@@ -550,8 +550,8 @@ Get planned value of the specified property.
 */
 String ConfigManager::getPlannedValue(const String& name) const
 {
-    String fixedValue = _fixedValueCheck(name);
-    if (0 != fixedValue.size())
+    String fixedValue;
+    if (_fixedValueCheck(name, fixedValue))
     {
         return fixedValue;
     }
@@ -877,7 +877,7 @@ void ConfigManager::_initPropertyTable()
     }
 }
 
-String ConfigManager::_fixedValueCheck(const String& name) const
+Boolean ConfigManager::_fixedValueCheck(const String& name,String & value) const
 {
     //
     // Check for a property with a fixed value
@@ -889,7 +889,7 @@ String ConfigManager::_fixedValueCheck(const String& name) const
     // no fixed property 'name' in FixedPropertyTable, bail out
     if (0 == fixedValue)
     {
-        return String();
+        return false;
     }
     
     // if the fixed value is set to blank, need to replace the value with
@@ -898,25 +898,34 @@ String ConfigManager::_fixedValueCheck(const String& name) const
     {
         if (0 == strlen(fixedValue))
         {
-            return System::getFullyQualifiedHostName();
+            value.assign(System::getFullyQualifiedHostName());
         }
         else
         {
-            System::setFullyQualifiedHostName(fixedValue);
+            value.assign(fixedValue);
+            System::setFullyQualifiedHostName(value);
         }
+        // returning here already to avoid the following and in this case
+        // unnecessary string compare and assign
+        return true;
     }
     if (String::equalNoCase(name, "hostname"))
     {
         if (0 == strlen(fixedValue))
         {
-            return System::getHostName();
+            value.assign(System::getHostName());
         }
         else
         {
-            System::setHostName(fixedValue);
+            value.assign(fixedValue);
+            System::setHostName(value);
         }
+        // returning here already to avoid the following and in this case
+        // unnecessary assign
+        return true;
     }
-    return fixedValue;
+    value.assign(fixedValue);
+    return true;
 }
 
 /**

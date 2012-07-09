@@ -119,7 +119,7 @@ CIMInstance _makeInstance(
     instance = _createInstanceFromClass(classObject, includeQualifiers);
     // put the new name in the name property.
     Uint32 pos;
-    if (pos = instance.findProperty(name) != PEG_NOT_FOUND)
+    if ((pos = instance.findProperty(name)) != PEG_NOT_FOUND)
     {
         // set the name filed
         CIMProperty p;

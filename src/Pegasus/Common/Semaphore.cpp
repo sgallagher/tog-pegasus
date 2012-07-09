@@ -70,7 +70,7 @@ Semaphore::~Semaphore()
     && !defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     pthread_mutex_lock(&_rep.mutex);
     int r = 0;
-    while ((r = pthread_cond_destroy(&_rep.cond) == EBUSY) ||
+    while (((r = pthread_cond_destroy(&_rep.cond)) == EBUSY) ||
            (r == -1 && errno == EBUSY))
     {
         pthread_mutex_unlock(&_rep.mutex);

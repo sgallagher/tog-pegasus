@@ -388,6 +388,37 @@ Boolean _compareInstances(CIMInstance& inst1,
 {
     Boolean returnValue = true;
 
+
+    // If the number of properties not the same in the two instances
+    // rtnd instance  must have more than test instance.
+    if (inst1.getPropertyCount() != inst2.getPropertyCount())
+    {
+        returnValue = false;
+        if (verbose)
+        {
+            for (Uint32 i = 0 ; i < inst2.getPropertyCount() ; i++)
+            {
+                CIMProperty inst2Property = inst2.getProperty(i);
+                CIMName testName = inst2Property.getName();
+                if (inst1.findProperty(testName) == PEG_NOT_FOUND)
+                {
+                    cout << "Error: property " << testName.getString()
+                        << " not found in test instance" << endl;
+                }
+            }
+            for (Uint32 i = 0 ; i < inst1.getPropertyCount() ; i++)
+            {
+                CIMProperty inst1Property = inst1.getProperty(i);
+                CIMName testName = inst1Property.getName();
+                if (inst2.findProperty(testName) == PEG_NOT_FOUND)
+                {
+                    cout << "Error: property " << testName.getString()
+                        << " not found in returned instance" << endl;
+                }
+            }
+        }
+        return returnValue;
+    }
     // for each property in the test instance.
     // If there are extra properties in the returned instance we do not not
     // that here.  See next set of tests.
@@ -425,26 +456,44 @@ Boolean _compareInstances(CIMInstance& inst1,
                 cout << "Error: Property " << testName.getString()
                     << "not found in returned instance" << endl;
             }
+            return returnValue;
         }
 
-        // If the number of properties not the same in the two instances
-        // rtnd instance  must have more than test instance.
-        if (inst1.getPropertyCount() != inst2.getPropertyCount())
+    }
+    for (Uint32 i = 0; i < inst2.getPropertyCount(); i++ )
+    {
+        CIMProperty inst2Property = inst2.getProperty(i);
+        CIMName testName = inst2Property.getName();
+        Uint32 pos;
+
+        // test for property in returned instance
+        if ((pos = inst1.findProperty(testName)) != PEG_NOT_FOUND)
+        {
+            CIMProperty inst1Property = inst1.getProperty(pos);
+
+            // if the instances are identical pass the test
+            // else we will compare in detail
+            if (!inst2Property.identical(inst1Property))
+            {
+                // compare the properties.  Normally we test primarily
+                // on value but there is a detailed test for all of the
+                // attributes.
+                returnValue = _compareProperty(inst2Property,
+                                 inst1Property,
+                                 opts,
+                                 detailedTest,
+                                 verbose);
+            }
+        }
+        else   // Property not found in second instance
         {
             returnValue = false;
             if (verbose)
             {
-                for (Uint32 i = 0 ; i < inst2.getPropertyCount() ; i++)
-                {
-                    CIMProperty inst2Property = inst2.getProperty(i);
-                    CIMName testName = inst2Property.getName();
-                    if (inst1.findProperty(testName) == PEG_NOT_FOUND)
-                    {
-                        cout << "Error: property " << testName.getString()
-                            << " not found in test instance" << endl;
-                    }
-                }
+                cout << "Error: Property " << testName.getString()
+                     << "not found in test instance" << endl;
             }
+            return returnValue;
         }
     }
     return returnValue;

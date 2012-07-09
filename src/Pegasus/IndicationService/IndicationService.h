@@ -124,8 +124,6 @@ public:
 
     static Mutex _mutex;
 
-protected:
-
     /**
         Sets property with name SystemName to sysname if existant. If
         property does not exist on instance, adds it.

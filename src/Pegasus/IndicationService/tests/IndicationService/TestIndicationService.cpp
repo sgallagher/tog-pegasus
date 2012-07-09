@@ -52,138 +52,132 @@ const String targetSetKeyBinds=
     "CreationClassName=\"CIM_IndicationFilter\",Name=\"MyName\","
         "SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"TestSys\"";
 
-class TestIndicationService:IndicationService
+void test_setSystemNameInHandlerFilter()
 {
-public:
-
-    static void test_setSystemNameInHandlerFilter()
-    {
-        String fullSourcePath="//TestSys/"+ns+":"+className+"."+sourceKeyBinds;
-        CIMObjectPath source;
-        
-        String fullEmptyTargetPath=
-            "//TestSys/"+ns+":"+className+"."+targetEmptyKeyBinds;
-        CIMObjectPath emptyTarget(fullEmptyTargetPath);
-
-        String fullSetTargetPath=
-            "//TestSys/"+ns+":"+className+"."+targetSetKeyBinds;
-        CIMObjectPath setTarget(fullSetTargetPath);
-
-        source.set(fullSourcePath);
-        PEGASUS_TEST_ASSERT(source != emptyTarget);
-        IndicationService::_setSystemNameInHandlerFilter(source,String::EMPTY);
-        PEGASUS_TEST_ASSERT(source == emptyTarget);
+    String fullSourcePath="//TestSys/"+ns+":"+className+"."+sourceKeyBinds;
+    CIMObjectPath source;
     
-        source.set(fullSourcePath);
-        PEGASUS_TEST_ASSERT(source != setTarget);
-        IndicationService::_setSystemNameInHandlerFilter(source,"TestSys");
-        PEGASUS_TEST_ASSERT(source == setTarget);
-    }
+    String fullEmptyTargetPath=
+        "//TestSys/"+ns+":"+className+"."+targetEmptyKeyBinds;
+    CIMObjectPath emptyTarget(fullEmptyTargetPath);
 
-    static void test_setOrAddSystemNameInHandlerFilter()
-    {
-        CIMInstance target(CIMName("MyClass"));
+    String fullSetTargetPath=
+        "//TestSys/"+ns+":"+className+"."+targetSetKeyBinds;
+    CIMObjectPath setTarget(fullSetTargetPath);
 
-        target.addProperty(
-            CIMProperty(CIMName("Name"),String("Just its name.")));
+    source.set(fullSourcePath);
+    PEGASUS_TEST_ASSERT(source != emptyTarget);
+    IndicationService::_setSystemNameInHandlerFilter(source,String::EMPTY);
+    PEGASUS_TEST_ASSERT(source == emptyTarget);
+
+    source.set(fullSourcePath);
+    PEGASUS_TEST_ASSERT(source != setTarget);
+    IndicationService::_setSystemNameInHandlerFilter(source,"TestSys");
+    PEGASUS_TEST_ASSERT(source == setTarget);
+}
+
+void test_setOrAddSystemNameInHandlerFilter()
+{
+    CIMInstance target(CIMName("MyClass"));
+
+    target.addProperty(
+        CIMProperty(CIMName("Name"),String("Just its name.")));
+
+    target.addProperty(
+        CIMProperty(CIMName("ExampleProperty"),String("Example")));
+
+    target.addProperty(
+        CIMProperty(CIMName("Query"),String("SELECT me FROM database")));
+
+    target.addProperty(
+        CIMProperty(CIMName("QueryLanguage"),String("WQL")));
+
+    target.addProperty(
+        CIMProperty(
+            CIMName("SystemCreationClassName"),
+            String("PG_ComputerSystem")));
+
+    target.addProperty(
+        CIMProperty(CIMName("CreationClassName"),String("MyClass")));
     
-        target.addProperty(
-            CIMProperty(CIMName("ExampleProperty"),String("Example")));
+    // clone before adding SystemName property to target
+    CIMInstance emptyTarget = target.clone();
+    CIMInstance setTarget = target.clone();
 
-        target.addProperty(
-            CIMProperty(CIMName("Query"),String("SELECT me FROM database")));
+    emptyTarget.addProperty(
+        CIMProperty(CIMName("SystemName"),String()));
+    
+    setTarget.addProperty(
+        CIMProperty(CIMName("SystemName"),String("TestSys")));
+    
+    // test setting SystemName property to empty String
+    CIMInstance noSystemName = target.clone();
+    CIMInstance withSystemName = target.clone();
+    
+    withSystemName.addProperty(
+        CIMProperty(CIMName("SystemName"),String("local")));
 
-        target.addProperty(
-            CIMProperty(CIMName("QueryLanguage"),String("WQL")));
+    PEGASUS_TEST_ASSERT(noSystemName != emptyTarget);
+    PEGASUS_TEST_ASSERT(withSystemName != emptyTarget);
 
-        target.addProperty(
-            CIMProperty(
-                CIMName("SystemCreationClassName"),
-                String("PG_ComputerSystem")));
+    IndicationService::_setOrAddSystemNameInHandlerFilter(
+        noSystemName,
+        String::EMPTY);
+    IndicationService::_setOrAddSystemNameInHandlerFilter(
+        withSystemName,
+        String::EMPTY);
 
-        target.addProperty(
-            CIMProperty(CIMName("CreationClassName"),String("MyClass")));
-        
-        // clone before adding SystemName property to target
-        CIMInstance emptyTarget = target.clone();
-        CIMInstance setTarget = target.clone();
+    PEGASUS_TEST_ASSERT(noSystemName == emptyTarget);
+    PEGASUS_TEST_ASSERT(withSystemName == emptyTarget);
 
-        emptyTarget.addProperty(
-            CIMProperty(CIMName("SystemName"),String()));
-        
-        setTarget.addProperty(
-            CIMProperty(CIMName("SystemName"),String("TestSys")));
-        
-        // test setting SystemName property to empty String
-        CIMInstance noSystemName = target.clone();
-        CIMInstance withSystemName = target.clone();
-        
-        withSystemName.addProperty(
-            CIMProperty(CIMName("SystemName"),String("local")));
+    // test setting SystemName property to "TestSys"
+    noSystemName = target.clone();
+    withSystemName = target.clone();
+    
+    withSystemName.addProperty(
+        CIMProperty(CIMName("SystemName"),String("local")));
 
-        PEGASUS_TEST_ASSERT(noSystemName != emptyTarget);
-        PEGASUS_TEST_ASSERT(withSystemName != emptyTarget);
+    PEGASUS_TEST_ASSERT(noSystemName != setTarget);
+    PEGASUS_TEST_ASSERT(withSystemName != setTarget);
 
-        IndicationService::_setOrAddSystemNameInHandlerFilter(
-            noSystemName,
-            String::EMPTY);
-        IndicationService::_setOrAddSystemNameInHandlerFilter(
-            withSystemName,
-            String::EMPTY);
+    IndicationService::_setOrAddSystemNameInHandlerFilter(
+        noSystemName,
+        "TestSys");
+    IndicationService::_setOrAddSystemNameInHandlerFilter(
+        withSystemName,
+        "TestSys");
 
-        PEGASUS_TEST_ASSERT(noSystemName == emptyTarget);
-        PEGASUS_TEST_ASSERT(withSystemName == emptyTarget);
+    PEGASUS_TEST_ASSERT(noSystemName == setTarget);
+    PEGASUS_TEST_ASSERT(withSystemName == setTarget);
+}
 
-        // test setting SystemName property to "TestSys"
-        noSystemName = target.clone();
-        withSystemName = target.clone();
-        
-        withSystemName.addProperty(
-            CIMProperty(CIMName("SystemName"),String("local")));
+void test_setSystemNameInHandlerFilterReference()
+{
+    String fullSourcePath="//TestSys/"+ns+":"+className+"."+sourceKeyBinds;
+    String fullEmptyTargetPath=
+        "//TestSys/"+ns+":"+className+"."+targetEmptyKeyBinds;
+    String fullSetTargetPath=
+        "//TestSys/"+ns+":"+className+"."+targetSetKeyBinds;
 
-        PEGASUS_TEST_ASSERT(noSystemName != setTarget);
-        PEGASUS_TEST_ASSERT(withSystemName != setTarget);
+    PEGASUS_TEST_ASSERT(fullSourcePath != fullEmptyTargetPath);
+    PEGASUS_TEST_ASSERT(fullSourcePath != fullSetTargetPath);
 
-        IndicationService::_setOrAddSystemNameInHandlerFilter(
-            noSystemName,
-            "TestSys");
-        IndicationService::_setOrAddSystemNameInHandlerFilter(
-            withSystemName,
-            "TestSys");
-
-        PEGASUS_TEST_ASSERT(noSystemName == setTarget);
-        PEGASUS_TEST_ASSERT(withSystemName == setTarget);
-    }
-
-    static void test_setSystemNameInHandlerFilterReference()
-    {
-        String fullSourcePath="//TestSys/"+ns+":"+className+"."+sourceKeyBinds;
-        String fullEmptyTargetPath=
-            "//TestSys/"+ns+":"+className+"."+targetEmptyKeyBinds;
-        String fullSetTargetPath=
-            "//TestSys/"+ns+":"+className+"."+targetSetKeyBinds;
-
-        PEGASUS_TEST_ASSERT(fullSourcePath != fullEmptyTargetPath);
-        PEGASUS_TEST_ASSERT(fullSourcePath != fullSetTargetPath);
-
-        IndicationService::_setSystemNameInHandlerFilterReference(
-            fullSourcePath,
-            String::EMPTY);
-        PEGASUS_TEST_ASSERT(fullSourcePath == fullEmptyTargetPath);
-        
-        IndicationService::_setSystemNameInHandlerFilterReference(
-            fullSourcePath,
-            "TestSys");
-        PEGASUS_TEST_ASSERT(fullSourcePath == fullSetTargetPath);
-    }
-
-};
+    IndicationService::_setSystemNameInHandlerFilterReference(
+        fullSourcePath,
+        String::EMPTY);
+    PEGASUS_TEST_ASSERT(fullSourcePath == fullEmptyTargetPath);
+    
+    IndicationService::_setSystemNameInHandlerFilterReference(
+        fullSourcePath,
+        "TestSys");
+    PEGASUS_TEST_ASSERT(fullSourcePath == fullSetTargetPath);
+}
 
 int main (int argc, char** argv)
 {
-    TestIndicationService::test_setSystemNameInHandlerFilter();
-    TestIndicationService::test_setOrAddSystemNameInHandlerFilter();
-    TestIndicationService::test_setSystemNameInHandlerFilterReference();
+    test_setSystemNameInHandlerFilter();
+    test_setOrAddSystemNameInHandlerFilter();
+    test_setSystemNameInHandlerFilterReference();
 
     return 0;
 }

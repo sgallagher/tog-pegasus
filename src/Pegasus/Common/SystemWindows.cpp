@@ -1067,7 +1067,6 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
         }
     }
 }
-#endif
 
 Array<String> System::getInterfaceAddrs()
 {

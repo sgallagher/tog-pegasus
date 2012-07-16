@@ -345,7 +345,7 @@ void HTTPAcceptor::_bind()
             memset(&in6addr, 0, sizeof(sockaddr_in6));
             if(_listenAddress ->isHostAddLinkLocal())
             {
-                ::inet_pton(AF_INET6, 
+                HostAddress::convertTextToBinary(AF_INET6, 
                 (const char*)ip,
                 &in6addr.sin6_addr);
                 reinterpret_cast<struct sockaddr_in6*>(
@@ -356,7 +356,7 @@ void HTTPAcceptor::_bind()
             }
             else
             {
-                ::inet_pton(AF_INET6, 
+                HostAddress::convertTextToBinary(AF_INET6, 
                 (const char*)ip,
                 &in6addr.sin6_addr);
                 reinterpret_cast<struct sockaddr_in6*>(
@@ -381,7 +381,7 @@ void HTTPAcceptor::_bind()
             String hostAdd = _listenAddress->getHost();
             CString ip = hostAdd.getCString();
             struct sockaddr_in addrs;
-            ::inet_pton(
+            HostAddress::convertTextToBinary(
                 AF_INET, 
                 (const char*)ip,
                 &addrs.sin_addr);

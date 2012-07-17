@@ -92,7 +92,6 @@
 #   include <arpa/inet.h>
 #   include <sys/socket.h>
 #   include <sys/time.h>
-#       include <net/if.h>
 #   include <sys/ioctl.h>
 #   ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 #       include <unistd.h>
@@ -105,6 +104,20 @@
 #       endif
 #   else
 #       include <netinet/tcp.h>
+#   endif
+//------------------------------------------------------------------------------
+// 
+// if_nametoindex() in libC on HP_UX does not support name mangling.
+// Therefore, have "C" linkage for if.h on HP-UX.
+// 
+//------------------------------------------------------------------------------
+#   ifdef PEGASUS_OS_HPUX
+extern "C"
+{
+#       include <net/if.h>
+}
+#   else
+#       include <net/if.h>
 #   endif
 #endif
 

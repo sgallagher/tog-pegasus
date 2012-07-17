@@ -243,6 +243,10 @@ ifeq ($(OS),zos)
         PegasusAssertZOS.cpp
 endif
 
+ifeq ($(OS),HPUX)
+    EXTRA_LIBRARIES += -lipv6
+endif
+
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
     AIX_LIB_PRIORITY=-20
 endif

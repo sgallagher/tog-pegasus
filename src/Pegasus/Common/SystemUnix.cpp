@@ -100,7 +100,7 @@ Boolean System::isPrivilegedUser(const String& userName)
     if ( result != NULL )
     {
         // Check if the uid is 0.
-        if ( pwd.pw_uid == 0 )
+        if ( pwd.pw_gid == 0 || pwd.pw_uid == 0 )
         {
             return true;
         }

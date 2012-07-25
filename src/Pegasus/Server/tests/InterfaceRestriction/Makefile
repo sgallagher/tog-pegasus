@@ -28,7 +28,7 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
 
-DIR = Pegasus/Config/tests/ListenAddress
+DIR = Pegasus/Server/tests/InterfaceRestriction
 
 include $(ROOT)/mak/config.mak
 

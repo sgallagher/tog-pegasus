@@ -964,6 +964,10 @@ cimsubTest1_ignoreerror:
 	@cimsub -ls -v -n test/CimsubTestNS0 -F Filter15 -H Handler15 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
+	@$(ECHO) " Execute batch file." >> $(RESULTFILE)
+	@cimsub -b ../testbatchfile/batchfile.batch >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
 	@$(ECHO) ++++cimsub tests completed
 
 

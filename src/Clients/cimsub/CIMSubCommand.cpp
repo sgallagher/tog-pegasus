@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/StringConversion.h>
+
 
 #ifdef PEGASUS_OS_ZOS
 #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
@@ -73,6 +75,13 @@ const char COMMAND_NAME[] = "cimsub";
  */
 static const CIMNamespaceName _DEFAULT_SUBSCRIPTION_NAMESPACE  =
     PEGASUS_NAMESPACENAME_INTEROP;
+
+/**
+   The Description of the Command.
+ */
+
+static const char DESCRIPTION[] = "Cimsub Command Line \
+Interface is used to manage CIM Indication Subscriptions.";
 
 /**
     The usage string for this command.  This string is displayed
@@ -129,6 +138,12 @@ const Uint32 CIMSubCommand::OPERATION_TYPE_VERSION = 7;
     This constant represents a create operation
  */
 const Uint32 CIMSubCommand::OPERATION_TYPE_CREATE= 8;
+
+/**
+    This constant represents a Batch file execution operation
+ */
+
+const Uint32 CIMSubCommand::OPERATION_TYPE_BATCH = 9;
 
 /**
     The constants representing the messages.
@@ -296,6 +311,12 @@ static const char OPTION_CREATE = 'c';
 static const char OPTION_LIST = 'l';
 
 /**
+    The option charcter used to specify a file for batch file execution
+ */
+
+static const char OPTION_BATCH = 'b';
+
+/**
     The option argument character used to specify subscriptions
  */
 static String ARG_SUBSCRIPTIONS = "s";
@@ -391,12 +412,14 @@ CIMSubCommand::CIMSubCommand()
     _verbose = false;
     _handlerSNMPPortNumber = 162;
     _filterQueryLanguage = "CIM:CQL";
-
+    _isBatchNamespace = false;
     /**
         Build the usage string for the config command.
     */
 
     usage.reserveCapacity(200);
+    usage.append(DESCRIPTION);
+    usage.append("\n\n");
     usage.append(USAGE);
     /*
         cimsub -cf [fnamespace:]filtername  -Q query
@@ -495,7 +518,11 @@ CIMSubCommand::CIMSubCommand()
         (" [fnamespace:]filtername] \n");
     usage.append("                  [-").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername]\n");
-
+    usage.append("       ");
+    usage.append(COMMAND_NAME);
+    usage.append(" -").append(OPTION_BATCH);
+    usage.append(" ").append("batchfile");
+    usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]\n");
     usage.append("       ");
     usage.append(COMMAND_NAME);
     usage.append(" --").append(LONG_HELP).append("\n");
@@ -507,7 +534,7 @@ CIMSubCommand::CIMSubCommand()
     usage.append("Options : \n");
     usage.append("    -c         - Create specified subscription, filter, \n"
                  "                   handler(CIM_ListenerDestinationCIMXML, \n"
-                 "                       if not specified hclassname)\n");
+                 "                       if hclassname is not specified)\n");
     usage.append("    -l         - List and display information\n");
     usage.append("    -e         - Enable specified subscription\n");
     usage.append("                   (set SubscriptionState to Enabled) \n");
@@ -515,17 +542,21 @@ CIMSubCommand::CIMSubCommand()
     usage.append("                   (set SubscriptionState to Disabled) \n");
     usage.append("    -r         - Remove specified subscription, handler,"
                                 " filter \n");
+    usage.append("    -b filename\n");
+    usage.append("               - Execute cimsub batch file. Filename is path"
+                                     " to the batch file \n");
     usage.append("    -v         - Include verbose information \n");
     usage.append("    -F         - Specify Filter Name of subscription for"
                                 " the operation\n");
     usage.append("    -Q         - Specify Query Expression of a Filter \n");
     usage.append("    -L         - Specify Query Language of a Filter \n");
-    usage.append("    -N         - For SourceNamespaces property,Specify");
-    usage.append(" multiple source namespaces with comma\n");
-    usage.append("                 separated or append comma to the single");
-    usage.append(" source namespace.\n");
+    usage.append("    -N         - To Use SourceNamespaces property,Specify");
+    usage.append(" multiple SourceNamespaces\n");
+    usage.append("                 with coma separated or append comma to");
+    usage.append(" the single SourceNamespace.\n");
     usage.append("                 By default SourceNamespace property is ");
-    usage.append(" populated if the single source namespace is specified\n");
+    usage.append(" populated if the single\n");
+    usage.append("                 SourceNamespace is specified.\n");
     usage.append("    -H         - Specify Handler Name of subscription for"
                                 " the operation\n");
     usage.append("    -D         - Specify Destination of a "
@@ -540,8 +571,8 @@ CIMSubCommand::CIMSubCommand()
     usage.append("    -S         - Specify Subject of a "
                  "PG_ListenerDestinationEmail Handler\n");
     usage.append("    -T         - Specify Target Host of "
-                 "PG_IndicationHandlerSNMPMapper Handler."
-                 " Required option for SNMPMapper handler\n");
+                 "PG_IndicationHandlerSNMPMapper Handler.\n"
+                 "                 Required option for SNMPMapper handler\n");
     usage.append("    -U         - Specify Security Name of "
                  "PG_IndicationHandlerSNMPMapper Handler\n");
     usage.append("    -P         - Specify Port Number of a "
@@ -559,13 +590,27 @@ CIMSubCommand::CIMSubCommand()
     usage.append("    -E         - Specify Engine ID of a "
                  "PG_IndicationHandlerSNMPMapper Handler\n");
     usage.append("    -n         - Specify namespace of subscription\n");
-    usage.append("                   (root/PG_InterOp, if not specified)\n");
+    usage.append("                   (interop namespace, if not specified)\n");
     usage.append("    --help     - Display this help message\n");
     usage.append("    --version  - Display CIM Server version\n");
     usage.append("\n");
     usage.append("Usage note: The cimsub command requires that the CIM Server"
                                 " is running.\n");
     usage.append("\n");
+    usage.append("Batch File Format\n");
+    usage.append("-----------------\n\n");
+    usage.append("A cimsub batch file contains multiple cimsub ");
+    usage.append("commands, one per line.");
+    usage.append("Lines\nthat start with the '#' character and blank lines");
+    usage.append(" are ignored.The Execution\n");
+    usage.append("of Batch file will stop when it encounters any syntax error");
+    usage.append(" or an exception\nin the command.\n\n");
+    usage.append("The namespace option (-n) when used with batch execution");
+    usage.append(" (-b) uses the\n");
+    usage.append("namespace to populate the namespace values of filter, ");
+    usage.append("handler and\nsubscription. Any namespace specified for ");
+    usage.append("any or all of these is specified\ninside the batch");
+    usage.append("command, they will be overridden.\n");
 
 #ifdef PEGASUS_HAS_ICU
     MessageLoaderParms menuparms(
@@ -655,7 +700,8 @@ void CIMSubCommand::setCommand(
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_SNMPENGINEID);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-
+    optString.append(OPTION_BATCH);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     //
     //  Initialize and parse options
     //
@@ -955,11 +1001,33 @@ void CIMSubCommand::setCommand(
                         throw DuplicateOptionException(OPTION_NAMESPACE);
                     }
 
-                    String nsNameValue = options[i].Value();
-                    _subscriptionNamespace = nsNameValue;
-
+                    if (_operationType == OPERATION_TYPE_BATCH )
+                    {
+                        _batchNamespace = options[i].Value();
+                        _isBatchNamespace = true;
+                    }
+                    else
+                    {
+                        String nsNameValue = options[i].Value();
+                        _subscriptionNamespace = nsNameValue;
+                    }
                     break;
                 }
+                case OPTION_BATCH:
+                {
+                   if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                    {
+                        // More than one operation option was found
+                        throw UnexpectedOptionException(OPTION_BATCH);
+                    }
+                    if (options.isSet(OPTION_BATCH) > 1)
+                    {
+                        throw DuplicateOptionException(OPTION_BATCH);
+                    }
+                    _operationType = OPERATION_TYPE_BATCH;
+                    _batchFileName = options[i].Value();
+                    break;
+                 }
                 case OPTION_QUERY:
                 {
                     if (_operationType != OPERATION_TYPE_CREATE
@@ -1025,7 +1093,7 @@ void CIMSubCommand::setCommand(
                         //
                         throw DuplicateOptionException(OPTION_SOURCENAMESPACE);
                     }
-
+                    _filterNSFlag = false;
                     String filterSourceNamespaceValue = options[i].Value();
                     String filterNS = filterSourceNamespaceValue;
                     Boolean sourceNamespacesProperty = false;
@@ -1856,6 +1924,94 @@ Uint32 CIMSubCommand::execute(
                 }
             }
             break;
+        case OPERATION_TYPE_BATCH:
+        {
+            ifstream batchFile(_batchFileName.getCString());
+            char buffer[1024];
+            char* argv[128];
+            String tempString;
+            Uint32 argc = 0;
+            String bLine;
+            if (!batchFile)
+            {
+                throw CannotOpenFile(_batchFileName);
+            }
+            // parsing batch file line by line
+            while (batchFile.getline(buffer, sizeof(buffer)))
+            {
+                 bLine = buffer;
+                 Uint32 start = 0;
+                 // ignore whitespaces
+                 while (((bLine[start]) == ' ') &&
+                     (start < bLine.size()))
+                 {
+                     start++;
+                 }
+                 // ignore comment and empty line
+                 if (bLine[start] != '#' &&  bLine[start] != '\000')
+                 {
+                        String batchLine = bLine.subString(start,bLine.size());
+                        csvStringParse BatchCmd(batchLine,' ');
+                        while (BatchCmd.more())
+                        {
+                           tempString = BatchCmd.next();
+                           if( tempString.size() != 0 )
+                           {
+                              argv[argc] = strdup(tempString.getCString());
+                              argc++;
+                           }
+                        }
+                        try
+                        {
+                            // get all options
+                            setCommand(outPrintWriter,errPrintWriter,argc,argv);
+                        }
+                        catch(CommandFormatException& e)
+                        {
+                           errPrintWriter << e.getMessage()<<"\n";
+                        }
+                        catch(CIMException& e)
+                        {
+                           errPrintWriter << e.getMessage()<<"\n";
+                        }
+                        catch(...)
+                        {
+
+                        }
+                        try
+                        {
+                            // execute the command
+                            execute(outPrintWriter,errPrintWriter);
+                        }
+                        catch(CIMException& e)
+                        {
+                           errPrintWriter << e.getMessage()<<"\n";
+                        }
+                        catch(...)
+                        {
+
+                        }
+                        for (Uint32 ac = 0; ac < argc ;ac++ )
+                        {
+                            free(argv[ac]);
+                        }
+                        argc = 0;
+                        if (_verbose)
+                        {
+                            _verbose = false;
+                        }
+                        // reset values before next command
+                        _subscriptionNamespace.clear();
+                        _filterNamespace.clear();
+                        _handlerNamespace.clear();
+                        _filterName.clear();
+                        _handlerName.clear();
+                        outPrintWriter << "\n";
+                  }
+             }
+             _isBatchNamespace = false;
+          break;
+        }
         default:
             PEGASUS_ASSERT(0);
             break;
@@ -2054,16 +2210,27 @@ Uint32 CIMSubCommand::_createSubscription(
     CIMObjectPath filterPath;
     CIMObjectPath handlerPath;
     String handlerCreationCls = handlerCreationClass;
-    if (!subscriptionNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        subscriptionNS = _batchNamespace;
+    }
+    else if (!subscriptionNamespace.isNull())
     {
         subscriptionNS = subscriptionNamespace;
     }
-
-    if (!filterNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        filterNS = _batchNamespace;
+    }
+    else if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2123,18 +2290,27 @@ Uint32 CIMSubCommand::_removeSubscription(
     CIMNamespaceName filterNS;
     CIMNamespaceName handlerNS;
     CIMNamespaceName subscriptionNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-
-    if (!subscriptionNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        subscriptionNS = _batchNamespace;
+    }
+    else if (!subscriptionNamespace.isNull())
     {
         subscriptionNS = subscriptionNamespace;
     }
-
-    if (!filterNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        filterNS = _batchNamespace;
+    }
+    else if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
-
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2243,7 +2419,11 @@ Uint32 CIMSubCommand::_createFilter
     Array<String> sourceNamespaces;
     sourceNamespaces = filterSourceNamespaces;
     String queryLang = "CIM:CQL";
-    if (!filterNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        filterNS = _batchNamespace;
+    }
+    else if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
@@ -2288,7 +2468,11 @@ Uint32 CIMSubCommand::_removeFilter
 {
     CIMObjectPath filterPath;
     CIMNamespaceName filterNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    if (!filterNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        filterNS = _batchNamespace;
+    }
+    else if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
@@ -2378,7 +2562,11 @@ Uint32 CIMSubCommand::_createCimXmlHandler(
     CIMObjectPath handlerPath;
     CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
     CIMName creationClass = PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2412,7 +2600,11 @@ Uint32 CIMSubCommand::_createSystemLogHandler(
     CIMObjectPath handlerPath;
     CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
     CIMName creationClass = PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2447,7 +2639,11 @@ Uint32 CIMSubCommand::_createEmailHandler(
     CIMObjectPath handlerPath;
     CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
     CIMName creationClass = PEGASUS_CLASSNAME_LSTNRDST_EMAIL;
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2496,7 +2692,11 @@ Uint32 CIMSubCommand::_createSnmpMapperHandler(
     CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
     CIMName creationClass = PEGASUS_CLASSNAME_INDHANDLER_SNMP;
     Uint16 targetHostFormat = 2; //Host Name
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2562,7 +2762,11 @@ Uint32 CIMSubCommand::_removeHandler(
 {
     CIMObjectPath handlerPath;
     CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2784,12 +2988,22 @@ Uint32 CIMSubCommand::_findAndModifyState(
     CIMNamespaceName handlerNS;
     CIMNamespaceName subscriptionNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
 
-    if (!subscriptionNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        subscriptionNS = _batchNamespace;
+    }
+
+    else if (!subscriptionNamespace.isNull())
     {
         subscriptionNS = subscriptionNamespace;
     }
 
-    if (!filterNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        filterNS = _batchNamespace;
+    }
+
+    else if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
@@ -2797,7 +3011,12 @@ Uint32 CIMSubCommand::_findAndModifyState(
     {
         filterNS = subscriptionNS;
     }
-    if (!handlerNamespace.isNull())
+    if (_isBatchNamespace )
+    {
+        handlerNS = _batchNamespace;
+    }
+
+    else if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2901,12 +3120,36 @@ void CIMSubCommand::_listHandlers(
     //
     //  Find handlers in namespaces
     //
-    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+    if (_isBatchNamespace )
     {
-        _getHandlerList(handlerName, namespaceNames[i],
-            handlerCreationClass, verbose, instancesFound, handlerTypesFound,
-            maxColumnWidth, listOutputTable, outPrintWriter,
-            errPrintWriter);
+        _getHandlerList(
+                handlerName,
+                _batchNamespace,
+                handlerCreationClass,
+                verbose,
+                instancesFound,
+                handlerTypesFound,
+                maxColumnWidth,
+                listOutputTable,
+                outPrintWriter,
+                errPrintWriter);
+    }
+    else
+    {
+       for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+       {
+           _getHandlerList(
+                handlerName,
+                namespaceNames[i],
+                handlerCreationClass,
+                verbose,
+                instancesFound,
+                handlerTypesFound,
+                maxColumnWidth,
+                listOutputTable,
+                outPrintWriter,
+                errPrintWriter);
+       }
     }
     if (verbose)
     {
@@ -3157,8 +3400,23 @@ void CIMSubCommand::_listFilters(
     listOutputTable.append(querysFound);
 
     //  Find filters in namespaces
-    for (Uint32 i = 0 ; i < namespaceNames.size(); i++)
+    if (_isBatchNamespace )
     {
+         _getFilterList(
+             filterName,
+             _batchNamespace,
+             verbose,
+             maxColumnWidth,
+             listOutputTable,
+             queryLangsFound,
+             filterSourceNamespaces,
+             outPrintWriter,
+             errPrintWriter);
+    }
+    else
+    {
+       for (Uint32 i = 0 ; i < namespaceNames.size(); i++)
+       {
         _getFilterList(
              filterName,
              namespaceNames[i],
@@ -3169,6 +3427,7 @@ void CIMSubCommand::_listFilters(
              filterSourceNamespaces,
              outPrintWriter,
              errPrintWriter);
+       }
     }
     if (verbose)
     {
@@ -3432,14 +3691,40 @@ void CIMSubCommand::_listSubscriptions(
     listOutputTable.append(filtersFound);
     listOutputTable.append(handlersFound);
     listOutputTable.append(statesFound);
-
-    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+    if (_isBatchNamespace)
     {
-        _getSubscriptionList(namespaceNames[i], filterName,
-            filterNamespace, handlerName, handlerNamespace,
-            handlerCreationClass, verbose, handlerInstancesFound,
-            handlerTypesFound, querysFound, maxColumnWidth,
-            listOutputTable);
+        _getSubscriptionList(
+             _batchNamespace,
+             filterName,
+             _batchNamespace,
+             handlerName,
+             _batchNamespace,
+             handlerCreationClass,
+             verbose,
+             handlerInstancesFound,
+             handlerTypesFound,
+             querysFound,
+             maxColumnWidth,
+             listOutputTable);
+    }
+    else
+    {
+        for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+        {
+            _getSubscriptionList(
+                namespaceNames[i],
+                filterName,
+                filterNamespace,
+                handlerName,
+                handlerNamespace,
+                handlerCreationClass,
+                verbose,
+                handlerInstancesFound,
+                handlerTypesFound,
+                querysFound,
+                maxColumnWidth,
+                listOutputTable);
+        }
     }
 
     if (verbose)

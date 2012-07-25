@@ -1174,6 +1174,24 @@ private:
     String _subscriptionNamespace;
 
     //
+    //The Batch file Name for Batch execution
+    //
+
+    String _batchFileName;
+
+    //
+    // The Namespace specified for batch file.
+    //
+
+    String _batchNamespace;
+
+    //
+    // The flag for batch namespace.
+    //
+
+    Boolean _isBatchNamespace;
+
+    //
     // The flag to indicate a verbose listing
     //
     Boolean _verbose;
@@ -1230,6 +1248,12 @@ private:
         This constant represents a create operation
      */
     static const Uint32 OPERATION_TYPE_CREATE;
+
+    /**
+        This constant represents a Batch Execution Operation
+     */
+
+    static const Uint32 OPERATION_TYPE_BATCH;
 
 };
 

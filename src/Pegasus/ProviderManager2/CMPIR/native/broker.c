@@ -313,6 +313,8 @@ static CMPIString*  __beft_getMessage (
         &nrc,
         count,
         argptr);
+
+    va_end(argptr);
     if (rc) *rc=nrc;
     return msg;
 }
@@ -441,6 +443,8 @@ static CMPIString* __beft_getMessage2(
         &nrc,
         count,
         argptr);
+
+    va_end(argptr);
     if (rc)
     {
         *rc=nrc;

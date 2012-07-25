@@ -760,6 +760,11 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     SSL_CTX_set_mode(sslContext, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
 
+#ifdef SSL_MODE_RELEASE_BUFFERS
+    // Keep memory usage as low as possible 
+    SSL_CTX_set_mode (sslContext, SSL_MODE_RELEASE_BUFFERS);
+#endif
+
     int options = SSL_OP_ALL;
 #ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
     options |= SSL_OP_NO_SSLv2;

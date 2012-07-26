@@ -88,13 +88,13 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     Uint64 serverStartTimeMicroseconds;
 
     if (!in.getUint64(serverStartTimeMicroseconds))
-        return false;
+        return 0;
 
     // [providerTimeMicroseconds]
     Uint64 providerTimeMicroseconds;
 
     if (!in.getUint64(providerTimeMicroseconds))
-        return false;
+        return 0;
 
 #endif
 
@@ -103,14 +103,14 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     Boolean isComplete;
 
     if (!in.getBoolean(isComplete))
-        return false;
+        return 0;
 
     // [index]
 
     Uint32 index;
 
     if (!in.getUint32(index))
-        return false;
+        return 0;
 
     // [operationContext]
 
@@ -952,13 +952,13 @@ CIMBinMsgDeserializer::_getModifyInstanceRequestMessage(
     CIMPropertyList propertyList;
 
     if (!_getInstance(in, modifiedInstance))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeQualifiers))
-        return false;
+        return 0;
 
     if (!_getPropertyList(in, propertyList))
-        return false;
+        return 0;
 
     return new CIMModifyInstanceRequestMessage(
         String::EMPTY,
@@ -980,16 +980,16 @@ CIMBinMsgDeserializer::_getEnumerateInstancesRequestMessage(
     CIMPropertyList propertyList;
 
     if (!in.getBoolean(deepInheritance))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeQualifiers))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeClassOrigin))
-        return false;
+        return 0;
 
     if (!_getPropertyList(in, propertyList))
-        return false;
+        return 0;
 
     return new CIMEnumerateInstancesRequestMessage(
         String::EMPTY,
@@ -1021,7 +1021,7 @@ CIMBinMsgDeserializer::_getExecQueryRequestMessage(
     String query;
 
     if (!in.getString(queryLanguage) || !in.getString(query))
-        return false;
+        return 0;
 
     return new CIMExecQueryRequestMessage(
         String::EMPTY,
@@ -1045,28 +1045,28 @@ CIMBinMsgDeserializer::_getAssociatorsRequestMessage(
     CIMPropertyList propertyList;
 
     if (!_getObjectPath(in, objectName))
-        return false;
+        return 0;
 
     if (!_getName(in, assocClass))
-        return false;
+        return 0;
 
     if (!_getName(in, resultClass))
-        return false;
+        return 0;
 
     if (!in.getString(role))
-        return false;
+        return 0;
 
     if (!in.getString(resultRole))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeQualifiers))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeClassOrigin))
-        return false;
+        return 0;
 
     if (!_getPropertyList(in, propertyList))
-        return false;
+        return 0;
 
     return new CIMAssociatorsRequestMessage(
         String::EMPTY,
@@ -1093,19 +1093,19 @@ CIMBinMsgDeserializer::_getAssociatorNamesRequestMessage(
     String resultRole;
 
     if (!_getObjectPath(in, objectName))
-        return false;
+        return 0;
 
     if (!_getName(in, assocClass))
-        return false;
+        return 0;
 
     if (!_getName(in, resultClass))
-        return false;
+        return 0;
 
     if (!in.getString(role))
-        return false;
+        return 0;
 
     if (!in.getString(resultRole))
-        return false;
+        return 0;
 
     return new CIMAssociatorNamesRequestMessage(
         String::EMPTY,
@@ -1129,22 +1129,22 @@ CIMBinMsgDeserializer::_getReferencesRequestMessage(CIMBuffer& in)
     CIMPropertyList propertyList;
 
     if (!_getObjectPath(in, objectName))
-        return false;
+        return 0;
 
     if (!_getName(in, resultClass))
-        return false;
+        return 0;
 
     if (!in.getString(role))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeQualifiers))
-        return false;
+        return 0;
 
     if (!in.getBoolean(includeClassOrigin))
-        return false;
+        return 0;
 
     if (!_getPropertyList(in, propertyList))
-        return false;
+        return 0;
 
     return new CIMReferencesRequestMessage(
         String::EMPTY,
@@ -1167,13 +1167,13 @@ CIMBinMsgDeserializer::_getReferenceNamesRequestMessage(
     String role;
 
     if (!_getObjectPath(in, objectName))
-        return false;
+        return 0;
 
     if (!_getName(in, resultClass))
-        return false;
+        return 0;
 
     if (!in.getString(role))
-        return false;
+        return 0;
 
     return new CIMReferenceNamesRequestMessage(
         String::EMPTY,
@@ -1192,10 +1192,10 @@ CIMBinMsgDeserializer::_getGetPropertyRequestMessage(
     CIMName propertyName;
 
     if (!_getObjectPath(in, instanceName))
-        return false;
+        return 0;
 
     if (!_getName(in, propertyName))
-        return false;
+        return 0;
 
     return new CIMGetPropertyRequestMessage(
         String::EMPTY,
@@ -1213,10 +1213,10 @@ CIMBinMsgDeserializer::_getSetPropertyRequestMessage(
     CIMParamValue newValue;
 
     if (!_getObjectPath(in, instanceName))
-        return false;
+        return 0;
 
     if (!_getParamValue(in, newValue))
-        return false;
+        return 0;
 
     return new CIMSetPropertyRequestMessage(
         String::EMPTY,
@@ -1237,13 +1237,13 @@ CIMBinMsgDeserializer::_getInvokeMethodRequestMessage(
     Array<CIMParamValue> inParameters;
 
     if (!_getObjectPath(in, instanceName))
-        return false;
+        return 0;
 
     if (!_getName(in, methodName))
-        return false;
+        return 0;
 
     if (!in.getParamValueA(inParameters))
-        return false;
+        return 0;
 
     return new CIMInvokeMethodRequestMessage(
         String::EMPTY,
@@ -1267,22 +1267,22 @@ CIMBinMsgDeserializer::_getCreateSubscriptionRequestMessage(
     String query;
 
     if (!_getNamespaceName(in, nameSpace))
-        return false;
+        return 0;
 
     if (!_getInstance(in, subscriptionInstance))
-        return false;
+        return 0;
 
     if (!in.getNameA(classNames))
-        return false;
+        return 0;
 
     if (!_getPropertyList(in, propertyList))
-        return false;
+        return 0;
 
     if (!in.getUint16(repeatNotificationPolicy))
-        return false;
+        return 0;
 
     if (!in.getString(query))
-        return false;
+        return 0;
 
     return new CIMCreateSubscriptionRequestMessage(
         String::EMPTY,
@@ -1308,22 +1308,22 @@ CIMBinMsgDeserializer::_getModifySubscriptionRequestMessage(
     String query;
 
     if (!_getNamespaceName(in, nameSpace))
-        return false;
+        return 0;
 
     if (!_getInstance(in, subscriptionInstance))
-        return false;
+        return 0;
 
     if (!in.getNameA(classNames))
-        return false;
+        return 0;
 
     if (!_getPropertyList(in, propertyList))
-        return false;
+        return 0;
 
     if (!in.getUint16(repeatNotificationPolicy))
-        return false;
+        return 0;
 
     if (!in.getString(query))
-        return false;
+        return 0;
 
     return new CIMModifySubscriptionRequestMessage(
         String::EMPTY,
@@ -1346,13 +1346,13 @@ CIMBinMsgDeserializer::_getDeleteSubscriptionRequestMessage(
     Array<CIMName> classNames;
 
     if (!_getNamespaceName(in, nameSpace))
-        return false;
+        return 0;
 
     if (!_getInstance(in, subscriptionInstance))
-        return false;
+        return 0;
 
     if (!in.getNameA(classNames))
-        return false;
+        return 0;
 
     return new CIMDeleteSubscriptionRequestMessage(
         String::EMPTY,
@@ -1372,13 +1372,13 @@ CIMBinMsgDeserializer::_getExportIndicationRequestMessage(
     CIMInstance indicationInstance;
 
     if (!_getUserInfo(in, authType, userName))
-        return false;
+        return 0;
 
     if (!in.getString(destinationPath))
-        return false;
+        return 0;
 
     if (!_getInstance(in, indicationInstance))
-        return false;
+        return 0;
 
     return new CIMExportIndicationRequestMessage(
         String::EMPTY,
@@ -1401,19 +1401,19 @@ CIMBinMsgDeserializer::_getProcessIndicationRequestMessage(
     Uint32 timeoutMilliSec;
 
     if (!_getNamespaceName(in, nameSpace))
-        return false;
+        return 0;
 
     if (!_getInstance(in, indicationInstance))
-        return false;
+        return 0;
 
     if (!in.getObjectPathA(subscriptionInstanceNames))
-        return false;
+        return 0;
 
     if (!_getInstance(in, provider))
-        return false;
+        return 0;
 
     if (!in.getUint32(timeoutMilliSec))
-        return false;
+        return 0;
 
     return new CIMProcessIndicationRequestMessage(
         String::EMPTY,
@@ -1438,19 +1438,19 @@ CIMBinMsgDeserializer::_getDisableModuleRequestMessage(
     Array<Boolean> indicationProviders;
 
     if (!_getUserInfo(in, authType, userName))
-        return false;
+        return 0;
 
     if (!_getInstance(in, providerModule))
-        return false;
+        return 0;
 
     if (!in.getInstanceA(providers))
-        return false;
+        return 0;
 
     if (!in.getBoolean(disableProviderOnly))
-        return false;
+        return 0;
 
     if (!in.getBooleanA(indicationProviders))
-        return false;
+        return 0;
 
     return new CIMDisableModuleRequestMessage(
         String::EMPTY,
@@ -1472,10 +1472,10 @@ CIMBinMsgDeserializer::_getEnableModuleRequestMessage(
     CIMInstance providerModule;
 
     if (!_getUserInfo(in, authType, userName))
-        return false;
+        return 0;
 
     if (!_getInstance(in, providerModule))
-        return false;
+        return 0;
 
     return new CIMEnableModuleRequestMessage(
         String::EMPTY,
@@ -1492,7 +1492,7 @@ CIMBinMsgDeserializer::_getStopAllProvidersRequestMessage(
     Uint32 shutdownTimeout;
 
     if (!in.getUint32(shutdownTimeout))
-        return false;
+        return 0;
 
     return new CIMStopAllProvidersRequestMessage(
         String::EMPTY,
@@ -1513,10 +1513,10 @@ CIMBinMsgDeserializer::_getInitializeProviderAgentRequestMessage(
     Boolean subscriptionInitComplete;
 
     if (!in.getString(pegasusHome))
-        return false;
+        return 0;
 
     if (!in.getUint32(size))
-        return false;
+        return 0;
 
     for (Uint32 i = 0; i < size; i++)
     {
@@ -1524,16 +1524,16 @@ CIMBinMsgDeserializer::_getInitializeProviderAgentRequestMessage(
         String second;
 
         if (!in.getString(first) || !in.getString(second))
-            return false;
+            return 0;
 
         configProperties.append(ConfigPair(first, second));
     }
 
     if (!in.getBoolean(bindVerbose))
-        return false;
+        return 0;
 
     if (!in.getBoolean(subscriptionInitComplete))
-        return false;
+        return 0;
 
     return new CIMInitializeProviderAgentRequestMessage(
         String::EMPTY,
@@ -1553,13 +1553,13 @@ CIMBinMsgDeserializer::_getNotifyConfigChangeRequestMessage(
     Boolean currentValueModified;
 
     if (!in.getString(propertyName))
-        return false;
+        return 0;
 
     if (!in.getString(newPropertyValue))
-        return false;
+        return 0;
 
     if (!in.getBoolean(currentValueModified))
-        return false;
+        return 0;
 
     return new CIMNotifyConfigChangeRequestMessage(
         String::EMPTY,
@@ -1596,13 +1596,13 @@ CIMBinMsgDeserializer::_getProvAgtGetScmoClassRequestMessage(
     String messageID;
 
     if (!in.getString(messageID))
-        return false;
+        return 0;
 
     if (!in.getNamespaceName(nsName))
-        return false;
+        return 0;
 
     if (!in.getName(className))
-        return false;
+        return 0;
 
     return new ProvAgtGetScmoClassRequestMessage(
         messageID,
@@ -1660,7 +1660,7 @@ CIMBinMsgDeserializer::_getCreateInstanceResponseMessage(
     CIMObjectPath instanceName;
 
     if (!_getObjectPath(in, instanceName))
-        return false;
+        return 0;
 
     return new CIMCreateInstanceResponseMessage(
         String::EMPTY,
@@ -1877,7 +1877,7 @@ CIMBinMsgDeserializer::_getGetPropertyResponseMessage(
     CIMParamValue value;
 
     if (!_getParamValue(in, value))
-        return false;
+        return 0;
 
     return new CIMGetPropertyResponseMessage(
         String::EMPTY,
@@ -1907,13 +1907,13 @@ CIMBinMsgDeserializer::_getInvokeMethodResponseMessage(
     Array<CIMParamValue> outParameters;
 
     if (!_getParamValue(in, retValue))
-        return false;
+        return 0;
 
     if (!in.getParamValueA(outParameters))
-        return false;
+        return 0;
 
     if (!_getName(in, methodName))
-        return false;
+        return 0;
 
     return new CIMInvokeMethodResponseMessage(
         String::EMPTY,
@@ -1983,7 +1983,7 @@ CIMBinMsgDeserializer::_getDisableModuleResponseMessage(
     Array<Uint16> operationalStatus;
 
     if (!in.getUint16A(operationalStatus))
-        return false;
+        return 0;
 
     return new CIMDisableModuleResponseMessage(
         String::EMPTY,
@@ -2001,7 +2001,7 @@ CIMBinMsgDeserializer::_getEnableModuleResponseMessage(
     Array<Uint16> operationalStatus;
 
     if (!in.getUint16A(operationalStatus))
-        return false;
+        return 0;
 
     return new CIMEnableModuleResponseMessage(
         String::EMPTY,
@@ -2068,10 +2068,10 @@ CIMBinMsgDeserializer::_getProvAgtGetScmoClassResponseMessage(
     String messageID;
 
     if (!in.getString(messageID))
-        return false;
+        return 0;
 
     if (!in.getSCMOClass(theClass))
-        return false;
+        return 0;
 
     return new ProvAgtGetScmoClassResponseMessage(
         messageID,

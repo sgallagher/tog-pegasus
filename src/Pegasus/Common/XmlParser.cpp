@@ -127,17 +127,6 @@ struct EntityReference
     char replacement;
 };
 
-// ATTN: Add support for more entity references
-static EntityReference _references[] =
-{
-    { "&amp;", 5, '&' },
-    { "&lt;", 4, '<' },
-    { "&gt;", 4, '>' },
-    { "&quot;", 6, '"' },
-    { "&apos;", 6, '\'' }
-};
-
-
 // Implements a check for a whitespace character, without calling
 // isspace( ).  The isspace( ) function is locale-sensitive,
 // and incorrectly flags some chars above 0x7f as whitespace.  This
@@ -151,7 +140,6 @@ static inline int _isspace(char c)
     return CharSet::isXmlWhiteSpace((Uint8)c);
 }
 
-static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
 
 ////////////////////////////////////////////////////////////////////////////////
 //

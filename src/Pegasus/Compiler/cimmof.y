@@ -828,7 +828,7 @@ keyValuePair: keyValuePairName TOK_EQUAL initializer
     {
         CIMKeyBinding::Type keyBindingType;
         Char16 firstChar = (*$3)[0];
-        if (firstChar = '\"')
+        if (firstChar == '\"')
             keyBindingType = CIMKeyBinding::STRING;
         else if ((firstChar == 'T') || (firstChar == 't') ||
                  (firstChar == 'F') || (firstChar == 'f'))

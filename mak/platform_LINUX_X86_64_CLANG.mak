@@ -26,44 +26,11 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
+# Platform Configuration for Linux on x86_64
+# If you have generic Linux config options, please place them in config-linux.mak
 
-OS = linux
+include $(ROOT)/mak/config-linux.mak
 
-ECHO = echo
-MKDIRHIER = mkdir -p
-RM = rm -f
-TOUCH = touch
-
-ifeq ($(findstring _CLANG, $(PEGASUS_PLATFORM)), _CLANG)
-    COMPILER = clang
-    COMPILE_CXX_COMMAND = clang++
-    COMPILE_C_COMMAND = clang
-else
-    COMPILER = gnu
-    COMPILE_CXX_COMMAND = g++
-    COMPILE_C_COMMAND = gcc
-endif
-LIBRARY_LINK_COMMAND = $(COMPILE_CXX_COMMAND) -shared
-PROGRAM_LINK_COMMAND = $(COMPILE_CXX_COMMAND)
-
-SYS_LIBS = -ldl -lpthread -lcrypt
-
-OBJ_SUFFIX=.o
-
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
-ifeq ($(COMPILER)),clang)
-    PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused-parameter  -Wno-unused-value -D_GNU_SOURCE \
-        -DTHREAD_SAFE -D_REENTRANT -Wno-unused-variable  -Wno-unused-function $(CXX_MACHINE_OPTIONS)
-else
-    PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE \
-        -DTHREAD_SAFE -D_REENTRANT -fPIC $(CXX_MACHINE_OPTIONS)
-endif
-
-LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
-
-PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) \
-     $(LINK_MACHINE_OPTIONS)
-LIBRARY_LINK_OPTIONS = $(PROGRAM_LINK_OPTIONS)
-LINK_OUT = -o
-SYM_LINK_LIB = $(PEGASUS_PROVIDER_LIB_DIR)/lib$(LIBRARY)
-PLATFORM_LIB_SUFFIX = so
+ARCHITECTURE = X86_64
+CXX_MACHINE_OPTIONS = -m64
+LINK_MACHINE_OPTIONS = -m64

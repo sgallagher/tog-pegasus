@@ -1645,7 +1645,7 @@ yyparse ()
 #endif
 #endif
 {
-
+  
   int yystate;
   int yyn;
   int yyresult;
@@ -2465,7 +2465,7 @@ yyreduce:
     {
         CIMKeyBinding::Type keyBindingType;
         Char16 firstChar = (*(yyvsp[(3) - (3)].strval))[0];
-        if (firstChar = '\"')
+        if (firstChar == '\"')
             keyBindingType = CIMKeyBinding::STRING;
         else if ((firstChar == 'T') || (firstChar == 't') ||
                  (firstChar == 'F') || (firstChar == 'f'))

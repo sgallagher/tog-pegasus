@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//NOCHKSRC
+// NOCHKSRC
 
 /* A Bison parser, made by GNU Bison 2.3.  */
 
@@ -189,7 +189,7 @@ typedef union YYSTYPE
   char *filter_string;
   lslpLDAPFilter *filter_filter;
 }
-/* Line 193 of yacc.c.  */
+/* Line 187 of yacc.c.  */
 #line 163 "y_filter.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -84,7 +84,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
     private:
         // This is meant to be a singleton, so we hide the constructor
         // and the destructor
-        friend class DeletePtr<cimmofParser>;
+        friend struct DeletePtr<cimmofParser>;
         static cimmofParser* _instance;
 
         cimmofParser();

@@ -109,6 +109,29 @@ ifeq ($(COMPILER),gnu)
   endif
   LINK_OUT = -o
 endif
+##==============================================================================
+##
+## llvm/clang compiler 
+## change for other platform like windows
+##
+##==============================================================================
+
+ifeq ($(COMPILER),clang)
+  ifeq ($(HAS_ICU_DEPENDENCY),true)
+    ifdef ICU_INSTALL
+      EXTRA_LINK_ARGUMENTS += -Xlinker -rpath -Xlinker $(ICU_INSTALL)/lib
+    endif
+  endif
+  ifdef PEGASUS_USE_RELEASE_DIRS
+      LINK_COMMAND = $(CXX) -shared $(LINK_MACHINE_OPTIONS)
+      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath \
+          -Xlinker $(PEGASUS_DEST_LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+  else
+      LINK_COMMAND = $(CXX) -shared $(LINK_MACHINE_OPTIONS)
+      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+  endif
+  LINK_OUT = -o
+endif
 
 ##==============================================================================
 ##

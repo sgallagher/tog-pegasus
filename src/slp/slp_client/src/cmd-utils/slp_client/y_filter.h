@@ -111,7 +111,7 @@ typedef union YYSTYPE
   char *filter_string;
   lslpLDAPFilter *filter_filter;
 }
-/* Line 1529 of yacc.c.  */
+/* Line 1489 of yacc.c.  */
 #line 85 "y_filter.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

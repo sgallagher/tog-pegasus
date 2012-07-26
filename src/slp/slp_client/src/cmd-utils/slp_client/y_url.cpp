@@ -196,7 +196,7 @@ typedef union YYSTYPE
 	lslpAtomList *_atl;
 	lslpAtomizedURL *_aturl;
 }
-/* Line 193 of yacc.c.  */
+/* Line 187 of yacc.c.  */
 #line 170 "y_url.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -27,8 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//NOCHKSRC
-
+// NOCHKSRC 
 
 /* A Bison parser, made by GNU Bison 2.3.  */
 
@@ -143,17 +142,17 @@ size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
-	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, 0
+	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, {0}
 };
 
 lslpAttrList inProcessAttr =
 {
-	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, 0
+	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, {0}
 };
 
 lslpAttrList inProcessTag =
 {
-	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, 0
+	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, {0}
 };
 
 
@@ -185,7 +184,7 @@ typedef union YYSTYPE
 	char *_s;
 	lslpAttrList *_atl;
 }
-/* Line 193 of yacc.c.  */
+/* Line 187 of yacc.c.  */
 #line 158 "y_attr.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

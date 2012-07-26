@@ -170,7 +170,10 @@ void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
 
         if (Array_refs.get() == 1)
         {
-            memcpy(rep->data(), Array_data, Array_size*sizeof(PEGASUS_ARRAY_T));
+            memcpy( 
+                (void*)rep->data(), 
+                (void*)Array_data, 
+                Array_size*sizeof(PEGASUS_ARRAY_T));
             Array_size = 0;
         }
         else
@@ -254,8 +257,8 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     reserveCapacity(Array_size + size);
     memmove(
-        Array_data + size,
-        Array_data,
+        (void*)(Array_data + size),
+        (void*)Array_data,
         sizeof(PEGASUS_ARRAY_T) * Array_size);
     CopyToRaw(Array_data, x, size);
     Array_size += size;

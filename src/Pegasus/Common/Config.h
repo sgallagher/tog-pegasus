@@ -92,6 +92,10 @@
 # include <Pegasus/Common/Platform_VMS_IA64_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
 # include <Pegasus/Common/Platform_LINUX_XSCALE_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_X86_64_CLANG)
+# include <Pegasus/Common/Platform_LINUX_X86_64_CLANG.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_CLANG)
+# include <Pegasus/Common/Platform_LINUX_IX86_CLANG.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

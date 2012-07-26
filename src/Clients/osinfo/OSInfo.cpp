@@ -871,18 +871,26 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
             char minuteString[20];
             char secondString[20];
 
-            sprintf(dayString,
-                (days == 0 ? "" : (days == 1 ? "1 day," :
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days,")), days);
+            if(!days)
+            {
+                sprintf(dayString," " );
+            }
+            else
+            {
+                sprintf(dayString, (days == 1 ? 
+                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u day," :
+                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days," ), days);
+
+            }
 
             // for other values, want to display the 0s
-            sprintf(hourString, (hours == 1 ? "1 hr," : "%u hrs,"), hours);
+            sprintf(hourString, (hours == 1 ? "%u hr," : "%u hrs,"), hours);
 
             sprintf(minuteString,
-                (minutes == 1 ? "1 min," : "%u mins,"), minutes);
+                (minutes == 1 ? "%u min," : "%u mins,"), minutes);
 
             sprintf(secondString,
-                (seconds == 1 ? "1 sec" : "%u secs"), seconds);
+                (seconds == 1 ? "%u sec" : "%u secs"), seconds);
 
             sprintf(uptime,
                 "%" PEGASUS_64BIT_CONVERSION_WIDTH "u seconds = %s %s %s %s",

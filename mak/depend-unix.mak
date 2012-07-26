@@ -37,6 +37,11 @@ endif
 ifeq ($(CXX), g++)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -M
 endif
+ifeq ($(CXX), clang++)
+    PEGASUS_CXX_MAKEDEPEND_OPTION = -M
+    C_SOURCES = $(filter %.c, $(SOURCES))
+endif
+
 ifeq ($(CXX), CC)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -xM1
 endif
@@ -46,9 +51,20 @@ ifeq ($(CXX), aCC)
 endif
 
 ifdef PEGASUS_CXX_MAKEDEPEND_OPTION
-depend: $(OBJ_DIR)/target $(ERROR)
-	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
 
+ifeq ($(COMPILER), clang)
+ifneq ($(strip $(C_SOURCES)),)
+depend: $(OBJ_DIR)/target $(ERROR)
+	$(CC) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
+else
+depend: $(OBJ_DIR)/target $(ERROR)
+	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
+endif
+else
+  depend: $(OBJ_DIR)/target $(ERROR)
+       $(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
+  
+endif
 else
 ifdef PEGASUS_HAS_MAKEDEPEND
 DEPEND_INCLUDES += -DPEGASUS_OS_TYPE_UNIX -I/usr/include $(SYS_INCLUDES)
@@ -61,6 +77,5 @@ depend: $(OBJ_DIR)/target $(ERROR)
 	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES_NO_ASM) > $(DEPEND_MAK)
 endif
 endif
-
 clean-depend:
 	$(RM) $(OBJ_DIR)/depend.mak

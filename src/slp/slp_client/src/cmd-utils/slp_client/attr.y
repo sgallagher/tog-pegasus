@@ -72,17 +72,17 @@ size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
-	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, 0
+	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, {0}
 };
 
 lslpAttrList inProcessAttr =
 {
-	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, 0
+	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, {0}
 };
 
 lslpAttrList inProcessTag =
 {
-	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, 0
+	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, {0}
 };
 
 

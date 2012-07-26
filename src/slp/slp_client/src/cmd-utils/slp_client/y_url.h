@@ -6,7 +6,7 @@
 // Each contributor licenses this file to you under the OpenPegasus Open
 // Source License; you may not use this file except in compliance with the
 // License.
-//  
+//
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -106,7 +106,7 @@ typedef union YYSTYPE
 	lslpAtomList *_atl;
 	lslpAtomizedURL *_aturl;
 }
-/* Line 1529 of yacc.c.  */
+/* Line 1489 of yacc.c.  */
 #line 80 "y_url.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

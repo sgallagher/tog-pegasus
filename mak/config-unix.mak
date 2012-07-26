@@ -48,9 +48,14 @@ LIB_PREFIX = lib
 
 DIFF = diff
 
+COPY = cp
+
+MOVE = mv
+
+RM = rm -f
+
 SORT = sort
 
-COPY = cp
 
 TOUCH = touch
 

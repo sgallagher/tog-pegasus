@@ -27,6 +27,13 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 # Configuration options for Pegasus on all architectures running Linux
+# These options are also used by clang( which was designed as dropin
+# replacement for gcc). So some of the names are misleading like 
+# PEGASUS_PLATFORM_LINUX_GENERIC_GNU due to GNU appended, Better will
+# be PEGASUS_PLATFORM_LINUX_GENERIC and GNU and CLANG can add it. 
+# Changing this now(for 9236) will involve lot of work, Will take up 
+# this work later. 
+
 
 include $(ROOT)/mak/config-unix.mak
 
@@ -59,29 +66,24 @@ endif
 
 OS = linux
 
-COMPILER = gnu
+
+ifeq ($(findstring _CLANG, $(PEGASUS_PLATFORM)), _CLANG)
+    COMPILER = clang
+    CXX = clang++
+    CC = clang
+else
+    COMPILER = gnu
+    ifndef CXX
+        CXX = g++
+    endif
+endif
 
 PLATFORM_VERSION_SUPPORTED = yes
 
-ifndef CXX
-CXX = g++
-endif
 
 SH = sh
 
 YACC = bison
-
-RM = rm -f
-
-DIFF = diff
-
-SORT = sort
-
-COPY = cp
-
-MOVE = mv
-
-MKDIRHIER = mkdir -p
 
 PEGASUS_SUPPORTS_DYNLIB = yes
 
@@ -93,8 +95,12 @@ DEFINES += -DPEGASUS_USE_SYSLOGS
 
 SYS_LIBS = -ldl -lpthread -lcrypt
 
-FLAGS += -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
-
+ifeq ($(COMPILER), clang)
+    FLAGS += -W -Wall -Wno-unused-parameter  -Wno-unused-value -D_GNU_SOURCE \
+        -DTHREAD_SAFE -D_REENTRANT -Wno-unused-variable  -Wno-unused-function  
+else
+    FLAGS += -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+endif
 ##==============================================================================
 ##
 ## The DYNAMIC_FLAGS variable defines linker flags that only apply to shared
@@ -111,9 +117,14 @@ else
   # The -fno-enforce-eh-specs is not available in 2.9.5 and it probably
   # appeared in the 3.0 series of compilers.
   #
+  ifeq ($(COMPILER), gnu)
   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
     EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
   endif
+  else
+          EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
+  endif
+      
   ifdef PEGASUS_OPTIMIZE_FOR_SIZE
     FLAGS += -Os
   else
@@ -140,15 +151,21 @@ endif
 ##
 ##==============================================================================
 
+ifeq ($(COMPILER), gnu)
 ifeq ($(shell expr $(GCC_VERSION) '>=' 4.0), 1)
     FLAGS += -fvisibility=hidden
+endif
+else
+    FLAGS +=-fvisibility=hidden	
 endif
 
 ifndef PEGASUS_ARCH_LIB
     ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
         PEGASUS_ARCH_LIB = lib64
-    else
-        PEGASUS_ARCH_LIB = lib
     endif
+    ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_CLANG)
+        PEGASUS_ARCH_LIB = lib64
+    endif
+    PEGASUS_ARCH_LIB = lib
 endif
 DEFINES += -DPEGASUS_ARCH_LIB=\"$(PEGASUS_ARCH_LIB)\"

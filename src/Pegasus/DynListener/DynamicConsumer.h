@@ -122,6 +122,7 @@ public:
 
     ~DynamicConsumer(void);
 
+    using DynamicConsumerFacade::initialize;
     virtual void initialize(void);
 
     virtual void terminate(void);

@@ -1024,6 +1024,7 @@ CIMValue CIMClientRep::invokeMethod(
     outParameters = response->outParameters;
 
     return response->retValue;
+    
 }
 
 Message* CIMClientRep::_doRequest(

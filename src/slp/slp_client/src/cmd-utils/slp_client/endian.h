@@ -53,7 +53,9 @@
  *
  *****************************************************************************/
 
+#ifndef __LITTLE_ENDIAN__
 #define __LITTLE_ENDIAN__ 1234
+#endif
 
 #ifndef __BIG_ENDIAN__
 #    define __BIG_ENDIAN__ 4321

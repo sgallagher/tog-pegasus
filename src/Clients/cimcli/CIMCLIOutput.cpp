@@ -466,7 +466,7 @@ void mofFormat(PEGASUS_STD(ostream)& os,
                     os<<c;
                     break;
                 }
-                if ((prevchar == '\n'))
+                if (prevchar == '\n')
                 {
                     indent++;
                     insideState++;

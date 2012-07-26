@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
     // Process the help option:
 
-    if (argc == 2 && strcmp(argv[1], "-help") == 0 || argc < 2)
+    if ((argc == 2 && strcmp(argv[1], "-help") == 0) || argc < 2)
     {
         cerr << HELP << endl;
         return(1);

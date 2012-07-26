@@ -123,6 +123,11 @@ static const Uint32 OPERATION_TYPE_HELP           = 5;
 static const Uint32 OPERATION_TYPE_VERSION        = 6;
 
 /**
+    This constant represents a help operation
+*/
+static const Uint32 OPERATION_TYPE_CONFIG_PROPERTY_HELP    = 7;
+
+/**
     The constants representing the string literals.
 */
 static const CIMName PROPERTY_NAME              = CIMName ("PropertyName");
@@ -134,6 +139,8 @@ static const CIMName CURRENT_VALUE              = CIMName ("CurrentValue");
 static const CIMName PLANNED_VALUE              = CIMName ("PlannedValue");
 
 static const CIMName DYNAMIC_PROPERTY           = CIMName ("DynamicProperty");
+
+static const CIMName DESCRIPTION                = CIMName("Description");
 
 /**
     The name of the method that implements the property value update using the
@@ -384,6 +391,11 @@ static const char   OPTION_TIMEOUT_VALUE       = 't';
 static const char   OPTION_HELP                = 'h';
 
 /**
+    The option character used to display help on config properties.
+*/
+static const char   OPTION_CONFIG_HELP         = 'H';
+
+/**
     The option character used to display version info.
 */
 static const char   OPTION_VERSION             = 'v';
@@ -445,6 +457,9 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
+    usage.append("                 -").
+        append(OPTION_CONFIG_HELP).
+        append(" name\n");
     usage.append("                 -").append(OPTION_HELP).append("\n");
     usage.append("                 --").append(LONG_HELP).append("\n");
     usage.append("                 --").append(LONG_VERSION).append("\n");
@@ -454,6 +469,9 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("    -d         - Use default configuration\n");
     usage.append("    -g         - Get the value of specified configuration"
                                     " property\n");
+    usage.append("    -H         - Get help on specified configuration" \
+        " property\n");
+
     usage.append("    -h, --help - Display this help message\n");
     usage.append("    -l         - Display all the configuration properties\n");
     usage.append("    -p         - Configuration used on next CIM Server"
@@ -467,15 +485,17 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("    -u         - Reset configuration property to its"
                                     " default value\n");
     usage.append("    -t         - Timeout value in seconds for updating the"
-                                   " current or planned value\n");
+                                   " current or\n");
+    usage.append("                 planned value\n");
     usage.append("    --version  - Display CIM Server version number\n");
 
     usage.append("\nUsage note: The cimconfig command can be used to update"
                                     " the next planned\n");
-    usage.append( "configuration without having the CIM Server running."
-                                    " All other options \n");
-    usage.append("of the cimconfig command require that the CIM Server"
-                                    " is running.");
+    usage.append("    configuration without having the CIM Server running."
+                                    " All other options\n");
+    usage.append("    except -h, --help and -H of the cimconfig command"
+                                    " require that the\n");
+    usage.append("    CIM Server is running.");
 
 //l10n localize usage
 #ifdef PEGASUS_HAS_ICU
@@ -525,6 +545,8 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 #endif
     optString.append(OPTION_HELP);
 
+    optString.append(OPTION_CONFIG_HELP);
+    optString.append(GETOPT_ARGUMENT_DESIGNATOR);
     //
     //  Initialize and parse options
     //
@@ -721,6 +743,38 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     }
 
                     _operationType = OPERATION_TYPE_UNSET;
+
+                    break;
+                }
+                case OPTION_CONFIG_HELP:
+                {
+                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                    {
+                        // The operation was already specified and
+                        //config parser found a second operation
+                        //
+                        throw UnexpectedOptionException (OPTION_CONFIG_HELP);
+                    }
+
+                    if (options.isSet (OPTION_CONFIG_HELP) > 1)
+                    {
+                        //
+                        // More than one help option was found
+                        //
+                        throw DuplicateOptionException (OPTION_CONFIG_HELP);
+                    }
+
+                    try
+                    {
+                        _propertyName = options [i].Value ();
+                    }
+                    catch (const InvalidNameException&)
+                    {
+                        throw InvalidOptionArgumentException(
+                            options[i].Value(), OPTION_CONFIG_HELP);
+                    }
+
+                    _operationType = OPERATION_TYPE_CONFIG_PROPERTY_HELP;
 
                     break;
                 }
@@ -925,6 +979,7 @@ Uint32 CIMConfigCommand::execute(
     String    pegasusHome;
     Boolean   gotCurrentValue = false;
     Boolean   gotPlannedValue = false;
+    ConfigManager* configManager = ConfigManager::getInstance();
 
     if (_operationType == OPERATION_TYPE_UNINITIALIZED)
     {
@@ -1220,7 +1275,7 @@ Uint32 CIMConfigCommand::execute(
                                            << endl;
                             return ( RC_ERROR );
                         }
-                        
+
                         if ( !_configFileHandler->updatePlannedValue(
                             _propertyName, _propertyValue, false ) )
                         {
@@ -1238,7 +1293,6 @@ Uint32 CIMConfigCommand::execute(
                                PROPERTY_UPDATED_IN_FILE_KEY,
                                PROPERTY_UPDATED_IN_FILE,
                                _propertyName.getString()) << endl;
-
                 }
             }
             catch (const CIMException& e)
@@ -1371,7 +1425,6 @@ Uint32 CIMConfigCommand::execute(
                                           _propertyName.getString())
                                           << endl;
                 }
-
             }
             catch (const CIMException& e)
             {
@@ -1444,6 +1497,62 @@ Uint32 CIMConfigCommand::execute(
                                       FAILED_TO_UNSET_PROPERTY_KEY,
                                       FAILED_TO_UNSET_PROPERTY)
                                       << endl << e.getMessage() << endl;
+                return ( RC_ERROR );
+            }
+            break;
+
+        // Request info on single property. Outputs property attribute and
+        // descriptive (formatted in configManager) information 
+        case OPERATION_TYPE_CONFIG_PROPERTY_HELP:
+            try
+            {
+                // Get Description and Possible values for the specified
+                // config property in configInfo String
+                String descriptionInfo;
+                String name = _propertyName.getString();
+                configManager->getPropertyHelp(name, descriptionInfo);
+
+                // Display the property name, "(" attributes ")" NL
+                outPrintWriter << name
+                    << " ("
+                    << configManager->getDynamicAttributeStatus(name)
+                    << ")"
+                    << endl;
+                // Display 
+                outPrintWriter << descriptionInfo << endl;
+                return (RC_SUCCESS);
+            }
+            catch (const CIMException& cimExp)
+            {
+                CIMStatusCode code = cimExp.getCode();
+                if (code == CIM_ERR_NOT_FOUND ||
+                    code == CIM_ERR_FAILED)
+                {
+                    outPrintWriter <<
+                        localizeMessage(MSG_PATH,
+                            PROPERTY_NOT_FOUND_KEY,
+                            PROPERTY_NOT_FOUND)
+                        << endl;
+                    errPrintWriter << cimExp.getMessage() << endl;
+                }
+                else
+                {
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        FAILED_TO_GET_PROPERTY_KEY,
+                        FAILED_TO_GET_PROPERTY)
+                        << cimExp.getMessage()
+                        << endl;
+                }
+                return ( RC_ERROR );
+            }
+            catch (const Exception& exception)
+            {
+                outPrintWriter << localizeMessage(MSG_PATH,
+                    FAILED_TO_GET_PROPERTY_KEY,
+                    FAILED_TO_GET_PROPERTY)
+                    << endl
+                    << exception.getMessage()
+                    << endl;
                 return ( RC_ERROR );
             }
             break;

@@ -44,7 +44,6 @@
 #include "ConfigManager.h"
 #include "TracePropertyOwner.h"
 
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -101,6 +100,8 @@ static struct ConfigPropertyRow properties[] =
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
+static const char TRACE_POSSIBLE_VALUE [] =
+    "Possible Values: ";
 
 //
 // Checks if the trace level is valid
@@ -114,7 +115,6 @@ Boolean TracePropertyOwner::isLevelValid(const String& traceLevel) const
             traceLevel == "2" || traceLevel == "3" ||
             traceLevel == "4" || traceLevel == "5");
 }
-
 
 //
 // Converts the trace memory buffer size string into a Uint32 value.
@@ -335,30 +335,49 @@ void TracePropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
-    propertyInfo.clear();
-
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    propertyInfo.append(configProperty->propertyName);
-    propertyInfo.append(configProperty->defaultValue);
-    propertyInfo.append(configProperty->currentValue);
-    propertyInfo.append(configProperty->plannedValue);
-    if (configProperty->dynamic)
+    buildPropertyInfo(name, configProperty, propertyInfo);
+}
+
+/*
+    Get supplementary help information.
+*/
+String TracePropertyOwner::getPropertyHelpSupplement(
+    const String& name) const
+{
+    String localPropertyInfo;
+    if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        propertyInfo.append(STRING_TRUE);
+       // Set list of possible traceComponent Strings
+        const Uint32 _NUM_COMPONENTS = Tracer::_NUM_COMPONENTS;
+        localPropertyInfo.append("\n");
+        MessageLoaderParms parms(
+            "Config.TracePropertyOwner.TRACECOMPONENTS_POSSIBLE_VALUE",
+            TRACE_POSSIBLE_VALUE);
+        parms.msg_src_path = CONFIG_MSG_PATH;
+
+        String possibleValues = "\n    ALL ";
+        localPropertyInfo.append(MessageLoader::getMessage(parms));
+        Uint32 lineSize = possibleValues.size();
+        // Get the list of traceComponents from Tracer and append to formatted
+        // string
+        for ( Uint32 index = 0;index < _NUM_COMPONENTS; index++)
+        {
+            if ((strlen(Tracer::TRACE_COMPONENT_LIST[index]) + lineSize) >= 79)
+            {
+                possibleValues.append("\n    ");
+                lineSize = 5;
+            }
+            possibleValues.append(Tracer::TRACE_COMPONENT_LIST[index]);
+            possibleValues.append(" ");
+
+            lineSize += (strlen(Tracer::TRACE_COMPONENT_LIST[index]) + 1);
+        }
+        possibleValues = possibleValues.subString(0, possibleValues.size() - 1);
+        localPropertyInfo.append(possibleValues);
     }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
-    if (configProperty->externallyVisible)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
+    return localPropertyInfo;
 }
 
 /**

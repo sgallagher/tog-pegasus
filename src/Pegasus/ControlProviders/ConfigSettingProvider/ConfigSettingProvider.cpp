@@ -68,7 +68,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The constants representing the string literals.
+    The constants representing the string literals for property
+    names of the PG_ConfigSetting class
 */
 static const CIMName PROPERTY_NAME    = CIMNameCast("PropertyName");
 
@@ -79,6 +80,7 @@ static const CIMName CURRENT_VALUE    = CIMNameCast("CurrentValue");
 static const CIMName PLANNED_VALUE    = CIMNameCast("PlannedValue");
 
 static const CIMName DYNAMIC_PROPERTY = CIMNameCast("DynamicProperty");
+static const CIMName DESCRIPTION      = CIMNameCast("Description");
 
 
 /**
@@ -174,7 +176,7 @@ void ConfigSettingProvider::getInstance(
             CIMInstance instance(PG_CONFIG_SETTING);
 
             //
-            // construct the instance
+            // construct the instance from Array<String> propertyInfo
             //
             instance.addProperty(CIMProperty(PROPERTY_NAME, propertyInfo[0]));
             instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
@@ -182,6 +184,10 @@ void ConfigSettingProvider::getInstance(
             instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
             instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
                 Boolean(propertyInfo[4]=="true"?true:false)));
+            if (propertyInfo.size() > 6)
+            {
+                instance.addProperty(CIMProperty(DESCRIPTION,propertyInfo[6]));
+            }
 
             handler.deliver(instance);
 
@@ -410,7 +416,7 @@ void ConfigSettingProvider::_modifyInstance(
                     currentValue = _configManager->getCurrentValue(
                         configPropertyName);
                 }
-                
+
                // send notify config change message to Handler Service
                if(String::equal(configPropertyName,
                       "maxIndicationDeliveryRetryAttempts")||
@@ -423,14 +429,14 @@ void ConfigSettingProvider::_modifyInstance(
                        userName,
                        PEGASUS_QUEUENAME_INDHANDLERMANAGER,
                        true);
-               }              
- 
+               }
+
                 // send notify config change message to ProviderManager Service
                 _sendNotifyConfigChangeMessage(
                     configPropertyName,
                     currentValue,
                     userName,
-                    PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,        
+                    PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
                     true);
 
                PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
@@ -553,36 +559,41 @@ void ConfigSettingProvider::enumerateInstances(
 
             for (Uint32 i = 0; i < propertyNames.size(); i++)
             {
-                 Array<String> propertyInfo;
+                Array<String> propertyInfo;
 
-                 CIMInstance        instance(PG_CONFIG_SETTING);
+                CIMInstance        instance(PG_CONFIG_SETTING);
 
-                 propertyInfo.clear();
+                propertyInfo.clear();
 
-                 _configManager->getPropertyInfo(
-                 propertyNames[i], propertyInfo);
+                _configManager->getPropertyInfo(
+                propertyNames[i], propertyInfo);
 
-                 Array<CIMKeyBinding> keyBindings;
-                 keyBindings.append(CIMKeyBinding(PROPERTY_NAME,
-                 propertyInfo[0], CIMKeyBinding::STRING));
-                 CIMObjectPath instanceName(ref.getHost(),
-                 ref.getNameSpace(),
-                 PG_CONFIG_SETTING, keyBindings);
+                Array<CIMKeyBinding> keyBindings;
+                keyBindings.append(CIMKeyBinding(PROPERTY_NAME,
+                    propertyInfo[0], CIMKeyBinding::STRING));
+                CIMObjectPath instanceName(ref.getHost(),
+                    ref.getNameSpace(),
+                PG_CONFIG_SETTING, keyBindings);
 
-                 // construct the instance
-                 instance.addProperty(CIMProperty(PROPERTY_NAME,
-                                         propertyInfo[0]));
-                 instance.addProperty(CIMProperty(DEFAULT_VALUE,
-                                         propertyInfo[1]));
-                 instance.addProperty(CIMProperty(CURRENT_VALUE,
-                                         propertyInfo[2]));
-                 instance.addProperty(CIMProperty(PLANNED_VALUE,
-                                         propertyInfo[3]));
-                 instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-                 Boolean(propertyInfo[4]=="true"?true:false)));
+                // construct the instance
+                instance.addProperty(CIMProperty(PROPERTY_NAME,
+                                     propertyInfo[0]));
+                instance.addProperty(CIMProperty(DEFAULT_VALUE,
+                                     propertyInfo[1]));
+                instance.addProperty(CIMProperty(CURRENT_VALUE,
+                                     propertyInfo[2]));
+                instance.addProperty(CIMProperty(PLANNED_VALUE,
+                                     propertyInfo[3]));
+                instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
+                   Boolean(propertyInfo[4]=="true"?true:false)));
+                if (propertyInfo.size() > 6)
+                {
+                    instance.addProperty(
+                        CIMProperty(DESCRIPTION, propertyInfo[6]));
+                }
 
-                 instance.setPath(instanceName);
-                 instanceArray.append(instance);
+                instance.setPath(instanceName);
+                instanceArray.append(instance);
             }
         }
         catch(Exception& e)

@@ -34,6 +34,23 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_CONFIG_INTERNAL -DPEGASUS_INTERNALONLY
 
+##
+##  Build the message bundle of help messages for config
+##  This target is used to make a version of the config library
+##  with special code to generate the message bundle for the
+##  help messages
+## To use this functionionality to generate new text for the config properties
+## help text for the message bundle
+##   - export PEGASUS_ENABLE_OUTPUT_OF_DESCRIPTION_INFO=true
+##   - make clean; make the Config directory.
+##   - Start the server and execute any single cimconfig -H command.
+## The message bundle text for the help messages will be output to stdout and
+## can be captured for insertion into the server message bundle.
+##
+ifeq ($(PEGASUS_ENABLE_OUTPUT_OF_DESCRIPTION_INFO), true)
+    LOCAL_DEFINES += -DPEGASUS_ENABLE_OUTPUT_OF_DESCRIPTION_INFO
+endif
+
 ifeq ($(OS_TYPE),vms)
     STATIC=1
 else
@@ -63,10 +80,14 @@ SOURCES = \
     SecurityPropertyOwner.cpp \
     RepositoryPropertyOwner.cpp \
     ProviderDirPropertyOwner.cpp \
-    ShutdownPropertyOwner.cpp
+    ShutdownPropertyOwner.cpp \
+    ConfigPropertyHelp.cpp
 
 ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
     SOURCES += IndicationServicePropertyOwner.cpp
 endif
 
 include $(ROOT)/mak/dynamic-library.mak
+
+
+

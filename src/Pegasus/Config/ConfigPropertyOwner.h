@@ -52,6 +52,9 @@ PEGASUS_NAMESPACE_BEGIN
 //  ConfigPropertyOwner Class
 ///////////////////////////////////////////////////////////////////////////////
 
+
+struct configProperty;
+
 /**
     This is an abstract class that the individual config property
     owners will extend and provide implementation.
@@ -75,14 +78,52 @@ public:
     virtual void initialize() = 0;
 
     /**
-        Get information about the specified property.
+        Get information about the specified property. Note that this
+        is a pure virtual function and must be implemented in each
+        subclass. It gets the local config property config table and
+        builds the propertyInfo array.  Note that it uses
+        buildPropertyInfo to to the build
 
         @param name The name of the property.
         @param propertyInfo List to store the property info.
         @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void getPropertyInfo(const String& name,
-                         Array<String>& propertyInfo) const = 0;
+        Array<String>& propertyInfo) const = 0;
+
+    /*
+        Build the standard data from the specified property into the
+        propertyInfo array.  This is functions should be used only by
+        getPropertyInfo above. This inserts string translations of values
+        for defaultValue, etc. into the provided PropertyInfo Array
+        TODO: Should this be private???
+     */
+    void buildPropertyInfo(const String& name,
+        const struct ConfigProperty * configProperty,
+        Array<String>& propertyInfo)const ;
+
+    /**
+        Get help about the specified property. Generates String of
+        documentation about the property. Normally supplied by this
+        class and the ConfigPropertyHelpDescription table but may be
+        overridden in sublcasses if more specific help is to be
+        supplied.
+        @param name String with name of config property
+        @return String with help(i.e. description) information.
+    */
+
+    String getPropertyHelp(const String& name) const;
+
+    /**
+       Supplemental help information above and beyond
+       getPropertyHelp.  Normally this is the place that the
+       specific property owner overrides this method and supplies a
+       string of possible values (ex. the values for
+       traceComponents).
+       @param name String with name of config property
+       @return String with supplemental help info
+     */
+    virtual String getPropertyHelpSupplement(const String& name) const;
 
     /**
         Get default value of the specified property.
@@ -256,8 +297,16 @@ struct ConfigPropertyRow
 */
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
+    Internal definitions for constants "TRUE" and "FALSE"
+*/
 PEGASUS_CONFIG_LINKAGE extern const String STRING_TRUE;
 PEGASUS_CONFIG_LINKAGE extern const String STRING_FALSE;
+
+/**
+ * The Server message resource name
+ */
+PEGASUS_CONFIG_LINKAGE extern const char CONFIG_MSG_PATH[];
 
 PEGASUS_NAMESPACE_END
 

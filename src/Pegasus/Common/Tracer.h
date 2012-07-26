@@ -108,6 +108,13 @@ class PEGASUS_COMMON_LINKAGE Tracer
 {
 public:
 
+    /** Trace Components list defines the strings repesenting each
+        TraceComponentId entry. Externalized to allow display of the
+        possible list of trace components.  The size of this list is
+        defined in _NUM_COMPONENTS variable.
+     */
+    static char const* TRACE_COMPONENT_LIST[];
+
     /** Trace facilities
         File - tracing occurs to the trace file
         Log  - tracing occurs through the Pegasus Logger class

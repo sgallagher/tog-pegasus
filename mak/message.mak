@@ -34,7 +34,8 @@
 ###############################################################################
 
 # If we are using ICU resource bundles, then the compiled bundles are .res files
-# since the individual makefiles do not specify a root package file, one is appended to the target list
+# since the individual makefiles do not specify a root package file, one is 
+# appended to the target list
 ifeq ($(PEGASUS_HAS_ICU), true)
 	TMP_MSG_BUNDLES = $(foreach i,$(MSG_SOURCES),$(MSG_DIR)/$i)
 	MSG_BUNDLES = $(TMP_MSG_BUNDLES:.txt=.res)
@@ -44,12 +45,11 @@ endif
 ################################################################################
 ##
 ## Message compile rules: the normal rule is from package_lang.txt -> package_lang.res
-##                  					   the exception to the rule: since package_root.txt does not exist,
-##									   one has to be generated from one of the existing package_lang.txt files.
-##									   this defaults to package_en.txt unless the appropriate vars are set.
-##									   the selected/or default package file is processed and converted into
-##									   an intermediate package_root.rb file, this file is then compiled into its corresponding
-##									   package_root.res file
+##   the exception to the rule: since package_root.txt does not exist,
+##   this defaults to package_en.txt unless the appropriate vars are set.
+##   the selected/or default package file is processed and converted into
+##   an intermediate package_root.rb file, this file is then compiled into 
+##   its corresponding package_root.res file
 ##
 ################################################################################
 

@@ -100,30 +100,7 @@ void NormalizationPropertyOwner::getPropertyInfo(
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    propertyInfo.clear();
-
-    propertyInfo.append(configProperty->propertyName);
-    propertyInfo.append(configProperty->defaultValue);
-    propertyInfo.append(configProperty->currentValue);
-    propertyInfo.append(configProperty->plannedValue);
-
-    if (configProperty->dynamic == IS_DYNAMIC)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
-
-    if (configProperty->externallyVisible == IS_VISIBLE)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
+    buildPropertyInfo(name, configProperty, propertyInfo);
 }
 
 String NormalizationPropertyOwner::getDefaultValue(const String& name) const
@@ -180,7 +157,7 @@ void NormalizationPropertyOwner::updateCurrentValue(
     {
         throw NonDynamicConfigProperty(name);
     }
-   
+
     configProperty->currentValue = value;
     ObjectNormalizer::setEnableNormalization(
         ConfigManager::parseBooleanValue(value));

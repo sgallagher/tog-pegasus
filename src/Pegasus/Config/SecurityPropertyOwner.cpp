@@ -41,10 +41,16 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
 
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+/**
+ * The Server message resource name
+ */
+
+static const char * SSL_POSSIBLE_VALUE_KEY =
+        "Config.SecurityPropertyOwner.SSLClientVerification_POSSIBLE_VALUE";
 
 ///////////////////////////////////////////////////////////////////////////////
 //  SecurityPropertyOwner
@@ -477,29 +483,36 @@ void SecurityPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
-    propertyInfo.clear();
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    propertyInfo.append(configProperty->propertyName);
-    propertyInfo.append(configProperty->defaultValue);
-    propertyInfo.append(configProperty->currentValue);
-    propertyInfo.append(configProperty->plannedValue);
-    if (configProperty->dynamic)
+    buildPropertyInfo(name, configProperty, propertyInfo);
+}
+
+// Adds supplement help info for sslClientVerification property in this
+// class
+String SecurityPropertyOwner::getPropertyHelpSupplement(
+    const String& name) const
+{
+    String localPropertyInfo = "";
+    if (String::equalNoCase(_sslClientVerificationMode->propertyName, name))
     {
-        propertyInfo.append(STRING_TRUE);
+        String possibleValueString =
+"Possible Values:\n"
+"\"required\" Server requires certificate-based client authentication.\n"
+"    Client MUST present trusted certificateto access the CIM Server.\n"
+"    If client fails to send certificate or sends untrusted certificate,\n"
+"    connection is rejected.\n"
+"\"optional\" Server supports but does not require certificate-based\n"
+"    client authentication. Connection is accepted even if no/untrusted\n"
+"    certificate sent. Server will then seek to authenticate client\n"
+"    via authentication header.\n"
+"\"disabled\" Server does not support certificate-based authentication.\n";
+        MessageLoaderParms parms1(SSL_POSSIBLE_VALUE_KEY,
+            possibleValueString);
+        parms1.msg_src_path = CONFIG_MSG_PATH;
+        localPropertyInfo.append(MessageLoader::getMessage(parms1));
     }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
-    if (configProperty->externallyVisible)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
+    return localPropertyInfo;
 }
 
 /**

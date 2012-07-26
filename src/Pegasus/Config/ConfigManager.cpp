@@ -500,7 +500,7 @@ Boolean ConfigManager::validatePropertyValue(
 Get default value of the specified property.
 */
 String ConfigManager::getDefaultValue(const String& name) const
-{    
+{
     String fixedValue;
     if (_fixedValueCheck(name, fixedValue))
     {
@@ -569,6 +569,24 @@ String ConfigManager::getPlannedValue(const String& name) const
     return propertyOwner->getPlannedValue(name);
 }
 
+/**
+Get help on specified attribute
+*/
+void ConfigManager::getPropertyHelp(
+    const String& name,
+    String& propertyHelp) const
+{
+    //
+    // get property owner object from config table
+    //
+    ConfigPropertyOwner* propertyOwner;
+    if ( !_propertyTable->ownerTable.lookup(name,
+        propertyOwner))
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+    propertyHelp.append(propertyOwner->getPropertyHelp(name));
+}
 
 /**
 Get all the attributes of the specified property.
@@ -891,7 +909,7 @@ Boolean ConfigManager::_fixedValueCheck(const String& name,String & value) const
     {
         return false;
     }
-    
+
     // if the fixed value is set to blank, need to replace the value with
     // the system-supplied host name
     if (String::equalNoCase(name, "fullyQualifiedHostName"))
@@ -1026,6 +1044,28 @@ Array<HostAddress> ConfigManager::getListenAddress(const String &propertyValue)
         listenAddrs.append(theAddress);
     }
     return listenAddrs;
+}
+
+String ConfigManager::getDynamicAttributeStatus(const String& name)
+{
+    //
+    // get property owner object from config table
+    //
+    ConfigPropertyOwner* propertyOwner;
+    if ( !_propertyTable->ownerTable.lookup(name, propertyOwner))
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+
+    Boolean _isDynamic = propertyOwner->isDynamic(name);
+
+    MessageLoaderParms parms(
+        (_isDynamic? "Config.ConfigManager.DYNAMIC":
+                     "Config.ConfigManager.STATIC"),
+        (_isDynamic? "Dynamic" : "Static"));
+
+    parms.msg_src_path = "pegasus/pegasusServer";
+    return MessageLoader::getMessage(parms);
 }
 
 PEGASUS_NAMESPACE_END

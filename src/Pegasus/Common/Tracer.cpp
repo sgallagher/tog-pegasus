@@ -63,7 +63,7 @@ PEGASUS_NAMESPACE_BEGIN
 
        Tracer::setTraceComponents("Config,Repository");
 */
-static char const* TRACE_COMPONENT_LIST[] =
+char const* Tracer::TRACE_COMPONENT_LIST[] =
 {
     "Xml",
     "XmlIO",
@@ -106,6 +106,10 @@ static char const* TRACE_COMPONENT_LIST[] =
     "InternalProvider"
 };
 
+// Set the number of defined components
+const Uint32 Tracer::_NUM_COMPONENTS =
+    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
+
 
 // Defines the value values for trace facilities
 // Keep the TRACE_FACILITY_LIST in sync with the TRACE_FACILITY_INDEX,
@@ -139,10 +143,6 @@ Tracer* Tracer::_tracerInstance = 0;
 
 // Set component separator
 const char Tracer::_COMPONENT_SEPARATOR = ',';
-
-// Set the number of defined components
-const Uint32 Tracer::_NUM_COMPONENTS =
-    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 // Set the line maximum
 const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;

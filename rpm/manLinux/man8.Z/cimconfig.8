@@ -15,6 +15,8 @@ cimconfig \- get, set, unset, or list CIM Server configuration properties
 
 \fBcimconfig\fP \fB\-\-help\fP
 
+\fBcimconfig\fP \fB\-\-H name\fP
+
 \fBcimconfig\fP \fB\-\-version\fP
 
 .SH "DESCRIPTION"
@@ -454,11 +456,16 @@ planned configuration file if the CIM Server is not running.
 .B \-d
 Specifies that the get operation be performed on the default configuration
 properties.  Returns an error when the CIM Server is not running.
+.TP 
+.B \-h, --help
+Display the command usage message.
+.TP 
+.B \-H name
+Display detailed help information on the configuraton property defined by
+the name parameter.
 .RE
 .PP 
-If no options are specified, 
-.B cimconfig 
-displays a usage message.
+
 .SH "EXIT STATUS"
 .PP 
 When an error occurs, an

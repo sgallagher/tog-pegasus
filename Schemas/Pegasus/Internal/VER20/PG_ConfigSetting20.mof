@@ -68,6 +68,10 @@ class PG_ConfigSetting
     ]
     boolean    DynamicProperty;
 
+    [Description ("Descriptive text about the Property. This is a "
+        "preformatted string.") ]
+    string      Description;
+
        [Description (
           "Updates the planned value and current value using the "
           "timeout period.")]

@@ -193,7 +193,7 @@ public:
     @param  value        The value of the property to be validated.
     @return Boolean      True if the specified value for the property is valid.
     @exception UnrecognizedConfigProperty  if the property is not defined.
-    @exception InvalidListenAddressPropertyValue  if the property value 
+    @exception InvalidListenAddressPropertyValue  if the property value
         is not valid.
     */
     Boolean isValid(const String& name, const String& value) const;
@@ -209,9 +209,9 @@ public:
     Boolean isDynamic(const String& name) const;
     /**
         get the ip address to listen on for connection
-        @param propertyValue A String containing a comma separated list of ips 
-        @return an array of ip adress specified for configuration property 
-            listenAdrress 
+        @param propertyValue A String containing a comma separated list of ips
+        @return an array of ip adress specified for configuration property
+            listenAdrress
     */
     static Array<String> parseAndGetListenAddress(const String& propertyValue);
 

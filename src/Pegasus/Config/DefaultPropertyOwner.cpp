@@ -110,6 +110,7 @@ void DefaultPropertyOwner::getPropertyInfo(
             propertyInfo.append(_configProperties.get()[i].defaultValue);
             propertyInfo.append(_configProperties.get()[i].currentValue);
             propertyInfo.append(_configProperties.get()[i].plannedValue);
+
             if (_configProperties.get()[i].dynamic)
             {
                 propertyInfo.append(STRING_TRUE);
@@ -118,6 +119,7 @@ void DefaultPropertyOwner::getPropertyInfo(
             {
                 propertyInfo.append(STRING_FALSE);
             }
+
             if (_configProperties.get()[i].externallyVisible)
             {
                 propertyInfo.append(STRING_TRUE);
@@ -126,6 +128,9 @@ void DefaultPropertyOwner::getPropertyInfo(
             {
                 propertyInfo.append(STRING_FALSE);
             }
+
+            propertyInfo.append(getPropertyHelp(name));
+
             return;
         }
     }
@@ -392,7 +397,7 @@ void DefaultPropertyOwner::updatePlannedValue(
 }
 
 /**
- *Parse the list of comma seperated interface addresses 
+ *Parse the list of comma seperated interface addresses
  * and return a list of string representation of interfaces
  * and works in following way
  *1)It checks for comma in a specified non empty listenAddress value
@@ -420,7 +425,7 @@ Array<String> DefaultPropertyOwner::parseAndGetListenAddress
             while(idx !=PEG_NOT_FOUND)
             {
                 interfaces.append(value.subString(0,idx));
-                value.remove(0,idx+1); 
+                value.remove(0,idx+1);
                 idx = value.find(",");
             }
             //Last Remaining address
@@ -503,7 +508,7 @@ Boolean DefaultPropertyOwner::isValid(
     }
     else if (String::equal(name, "listenAddress"))
     {
-        
+
         return isListenAddressValid(value);
 
     }

@@ -149,29 +149,8 @@ void RepositoryPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
-    propertyInfo.clear();
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
-    propertyInfo.append(configProperty->propertyName);
-    propertyInfo.append(configProperty->defaultValue);
-    propertyInfo.append(configProperty->currentValue);
-    propertyInfo.append(configProperty->plannedValue);
-    if (configProperty->dynamic)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
-    if (configProperty->externallyVisible)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
+    buildPropertyInfo(name, configProperty, propertyInfo);
 }
 
 /**
@@ -246,8 +225,8 @@ void RepositoryPropertyOwner::updateCurrentValue(
     {
         throw NonDynamicConfigProperty(name);
     }
-   
-    configProperty->currentValue = value; 
+
+    configProperty->currentValue = value;
 }
 
 

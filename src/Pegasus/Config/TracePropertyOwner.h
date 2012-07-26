@@ -79,6 +79,15 @@ public:
     void getPropertyInfo(const String& name, Array<String>& propertyInfo)const;
 
     /**
+        Get the help supplementary info (i.e. Possible values on the
+        specified property.
+
+        @param name - The name of the property.
+        @return String with Supplemental help info
+    */
+    String getPropertyHelpSupplement(const String& name) const;
+
+    /**
     Get default value of the specified property.
 
     @param  name         The name of the property.

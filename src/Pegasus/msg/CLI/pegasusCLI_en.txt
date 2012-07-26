@@ -34,24 +34,25 @@
 
 en:table {
 
-	// ==========================================================
+        // ==========================================================
         // Messages for CIMConfigCommand
-	//  Please use message prefix "PGC00200"
+        //  Please use message prefix "PGC00200"
         // ==========================================================
 
 
         /**
-	* @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
-	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
-	*    When translating this message, make sure that each line fits in 80 characters,
-	*    preserves the indenting,
-	*    and ends with a newline character (\n).
-	*/
-	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
+        * @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
+        *    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
+        */
+        Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
     "Usage: cimconfig -g name [ -c ] [ -p ] [ -d ]\n"
     "                 -s name=value [ -c ] [ -p ] [ -t ]\n"
     "                 -u name [ -c ] [ -p ] [ -t ]\n"
     "                 -l [-c | -p]\n"
+    "                 -H name\n"
     "                 -h\n"
     "                 --help\n"
     "                 --version\n"
@@ -60,15 +61,20 @@ en:table {
     "     -c          - Use the current configuration.\n"
     "     -p          - Configuration user on the next CIM server start.\n"
     "     -d          - Use the default configuration.\n"
+    "     -H          - Get help on specified configuration property\n"
+    "     -h, --help  - Display this help message.\n"
     "     -s          - Add or update configuration property value.\n"
     "     -u          - Reset the configuration property to its default value.\n"
     "     -l          - Display all the configuration properties.\n"
-    "     -t          - Timeout value in seconds for updating the current or"
+    "     -t          - Timeout value in seconds for updating the current or\n"
     "                   planned value.\n"
-    "     -h, --help  - Display this help message.\n"
-    "     --version   - Display CIM server version number.\n"
+    "     --version   - Display CIM server version number.\n\n"
+    "Usage note: The cimconfig command can be used to update the next planned\n"
+    "    configuration without having the CIM Server running. All other options\n"
+    "    except -h, --help and -H of the cimconfig command require that the\n"
+    "    CIM Server is running.\n"
     "\n"
-	}
+        }
 
         /**
         * @note PGC00200:

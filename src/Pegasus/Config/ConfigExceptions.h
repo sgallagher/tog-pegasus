@@ -118,7 +118,7 @@ public:
 /**
     InvalidListenAddressPropertyValue Exception class
 */
-class PEGASUS_CONFIG_LINKAGE InvalidListenAddressPropertyValue 
+class PEGASUS_CONFIG_LINKAGE InvalidListenAddressPropertyValue
    : public InvalidPropertyValue
 {
 public:

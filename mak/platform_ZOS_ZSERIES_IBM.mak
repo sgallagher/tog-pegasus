@@ -56,6 +56,12 @@ FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamicca
 PR_FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamiccast),FLOAT(IEEE),goff,INLINE(AUTO,REPORT,1000,8000)" -W "l,XPLINK,dll,EDIT=NO"
 endif
 
+# The CSECT parameter for the compiler does not bear dots.
+# replace '.' with '_'
+_CSECT_PATH = $(subst .,_,$(DIR))
+FLAGS += -W"c,CSECT($(_CSECT_PATH)) "
+PR_FLAGS += -W"c,CSECT($(_CSECT_PATH)) "
+
 ifdef PEGASUS_GENERATE_LISTINGS
   FLAGS += -W"c,LIST,XREF"
   PR_FLAGS  += -W"c,LIST,XREF" -W"l,MAP,LIST"

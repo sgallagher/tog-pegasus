@@ -269,7 +269,13 @@ typedef int SocketHandle;
 #elif defined(PEGASUS_PLATFORM_HPUX_IA64_ACC) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
     typedef int SocketLength;
+#elif defined(PEGASUS_PLATFORM_HPUX_IA64_GNU) && \
+    !defined(_XOPEN_SOURCE_EXTENDED)
+    typedef int SocketLength;
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && \
+    !defined(_XOPEN_SOURCE_EXTENDED)
+    typedef int SocketLength;
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_GNU) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
     typedef int SocketLength;
 #else

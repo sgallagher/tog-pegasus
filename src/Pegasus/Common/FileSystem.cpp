@@ -30,7 +30,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-//#include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -41,6 +40,7 @@
 #include <pwd.h>
 #endif
 #include <Pegasus/Common/Tracer.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 // Clone the path as a C String but discard trailing slash if any:
@@ -467,7 +467,8 @@ String FileSystem::getDynamicLibraryExtension()
 {
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     return String(".dll");
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || \
+    defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
     return String(".sl");
 #elif defined(PEGASUS_OS_DARWIN)
     return String(".dylib");
@@ -580,10 +581,18 @@ Boolean FileSystem::changeFileOwner(
 void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
 {
 #if defined(PEGASUS_OS_HPUX)
+  #if defined (PEGASUS_PLATFORM_HPUX_IA64_GNU) || \
+    defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
+    // Writes the data from the iostream buffers to the OS buffers
+    fs.flush();
+    // Writes the data from the OS buffers to the disk
+    fs.rdbuf()->pubsync();
+    #else
     // Writes the data from the iostream buffers to the OS buffers
     fs.flush();
     // Writes the data from the OS buffers to the disk
     fsync(fs.rdbuf()->fd());
+    #endif
 #endif
 }
 

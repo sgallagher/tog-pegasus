@@ -50,8 +50,12 @@
 # include <Pegasus/Common/Platform_AIX_RS_IBMCXX.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include <Pegasus/Common/Platform_HPUX_PARISC_ACC.h>
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
+# include <Pegasus/Common/Platform_HPUX_PARISC_GNU.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_IA64_ACC)
 # include <Pegasus/Common/Platform_HPUX_IA64_ACC.h>
+#elif defined (PEGASUS_PLATFORM_HPUX_IA64_GNU)
+# include <Pegasus/Common/Platform_HPUX_IA64_GNU.h>
 #elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 # include <Pegasus/Common/Platform_TRU64_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)

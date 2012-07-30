@@ -37,7 +37,7 @@
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_HPUX_PARISC_ACC
+// PEGASUS_PLATFORM_HPUX_PARISC_ACC || PEGASUS_PLATFORM_HPUX_PARISC_GNU
 //
 // NOTE:  This spinlock implementation is based on the paper "Implementing
 // Spinlocks on the Intel(R) Itanium(R) Architecture an PA-RISC" by Tor
@@ -49,7 +49,8 @@
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || \
+    defined(PEGASUS_PLATFORM_HPUX_PARISC_GNU)
 # define PEGASUS_SPIN_LOCK_DEFINED
 
 # include <sys/time.h>    // For select()
@@ -136,7 +137,9 @@ inline void SpinLockUnlock(SpinLock& x)
 {
     // Ensure that the compiler doesn't hold any externally-visible values in
     // registers across the lock release.
-    _flush_globals();
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_GNU
+     _flush_globals();
+#endif
 
     // Set to unlocked
     *x.lock = 1;
@@ -144,7 +147,8 @@ inline void SpinLockUnlock(SpinLock& x)
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PEGASUS_PLATFORM_HPUX_PARISC_ACC */
+#endif /* PEGASUS_PLATFORM_HPUX_PARISC_ACC || 
+     PEGASUS_PLATFORM_HPUX_PARISC_GNU */
 
 //==============================================================================
 //

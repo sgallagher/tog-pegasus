@@ -32,12 +32,8 @@
 #ifndef Pegasus_String_h
 #define Pegasus_String_h
 
-#ifdef PEGASUS_OS_HPUX
-# ifdef HPUX_IA64_NATIVE_COMPILER
-#  include <iostream>
-# else
-#  include <iostream.h>
-# endif
+#if defined PEGASUS_OS_HPUX && defined (HPUX_IA64_NATIVE_COMPILER) 
+# include <iostream.h>
 #else
 # include <iostream>
 #endif

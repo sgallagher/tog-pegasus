@@ -47,6 +47,16 @@ endif
 _TMP_O = $(PEGASUS_PLATFORM).o
 
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
+ifeq "$(wildcard LoadAndClearWord_HPUX_PARISC_ACC.s)" "LoadAndClearWord_HPUX_PARISC_ACC.s"
+$(OBJ_DIR)/LoadAndClearWord_HPUX_PARISC_ACC.o: $(OBJ_DIR)/target LoadAndClearWord_HPUX_PARISC_ACC.s $(ERROR)
+	aCC -c -o $(OBJ_DIR)/LoadAndClearWord_HPUX_PARISC_ACC.o $(GNU_LINK_SEARCH_PATH) +Z +DAportable -mt -D_PSTAT64 +DD64 \
+		$(EXTRA_C_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) LoadAndClearWord_HPUX_PARISC_ACC.s
+	@ $(TOUCH) $@
+	@ $(ECHO)
+endif
+endif
+
 ifeq ($(_NO_TMP_O), yes)
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
 	$(CXX) -c -o $@ $(FLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
@@ -87,4 +97,5 @@ $(OBJ_DIR)/%.o: %.s $(ERROR)
 	@ $(RM) $(_TMP_O)
 	@ $(TOUCH) $@
 	@ $(ECHO)
+
 endif

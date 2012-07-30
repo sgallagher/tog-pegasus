@@ -88,7 +88,11 @@ endif
 ifeq ($(COMPILER),gnu)
   ifeq ($(HAS_ICU_DEPENDENCY),true)
     ifdef ICU_INSTALL
-      EXTRA_LINK_ARGUMENTS += -Xlinker -rpath -Xlinker $(ICU_INSTALL)/lib
+      ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_GNU)
+        EXTRA_LINK_ARGUMENTS += -Xlinker $(ICU_INSTALL)/lib
+      else 
+        EXTRA_LINK_ARGUMENTS += -Xlinker -rpath -Xlinker $(ICU_INSTALL)/lib
+      endif
     endif
   endif
   ifneq ($(OS),darwin)
@@ -105,7 +109,14 @@ ifeq ($(COMPILER),gnu)
     LINK_ARGUMENTS = --helplib$(LIBRARY)$(LIB_SUFFIX) -ldl
   endif
   ifeq ($(PEGASUS_PLATFORM), SOLARIS_SPARC_GNU)
-	LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX) -Xlinker -L$(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+    LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX) -Xlinker -L$(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+  endif
+  ifeq ($(OS), HPUX)
+    LINK_COMMAND += -pthread -Wl,+rpathfirst
+    LINK_ARGUMENTS = -Xlinker -L$(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+  endif
+  ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+      LINK_COMMAND += $(GNU_LINK_SEARCH_PATH)
   endif
   LINK_OUT = -o
 endif
@@ -224,9 +235,17 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
             ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
     endif
+    ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
+            ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
+    endif
     ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
             ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
+    endif
+    ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_GNU)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
+       ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
     ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
@@ -267,7 +286,13 @@ FILES_TO_CLEAN = $(OBJECTS) $(FULL_LIB)
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).sl
 endif
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
+    FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).sl
+endif
 ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
+    FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).so
+endif
+ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_GNU)
     FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).so
 endif
 ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU

@@ -28,7 +28,7 @@
 #//////////////////////////////////////////////////////////////////////////
 DEPEND_MAK = $(OBJ_DIR)/depend.mak
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(ARCHITECTURE),PARISC)
   SOURCES_NO_ASM = $(patsubst %.s,,$(SOURCES))
 else
   SOURCES_NO_ASM = $(SOURCES)

@@ -93,10 +93,14 @@ ifeq ($(OS),HPUX)
     GENERATE_RANDSEED = randseed
     GET_HOSTNAME = `nslookup \`hostname\` | grep "Name:" | sed 's/Name:[ ]*//'`
 
+        LIB_LINK_SUFFIX = .so
+
     ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
         LIB_LINK_SUFFIX = .sl
-    else
-        LIB_LINK_SUFFIX = .so
+    endif
+    
+    ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_GNU)
+        LIB_LINK_SUFFIX = .sl
     endif
 
     Prwxr_xr_x = 755

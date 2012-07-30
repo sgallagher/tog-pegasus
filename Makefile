@@ -86,6 +86,7 @@ usage: FORCE
 	$(USAGE)"                      $(PEGASUS_HOME)/lib"
 	$(USAGE)"                      $(PEGASUS_HOME)/obj"
 	$(USAGE)"buildmu             - builds the mu utility"
+	$(USAGE)"buildclientlibs     - Build only the Client and Common libraries"
 	$(USAGE)"setupdevserver      - setup the development server env"
 	$(USAGE)"cleandevserver      - cleans the development server env"
 	$(USAGE)"repository          - builds the base repository. Does not remove other"
@@ -271,6 +272,15 @@ endif
 ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.interop replace
 endif
+
+# buildclientlibs: The libpegclient depends on libpegcommon library.
+# This build target can be used to build just these two libraries. 
+# With this target, SLP support for clients is not enabled.
+#
+
+buildclientlibs: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Common -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client -f Makefile
 
 #----------------------
 # setupdevserver and cleandevserver are used to setup and clear the

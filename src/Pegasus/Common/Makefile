@@ -206,7 +206,13 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
     SOURCES2 += $(SOURCES_SLP)
 endif
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC) 
+    SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+endif
+
+# LoadAndClearWord_HPUX_PARISC_ACC.s will be compiled using aCC
+# in order to use the native assembler to create the object
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 

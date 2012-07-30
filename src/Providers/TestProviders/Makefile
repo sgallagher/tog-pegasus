@@ -86,4 +86,9 @@ TEST_DIRS += \
 	CMPI
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+TEST_DIRS += \
+	IndicationTestProvider/wsmanTestClient
+endif
+
 include $(ROOT)/mak/recurse.mak

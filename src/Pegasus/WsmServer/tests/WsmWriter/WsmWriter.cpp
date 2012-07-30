@@ -432,6 +432,7 @@ static void  _testResponseFormatting(void)
     String wsaFrom;
     String wsaReplyTo;
     String wsaFaultTo;
+    String WsaIdentifier;
     WsmEndpointReference epr;
     Uint32 wsmMaxEnvelopeSize = 0;
     AcceptLanguageList wsmLocale;
@@ -440,7 +441,7 @@ static void  _testResponseFormatting(void)
     reader.decodeRequestSoapHeaders(
         wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
         wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-        wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+        wsmLocale, wsmRequestEpr, wsmRequestItemCount,WsaIdentifier);
 
     if (epr.address != WSM_ADDRESS_ANONYMOUS ||
         wsaAction != WSM_ACTION_GET_RESPONSE ||

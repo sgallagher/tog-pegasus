@@ -260,6 +260,12 @@ const CIMName PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE =
     CIMNameCast("SubscriptionState");
 
 /**
+    The name of the SubscriptionInfo property for Formatted Indication
+    Subscription class
+*/
+const CIMName _PROPERTY_SUBSCRIPTION_INFO = CIMNameCast("SubscriptionInfo");
+
+/**
     The name of the Query property for indication filter class
  */
 const CIMName PEGASUS_PROPERTYNAME_QUERY =

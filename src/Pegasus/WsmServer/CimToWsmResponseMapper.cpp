@@ -90,6 +90,12 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                     (CIMModifyInstanceResponseMessage*) message));
                 break;
 
+            case WS_SUBSCRIPTION_CREATE:
+                wsmResponse.reset(_mapToWxfSubCreateResponse(
+                    (WxfSubCreateRequest*) wsmRequest,
+                    (CIMCreateInstanceResponseMessage*) message));
+                break;
+
             case WS_TRANSFER_CREATE:
                 wsmResponse.reset(_mapToWxfCreateResponse(
                     (WxfCreateRequest*) wsmRequest,
@@ -99,6 +105,12 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
             case WS_TRANSFER_DELETE:
                 wsmResponse.reset(_mapToWxfDeleteResponse(
                     (WxfDeleteRequest*) wsmRequest,
+                    (CIMDeleteInstanceResponseMessage*) message));
+                break;
+
+            case WS_SUBSCRIPTION_DELETE:  
+                wsmResponse.reset(_mapToWxfSubDeleteResponse(
+                    (WxfSubDeleteRequest*) wsmRequest,
                     (CIMDeleteInstanceResponseMessage*) message));
                 break;
 
@@ -375,12 +387,39 @@ WxfCreateResponse* CimToWsmResponseMapper::_mapToWxfCreateResponse(
     return wsmResponse;
 }
 
+WxfSubCreateResponse* CimToWsmResponseMapper::_mapToWxfSubCreateResponse(
+    const WxfSubCreateRequest* wsmRequest,
+    const CIMCreateInstanceResponseMessage* response)
+{
+    WsmEndpointReference epr = wsmRequest->epr;
+
+    WxfSubCreateResponse* wsmResponse =
+        new WxfSubCreateResponse(
+            epr,
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    return wsmResponse;
+}
+
 WxfDeleteResponse* CimToWsmResponseMapper::_mapToWxfDeleteResponse(
     const WxfDeleteRequest* wsmRequest,
     const CIMDeleteInstanceResponseMessage* response)
 {
     WxfDeleteResponse* wsmResponse =
         new WxfDeleteResponse(
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    return wsmResponse;
+}
+
+WxfSubDeleteResponse* CimToWsmResponseMapper::_mapToWxfSubDeleteResponse(
+    const WxfSubDeleteRequest* wsmRequest,
+    const CIMDeleteInstanceResponseMessage* response)
+{
+     WxfSubDeleteResponse* wsmResponse =
+        new WxfSubDeleteResponse(
             wsmRequest,
             _getContentLanguages(response->operationContext));
 

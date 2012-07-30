@@ -73,7 +73,9 @@ private:
     void _encodeWxfGetResponse(WxfGetResponse* response);
     void _encodeWxfPutResponse(WxfPutResponse* response);
     void _encodeWxfCreateResponse(WxfCreateResponse* response);
+    void _encodeWxfSubCreateResponse(WxfSubCreateResponse* response);
     void _encodeWxfDeleteResponse(WxfDeleteResponse* response);
+    void _encodeWxfSubDeleteResponse(WxfSubDeleteResponse* response);
     void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);

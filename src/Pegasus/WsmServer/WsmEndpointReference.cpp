@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
+#include <Pegasus/WsmServer/WsmConstants.h>
 #include "WsmEndpointReference.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -75,6 +76,21 @@ const String& WsmEndpointReference::getNamespace() const
     }
 
     return String::EMPTY;
+}
+
+void WsmEndpointReference::setNamespace(const String& Namespace)
+{
+    if (selectorSet)
+    {
+        for (Uint32 i = 0; i < selectorSet->selectors.size(); i++)
+        {
+            if (selectorSet->selectors[i].type == WsmSelector::VALUE &&
+                selectorSet->selectors[i].name == PEGASUS_WS_CIMNAMESPACE)
+            {
+                selectorSet->selectors[i].value = Namespace;
+            }
+        }
+    }
 }
 
 WsmEndpointReference& WsmEndpointReference::operator=(

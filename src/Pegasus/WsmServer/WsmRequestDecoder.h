@@ -96,6 +96,12 @@ public:
         const String& className,
         const String& methodName);
 
+    void getFilterOrHandlerEPR(
+        WsmEndpointReference& instanceEPR,
+        const String address,
+        const String instanceName,
+        const String className);
+    
 private:
 
     void _checkRequiredHeader(
@@ -141,10 +147,30 @@ private:
         const String& messageId,
         const WsmEndpointReference& epr);
 
+    WsmRequest* _decodeWSSubscriptionRequest(
+        WsmReader& wsmReader,
+        const String& messageId,
+        WsmEndpointReference& epr,
+        AutoPtr<WsmRequest> &createHandlerRequest,
+        AutoPtr<WsmRequest> &createSubRequest,
+        Boolean &createFilter);
+
+    WsmRequest* _decodeWSUnsubscribeRequest(
+        WsmReader& wsmReader,
+        const String& messageId,
+        WsmEndpointReference& epr,
+        const String& identifier,
+        Boolean & deleteFilter,
+        AutoPtr<WsmRequest> &deleteFilterRequest,
+        AutoPtr<WsmRequest> &deleteHandlerRequest);
+
     bool _isIdentifyRequest(WsmReader& wsmReader);
 
     void _sendIdentifyResponse(Uint32 queueId);
 
+    void _copyRequestProperties(
+        WsmRequest *request,
+        const WsmRequest *originalRequest);
     // The queue to which to forward the decoded WsmRequests.
     WsmProcessor* _wsmProcessor;
 

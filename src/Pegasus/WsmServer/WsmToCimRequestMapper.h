@@ -56,9 +56,9 @@ public:
     CIMModifyInstanceRequestMessage* mapToCimModifyInstanceRequest(
         WxfPutRequest* request);
     CIMCreateInstanceRequestMessage* mapToCimCreateInstanceRequest(
-        WxfCreateRequest* request);
+        WsmRequest * request,Boolean isSubCreate=false);
     CIMDeleteInstanceRequestMessage* mapToCimDeleteInstanceRequest(
-        WxfDeleteRequest* request);
+        WsmRequest* request,Boolean isSubDeleteReq=false);
     CIMEnumerateInstancesRequestMessage* mapToCimEnumerateInstancesRequest(
         WsenEnumerateRequest* request);
     CIMEnumerateInstanceNamesRequestMessage*

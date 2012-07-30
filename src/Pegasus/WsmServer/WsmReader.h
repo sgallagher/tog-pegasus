@@ -42,7 +42,7 @@
 #include <Pegasus/WsmServer/WsmUtils.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WsmServer/WsmFilter.h>
-
+#include <Pegasus/Common/Constants.h>
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_WSMSERVER_LINKAGE WsmReader
@@ -126,7 +126,8 @@ public:
         Uint32& wsmMaxEnvelopeSize,
         AcceptLanguageList& wsmLocale,
         Boolean& wsmRequestEpr,
-        Boolean& wsmRequestItemCount);
+        Boolean& wsmRequestItemCount,
+        String& wseIdentifier);
 
     void decodeEnumerateBody(
         String& expiration,
@@ -156,7 +157,7 @@ public:
         WsmValue& propValue);
     void getValueElement(WsmValue& value, int nsType, const char* propNameTag);
 
-    void decodeFilter(WsmFilter& wsmFilter);
+    void decodeFilter(WsmFilter& wsmFilter, int nsType = WsmNamespaces::WS_MAN);
 //      Uint32& filterDialect,
 //      String& queryLanguage,
 //      String& query,
@@ -177,9 +178,18 @@ public:
 //      String& role,
 //      String& resultRole,
 //      CIMPropertyList& propertyList);
+
+    void decodeSubscribeBody(
+        String& deliveryMode,
+        String& notifyTo,
+        String& subExpiration,
+        WsmFilter & wsmFilter);
 private:
 
     XmlParser _parser;
+    void _decodeDeliveryField(
+        String & deliveryMode,
+        String & destination);
 };
 
 PEGASUS_NAMESPACE_END

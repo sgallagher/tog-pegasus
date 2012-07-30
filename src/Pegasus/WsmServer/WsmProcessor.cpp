@@ -56,6 +56,7 @@ WsmProcessor::WsmProcessor(
       _repository(repository),
       _wsmToCimRequestMapper(repository)
 {
+    _initializeSubInfoTable();
 }
 
 WsmProcessor::~WsmProcessor()
@@ -85,6 +86,75 @@ void WsmProcessor::handleEnqueue()
     handleEnqueue(message);
 }
 
+void WsmProcessor::addReqToSubContext(
+    WsmRequest* wsmRequest,
+    Boolean isCreateReq)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmProcessor::addReqToSubContext()");
+    SubscriptionContext *subContext;
+    String className;
+    WxfSubCreateRequest *wsmCreateRequest;
+    WxfSubDeleteRequest *wsmDeleteRequest;
+    if(isCreateReq == true)
+    {
+        wsmCreateRequest = (WxfSubCreateRequest *)wsmRequest;
+        className = wsmCreateRequest->instance.getClassName();
+    }
+    else
+    {
+        wsmDeleteRequest = (WxfSubDeleteRequest *)wsmRequest;
+        className = wsmDeleteRequest->className;
+    }
+
+    AutoMutex lock(_subscriptionContextTableLock);
+    // Look up for the Subscription context in the hash table.
+    // If it does not exist, create a new entry.
+    if(_subscriptionContextTable.contains(wsmRequest->messageId))
+    {
+        _subscriptionContextTable.lookupReference(
+            wsmRequest->messageId,
+            subContext);
+    }
+    else
+    {
+        SubscriptionContext subCon(wsmRequest->messageId);
+        _subscriptionContextTable.insert(wsmRequest->messageId, subCon);
+        _subscriptionContextTable.lookupReference(
+            wsmRequest->messageId,
+            subContext);
+    }
+
+    // Fill in the filter, handler and subscription requests
+    if(className == PEGASUS_CLASSNAME_INDFILTER.getString())
+    {
+        if(isCreateReq == true)
+        {
+            subContext->filterReq = wsmCreateRequest;
+        }
+        else
+        {
+            subContext->filterDeleteReq = wsmDeleteRequest;
+        }
+    }
+    else if ( className == PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString())
+    {
+        if (isCreateReq == true)
+        {
+            subContext->handlerReq = wsmCreateRequest;
+        }
+        else
+        {
+            subContext->handlerDeleteReq = wsmDeleteRequest;
+        }
+    }
+    else if ( className == PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString())
+    {
+        subContext->subReq = wsmCreateRequest;
+    }
+    PEG_METHOD_EXIT();
+}
+
+
 void WsmProcessor::handleRequest(WsmRequest* wsmRequest)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmProcessor::handleRequest()");
@@ -93,7 +163,6 @@ void WsmProcessor::handleRequest(WsmRequest* wsmRequest)
     // implemented, and they all are handled by forwarding to the CIM Server.
 
     AutoPtr<WsmRequest> wsmRequestDestroyer(wsmRequest);
-
     try
     {
         CIMOperationRequestMessage* cimRequest =
@@ -131,36 +200,43 @@ void WsmProcessor::handleRequest(WsmRequest* wsmRequest)
     }
     catch (WsmFault& fault)
     {
-        sendResponse(new WsmFaultResponse(wsmRequest, fault));
+        sendResponse(new WsmFaultResponse(wsmRequest, fault),wsmRequest);
     }
     catch (CIMException& e)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            _cimToWsmResponseMapper.mapCimExceptionToWsmFault(e)));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                _cimToWsmResponseMapper.mapCimExceptionToWsmFault(e)),
+            wsmRequest);
     }
     catch (Exception& e)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            WsmFault(
-                WsmFault::wsman_InternalError,
-                e.getMessage(),
-                e.getContentLanguages())));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                WsmFault(
+                    WsmFault::wsman_InternalError,
+                    e.getMessage(),
+                    e.getContentLanguages())),
+            wsmRequest);
     }
     catch (PEGASUS_STD(exception)& e)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            WsmFault(WsmFault::wsman_InternalError, e.what())));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                WsmFault(WsmFault::wsman_InternalError, e.what())),
+            wsmRequest);
     }
     catch (...)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            WsmFault(WsmFault::wsman_InternalError)));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                WsmFault(WsmFault::wsman_InternalError)),
+            wsmRequest);
     }
-
     // Note this requirement when Enumerate/Pull operations are supported:
     // DSP0226 R6.3-5: For operations that span multiple message sequences,
     // the wsman:Locale element is processed in the initial message only.
@@ -195,7 +271,16 @@ void WsmProcessor::handleResponse(CIMResponseMessage* cimResponse)
                     cimResponse,
                     (WsenEnumerateRequest*) wsmRequest);
                 break;
-
+            case WS_SUBSCRIPTION_CREATE:
+                _handleSubscriptionResponse(
+                    cimResponse,
+                    (WxfSubCreateRequest*) wsmRequest);
+                break;
+            case WS_SUBSCRIPTION_DELETE:
+                _handleSubscriptionDeleteResponse(
+                    cimResponse,
+                    (WxfSubDeleteRequest*) wsmRequest);
+                break;
             default:
                 _handleDefaultResponse(cimResponse, wsmRequest);
                 break;
@@ -203,44 +288,120 @@ void WsmProcessor::handleResponse(CIMResponseMessage* cimResponse)
     }
     catch (WsmFault& fault)
     {
-        sendResponse(new WsmFaultResponse(wsmRequest, fault));
+        sendResponse(new WsmFaultResponse(wsmRequest, fault),wsmRequest);
     }
     catch (CIMException& e)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            _cimToWsmResponseMapper.mapCimExceptionToWsmFault(e)));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                _cimToWsmResponseMapper.mapCimExceptionToWsmFault(e)),
+            wsmRequest);
     }
     catch (Exception& e)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            WsmFault(
-                WsmFault::wsman_InternalError,
-                e.getMessage(),
-                e.getContentLanguages())));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                WsmFault(
+                    WsmFault::wsman_InternalError,
+                    e.getMessage(),
+                    e.getContentLanguages())),
+            wsmRequest);
     }
     catch (PEGASUS_STD(exception)& e)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            WsmFault(WsmFault::wsman_InternalError, e.what())));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                WsmFault(WsmFault::wsman_InternalError, e.what())),
+            wsmRequest);
     }
     catch (...)
     {
-        sendResponse(new WsmFaultResponse(
-            wsmRequest,
-            WsmFault(WsmFault::wsman_InternalError)));
+        sendResponse(
+            new WsmFaultResponse(
+                wsmRequest,
+                WsmFault(WsmFault::wsman_InternalError)),
+            wsmRequest);
     }
 
     PEG_METHOD_EXIT();
 }
 
-void WsmProcessor::sendResponse(WsmResponse* wsmResponse)
+void WsmProcessor::sendResponse(
+    WsmResponse* wsmResponse,
+    WsmRequest* wsmReq)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmProcessor::sendResponse()");
-
+    if( wsmReq && wsmReq->getType() == WS_SUBSCRIPTION_CREATE)
+    {
+        SubscriptionContext *subContext = NULL;
+        AutoMutex lock(_subscriptionContextTableLock);
+        _subscriptionContextTable.lookupReference(
+            wsmReq->messageId, subContext);
+        if(wsmReq->getType() == WS_SUBSCRIPTION_CREATE)
+        {
+            Boolean createFilter=false;
+            if(subContext && (subContext->filterReq != NULL))
+            {
+                createFilter = true;
+            } 
+            WxfSubCreateRequest *req = (WxfSubCreateRequest *)wsmReq;
+            if (req->instance.getClassName() == 
+                PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString())
+            {  
+                _cleanupFilterHandlerInstances(
+                    req->messageId,
+                    true,
+                    false);
+                _cleanupSubContext(wsmReq->messageId,
+                    createFilter,
+                    false,
+                    true);
+                
+            }
+            else if (req->instance.getClassName() == 
+                PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString())
+            {
+                _cleanupFilterHandlerInstances(
+                    req->messageId,
+                    true,
+                    true);
+                //Delete the subContext.
+                _cleanupSubContext(wsmReq->messageId);
+            }
+            else if (req->instance.getClassName() == 
+                PEGASUS_CLASSNAME_INDFILTER.getString())
+            { 
+                _cleanupSubContext(wsmReq->messageId,
+                    false,
+                    false,
+                    true);
+            } 
+        }
+        else if (wsmReq->getType() == WS_SUBSCRIPTION_DELETE)
+        {
+            Boolean deleteFilter = false;
+            if(subContext && (subContext->filterDeleteReq != NULL))
+            {
+                deleteFilter = true;
+            }
+            WxfSubDeleteRequest *deleteReq = (WxfSubDeleteRequest *)wsmReq;
+            if(deleteReq->className == 
+                PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString())
+            {
+                _cleanupSubContext(wsmReq->messageId,
+                    false,
+                    false,
+                    false,
+                    deleteFilter,
+                    true);
+            }
+        }
+    }
     _wsmResponseEncoder.enqueue(wsmResponse);
+    
     delete wsmResponse;
 
     PEG_METHOD_EXIT();
@@ -325,6 +486,225 @@ void WsmProcessor::_handleEnumerateResponse(
     }
 
     _wsmResponseEncoder.sendResponse(soapResponse.get());
+}
+
+void WsmProcessor::_handleSubscriptionResponse(
+    CIMResponseMessage* cimResponse,
+    WxfSubCreateRequest* wsmRequest)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER, 
+        "WsmProcessor::_handleSubscriptionResponse()");
+    SubscriptionContext *subContext = NULL;
+    AutoMutex lock(_subscriptionContextTableLock);
+    _subscriptionContextTable.lookupReference(
+        wsmRequest->messageId, subContext);
+    if(subContext)
+    {
+        Boolean createFilter = false;
+        if (subContext->filterReq != NULL)
+            createFilter = true;
+        String className = wsmRequest->instance.getClassName();
+        if (className == PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString())
+        {
+            // If handler response is successful
+            if(cimResponse->cimException.getCode() == CIM_ERR_SUCCESS)
+            {
+                subContext->handlerResponse = true;
+                // Proccess filter request if it exists
+                if (createFilter)
+                    handleRequest(subContext->filterReq);    
+                // Process Subscription request if filter request is NULL,
+                // which means subscription uses existing filter
+                else if (subContext->subReq != NULL)
+                {
+                    subContext->filterResponse = true;
+                    handleRequest(subContext->subReq);
+                }
+            } 
+            else // If unsuccessful, do the cleanup
+            {          
+                PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
+                    "Handler creation failed for the request with ID %s ",
+                    (const char*)wsmRequest->messageId.getCString()));
+                sendResponse(new WsmFaultResponse(
+                    wsmRequest,
+                    _cimToWsmResponseMapper.mapCimExceptionToWsmFault(
+                    cimResponse->cimException)));
+                _cleanupSubContext(wsmRequest->messageId,
+                    createFilter,
+                    false,
+                    true);
+            }
+        }
+        else if (className == PEGASUS_CLASSNAME_INDFILTER.getString())
+        {
+            subContext->filterResponse = true;
+            // If filter response is successful, process the handler
+            if(cimResponse->cimException.getCode() == CIM_ERR_SUCCESS)
+            {
+                if (subContext->subReq != NULL)
+                    handleRequest(subContext->subReq);    
+            }
+            else // If unsuccessful, do the cleanup
+            {
+                PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
+                    "Filter creation failed for the request with ID %s ",
+                    (const char*)wsmRequest->messageId.getCString()));
+                // Cleanup handler
+                _cleanupFilterHandlerInstances(
+                    wsmRequest->messageId,
+                    false,
+                    true); 
+                sendResponse(new WsmFaultResponse(
+                    wsmRequest,
+                    _cimToWsmResponseMapper.mapCimExceptionToWsmFault(
+                    cimResponse->cimException)));
+                _cleanupSubContext(wsmRequest->messageId,
+                    false,
+                    false,
+                    true);
+                
+            }
+        }
+        else if (className == PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString())
+        {
+            if ((cimResponse->cimException.getCode() == CIM_ERR_SUCCESS)&&
+               (subContext->filterResponse == true) && 
+               (subContext->handlerResponse == true)) 
+            {
+                _fillSubscriptionInfoTable(subContext->subReq);
+                // Subscription has been created successfully
+                // Send Subscription response
+                AutoPtr<WsmResponse> wsmResponse(
+                    _cimToWsmResponseMapper.mapToWsmResponse(
+                        wsmRequest,
+                        cimResponse));
+                cimResponse->updateThreadLanguages();
+                cimResponse->queueIds.pop();
+                _wsmResponseEncoder.enqueue(wsmResponse.get());
+            }
+            else
+            {
+                // Subscription creation failed, cleanup the filter and handler
+                PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
+                    "Subscription creation failed for the request with ID %s ",
+                    (const char*)wsmRequest->messageId.getCString()));
+                _cleanupFilterHandlerInstances(
+                    wsmRequest->messageId,
+                    createFilter,
+                    true); 
+                sendResponse(new WsmFaultResponse(
+                    wsmRequest,
+                    _cimToWsmResponseMapper.mapCimExceptionToWsmFault(
+                    cimResponse->cimException)));
+            }
+            //Delete the subContext
+            _cleanupSubContext(wsmRequest->messageId);
+        }
+    }
+    // Context entry should usually be found, in case it is not found 
+    // log it in the trace
+    else
+    {
+        PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
+                   "Subscription context entry for %s not found.",
+                   (const char*)wsmRequest->messageId.getCString()));
+    }
+    PEG_METHOD_EXIT();
+}
+
+void WsmProcessor::_handleSubscriptionDeleteResponse(
+    CIMResponseMessage* cimResponse,
+    WxfSubDeleteRequest* wsmRequest)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmProcessor::_handleSubscriptionDeleteResponse()");
+    String className = wsmRequest->className;
+    if(className == PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString())
+    {
+        SubscriptionContext *subContext = NULL;
+        AutoMutex lock(_subscriptionContextTableLock);
+        _subscriptionContextTable.lookupReference(
+            wsmRequest->messageId,
+            subContext);
+        Boolean deleteFilter = false;
+        if(subContext && (subContext->filterDeleteReq != NULL)) 
+        {
+            deleteFilter = true;      
+        }
+        if(cimResponse->cimException.getCode() == CIM_ERR_SUCCESS)
+        {
+            //delete the filter and handler.
+            if(deleteFilter)
+            {
+                    handleRequest(subContext->filterDeleteReq);
+            } 
+            if(subContext)
+            {
+                handleRequest(subContext->handlerDeleteReq);
+            }
+            //delete the entry from _subscriptionInfoTable if the
+            //subscription is created with the existing filter.
+            for(Uint32 i=0;
+                i<wsmRequest->epr.selectorSet->selectors.size();i++)
+            {
+                if(wsmRequest->epr.selectorSet->selectors[i].name ==
+                    PEGASUS_PROPERTYNAME_HANDLER.getString())
+                {
+                    WsmEndpointReference handlerEpr =
+                        wsmRequest->epr.selectorSet->selectors[i].epr;
+                    for(Uint32 j=0;
+                        j<handlerEpr.selectorSet->selectors.size();j++)
+                    {
+                        String handlerName;
+                        if(handlerEpr.selectorSet->selectors[j].name ==
+                            PEGASUS_PROPERTYNAME_NAME.getString())
+                        {
+                            handlerName =
+                                handlerEpr.selectorSet->selectors[j].value;
+                            AutoMutex lock(_subscriptionInfoTableLock);
+                            if(_subscriptionInfoTable.contains(handlerName))
+                            {
+                                _subscriptionInfoTable.remove(handlerName);
+                            }
+                            break;
+                        }
+
+                    }
+                    break;
+                }
+            }
+            //Delete the context
+            _cleanupSubContext(wsmRequest->messageId);
+        }
+        else
+        {
+            _cleanupSubContext(wsmRequest->messageId,
+                false,
+                false,
+                false,
+                deleteFilter,
+                true);
+        }
+        AutoPtr<WsmResponse> wsmResponse(
+            _cimToWsmResponseMapper.mapToWsmResponse(
+                wsmRequest,
+                cimResponse));
+        cimResponse->updateThreadLanguages();
+        cimResponse->queueIds.pop();
+
+        _wsmResponseEncoder.enqueue(wsmResponse.get());
+        }
+    // Context entry should usually be found, in case it is not found 
+    // log it in the trace
+    else
+    {
+        PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
+            "Subscription context entry for %s not found.",
+            (const char*)wsmRequest->messageId.getCString()));
+    }
+    PEG_METHOD_EXIT();
+    return;
 }
 
 void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
@@ -576,5 +956,199 @@ void WsmProcessor::cleanupExpiredContexts()
         _enumerationContextTable.remove(expiredContextIds[i]);
     }
 }
+
+void WsmProcessor::_cleanupFilterHandlerInstances(
+    String messageId,
+    Boolean isfilterCleaup,
+    Boolean isHandlerCleanup)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER,
+        "WsmProcessor::_cleanupFilterHandlerInstances()");
+    SubscriptionContext *subContext = NULL;
+    _subscriptionContextTable.lookupReference(
+        messageId,
+        subContext);
+    AutoPtr<WxfSubDeleteRequest> deleteFilter;
+    if(subContext)
+    {
+        String msgId = messageId.subString(PEGASUS_WS_UUID_LENGTH);
+        if(isfilterCleaup)
+        {
+            //form a deleteInstance Request for filter.
+            WsmEndpointReference filterEPR;
+            _wsmRequestDecoder.getFilterOrHandlerEPR(filterEPR,
+                subContext->subReq->epr.address, 
+                msgId,
+                PEGASUS_CLASSNAME_INDFILTER.getString());
+            AutoPtr<WxfSubDeleteRequest> deleteFilter(new WxfSubDeleteRequest(
+                messageId,
+                filterEPR,
+                PEGASUS_CLASSNAME_INDFILTER.getString()));
+            handleRequest(deleteFilter.release()); 
+        }
+        if(isHandlerCleanup)
+        {
+            //Form a deleteInstance request for handler.
+            WsmEndpointReference handlerEPR;
+            _wsmRequestDecoder.getFilterOrHandlerEPR(handlerEPR,
+                subContext->subReq->epr.address, 
+                msgId,
+                PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString());
+            AutoPtr<WxfSubDeleteRequest>deleteHandler(new WxfSubDeleteRequest(
+                messageId,
+                handlerEPR,
+                PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString()));
+            handleRequest(deleteHandler.release());
+        }
+    }
+    else 
+    {
+        PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
+                   "Subscription context entry for %s not found.",
+                   (const char*)messageId.getCString()));
+    }
+    PEG_METHOD_EXIT();
+}
+
+void WsmProcessor::_cleanupSubContext(String & messageId,
+    Boolean isFilterCreate,
+    Boolean isHanlderCreate,
+    Boolean isSubCreate,
+    Boolean isFilterDelete,
+    Boolean isHandlerDelete)
+{
+    SubscriptionContext *subConTxt ;
+    _subscriptionContextTable.lookupReference(messageId,subConTxt);
+    if(subConTxt)
+    {
+        if(subConTxt->filterReq && isFilterCreate)
+            delete subConTxt->filterReq;
+        if(subConTxt->handlerReq && isHanlderCreate)
+            delete subConTxt->handlerReq;
+        if(subConTxt->subReq && isSubCreate)
+            delete subConTxt->subReq;
+        if(subConTxt->filterDeleteReq && isFilterDelete)
+            delete subConTxt->filterDeleteReq;
+        if(subConTxt->handlerDeleteReq && isHandlerDelete)
+            delete subConTxt->handlerDeleteReq; 
+   
+        _subscriptionContextTable.remove(messageId);
+    }
+}
+
+void WsmProcessor::_fillSubscriptionInfoTable(WxfSubCreateRequest * subReq)
+{
+
+    // Filter name is message id without "uuid:"
+    String msgId = subReq->messageId.subString(PEGASUS_WS_UUID_LENGTH); 
+    AutoMutex lock(_subscriptionInfoTableLock);
+    if(!_subscriptionInfoTable.contains(msgId))
+    {
+        String filterName;
+        WsmEndpointReference filterEPR;
+        for(Uint32 i=0;i<subReq->instance.getPropertyCount();i++)
+        {
+            if((subReq->instance.getProperty(i)).getName() ==
+                PEGASUS_PROPERTYNAME_FILTER.getString())
+            {
+                WsmValue filterPropVal =
+                    subReq->instance.getProperty(i).getValue();
+                filterPropVal.get(filterEPR);
+                break;
+            }
+        }
+
+        for(Uint32 i=0;i<filterEPR.selectorSet->selectors.size();i++)
+        {
+            if(filterEPR.selectorSet->selectors[i].name ==
+                PEGASUS_PROPERTYNAME_NAME.getString())
+            {
+                filterName = filterEPR.selectorSet->selectors[i].value;
+                break;
+            }
+        }
+        // If msgId is not equal to filterName, then it is using an
+        // existing filter. 
+        if( msgId != filterName)
+            _subscriptionInfoTable.insert(msgId ,filterName);
+    }
+}
+
+Boolean WsmProcessor::isSubCreatedWithExistingFilter(
+    const String & subId,
+    String & filterName)
+{  
+    AutoMutex lock(_subscriptionInfoTableLock);
+    if(_subscriptionInfoTable.lookup(subId,filterName))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void WsmProcessor::_initializeSubInfoTable()
+{
+    if (_repository->nameSpaceExists(PEGASUS_NAMESPACENAME_INTEROP))
+    {
+        Array <CIMInstance> subscriptions;
+        subscriptions = _repository->enumerateInstancesForClass(
+            CIMNamespaceName(PEGASUS_NAMESPACENAME_INTEROP.getString()),
+            PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+        for (Uint32 i = 0; i < subscriptions.size(); i++)
+        {
+            CIMObjectPath filterPath;
+            String subscriptionInfo;
+            Boolean filterNameUpdated = false;
+            Boolean subInfoUpdated = false;
+            String filterName;
+            Boolean isWsmanSub = false;
+            for(Uint32 j=0; j<subscriptions[i].getPropertyCount(); j++)
+            {
+                CIMProperty prop = subscriptions[i].getProperty(j);
+                if(prop.getName()== PEGASUS_PROPERTYNAME_HANDLER.getString())
+                {
+                    CIMObjectPath handlePath;
+                    prop.getValue().get(handlePath);
+                    if(handlePath.getClassName() ==
+                        PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString())
+                    {
+                        isWsmanSub = true;
+                    }
+
+                }
+                else if(prop.getName() == PEGASUS_PROPERTYNAME_FILTER)
+                {
+                    prop.getValue().get(filterPath);
+                    Array<CIMKeyBinding> filterKeyProp =
+                        filterPath.getKeyBindings();
+                    for(Uint32 k=0 ;k<filterKeyProp.size();k++)
+                    {
+                        if(filterKeyProp[k].getName().getString() ==
+                            PEGASUS_PROPERTYNAME_NAME.getString())
+                        {
+                            filterName = filterKeyProp[k].getValue();
+                            filterNameUpdated = true;
+                        }
+                    }
+                }
+                else if(prop.getName().getString() == "SubscriptionInfo")
+                {
+                    prop.getValue().get(subscriptionInfo);
+                    subInfoUpdated = true;
+                }
+            }
+            if(isWsmanSub && filterNameUpdated && subInfoUpdated &&
+                (filterName != subscriptionInfo))
+            {
+                AutoMutex lock(_subscriptionInfoTableLock);
+                _subscriptionInfoTable.insert(subscriptionInfo, filterName);
+            }
+        }
+    }
+}
+
 
 PEGASUS_NAMESPACE_END

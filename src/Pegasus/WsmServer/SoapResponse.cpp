@@ -65,10 +65,18 @@ SoapResponse::SoapResponse(WsmResponse* response)
             action = WSM_ACTION_CREATE_RESPONSE;
             break;
 
+        case WS_SUBSCRIPTION_CREATE:
+            action = WSM_ACTION_SUBSCRIBE_RESPONSE;
+            break;
+
         case WS_TRANSFER_DELETE:
             action = WSM_ACTION_DELETE_RESPONSE;
             break;
-
+         
+        case WS_SUBSCRIPTION_DELETE:
+            action = WSM_ACTION_UNSUBSCRIBE_RESPONSE;
+            break;    
+     
         case WS_ENUMERATION_ENUMERATE:
             action = WSM_ACTION_ENUMERATE_RESPONSE;
             break;

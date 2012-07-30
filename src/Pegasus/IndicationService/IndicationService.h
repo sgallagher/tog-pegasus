@@ -869,6 +869,16 @@ private:
     void _deleteExpiredSubscription(
         CIMObjectPath& subscription);
 
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+    /**
+        Deletes filter and handler of the specified subscription
+       
+        @param   subscription instance
+     */
+     void _deleteFilterHandler(
+         CIMInstance &subscriptionInstance);
+#endif
+
     /**
         Gets the Subscription Time Remaining property
 

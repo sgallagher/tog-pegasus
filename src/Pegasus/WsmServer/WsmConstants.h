@@ -72,19 +72,27 @@
 #define WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX \
     "/wbem/wscim/1/cim-schema/2"
 
+// RESOURCEURI while specifying existing filter for subscription
+#define WSM_RESOURCEURI_INDICATION_FILTER \
+    "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_IndicationFilter"
+
 // The WQL filter dialect URI.
 #define WSMAN_FILTER_DIALECT_WQL "http://schemas.dmtf.org/wbem/wsman/1/WQL"
 
 // WSMAN_FILTER_DIALECT_WQL without the host URI prefix.
 #define WSMAN_FILTER_DIALECT_WQL_SUFFIX "/wbem/wsman/1/WQL"
 
-// The Association Filter dialect URI per DSP0027 Section 8.2
+//  The Association Filter dialect URI per DSP0027 Section 8.2
 #define WSMAN_ASSOCIATION_FILTER_DIALECT \
     "http://schemas.dmtf.org/wbem/wsman/1/cimbinding/associationFilter"
 
 // Association Filter without the host URI prefix.
 #define WSMAN_ASSOCIATION_FILTER_SUFFIX \
     "/wbem/wsman/1/cimbinding/associationFilter"
+
+//PUSH  Delivry mode for WSMAN event
+#define WSMAN_DELIVEY_MODE_PUSH \
+    "http://schemas.xmlsoap.org/ws/2004/08/eventing/DeliveryModes/Push"
 
 //
 // Action URIs
@@ -150,6 +158,21 @@
 #define WSM_ACTION_WSMAN_EVENT\
     "http://schemas.dmtf.org/wbem/wsman/1/wsman/Event" 
 
+#define WSM_ACTION_WSMAN_SUBSCRIBE\
+    "http://schemas.xmlsoap.org/ws/2004/08/eventing/Subscribe"
+
+#define WSM_ACTION_SUBSCRIBE_RESPONSE\
+    "http://schemas.xmlsoap.org/ws/2004/08/eventing/SubscribeResponse"
+
+#define WSM_ACTION_WSMAN_UNSUBSCRIBE \
+    "http://schemas.xmlsoap.org/ws/2004/08/eventing/Unsubscribe"
+
+#define WSM_ACTION_UNSUBSCRIBE_RESPONSE \
+    "http://schemas.xmlsoap.org/ws/2004/08/eventing/UnsubscribeResponse"
+
+#define WSM_ACTION_SUBSCRIBE_RENEW\
+    "http://schemas.xmlsoap.org/ws/2004/08/eventing/Renew"
+
 //
 // WS-Management FaultDetail URI values
 //
@@ -196,6 +219,15 @@
 #define WSMAN_FAULTDETAIL_ENUMERATION_MODE_UNSUPPORTED \
     "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/EnumerationMode"
 
+#define WSMAN_FAULTDETAIL_CONNECTION_RETRY_UNSUPPORTED \
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/DeliveryRetries"
+
+#define WSMAN_FAULTDETAIL_HEARTBEATS_UNSUPPORTED \
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/Heartbeats"
+
+#define WSMAN_FAULTDETAIL_BOOKMARKS_UNSUPPORTED \
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/Bookmarks"
+
 // The namespace to encode instance response data with.
 #define PEGASUS_INSTANCE_NS "p"
 
@@ -211,6 +243,8 @@
 // Version of this WS-Management implementation.
 
 #define WSMAN_PRODUCT_VERSION PEGASUS_PRODUCT_VERSION
+
+const int PEGASUS_WS_UUID_LENGTH=5;
 
 enum WsmbPolymorphismMode
 {
@@ -228,8 +262,19 @@ enum WsenEnumerationMode
     WSEN_EM_OBJECT_AND_EPR
 };
 
-
 PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_SUBSCRIBE;
+
+PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_DELIVERY;
+
+PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_DELMODE;
+
+PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_NOTIFYTO;
+
+PEGASUS_COMMON_LINKAGE extern const String PEGASUS_WS_CIMNAMESPACE;
+
+PEGASUS_COMMON_LINKAGE extern const String PEGASUS_WS_SUB_DURATION;
 
 //
 // CIM Namespace Names

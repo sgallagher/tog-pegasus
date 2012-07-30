@@ -65,8 +65,11 @@ enum WsmOperationType
 
     /* WS-Management invoke */
     WS_INVOKE,
-    WS_EXPORT_INDICATION
+    WS_EXPORT_INDICATION,
     // etc.
+    
+    WS_SUBSCRIPTION_CREATE,
+    WS_SUBSCRIPTION_DELETE
 };
 
 class WsmRequest : public Message 
@@ -96,6 +99,22 @@ public:
     WsmOperationType getType() const
     {
         return _type;
+    }
+
+    void copyRequestProperties(const AutoPtr<WsmRequest> &request)
+    {
+        authType = request->authType;
+        userName = request->userName;
+        ipAddress = request->ipAddress;
+        httpMethod = request->httpMethod;
+        acceptLanguages = request->acceptLanguages;
+        contentLanguages = request->contentLanguages;
+        httpCloseConnect = request->httpCloseConnect;
+        omitXMLProcessingInstruction = 
+            request->omitXMLProcessingInstruction;
+        queueId = request->queueId;
+        requestEpr = request->requestEpr;
+        maxEnvelopeSize = request->maxEnvelopeSize;
     }
 
     String messageId;
@@ -168,6 +187,24 @@ public:
     WsmInstance instance;
 };
 
+class WxfSubCreateRequest : public WsmRequest
+{
+public:
+
+    WxfSubCreateRequest(
+        const String& messageId,
+        const WsmEndpointReference& epr_,
+        const WsmInstance& instance_)
+        : WsmRequest(WS_SUBSCRIPTION_CREATE, messageId),
+          epr(epr_),
+          instance(instance_)
+    {
+    }
+
+    WsmEndpointReference epr;
+    WsmInstance instance;
+};
+
 class WxfDeleteRequest : public WsmRequest
 {
 public:
@@ -180,6 +217,23 @@ public:
     {
     }
 
+    WsmEndpointReference epr;
+};
+
+class WxfSubDeleteRequest : public WsmRequest
+{
+public:
+
+    WxfSubDeleteRequest(
+        const String& messageId,
+        const WsmEndpointReference& epr_,
+        String className_)
+        : WsmRequest(WS_SUBSCRIPTION_DELETE, messageId),
+          className(className_),
+          epr(epr_)
+    {
+    }
+    String className;
     WsmEndpointReference epr;
 };
 

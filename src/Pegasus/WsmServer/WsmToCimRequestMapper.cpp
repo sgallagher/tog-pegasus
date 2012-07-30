@@ -83,7 +83,6 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmToCimRequestMapper::mapToCimRequest");
     AutoPtr<CIMOperationRequestMessage> cimRequest;
-
     switch (request->getType())
     {
         case WS_TRANSFER_GET:
@@ -96,14 +95,20 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
                 (WxfPutRequest*) request));
             break;
 
+        case WS_SUBSCRIPTION_CREATE:
+            cimRequest.reset(mapToCimCreateInstanceRequest(request, true));
+            break;
+
         case WS_TRANSFER_CREATE:
-            cimRequest.reset(mapToCimCreateInstanceRequest(
-                (WxfCreateRequest*) request));
+            cimRequest.reset(mapToCimCreateInstanceRequest(request));
             break;
 
         case WS_TRANSFER_DELETE:
-            cimRequest.reset(mapToCimDeleteInstanceRequest(
-                (WxfDeleteRequest*) request));
+            cimRequest.reset(mapToCimDeleteInstanceRequest(request));
+            break;
+
+        case WS_SUBSCRIPTION_DELETE:
+            cimRequest.reset(mapToCimDeleteInstanceRequest(request, true));
             break;
 
         case WS_ENUMERATION_ENUMERATE:
@@ -290,22 +295,37 @@ CIMModifyInstanceRequestMessage*
 
 CIMCreateInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimCreateInstanceRequest(
-        WxfCreateRequest* request)
+        WsmRequest* request,Boolean isSubscriptionCreateReq)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
+    WsmEndpointReference epr;
+    WsmInstance wsmInstance;
+    if(isSubscriptionCreateReq)
+    {
+        WxfSubCreateRequest * req = (WxfSubCreateRequest *)request;
+        epr = req->epr;
+        wsmInstance = req->instance;
+    }
+    else
+    {
+        WxfCreateRequest *createReq = (WxfCreateRequest *)request;
+        epr = createReq->epr;
+        wsmInstance = createReq->instance;
+    }
+    
 
     // EPR to object path does a generic conversion, including conversion
     // of EPR address to host and namespace selector to CIM namespace.
     // For CreateInstance operation instance name should only contain a
     // class name and key bindings.
-    convertEPRToObjectPath(request->epr, instanceName);
+    convertEPRToObjectPath(epr, instanceName);
     nameSpace = instanceName.getNameSpace();
     instanceName.setNameSpace(CIMNamespaceName());
     instanceName.setHost(String::EMPTY);
 
     CIMInstance instance;
-    convertWsmToCimInstance(request->instance, nameSpace, instance);
+    convertWsmToCimInstance(wsmInstance, nameSpace, instance);
 
     CIMCreateInstanceRequestMessage* cimRequest =
         new CIMCreateInstanceRequestMessage(
@@ -319,21 +339,33 @@ CIMCreateInstanceRequestMessage*
 
     return cimRequest;
 }
-
 CIMDeleteInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimDeleteInstanceRequest(
-        WxfDeleteRequest* request)
+        WsmRequest* request , Boolean isSubDeleteReq)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
+    WsmEndpointReference epr;
+    if(isSubDeleteReq)
+    {
+        WxfSubDeleteRequest * req = (WxfSubDeleteRequest *)request;
+        epr = req->epr;
+           
+    }
+    else
+    {
+        WxfDeleteRequest * deleteReq = (WxfDeleteRequest *)request;
+        epr = deleteReq->epr;
+    }
 
-    _disallowAllClassesResourceUri(request->epr.resourceUri);
+
+    _disallowAllClassesResourceUri(epr.resourceUri);
 
     // EPR to object path does a generic conversion, including conversion
     // of EPR address to host and namespace selector to CIM namespace.
     // For DeleteInstance operation instance name should only contain a
     // class name and key bindings.
-    convertEPRToObjectPath(request->epr, instanceName);
+    convertEPRToObjectPath(epr, instanceName);
     nameSpace = instanceName.getNameSpace();
     instanceName.setNameSpace(CIMNamespaceName());
     instanceName.setHost(String::EMPTY);
@@ -687,6 +719,10 @@ CIMName WsmToCimRequestMapper::convertResourceUriToClassName(
         if (CIMNameLegalASCII(className))
             return CIMNameCast(String(className));
     }
+    if (strcmp(cstr, WSM_RESOURCEURI_INDICATION_FILTER) == 0 )
+    {
+        return CIMNameCast(String("CIM_IndicationFilter"));
+    }
 
     throw WsmFault(
         WsmFault::wsa_DestinationUnreachable,
@@ -858,7 +894,6 @@ void WsmToCimRequestMapper::convertEPRToObjectPath(
             keyBindings.append(newKeyBinding);
         }
     }
-
     objectPath = CIMObjectPath(
         convertEPRAddressToHostname(epr.address),
         namespaceName,

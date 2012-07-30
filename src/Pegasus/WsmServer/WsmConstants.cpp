@@ -32,7 +32,21 @@
 #include <Pegasus/Common/Config.h>
 #include "WsmConstants.h"
 
+
 PEGASUS_NAMESPACE_BEGIN
+
+const char* PEGASUS_WS_SUBSCRIBE = "Subscribe";
+
+const char* PEGASUS_WS_DELIVERY = "Delivery";
+
+const char* PEGASUS_WS_DELMODE = "Mode";
+
+const char* PEGASUS_WS_NOTIFYTO = "NotifyTo";
+
+const String PEGASUS_WS_CIMNAMESPACE = "__cimnamespace";
+
+const String PEGASUS_WS_SUB_DURATION = "SubscriptionDuration";
+
 
 //
 // CIM Namespace Names

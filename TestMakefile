@@ -103,6 +103,9 @@ usage2: FORCE
 	$(USAGE)"slptests                - Executes the slptests"
 	$(USAGE)"run_Cmpi_Sub            - Executes the CMPI subscription tests"
 	$(USAGE)
+	$(USAGE)"The following requires wseventsink to be installed on the server and is not run"
+	$(USAGE)"as part of Primary target tests suites."
+	$(USAGE)"run_WSMAN_TS            - Executes the WSMAN indication deliver test"
 
 
 ##########################################################
@@ -550,6 +553,26 @@ run_INDSSL_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_INDSSL_TS1"
 endif
 
+
+###############################################################################
+##  WSMAN Indication test suite : WSMAN Indication Testing over HTTPS
+##
+##  Configuration Options:  (none for cimserver)
+##     wsevensink should be installed as the wsman listner.
+##
+###############################################################################
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+INDWSMAN_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=false
+INDWSMAN_TS1a_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationTestProvider/wsmanTestClient@@-f@@Makefile@@runWSMANtests
+
+run_WSMAN_TS: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(INDWSMAN_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(INDWSMAN_TS1a_TEST_CMDS)"
+endif
+endif
 
 ###############################################################################
 

@@ -6868,6 +6868,9 @@ void IndicationService::_deleteExpiredSubscription(
                 indicationSubclasses,
                 creator);
         }
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+        _deleteFilterHandler(subscriptionInstance);
+#endif
     }
     else
     {
@@ -6878,6 +6881,84 @@ void IndicationService::_deleteExpiredSubscription(
 
     PEG_METHOD_EXIT();
 }
+
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+//If the subscription is wsman then Delete the filter and handler
+//also from the repository.
+void IndicationService::_deleteFilterHandler(
+    CIMInstance& subscriptionInstance)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_deleteFilterHandler");
+    Uint32 handlerPropIndex = subscriptionInstance.findProperty(
+        PEGASUS_PROPERTYNAME_HANDLER);
+    if(handlerPropIndex != PEG_NOT_FOUND)
+    {
+        CIMProperty handlerProperty = subscriptionInstance.getProperty(
+            handlerPropIndex);
+        CIMObjectPath handlerObjPath;
+        handlerProperty.getValue().get(handlerObjPath);
+        if(handlerObjPath.getClassName() ==
+            PEGASUS_CLASSNAME_INDHANDLER_WSMAN)
+        {
+            Array<CIMKeyBinding> keyBindings = handlerObjPath.
+                getKeyBindings();
+            // Get the Handler name
+            String handlerName;
+            for(Uint32 i = 0 ; i < keyBindings.size(); i++)
+            {
+                 if(keyBindings[i].getName().getString() ==
+                     PEGASUS_PROPERTYNAME_NAME.getString())
+                 {
+                     handlerName = keyBindings[i].getValue();
+                     break;
+                 }
+            }
+            _subscriptionRepository->deleteInstance(
+                handlerObjPath.getNameSpace(), handlerObjPath);
+        }
+    }
+
+    Uint32 filterPropIndex = subscriptionInstance.findProperty(
+        PEGASUS_PROPERTYNAME_FILTER);
+    if(filterPropIndex != PEG_NOT_FOUND)
+    {
+        CIMProperty filterProperty = subscriptionInstance.
+            getProperty(filterPropIndex);
+        CIMObjectPath filterObjPath;
+        filterProperty.getValue().get(filterObjPath);
+        Array<CIMKeyBinding> keyBindings = filterObjPath.
+            getKeyBindings();
+        // Get Filter name
+        String filterName;
+        for(Uint32 i = 0 ; i < keyBindings.size(); i++)
+        {
+             if(keyBindings[i].getName().getString() ==
+                 PEGASUS_PROPERTYNAME_NAME.getString())
+             {
+                 filterName = keyBindings[i].getValue();
+                 break;
+             }
+        }
+        // If filter was created by the wsman subscribe request,
+        // then delete it. If filter is created by wsman subscribe
+        // request, subscriptionInfo and filter name will match.
+        Uint32 subInfoIndex = subscriptionInstance.findProperty(
+            _PROPERTY_SUBSCRIPTION_INFO);
+        CIMProperty subInfoProperty = subscriptionInstance.
+            getProperty(subInfoIndex);
+        String subscriptionInfo;
+        subInfoProperty.getValue().get(subscriptionInfo);
+        if (subscriptionInfo == filterName)
+        {
+            _subscriptionRepository->deleteInstance(
+                filterObjPath.getNameSpace(),filterObjPath);
+        }
+    }
+    PEG_METHOD_EXIT();
+}
+#endif
 
 Boolean IndicationService::_getTimeRemaining(
     const CIMInstance& instance,

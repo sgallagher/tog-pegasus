@@ -697,6 +697,7 @@ static void _testHeaders(WsmReader& reader)
     String wsaFrom;
     String wsaReplyTo;
     String wsaFaultTo;
+    String wsaIdentifier;
     WsmEndpointReference epr;
     Uint32 wsmMaxEnvelopeSize = 0;
     AcceptLanguageList wsmLocale;
@@ -705,7 +706,7 @@ static void _testHeaders(WsmReader& reader)
     reader.decodeRequestSoapHeaders(
         wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
         wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-        wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+        wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
 
     if (wsaMessageId != "1111")
         throw Exception("Invalid message ID");
@@ -747,6 +748,7 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
+        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -755,7 +757,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
         throw Exception("Expected duplicate headers fault");
     }
     catch (WsmFault& fault)
@@ -771,6 +773,7 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
+        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -779,7 +782,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
         throw Exception("Expected Soap NotUnderstood fault");
     }
     catch (SoapNotUnderstoodFault&)
@@ -793,6 +796,7 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
+        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -801,7 +805,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
         throw Exception("Expected OperationTimeout unsupported feature fault");
     }
     catch (WsmFault& fault)
@@ -817,6 +821,7 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
+        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -825,7 +830,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
         throw Exception("Expected invalid MaxEnvelopeSize fault");
     }
     catch (WsmFault& fault)
@@ -841,6 +846,7 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
+        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -849,7 +855,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
         throw Exception("Expected Soap NotUnderstood fault");
     }
     catch (SoapNotUnderstoodFault&)
@@ -863,6 +869,7 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
+        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -871,7 +878,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
         throw Exception("Expected Locale unsupported feature fault");
     }
     catch (WsmFault& fault)
@@ -1435,6 +1442,32 @@ static void _testIdentifyBody(WsmReader& reader)
     reader.expectEndTag(nsType, "Identify");
 }
 
+static void _testSubscribeBody(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    String deliveryMode;
+    String destination;
+    String subExpiration;
+    WsmFilter wsmFilter;
+
+    reader.decodeSubscribeBody(
+        deliveryMode,
+        destination,
+        subExpiration,
+        wsmFilter);
+
+    if (subExpiration != "30000000" ||
+        deliveryMode != "2" ||
+        destination != "http://localhost:80/eventsink" ||
+        wsmFilter.filterDialect != WsmFilter::WQL ||
+        wsmFilter.WQLFilter.query != "SELECT * FROM IndicationStressTestClass")
+    {
+        throw Exception("Invalid subscribe body");
+    } 
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -1553,6 +1586,17 @@ int main(int argc, char** argv)
                 cout << "Testing instances." << endl;
 
             _testEnumerateWithAssociatedFilterBody(reader);
+        }
+        /*WS-Subscribe test */
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(text, "./subscribe_body.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing wsman subscribe." << endl;
+
+            _testSubscribeBody(reader);
         }
     }
     catch(Exception& e)

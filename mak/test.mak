@@ -88,6 +88,8 @@ endif
 
 STRIPL = stripline
 
+MU = mu
+
 REDIRECTERROR = 2>&1
 
 

@@ -44,6 +44,7 @@
 #include "WsmResponseEncoder.h"
 #include "WsmToCimRequestMapper.h"
 #include "SoapResponse.h"
+#include "CimToWsmResponseMapper.h"
 
 PEGASUS_USING_STD;
 
@@ -180,8 +181,16 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
                 _encodeWxfCreateResponse((WxfCreateResponse*) response);
                 break;
 
+            case WS_SUBSCRIPTION_CREATE:
+                _encodeWxfSubCreateResponse((WxfSubCreateResponse*) response);
+                break;
+
             case WS_TRANSFER_DELETE:
                 _encodeWxfDeleteResponse((WxfDeleteResponse*) response);
+                break;
+           
+            case WS_SUBSCRIPTION_DELETE:
+                _encodeWxfSubDeleteResponse((WxfSubDeleteResponse*) response);
                 break;
 
             case WS_ENUMERATION_RELEASE:
@@ -313,11 +322,87 @@ void WsmResponseEncoder::_encodeWxfCreateResponse(WxfCreateResponse* response)
     }
 }
 
+void WsmResponseEncoder::_encodeWxfSubCreateResponse(
+    WxfSubCreateResponse* response)
+{
+    SoapResponse soapResponse(response);
+    Buffer body;
+    WsmEndpointReference epr = response->getEPR();
+
+    WsmWriter::appendStartTag(
+        body, WsmNamespaces::WS_EVENTING, STRLIT("SubscribeResponse"));
+    WsmWriter::appendStartTag(
+        body, WsmNamespaces::WS_EVENTING, STRLIT("SubscriptionManager"));
+
+    WsmWriter::appendTagValue( body, 
+        WsmNamespaces::WS_EVENTING, 
+        STRLIT("Address"), 
+        epr.address);
+
+    WsmWriter::appendStartTag(
+        body, WsmNamespaces::WS_EVENTING, STRLIT("ReferenceParameters"));
+
+    // This is the identifier of the Subscription. Subscription name is 
+    // the subscribe request's messageID(without the uuid part) which 
+    // is same as relates to field of the response.
+    String subId = response->getRelatesTo().subString(PEGASUS_WS_UUID_LENGTH);
+    WsmWriter::appendTagValue( body, 
+        WsmNamespaces::WS_EVENTING, 
+        STRLIT("Identifier"), 
+        subId);
+
+    WsmWriter::appendEndTag(
+        body, WsmNamespaces::WS_EVENTING, STRLIT("ReferenceParameters"));
+    WsmWriter::appendEndTag(
+        body, WsmNamespaces::WS_EVENTING, STRLIT("SubscriptionManager"));
+
+    CIMDateTime dt;
+    String dat;
+
+    response->getSubscriptionDuration(dt);
+
+    if(WsmUtils::toMicroSecondString(dt) != "0")
+    {
+        CimToWsmResponseMapper Map;
+        Map.convertCimToWsmDatetime(dt, dat);
+        /** 
+            Get the expires field. This is as duration in the 
+            IndicationSubscription instance, with the units as microseconds. 
+            We get it as a string, then convert it to Uint64, then convert 
+            that to the CIMDatetime interval format. That is converted to the
+            WsmDatetime format, which is something like P1DT1M1S.
+        */
+        WsmWriter::appendTagValue( body, 
+            WsmNamespaces::WS_EVENTING, 
+            STRLIT("Expires"),
+            dat);
+    }
+    WsmWriter::appendEndTag(
+        body, WsmNamespaces::WS_EVENTING, STRLIT("SubscribeResponse"));
+
+    if (soapResponse.appendBodyContent(body))
+    {
+        _sendResponse(&soapResponse);
+    }
+    else
+    {
+        _sendUnreportableSuccess(response);
+    }
+}
+
 void WsmResponseEncoder::_encodeWxfDeleteResponse(WxfDeleteResponse* response)
 {
     SoapResponse soapResponse(response);
     _sendResponse(&soapResponse);
 }
+
+void WsmResponseEncoder::_encodeWxfSubDeleteResponse(
+    WxfSubDeleteResponse* response)
+{
+    SoapResponse soapResponse(response);
+    _sendResponse(&soapResponse);
+}
+
 
 SoapResponse* WsmResponseEncoder::encodeWsenEnumerateResponse(
     WsenEnumerateResponse* response,

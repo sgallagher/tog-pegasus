@@ -7647,6 +7647,21 @@ CIM server listening on HTTPS port {0}."}
         */
         WsmServer.WsmReader.FILTER_OBJECT_NAMESPACE_RQD:string {"PGS20021: Filter Object EPR __namespace element required"}
 
+        /**
+        * @note PGS20022:
+        */
+		WsmServer.WsmReader.UNSUPPORTED_FEATURE:string {"PGS20022: The specified feature is not supported."}
+
+        /**
+        * @note PGS20023:
+        */
+        WsmServer.WsmReader.UNSUPPORTED_DELIVERY_MODE:string {"PGS20023: Unsupported delivery mode: ''{0}'' ."}
+
+        /**
+        * @note PGS20024:
+        */
+
+
         // ==========================================================
         // Messages for WsmRequestDecoder
         //  Please use message prefix "PGS20200 - PGS20399"
@@ -7694,6 +7709,15 @@ CIM server listening on HTTPS port {0}."}
 
         WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS:string {"PGS20208: The operation allows only the __cimnamespace selector to be present."}
 
+        WsmServer.WsmRequestDecoder.UNABLE_TO_RENEW:string {"PGS20209: The subscription could not be renewed."}
+
+        WsmServer.WsmRequestDecoder.UNABLE_TO_PROCESS:string {"PGS20210: The event source cannot process the subscription."}
+
+        WsmServer.WsmRequestDecoder.INVALID_FILTER_QUERY:string {"PGS20211: The filter query ''{0}'' is not valid"}
+     
+        WsmServer.WsmRequestDecoder.INVALID_MESSAGE:string {"PGS20212: The request message has unknown or invalid content and cannot be processed."}
+
+        WsmServer.WsmRequestDecoder.INVALID_PARAMETER:string {"PGS20213: An operation parameter is not valid."}
 
         // ==========================================================
         // Messages for WsmResponseEncoder
@@ -7783,6 +7807,7 @@ CIM server listening on HTTPS port {0}."}
         */
         WsmServer.WsmToCimRequestMapper.INVALID_EPR_ADDRESS:string {"PGS20613: The EPR address ''{0}'' is not valid."}
 
+        WsmServer.WsmToCimRequestMapper.INVALID_EXPIRATION_TIME:string {"PGS20615: The expiration time ''{0}'' is not valid."}
         // ==========================================================
         // Messages for WsmFault
         //  Please use message prefix "PGS20800 - PGS20999"

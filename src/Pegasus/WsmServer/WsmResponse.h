@@ -342,6 +342,95 @@ private:
     WsmEndpointReference _reference;
 };
 
+class WxfSubCreateResponse : public WsmResponse
+{
+public:
+
+    WxfSubCreateResponse(
+        const WsmEndpointReference& ref,
+        const WxfSubCreateRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_SUBSCRIPTION_CREATE,
+              request,
+              contentLanguages),
+          _reference(ref),
+          _instance(request->instance)
+    {
+    }
+
+    ~WxfSubCreateResponse()
+    {
+    }
+
+    WsmEndpointReference& getEPR()
+    {
+        return _reference;
+    }
+
+    // This function is used to convert the SubscriptionDuration value
+    // to a CIMDateTime value.
+
+    void getSubscriptionDuration(CIMDateTime& dt)
+    {
+        Uint32 propertyCount = _instance.getPropertyCount();
+
+        String dat;
+
+        for(Uint32 i = 0; i < propertyCount; i++)
+        {
+            if( _instance.getProperty(i).getName() == PEGASUS_WS_SUB_DURATION )
+            {
+                _instance.getProperty(i).getValue().get(dat);
+            }
+        }
+
+        // If the SubscriptionDuration is not set, return.
+        
+        if (dat.size() == 0)
+            return;
+
+        Uint64 date;
+        sscanf((const char *)dat.getCString(), "%lld", &date);
+
+        Uint32 microSeconds = date % 1000000;
+        date = date / 1000000;
+
+        Uint32 seconds=0;
+        if(date > 0)
+        {
+            seconds = date % 60;
+            date =  date / 60;
+        }
+
+        Uint32 minutes=0;
+        if(date > 0)
+        {
+            minutes = date % 60;
+            date = date / 60;
+        }
+
+        Uint32 hours=0;
+        if(date > 0)
+        {
+            hours = date % 24;
+            date = date / 24;
+        }
+
+        Uint32 days=0;
+        if(date > 0)
+        {
+            days = date;
+        }
+
+        dt.setInterval(days, hours, minutes, seconds, microSeconds, 6);
+    }
+private:
+
+    WsmEndpointReference _reference;
+    WsmInstance _instance;
+};
+
 class WxfDeleteResponse : public WsmResponse
 {
 public:
@@ -360,6 +449,26 @@ public:
     {
     }
 };
+
+class WxfSubDeleteResponse : public WsmResponse
+{
+public:
+
+    WxfSubDeleteResponse(
+        const WxfSubDeleteRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_SUBSCRIPTION_DELETE,
+              request,
+              contentLanguages)
+    {
+    }
+
+    ~WxfSubDeleteResponse()
+    {
+    }
+};
+
 
 class WsenEnumerationData
 {

@@ -734,6 +734,12 @@ PEGASUS_COMMON_LINKAGE
     PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_OPERATIONALSTATUS;
 
 /**
+    The name of the SubscriptionInfo property for Formatted Indication
+    Subscription class
+*/
+    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTION_INFO;
+
+/**
     The name of the Filter reference property for indication subscription class
  */
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_FILTER;

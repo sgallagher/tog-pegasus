@@ -51,6 +51,7 @@ public:
     WsmEndpointReference& operator=(const WsmEndpointReference& epr);
 
     const String& getNamespace() const;
+    void setNamespace(const String& Namespace);
 
     String address;
     String resourceUri;

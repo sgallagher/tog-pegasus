@@ -44,7 +44,8 @@ LIBRARIES = \
     pegwql \
     pegquerycommon \
     pegconfig \
-    pegcommon
+    pegcommon \
+	pegclient 
 
 SOURCES = \
     WsmFilter.cpp \

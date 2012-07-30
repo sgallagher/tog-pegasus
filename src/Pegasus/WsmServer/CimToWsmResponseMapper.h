@@ -90,8 +90,14 @@ private:
     WxfCreateResponse* _mapToWxfCreateResponse(
         const WxfCreateRequest* wsmRequest,
         const CIMCreateInstanceResponseMessage* response);
+    WxfSubCreateResponse* _mapToWxfSubCreateResponse(
+        const WxfSubCreateRequest* wsmRequest,
+        const CIMCreateInstanceResponseMessage* response);
     WxfDeleteResponse* _mapToWxfDeleteResponse(
         const WxfDeleteRequest* wsmRequest,
+        const CIMDeleteInstanceResponseMessage* response);
+    WxfSubDeleteResponse* _mapToWxfSubDeleteResponse(
+        const WxfSubDeleteRequest* wsmRequest,
         const CIMDeleteInstanceResponseMessage* response);
 
     WsenEnumerateResponse* _mapToWsenEnumerateResponseObject(

@@ -29,8 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ExportClient_h
-#define Pegasus_ExportClient_h
+#ifndef Pegasus_WSMANExportClient_h
+#define Pegasus_WSMANExportClient_h
 
 #include <Pegasus/ExportClient/ExportClient.h>
 
@@ -38,51 +38,49 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-    This class provides the interface that a client uses to communicate
-    with a CIMOM.
+    This class provides the interface that a CIMOM uses to communicate
+    with a client or listner.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public ExportClient
+class PEGASUS_EXPORT_CLIENT_LINKAGE WSMANExportClient : public ExportClient
 {
 public:
-
+      
     /**
-        Constructor for a CIM Export Client object.
+        Constructor for a WSMAN Export Client object.
     */
-    CIMExportClient(
-        Monitor* monitor,
+    WSMANExportClient(
         HTTPConnector* httpConnector,
         Uint32 timeoutMilliseconds =
             PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
-    // Destructor for a CIM Export Client object.
-    ~CIMExportClient();
+    // Destructor for a WSMAN Export Client object.
+    ~WSMANExportClient();
+    
+     /**
+        Send indication message to the destination where the url input
+        parameter defines the destination.
 
-    virtual void exportIndication(
+        @param url String defining the destination of the indication to be sent.
+        @param instance CIMInstance is the indication instance which needs to
+        be sent to the destination.
+        @param contentLanguages The language of the indication
+    */
+    void exportIndication(
         const String& url,
         const CIMInstance& instance,
-        const ContentLanguageList& contentLanguages = ContentLanguageList());
+        const ContentLanguageList& contentLanguages = ContentLanguageList(),
+        const String& toPath = "");
+
+    void setDeliveryMode(deliveryMode &deliveryMode);
 
 private:
 
+    void _doRequest(
+        WsmRequest * request);
 
-    Message* _doRequest(
-        CIMRequestMessage* request,
-        MessageType expectedResponseMessageType);
-
-    Monitor* _monitor;
-    /**
-        The CIMExportClient uses a lazy reconnect algorithm.  A reconnection
-        is necessary when the server (listener) sends a Connection: Close
-        header in the HTTP response or when a connection timeout occurs
-        while waiting for a response.  In these cases, a disconnect is
-        performed immediately and the _doReconnect flag is set.  The
-        connection is re-established only when required to perform another
-        operation.  Note that in the case of a connection timeout, the
-        challenge status must be reset in the ClientAuthenticator to allow
-        authentication to be performed properly on the new connection.
-    */
+    deliveryMode _deliveryMode;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ExportClient_h */
+#endif /* Pegasus_WSMANExportClient_h */

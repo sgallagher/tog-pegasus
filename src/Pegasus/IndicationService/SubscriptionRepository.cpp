@@ -166,7 +166,8 @@ CIMObjectPath SubscriptionRepository::createInstance (
     CIMName className = instance.getPath().getClassName();
 
     if ((className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) &&
+        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML) || 
+        className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN)) &&
         instance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME)
             == PEG_NOT_FOUND)
     {
@@ -1192,7 +1193,9 @@ void SubscriptionRepository::modifyInstance (
         instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
         instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
+        instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
     {
         AutoMutex mtx(_handlerFilterCacheMutex);
 
@@ -1241,7 +1244,9 @@ void SubscriptionRepository::deleteInstance (
              instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
              instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
     {
         AutoMutex mtx(_handlerFilterCacheMutex);
 

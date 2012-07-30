@@ -147,6 +147,8 @@
 #define WSM_ACTION_WSE_FAULT \
     "http://schemas.xmlsoap.org/ws/2004/08/eventing/fault"
 
+#define WSM_ACTION_WSMAN_EVENT\
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/Event" 
 
 //
 // WS-Management FaultDetail URI values

@@ -278,7 +278,8 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
     Uint32 pos = PEG_NOT_FOUND;
 
     if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+        className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML) || 
+        className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
     {
         pos = handler.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
 
@@ -504,7 +505,6 @@ Boolean IndicationHandlerService::_loadHandler(
             ContentLanguageList langs =
                 ((ContentLanguageListContainer)operationContext.
                 get(ContentLanguageListContainer::NAME)).getLanguages();
-
             handlerLib->handleIndication(
                 operationContext,
                 nameSpace,
@@ -564,6 +564,8 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        handlerId = String("SystemLogListenerDestination");
    else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
        handlerId = String("EmailListenerDestination");
+   else if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+       handlerId = String("wsmanIndicationHandler"); 
 
    PEGASUS_ASSERT(handlerId.size() != 0);
 

@@ -1099,6 +1099,12 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 indicationServiceId);
 
             _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_INDHANDLER_WSMAN,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
+
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_INDHANDLER_SNMP,
                 _wild,
                 String::EMPTY,

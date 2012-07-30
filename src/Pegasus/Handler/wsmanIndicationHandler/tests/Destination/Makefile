@@ -26,41 +26,29 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../..
-DIR = Pegasus/ExportClient
+ROOT = ../../../../../..
+DIR = Pegasus/Handler/wsmanIndicationHandler/tests/Destination
 include $(ROOT)/mak/config.mak
+
+LIBRARIES = \
+    pegconfig \
+    pegrepository \
+    peghandlerservice \
+    peggeneral \
+    pegcommon 
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_EXPORT_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifeq ($(OS_TYPE),vms)
-    STATIC=1
-endif
+PROGRAM = TestwsmanIndicationHandlerDestination
 
-LIBRARY = pegexportclient
+SOURCES = TestwsmanIndicationHandlerDestination.cpp
 
-LIBRARIES = \
-    pegcommon \
-    pegclient
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-LIBRARIES +=\
-	pegwsmserver
-endif
+include $(ROOT)/mak/program.mak
 
-PRE_DEPEND_INCLUDES = -I./depends
+tests:
+	@$(PROGRAM)
 
-SOURCES = \
-    CIMExportClient.cpp \
-    CIMExportRequestEncoder.cpp \
-    CIMExportResponseDecoder.cpp \
-    HTTPExportResponseDecoder.cpp \
-    ExportClient.cpp
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-SOURCES += \
-	WSMANExportClient.cpp \
-	WSMANExportRequestEncoder.cpp
-endif
-   
+poststarttests:
 
-include $(ROOT)/mak/dynamic-library.mak

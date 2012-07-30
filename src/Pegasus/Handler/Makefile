@@ -32,5 +32,10 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     CIMxmlIndicationHandler
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += \
+        wsmanIndicationHandler
+endif
+
 
 include $(ROOT)/mak/recurse.mak

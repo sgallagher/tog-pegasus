@@ -42,6 +42,8 @@
 #include "WsmUtils.h"
 #include "WsmWriter.h"
 #include "WsmSelectorSet.h"
+#include <Pegasus/Common/StrLit.h>
+#include <Clients/wbemexec/HttpConstants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -582,14 +584,21 @@ void WsmWriter::appendSoapHeader(
     Buffer& out,
     const String& action,
     const String& messageId,
-    const String& relatesTo)
+    const String& relatesTo,
+    const String& toAddress)
 {
     // Add <wsa:To> entry
     appendStartTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("To"));
-    // Note: The reply is always written on the requestor's connection.
-    // The WsmRequestDecoder checks that the wsa:ReplyTo header is anonymous.
-    out << STRLIT(WSM_ADDRESS_ANONYMOUS);
-    _writeNewlineForReadability(out);
+
+    if(toAddress.size())
+    {
+        out.append((const char *)toAddress.getCString(),toAddress.size());
+    }
+    else
+    {
+        out << STRLIT(WSM_ADDRESS_ANONYMOUS);
+    }
+    //writeNewlineForReadability(out);
     appendEndTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("To"));
 
     // Add <wsa:Action> entry
@@ -651,5 +660,87 @@ void WsmWriter::appendInvokeOutputElement(
 
     _writeNewlineForReadability(out);
 }
+
+Buffer  WsmWriter::appendHTTPRequestHeader(
+    XmlParser& parser,
+    const String& hostName,
+    Boolean useMPost,
+    Boolean useHTTP11,
+    Buffer& content,
+    Buffer& httpHeaders,
+    const String& destination
+    )
+{
+    XmlEntry entry;
+    Buffer message;
+
+    if (parser.next(entry) &&
+        entry.type == XmlEntry::START_TAG &&
+        strcmp(entry.localName, "Envelope") == 0)
+    {
+        //  Set WSMAN headers and content.
+        message << HTTP_METHOD_POST << HTTP_SP
+            << destination << HTTP_SP
+            << HTTP_PROTOCOL << HTTP_VERSION_11 << HTTP_CRLF;
+        message << HEADER_NAME_HOST << HEADER_SEPARATOR
+            << HTTP_SP << hostName << HTTP_CRLF;
+        message << HEADER_NAME_CONTENTTYPE << HEADER_SEPARATOR
+            << HTTP_SP << WSMAN_HEADER_VALUE_CONTENTTYPE
+            << HTTP_CRLF;
+        message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR
+            << HTTP_SP << (Uint32)content.size () << HTTP_CRLF;
+
+        httpHeaders << message;
+        message << HTTP_CRLF;
+        message << content;
+    }
+    return message;   
+}
+
+void WsmWriter::addAuthHeader(
+    HTTPMessage*& httpMessage,
+    AutoPtr<ClientAuthenticator>& authenticator)
+{
+    // Add authentication headers to the message
+    String authHeader = authenticator->buildRequestAuthHeader();
+    if (authHeader != String::EMPTY)
+    {
+        // Find the separator between the start line and the headers, so we
+        // can add the authorization header there.
+
+        const char* messageStart = httpMessage->message.getData();
+        char* headerStart =
+            (char*)memchr(messageStart, '\n', httpMessage->message.size());
+
+        if (headerStart)
+        {
+            // Handle a CRLF or LF separator
+            if ((headerStart != messageStart) && (headerStart[-1] == '\r'))
+            {
+                headerStart[-1] = 0;
+            }
+            else
+            {
+                *headerStart = 0;
+            }
+
+            headerStart++;
+
+            // Build a new message with the original start line, the new
+            // authorization header, and the original headers and content.
+
+            Buffer newMessageBuffer;
+            newMessageBuffer << messageStart << HTTP_CRLF;
+            newMessageBuffer << authHeader << HTTP_CRLF;
+            newMessageBuffer << headerStart;
+
+            HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
+            delete httpMessage;
+            httpMessage = newMessage;
+        }
+    }
+}
+
+
 
 PEGASUS_NAMESPACE_END

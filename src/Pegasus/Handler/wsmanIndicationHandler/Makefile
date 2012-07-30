@@ -26,41 +26,24 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../..
-DIR = Pegasus/ExportClient
+ROOT = ../../../..
+
+include ../libraries.mak
+
+DIR = Pegasus/Handler/wsmanIndicationHandler
+
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES)
-
-LOCAL_DEFINES = -DPEGASUS_EXPORT_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
-
 ifeq ($(OS_TYPE),vms)
-    STATIC=1
+ VMS_VECTOR = PegasusCreateHandler
 endif
 
-LIBRARY = pegexportclient
+LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
-LIBRARIES = \
-    pegcommon \
-    pegclient
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-LIBRARIES +=\
-	pegwsmserver
-endif
+SOURCES = wsmanIndicationHandler.cpp
 
-PRE_DEPEND_INCLUDES = -I./depends
-
-SOURCES = \
-    CIMExportClient.cpp \
-    CIMExportRequestEncoder.cpp \
-    CIMExportResponseDecoder.cpp \
-    HTTPExportResponseDecoder.cpp \
-    ExportClient.cpp
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-SOURCES += \
-	WSMANExportClient.cpp \
-	WSMANExportRequestEncoder.cpp
-endif
-   
+LIBRARY = wsmanIndicationHandler
 
 include $(ROOT)/mak/dynamic-library.mak
+
+tests:

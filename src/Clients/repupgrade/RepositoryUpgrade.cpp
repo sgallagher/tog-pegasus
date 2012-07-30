@@ -929,6 +929,9 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
 
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER);
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
+#ifdef  PEGASUS_ENABLE_PROTOCOL_WSMAN
+    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER_WSMAN);
+#endif
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
 #if defined(PEGASUS_ENABLE_SYSTEM_LOG_HANDLER)
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG);

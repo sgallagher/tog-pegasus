@@ -64,25 +64,28 @@ enum WsmOperationType
     WS_ENUMERATION_RELEASE,
 
     /* WS-Management invoke */
-    WS_INVOKE
+    WS_INVOKE,
+    WS_EXPORT_INDICATION
     // etc.
 };
 
-class WsmRequest
+class WsmRequest : public Message 
 {
 public:
 
     WsmRequest(
         WsmOperationType type,
-        const String& messageId_)
-        : messageId(messageId_),
+        const String& messageId_,
+        MessageType msgType=DUMMY_MESSAGE)
+        : Message(msgType),messageId(messageId_),
           httpMethod(HTTP_METHOD__POST),
           httpCloseConnect(false),
           omitXMLProcessingInstruction(false),
           queueId(0),
           requestEpr(false),
           maxEnvelopeSize(0),
-          _type(type)
+          _type(type),
+          _msgType(msgType)
     {
     }
 
@@ -111,6 +114,7 @@ public:
 private:
 
     WsmOperationType _type;
+    MessageType _msgType;
 };
 
 class WxfGetRequest : public WsmRequest
@@ -293,6 +297,30 @@ public:
     WsmInstance instance;
 };
 
+class WsExportIndicationRequest : public WsmRequest
+{
+public :
+    
+    WsExportIndicationRequest(
+        const String& messageId,
+        const String& url_,
+        const String& destination_,
+        const WsmInstance& instance_)
+        :WsmRequest(
+            WS_EXPORT_INDICATION,
+            messageId,
+            WSMAN_EXPORT_INDICATION_REQUEST_MESSAGE),
+        url(url_),
+        destination(destination_),
+        IndicationInstance(instance_) 
+    {
+    }
+
+    String url;
+    String destination;
+    WsmInstance IndicationInstance;   
+    
+};
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_WsmRequest_h */

@@ -48,6 +48,8 @@
 #include <Pegasus/WsmServer/WsmValue.h>
 #include <Pegasus/WsmServer/WsmFault.h>
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
+#include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Client/ClientAuthenticator.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -136,7 +138,8 @@ public:
         Buffer& out,
         const String& action,
         const String& messageId,
-        const String& relatesTo);
+        const String& relatesTo,
+        const String& toAddress="");
 
     static void appendInvokeOutputElement(
         Buffer& out,
@@ -145,6 +148,18 @@ public:
         const String& methodName,
         WsmInstance& instance,
         const char* ns);
+    
+   static Buffer appendHTTPRequestHeader( XmlParser& parser,
+            const String& hostName,
+            Boolean useMPost,
+            Boolean useHTTP11,
+            Buffer& content,
+            Buffer& httpHeaders,
+            const String& destination);
+    
+    static void addAuthHeader(
+        HTTPMessage*& httpMessage,
+        AutoPtr<ClientAuthenticator>& authenticator);
 
 private:
 

@@ -835,6 +835,7 @@ void IndicationService::_initialize()
     _supportedSNMPVersion.append(SNMPV2C_TRAP);
     _supportedSNMPVersion.append(SNMPV3_TRAP);
 
+
     ConfigManager* configManager = ConfigManager::getInstance();
 
     if (ConfigManager::parseBooleanValue(
@@ -2997,7 +2998,9 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
         if (request->instanceName.getClassName().equal(
                 PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
             request->instanceName.getClassName().equal(
-               PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+               PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+            request->instanceName.getClassName().equal(
+               PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
         {
             CIMObjectPath handlerName = request->instanceName;
             handlerName.setNameSpace(request->nameSpace);
@@ -4888,7 +4891,7 @@ Boolean IndicationService::_canCreate (
         }
 
         //
-        //  Currently only five subclasses of the Listener Destination
+        //  Currently only six subclasses of the Listener Destination
         //  class are supported -- further subclassing is not currently
         //  supported
         //
@@ -4901,7 +4904,9 @@ Boolean IndicationService::_canCreate (
          (instance.getClassName ().equal
           (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
                  (instance.getClassName ().equal
-                  (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
+                  (PEGASUS_CLASSNAME_INDHANDLER_SNMP)) ||
+                 (instance.getClassName ().equal
+                  (PEGASUS_CLASSNAME_INDHANDLER_WSMAN)))
         {
 #ifndef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
             if (instance.getClassName ().equal
@@ -4935,6 +4940,22 @@ Boolean IndicationService::_canCreate (
                    _MSG_CLASS_NOT_SERVED));
         }
 #endif
+
+#ifndef PEGASUS_ENABLE_PROTOCOL_WSMAN
+            if (instance.getClassName ().equal
+            (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+            {
+                //
+                //  The WSMAN Handler is not enabled currently,
+                //  this class is not currently served by the Indication Service
+                //
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY,
+            _MSG_CLASS_NOT_SERVED));
+        }
+#endif
             _checkPropertyWithOther(
                 instance,
                 PEGASUS_PROPERTYNAME_PERSISTENCETYPE,
@@ -4946,7 +4967,9 @@ Boolean IndicationService::_canCreate (
             if (instance.getClassName().equal(
                     PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
                 instance.getClassName().equal(
-                    PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+                    PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
+                instance.getClassName ().equal(
+                    PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
             {
                 //
                 //  Destination property is required for CIMXML
@@ -4956,6 +4979,18 @@ Boolean IndicationService::_canCreate (
                     instance,
                     PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION,
                     CIMTYPE_STRING,
+                    false);
+            }
+            
+            // WSMAN Indication Handler properties are checked below
+            if (instance.getClassName().equal
+                (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+            {
+                // Delivery Mode property is required for WSMAN Handler
+                _checkRequiredProperty(
+                    instance,
+                    PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE,
+                    CIMTYPE_UINT16,
                     false);
             }
 
@@ -6745,7 +6780,6 @@ void IndicationService::_deleteExpiredSubscription(
         "IndicationService::_deleteExpiredSubscription");
 
     CIMInstance subscriptionInstance;
-
     //
     //  Delete instance from repository
     //

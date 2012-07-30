@@ -26,41 +26,22 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../..
-DIR = Pegasus/ExportClient
+ROOT = ../../../../..
+DIR = Pegasus/WSMANExportClient/tests/WSMANExportClientTests.cpp
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES)
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-LOCAL_DEFINES = -DPEGASUS_EXPORT_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
+PROGRAM = TestWSMANExportClient
+SOURCES = WSMANExportClientTests.cpp
 
-ifeq ($(OS_TYPE),vms)
-    STATIC=1
-endif
+include $(ROOT)/mak/program.mak
 
-LIBRARY = pegexportclient
+tests:
 
-LIBRARIES = \
-    pegcommon \
-    pegclient
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-LIBRARIES +=\
-	pegwsmserver
-endif
+poststarttests:
+	$(PROGRAM)
 
-PRE_DEPEND_INCLUDES = -I./depends
-
-SOURCES = \
-    CIMExportClient.cpp \
-    CIMExportRequestEncoder.cpp \
-    CIMExportResponseDecoder.cpp \
-    HTTPExportResponseDecoder.cpp \
-    ExportClient.cpp
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-SOURCES += \
-	WSMANExportClient.cpp \
-	WSMANExportRequestEncoder.cpp
-endif
-   
-
-include $(ROOT)/mak/dynamic-library.mak
+runExportClientSSL_TS1:
+	$(PROGRAM) ssl

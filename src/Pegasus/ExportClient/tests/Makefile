@@ -32,5 +32,10 @@ include $(ROOT)/mak/config.mak
 
 DIRS = ExportClient \
        HTTPExportResponseDecoder
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+DIRS += \
+	WSMANExportClient\
+	WSMANExportRequestEncoder		 
+endif
 
 include $(ROOT)/mak/recurse.mak

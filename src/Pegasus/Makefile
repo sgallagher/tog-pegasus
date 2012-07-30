@@ -44,6 +44,13 @@ ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += \
+        WsmServer
+    TEST_DIRS += \
+        WsmServer/tests
+endif
+
 DIRS += \
     Query/QueryExpression \
     Provider \
@@ -114,6 +121,13 @@ ifdef PEGASUS_ENABLE_EMAIL_HANDLER
         Handler/EmailListenerDestination
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += \
+        Handler/wsmanIndicationHandler
+    TEST_DIRS += \
+        Handler/wsmanIndicationHandler/tests/Destination
+endif
+
 DIRS += \
     ProviderManager2 \
     ProviderManager2/Default
@@ -179,13 +193,6 @@ endif
 ifdef PEGASUS_HAS_SSL
     DIRS += \
         ControlProviders/CertificateProvider
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        WsmServer
-    TEST_DIRS += \
-        WsmServer/tests
 endif
 
 DIRS += \

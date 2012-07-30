@@ -4682,6 +4682,22 @@ CIM server listening on HTTPS port {0}."}
         */
         Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_VERSION_NOT_SUPPORTED:string{"PGS11013: SNMPv1 trap and SNMPv2C trap are the only supported values for the SNMPVersion property of the PG_IndicationHandlerSNMPMapper class."}
 
+        // ==========================================================
+        // Messages for wsmanIndicationHandler
+        //  Please use message prefix "PGS11100"
+        // ==========================================================
+
+        /**
+        * @note  PGS11102:
+        */
+
+        Handler.wsmanIndicationHandler.wsmanIndicationHandler.MALFORMED_HANDLER_INSTANCE:string{"PGS11102: Malformed wsman handler instance."}
+
+        /**
+        * @note  PGS11103:
+        */
+
+        Handler.wsmanIndicationHandler.wsmanIndicationHandler.DELIVERYMODE_TYPE_MISMATCH:string{"PGS11103 Malformed wsman handler instance."}
 
         // ==========================================================
         // Messages for CIMExportRequestDecoder

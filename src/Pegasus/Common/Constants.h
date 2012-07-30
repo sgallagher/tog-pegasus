@@ -80,6 +80,8 @@
 #define PEGASUS_QUEUENAME_WBEMEXECCLIENT      "WbemExecClient"
 #define PEGASUS_QUEUENAME_INTERNALCLIENT       "InternalClient"
 
+#define PEGASUS_QUEUENAME_WSMANEXPORTCLIENT    "WSMANExportClient"
+#define PEGASUS_QUEUENAME_WSMANEXPORTREQENCODER  "WSMANExportRequestEncoder"
 
 /*
  * ModuleController Module Names
@@ -469,7 +471,6 @@
 #define PEGASUS_MAXLOGFILESIZEKBYTES_CONFIG_PROPERTY_MINIMUM_VALUE 32
 #endif
 
-
 /*
 **==============================================================================
 **
@@ -516,6 +517,12 @@ enum PMInstAlertCause {PM_UNKNOWN = 1, PM_OTHER = 2, PM_CREATED = 3,
     PM_PROVIDER_ADDED = 11, PM_PROVIDER_REMOVED = 12,
     PM_ENABLED_CIMSERVER_START = 13, PM_DISABLED_CIMSERVER_STOP = 14};
 
+/* Values for Delivery mode property of CIM_ListenerDestinationWSManagement 
+    class , as defined in CIM_ListenerDestinationWSManagement.mof */
+
+enum deliveryMode {Push = 2 ,PushWithAck = 3, Events = 4 ,Pull = 5,
+    DMTF_Reserved = 6 , Vendor_Reserved = 7 };
+
 //
 // CIM Class Names
 //
@@ -542,6 +549,8 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
+PEGASUS_COMMON_LINKAGE 
+    extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_WSMAN;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL;
@@ -679,6 +688,13 @@ PEGASUS_COMMON_LINKAGE
 */
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION;
+
+/**
+    Property names for WSMAN Indication Handler subclass.
+*/
+// Delivery Mode
+PEGASUS_COMMON_LINKAGE
+    extern const CIMName PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE;
 
 /**
     The name of the CreationTime property for CIM XML Indication Handler

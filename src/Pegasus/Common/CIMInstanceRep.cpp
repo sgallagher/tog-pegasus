@@ -122,6 +122,10 @@ void CIMInstanceRep::resolve(
                     (CIMName (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))) ||
                 (className.equal
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))) ||
+#ifdef  PEGASUS_ENABLE_PROTOCOL_WSMAN
+                (className.equal
+                    (CIMName (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))) ||
+#endif
                 (className.equal
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))) ||
                 (className.equal

@@ -84,7 +84,7 @@ void TestRequestEncoder::testWSMANReqEncoder()
             &authenticator));
 
     Buffer copyBuf, masterBuf;
-    char * master = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://www.w3.org/"
+    const char* master="<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://www.w3.org/"
         "2003/05/soap-envelope\" xmlns:SOAP-ENC=\"http://www.w3.org/2003/05/"
         "soap-encoding\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\""
         " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd="

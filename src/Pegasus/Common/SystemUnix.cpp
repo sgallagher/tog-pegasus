@@ -111,99 +111,67 @@ Boolean System::isPrivilegedUser(const String& userName)
 
 #if defined(PEGASUS_ENABLE_USERGROUP_AUTHORIZATION)
 
-static void doFreeIfNeeded( const Boolean freeNeeded, char* ptrToFree)
-{
-    if (freeNeeded)
-    {
-        free(ptrToFree);
-        ptrToFree = NULL;
-    }
-}
-
 Boolean System::isGroupMember(const char* userName, const char* groupName)
 {
     struct group grp;
+    char* member;
     Boolean retVal = false;
-    const  Uint32 PWD_BUFF_SIZE = 1024;
+    const unsigned int PWD_BUFF_SIZE = 1024;
+    const unsigned int GRP_BUFF_SIZE = 1024;
     struct passwd pwd;
     struct passwd* result;
     struct group* grpresult;
     char pwdBuffer[PWD_BUFF_SIZE];
+    char grpBuffer[GRP_BUFF_SIZE];
+
     // Search Primary group information.
 
     // Find the entry that matches "userName"
-    Sint32 errCode = 0;
-    if((errCode = getpwnam_r(userName, &pwd, pwdBuffer,
-        PWD_BUFF_SIZE, &result)) != 0)
+
+    if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
     {
         String errorMsg = String("getpwnam_r failure : ") +
-                            String(strerror(errCode));
+                            String(strerror(errno));
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                                   errorMsg);
         throw InternalSystemError();
     }
 
-    Uint32 grpbuflen = 1024; 
-
-    //tell if we need to free due to dynamically allocated memory
-    Boolean isDynamicMemory = false;
-    char grpBuf[grpbuflen];
-    char* grpBuffer = grpBuf;
-
-
     if ( result != NULL )
     {
-
         // User found, check for group information.
-        gid_t group_id;
+        gid_t           group_id;
         group_id = pwd.pw_gid;
 
-
-        //getgrgid_r may failed with groups with large number of users in group
-        //Hence use loop here if ERANGE occurs 
-        while((errCode = getgrgid_r(group_id, &grp, grpBuffer,
-            grpbuflen, &grpresult) == ERANGE))
-        {
-           
-            grpBuffer = (!isDynamicMemory) ? NULL: grpBuffer; 
-            isDynamicMemory = true; 
-            grpbuflen *= 2;
-            
-            grpBuffer = (char*)peg_inln_realloc( grpBuffer, grpbuflen);
-        }
-
-        if (errCode != 0 )
+        // Get the group name using group_id and compare with group passed.
+        if ( getgrgid_r(group_id, &grp,
+                 grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0)
         {
             String errorMsg = String("getgrgid_r failure : ") +
-                String(strerror(errCode));
+                                 String(strerror(errno));
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                errorMsg);
+            throw InternalSystemError();
         }
-  
 
         // Compare the user's group name to groupName.
         if (strcmp(grp.gr_name, groupName) == 0)
         {
-            doFreeIfNeeded(isDynamicMemory, grpBuffer);
-
              // User is a member of the group.
              return true;
         }
     }
 
+    //
     // Search supplemental groups.
     // Get a user group entry
-
-    // The grpbuflen which has been calculated 
-    // succeed getgrgid_r is good enough
-    // for getgrnam_r so no need to repeat 
-    // above step for getgrnam_r
-
-    errCode = 0;
-    if ((errCode = getgrnam_r((char *)groupName, &grp,
-        grpBuffer, grpbuflen, &grpresult)) != 0)
+    //
+    if (getgrnam_r((char *)groupName, &grp,
+        grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0)
     {
-        doFreeIfNeeded(isDynamicMemory, grpBuffer);
         String errorMsg = String("getgrnam_r failure : ") +
-            String(strerror(errCode));
+            String(strerror(errno));
         Logger::put(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, errorMsg);
         throw InternalSystemError();
@@ -212,17 +180,17 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     // Check if the requested group was found.
     if (grpresult == NULL)
     {
-        doFreeIfNeeded(isDynamicMemory, grpBuffer);
         return false;
     }
 
+    Uint32 j = 0;
 
     //
     // Get all the members of the group
     //
-    Uint32 j = 0;
-    char *member = NULL;
-    while ( (member = grp.gr_mem[j++]) )
+    member = grp.gr_mem[j++];
+
+    while (member)
     {
         //
         // Check if the user is a member of the group
@@ -232,9 +200,9 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             retVal = true;
             break;
         }
+        member = grp.gr_mem[j++];
     }
 
-    doFreeIfNeeded( isDynamicMemory, grpBuffer);
     return retVal;
 }
 

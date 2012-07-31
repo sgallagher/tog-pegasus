@@ -136,6 +136,8 @@ void ExportClient::_connect()
         sprintf(portStr, ":%u", _connectPortNumber);
         connectHost.append(portStr);
     }
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     //Create requestEncoder to encode the exportIndication request.
     if(isWSMANExportIndication)
     {
@@ -146,6 +148,7 @@ void ExportClient::_connect()
             &_authenticator);
     }
     else
+#endif
     {
         _cimRequestEncoder = new CIMExportRequestEncoder(
             _httpConnection,

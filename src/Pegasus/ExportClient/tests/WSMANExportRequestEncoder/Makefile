@@ -29,9 +29,12 @@
 ROOT = ../../../../..
 DIR = Pegasus/WSMANExportClient/tests/WSMANRequestEncoderTests.cpp
 include $(ROOT)/mak/config.mak
-include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+LIBRARIES = pegwsmserver \
+            pegexportclient \
+            pegclient  \
+            pegcommon 
 
 PROGRAM = TestWSMANRequestEncoder
 SOURCES = WSMANRequestEncoderTests.cpp

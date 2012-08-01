@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/WSMANExportClient/tests/WSMANRequestEncoderTests.cpp
+DIR = Pegasus/WSMANExportClient/tests/WSMANRequestEncoderTests
 include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY

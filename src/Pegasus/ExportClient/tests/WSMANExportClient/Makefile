@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/WSMANExportClient/tests/WSMANExportClientTests.cpp
+DIR = Pegasus/WSMANExportClient/tests/WSMANExportClientTests
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

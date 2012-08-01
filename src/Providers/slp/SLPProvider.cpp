@@ -1373,7 +1373,7 @@ Boolean SLPProvider::populateRegistrationData(
         (const char *)CstrRegistration,
         (const char *)CfullServiceName,
         "DEFAULT",
-#if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
+#if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined( PEGASUS_SLP_REG_TIMEOUT )
         PEGASUS_SLP_REG_TIMEOUT  * 60);
 #else
         0xffff);
@@ -1407,6 +1407,28 @@ Boolean SLPProvider::populateRegistrationData(
     _instances.append(templateInstance);
     _instanceNames.append(reference1);
     return true;
+} 
+
+//This function checks for Link-local ipv6 address(LLA),
+//If the address is LLA, it removes the zone id and return the
+//LLA, otherwise, no change in the address 
+void SLPProvider::_processLinkLocalAddress( String &ip6add2check)
+{
+
+ Uint32 percentPos = 0;
+ if ((ip6add2check.size() >= 6) && (ip6add2check[0] == Char16('[')) &&
+     (ip6add2check[1] == Char16('f') || ip6add2check[1] == Char16('F')) &&
+     (ip6add2check[2] == Char16('e') || ip6add2check[2] == Char16('E')) &&
+     (ip6add2check[3] == Char16('8') && (ip6add2check[4] == Char16('0')) &&
+     (PEG_NOT_FOUND != (percentPos = ip6add2check.find(5,Char16('%'))))))
+     {
+          Uint32 closingSq = ip6add2check.find(']');
+          PEGASUS_ASSERT(closingSq !=PEG_NOT_FOUND);
+          ip6add2check.remove(percentPos, closingSq - percentPos);
+
+          PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
+              "Processed LLA %s", (const char *) ip6add2check.getCString()));
+    }
 }
 
 /** issue all necessary SLP registrations. Gets the objects that are required to
@@ -1471,6 +1493,8 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
         // get ipaddress property
         String IPAddress = _getPropertyValueString(instancesObjMgrComm[i],
             CIMName("IPAddress"), "127.0.0.1");
+
+          _processLinkLocalAddress(IPAddress);
         // create a registration instance, test and register it.
         if (populateRegistrationData(protocol,
             IPAddress,

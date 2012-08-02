@@ -59,9 +59,6 @@
 #include "CIMCLICommon.h"
 #include "CIMCLIOperations.h"
 
-// use setw with cout
-#include <iomanip>
-
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 

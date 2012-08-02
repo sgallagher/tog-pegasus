@@ -125,10 +125,17 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" ProviderLifecycleIndicationProvider.mof
 	@ $(ECHO) +++++ Registering MethodTestProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" MethodTestProviderR.mof
+
 	@ $(ECHO) +++++ Loading CLITestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" CLITestProvider.mof
 	@ $(ECHO) +++++ Registering CLITestProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CLITestProviderR.mof
+
+	@ $(ECHO) +++++ Loading TestCIM_ErrorProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestCIM_ErrorProvider.mof
+	@ $(ECHO) +++++ Registering TestCIM_ErrorProvider ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCIM_ErrorProviderR.mof
+
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
@@ -295,6 +302,12 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" CLITestProvider.mof
 	@ $(ECHO) +++++ Registering CLITestProvider ...
 	@ cimmof "-n$(INTEROPNS)" CLITestProviderR.mof
+
+	@ $(ECHO) +++++ Loading TestCIM_ErrorTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" TestCIM_ErrorTestProvider.mof
+	@ $(ECHO) +++++ Registering TestCIM_ErrorTestProvider ...
+	@ cimmof "-n$(INTEROPNS)" TestCIM_ErrorTestProviderR.mof
+
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmof "-n$(TESTPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
@@ -407,6 +420,7 @@ unregisterproviders:
 	cimprovider -r -m IndicationTestProviderModule
 	cimprovider -r -m MethodTestProviderModule
 	cimprovider -r -m CLITestProviderModule
+	cimprovider -r -m TestCIM_ErrorProviderModule
 	cimprovider -r -m TestLocalizedProviderModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIIndicationProviderModule

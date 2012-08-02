@@ -103,5 +103,49 @@
         }                                                                 \
     } while (0)
 
-# endif /* Common Pegasus Assert implementation */
+# endif /* PEGASUS_OS_ZOS */
+
+/**
+    Defines PEGASUS_DISABLED_TEST_ASSERT(COND) assertion statement.
+    This assert generates an error message and executes an exit(0) so that
+    the tests may continue.
+    Used for tests that we want to become permanent but today they may fail
+    It generates code independent of PEGASUS_DEBUG.
+    This macro is to be used ONLY by pegasus test components to temporarily
+    bypass asserts for tests that are defined but do not currently work
+    correctly.
+
+   See also the man page for assert().
+
+   NOTE: This macro is not linked to NDEBUG and also independent of
+         platform definition
+*/
+
+#define PEGASUS_DISABLED_TEST_ASSERT(COND)                                 \
+    do                                                                     \
+    {                                                                      \
+        if (!(COND))                                                       \
+        {                                                                  \
+            printf("PEGASUS_DISABLED_TEST_ASSERT failed in file %s"        \
+                " line %d.\n Exit 0 from program so tests can continue\n", \
+                __FILE__, __LINE__);                                       \
+            exit(0);                                                       \
+        }                                                                  \
+    } while (0)
+
+/**
+ * Same as PEGASUS_DISABLED_TEST_ASSERT except that this macro does not
+ * exit the program, simply generates a message and lets the program
+ * continue.
+ */
+#define PEGASUS_DISABLED_TEST_ASSERT_CONTINUE(COND)                        \
+    do                                                                     \
+    {                                                                      \
+        if (!(COND))                                                       \
+        {                                                                  \
+            printf("PEGASUS_DISABLED_TEST_ASSERT failed in file %s"        \
+                " line %d.\n Exit 0 from program so tests can continue\n", \
+                __FILE__, __LINE__);                                       \
+        }                                                                  \
+    } while (0)
 #endif  /* Pegasus_Assert_h */

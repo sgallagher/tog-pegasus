@@ -72,6 +72,8 @@ TEST_DIRS = \
 	TestGoodInstanceProvider \
 	DeliveryRetryTestProvider \
         TestProviderLifecycleIndications \
+	TestCIM_ErrorProvider \
+	TestCIM_ErrorProvider/tests \
         TestProviderLifecycleIndications/testclient \
         TestProviderLifecycleIndications/testconsumer
 

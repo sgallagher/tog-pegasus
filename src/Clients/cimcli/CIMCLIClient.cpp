@@ -149,7 +149,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 
     for (Uint32 i = 0 ; i < listSize; i++)
     {
-        cout << i + 1 << ": " << selectList[i] << endl;
+        cout << i + 1 << ": " << selectList[i].getCString() << endl;
     }
 
     while (rtn < 1 || rtn > listSize)

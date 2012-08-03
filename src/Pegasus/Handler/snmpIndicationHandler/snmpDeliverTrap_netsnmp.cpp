@@ -43,13 +43,8 @@ void snmpDeliverTrap_netsnmp::initialize()
     // loaded and loading them can cause some stderr;
     // use environment variable MIBS to override the default MIB modules.
     // If there is no MIBS environment variable, add it in.
-    char* envVar;
-    envVar = getenv("MIBS");
 
-    if (envVar == NULL)
-    {
-        putenv("MIBS=");
-    }
+    setenv("MIBS", "", 0);
 
     // Initialize the mib reader
     netsnmp_set_mib_directory("");

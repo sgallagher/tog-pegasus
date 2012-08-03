@@ -203,13 +203,11 @@ bool WMICollector::Connect(IWbemServices **ppServices)
                         "WMICollector::Connect() connectServer() - throw "
                         "CIM_ERR_ACCESS_DENIED for E_ACCESSDENIED error");
                     throw CIMException(CIM_ERR_ACCESS_DENIED);
-                    break;
                 case WBEM_E_ACCESS_DENIED:
                     PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                         "WMICollector::Connect() - connectServer() - throw "
                         "CIM_ERR_ACCESS_DENIED error");
                     throw CIMException(CIM_ERR_ACCESS_DENIED);
-                    break;
                 default:
                     PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                         "WMICollector::Connect() - connectServer() - throw "
@@ -303,10 +301,8 @@ bool WMICollector::getInstanceEnum(
         {
             case WBEM_E_ACCESS_DENIED:
                 throw CIMException(CIM_ERR_ACCESS_DENIED);
-                break;
             case WBEM_E_INVALID_CLASS:
                 throw CIMException(CIM_ERR_INVALID_CLASS);
-                break;
             default:
                 throw CIMException(CIM_ERR_FAILED,
                     "[getInstanceEnum] general");
@@ -403,13 +399,11 @@ bool WMICollector::getClassEnum(
                     "WMICollector::getClassEnum() - createClassEnum() returns "
                     "ACCESS_DENIED- throw CIM_ERROR_ACCESS_DENIED error");
                 throw CIMException(CIM_ERR_ACCESS_DENIED);
-                break;
             case WBEM_E_INVALID_CLASS:
                 PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                     "WMICollector::getClassEnum() - createClassEnum() returns "
                     "INVALID_CLASS- throw CIM_INVALID_CLASS error");
                 throw CIMException(CIM_ERR_INVALID_CLASS);
-                break;
             default:
                 PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                     "WMICollector::getClassEnum() - createClassEnum() returns "
@@ -492,10 +486,8 @@ bool WMICollector::getQueryResult(
         {
             case WBEM_E_INVALID_QUERY:
                 throw CIMException(CIM_ERR_INVALID_QUERY);
-                break;
             case WBEM_E_INVALID_QUERY_TYPE:
                 throw CIMException(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
-                break;
             default:
                 throw CIMException(CIM_ERR_FAILED, "[getQueryResult] general");
         }
@@ -567,10 +559,8 @@ bool WMICollector::getObject(
         {
             case WBEM_E_INVALID_CLASS:
                 throw CIMException(CIM_ERR_INVALID_CLASS);
-                break;
             case WBEM_E_NOT_FOUND:
                 throw CIMException(CIM_ERR_NOT_FOUND);
-                break;
             default:
                 throw CIMException(CIM_ERR_FAILED, "[getObject] general");
         }

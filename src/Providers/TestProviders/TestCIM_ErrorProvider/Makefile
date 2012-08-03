@@ -36,7 +36,8 @@ LIBRARY = TestCIM_ErrorProvider
 
 LIBRARIES = \
 	pegcommon \
-	pegprovider
+	pegprovider \
+	peggeneral
 
 SOURCES = \
 	TestCIM_ErrorProviderMain.cpp \

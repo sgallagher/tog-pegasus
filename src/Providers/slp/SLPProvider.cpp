@@ -1494,7 +1494,7 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
         String IPAddress = _getPropertyValueString(instancesObjMgrComm[i],
             CIMName("IPAddress"), "127.0.0.1");
 
-          _processLinkLocalAddress(IPAddress);
+        _processLinkLocalAddress(IPAddress);
         // create a registration instance, test and register it.
         if (populateRegistrationData(protocol,
             IPAddress,

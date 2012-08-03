@@ -139,7 +139,7 @@ ifeq ($(OS_TYPE),windows)
 	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
 endif
 ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
-    $(RM) $(ACTUAL_BIN_DIR)/$(FULL_PROGRAM)
+	$(RM) $(ACTUAL_BIN_DIR)/$(FULL_PROGRAM)
 endif
 
 tests:

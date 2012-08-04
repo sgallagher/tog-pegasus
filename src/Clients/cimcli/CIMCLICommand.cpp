@@ -408,10 +408,12 @@ int main(int argc, char** argv)
     }
     else
     {
-        cerr << "Error: P[eration name must be first or --c parameter."
-            << " \n  ex. cli enumerateclasses\n"
-            << "Enter " << argv[0] << " -h for help."
-            << endl;
+        cerr << "Error: Command name or shortcut must be first parameter."
+            << " \n  ex. " << argv[0] << " enumerateclasses or "
+            << argv[0] << " ec\n" << endl;
+
+        showUsage();
+
         cimcliExit(CIMCLI_INPUT_ERR);
     }
 

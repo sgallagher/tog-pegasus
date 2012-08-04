@@ -144,7 +144,6 @@ void showVersion(const char* pgmName, OptionManager& om)
 
 void showOptions(const char* pgmName, OptionManager& om)
 {
-
     String optionsTrailer = loadMessage(
         "Clients.cimcli.CIMCLIClient.OPTIONS_TRAILER",
         "Options vary by command consistent with CIM Operations");

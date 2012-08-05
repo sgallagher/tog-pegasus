@@ -352,13 +352,12 @@ String TracePropertyOwner::getPropertyHelpSupplement(
        // Set list of possible traceComponent Strings
         const Uint32 _NUM_COMPONENTS = Tracer::_NUM_COMPONENTS;
         localPropertyInfo.append("\n");
-        MessageLoaderParms parms(
+
+        localPropertyInfo.append(loadMessage(
             "Config.TracePropertyOwner.TRACECOMPONENTS_POSSIBLE_VALUE",
-            TRACE_POSSIBLE_VALUE);
-        parms.msg_src_path = CONFIG_MSG_PATH;
+            TRACE_POSSIBLE_VALUE));
 
         String possibleValues = "\n    ALL ";
-        localPropertyInfo.append(MessageLoader::getMessage(parms));
         Uint32 lineSize = possibleValues.size();
         // Get the list of traceComponents from Tracer and append to formatted
         // string

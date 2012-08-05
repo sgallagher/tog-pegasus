@@ -229,6 +229,14 @@ public:
         @exception UnrecognizedConfigProperty if the property is not defined.
     */
     virtual Boolean isDynamic(const String& name) const = 0;
+
+    /** Initialize and load the appropriate internationalized
+       message for the defined key. This function is limited to
+       fixed message output.
+       @param key String with key to message in message bundle
+       @param msg String containing message
+    */
+    static String loadMessage(const char* key, const char* msg);
 };
 
 

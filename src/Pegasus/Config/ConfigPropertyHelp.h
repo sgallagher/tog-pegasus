@@ -52,7 +52,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
- * structure defining property names / description string
+ * struct defining property names and description/help string for
+ * config properties. This is the table that provides help
+ * information associated with each configuration property for
+ * OpenPegasus configuration
+ * Name is the name of the property.
+ * Description is the help information associated with that
+ * property
+ *
  */
 struct configPropertyDescription
 {
@@ -60,8 +67,8 @@ struct configPropertyDescription
     const char* Description;
 };
 
-// Define table of struct configPropertyDescription which
-// provides short descriptions descriptions
+// Defines table of struct configPropertyDescription which
+// provides short descriptions for each config property.
 PEGASUS_CONFIG_LINKAGE
     extern struct configPropertyDescription configPropertyDescriptionList[];
 

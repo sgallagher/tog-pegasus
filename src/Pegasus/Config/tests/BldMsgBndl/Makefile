@@ -26,51 +26,30 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../..
+ROOT = ../../../../..
 
-DIR = Pegasus/Config
+DIR = Pegasus/Config/tests/BldMsgBndl
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_CONFIG_INTERNAL -DPEGASUS_INTERNALONLY
+include ../libraries.mak
 
-ifeq ($(OS_TYPE),vms)
-    STATIC=1
-else
-    STATIC=0
-endif
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-LIBRARY = pegconfig
+PROGRAM = TestBldMsgBndl
 
-LIBRARIES = \
-    pegcommon
+SOURCES = BldMsgBndl.cpp
 
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-    EXTRA_LIBRARIES += -lCstd
-endif
+include $(ROOT)/mak/program.mak
 
-SOURCES = \
-    ConfigExceptions.cpp \
-    ConfigFile.cpp \
-    ConfigFileHandler.cpp \
-    ConfigManager.cpp \
-    ConfigPropertyOwner.cpp \
-    DefaultPropertyOwner.cpp \
-    FileSystemPropertyOwner.cpp \
-    LogPropertyOwner.cpp \
-    NormalizationPropertyOwner.cpp \
-    TracePropertyOwner.cpp \
-    SecurityPropertyOwner.cpp \
-    RepositoryPropertyOwner.cpp \
-    ProviderDirPropertyOwner.cpp \
-    ShutdownPropertyOwner.cpp \
-    ConfigPropertyHelp.cpp
+## Build the message bundle from the help messages in Config/ConfigPropertyHelp
+## and output the result to stdout.  NOTE that it is a manual task to replace
+## the portion of the bundle in msg/Server/pegasusServer between the START and
+##END comments with the new output.
 
-ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
-    SOURCES += IndicationServicePropertyOwner.cpp
-endif
-
-include $(ROOT)/mak/dynamic-library.mak
+buildBundle:
+	$(PROGRAM)
 
 
+poststarttests: 
 

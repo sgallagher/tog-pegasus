@@ -47,9 +47,18 @@ PEGASUS_NAMESPACE_BEGIN
 // FUTURE: This should be loadable from an external file or otherwise
 // part of clients rather than in memory. Big waste of memory.
 //
-// See ConfigPropertyOwner PEGASUS_ENABLE_OUTPUT_OF_DESCRIPTION_INFO
-// and Makefile to update the server msg bundle if the following table
-// is changed.
+// NOTE: The internationalization message bundle for this set of
+// messages SHOULD BE generated with the tool BldMsgBundle which is
+// a test program in Config/tests. Please use this tool to generate
+// this component of the message bundle for Config if any of the messages
+// change rather than manually editing the individual messages in the bundle.
+//
+// Generally format the messages as they will be displayed with NL characters
+// to provide formatting for a terminal output (i.e ~< 60 characters). NL
+// characters should be used at any point the user wants to insure that
+// there is a new line and spaces used for indenting. Do not put an NL at
+// the end of the message.
+//
 struct configPropertyDescription configPropertyDescriptionList[] =
 {
     {"traceComponents",

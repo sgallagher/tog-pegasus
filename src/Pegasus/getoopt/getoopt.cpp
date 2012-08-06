@@ -498,8 +498,8 @@ Boolean getoopt::parse(
     int cat;
     const flagspec* fs;
     Arg_List nonflagargs;
-    enum states {START, ARGEXPECTED};
-    states state = START;
+    enum States {START, ARGEXPECTED};
+    States state = START;
     for (unsigned int i = 1; i < (unsigned int)argc; i++)
     {
         unsigned int endsize = static_cast<unsigned int>(strlen(argv[i]));
@@ -514,6 +514,15 @@ Boolean getoopt::parse(
                 break;
             case 1: // short (1-character) flag
             {
+                if(endsize == 1)
+                {
+                    MessageLoaderParms parms(
+                        "getoopt.getoopt.MISSING_OPTION",
+                        "Missing required option for $0",
+                        argv[i]);
+                    addError(MessageLoader::getMessage(parms));
+                    break;
+                }
                 unsigned int argpos = 1;
                 while (argpos < endsize)
                 {

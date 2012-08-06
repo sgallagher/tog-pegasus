@@ -465,7 +465,9 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("                 --").append(LONG_VERSION).append("\n");
 
     usage.append("Options : \n");
-    usage.append("    -c         - Use current configuration\n");
+    usage.append("    -c         - Use current configuration\n"
+                 "                 it is the default optional option"
+                                   " for options like -l\n");
     usage.append("    -d         - Use default configuration\n");
     usage.append("    -g         - Get the value of specified configuration"
                                     " property\n");

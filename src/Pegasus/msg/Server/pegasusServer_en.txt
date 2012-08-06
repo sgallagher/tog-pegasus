@@ -1943,6 +1943,14 @@ en:table {
         */
         getoopt.getoopt.MISSING_VALUE_FOR_FLAG:string {"PGS04602: Missing required value for flag {0}."}
 
+        /**
+        * @note  PGS04603
+        *    Substitution {0} is the flag name(a string)
+        */
+        getoopt.getoopt.MISSING_OPTION:string {"PGS04603: Missing required option for {0}."}
+
+
+
         // ==========================================================
         // Messages for CIMMOFL
         //  Please use message prefix "PGS04900"

@@ -2134,6 +2134,24 @@ Array<ProviderAgentContainer*> OOPProviderManagerRouter::_lookupProviderAgents(
     return paArray;
 }
 
+Array<ProviderAgentContainer*>
+    OOPProviderManagerRouter::_getProviderAgentContainerCopy()
+{
+    Array<ProviderAgentContainer*> paContainerArray;
+    
+    AutoMutex tableLock(_providerAgentTableMutex);
+    
+    for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
+         i != 0; i++)
+    {
+        if(i.value()->isInitialized())
+        {
+            paContainerArray.append(i.value());
+        }
+    }
+    return paContainerArray;
+}
+
 CIMResponseMessage* OOPProviderManagerRouter::_forwardRequestToAllAgents(
     CIMRequestMessage* request)
 {
@@ -2143,18 +2161,8 @@ CIMResponseMessage* OOPProviderManagerRouter::_forwardRequestToAllAgents(
     // Get a list of the ProviderAgentContainers.  We need our own array copy
     // because we cannot hold the _providerAgentTableMutex while calling
     // _ProviderAgentContainer::processMessage().
-    Array<ProviderAgentContainer*> paContainerArray;
-    {
-        AutoMutex tableLock(_providerAgentTableMutex);
-        for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
-             i != 0; i++)
-        {
-            if(i.value()->isInitialized())
-            {
-                paContainerArray.append(i.value());
-            }
-        }
-    }
+    Array<ProviderAgentContainer*> paContainerArray=
+        _getProviderAgentContainerCopy();
 
     Boolean responsePending = false;
     CIMResponseMessage *response = request->buildResponse();
@@ -2194,15 +2202,8 @@ void OOPProviderManagerRouter::idleTimeCleanup()
     // because we cannot hold the _providerAgentTableMutex while calling
     // ProviderAgentContainer::unloadIdleProviders() & 
     // ProviderAgentContainer::cleanDisconnectedClientRequests().
-    Array<ProviderAgentContainer*> paContainerArray;
-    {
-        AutoMutex tableLock(_providerAgentTableMutex);
-        for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
-             i != 0; i++)
-        {
-            paContainerArray.append(i.value());
-        }
-    }
+    Array<ProviderAgentContainer*> paContainerArray=
+        _getProviderAgentContainerCopy();
 
     // Iterate through the _providerAgentTable unloading idle providers
     for (Uint32 j = 0; j < paContainerArray.size(); j++)

@@ -43,7 +43,10 @@ PEGASUS_USING_STD;
 
 static CIMInstance CreateHandlerInstance()
 {
-    CIMInstance handlerInstance(PEGASUS_CLASSNAME_LSTNRDST_EMAIL);
+    CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_WSMAN);
+    handlerInstance.addProperty(
+        CIMProperty(CIMName ("Name"),String("Handler1")));
+
     return (handlerInstance);
 }
 
@@ -160,7 +163,7 @@ static void TestDestinationExceptionHandling(CIMHandler* handler)
 int main(int argc, char** argv)
 {
 
-bool enableTrace=false;
+   bool enableTrace=false;
 
    if ((argc == 2) && !strcmp(argv[1], "trace"))
    {

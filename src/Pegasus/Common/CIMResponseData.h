@@ -235,6 +235,10 @@ private:
     SCMOInstance _getSCMOFromCIMObject(const CIMObject& cimObj);
     SCMOInstance _getSCMOFromCIMObjectPath(const CIMObjectPath& cimPath);
     SCMOClass* _getSCMOClass(const char* ns,const char* cls);
+    void _deserializeInstance(Uint32 idx,CIMInstance& cimInstance);
+    void _deserializeObject(Uint32 idx,CIMObject& cimObject);
+    Boolean _deserializeReference(Uint32 idx,CIMObjectPath& cimObjectPath);
+    Boolean _deserializeInstanceName(Uint32 idx,CIMObjectPath& cimObjectPath);
 
     // Bitflags in this integer will reflect what data representation types
     // are currently stored in this CIMResponseData object

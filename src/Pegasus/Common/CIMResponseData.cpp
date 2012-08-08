@@ -1096,6 +1096,105 @@ void CIMResponseData::_resolveBinary()
     PEG_METHOD_EXIT();
 }
 
+
+void CIMResponseData::_deserializeObject(Uint32 idx,CIMObject& cimObject)
+{
+    // Only start the parser when instance data is present.
+    if (0 != _instanceData[idx].size())
+    {
+        CIMInstance cimInstance;
+        CIMClass cimClass;
+
+        XmlParser parser((char*)_instanceData[idx].getData());
+
+        if (XmlReader::getInstanceElement(parser, cimInstance))
+        {
+            cimObject = CIMObject(cimInstance);
+            return;
+        } 
+
+        if (XmlReader::getClassElement(parser, cimClass))
+        {
+            cimObject = CIMObject(cimClass);
+            return;
+        }
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to resolve XML object data, parser error!");
+    }
+}
+
+void CIMResponseData::_deserializeInstance(Uint32 idx,CIMInstance& cimInstance)
+{
+    // Only start the parser when instance data is present.
+    if (0 != _instanceData[idx].size())
+    {
+        XmlParser parser((char*)_instanceData[idx].getData());
+        if (XmlReader::getInstanceElement(parser, cimInstance))
+        {
+            return;
+        }
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to resolve XML instance, parser error!");
+    }
+    // reset instance when parsing may not be successfull or 
+    // no instance is present.
+    cimInstance = CIMInstance();
+}
+
+Boolean CIMResponseData::_deserializeReference(
+    Uint32 idx,
+    CIMObjectPath& cimObjectPath)
+{
+    // Only start the parser when reference data is present.
+    if (0 != _referencesData[idx].size())
+    {
+        XmlParser parser((char*)_referencesData[idx].getData());
+        if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
+        {
+            if (_hostsData[idx].size())
+            {
+                cimObjectPath.setHost(_hostsData[idx]);
+            }
+            if (!_nameSpacesData[idx].isNull())
+            {
+                cimObjectPath.setNameSpace(_nameSpacesData[idx]);
+            }
+            return true;
+        }
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to resolve XML reference, parser error!");
+
+    }
+    return false;
+}
+
+Boolean CIMResponseData::_deserializeInstanceName(
+    Uint32 idx,
+    CIMObjectPath& cimObjectPath)
+{
+    // Only start the parser when instance name data is present.
+    if (0 != _referencesData[idx].size())
+    {
+        XmlParser parser((char*)_referencesData[idx].getData());
+        if (XmlReader::getInstanceNameElement(parser, cimObjectPath))
+        {
+            if (_hostsData[idx].size())
+            {
+                cimObjectPath.setHost(_hostsData[idx]);
+            }
+            if (!_nameSpacesData[idx].isNull())
+            {
+                cimObjectPath.setNameSpace(_nameSpacesData[idx]);
+            }
+            return true;                         
+        }
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to resolve XML instance name, parser error!");
+
+    }
+    return false;
+}
+
 void CIMResponseData::_resolveXmlToCIM()
 {
     switch (_dataType)
@@ -1109,37 +1208,15 @@ void CIMResponseData::_resolveXmlToCIM()
         case RESP_INSTANCE:
         {
             CIMInstance cimInstance;
-            // Deserialize instance:
-            {
-                XmlParser parser((char*)_instanceData[0].getData());
+            CIMObjectPath cimObjectPath;
 
-                if (!XmlReader::getInstanceElement(parser, cimInstance))
-                {
-                    cimInstance = CIMInstance();
-                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                        "Failed to resolve XML instance, parser error!");
-                }
-            }
-            // Deserialize path:
+            _deserializeInstance(0,cimInstance);
+            if (_deserializeReference(0,cimObjectPath))
             {
-                XmlParser parser((char*)_referencesData[0].getData());
-                CIMObjectPath cimObjectPath;
-
-                if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
-                {
-                    if (_hostsData.size())
-                    {
-                        cimObjectPath.setHost(_hostsData[0]);
-                    }
-                    if (!_nameSpacesData[0].isNull())
-                    {
-                        cimObjectPath.setNameSpace(_nameSpacesData[0]);
-                    }
-                    cimInstance.setPath(cimObjectPath);
-                    // only if everything works we add the CIMInstance to the
-                    // array
-                    _instances.append(cimInstance);
-                }
+                cimInstance.setPath(cimObjectPath);
+                // A single CIMInstance has to have an objectpath.
+                // So only add it when an objectpath exists. 
+                _instances.append(cimInstance);
             }
             break;
         }
@@ -1148,36 +1225,14 @@ void CIMResponseData::_resolveXmlToCIM()
             for (Uint32 i = 0; i < _instanceData.size(); i++)
             {
                 CIMInstance cimInstance;
-                // Deserialize instance:
+                CIMObjectPath cimObjectPath;
+
+                _deserializeInstance(i,cimInstance);
+                if (_deserializeInstanceName(i,cimObjectPath))
                 {
-                    XmlParser parser((char*)_instanceData[i].getData());
-
-                    if (!XmlReader::getInstanceElement(parser, cimInstance))
-                    {
-                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                            "Failed to resolve XML instance."
-                                " Creating empty instance!");
-                        cimInstance = CIMInstance();
-                    }
+                    cimInstance.setPath(cimObjectPath);
                 }
-
-                // Deserialize path:
-                {
-                    XmlParser parser((char*)_referencesData[i].getData());
-                    CIMObjectPath cimObjectPath;
-
-                    if (XmlReader::getInstanceNameElement(parser,cimObjectPath))
-                    {
-                        if (!_nameSpacesData[i].isNull())
-                            cimObjectPath.setNameSpace(_nameSpacesData[i]);
-
-                        if (_hostsData[i].size())
-                            cimObjectPath.setHost(_hostsData[i]);
-
-                        cimInstance.setPath(cimObjectPath);
-                    }
-                }
-
+                // enumarate instances can be without name
                 _instances.append(cimInstance);
             }
             break;
@@ -1187,46 +1242,12 @@ void CIMResponseData::_resolveXmlToCIM()
             for (Uint32 i=0, n=_instanceData.size(); i<n; i++)
             {
                 CIMObject cimObject;
+                CIMObjectPath cimObjectPath;
 
-                // Deserialize Objects:
+                _deserializeObject(i,cimObject);
+                if (_deserializeReference(i,cimObjectPath))
                 {
-                    XmlParser parser((char*)_instanceData[i].getData());
-
-                    CIMInstance cimInstance;
-                    CIMClass cimClass;
-
-                    if (XmlReader::getInstanceElement(parser, cimInstance))
-                    {
-                        cimObject = CIMObject(cimInstance);
-                    }
-                    else if (XmlReader::getClassElement(parser, cimClass))
-                    {
-                        cimObject = CIMObject(cimClass);
-                    }
-                    else
-                    {
-                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                            "Failed to get XML object data!");
-                    }
-                }
-
-                // Deserialize paths:
-                {
-                    XmlParser parser((char*)_referencesData[i].getData());
-                    CIMObjectPath cimObjectPath;
-
-                    if (XmlReader::getValueReferenceElement(
-                            parser,
-                            cimObjectPath))
-                    {
-                        if (!_nameSpacesData[i].isNull())
-                            cimObjectPath.setNameSpace(_nameSpacesData[i]);
-
-                        if (_hostsData[i].size())
-                            cimObjectPath.setHost(_hostsData[i]);
-
-                        cimObject.setPath(cimObjectPath);
-                    }
+                    cimObject.setPath(cimObjectPath);
                 }
                 _objects.append(cimObject);
             }

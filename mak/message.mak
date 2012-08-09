@@ -64,7 +64,7 @@ $(MSG_DIR)/$(MSG_PACKAGE)_root.res: $(MSG_PACKAGE)_root.rb $(ERROR)
 
 $(MSG_PACKAGE)_root.rb: $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt $(ERROR)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
-	$(CNV_ROOT_CMD) $(CNV_ROOT_FLAGS) $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt
+	$(CNV_ROOT_CMD) -u $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt
 
 $(MSG_DIR)/%.res: %.txt $(ERROR)
 	$(MKDIRHIER) $(MSG_DIR)

@@ -385,19 +385,6 @@ endif
 ifeq ($(PEGASUS_HAS_ICU),true)
     DEFINES += -DPEGASUS_HAS_ICU
 
-    ##################################
-    ##
-    ## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root
-    ## resource bundle, default is to uppercase the root resource bundle
-    ##
-    ##################################
-
-    ifdef ICU_NO_UPPERCASE_ROOT
-        CNV_ROOT_FLAGS =
-    else
-        CNV_ROOT_FLAGS = -u
-    endif
-
     ####################################
     ##
     ## ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root

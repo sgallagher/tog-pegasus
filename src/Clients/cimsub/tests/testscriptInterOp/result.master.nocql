@@ -668,3 +668,48 @@ root/SampleProvider  root/cimv2:Filter11       test/TestProvider:CIM_ListenerDes
 root/SampleProvider  root/cimv2:Filter12       test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
 test/TestProvider    root/cimv2:Filter12       root/SampleProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
+The batch execution for PG_InterOp namespace.
+NAMESPACE        FILTER                    HANDLER                                                              STATE
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
+
+
+NAMESPACE        FILTER                    HANDLER                                                              STATE
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Disabled
+
+
+NAMESPACE        FILTER                    HANDLER                                                              STATE
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
+CIM_ERR_NOT_SUPPORTED: CIM:CQL
+
+
+
+The requested filter could not be found.
+
+NAMESPACE        FILTER                    HANDLER                                                                STATE
+root/PG_InterOp  root/cimv2:Filter12       test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler02                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01    Enabled
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:PG_IndicationHandlerSNMPMapper.Handler03               Enabled
+root/PG_InterOp  root/PG_InterOp:Filter03  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter04  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter05  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter06  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter08  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination02    Enabled
+
+The requested subscription could not be found.
+
+The requested filter could not be found.
+
+
+NAMESPACE        FILTER                    HANDLER                                                                STATE
+root/PG_InterOp  root/cimv2:Filter12       test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler02                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01    Enabled
+root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:PG_IndicationHandlerSNMPMapper.Handler03               Enabled
+root/PG_InterOp  root/PG_InterOp:Filter03  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter04  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter05  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter06  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
+root/PG_InterOp  root/PG_InterOp:Filter08  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination02    Enabled
+
+

@@ -2895,6 +2895,65 @@ en:table {
         */
         Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS:string { "PGS06212E: {0} is not a valid configuration property."}
 
+        /**
+        * @note PGS06213:
+        *    Substitution {0} is a list of environment variable names and values
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_DISPLAY_ALLENV.PEGASUS_OS_ZOS:string { "PGS06213I: List of CIM Server environment variables:\n{0}"}
+
+        /**
+        * @note PGS06214:
+        *    Substitution {0} is the name of an environment variable
+        *    Substitution {1} is the value of environment variable {0}
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_DISPLAY_ENV.PEGASUS_OS_ZOS:string { "PGS06214I: {0}={1}"}
+
+        /**
+        * @note PGS06215:
+        *    Substitution {0} is the name of an environment variable
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_ENV_UNDEFINED.PEGASUS_OS_ZOS:string { "PGS06215E: Variable \"{0}\" is undefined"}
+
+        /**
+        * @note PGS06216:
+        *    Do not translate 'MODIFY CFZCIM,APPL=ENV[,<varname>][=<value>]'
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_ENV_SYNTAX.PEGASUS_OS_ZOS:string { "PGS06216I: Syntax is: MODIFY CFZCIM,APPL=ENV[,<varname>][=<value>]"}
+
+        /**
+        * @note PGS06217:
+        *    Substitution {0} is the name of an environment variable
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_DELETEENV.PEGASUS_OS_ZOS:string { "PGS06217I: Environment variable \"{0}\" deleted successfully."}
+
+        /**
+        * @note PGS06218:
+        *    Substitution {0} is the name of an environment variable
+        *    Substitution {1} is the value of the environment variable
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_SETENV.PEGASUS_OS_ZOS:string { "PGS06218I: Environment variable \"{0}\" set to \"{1}\" successfully."}
+
+        /**
+        * @note PGS06219:
+        *    Substitution {0} is the name of an environment variable
+        *    Substitution {1} is the value of the environment variable
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFYENV_FAILED.PEGASUS_OS_ZOS:string { "PGS06219E: Failed to update environment variable \"{0}\"."}
+
+        /**
+        * @note PGS06220:
+        *    Substitution {0} is the service string. 
+        *
+        */
+        Server.ConsoleManager_zOS.VERSION.PEGASUS_OS_ZOS:string { "PGS06220I: CIM Server Service Level: {0}"}
+
 
         // ==========================================================
         // Messages for ProviderRegistrationManager

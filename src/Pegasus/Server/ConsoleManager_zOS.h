@@ -38,27 +38,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ZOSConsoleManager
 {
-private:
-
-    /** Constructor. */
-    ZOSConsoleManager();
-
-    static void issueSyntaxError(const char* command);
-
-    static char* skipBlanks( char* commandPtr);
-
-    static void stripTrailingBlanks( char* token );
-
-    static void updateConfiguration( const String& configProperty,
-                                     const String& propertyValue,
-                                     Boolean currentValueIsNull,
-                                     Boolean planned);
-
-    static void _sendNotifyConfigChangeMessage( const String& propertyName,
-                                                const String& newPropertyValue,
-                                                Boolean currentValueModified);
-
-    static void* consoleCommandWatchThread(void*);
 
 public:
 
@@ -68,6 +47,36 @@ public:
         Parse and execute a MODIFY command received from the console
     */
     static void processModifyCommand( char* command );
+
+private:
+
+    /** Constructor. */
+    ZOSConsoleManager();
+
+    static void _issueSyntaxError(const char* command);
+
+    static void _displayServiceLevel();
+
+    static char* _skipBlanks( char* commandPtr);
+
+    static void _stripTrailingBlanks( char* token );
+
+    static void _updateConfiguration( const String& configProperty,
+                                     const String& propertyValue,
+                                     Boolean currentValueIsNull,
+                                     Boolean planned);
+
+    static void _updateEnvironment(const char* envVarName,
+                                  const char* envVarValue);
+
+    static void _showEnvironment(const char* envVarName);
+
+    static void _sendNotifyConfigChangeMessage( const String& propertyName,
+                                                const String& newPropertyValue,
+                                                Boolean currentValueModified);
+
+    static void* _consoleCommandWatchThread(void*);
+
 };
 
 PEGASUS_NAMESPACE_END

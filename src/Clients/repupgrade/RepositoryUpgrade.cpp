@@ -783,6 +783,13 @@ Boolean RepositoryUpgrade::_updateFilterHandlerReference(
             break;
         }
     }
+    // Remove hostname from Filter or Handler reference if set
+    if (ref.getHost().size() != 0)
+    {
+        ref.setHost(String());
+        changed = true;
+    }
+
     if (changed)
     {
         ref.setKeyBindings(keyBindings);

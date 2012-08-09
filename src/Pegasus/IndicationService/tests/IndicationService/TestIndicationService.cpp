@@ -54,15 +54,15 @@ const String targetSetKeyBinds=
 
 void test_setSystemNameInHandlerFilter()
 {
-    String fullSourcePath="//TestSys/"+ns+":"+className+"."+sourceKeyBinds;
+    String fullSourcePath=ns+":"+className+"."+sourceKeyBinds;
     CIMObjectPath source;
     
     String fullEmptyTargetPath=
-        "//TestSys/"+ns+":"+className+"."+targetEmptyKeyBinds;
+        ns+":"+className+"."+targetEmptyKeyBinds;
     CIMObjectPath emptyTarget(fullEmptyTargetPath);
 
     String fullSetTargetPath=
-        "//TestSys/"+ns+":"+className+"."+targetSetKeyBinds;
+        ns+":"+className+"."+targetSetKeyBinds;
     CIMObjectPath setTarget(fullSetTargetPath);
 
     source.set(fullSourcePath);
@@ -153,11 +153,11 @@ void test_setOrAddSystemNameInHandlerFilter()
 
 void test_setSystemNameInHandlerFilterReference()
 {
-    String fullSourcePath="//TestSys/"+ns+":"+className+"."+sourceKeyBinds;
+    String fullSourcePath=ns+":"+className+"."+sourceKeyBinds;
     String fullEmptyTargetPath=
-        "//TestSys/"+ns+":"+className+"."+targetEmptyKeyBinds;
+        ns+":"+className+"."+targetEmptyKeyBinds;
     String fullSetTargetPath=
-        "//TestSys/"+ns+":"+className+"."+targetSetKeyBinds;
+        ns+":"+className+"."+targetSetKeyBinds;
 
     PEGASUS_TEST_ASSERT(fullSourcePath != fullEmptyTargetPath);
     PEGASUS_TEST_ASSERT(fullSourcePath != fullSetTargetPath);

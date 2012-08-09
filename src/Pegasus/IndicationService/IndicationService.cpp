@@ -707,6 +707,7 @@ void IndicationService::_setSystemNameInHandlerFilter(
         sysname,
         CIMKeyBinding::STRING));
     objPath.setKeyBindings(updatedKeys);
+    objPath.setHost(String::EMPTY);
 }
 
 void IndicationService::_setSystemNameInHandlerFilterReference(
@@ -722,6 +723,15 @@ void IndicationService::_setSystemNameInHandlerFilterReference(
     reference.remove(quotePos+1);
     reference.append(sysname);
     reference.append(quote);
+
+    static const Char16 slash = 0x002F;
+    // remove hostname, don't need it
+    if (reference[0] == slash && reference[1] == slash)
+    {
+        // namespace starts after next slash
+        Uint32 ns = reference.find(2, slash);
+        reference.remove(0,ns+1);
+    }
 }
 
 void IndicationService::_setSubscriptionSystemName(

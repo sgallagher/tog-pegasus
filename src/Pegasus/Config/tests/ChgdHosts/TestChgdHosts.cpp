@@ -63,8 +63,10 @@ void testFilterSystemName(
     filter.addProperty(
         CIMProperty(CIMName("QueryLanguage"),String("WQL")));
 
-    CIMObjectPath path = client.createInstance("root/PG_InterOp", filter);
-    client.deleteInstance("root/PG_InterOp", path);
+    CIMObjectPath path =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filter);
+    
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 
     // SystemName is fourth (=last) keybinding
     Array<CIMKeyBinding> keys = path.getKeyBindings();

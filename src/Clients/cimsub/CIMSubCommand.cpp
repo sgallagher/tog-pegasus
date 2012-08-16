@@ -413,6 +413,7 @@ CIMSubCommand::CIMSubCommand()
     _handlerSNMPPortNumber = 162;
     _filterQueryLanguage = "CIM:CQL";
     _isBatchNamespace = false;
+    _filterNSFlag =false;
     /**
         Build the usage string for the config command.
     */

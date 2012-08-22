@@ -1009,10 +1009,12 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
                 {
                     p = &((struct sockaddr_in*)sin)->sin_addr;
                 }
+#ifdef PEGASUS_ENABLE_IPV6
                 else
                 {
                     p = &((struct sockaddr_in6*)sin)->sin6_addr;
                 }
+#endif
                 // Don't gather loopback addrs
                 if (!System::isLoopBack(af, p))
                 {

@@ -711,7 +711,7 @@ static void _outputPath(Options& opts, const CIMObjectPath& path,
     {
         cout << endl << description;
     }
-    cout << tmpPath.toString() << endl;
+    cout << tmpPath.toString().getCString() << endl;
 }
 
 /*

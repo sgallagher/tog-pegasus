@@ -114,11 +114,15 @@ TEST_DIRS += \
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
         Handler/SystemLogListenerDestination
+    TEST_DIRS += \
+        Handler/SystemLogListenerDestination/tests
 endif
 
 ifdef PEGASUS_ENABLE_EMAIL_HANDLER
     DIRS += \
         Handler/EmailListenerDestination
+    TEST_DIRS += \
+        Handler/EmailListenerDestination/tests
 endif
 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)

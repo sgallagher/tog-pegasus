@@ -453,8 +453,8 @@ cimsubTest1_ignoreerror:
 	@cimsub -ls >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
-	@$(ECHO) "The batch execution for PG_InterOp namespace." >> $(RESULTFILE)
-	@cimsub -b ../testbatchfile/batchnamespace.batch -n root/PG_InterOp >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "The batch execution for $(PEGASUS_INTEROP_NAMESPACE) namespace." >> $(RESULTFILE)
+	@cimsub -b ../testbatchfile/batchnamespace.batch -n $(PEGASUS_INTEROP_NAMESPACE) >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
 	@$(ECHO) ++++cimsub interop tests completed

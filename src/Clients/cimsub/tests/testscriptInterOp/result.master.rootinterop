@@ -673,3 +673,45 @@ root/SampleProvider  root/cimv2:Filter11    test/TestProvider:CIM_ListenerDestin
 root/SampleProvider  root/cimv2:Filter12    test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
 test/TestProvider    root/cimv2:Filter12    root/SampleProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
+The batch execution for root/interop namespace.
+NAMESPACE     FILTER                 HANDLER                                                           STATE
+root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
+
+
+NAMESPACE     FILTER                 HANDLER                                                           STATE
+root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination01  Disabled
+
+
+NAMESPACE     FILTER                 HANDLER                                                           STATE
+root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
+
+
+
+
+NAMESPACE     FILTER                 HANDLER                                                                STATE
+root/interop  root/cimv2:Filter12    test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+root/interop  root/interop:Filter01  root/interop:CIM_IndicationHandlerCIMXML.Handler02                     Enabled
+root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination01       Enabled
+root/interop  root/interop:Filter01  root/interop:PG_IndicationHandlerSNMPMapper.Handler03                  Enabled
+root/interop  root/interop:Filter03  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter04  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter05  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter06  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter08  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination02       Enabled
+root/interop  root/interop:filterdd  root/interop:CIM_ListenerDestinationCIMXML.Handlerab                   Enabled
+
+
+
+
+NAMESPACE     FILTER                 HANDLER                                                                STATE
+root/interop  root/cimv2:Filter12    test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
+root/interop  root/interop:Filter01  root/interop:CIM_IndicationHandlerCIMXML.Handler02                     Enabled
+root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination01       Enabled
+root/interop  root/interop:Filter01  root/interop:PG_IndicationHandlerSNMPMapper.Handler03                  Enabled
+root/interop  root/interop:Filter03  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter04  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter05  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter06  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
+root/interop  root/interop:Filter08  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination02       Enabled
+
+

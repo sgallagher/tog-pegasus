@@ -668,7 +668,7 @@ root/SampleProvider  root/cimv2:Filter11       test/TestProvider:CIM_ListenerDes
 root/SampleProvider  root/cimv2:Filter12       test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06    Enabled
 test/TestProvider    root/cimv2:Filter12       root/SampleProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
 
-The batch execution for PG_InterOp namespace.
+The batch execution for root/PG_InterOp namespace.
 NAMESPACE        FILTER                    HANDLER                                                              STATE
 root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
 
@@ -679,8 +679,8 @@ root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinati
 
 NAMESPACE        FILTER                    HANDLER                                                              STATE
 root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
-CIM_ERR_NOT_SUPPORTED: CIM:CQL
 
+CIM_ERR_NOT_SUPPORTED: CIM:CQL
 
 
 The requested filter could not be found.

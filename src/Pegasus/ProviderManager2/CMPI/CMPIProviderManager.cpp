@@ -972,6 +972,24 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
+        // Note: During the CIMInstance to SCMOInstance convertion all schema
+        // defined properties are added with null/default values. This causes
+        // the provider to set null values to the properties those does not
+        // exist in the original CIMInstance. Build the property if the client
+        // specified list is empty.
+        if (request->propertyList.isNull())
+        {
+            Array<CIMName> propArry;
+            for (Uint32 i = 0, n = request->modifiedInstance.getPropertyCount();
+                i < n ; ++i)
+            {
+                CIMConstProperty prop =
+                    request->modifiedInstance.getProperty(i);
+                propArry.append(prop.getName());
+            }
+            request->propertyList = CIMPropertyList(propArry);
+        }
+
         CMPIPropertyList props(request->propertyList);
 
         CString nameSpace = request->nameSpace.getString().getCString();

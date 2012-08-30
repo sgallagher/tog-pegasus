@@ -62,6 +62,9 @@ static struct OptionRow optionsTable[] =
 {"sslCertificateFilePath", "", false, Option::STRING, 0, 0,
  "sslCertificateFilePath",
  "path to the listener's SSL public key certificate."},
+
+{"sslCipherSuite", "DEFAULT", false, Option::STRING, 0, 0,
+ "sslCipherSuite", "ssl cipher value for authentication"},
 #endif
 {"consumerDir", "", false, Option::STRING, 0, 0,
  "consumerDir", "path to the consumer libraries"},
@@ -197,6 +200,14 @@ Boolean DynamicListenerConfig::lookupValue(
             throw OMInvalidOptionValue(name, value);
         }
     }
+    else if(String::equal(name, "sslCipherSuite"))
+    {
+        if(temp.size()== 0)
+        {
+            return false;
+        }
+        value = temp;
+    } 
 #endif
     else
     {

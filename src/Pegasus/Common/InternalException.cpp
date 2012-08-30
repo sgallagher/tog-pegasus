@@ -31,6 +31,7 @@
 
 #include <cstdio>
 #include "InternalException.h"
+#include "Constants.h"
 #include <Pegasus/Common/CIMExceptionRep.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include "Tracer.h"
@@ -181,6 +182,12 @@ const char SocketWriteError::MSG[] =  "Could not write response to client. "
                                       "Socket write failed with error: $0";
 const char SocketWriteError::KEY[] =
     "Common.InternalException.SOCKET_WRITE_ERROR";
+
+const char TooManyElementsException::KEY[]=
+    "Common.InternalException.TOO_MANY_ELEMENTS";
+
+const char TooManyElementsException::MSG[]=
+    "More than $0 elements in a container are not supported.";
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -966,6 +973,50 @@ SocketWriteError::SocketWriteError(const String& error)
 
 SocketWriteError::~SocketWriteError()
 {
+}
+
+//==============================================================================
+//
+// TooManyHTTPHeadersException
+//   - used by HTTPAuthenticatorDelegator to report detection of more than
+//     PEGASUS_MAXELEMENTS_NUM HTTP header fields in a single HTTP message
+//==============================================================================
+TooManyHTTPHeadersException::TooManyHTTPHeadersException()
+    : Exception("more than "PEGASUS_MAXELEMENTS
+                    " header fields detected in HTTP message")
+{
+}
+
+TooManyHTTPHeadersException::~TooManyHTTPHeadersException()
+{
+}
+
+//==============================================================================
+//
+// TooManyElementsException
+//   - used by OrderedSet to report detection of more than
+//     PEGASUS_MAXELEMENTS_NUM elements in a single object
+//==============================================================================
+TooManyElementsException::TooManyElementsException()
+    : Exception(MessageLoaderParms(
+          TooManyElementsException::KEY,
+          TooManyElementsException::MSG,
+          PEGASUS_MAXELEMENTS_NUM))
+{
+}
+
+TooManyElementsException::~TooManyElementsException()
+{
+}
+
+void ThrowTooManyElementsException()
+{
+    throw TooManyElementsException();
+}
+
+void ThrowIndexOutOfBoundsException()
+{
+    throw IndexOutOfBoundsException();
 }
 
 void ThrowUninitializedObjectException()

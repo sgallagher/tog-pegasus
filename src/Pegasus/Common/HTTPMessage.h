@@ -76,7 +76,7 @@ public:
     CIMException cimException;
     bool binaryResponse;
 
-    void parse(
+    Boolean parse(
         String& startLine,
         Array<HTTPHeader>& headers,
         Uint32& contentLength) const;

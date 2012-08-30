@@ -451,6 +451,31 @@ public:
     virtual ~SocketWriteError();
 };
 
+class PEGASUS_COMMON_LINKAGE TooManyHTTPHeadersException : public Exception
+{
+public:
+    TooManyHTTPHeadersException();
+    virtual ~TooManyHTTPHeadersException();
+};
+
+class PEGASUS_COMMON_LINKAGE TooManyElementsException : public Exception
+{
+public:
+    static const char MSG[];
+    static const char KEY[];
+    
+    TooManyElementsException();
+    virtual ~TooManyElementsException();
+};
+// function used to throw TooManyElementsException for use in inlined functions
+// to reduce static code size
+PEGASUS_COMMON_LINKAGE extern void ThrowTooManyElementsException();
+
+// function used to throw IndexOutOfBoundsException for use in inlined functions
+// to reduce static code size
+PEGASUS_COMMON_LINKAGE extern void ThrowIndexOutOfBoundsException();
+
+
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.  TraceableCIMException allows
     file name and line number information to be added for diagnostic purposes.

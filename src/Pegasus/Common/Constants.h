@@ -185,6 +185,11 @@
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
 
+/*
+ * Hard limit for number of HTTP headers, elements in container and keybindings
+ */
+#define PEGASUS_MAXELEMENTS_NUM 1000
+#define PEGASUS_MAXELEMENTS "1000"
 
 /*
  * File system layout

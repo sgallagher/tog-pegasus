@@ -1336,6 +1336,22 @@ void CIMOperationRequestDecoder::handleMethodCall(
         PEG_METHOD_EXIT();
         return;
     }
+    catch (TooManyElementsException& e)
+    {
+        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+            "CIMOperationRequestDecoder::handleMethodCall - "
+                "TooManyElementsException has occurred. Message: %s",
+            (const char*) e.getMessage().getCString()));
+
+        sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "request-with-too-many-elements",
+            e.getMessage(),
+            closeConnect);
+        PEG_METHOD_EXIT();
+        return;
+    }
     catch (Exception& e)
     {
         // Don't know why I got this exception.  Seems like a bad thing.

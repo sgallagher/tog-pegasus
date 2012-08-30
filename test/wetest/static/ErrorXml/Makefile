@@ -84,7 +84,9 @@ XMLSCRIPTS = \
     BadDtdVersion03 \
     BadProtocolVersion01 \
     BadProtocolVersion02 \
-    BadProtocolVersion03
+    BadProtocolVersion03 \
+    TooManyProperties01 \
+    TooManyKeyBindings01
 
 
 include $(ROOT)/test/configend.mak

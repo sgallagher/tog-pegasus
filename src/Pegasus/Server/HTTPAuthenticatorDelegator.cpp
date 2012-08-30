@@ -292,8 +292,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         Tracer::LEVEL3,
         "HTTPAuthenticatorDelegator - HTTP processing start");
 
-
-    httpMessage->parse(startLine, headers, contentLength);
+    // parse the received HTTPMessage
+    // parse function will return false if more than PEGASUS_MAXELEMENTS_NUM
+    // headers were detected in the message
+    if (!httpMessage->parse(startLine, headers, contentLength))
+    {
+        throw TooManyHTTPHeadersException();
+    }
 
     //
     // Check for Connection: Close

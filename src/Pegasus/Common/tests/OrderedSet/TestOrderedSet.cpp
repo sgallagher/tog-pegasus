@@ -819,18 +819,13 @@ void testOrderedSetCIMMethod()
 
 void testOrderedSetPropertyOverFlow()
 {
-    VCOUT << "Test OrderedSet with 18,721 Properties";
+    VCOUT << "Test OrderedSet with 521 Properties";
 
     typedef OrderedSet<CIMProperty,
                        CIMPropertyRep,
                        PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> Set;
     Set properties;
 
-    char letterNumber[36] =
-        { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        };
     char letter[26] =
         { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
@@ -841,45 +836,40 @@ void testOrderedSetPropertyOverFlow()
     CIMName cimNameSearchProperty("myLookUpProperty");
     CIMProperty searchProperty(cimNameSearchProperty, oneFitsAll);
 
-    // Add 10 times 36*26=936 properties
-    for (Uint32 k=0; k < 10; k++)
+    // Add 10 times 26 properties
+    for (Uint32 i=0; i<26; i++)
     {
-        for (Uint32 i=0; i<26; i++)
+        for (Uint32 j=0; j<10; j++)
         {
-            for (Uint32 j=0; j<36; j++)
-            {
-                char buf[20];
-                sprintf(buf, "%cprop%uerty%c", letter[i], k, letterNumber[j]);
-                CIMName newNumPropertyName(buf);
-                CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
-                properties.append(newNumProperty);
-            }
+            char buf[20];
+            sprintf(buf, "%cproperty%u", letter[i], j);
+            CIMName newNumPropertyName(buf);
+            CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
+            properties.append(newNumProperty);
         }
     }
 
-    // this is the property we are going to lookup later on (position 9360+1)
+    // this is the property we are going to lookup later on
+    // (index position 260 since index starts at 0)
     properties.append(searchProperty);
 
-    // Add 10 times 36*26=936 properties
-    for (Uint32 k=0; k < 10; k++)
+    // Add 10 times 26 properties
+    for (Uint32 i=0; i<26; i++)
     {
-        for (Uint32 i=0; i<26; i++)
+        for (Uint32 j=0; j<10; j++)
         {
-            for (Uint32 j=0; j<36; j++)
-            {
-                char buf[20];
-                sprintf(buf, "%cpr%dty%c", letter[i], k, letterNumber[j]);
-                CIMName newNumPropertyName(buf);
-                CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
-                properties.append(newNumProperty);
-            }
+            char buf[20];
+            sprintf(buf, "%cproperty%u", letter[i], j);
+            CIMName newNumPropertyName(buf);
+            CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
+            properties.append(newNumProperty);
         }
     }
 
     // lookup the test property
     // this also tests the inline generateCIMNameTag() function in OrderedSet.h
     Uint32 pos = properties.find(cimNameSearchProperty, 0x31E3);
-    PEGASUS_TEST_ASSERT(9360 == pos);
+    PEGASUS_TEST_ASSERT(260 == pos);
     VCOUT << " +++++ passed" << endl;
     return;
 }

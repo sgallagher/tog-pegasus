@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <iostream>
 #include <cstring>
 #include "HTTPMessage.h"
@@ -156,7 +157,7 @@ HTTPMessage::HTTPMessage(const HTTPMessage & msg)
 }
 
 
-void HTTPMessage::parse(
+Boolean HTTPMessage::parse(
     String& startLine,
     Array<HTTPHeader>& headers,
     Uint32& contentLength) const
@@ -170,6 +171,7 @@ void HTTPMessage::parse(
     char* line = data;
     char* sep;
     Boolean firstTime = true;
+    Uint32 headersFound = 0;
 
     while ((sep = findSeparator(line, (Uint32)(size - (line - data)))))
     {
@@ -230,6 +232,12 @@ void HTTPMessage::parse(
                     Buffer(line, (Uint32)(end - line), 20),
                     Buffer(start, (Uint32)(sep - start), 50));
 
+                headersFound++;
+                if (headersFound >= PEGASUS_MAXELEMENTS_NUM)
+                {
+                    return false;
+                }
+
                 // From the HTTP/1.1 specification (RFC 2616) section 4.2
                 // Message Headers:
                 //
@@ -278,6 +286,7 @@ void HTTPMessage::parse(
         line = sep + ((*sep == '\r') ? 2 : 1);
         firstTime = false;
     }
+    return true;
 }
 
 

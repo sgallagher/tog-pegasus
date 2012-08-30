@@ -733,6 +733,21 @@ void WsmRequestDecoder::handleWsmMessage(
         PEG_METHOD_EXIT();
         return;
     }
+    catch (TooManyElementsException& e)
+    {
+        WsmFault fault(
+            WsmFault::wsman_EncodingLimit,
+            e.getMessage(),
+            e.getContentLanguages(),
+            "Too many options:"
+                "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/"
+                    "OptionLimit");
+        _wsmProcessor->sendResponse(new WsmFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
     catch (Exception& e)
     {
         WsmFault fault(

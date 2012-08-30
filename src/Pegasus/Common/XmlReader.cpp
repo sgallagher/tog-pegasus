@@ -2389,7 +2389,18 @@ Boolean XmlReader::getInstanceNameElement(
     else
     {
         while (getKeyBindingElement(parser, name, value, type))
+        {
             keyBindings.append(CIMKeyBinding(name, value, type));
+            if (keyBindings.size() > PEGASUS_MAXELEMENTS_NUM)
+            {
+                MessageLoaderParms mlParms(
+                    "Common.XmlReader.TOO_MANY_KEYBINDINGS",
+                    "More than $0 key-value pairs per object path"
+                        " are not supported.",
+                    PEGASUS_MAXELEMENTS_NUM);
+                throw XmlValidationError(parser.getLine(), mlParms);
+            }
+        }
     }
 
     expectEndTag(parser, "INSTANCENAME");

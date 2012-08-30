@@ -431,6 +431,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNIonFaultyProvider(void *parm)
 
 void TestCimserverAvailability()
 {
+#ifndef PEGASUS_OS_TYPE_WINDOWS
    //runn a test on a test instance provider
     bool resultWellbehavedProvider = TestWellbehavedInstanceProvider();
     PEGASUS_TEST_ASSERT(resultWellbehavedProvider);    
@@ -551,7 +552,10 @@ void TestCimserverAvailability()
            "A cim request on well behaved test instance provider failed"
            " after cimserver crossed its fd/thread limit");
    }
-
+#else 
+   cerr << "ATTN, This test is not executed on Windows due to unable to"
+       " restrict threads and file pointer and should be fixed \n";
+#endif
 }
 
 int main(int argc, char** argv)

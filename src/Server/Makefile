@@ -263,6 +263,9 @@ $(PEGASUS_HOME)/setupserverdev: cert.pem file.pem cimserver.rnd ssl.rnd ssl.cnf
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageCIMServerConfigurationFiles
 	$(MKDIRHIER) $(PEGASUS_HOME)/trace
 ifeq ($(OS_TYPE),unix)
+ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
+	-$(MKDIRHIER) $(PEGASUS_TEST_VALGRIND_LOG_DIR)
+endif
 # Allow the repository to be created as the cimserver user
 	$(CHMOD) 777 $(PEGASUS_HOME)
 # Allow trace files to be created by cimserver and cimprovagt process owners

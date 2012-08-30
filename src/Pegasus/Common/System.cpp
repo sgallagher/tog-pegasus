@@ -369,6 +369,7 @@ void System::setFullyQualifiedHostName(const String & fullHostName)
 Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 {
     CString hostNameCString = hostName.getCString();
+    char localHostName[PEGASUS_MAXHOSTNAMELEN+1] = {};
     const char* hostNamePtr;
     
     // In case hostName equals _hostname or _fullyQualifiedHostname
@@ -378,9 +379,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     if (String::equalNoCase(hostName, _hostname) || 
         String::equalNoCase(hostName, _fullyQualifiedHostname))
     {
-        char localHostName[PEGASUS_MAXHOSTNAMELEN];
         gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
-
         hostNamePtr= (const char*) localHostName;
     }
     else

@@ -739,9 +739,7 @@ void WsmRequestDecoder::handleWsmMessage(
             WsmFault::wsman_EncodingLimit,
             e.getMessage(),
             e.getContentLanguages(),
-            "Too many options:"
-                "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/"
-                    "OptionLimit");
+            WSMAN_FAULTDETAIL_OPTION_LIMIT);
         _wsmProcessor->sendResponse(new WsmFaultResponse(
             wsaMessageId, queueId, httpMethod, httpCloseConnect,
             omitXMLProcessingInstruction, fault));

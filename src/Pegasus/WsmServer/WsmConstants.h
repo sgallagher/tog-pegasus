@@ -228,6 +228,9 @@
 #define WSMAN_FAULTDETAIL_BOOKMARKS_UNSUPPORTED \
     "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/Bookmarks"
 
+#define WSMAN_FAULTDETAIL_OPTION_LIMIT \
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/OptionLimit"
+
 // The namespace to encode instance response data with.
 #define PEGASUS_INSTANCE_NS "p"
 

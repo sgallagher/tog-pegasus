@@ -133,6 +133,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
         String getRegisteredProfileList(const OperationContext & context);
    private:
         void _processLinkLocalAddress(String &ip6add2check);
+        Boolean _checkProfileToAdvertise(const CIMInstance &, const Uint32 &);
 
        // Save instances of registration class
        // that have been registered.

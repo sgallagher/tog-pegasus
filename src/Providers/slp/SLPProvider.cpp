@@ -346,7 +346,7 @@ String _getValueQualifier(
         errorMessage = "No valueMap Qualifier";
     }
 
-    if (errorMessage != String::EMPTY)
+    if (errorMessage.size() != 0)
     {
         throw PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED,
@@ -600,6 +600,36 @@ void SLPProvider::deregisterSLP()
 
 }
 
+/*
+ * This checks whether a registerred profile has to be advertised
+ * through SLP or not
+*/
+Boolean SLPProvider::_checkProfileToAdvertise(
+    const CIMInstance &cimInstance,
+    const Uint32 &index_AT)
+{
+    CIMConstProperty AT_Property = 
+        cimInstance.getProperty(index_AT);
+
+    CIMValue AT_value = AT_Property.getValue ();
+    Array<Uint16> valAdvTypes;
+    if ((AT_value.isArray()) && (!AT_value.isNull()))
+    {
+        AT_value.get(valAdvTypes);
+    }
+    for(Uint16 i = 0, n = valAdvTypes.size(); i < n; ++i)
+    {
+        //SLP AdvertiseTypes has value 3 
+        if( 3 == valAdvTypes[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 /** get the list of registered profiles for the SLP template.
     Until we start using CIM 28, there are no template classes
     and no templates.  We are doing a temporary hack here of
@@ -694,183 +724,202 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
         "SLPProvider::getRegisteredProfiles: Total Number of Instances: %u",
         cimInstances.size()));
 
-try
-{
-    Uint32 j = 0;
-    for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+    try
     {
+        Uint32 j = 0;
+        const CIMName propAdvertTypes("AdvertiseTypes");
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        {
 
-// same can be done by not using deepInheritance on the enumInstances call
-// thus I commented it out here
-//        if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
-//            continue;
-        Uint32 index_RO=cimInstances[i].findProperty(propRegOrg);
-        Uint32 index_RN=cimInstances[i].findProperty(propRegName);
-        if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND)
-        {
-            continue;
-        }
-        CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);
-        String RegOrg = _getValueQualifier(RO_Property, RO_Class);
-        PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-            "Value of RegOrg=%s",
-            (const char*) RegOrg.getCString()));
-
-        if (RegOrg == String::EMPTY)
-        {
-            RegOrg = "Unknown";
-        } else
-        {
-            if (String::equalNoCase(RegOrg,"Other"))
+            // same can be done by not using deepInheritance 
+            // on the enumInstances call  thus I commented it out here
+            //    if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
+            //        continue;
+            Uint32 index_AT=cimInstances[i].findProperty(propAdvertTypes);
+            Uint32 index_RO=cimInstances[i].findProperty(propRegOrg);
+            Uint32 index_RN=cimInstances[i].findProperty(propRegName);
+            if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND || 
+                    index_AT == PEG_NOT_FOUND)
             {
-                // lets use the OtherRegisteredOrganization value if available
-                Uint32 index_ORO = cimInstances[i].findProperty(
-                                       "OtherRegisteredOrganization");
-                if (index_ORO != PEG_NOT_FOUND)
+                continue;
+            }
+
+            //Check if the advertiseTypes is SLP,
+            if(!_checkProfileToAdvertise(cimInstances[i], index_AT))
+            {
+                continue;
+            }
+            
+            //String isSLPAd = _getValueQualifier(AT_Property, RO_Class);
+            //if(!String::equalNoCase(isSLPAd, "SLP"))
+            //{
+             //   continue;
+            //}
+
+            CIMConstProperty RO_Property = 
+                cimInstances[i].getProperty(index_RO);
+            String RegOrg = _getValueQualifier(RO_Property, RO_Class);
+            PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
+                        "Value of RegOrg=%s",
+                        (const char*) RegOrg.getCString()));
+
+            if (RegOrg.size() == 0)
+            {
+                RegOrg = "Unknown";
+            }
+            else
+            {
+                if (String::equalNoCase(RegOrg,"Other"))
                 {
-                    String OthRegOrg;
-                    // lets get the property
-                    CIMConstProperty ORO_Property =
-                        cimInstances[i].getProperty(index_ORO);
-                    // see if there is a String value on it and if so,
-                    // use that as organisation
-                    CIMValue ORO_value = ORO_Property.getValue ();
-                    if ((ORO_value.getType () == CIMTYPE_STRING) &&
-                        (!ORO_value.isNull ()))
+                    //use the OtherRegisteredOrganization value if available
+                    Uint32 index_ORO = cimInstances[i].findProperty(
+                            "OtherRegisteredOrganization");
+                    if (index_ORO != PEG_NOT_FOUND)
                     {
-                        ORO_value.get(OthRegOrg);
-                        if (OthRegOrg != String::EMPTY)
+                        String OthRegOrg;
+                        // lets get the property
+                        CIMConstProperty ORO_Property =
+                            cimInstances[i].getProperty(index_ORO);
+                        // see if there is a String value on it and if so,
+                        // use that as organisation
+                        CIMValue ORO_value = ORO_Property.getValue ();
+                        if ((ORO_value.getType () == CIMTYPE_STRING) &&
+                                (!ORO_value.isNull ()))
                         {
-                            RegOrg.assign(OthRegOrg);
+                            ORO_value.get(OthRegOrg);
+                            if (OthRegOrg != String::EMPTY)
+                            {
+                                RegOrg.assign(OthRegOrg);
+                            }
                         }
                     }
                 }
             }
-        }
-        CIMConstProperty RN_Property = cimInstances[i].getProperty(index_RN);
-        String RegName;
-        CIMValue RN_value = RN_Property.getValue ();
-        if ((RN_value.getType () == CIMTYPE_STRING) && (!RN_value.isNull ()))
-        {
-            RN_value.get(RegName);
-        }
-
-        // Check whether the profile is top-level.
-        Array<CIMObject> subProfiles;
-        CIMObjectPath objectPath = cimInstances[i].getPath();
-        CIMName className = objectPath.getClassName();
-
-        // Check for DMTF profiles
-        if (RegOrg == strDMTF)
-        {
-            // Check if this profile is sub-profile.
-            Array<CIMObject> profiles = _cimomHandle.associators(
-                context,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                objectPath,
-                referencedProfileClassName,
-                CIMName(),
-                propAntecedent,
-                String::EMPTY,
-                includeQualifiers,
-                includeClassOrigin,
-                CIMPropertyList());
-
-            if (profiles.size())
+            CIMConstProperty RN_Property = 
+                cimInstances[i].getProperty(index_RN);
+            String RegName;
+            CIMValue RN_value = RN_Property.getValue ();
+            if ((RN_value.getType () == CIMTYPE_STRING) && (!RN_value.isNull()))
             {
-                continue;
+                RN_value.get(RegName);
             }
 
-            subProfiles = _cimomHandle.associators(
-                context,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                objectPath,
-                referencedProfileClassName,
-                CIMName(),
-                propDependent,
-                String::EMPTY,
-                includeQualifiers,
-                includeClassOrigin,
-                CIMPropertyList());
-        }
-        else
-        {
-            // check for SNIA or Other profiles
-            // Check if this profile is sub-profile.
-            Array<CIMObject> profiles = _cimomHandle.associators(
-                context,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                objectPath,
-                subProfileRequiresProfileClassName,
-                CIMName(),
-                propDependent,
-                String::EMPTY,
-                includeQualifiers,
-                includeClassOrigin,
-                CIMPropertyList());
+            // Check whether the profile is top-level.
+            Array<CIMObject> subProfiles;
+            CIMObjectPath objectPath = cimInstances[i].getPath();
+            CIMName className = objectPath.getClassName();
 
-            if (profiles.size())
+            // Check for DMTF profiles
+            if (RegOrg == strDMTF)
             {
-                continue;
+                // Check if this profile is sub-profile.
+                Array<CIMObject> profiles = _cimomHandle.associators(
+                        context,
+                        PEGASUS_NAMESPACENAME_INTEROP,
+                        objectPath,
+                        referencedProfileClassName,
+                        CIMName(),
+                        propAntecedent,
+                        String::EMPTY,
+                        includeQualifiers,
+                        includeClassOrigin,
+                        CIMPropertyList());
+
+                if (profiles.size())
+                {
+                    continue;
+                }
+
+                subProfiles = _cimomHandle.associators(
+                        context,
+                        PEGASUS_NAMESPACENAME_INTEROP,
+                        objectPath,
+                        referencedProfileClassName,
+                        CIMName(),
+                        propDependent,
+                        String::EMPTY,
+                        includeQualifiers,
+                        includeClassOrigin,
+                        CIMPropertyList());
+            }
+            else
+            {
+                // check for SNIA or Other profiles
+                // Check if this profile is sub-profile.
+                Array<CIMObject> profiles = _cimomHandle.associators(
+                        context,
+                        PEGASUS_NAMESPACENAME_INTEROP,
+                        objectPath,
+                        subProfileRequiresProfileClassName,
+                        CIMName(),
+                        propDependent,
+                        String::EMPTY,
+                        includeQualifiers,
+                        includeClassOrigin,
+                        CIMPropertyList());
+
+                if (profiles.size())
+                {
+                    continue;
+                }
+
+                subProfiles = _cimomHandle.associators(
+                        context,
+                        PEGASUS_NAMESPACENAME_INTEROP,
+                        objectPath,
+                        subProfileRequiresProfileClassName,
+                        CIMName(),
+                        propAntecedent,
+                        String::EMPTY,
+                        includeQualifiers,
+                        includeClassOrigin,
+                        CIMPropertyList());
             }
 
-            subProfiles = _cimomHandle.associators(
-                context,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                objectPath,
-                subProfileRequiresProfileClassName,
-                CIMName(),
-                propAntecedent,
-                String::EMPTY,
-                includeQualifiers,
-                includeClassOrigin,
-                CIMPropertyList());
-        }
+            PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
+                        "Value of RegName=%s ; Value of regitem=%s",
+                        (const char*) RegName.getCString(),
+                        (const char*) regitem.getCString()));
 
+            regitem.assign(RegOrg);
+            regitem.append(strColon);
+            regitem.append(RegName);
+            regProfileIdTable.insert(regitem, regitem);
+            for (Uint32 k = 0, n = subProfiles.size(); k < n; k++)
+            {
+                Uint32 pos = subProfiles[k].findProperty(propRegName);
+                String pName =
+                    subProfiles[k].getProperty(pos).getValue().toString();
+                String subRegItem = regitem;
+                subRegItem.append(strColon);
+                subRegItem.append(pName);
+                regProfileIdTable.insert(subRegItem, subRegItem);
+            }
+            j++;
+        }
+        if (j > 0)
+        {
+            const String strComma(",");
+            for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
+            {
+                reglist.append(i.value());
+                i++;
+                if (i)
+                {
+                    reglist.append(strComma);
+                }
+            }
+        }
         PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-            "Value of RegName=%s ; Value of regitem=%s",
-            (const char*) RegName.getCString(),
-            (const char*) regitem.getCString()));
+                    "Value of reglist=%s",
+                    (const char*) reglist.getCString()));
 
-        regitem.assign(RegOrg);
-        regitem.append(strColon);
-        regitem.append(RegName);
-        regProfileIdTable.insert(regitem, regitem);
-        for (Uint32 k = 0, n = subProfiles.size(); k < n; k++)
-        {
-            Uint32 pos = subProfiles[k].findProperty(propRegName);
-            String pName =
-                 subProfiles[k].getProperty(pos).getValue().toString();
-            String subRegItem = regitem;
-            subRegItem.append(strColon);
-            subRegItem.append(pName);
-            regProfileIdTable.insert(subRegItem, subRegItem);
-        }
-        j++;
-    }
-    if (j > 0)
+    } catch(Exception &exc)
     {
-        const String strComma(",");
-        for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
-        {
-            reglist.append(i.value());
-            i++;
-            if (i)
-            {
-                reglist.append(strComma);
-            }
-        }
+        PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL2,
+                    "Exception caught in enumInst processing:%s",
+                    (const char*) exc.getMessage().getCString()));
     }
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "Value of reglist=%s",
-        (const char*) reglist.getCString()));
-
-} catch(Exception &exc)
-{
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL2,
-        "Exception caught in enumInst processing:%s",
-        (const char*) exc.getMessage().getCString()));
-}
     return reglist;
 }
 

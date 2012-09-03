@@ -40,7 +40,8 @@ LIBRARIES= \
     pegservice \
     pegexportserver \
     pegclient \
-    pegcommon 
+    pegcommon \
+	pegconfig
 
 SOURCES = cimlistener.cpp
 

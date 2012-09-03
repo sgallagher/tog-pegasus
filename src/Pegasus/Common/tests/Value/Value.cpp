@@ -31,13 +31,6 @@
 
 /*
     This test module tests the functions associated with CIMvalue.
-    Feb 2k - Expanded to include isNULL tests and tests of NULL CIMValues
-*/
-
-/* ATTN: P3 KS feb 2002 tests to do
-    Test for array size
-    Test that a !isnull and an is null are not equal
-    Test that arrays of different size are not equal, etc.
 */
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -53,17 +46,17 @@ PEGASUS_USING_STD;
 /* The following define is used to control displays of output from the
     test.  Comment out the define to turn off the large quantity of prinout.
     Added the verbose variable which comes from an environment variable.
-    IO occurs onlly when the environment variable is set.
+    IO occurs only when the environment variable is set.
 */
 #define IO 1
 
 static Boolean verbose;
 
-
 /* This template provides a complete set of tests of simple CIMValues for
     the different possible data types.  It tests creating, assigning,
     the equals, creating XML and MOF, and the functions associated with
-    clearing testing for the null attribute.
+    clearing testing for the null attribute. It also tests that there
+    is not value returned from get of CIMValue which is NULL
 */
 template<class T>
 void test01(const T& x)
@@ -73,7 +66,7 @@ void test01(const T& x)
     CIMValue v3;
     // Create a null constructor
     CIMType type = v.getType();            // get the type of v
-    CIMValue v4(type,false);
+    CIMValue v4(type,false);               // isArray false, isNULL
     v3 = v2;
     CIMValue v5;
     v5 = v4;
@@ -87,11 +80,15 @@ void test01(const T& x)
     try
     {
         T t;
-        v3.get(t);
+        T t1 = x;                           // create instances of value
+        v3.get(t);                          // get valid value
+        v4.get(t1);                         // attempt to get from NULL
         PEGASUS_TEST_ASSERT (!v.isNull());
         PEGASUS_TEST_ASSERT (!v.isArray());
         PEGASUS_TEST_ASSERT (!v2.isNull());
         PEGASUS_TEST_ASSERT(t == x);
+        // confirm v4.get from NULL CIMValue did not change target variable
+        PEGASUS_TEST_ASSERT(t1 == x);      // should be value set in t1 = x
         PEGASUS_TEST_ASSERT (v3.typeCompatible(v2));
         // Confirm that the constructor created Null, not array and
         // correct type
@@ -132,8 +129,7 @@ void test01(const T& x)
 
     // From here forward, in the future we may have exceptions because
     // of the isNull which should generate an exception on the getdata.
-    // ATTN: KS 12 Feb 2002 This is work in progress until we complete
-    // adding the exception return to the CIMValue get functions.
+    // Currently NO exceptions should be generated.
     try
     {
         // Test for isNull and the setNullValue function
@@ -157,18 +153,19 @@ void test01(const T& x)
 #endif
         v.clear();
         PEGASUS_TEST_ASSERT(v.isNull());
-        //v2.clear();
-        //PEGASUS_TEST_ASSERT(v2.isNull();
+        v2.clear();
+        PEGASUS_TEST_ASSERT(v2.isNull());
 
     }
     catch(Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
+        PEGASUS_TEST_ASSERT(false);
     }
 
 }
-/* This template defines the set of tests used for arrays
+/* This template defines the set of tests used for arrays. Includes tests
+   for isNULL not changing output variable.
 */
 
 template<class T>
@@ -180,7 +177,7 @@ void test02(const Array<T>& x)
     va3 = va2;
     // Create a null constructor
     CIMType type = va.getType();            // get the type of v
-    CIMValue va4(type,true);
+    CIMValue va4(type,true);                // Create CIMValue array isNULL
     CIMValue va5;
     va5 = va4;
 #ifdef IO
@@ -194,8 +191,12 @@ void test02(const Array<T>& x)
     try
     {
         Array<T> t;
+        Array<T> t1;
+        PEGASUS_TEST_ASSERT(t1.size() == 0);
         va3.get(t);
+        va4.get(t1);                     // get from NULL CIMValue
         PEGASUS_TEST_ASSERT(t == x);
+        PEGASUS_TEST_ASSERT(t1.size() == 0); // array should still be empty
         PEGASUS_TEST_ASSERT (va3.typeCompatible(va2));
         PEGASUS_TEST_ASSERT (!va.isNull());
         PEGASUS_TEST_ASSERT (va.isArray());
@@ -218,11 +219,9 @@ void test02(const Array<T>& x)
         PEGASUS_TEST_ASSERT (va5.getArraySize() == 0);
         PEGASUS_TEST_ASSERT (va5.typeCompatible(va));
 
-
         // Test toMof
         Buffer mofOutput;
         MofWriter::appendValueElement(mofOutput, va);
-
 
         // Test toXml
         Buffer out;
@@ -243,7 +242,7 @@ void test02(const Array<T>& x)
     catch(Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     // Test the Null Characteristics
@@ -279,7 +278,7 @@ void test02(const Array<T>& x)
     catch(Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
+        PEGASUS_TEST_ASSERT(false);
     }
 
 }

@@ -46,9 +46,15 @@ XMLREQUESTS_STRIPPED = $(foreach i, $(XMLSCRIPTS_STRIPPED), $i.xml)
 XMLRESPONSES_STRIPPED = $(XMLREQUESTS_STRIPPED:.xml=.rsp_stripped)
 XMLGOODRESPONSE_STRIPPED = $(XMLREQUESTS_STRIPPED:.xml=rspgood.xml.stripped)
 
+ifeq ($(OS),linux)
+XMLREQUESTS_STRIPPED_MU = $(foreach i, $(XMLSCRIPTS_STRIPPED_MU), $i.xml)
+XMLRESPONSES_STRIPPED_MU = $(XMLREQUESTS_STRIPPED_MU:.xml=.rsp_stripped_diff)
+XMLGOODRESPONSE_STRIPPED_MU = $(XMLREQUESTS_STRIPPED_MU:.xml=rspgood.xml.stripped)
+else
 XMLREQUESTS_STRIPPED_MU = $(foreach i, $(XMLSCRIPTS_STRIPPED_MU), $i.xml)
 XMLRESPONSES_STRIPPED_MU = $(XMLREQUESTS_STRIPPED_MU:.xml=.rsp_stripped_mu)
 XMLGOODRESPONSE_STRIPPED_MU = $(XMLREQUESTS_STRIPPED_MU:.xml=rspgood.xml.stripped)
+endif
 
 XMLREQUESTS_DS_STRIPPED = $(foreach i, $(XMLSCRIPTS_DS_STRIPPED), $i.xml)
 XMLRESPONSES_DS_STRIPPED = $(XMLREQUESTS_DS_STRIPPED:.xml=.rsp_ds_stripped)
@@ -70,7 +76,6 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(RM) $(TMP_DIR)/$*.rsp_ds
 	@ $(ECHO) +++ $* passed successfully +++
 
-
 %.rsp_stripped: %.xml
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp_stripped || cd .
 	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped
@@ -81,6 +86,18 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(RM) $(TMP_DIR)/$*rspgood.xml.stripped
 	@ $(ECHO) +++ $* passed successfully +++
 
+# if OS = linux
+%.rsp_stripped_diff: %.xml
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp_stripped_mu || cd .
+	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(STRIPL) $(STRIPLINES) $(TMP_DIR)/$*.rsp_stripped_mu
+	@ $(STRIPL) $(STRIPLINES) $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(DIFF) -I $(DIFFLINE1) -I $(DIFFLINE2) $(TMP_DIR)/$*rspgood.xml.stripped $(TMP_DIR)/$*.rsp_stripped_mu
+	@ $(RM) $(TMP_DIR)/$*.rsp_stripped_mu
+	@ $(RM) $(TMP_DIR)/$*rspgood.xml.stripped
+	@ $(ECHO) +++ $* passed successfully +++
+
+# if OS!=linux
 %.rsp_stripped_mu: %.xml
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp_stripped_mu || cd .
 	@ $(COPY) $*rspgood.xml $(TMP_DIR)/$*rspgood.xml.stripped

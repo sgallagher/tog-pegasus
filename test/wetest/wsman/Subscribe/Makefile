@@ -35,6 +35,9 @@ STRIPLINES = "CIM_ERR" "quot;"
 
 MULINES = "strip" "Content" "content"
 
+DIFFLINE1 = "content"
+DIFFLINE2 = "CIM_ERR"
+
 XMLSCRIPTS = \
     Successful_Subscription01 \
     Successful_Subscription02 \

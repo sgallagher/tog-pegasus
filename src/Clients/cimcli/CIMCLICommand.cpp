@@ -69,6 +69,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+const String CIMCLI = "cimcli";
 /////////////////////////////////////////////////////////////////////////
 //
 // The following functions process the target object parameter for
@@ -379,7 +380,7 @@ int main(int argc, char** argv)
     }
     catch(CIMException& e)
     {
-        cerr << argv[0] << " Caught CIMException during init: "
+        cerr << CIMCLI << " Caught CIMException during init: "
              << "\n" << e.getMessage()
              << endl;
         showUsage();
@@ -388,14 +389,14 @@ int main(int argc, char** argv)
 
     catch (Exception& e)
     {
-        cerr << argv[0] << ": Caught Exception during init. "
+        cerr << CIMCLI << ": Caught Exception during init. "
              << e.getMessage() << endl;
         showUsage();
         cimcliExit(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
     }
     catch(...)
     {
-        cerr << argv[0] << " Caught General Exception During Init:" << endl;
+        cerr << CIMCLI << " Caught General Exception During Init:" << endl;
         showUsage();
         cimcliExit(GENERAL_CLI_ERROR_CODE);
     }
@@ -409,8 +410,8 @@ int main(int argc, char** argv)
     else
     {
         cerr << "Error: Command name or shortcut must be first parameter."
-            << " \n  ex. " << argv[0] << " enumerateclasses or "
-            << argv[0] << " ec\n" << endl;
+            << " \n  ex. " << CIMCLI << " enumerateclasses or "
+            << CIMCLI << " ec\n" << endl;
 
         showUsage();
 
@@ -448,7 +449,7 @@ int main(int argc, char** argv)
                 "Operation name must be first parmeter"
                 " or --c parameter."
             << " \n  ex. cli enumerateclasses\n"
-            << "Enter " << argv[0] << " -h for help."
+            << "Enter " << CIMCLI << " -h for help."
             << endl;
         cimcliExit(GENERAL_CLI_ERROR_CODE);
     }
@@ -1055,7 +1056,7 @@ int main(int argc, char** argv)
                             "Operation name must be first parmeter"
                             " or --c parameter."
                         << " \n  ex. cli enumerateclasses\n"
-                        << "Enter " << argv[0] << " -h for help."
+                        << "Enter " << CIMCLI << " -h for help."
                         << endl;
                     cimcliExit(CIMCLI_INPUT_ERR);
                     break;
@@ -1156,7 +1157,7 @@ int main(int argc, char** argv)
     // The following exceptions are all routed to cerr
     catch(CIMException& e)
     {
-        cerr << argv[0] << " CIMException: "
+        cerr << CIMCLI << " CIMException: "
              <<" Cmd= " << opts.cimCmd
              << " Object= " << opts.inputObjectName
              << " Code= " << e.getCode()
@@ -1166,7 +1167,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-        cerr << argv[0] << " Pegasus Exception: " << e.getMessage()
+        cerr << CIMCLI << " Pegasus Exception: " << e.getMessage()
                 <<  ". Cmd = " << opts.cimCmd
                 << " Object = " << opts.inputObjectName
                 << endl;
@@ -1174,7 +1175,7 @@ int main(int argc, char** argv)
     }
     catch(...)
     {
-        cerr << argv[0] << " Caught General Exception:" << endl;
+        cerr << CIMCLI << " Caught General Exception:" << endl;
         opts.termCondition = CIMCLI_RTN_CODE_UNKNOWN_EXCEPTION;
     }
 

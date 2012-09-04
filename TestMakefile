@@ -560,8 +560,15 @@ endif
 ##  Configuration Options:  (none for cimserver)
 ##     wsevensink should be installed as the wsman listner.
 ##
+##  There is no WSMAN listner in OP as of now. Therefore, wseventsink of
+##  openwsman is used. This is available only on Linux. On other OSes, the
+##  destination of the subcription/indication should be changed to a Linux
+##  system where wseventsink is running.
+##  Once we have a wsman listner in OP we include this test in Nigthly tests.
+##  As of now, this has to be run explicitly. 
+##
 ###############################################################################
-ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+ifeq ($(OS),linux) 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
 INDWSMAN_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=false
 INDWSMAN_TS1a_TEST_CMDS = \

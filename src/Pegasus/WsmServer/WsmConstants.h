@@ -33,6 +33,7 @@
 #define Pegasus_WsmConstants_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/WsmServer/Linkage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -267,17 +268,17 @@ enum WsenEnumerationMode
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_SUBSCRIBE;
+PEGASUS_WSMSERVER_LINKAGE extern const char* PEGASUS_WS_SUBSCRIBE;
 
-PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_DELIVERY;
+PEGASUS_WSMSERVER_LINKAGE extern const char* PEGASUS_WS_DELIVERY;
 
-PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_DELMODE;
+PEGASUS_WSMSERVER_LINKAGE extern const char* PEGASUS_WS_DELMODE;
 
-PEGASUS_COMMON_LINKAGE extern const char* PEGASUS_WS_NOTIFYTO;
+PEGASUS_WSMSERVER_LINKAGE extern const char* PEGASUS_WS_NOTIFYTO;
 
-PEGASUS_COMMON_LINKAGE extern const String PEGASUS_WS_CIMNAMESPACE;
+PEGASUS_WSMSERVER_LINKAGE extern const String PEGASUS_WS_CIMNAMESPACE;
 
-PEGASUS_COMMON_LINKAGE extern const String PEGASUS_WS_SUB_DURATION;
+PEGASUS_WSMSERVER_LINKAGE extern const String PEGASUS_WS_SUB_DURATION;
 
 //
 // CIM Namespace Names

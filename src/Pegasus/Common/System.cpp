@@ -974,9 +974,6 @@ struct hostent* System::getHostByAddr(
     return hostEntry;
 }
 
-#if defined(PEGASUS_OS_ZOS) || \
-    defined(PEGASUS_OS_VMS) || \
-    defined(PEGASUS_ENABLE_IPV6)
 
 int System::getAddrInfo(
     const char *hostname,
@@ -985,7 +982,7 @@ int System::getAddrInfo(
     struct addrinfo **res)
 {
     int rc = 0;
-    unsigned int maxTries = 5;
+    Uint16 maxTries = 5;
 
 #ifdef PEGASUS_OS_PASE
     CString hostNameCString;
@@ -996,12 +993,19 @@ int System::getAddrInfo(
     }
 #endif
 
-    while ((rc = getaddrinfo(hostname,
+    do
+    {
+        rc = getaddrinfo(hostname,
                      servname,
                      hints,
-                     res)) == EAI_AGAIN &&
-           maxTries-- > 0)
-        ;
+                     res);
+        if( rc != EAI_AGAIN)
+        {
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                        "getaddrinfo failed: %s",gai_strerror(rc)));
+            break;
+        }
+    } while( rc == EAI_AGAIN && --maxTries > 0);
     return rc;
 }
 
@@ -1015,27 +1019,32 @@ int System::getNameInfo(
     int flags)
 {
     int rc = 0;
-    unsigned int maxTries = 5;
-
-    while ((rc = getnameinfo(sa,
-                     salen,
-                     host,
-                     hostlen,
-                     serv,
-                     servlen,
-                     flags)) == EAI_AGAIN &&
-           maxTries-- > 0)
-        ;
+    Uint16 maxTries = 5;
+    do
+    {
+        rc = getnameinfo(sa,
+                salen,
+                host,
+                hostlen,
+                serv,
+                servlen,
+                flags);
+        if( rc != EAI_AGAIN)
+        {
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                        "getnameinfo failed: %s",gai_strerror(rc)));
+            break;
+        }
+    } while( rc == EAI_AGAIN && --maxTries > 0);
     return rc;
 }
 
-#endif
 
 // System ID constants for Logger::put and Logger::trace
 #ifdef PEGASUS_FLAVOR
-const String System::CIMLISTENER = "cimlistener" PEGASUS_FLAVOR;
+    const String System::CIMLISTENER = "cimlistener" PEGASUS_FLAVOR;
 #else
-const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
+    const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
 #endif
 
 PEGASUS_NAMESPACE_END

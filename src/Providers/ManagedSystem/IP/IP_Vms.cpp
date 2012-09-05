@@ -181,7 +181,6 @@ Boolean IPInterface::getSystemName(String& s)
 {
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     struct addrinfo *info, hints;
-    int rc;
 
     if (gethostname(hostName, sizeof(hostName)) != 0)
     {
@@ -202,7 +201,9 @@ Boolean IPInterface::getSystemName(String& s)
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
 
-    while ((rc = getaddrinfo(hostName, 0, &hints, &info)) == EAI_AGAIN)
+    int rc = 0;
+    rc = System::getAddrInfo(hostName, 0, &hints, &info);
+    if (rc) 
     {
         if (NULL != info)
         {

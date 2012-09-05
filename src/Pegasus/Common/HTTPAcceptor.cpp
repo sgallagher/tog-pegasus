@@ -851,20 +851,14 @@ void HTTPAcceptor::_acceptConnection()
     {
 #ifdef PEGASUS_ENABLE_IPV6
         char ipBuffer[PEGASUS_INET6_ADDRSTR_LEN];
-        int rc;
-        if ((rc = System::getNameInfo(accept_address,
+        if (System::getNameInfo(accept_address,
                 address_size,
                 ipBuffer,
                 PEGASUS_INET6_ADDRSTR_LEN,
                 0,
                 0,
-                NI_NUMERICHOST)))
+                NI_NUMERICHOST))
         {
-            PEG_TRACE((
-                TRC_DISCARDED_DATA,
-                Tracer::LEVEL1,
-                "HTTPAcceptor: getnameinfo() failed.  rc: %d",
-                rc));
             delete accept_address;
             return;
         }

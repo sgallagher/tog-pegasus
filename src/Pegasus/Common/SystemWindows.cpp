@@ -1042,7 +1042,7 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
 #ifdef PEGASUS_ENABLE_IPV6
                     else if (af == AF_INET6)
                     {
-                        if((rc = ::getnameinfo( 
+                        if((rc = System::getNameInfo( 
                             sin,
                             sizeof(struct sockaddr_in6),
                             str,
@@ -1053,17 +1053,10 @@ void _getInterfaceAddrs(Array<String> &ips, int af)
                         {
                             ips.append(str);
                         }
-                        //Error detected in getting name info, 
-                        //display the error string
-                        else
-                        {
-                            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                                "getnameinfo failed: %s", gai_strerror(rc)));
-                        }
                     }
 #endif
                 }
-                addr++;
+                ++addr;
                 sin = (struct sockaddr*)addr->lpSockaddr;
             }
         }

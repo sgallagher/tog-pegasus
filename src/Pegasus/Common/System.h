@@ -201,14 +201,13 @@ public:
         char* buf = 0,
         size_t buflen = 0);
 
-#if defined(PEGASUS_OS_ZOS) || \
-    defined(PEGASUS_OS_VMS) || \
-    defined(PEGASUS_ENABLE_IPV6)
 
     // The following 2 methods are wrappers around system functions
     // getaddrinfo/getnameinfo.
     // In addition to calling corresponding system functions, these
     // methods introduce re-tries on EAI_AGAIN error returns.
+    //
+    // Callers are expected to call freeaddrinfo when using System::getAddrInfo
     static int getAddrInfo(
         const char *hostname,
         const char *servname,
@@ -222,8 +221,6 @@ public:
         char *serv,
         size_t servlen,
         int flags);
-
-#endif
 
     // Gets IP address assosiated with hostName. af indicates the
     // type of address (ipv4 or ipv6) returned.

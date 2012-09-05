@@ -871,7 +871,6 @@ Array<String> System::getInterfaceAddrs()
         return ips;
     }
     Boolean ipFound;
-    int rc = 0;
     for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
     {
         ipFound = false;
@@ -885,34 +884,21 @@ Array<String> System::getInterfaceAddrs()
         switch(addrs->ifa_addr->sa_family)
         {
             case AF_INET :
-                if( (rc = ::getnameinfo(addrs->ifa_addr,
+                if( !System::getNameInfo(addrs->ifa_addr,
                     sizeof(struct sockaddr_in),
-                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST)) == 0)
+                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
                 {
                     ipFound = true;
-                }
-                //Error detected in getting name info, 
-                //display the error string
-                else
-                {
-                    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                        "getnameinfo failed: %s", gai_strerror(rc)));
                 }
                 break;
+
 #ifdef PEGASUS_ENABLE_IPV6
             case AF_INET6 :
-                if( ( rc = ::getnameinfo(addrs->ifa_addr,
+                if( !System::getNameInfo(addrs->ifa_addr,
                     sizeof(struct sockaddr_in6),
-                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST)) == 0)
+                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
                 {
                     ipFound = true;
-                }
-                //Error detected in getting name info, 
-                //display the error string
-                else
-                {
-                    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                        "getnameinfo failed: %s", gai_strerror(rc)));
                 }
                 break;
 #endif
@@ -1118,8 +1104,8 @@ Array<String> System::getInterfaceAddrs()
     hints.ai_flags = AI_V4MAPPED | AI_ALL;
     hints.ai_protocol = IPPROTO_TCP;
 
-    int ret;
-    ret = ::getaddrinfo(System::getHostName().getCString(),
+    int ret = 0;
+    ret = System::getAddrInfo(System::getHostName().getCString(),
                         NULL, &hints, &info);
     if (ret != 0)
     {

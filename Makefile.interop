@@ -108,7 +108,7 @@ else
 ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
 	@$(foreach i,$(LISTXML), mu replace $i '<!--NAMESPACE NAME="root"/-->' '<NAMESPACE NAME="root"/>'; \
         mu replace $i 'interop' 'PG_InterOp');
-       @$(foreach i,$(LIST), mu replace $i 'interop' 'root/PG_InterOp');
+	@$(foreach i,$(LIST), mu replace $i 'interop' 'root/PG_InterOp');
 
 endif
 endif

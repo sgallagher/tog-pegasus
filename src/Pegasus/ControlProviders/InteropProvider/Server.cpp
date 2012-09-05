@@ -326,6 +326,8 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         configManager->getCurrentValue("enableHttpConnection"));
     Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableHttpsConnection"));
+    String listenAdd = configManager->getCurrentValue(
+        "listenAddress");
 
     Array<CIMInstance> instances;
     Uint32 namespaceAccessProtocol;
@@ -336,9 +338,31 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM, false, true, false);
 
     Array<String> ips;
+
+    if(!String::equalNoCase(listenAdd, "All"))
+    {
+        ips = DefaultPropertyOwner::parseAndGetListenAddress(listenAdd);
+        //Filter out the loopback addresses without going deeper to TCP Layer
+        for(Uint32 i = 0, n = ips.size(); i < n; ++i)
+        {
+            String add = ips[i];
+            if((add.size() >= 3) && 
+                ((add[0] == Char16(':') && add[1] == Char16(':') &&
+                    add[2] == Char16('1')) ||
+                ( add[0] == Char16('1') && add[1] == Char16('2') &&
+                    add[2] == Char16('7'))))
+            {
+                ips.remove(i);
+            }
+        }
+
+    }
+    else
+    {
 #ifdef PEGASUS_ENABLE_IPV6
     ips = System::getInterfaceAddrs();
 #endif
+    }
     if (enableHttpConnection)
     {
         // Build the CommunicationMechanism instance for the HTTP protocol

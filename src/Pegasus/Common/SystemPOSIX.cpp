@@ -949,14 +949,14 @@ Array<String> System::getInterfaceAddrs()
     ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, prevsz);
 
     struct sockaddr *sa;
-    char *cp, *cplim, buff[PEGASUS_INET6_ADDRSTR_LEN];;
+    char *cp, *cplim, buff[PEGASUS_INET6_ADDRSTR_LEN];
     struct ifreq *ifr=ifc.ifc_req;
     cp=(char *)ifc.ifc_req;
     cplim=cp+ifc.ifc_len;
-    for (; cp<cplim; cp+=(sizeof(ifr->ifr_name) + AIX_SIZE(ifr->ifr_addr)))
+    for (; cp < cplim; cp += (sizeof(ifr->ifr_name) + AIX_SIZE(ifr->ifr_addr)))
     {
-        ifr=(struct ifreq *)cp;
-        sa=(struct sockaddr *)&(ifr->ifr_addr);
+        ifr = (struct ifreq *)cp;
+        sa = (struct sockaddr *)&(ifr->ifr_addr);
         switch(sa->sa_family)
         {
             case AF_INET:
@@ -965,15 +965,13 @@ Array<String> System::getInterfaceAddrs()
                 {
                     break;
                 }
-                HostAddress::convertBinaryToText(
-                    AF_INET,
-                    &((struct sockaddr_in *)sa)->sin_addr,
-                    buff,
-                    sizeof(buff));
-
-                ips.append(buff);
+                if( !System::getNameInfo((struct sockaddr_in *)sa,
+                    sizeof(struct sockaddr_in),
+                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
+                {
+                    ips.append(buff);
+                }
                 break;
-
 #ifdef PEGASUS_ENABLE_IPV6
             case AF_INET6:
                 if (System::isLoopBack(
@@ -981,18 +979,16 @@ Array<String> System::getInterfaceAddrs()
                 {
                     break;
                 }
-                HostAddress::convertBinaryToText(
-                    AF_INET6,
-                    &(((struct sockaddr_in6 *)sa)->sin6_addr),
-                    buff,
-                    sizeof(buff));
-
-                ips.append(buff);
+                if( !System::getNameInfo((struct sockaddr_in6 *)sa,
+                    sizeof(struct sockaddr_in6),
+                    buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
+                {
+                    ips.append(buff);
+                }
                 break;
 #endif
         }
     }
-
     free(ifc.ifc_req);
 
 #elif defined(PEGASUS_OS_ZOS)
@@ -1040,12 +1036,14 @@ Array<String> System::getInterfaceAddrs()
                             AF_INET6,
                             &(pifConfEntries[i].__nif6e_addr.sin6_addr)))
                     {
-                        HostAddress::convertBinaryToText(
-                            AF_INET6,
-                            &(pifConfEntries[i].__nif6e_addr.sin6_addr),
-                            buff,
-                            sizeof(buff));
-                        ips.append(buff);
+                        if( !System::getNameInfo(
+                            (struct sockaddr_in6 *)
+                                &(pifConfEntries[i].__nif6e_addr),
+                            sizeof(struct sockaddr_in6),
+                            buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
+                        {
+                            ips.append(buff);
+                        }
                     } // append IPV6 addresses
                 } // loop through deliverd interfaces
             } // query IPV6 interface
@@ -1084,12 +1082,12 @@ Array<String> System::getInterfaceAddrs()
                 addr = (sockaddr_in *)&ifc.ifc_req[i].ifr_addr;
                 if (!System::isLoopBack( AF_INET, &(addr->sin_addr.s_addr)))
                 {
-                    HostAddress::convertBinaryToText(
-                        AF_INET,
-                        &(addr->sin_addr.s_addr),
-                        buff,
-                        PEGASUS_INET_ADDRSTR_LEN);
-                    ips.append(buff);
+                    if( !System::getNameInfo((struct sockaddr_in *)addr,
+                        sizeof(struct sockaddr_in),
+                        buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
+                    {
+                        ips.append(buff);
+                    }
                 }
             }
         }
@@ -1124,30 +1122,28 @@ Array<String> System::getInterfaceAddrs()
         if (ai->ai_family == AF_INET6)
         {
 #ifdef PEGASUS_ENABLE_IPV6
-            char ipAddr[INET6_ADDRSTRLEN];
+            char ipAddr[PEGASUS_INET6_ADDRSTR_LEN];
             struct sockaddr_in6 sockaddr6;
             struct sockaddr_in6 *in6 = (sockaddr_in6 *) (ai->ai_addr);
 
-            memset(&sockaddr6, 0, sizeof(sockaddr6));
+            memset(&sockaddr6, 0, sizeof(sockaddr_in6));
             sockaddr6.sin6_family = AF_INET6;
             sockaddr6.sin6_flowinfo = 0;
             sockaddr6.sin6_scope_id = 0;
             memcpy(&sockaddr6.sin6_addr,
                    &(in6->sin6_addr),
                    sizeof(struct in6_addr));
-
-            if (inet_ntop(AF_INET6,
-                          &sockaddr6.sin6_addr,
-                          ipAddr, INET6_ADDRSTRLEN) == NULL)
+            if( !System::getNameInfo(&sockaddr6 ,
+                        sizeof(struct sockaddr_in6),
+                        ipAddr, sizeof(ipAddr), NULL, 0, NI_NUMERICHOST))
             {
-                break;
+                ips.append(ipAddr);
             }
-            ips.append(ipAddr);
 #endif
         }
         else if (ai->ai_family == AF_INET)
         {
-            char ipAddr[INET6_ADDRSTRLEN];
+            char ipAddr[PEGASUS_INET_ADDRSTR_LEN];
             struct sockaddr_in sockaddr4;
             struct sockaddr_in *in4 = (sockaddr_in *) (ai->ai_addr);
 
@@ -1157,14 +1153,12 @@ Array<String> System::getInterfaceAddrs()
             memcpy(&sockaddr4.sin_addr,
                    &(in4->sin_addr),
                    sizeof(struct in_addr));
-
-            if (inet_ntop(AF_INET,
-                          &sockaddr4.sin_addr,
-                          ipAddr, INET6_ADDRSTRLEN) == NULL)
+            if( !System::getNameInfo(&sockaddr4,
+                    sizeof(struct sockaddr_in),
+                    ipAddr, sizeof(ipAddr), NULL, 0, NI_NUMERICHOST))
             {
-                break;
+                ips.append(ipAddr);
             }
-            ips.append(ipAddr);
         }
     }
     freeaddrinfo(info);

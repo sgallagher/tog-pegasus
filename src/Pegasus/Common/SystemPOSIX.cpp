@@ -1032,19 +1032,34 @@ Array<String> System::getInterfaceAddrs()
                 for (int i = 0 ; i < ifConfHeader.__nif6h_entries; i++)
                 {
                     // do not save loop back addresses.
-                    if (!System::isLoopBack(
+                    if (System::isLoopBack(
                             AF_INET6,
                             &(pifConfEntries[i].__nif6e_addr.sin6_addr)))
+                    {   
+                        continue;
+                    }
+
+                    HostAddress::convertBinaryToText(
+                        AF_INET6,
+                        &(pifConfEntries[i].__nif6e_addr.sin6_addr),
+                        buff,
+                        sizeof(buff));
+                    String ip6addr(buff);
+
+                    if(String::equalNoCase(ip6addr.subString(0,4), "fe80"))
                     {
-                        if( !System::getNameInfo(
-                            (struct sockaddr_in6 *)
-                                &(pifConfEntries[i].__nif6e_addr),
-                            sizeof(struct sockaddr_in6),
-                            buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
-                        {
-                            ips.append(buff);
-                        }
-                    } // append IPV6 addresses
+                        __etoa_l(
+                            pifConfEntries[i].__nif6e_name,
+                            sizeof(pifConfEntries->__nif6e_name));
+                        String zoneidx(
+                            pifConfEntries[i].__nif6e_name,
+                            sizeof(pifConfEntries->__nif6e_name));
+                        zoneidx.remove(zoneidx.find(' '));
+                        ip6addr.append("%");
+                        ip6addr.append(zoneidx);
+                    }
+
+                    ips.append(ip6addr); // append IPV6 addresses
                 } // loop through deliverd interfaces
             } // query IPV6 interface
         } // fill ifconf header structure
@@ -1082,12 +1097,12 @@ Array<String> System::getInterfaceAddrs()
                 addr = (sockaddr_in *)&ifc.ifc_req[i].ifr_addr;
                 if (!System::isLoopBack( AF_INET, &(addr->sin_addr.s_addr)))
                 {
-                    if( !System::getNameInfo((struct sockaddr_in *)addr,
-                        sizeof(struct sockaddr_in),
-                        buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
-                    {
-                        ips.append(buff);
-                    }
+                    HostAddress::convertBinaryToText(
+                        AF_INET,
+                        &(addr->sin_addr.s_addr),
+                        buff,
+                        PEGASUS_INET_ADDRSTR_LEN);
+                    ips.append(buff);
                 }
             }
         }

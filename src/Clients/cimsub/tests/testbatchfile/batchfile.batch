@@ -62,7 +62,7 @@
         cimsub -ls -n test/CimsubTestNS0
 
 #       Create Filter.
-        cimsub -c f test/CimsubTestNS0:Filteraa -Q "SELECT * FROM CIM_ProcessIndication" 
+        cimsub -c f test/CimsubTestNS0:Filteraa -Q "SELECT * FROM CIM_ProcessIndication" -L WQL 
 
 #       Create Handler.
         cimsub -c h test/CimsubTestNS0:CIM_ListenerDestinationCIMXML.Handlerab -D localhost/CIMListener/test4

@@ -680,10 +680,8 @@ root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinati
 NAMESPACE        FILTER                    HANDLER                                                              STATE
 root/PG_InterOp  root/PG_InterOp:Filter01  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
 
-CIM_ERR_NOT_SUPPORTED: CIM:CQL
 
 
-The requested filter could not be found.
 
 NAMESPACE        FILTER                    HANDLER                                                                STATE
 root/PG_InterOp  root/cimv2:Filter12       test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
@@ -695,10 +693,9 @@ root/PG_InterOp  root/PG_InterOp:Filter04  root/PG_InterOp:CIM_IndicationHandler
 root/PG_InterOp  root/PG_InterOp:Filter05  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
 root/PG_InterOp  root/PG_InterOp:Filter06  root/PG_InterOp:CIM_IndicationHandlerCIMXML.Handler01                  Enabled
 root/PG_InterOp  root/PG_InterOp:Filter08  root/PG_InterOp:CIM_ListenerDestinationCIMXML.ListenerDestination02    Enabled
+root/PG_InterOp  root/PG_InterOp:filterdd  root/PG_InterOp:CIM_ListenerDestinationCIMXML.Handlerab                Enabled
 
-The requested subscription could not be found.
 
-The requested filter could not be found.
 
 
 NAMESPACE        FILTER                    HANDLER                                                                STATE

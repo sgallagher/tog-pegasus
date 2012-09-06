@@ -680,10 +680,8 @@ root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.
 NAMESPACE     FILTER                 HANDLER                                                           STATE
 root/interop  root/interop:Filter01  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination01  Enabled
 
-CIM_ERR_NOT_SUPPORTED: CIM:CQL
 
 
-The requested filter could not be found.
 
 NAMESPACE     FILTER                 HANDLER                                                                STATE
 root/interop  root/cimv2:Filter12    test/TestProvider:CIM_ListenerDestinationCIMXML.ListenerDestination06  Enabled
@@ -695,10 +693,9 @@ root/interop  root/interop:Filter04  root/interop:CIM_IndicationHandlerCIMXML.Ha
 root/interop  root/interop:Filter05  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
 root/interop  root/interop:Filter06  root/interop:CIM_IndicationHandlerCIMXML.Handler01                     Enabled
 root/interop  root/interop:Filter08  root/interop:CIM_ListenerDestinationCIMXML.ListenerDestination02       Enabled
+root/interop  root/interop:filterdd  root/interop:CIM_ListenerDestinationCIMXML.Handlerab                   Enabled
 
-The requested subscription could not be found.
 
-The requested filter could not be found.
 
 
 NAMESPACE     FILTER                 HANDLER                                                                STATE

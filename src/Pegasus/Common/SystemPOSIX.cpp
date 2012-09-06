@@ -965,7 +965,7 @@ Array<String> System::getInterfaceAddrs()
                 {
                     break;
                 }
-                if( !System::getNameInfo((struct sockaddr_in *)sa,
+                if( !System::getNameInfo((const struct sockaddr *)sa,
                     sizeof(struct sockaddr_in),
                     buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
                 {
@@ -979,7 +979,7 @@ Array<String> System::getInterfaceAddrs()
                 {
                     break;
                 }
-                if( !System::getNameInfo((struct sockaddr_in6 *)sa,
+                if( !System::getNameInfo((const struct sockaddr *)sa,
                     sizeof(struct sockaddr_in6),
                     buff, sizeof(buff), NULL, 0, NI_NUMERICHOST))
                 {
@@ -1133,7 +1133,7 @@ Array<String> System::getInterfaceAddrs()
             memcpy(&sockaddr6.sin6_addr,
                    &(in6->sin6_addr),
                    sizeof(struct in6_addr));
-            if( !System::getNameInfo(&sockaddr6 ,
+            if( !System::getNameInfo((const struct sockaddr *)&sockaddr6 ,
                         sizeof(struct sockaddr_in6),
                         ipAddr, sizeof(ipAddr), NULL, 0, NI_NUMERICHOST))
             {
@@ -1153,7 +1153,7 @@ Array<String> System::getInterfaceAddrs()
             memcpy(&sockaddr4.sin_addr,
                    &(in4->sin_addr),
                    sizeof(struct in_addr));
-            if( !System::getNameInfo(&sockaddr4,
+            if( !System::getNameInfo((const struct sockaddr *)&sockaddr4,
                     sizeof(struct sockaddr_in),
                     ipAddr, sizeof(ipAddr), NULL, 0, NI_NUMERICHOST))
             {

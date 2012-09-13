@@ -46,7 +46,7 @@ XMLREQUESTS_STRIPPED = $(foreach i, $(XMLSCRIPTS_STRIPPED), $i.xml)
 XMLRESPONSES_STRIPPED = $(XMLREQUESTS_STRIPPED:.xml=.rsp_stripped)
 XMLGOODRESPONSE_STRIPPED = $(XMLREQUESTS_STRIPPED:.xml=rspgood.xml.stripped)
 
-ifeq ($(OS),linux)
+ifeq ($(OS),$(filter $(OS),linux zos))
 XMLREQUESTS_STRIPPED_MU = $(foreach i, $(XMLSCRIPTS_STRIPPED_MU), $i.xml)
 XMLRESPONSES_STRIPPED_MU = $(XMLREQUESTS_STRIPPED_MU:.xml=.rsp_stripped_diff)
 XMLGOODRESPONSE_STRIPPED_MU = $(XMLREQUESTS_STRIPPED_MU:.xml=rspgood.xml.stripped)

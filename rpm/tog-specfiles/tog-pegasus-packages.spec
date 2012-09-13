@@ -4,7 +4,7 @@
 Summary: The OpenPegasus Software Development Kit
 Group: Systems Management/Base
 Requires: %{Flavor}-pegasus >= %{version}
-Requires(preun): bash, ps, grep, chkconfig, rm, make
+Requires(preun): bash, procps, grep, coreutils, make
 Obsoletes: %{Flavor}-pegasus-sdk
 
 %description devel

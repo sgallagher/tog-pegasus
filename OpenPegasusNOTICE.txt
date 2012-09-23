@@ -2,13 +2,13 @@ OpenPegasus is subject to one or more of the following copyrights:
 
 	Copyright (c) 2000, 2004 BMC Software.
 	Copyright (c) 2003, 2008 EMC Corporation.
-	Copyright (c) 2000-2011 Hewlett-Packard Development Company, L.P.
-	Copyright (c) 2000-2011 IBM Corp.
-	Copyright (c) 2005-2011 Inova Development Inc.
+	Copyright (c) 2000-2012 Hewlett-Packard Development Company, L.P.
+	Copyright (c) 2000-2012 IBM Corp.
+	Copyright (c) 2005-2012 Inova Development Inc.
 	Copyright (c) 2000, 2003 Michael Day.
 	Copyright (c) 2008 Novell.
 	Copyright (c) 2006, 2007 Symantec Corporation.
-	Copyright (c) 2000-2008 The Open Group.
+	Copyright (c) 2000-2012 The Open Group.
 	Copyright (c) 2000, 2002 Tivoli Systems.
 	Copyright (c) 2004, 2005 VERITAS Software Corporation.
 

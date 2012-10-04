@@ -215,7 +215,7 @@ cimsub: option "-n" was unexpected
 cimsub: Use '--help' to obtain command syntax.
 
 Display version.
-Version 2.12.0
+Version 2.13.0
 
 Unexpected option, combine enable and disable.
 cimsub: option "-e" was unexpected

@@ -399,8 +399,8 @@ extern "C"
                         Logger::WARNING,
                         MessageLoaderParms(
                             "ProviderManager.CMPI.CMPI_Instance."
-                                "NO_SUCH_PROPERTY:",
-                            "Property $0 not set on the created instance of"
+                                "NO_SUCH_PROPERTY",
+                            "Property $0 not set on the created instance of "
                                 "class $1",
                             name,
                             inst->getClassName()));

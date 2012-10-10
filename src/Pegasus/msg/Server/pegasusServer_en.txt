@@ -6877,7 +6877,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is the property name
         *    Substitution {1} is the class name
         */
-        ProviderManager.CMPI.CMPI_Instance.NO_SUCH_PROPERTY:string {"Property {0} not set on the created instance of class {1}"}
+        ProviderManager.CMPI.CMPI_Instance.NO_SUCH_PROPERTY:string {"PGS16550: Property {0} not set on the created instance of class {1}"}
         
         // ==========================================================
         // Messages for EmailListenerDestination

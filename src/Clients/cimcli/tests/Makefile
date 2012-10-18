@@ -585,7 +585,7 @@ EmbeddedInstanceErrorTests:
 
 #d list of specific createEmbbedInstance Errors to execute
 createEmbeddedInstanceErrors: cier1 cier2 cier3 cier5 cier6 cier7 cier8 \
-        cier9 cier9 cier10 cier11 cier12 cier13
+        cier9 cier10 cier11 cier12 cier13
 	@$(ECHO) +++++ passed createEmbeddedInstance error tests \
 	    >> $(RESULTFILE)
 

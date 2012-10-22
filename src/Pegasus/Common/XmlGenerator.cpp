@@ -829,35 +829,16 @@ static const char _is_uri[128] =
 void XmlGenerator::_encodeURIChar(String& outString, Sint8 char8)
 {
     Uint8 c = (Uint8)char8;
-
-#ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
     if (c > 127 || _is_uri[int(c)])
     {
         char hexencoding[4];
         int n = sprintf(hexencoding, "%%%X%X", c/16, c%16);
-#ifdef PEGASUS_USE_STRING_EXTENSIONS
         outString.append(hexencoding, n);
-#else /* PEGASUS_USE_STRING_EXTENSIONS */
-        outString.append(hexencoding);
-#endif /* PEGASUS_USE_STRING_EXTENSIONS */
     }
     else
-#endif
     {
         outString.append((Uint16)c);
     }
-}
-
-String XmlGenerator::encodeURICharacters(const Buffer& uriString)
-{
-    String encodedString;
-
-    for (Uint32 i=0; i<uriString.size(); i++)
-    {
-        _encodeURIChar(encodedString, uriString[i]);
-    }
-
-    return encodedString;
 }
 
 String XmlGenerator::encodeURICharacters(const String& uriString)

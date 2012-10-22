@@ -42,7 +42,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
-static char LOCALE_ID_SEPARATOR_CHAR = '_';
 
 AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
     const String& acceptLanguageHeader)
@@ -265,6 +264,7 @@ String LanguageParser::buildContentLanguageHeader(
 #ifdef PEGASUS_HAS_ICU
 String& LanguageParser::convertLocaleIdToLanguageTag(String& localeId)
 {
+    static char LOCALE_ID_SEPARATOR_CHAR = '_';
     Uint32 index = 0;
     while ((index = localeId.find(index, LOCALE_ID_SEPARATOR_CHAR)) !=
                 PEG_NOT_FOUND)

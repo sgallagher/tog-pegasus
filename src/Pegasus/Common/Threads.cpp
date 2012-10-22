@@ -48,12 +48,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-namespace 
-{
-    //mutex used for synchronising threads calling _get_stack_multiplier
-    MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
-}
-
 void Threads::sleep(int msec)
 {
 #if defined(PEGASUS_HAVE_NANOSLEEP)

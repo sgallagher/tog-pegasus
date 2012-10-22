@@ -98,7 +98,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     CIMName                      methodName;
     CIMObjectPath                objectName;
     Buffer                    encoded;
-    Buffer                    objPath;
+    String                    objPath;
     Array<CIMKeyBinding>         keyBindings;
     Boolean                      multireq              = false;
     static Uint32                BUFFERSIZE            = 1024;
@@ -247,7 +247,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 //    "expected LOCALNAMESPACEPATH element");
                 //throw XmlValidationError(parser.getLine(),mlParms);
             }
-            objPath << namespaceName;
+            objPath.append(namespaceName);
         }
 
         //
@@ -267,12 +267,12 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             //
             if (XmlReader::getLocalClassPathElement (parser, objectName))
             {
-                objPath << objectName.toString();
+                objPath.append(objectName.toString());
             }
             else if (XmlReader::getLocalInstancePathElement (parser,
                 objectName))
             {
-                objPath << objectName.toString();
+                objPath.append(objectName.toString());
             }
             else
             {

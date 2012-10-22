@@ -3075,7 +3075,7 @@ Boolean XmlReader::getQualifierDeclElement(
     // Get ARRAYSIZE attribute:
 
     Uint32 arraySize = 0;
-    Boolean gotArraySize = getArraySizeAttribute(parser.getLine(),
+    getArraySizeAttribute(parser.getLine(),
         entry, "QUALIFIER.DECLARATION", arraySize);
 
     // Get flavor oriented attributes:

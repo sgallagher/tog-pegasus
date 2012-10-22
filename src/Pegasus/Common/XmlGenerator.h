@@ -72,7 +72,6 @@ public:
 
     static void appendSpecial(Buffer& out, const char* str, Uint32 size);
 
-    static String encodeURICharacters(const Buffer& uriString);
     static String encodeURICharacters(const String& uriString);
 
     static void indentedPrint(

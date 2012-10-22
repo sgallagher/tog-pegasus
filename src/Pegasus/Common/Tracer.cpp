@@ -609,11 +609,6 @@ void Tracer::_traceCString(
     else
     {
         //
-        // Since the message is blank, form a string using the pid and tid
-        //
-        char* tmpBuffer;
-
-        //
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //

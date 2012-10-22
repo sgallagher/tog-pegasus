@@ -348,7 +348,9 @@ SocketHandle Socket::createSocket(int domain, int type, int protocol)
         return socket(domain,type,protocol);
     }
 
+#ifdef PEGASUS_OS_ZOS
     bool sendTcpipMsg = true;
+#endif
 
     while (1)
     {

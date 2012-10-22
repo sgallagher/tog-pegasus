@@ -161,7 +161,13 @@ void ModuleController::_handle_async_request(AsyncRequest* rq)
                 target = _modules.next_of(target);
             }
             module_result = request->buildResponse();
-            AsyncModuleOperationResult *result = new AsyncModuleOperationResult(
+            // Do NOT remove the new operator !!!
+            // The constructor of AsyncModuleOperationResult does use its this
+            // pointer to put itself into a linked list
+            //
+            // see _res->put_async(this); in AsyncModuleOperationResult()
+            // in file pegasus/src/Pegasus/Common/CimomMessage.cpp
+            new AsyncModuleOperationResult(
                 rq->op,
                 async_results::OK,
                 static_cast<AsyncModuleOperationStart *>(rq)->_target_module,
@@ -206,7 +212,13 @@ void ModuleController::_handle_async_request(AsyncRequest* rq)
                 async_results::CIM_NAK);
         }
 
-        AsyncModuleOperationResult *result = new AsyncModuleOperationResult(
+        // Do NOT remove the new operator !!!
+        // The constructor of AsyncModuleOperationResult does use its this
+        // pointer to put itself into a linked list
+        //
+        // see _res->put_async(this); in AsyncModuleOperationResult constructor
+        // in file pegasus/src/Pegasus/Common/CimomMessage.cpp
+        new AsyncModuleOperationResult(
             rq->op,
             async_results::OK,
             static_cast<AsyncModuleOperationStart *>(rq)->_target_module,

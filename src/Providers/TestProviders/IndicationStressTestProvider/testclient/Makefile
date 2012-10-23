@@ -225,3 +225,13 @@ ifdef PEGASUS_TEST_USER_DEFINED
 	$(PROGRAM2) cleanup
 endif
 endif
+createSubscriptions:
+	$(PROGRAM2) setup$L WQL $p
+
+reregister_providerTests:
+	cimprovider -d -m IndicationStressTestProviderModule
+	cimprovider -d -m IndicationStressTestConsumerModule
+	cimprovider -e -m IndicationStressTestProviderModule
+	cimprovider -e -m IndicationStressTestConsumerModule
+	$(PROGRAM2) run 1 1 $I
+	$(PROGRAM2) cleanup

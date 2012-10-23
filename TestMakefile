@@ -320,6 +320,7 @@ endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_providerLifecycleIndicationTests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimListenAddress
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_interfaceRestrictionTest
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_providerReregisterTests 
 
 #####################
 #
@@ -970,6 +971,21 @@ run_providerLifecycleIndicationTests: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/TestProviderLifecycleIndications/testclient -f Makefile testLogFile
 
+
+#############################################################################
+#
+# Provider reregistration tests.
+#
+##############################################################################
+run_providerReregisterTests:FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
+	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient -f Makefile createSubscriptions
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
+	$(MAKE) --directory $(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient -f Makefile reregister_providerTests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	
 
 #############################################################################
 ##

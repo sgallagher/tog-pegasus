@@ -183,7 +183,6 @@ public:
         PEGASUS_PROVIDERMODULEGROUPFAIL_CALLBACK_T 
             providerModuleGroupFailCallback,
         PEGASUS_ASYNC_RESPONSE_CALLBACK_T asyncResponseCallback,
-        Boolean subscriptionInitComplete,
         ThreadPool * threadPool);
 
     ~ProviderAgentContainer();
@@ -207,6 +206,7 @@ public:
     */
     void cleanDisconnectedClientRequests();
     static void setAllProvidersStopped();
+    static void setSubscriptionInitComplete(Boolean value);
     void sendResponse(CIMResponseMessage *response);
 private:
     //
@@ -420,7 +420,7 @@ private:
         For more information, please see the description of the
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
-    Boolean _subscriptionInitComplete;
+    static Boolean _subscriptionInitComplete;
 
 
     /**
@@ -434,6 +434,7 @@ private:
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
 Mutex ProviderAgentContainer::_numProviderProcessesMutex;
 Boolean ProviderAgentContainer::_allProvidersStopped = false;
+Boolean ProviderAgentContainer::_subscriptionInitComplete = false;
 
 // Set this to a value that no valid CIMResponseMessage* will have.
 CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
@@ -448,7 +449,6 @@ ProviderAgentContainer::ProviderAgentContainer(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     PEGASUS_PROVIDERMODULEGROUPFAIL_CALLBACK_T providerModuleGroupFailCallback,
     PEGASUS_ASYNC_RESPONSE_CALLBACK_T asyncResponseCallback,
-    Boolean subscriptionInitComplete,
     ThreadPool* threadPool)
     :
       _bitness(bitness),
@@ -460,7 +460,6 @@ ProviderAgentContainer::ProviderAgentContainer(
       _providerModuleGroupFailCallback(providerModuleGroupFailCallback),
       _asyncResponseCallback(asyncResponseCallback),
       _isInitialized(false),
-      _subscriptionInitComplete(subscriptionInitComplete),
       _threadPool(threadPool)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -510,6 +509,11 @@ ProviderAgentContainer::~ProviderAgentContainer()
 void ProviderAgentContainer::setAllProvidersStopped()
 {
     _allProvidersStopped = true;
+}
+
+void ProviderAgentContainer::setSubscriptionInitComplete(Boolean value)
+{
+    _subscriptionInitComplete = value;
 }
 
 void ProviderAgentContainer::_startAgentProcess()
@@ -1683,7 +1687,6 @@ OOPProviderManagerRouter::OOPProviderManagerRouter(
     _responseChunkCallback = responseChunkCallback;
     _providerModuleGroupFailCallback = providerModuleGroupFailCallback;
     _asyncResponseCallback = asyncResponseCallback;
-    _subscriptionInitComplete = false;
     _threadPool = 
         new ThreadPool(0, "OOPProviderManagerRouter", 0, 0, deallocateWait);;
     PEG_METHOD_EXIT();
@@ -1814,7 +1817,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     else if (request->getType () ==
         CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
     {
-        _subscriptionInitComplete = true;
+        ProviderAgentContainer::setSubscriptionInitComplete(true);
 
         //
         //  Forward the CIMSubscriptionInitCompleteRequestMessage to
@@ -1825,7 +1828,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     else if (request->getType () ==
         CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
     {
-        _subscriptionInitComplete = false;
+        ProviderAgentContainer::setSubscriptionInitComplete(false);
 
         //
         //  Forward the CIMIndicationServiceDisabledRequestMessage to
@@ -2110,7 +2113,6 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
             _indicationCallback, _responseChunkCallback,
             _providerModuleGroupFailCallback,
             _asyncResponseCallback,
-            _subscriptionInitComplete,
             _threadPool);
         _providerAgentTable.insert(key, pa);
     }

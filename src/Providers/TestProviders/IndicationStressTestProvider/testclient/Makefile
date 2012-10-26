@@ -235,3 +235,4 @@ reregister_providerTests:
 	cimprovider -e -m IndicationStressTestConsumerModule
 	$(PROGRAM2) run 1 1 $I
 	$(PROGRAM2) cleanup
+

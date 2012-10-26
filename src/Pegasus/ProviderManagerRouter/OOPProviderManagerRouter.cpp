@@ -659,6 +659,8 @@ void ProviderAgentContainer::_initialize()
         v);
     Uint32 maxProviderProcesses = (Uint32)v;
 
+    char* end = 0;
+
     {
         AutoMutex lock(_numProviderProcessesMutex);
 
@@ -811,7 +813,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                  i != 0; i++)
             {
                 Boolean sendResponseNow = false;
-                CIMResponseMessage *response = 0;
+                CIMResponseMessage *response;
 
                 MessageType msgType = i.value()->requestMessage->getType();
 
@@ -938,7 +940,8 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                             CIM_ERR_FAILED,
                             MessageLoaderParms("ProviderManager."
                                 "OOPProviderManagerRouter."
-                                "REQUEST_RETRY_THREAD_ALLOCATION_FAILED",
+                                    "REQUEST_RETRY_THREAD_"
+                                "ALLOCATION_FAILED",
                                 "Failed to allocate a thread to "
                                    "retry a request in \"$0\".",
                                 _moduleOrGroupName));
@@ -1028,16 +1031,21 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
         if (response == _REQUEST_NOT_PROCESSED)
         {
             // Check for request message types that should not be retried.
-            if ((msgType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-                (msgType == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
-                (msgType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
-                (msgType == CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
-                (msgType == CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
+            if ((request->getType() ==
+                     CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
             {
                 response = request->buildResponse();
                 break;
             }
-            else if (msgType == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+            else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
             {
                 response = request->buildResponse();
                 CIMDisableModuleResponseMessage* dmResponse =
@@ -1217,9 +1225,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     // Remove this OutstandingRequestTable entry
                     {
                         AutoMutex tableLock(_outstandingRequestTableMutex);
-                        PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                            true,
-                            _outstandingRequestTable.remove(uniqueMessageId));
+                        Boolean removed =
+                            _outstandingRequestTable.remove(uniqueMessageId);
+                        PEGASUS_ASSERT(removed);
                     }
 
                     // A response value of _REQUEST_NOT_PROCESSED indicates
@@ -1254,9 +1262,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                 // Remove the OutstandingRequestTable entry for this request
                 {
                     AutoMutex tableLock(_outstandingRequestTableMutex);
-                    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                        true,
-                        _outstandingRequestTable.remove(uniqueMessageId));
+                    Boolean removed =
+                        _outstandingRequestTable.remove(uniqueMessageId);
+                    PEGASUS_ASSERT(removed);
                 }
                 PEG_METHOD_EXIT();
                 throw;
@@ -1570,10 +1578,9 @@ void ProviderAgentContainer::_processResponses()
                     if(foundEntry)
                     {  
                         // Remove the completed request from the table
-                        PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                            true,
-                            _outstandingRequestTable.remove(
-                                response->messageId));
+                        Boolean removed = _outstandingRequestTable.remove( \
+                            response->messageId);
+                        PEGASUS_ASSERT(removed);
                     }
 
                 }
@@ -1729,7 +1736,7 @@ void OOPProviderManagerRouter::_handleIndicationDeliveryResponse(
         return;
     }
 
-    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+    PEGASUS_ASSERT(false);
 }
 
 Message* OOPProviderManagerRouter::processMessage(Message* message)

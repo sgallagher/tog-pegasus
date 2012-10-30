@@ -84,7 +84,7 @@ public:
         const Uint32 portNumber);
 
     /**
-        Creates an HTTP connection with a Listener defined by
+        Creates an HTTPS connection with a Listener defined by
         the host and portNumber.
         @param host String defining the hostname of the listener.
         @param portNumber Uint32 defining the port number of the listener.

@@ -73,6 +73,8 @@ const CIMName PEGASUS_CLASSNAME_INDHANDLER_WSMAN =
     CIMNameCast("CIM_ListenerDestinationWSManagement");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG  =
     CIMNameCast("PG_ListenerDestinationSystemLog");
+const CIMName PEGASUS_CLASSNAME_LSTNRDST_FILE       =
+    CIMNameCast("PG_ListenerDestinationFile");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL       =
     CIMNameCast("PG_ListenerDestinationEmail");
 const CIMName PEGASUS_CLASSNAME_INDFILTER            =
@@ -182,6 +184,9 @@ const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION =
 // Delivery Mode
 const CIMName PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE =
     CIMNameCast("DeliveryMode");
+
+const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_FILE =
+    CIMNameCast("File");
 
 /**
     The name of the CreationTime property for PG_ListenerDestinationQueue.

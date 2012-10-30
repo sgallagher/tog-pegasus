@@ -29,7 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/ArrayInternal.h>
@@ -40,8 +39,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
-#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -4740,7 +4737,7 @@ Boolean IndicationService::_canCreate (
                 CIMTYPE_STRING,
                 true);
         }
-        else
+        else //Handler 
         {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
             // Name is an optional property for Handler. If Name key property
@@ -4901,7 +4898,7 @@ Boolean IndicationService::_canCreate (
         }
 
         //
-        //  Currently only six subclasses of the Listener Destination
+        //  Currently only seven subclasses of the Listener Destination
         //  class are supported -- further subclassing is not currently
         //  supported
         //
@@ -4916,8 +4913,12 @@ Boolean IndicationService::_canCreate (
                  (instance.getClassName ().equal
                   (PEGASUS_CLASSNAME_INDHANDLER_SNMP)) ||
                  (instance.getClassName ().equal
-                  (PEGASUS_CLASSNAME_INDHANDLER_WSMAN)))
+                  (PEGASUS_CLASSNAME_INDHANDLER_WSMAN)) ||
+                 (instance.getClassName ().equal
+                  (PEGASUS_CLASSNAME_LSTNRDST_FILE)))
+
         {
+
 #ifndef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
             if (instance.getClassName ().equal
             (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
@@ -5043,6 +5044,17 @@ Boolean IndicationService::_canCreate (
                     instance,
                     PEGASUS_PROPERTYNAME_SNMPVERSION,
                     _supportedSNMPVersion);
+            }
+
+            if (instance.getClassName().equal
+                (PEGASUS_CLASSNAME_LSTNRDST_FILE))
+            {
+                // Checks for required file path
+                _checkRequiredProperty(
+                    instance,
+                    PEGASUS_PROPERTYNAME_LSTNRDST_FILE,
+                    CIMTYPE_STRING,
+                    false);
             }
 
             if (instance.getClassName().equal

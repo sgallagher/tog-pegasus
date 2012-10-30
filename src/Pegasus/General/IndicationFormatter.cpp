@@ -240,12 +240,12 @@ String CIMValueLocalizer::_localizeDateTime(
             if (locale == 0)
             {
                 fmt.reset(DateFormat::createDateTimeInstance(
-                    DateFormat::MEDIUM, DateFormat::MEDIUM);
+                    DateFormat::MEDIUM, DateFormat::MEDIUM));
             }
             else
             {
                 fmt.reset(DateFormat::createDateTimeInstance(
-                    DateFormat::MEDIUM, DateFormat::MEDIUM, locale);
+                    DateFormat::MEDIUM, DateFormat::MEDIUM, locale));
             }
         }
         catch (...)

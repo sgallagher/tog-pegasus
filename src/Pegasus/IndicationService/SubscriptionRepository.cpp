@@ -1191,6 +1191,8 @@ void SubscriptionRepository::modifyInstance (
         instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
         instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
+        instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
         instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
@@ -1241,6 +1243,8 @@ void SubscriptionRepository::deleteInstance (
                  PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
              instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
              instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
              instanceName.getClassName().equal(

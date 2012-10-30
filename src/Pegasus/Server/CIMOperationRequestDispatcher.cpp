@@ -1123,6 +1123,13 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 indicationServiceId);
 
             _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_LSTNRDST_FILE,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
+
+
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_INDFILTER,
                 _wild,
                 String::EMPTY,

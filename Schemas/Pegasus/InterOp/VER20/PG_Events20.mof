@@ -31,6 +31,20 @@
 // ===================================================================
 #pragma locale ("en_US")
 
+// ====================================================================
+// PG_ListenerDestinationFile
+// ====================================================================
+   [Description (
+     "PG_ListenerDestinationFile describes the location where "
+     "indications are written. Currently only local file URI is supported. ")] 
+
+class PG_ListenerDestinationFile: CIM_ListenerDestination
+{
+      [Required, Description (
+           "A string specifying the path of local file")]
+   string file;
+};
+
 // ===================================================================
 // PG_IndicationHandlerSNMPMapper
 // ===================================================================

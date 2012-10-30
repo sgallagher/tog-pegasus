@@ -8066,6 +8066,17 @@ CIM server listening on HTTPS port {0}."}
         */
         HandlerService.DestinationQueue.INDICATION_DISCARDED_DESTINATIONQUEUE_FULL:string {"PGS21606: The indication with SequenceContext ''{0}'' and SequenceNumber ''{1}'' was discarded due to the destination queue was full."}
 
+        // ==========================================================
+        // Messages for FileListenerDestination
+        //  Please use message prefix "PGS21600 - PGS21649""
+        // ==========================================================
+
+        /**
+        * @note  PGS21606:
+        *    Substitution {0} file path
+        *    Do not translate path since it is path of the file
+        */
+        Handler.FileListenerDestination.FileListenerDestination.FAILED_TO_WRITE_INDICATION_TO_FILE:string {"PGS21600: Failed to write indication to local file ''{0}''."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

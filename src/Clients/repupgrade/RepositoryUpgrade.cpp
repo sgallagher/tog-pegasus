@@ -930,7 +930,7 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
     //  Get list of namespaces in repository
     //
     Array <CIMNamespaceName> nameSpaceNames;
-    nameSpaceNames = _newRepository->enumerateNameSpaces ();
+    nameSpaceNames = _newRepository->enumerateNameSpaces();
 
     Array <CIMName> filterHandlerClassNameArray;
 
@@ -946,6 +946,8 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
 #if defined(PEGASUS_ENABLE_EMAIL_HANDLER)
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_EMAIL);
 #endif
+    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_FILE);
+
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER_SNMP);
     filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDFILTER);
 

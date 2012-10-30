@@ -97,6 +97,7 @@ DIRS += \
     IndicationService \
     ManagedClient \
     DynListener \
+    Handler/FileURIHandler 
 
 TEST_DIRS += \
     ExportClient/tests \
@@ -108,7 +109,8 @@ TEST_DIRS += \
     ControlProviders/ProviderRegistrationProvider/tests \
     HandlerService/tests \
     IndicationService/tests \
-    DynListener/tests
+    DynListener/tests \
+    Handler/FileURIHandler/tests
 
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER

@@ -29,63 +29,54 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/PegasusAssert.h>
-#include <iostream>
-#include <Pegasus/Common/Dir.h>
-#include <Pegasus/Common/ArrayInternal.h>
 
-PEGASUS_USING_PEGASUS;
+#ifndef FILE_LISTENER_DESTINATION_H_
+#define FILE_LISTENER_DESTINATION_H_
+#include <Pegasus/Common/Constants.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
 PEGASUS_USING_STD;
 
-void test01()
+class PEGASUS_HANDLER_LINKAGE FileListenerDestination: public CIMHandler
 {
-    Array<String> names;
+public:
 
-    for (Dir dir("testdir"); dir.more(); dir.next())
+    FileListenerDestination()
     {
-    String name = dir.getName();
-
-    if (String::equal(name, ".") || String::equal(name, "..")
-        || String::equal(name, "CVS") || String::equal(name, ".svn"))
-    {
-        continue;
     }
 
-    names.append(name);
-    }
-
-    BubbleSort(names);
-    PEGASUS_TEST_ASSERT(names.size() == 3);
-    PEGASUS_TEST_ASSERT(String::equal(names[0], "a"));
-    PEGASUS_TEST_ASSERT(String::equal(names[1], "b"));
-    PEGASUS_TEST_ASSERT(String::equal(names[2], "c"));
-}
-
-int main(int argc, char** argv)
-{
-    try
+    virtual ~FileListenerDestination()
     {
-        test01();
-    }
-    catch (Exception& e)
-    {
-       cout << e.getMessage() << endl;
-       exit(1);
     }
 
-    try
+    void initialize(CIMRepository* repository);
+
+    void terminate()
     {
-        Dir dir("noSuchDirectory");
-    }
-    catch (CannotOpenDirectory &e )
-    {
-        cout << argv[0] << " Expected exceptions: " << e.getMessage() << endl;
-        cout << argv[0] << " +++++ passed all tests" << endl;
-        exit(0);
     }
 
-    PEGASUS_TEST_ASSERT(0);
-    exit(1);
+    void handleIndication(
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indication,
+        CIMInstance& handler,
+        CIMInstance& subscription,
+        ContentLanguageList& contentLanguages);
 
-    return 0;
-}
+private:
+
+    /**
+        Writes the indication to a local file.
+
+        @param  path     path to the file where indication is written
+        @param  formattedText  the formatted indication
+    */
+
+    void _recordIndicationToFile(
+        const char* path,
+        const String& formattedText);
+};
+
+#endif //FILE_LISTENER_DESTINATION_H_
+PEGASUS_NAMESPACE_END

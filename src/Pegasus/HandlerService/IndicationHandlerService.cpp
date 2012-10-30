@@ -436,7 +436,8 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
         }
     }
     else if ((className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
-             (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)))
+             (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
+             (className.equal (PEGASUS_CLASSNAME_LSTNRDST_FILE)))
     {
         if (request->deliveryStatusAggregator)
         {
@@ -561,11 +562,22 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        handlerId = String("snmpIndicationHandler");
    }
    else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+   {
        handlerId = String("SystemLogListenerDestination");
+   }
    else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+   {
        handlerId = String("EmailListenerDestination");
+   }
    else if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+   {
        handlerId = String("wsmanIndicationHandler"); 
+   }
+   else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_FILE))
+   {
+       handlerId = String("FileListenerDestination");
+   }
+
 
    PEGASUS_ASSERT(handlerId.size() != 0);
 

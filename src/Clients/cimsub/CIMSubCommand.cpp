@@ -2710,13 +2710,17 @@ Uint32 CIMSubCommand::_createSnmpMapperHandler(
     CIMInstance handlerInstance(creationClass);
     handlerInstance.addProperty(CIMProperty(CIMName("Name"), handlerName));
 
-    if (HostAddress::isValidIPV4Address(targetHost))
     {
-        targetHostFormat = 3; //Ipv4
-    }
-    else if(HostAddress::isValidIPV6Address(targetHost))
-    {
-        targetHostFormat = 4; //Ipv6
+        HostAddress tgtHost;
+        tgtHost.setHostAddress(targetHost);
+        if (tgtHost.getAddressType() == HostAddress::AT_IPV4)
+        {
+              targetHostFormat = 3; //Ipv4
+        }
+        else if(tgtHost.getAddressType() == HostAddress::AT_IPV6)
+        {
+            targetHostFormat = 4; //Ipv6
+        }
     }
     handlerInstance.addProperty(CIMProperty(
         PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST,

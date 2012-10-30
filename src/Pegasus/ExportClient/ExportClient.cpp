@@ -124,7 +124,9 @@ void ExportClient::_connect()
     String connectHost = _connectHost;
 
 #ifdef PEGASUS_ENABLE_IPV6
-    if ( HostAddress::isValidIPV6Address(connectHost))
+    HostAddress hst;
+    hst.setHostAddress(connectHost);
+    if (hst.getAddressType() == HostAddress::AT_IPV6)
     {
         connectHost = "[" + connectHost + "]";
     }

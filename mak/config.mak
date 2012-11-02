@@ -1251,16 +1251,6 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
     DEFINES += -DPEGASUS_ENABLE_REMOTE_CMPI
 endif
 
-############################################################
-#
-# Set any vendor-specific compile flags
-#
-############################################################
-
-ifdef PEGASUS_VENDOR_HP
-    DEFINES+= -DPEGASUS_VENDOR_HP
-endif
-
 
 ############################################################
 #

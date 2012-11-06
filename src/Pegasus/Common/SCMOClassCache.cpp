@@ -54,8 +54,6 @@ SCMOClassCache* SCMOClassCache::getInstance()
     return _theInstance;
 }
 
-#ifdef PEGASUS_USE_SCMO_CLASS_CACHE
-
 SCMOClassCache::~SCMOClassCache()
 {
     // Signal to all callers and work in progress that the SMOClassCache
@@ -461,52 +459,4 @@ void SCMOClassCache::DisplayCacheStatistics()
 }
 #endif
 
-
-#else // PEGASUS_USE_SCMO_CLASS_CACHE
-SCMOClass SCMOClassCache::getSCMOClass(
-        const char* nsName,
-        Uint32 nsNameLen,
-        const char* className,
-        Uint32 classNameLen)
-{
-    if (nsName && className && nsNameLen && classNameLen)
-    {
-
-         PEGASUS_ASSERT(_resolveCallBack);
-
-
-          SCMOClass tmp = _resolveCallBack(
-              CIMNamespaceNameCast(String(nsName,nsNameLen)),
-              CIMNameCast(String(className,classNameLen)));
-
-          if (tmp->isEpmpty())
-          {
-               // The requested class was not found !
-               // The modify lock is destroyed automaticaly !
-               return SCMOClass();
-          }
-
-          return SCMOClass(tmp);
-    }
-
-    return SCMOClass();
-
-}
-
-void SCMOClassCache::removeSCMOClass(
-    CIMNamespaceName cimNameSpace,
-    CIMName cimClassName)
-{
-}
-
-
-void SCMOClassCache::clear()
-{
-}
-
-#  ifdef PEGASUS_DEBUG
-void SCMOClassCache::DisplayCacheStatistics(){}
-#  endif
-
-#endif
 PEGASUS_NAMESPACE_END

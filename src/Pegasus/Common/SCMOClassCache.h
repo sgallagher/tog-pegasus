@@ -43,24 +43,7 @@ typedef SCMOClass (*SCMOClassCacheCallbackPtr)(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-//==============================================================================
-//
-// The class cache caches up PEGASUS_SCMO_CLASS_CACHE_SIZE SCMOClass
-// definitions in memory.  To override the default, define
-// PEGASUS_SCMO_CLASS_CACHE_SIZE in your build environment.
-// The functionality to deliver SCMOClass is needed anyway but the cache can be
-// degrated to a pass through functionality.
-// To suppress caching set PEGASUS_SCMO_CLASS_CACHE_SIZE to 0 in your build
-// environment.
-//==============================================================================
-
-#if !defined(PEGASUS_SCMO_CLASS_CACHE_SIZE)
-# define PEGASUS_SCMO_CLASS_CACHE_SIZE 32
-#endif
-
-#if (PEGASUS_SCMO_CLASS_CACHE_SIZE != 0)
-# define PEGASUS_USE_SCMO_CLASS_CACHE
-#endif
+#define PEGASUS_SCMO_CLASS_CACHE_SIZE 32
 
 struct SCMBClassCacheEntry
 {
@@ -138,8 +121,6 @@ private:
     // The call back function pointer to get CIMClass's
     SCMOClassCacheCallbackPtr _resolveCallBack;
 
-#ifdef PEGASUS_USE_SCMO_CLASS_CACHE
-
     // The cache array
     SCMBClassCacheEntry _theCache[PEGASUS_SCMO_CLASS_CACHE_SIZE];
 
@@ -158,13 +139,13 @@ private:
     // Indicator for destruction of the cache.
     Boolean _dying;
 
-#  ifdef PEGASUS_DEBUG
+#ifdef PEGASUS_DEBUG
     // Statistical data
     Uint32 _cacheReadHit;
     Uint32 _cacheReadMiss;
     Uint32 _cacheRemoveLRU;
     AtomicInt _contentionCount;
-#  endif
+#endif
 
     SCMOClassCache()
         : _resolveCallBack(NULL),
@@ -181,13 +162,13 @@ private:
             // set the lock counter to 1 to allow one next user to enter.
             _theCache[i].lock.set(1);
         }
-#  ifdef PEGASUS_DEBUG
+#ifdef PEGASUS_DEBUG
         // Statistical data
         _cacheReadHit = 0;
         _cacheReadMiss = 0;
         _cacheRemoveLRU = 0;
         _contentionCount.set(0);
-#  endif
+#endif
 
     };
 
@@ -229,7 +210,6 @@ private:
         _theCache[index].lock.set(1);
 
     };
-#endif
 };
 
 PEGASUS_NAMESPACE_END

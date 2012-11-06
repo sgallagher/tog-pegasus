@@ -33,12 +33,7 @@ include ../../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LIBRARIES = \
-    peghandlerservice \
-    pegrepository \
-    pegcommon \
-    pegclient \
-    pegconfig
+LIBRARIES := peghandlerservice $(LIBRARIES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

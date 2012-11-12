@@ -41,10 +41,11 @@ include $(ROOT)/mak/program.mak
 REPOSITORYDIR = $(TMP_DIR)
 RESULTFILE = $(TMP_DIR)/result
 
-RESULTMASTERFILE = $(TMP_DIR)/result.master
+RESULTMASTERFILE = result.master
 
-## test addidion of selected qualifierDecls. Note that this is not a complete
-## qualifierDecl test today but largely for fixes in bug 133
+## test addition of selected qualifierDecls. Note that this is not a complete
+## qualifierDecl test today but largely for fixes in bug 133 and a number
+## of errors in parsing the qualifierDecl
 tests:
 	@ $(RMREPOSITORY) $(REPOSITORYDIR)/repository
 	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" -nroot testqualifiers.mof

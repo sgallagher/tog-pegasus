@@ -133,7 +133,7 @@ class Test_CLITestProviderClass
 // Test_CLITestProviderLinkClass
 // ===================================================
 
-    [ASSOCIATION, 
+    [Association, 
     Version ( "1.0.0" ), 
     Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
@@ -164,7 +164,7 @@ class Test_CLITestProviderLinkClass
     string requestInputParameters;
 };
 <CLASS NAME="Test_CLITestProviderLinkClass">
-    <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+    <QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
         <VALUE>
             TRUE
         </VALUE>
@@ -202,7 +202,7 @@ class Test_CLITestProviderLinkClass
     </PROPERTY>
 </CLASS>
 <CLASS NAME="Test_CLITestProviderLinkClass">
-    <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+    <QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
         <VALUE>
             TRUE
         </VALUE>
@@ -241,7 +241,7 @@ class Test_CLITestProviderLinkClass
 </CLASS>
 8. +++++ Test QualifierDecl Operations
 
-Qualifier ASSOCIATION : boolean = FALSE, Scope(class association), 
+Qualifier Association : boolean = FALSE, Scope(class association), 
     Flavor(DisableOverride, ToSubclass);
 
 Qualifier Abstract : boolean = FALSE, Scope(class association indication), 
@@ -258,15 +258,12 @@ Qualifier Alias : string = null, Scope(property reference method),
 
 Qualifier ArrayType : string = "Bag", Scope(property parameter);
 
-Qualifier ASSOCIATION : boolean = FALSE, Scope(class association), 
+Qualifier Association : boolean = FALSE, Scope(class association), 
     Flavor(DisableOverride, ToSubclass);
 
 Qualifier BitMap : string[], Scope(property method parameter);
 
 Qualifier BitValues : string[], Scope(property method parameter), Flavor(EnableOverride, 
-    ToSubclass, Translatable);
-
-Qualifier CLASS : string = null, Scope(property method), Flavor(DisableOverride, 
     ToSubclass, Translatable);
 
 Qualifier Counter : boolean = FALSE, Scope(property method parameter);
@@ -299,7 +296,7 @@ Qualifier Ifdeleted : boolean = FALSE, Scope(association reference);
 Qualifier In : boolean = TRUE, Scope(parameter), Flavor(DisableOverride, 
     ToSubclass);
 
-Qualifier INDICATION : boolean = FALSE, Scope(class indication), Flavor(DisableOverride, 
+Qualifier Indication : boolean = FALSE, Scope(class indication), Flavor(DisableOverride, 
     ToSubclass);
 
 Qualifier Invisible : boolean = FALSE, Scope(class association property 
@@ -353,6 +350,9 @@ Qualifier Required : boolean = FALSE, Scope(property);
 
 Qualifier Revision : string = ".5", Scope(class association indication), 
     Flavor(EnableOverride, ToSubclass, Translatable);
+
+Qualifier Schema : string = null, Scope(property method), Flavor(DisableOverride, 
+    ToSubclass, Translatable);
 
 Qualifier Source : string = null, Scope(class association indication);
 
@@ -412,7 +412,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PROPERTY="true" PARAMETER="true"/><VALUE>Bag</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" ASSOCIATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -421,9 +421,6 @@ Qualifier Write : boolean = FALSE, Scope(property);
 
 <QUALIFIER.DECLARATION NAME="BitValues" TYPE="string" ISARRAY="true" TRANSLATABLE="true">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/></QUALIFIER.DECLARATION>
-
-<QUALIFIER.DECLARATION NAME="CLASS" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
-<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Counter" TYPE="boolean">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/><VALUE>FALSE</VALUE>
@@ -470,7 +467,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PARAMETER="true"/><VALUE>TRUE</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="INDICATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Indication" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" INDICATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -549,6 +546,9 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <QUALIFIER.DECLARATION NAME="Revision" TYPE="string" TRANSLATABLE="true">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/><VALUE>.5</VALUE>
 </QUALIFIER.DECLARATION>
+
+<QUALIFIER.DECLARATION NAME="Schema" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
+<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Source" TYPE="string">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/></QUALIFIER.DECLARATION>
@@ -619,7 +619,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PROPERTY="true" PARAMETER="true"/><VALUE>Bag</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" ASSOCIATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -628,9 +628,6 @@ Qualifier Write : boolean = FALSE, Scope(property);
 
 <QUALIFIER.DECLARATION NAME="BitValues" TYPE="string" ISARRAY="true" TRANSLATABLE="true">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/></QUALIFIER.DECLARATION>
-
-<QUALIFIER.DECLARATION NAME="CLASS" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
-<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Counter" TYPE="boolean">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/><VALUE>FALSE</VALUE>
@@ -677,7 +674,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PARAMETER="true"/><VALUE>TRUE</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="INDICATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Indication" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" INDICATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -756,6 +753,9 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <QUALIFIER.DECLARATION NAME="Revision" TYPE="string" TRANSLATABLE="true">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/><VALUE>.5</VALUE>
 </QUALIFIER.DECLARATION>
+
+<QUALIFIER.DECLARATION NAME="Schema" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
+<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Source" TYPE="string">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/></QUALIFIER.DECLARATION>
@@ -2213,7 +2213,7 @@ substituteHostName=
 // path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 
-    [ASSOCIATION, 
+    [Association, 
     Version ( "1.0.0" ), 
     Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
@@ -2237,7 +2237,7 @@ instance of Test_CLITestProviderLinkClass
 // path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 
-    [ASSOCIATION, 
+    [Association, 
     Version ( "1.0.0" ), 
     Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
@@ -2263,7 +2263,7 @@ instance of Test_CLITestProviderLinkClass
 // path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 
-    [ASSOCIATION, 
+    [Association, 
     Version ( "1.0.0" ), 
     Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "

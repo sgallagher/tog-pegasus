@@ -27,6 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 %{
+
   /* Flex grammar created from CIM Specification Version 2.2 Appendix A */
 
   /*
@@ -96,19 +97,15 @@
    setting the YYDEBUG compile flag and also setting YACCTRACE.
    ATTN: TODO: automate the debug information flags.
 */
-// Enable this define to compie Bison/Yacc tracing
-// ATTN: p3 03092003 ks Enabling this flag currently causes a compile error
-
-#define YYDEBUG 1
-//static int cimmof_debug;
-
-//extern cimmofParser g_cimmofParser;
+// Enable this define to compile Bison/Yacc tracing
+// #define YYDEBUG 1
 
 extern int   cimmof_lex(void);
 extern int   cimmof_error(...);
 extern char *cimmof_text;
 extern void  cimmof_yy_less(int n);
 extern int   cimmof_leng;
+extern char * metaQualifierName;
 
 
 /* ------------------------------------------------------------------- */
@@ -133,7 +130,7 @@ extern int   cimmof_leng;
   TYPED_INITIALIZER_VALUE g_typedInitializerValue;
 
 /* ------------------------------------------------------------------- */
-/* Pragmas, except for the Include pragma, are not handled yet    */
+/* Pragmas, except for the Include pragma, are not handled yet         */
 /* I don't understand them, so it may be a while before they are       */
 /* ------------------------------------------------------------------- */
   struct pragma {
@@ -166,6 +163,11 @@ static void MOF_trace2(const char * str, const char * S);
 
 %}
 
+/* minimum version of Bison is 2.3.                                   */
+/* Do not use Bison versions gt 2.3 because of license issues in      */
+/* generated files.                                                   */
+%require "2.3"
+
 %union {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -188,8 +190,6 @@ static void MOF_trace2(const char * str, const char * S);
   struct pragma            *pragma;
   TYPED_INITIALIZER_VALUE  *typedinitializer;
 }
-
-
 
 %token TOK_ALIAS_IDENTIFIER
 %token TOK_ANY
@@ -246,7 +246,6 @@ static void MOF_trace2(const char * str, const char * S);
 %token TOK_RIGHTCURLYBRACE
 %token TOK_RIGHTPAREN
 %token TOK_RIGHTSQUAREBRACKET
-%token TOK_SCHEMA
 %token TOK_SCOPE
 %token TOK_SEMICOLON
 %token TOK_SIGNED_DECIMAL_VALUE
@@ -1022,49 +1021,77 @@ compilerDirectivePragma: TOK_PRAGMA pragmaName
 **------------------------------------------------------------------------------
 */
 
+/**
+qualifierDeclaration = QUALIFIER qualifierName qualifierType scope
+                       [ defaultFlavor ] ";"
+*/
+
 qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
                        defaultFlavor TOK_SEMICOLON
 {
     $$ = cimmofParser::Instance()->newQualifierDecl(*$2, $3, *$4, *$5);
-    delete $2;
+    delete $2;  // String created in qualifierName
     delete $3;  // CIMValue object created in qualifierValue production
     delete $4;  // CIMScope object created in scope/metaElements production
 } ;
 
-
+/**
+qualifierType = ":" dataType [ array ] [ defaultValue ]
+*/
 qualifierValue: TOK_COLON dataType array typedDefaultValue
-{
-    $$ = valueFactory::createValue($2, $3,
-                                   ($4->type == CIMMOF_NULL_VALUE),
-                                   $4->value);
-    delete $4->value;
-} ;
+   {
+       $$ = valueFactory::createValue($2, $3,
+                                      ($4->type == CIMMOF_NULL_VALUE),
+                                      $4->value);
+       delete $4->value;
+   } ;
 
+/**
+   scope = "," SCOPE "(" metaElement *( "," metaElement ) ")"
+*/
+// empty implies no scope definition and is illegal
+scope: scope_begin metaElements TOK_RIGHTPAREN
+    {
+        $$ = $2;
+    } ;
+    | /* empty*/
+    {
+       // terminate in error, no scope statement
+          yyerror("\"scope\" definition required on Qualifier Declaration");
+    }
 
-scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = $2; } ;
-
-
+// Production set scope NONE
 scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN
     {
-    g_scope = CIMScope (CIMScope::NONE);
+        g_scope = CIMScope (CIMScope::NONE);
     } ;
 
-
-metaElements: metaElement { $$ = $1; }
+/* aggregate the keywords used to define scope */
+metaElements: metaElement
+        {   /* empty */  
+            $$ = $1;
+        }
     | metaElements TOK_COMMA metaElement
         {
             $$->addScope(*$3);
             delete $3;
         } ;
-// ATTN:  2001 P3 defer There is not CIMScope::SCHEMA. Spec Limit KS
 
-
+/* Resolve each possible scope keyword (metaElement). Each TOK adds a
+   returns one scope type.  The ASSOCIATION and INDICATION free the
+   variable metaQualifierName since that could be set either by the
+   Keywords as a Scope token or metaQualifier name (i.e. these keywords
+   usage is context sensitive) 
+   metaElement = CLASS / ASSOCIATION / INDICATION / QUALIFIER
+       PROPERTY / REFERENCE / METHOD / PARAMETER / ANY
+*/
 metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
-//           | TOK_SCHEMA      { $$ = new CIMScope(CIMScope::SCHEMA);       }
-           | TOK_SCHEMA        { $$ = new CIMScope(CIMScope::CLASS); }
-           | TOK_ASSOCIATION { $$ = new CIMScope(CIMScope::ASSOCIATION);  }
-           | TOK_INDICATION  { $$ = new CIMScope(CIMScope::INDICATION);   }
-//           | TOK_QUALIFIER   { $$ = new CIMScope(CIMScope::QUALIFIER); }
+           | TOK_ASSOCIATION { free(metaQualifierName);
+                               metaQualifierName = 0;
+                               $$ = new CIMScope(CIMScope::ASSOCIATION);  }
+           | TOK_INDICATION  { free(metaQualifierName);
+                               metaQualifierName = 0;
+                               $$ = new CIMScope(CIMScope::INDICATION);   }
            | TOK_PROPERTY    { $$ = new CIMScope(CIMScope::PROPERTY);     }
            | TOK_REFERENCE   { $$ = new CIMScope(CIMScope::REFERENCE);    }
            | TOK_METHOD      { $$ = new CIMScope(CIMScope::METHOD);       }
@@ -1072,7 +1099,10 @@ metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
            | TOK_ANY         { $$ = new CIMScope(CIMScope::ANY);          } ;
 
 
-// Correction KS 4 march 2002 - Set the default if empty
+// Set the default if no FlavorHead or accumulated explicitFlavors
+/**
+defaultFlavor = "," FLAVOR "(" flavor *( "," flavor ) ")"
+*/
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
     { $$ = &g_flavor; }
     | /* empty */
@@ -1081,28 +1111,20 @@ defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
         $$ = &g_flavor;
     } ;
 
-
-// Correction KS 4 March 2002 - set the defaults (was zero)
 // Set the flavors for the defaults required: via DEFAULTS
-
 flavorHead: TOK_FLAVOR TOK_LEFTPAREN
     {g_flavor = CIMFlavor (CIMFlavor::NONE);};
 
-
+// gather comma-separated explicitFlavor keywords into g_flavor
 explicitFlavors: explicitFlavor
     | explicitFlavors TOK_COMMA explicitFlavor ;
 
-
-// ATTN:KS-26/03/02 P2 This accumulates the flavor definitions.
-// However, it allows multiple instances
-// of any keyword.  Note also that each entity simply sets a bit so that you may
+// Get an explicitFlavor keyword and add to the g_flavor variable
+// This allows multiple instances of any keyword. 
+// Each entity simply sets a bit so that you may
 // set disable and enable and we will not know which overrides the other.
-// We need to create the function to insure that you cannot enable then
-//disable or accept the latter and override the former.
-
-// The compiler simply provides the flavors defined in the MOF and does not
-// make any assumptions about defaults, etc.  That is a problem for
-// resolution of the flavors.
+// Should create the function to insure that you cannot enable then
+// disable or accept the latter and override the former.
 
 explicitFlavor: TOK_ENABLEOVERRIDE
         { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); }
@@ -1112,17 +1134,18 @@ explicitFlavor: TOK_ENABLEOVERRIDE
     | TOK_TRANSLATABLE    { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); };
 
 
-flavor: overrideFlavors { $$ = &g_flavor; }
+flavor: overrideFlavors
+        {
+            $$ = &g_flavor;
+        }
     | /* empty */
-    {
-        g_flavor = CIMFlavor (CIMFlavor::NONE);
-        $$ = &g_flavor;
-    } ;
-
+       {
+           g_flavor = CIMFlavor (CIMFlavor::NONE);
+           $$ = &g_flavor;
+       } ;
 
 overrideFlavors: explicitFlavor
     | overrideFlavors explicitFlavor ;
-
 
 
 dataType: intDataType     { $$ = $1; }
@@ -1162,7 +1185,6 @@ qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET
         };
 
 qualifierListBegin: TOK_LEFTSQUAREBRACKET {
-    //yydebug = 1; stderr = stdout;
     YACCTRACE("qualifierListbegin");
     g_qualifierList.clear(); } ;
 
@@ -1186,14 +1208,30 @@ qualifier: qualifierName typedQualifierParameter flavor
     delete v;
 } ;
 
-qualifierName: TOK_SIMPLE_IDENTIFIER {
-        g_flavor = CIMFlavor (CIMFlavor::NONE); }
-    | metaElement {
-        $$ = new String((*$1).toString ());
-        g_flavor = CIMFlavor (CIMFlavor::NONE);
-        delete $1; } ;
-
-
+// Qualifier name is a SIMPLE_ID or one of the possible metaQualifier names
+// i.e. Association or Indication.
+qualifierName: TOK_ASSOCIATION
+    /* Allow the keywords for the metaqualiafiers but keep the
+       case sensitivity by using name from Lexer */
+        {
+            g_flavor = CIMFlavor (CIMFlavor::NONE);
+            $$ = new String(metaQualifierName);
+            free(metaQualifierName);
+            metaQualifierName = 0;
+        }
+    | TOK_INDICATION
+        {
+            g_flavor = CIMFlavor (CIMFlavor::NONE);
+            $$ = new String(metaQualifierName);
+            free(metaQualifierName);
+            metaQualifierName = 0;
+        }
+    | TOK_SIMPLE_IDENTIFIER
+        {
+            // KS Probably hangover for case when no scope supplied
+            g_flavor = CIMFlavor (CIMFlavor::NONE);
+            $$ = $1;
+        };
 
 typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN
         {

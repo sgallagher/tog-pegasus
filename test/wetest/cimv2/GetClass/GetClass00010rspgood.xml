@@ -5,7 +5,7 @@
 <IMETHODRESPONSE NAME="GetClass">
 <IRETURNVALUE>
 <CLASS NAME="CIM_InstalledProductImage">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>

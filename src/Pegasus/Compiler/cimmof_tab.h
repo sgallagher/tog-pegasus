@@ -97,16 +97,15 @@
      TOK_RIGHTCURLYBRACE = 310,
      TOK_RIGHTPAREN = 311,
      TOK_RIGHTSQUAREBRACKET = 312,
-     TOK_SCHEMA = 313,
-     TOK_SCOPE = 314,
-     TOK_SEMICOLON = 315,
-     TOK_SIGNED_DECIMAL_VALUE = 316,
-     TOK_SIMPLE_IDENTIFIER = 317,
-     TOK_STRING_VALUE = 318,
-     TOK_TOSUBCLASS = 319,
-     TOK_TRANSLATABLE = 320,
-     TOK_TRUE = 321,
-     TOK_UNEXPECTED_CHAR = 322
+     TOK_SCOPE = 313,
+     TOK_SEMICOLON = 314,
+     TOK_SIGNED_DECIMAL_VALUE = 315,
+     TOK_SIMPLE_IDENTIFIER = 316,
+     TOK_STRING_VALUE = 317,
+     TOK_TOSUBCLASS = 318,
+     TOK_TRANSLATABLE = 319,
+     TOK_TRUE = 320,
+     TOK_UNEXPECTED_CHAR = 321
    };
 #endif
 /* Tokens.  */
@@ -165,23 +164,22 @@
 #define TOK_RIGHTCURLYBRACE 310
 #define TOK_RIGHTPAREN 311
 #define TOK_RIGHTSQUAREBRACKET 312
-#define TOK_SCHEMA 313
-#define TOK_SCOPE 314
-#define TOK_SEMICOLON 315
-#define TOK_SIGNED_DECIMAL_VALUE 316
-#define TOK_SIMPLE_IDENTIFIER 317
-#define TOK_STRING_VALUE 318
-#define TOK_TOSUBCLASS 319
-#define TOK_TRANSLATABLE 320
-#define TOK_TRUE 321
-#define TOK_UNEXPECTED_CHAR 322
+#define TOK_SCOPE 313
+#define TOK_SEMICOLON 314
+#define TOK_SIGNED_DECIMAL_VALUE 315
+#define TOK_SIMPLE_IDENTIFIER 316
+#define TOK_STRING_VALUE 317
+#define TOK_TOSUBCLASS 318
+#define TOK_TRANSLATABLE 319
+#define TOK_TRUE 320
+#define TOK_UNEXPECTED_CHAR 321
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 169 "cimmof.y"
+#line 171 "cimmof.y"
 {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -205,7 +203,7 @@ typedef union YYSTYPE
   TYPED_INITIALIZER_VALUE  *typedinitializer;
 }
 /* Line 1489 of yacc.c.  */
-#line 206 "cimmoftemp.h"
+#line 204 "cimmoftemp.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -39,13 +39,6 @@
 #include "memobjs.h"
 #include "cimmof_tab.h"
 
-/*                                                                       */
-/*  7/27/2004: bug 1330, support for slash* comments, E Boden, IBM       */
-/*  8/14/2004: bug 544,  support for string escape characters, E Boden   */
-/*                                                                       */
-/*                                                                       */
-/*                                                                       */
-
 /* Avoid warn_unused_result warnings in Linux RPM build */
 #ifndef ECHO
 # define ECHO do { size_t ignored = fwrite(yytext, yyleng, 1, yyout); } while(0)
@@ -81,6 +74,9 @@ int switch_to_buffer_wrapper(void *buffstate, Boolean closeCurrent) {
 }
 
 char  strbuf[1024], *strbuf_p, slashx[2];
+
+/* Pointer to name for metaQualifiers communicated between lexer and parser */
+char * metaQualifierName;
 
 
 %}
@@ -132,7 +128,7 @@ class          { return(TOK_CLASS); }
        (but note; cimmof.y does not use yyleng!)
 
        an impl. req't: strings are returned to parser
-       with [no kidding!] enclosing "s.
+       with enclosing "s.
     */
 
 \"             { BEGIN(myStr); strbuf_p = strbuf;
@@ -185,7 +181,6 @@ class          { return(TOK_CLASS); }
                         /* --- end of bugzilla 544 fix --- */
 
 
-
 \/\*                    {   int c1=0, c2=yyinput();
                                 for(;;) {
                                      if (c2==EOF) break;
@@ -204,14 +199,20 @@ class          { return(TOK_CLASS); }
 [Oo][Ff]                             { return(TOK_OF); }
 [Qq][Uu][Aa][Ll][Ii][Ff][Ii][Ee][Rr] {return(TOK_QUALIFIER); }
 [Ss][Cc][Oo][Pp][Ee]                 { return(TOK_SCOPE); }
-[Ss][Cc][Hh][Ee][Mm][Aa]             { return(TOK_SCHEMA); }
-[Aa][Ss][Ss][Oo][Cc][Ii][Aa][Tt][Ii][Oo][Nn] {return(TOK_ASSOCIATION); }
-[Ii][Nn][Dd][Ii][Cc][Aa][Tt][Ii][Oo][Nn] { return(TOK_INDICATION); }
+
+[Aa][Ss][Ss][Oo][Cc][Ii][Aa][Tt][Ii][Oo][Nn] {
+                                       metaQualifierName = strdup(yytext);
+                                       return(TOK_ASSOCIATION); }
+[Ii][Nn][Dd][Ii][Cc][Aa][Tt][Ii][Oo][Nn] { 
+                                       metaQualifierName = strdup(yytext);
+                                       return(TOK_INDICATION); }
+
 [Pp][Rr][Oo][Pp][Ee][Rr][Tt][Yy]     { return(TOK_PROPERTY); }
 [Rr][Ee][Ff][Ee][Rr][Ee][Nn][Cc][Ee] { return(TOK_REFERENCE); }
 [Mm][Ee][Tt][Hh][Oo][Dd]             { return(TOK_METHOD); }
 [Pp][Aa][Rr][Aa][Mm][Ee][Tt][Ee][Rr] {return(TOK_PARAMETER); }
 [Aa][Nn][Yy]                         { return(TOK_ANY); }
+
 [Rr][Ee][Ff]                         { return(TOK_REF); }
 [Ff][Ll][Aa][Vv][Oo][Rr]             { return(TOK_FLAVOR); }
 [Ee][Nn][Aa][Bb][Ll][Ee][Oo][Vv][Ee][Rr][Rr][Ii][Dd][Ee] {

@@ -5,7 +5,7 @@
 <IMETHODRESPONSE NAME="EnumerateClasses">
 <IRETURNVALUE>
 <CLASS NAME="CIM_CollectionInSystem">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -51,7 +51,7 @@ The collection
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ProductFRU">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -92,7 +92,7 @@ The FRU.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_Statistics">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -128,7 +128,7 @@ The ManagedElement for which statistical or metric data is defined.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_FromDirectorySpecification">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -161,7 +161,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_RecordInLog">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -222,7 +222,7 @@ The Log entry contained within the MessageLog.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_CollectionSetting">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -258,7 +258,7 @@ The Setting object associated with the Collection.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_Indication">
-<QUALIFIER NAME="INDICATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Indication" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -282,7 +282,7 @@ The time and date of creation of the Indication. The property may be set to NULL
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_CollectionConfiguration">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -318,7 +318,7 @@ The Configuration object that groups the Settings and dependencies associated wi
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ElementCapacity">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -359,7 +359,7 @@ The PhysicalElement being described.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ProductSoftwareFeatures">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -407,7 +407,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ProductParentChild">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -453,7 +453,7 @@ The child Product in the association.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_StorageDefect">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -514,7 +514,7 @@ Error references the Error object, defining the starting and ending addresses th
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_CollectionInOrganization">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -560,7 +560,7 @@ The collection
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_FRUIncludesProduct">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -611,7 +611,7 @@ The Product which is a part of the FRU.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_SystemSettingContext">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -657,7 +657,7 @@ An aggregated Setting.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ActionSequence">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -693,7 +693,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_DiagnosticResultForTest">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -754,7 +754,7 @@ The test that generated the result object.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_DiagnosticResultForMSE">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -790,7 +790,7 @@ The ManagedSystemElement to which the diagnostic result applies.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_CompatibleProduct">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -833,7 +833,7 @@ CompatibilityDescription is a free-form string defining how the two referenced P
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_PhysicalElementLocation">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -874,7 +874,7 @@ The PhysicalElement&apos;s Location.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_FRUIncludesSoftwareFeature">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -927,7 +927,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_InstalledSoftwareElement">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -970,7 +970,7 @@ References the computer system hosting a particular software element.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_FibrePortActiveLogin">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1187,7 +1187,7 @@ MIF.DMTF|Fibre Channel Bus Port Extensions|001.2
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_CollectedCollections">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1233,7 +1233,7 @@ The &apos;collected&apos; Collection.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ElementConfiguration">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1269,7 +1269,7 @@ The Configuration object that groups the Settings and dependencies associated wi
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_NetworksInAdminDomain">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1320,7 +1320,7 @@ The LogicalNetworks that are hosted by the AdminDomain.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ToDirectoryAction">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1353,7 +1353,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_Dependency">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1394,7 +1394,7 @@ Dependent represents the object dependent on the Antecedent.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_DiagnosticResultInPackage">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1435,7 +1435,7 @@ The DiagnosticResult object that is one of the elements of the package.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_IndicationSubscription">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1471,7 +1471,7 @@ The Handler addressing delivery of the possible Indications of this subscription
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_RelatedStatistics">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1507,7 +1507,7 @@ The related statistics or metrics.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_BGPClustersInAS">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1558,7 +1558,7 @@ The Clusters that are contained in the AS.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_FromDirectoryAction">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1591,7 +1591,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_AFRelatedServices">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1632,7 +1632,7 @@ An AFService at the same IP packet-forwarding class level, but at a higher drop 
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ActsAsSpare">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1675,7 +1675,7 @@ HotStandby is a boolean indicating that the spare is operating as a hot standby.
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_OrgStructure">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1721,7 +1721,7 @@ The organizational child in this association,    i.e., the sub-unit or other own
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_SettingContext">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1767,7 +1767,7 @@ An aggregated Setting.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_FRUPhysicalElements">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1818,7 +1818,7 @@ The PhysicalElement which is a part of the FRU.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_NextService">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1873,7 +1873,7 @@ CIM_FilterEntry.TrafficClass
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_LogicalNetworkService">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1948,7 +1948,7 @@ Resides In
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_ElementSetting">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1984,7 +1984,7 @@ The Setting object associated with the ManagedSystemElement.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_DependencyContext">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2030,7 +2030,7 @@ An aggregated Dependency.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ProductSupport">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2066,7 +2066,7 @@ Support for the Product.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_Synchronized">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2116,7 +2116,7 @@ Boolean indicating whether synchronization is maintained.
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_ServiceProcess">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2175,7 +2175,7 @@ Executes as Independent Process
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_ParameterValueSources">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2211,7 +2211,7 @@ The ManagedElement which contains properties to be used to populate the values o
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_DirectorySpecificationFile">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2244,7 +2244,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ParametersForMethod">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2297,7 +2297,7 @@ The name of the method that may use this instance of MethodParameters during its
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_Export">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2345,7 +2345,7 @@ Name under which the Directory is exported.
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_AdjacentSlots">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2400,7 +2400,7 @@ Slots can be located in close proximity on HostingBoards or other Cards, such th
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_ProductPhysicalElements">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2451,7 +2451,7 @@ The PhysicalElement which is a part of the Product.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ToDirectorySpecification">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2484,7 +2484,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_InstalledProductImage">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2530,7 +2530,7 @@ The collection representing the set of software features and elements that are t
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_ProductProductDependency">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2942,7 +2942,7 @@ TRUE
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_SoftwareElementActions">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2990,7 +2990,7 @@ TRUE
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_PolicyComponent">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3041,7 +3041,7 @@ The child/part Policy in the association.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_SoftwareElementChecks">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3106,7 +3106,7 @@ Next-State
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_ParticipatesInSet">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3152,7 +3152,7 @@ The PhysicalElement which should be replaced with other Elements, as a Set.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_LogicalIdentity">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3224,7 +3224,7 @@ The Description property provides a textual description of the object.
 </PROPERTY>
 </CLASS>
 <CLASS NAME="CIM_ConfigurationComponent">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3270,7 +3270,7 @@ A Configuration that is part of a &apos;higher-level&apos; Configuration.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_Component">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3321,7 +3321,7 @@ The child element in the association.
 </PROPERTY.REFERENCE>
 </CLASS>
 <CLASS NAME="CIM_MemberOfCollection">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>

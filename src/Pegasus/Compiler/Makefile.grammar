@@ -39,7 +39,9 @@
 # were generated. Never use an older version of Bison than
 # indicated here. All of the generated files should be committed
 # after adding the OpenPegasus license to the top of each.
-# *************   REQUIRES BISON 2.3 or later   ***********
+# ******************   REQUIRES BISON 2.3   ***************
+# DO NOT USE Later than BISON 2.3 because of licensing issues
+# between OpenPegasus and Bison licensing on generated code.
 ############################################################## 
 
 ROOT = ../../..

@@ -41,7 +41,7 @@ include $(ROOT)/mak/program.mak
 REPOSITORYDIR = $(TMP_DIR)
 RESULTFILE = $(TMP_DIR)/result
 
-RESULTMASTERFILE = result.master
+RESULTMASTERFILE = $(ROOT)/src/$(DIR)/result.master
 
 ## test addition of selected qualifierDecls. Note that this is not a complete
 ## qualifierDecl test today but largely for fixes in bug 133 and a number

@@ -94,7 +94,6 @@ int main(int argc, char** argv)
 {
     String  oldRepositoryPath = argv[1];
     String  newRepositoryPath = argv[2];
-    Boolean bVerbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     CIMRepository oldRepository(oldRepositoryPath);
     CIMRepository newRepository(newRepositoryPath);

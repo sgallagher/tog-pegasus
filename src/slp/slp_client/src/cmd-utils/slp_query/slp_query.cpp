@@ -286,10 +286,6 @@ BOOL get_options(int argc, char *argv[])
 
 int main(int argc, char **argv)
 {
-#ifdef PEGASUS_ENABLE_IPV6
-    struct in6_addr ip6_loop = PEGASUS_IPV6_LOOPBACK_INIT;
-    struct in6_addr ip6_addr;
-#endif
     struct slp_client *client;
     lslpMsg responses, *temp;
 

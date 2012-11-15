@@ -247,6 +247,7 @@ int main(int argc, char** argv)
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
+        PEGASUS_TEST_ASSERT(0 != configManager);
 
         const char* path = getenv("PEGASUS_HOME");
         String pegHome = path;

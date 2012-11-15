@@ -1753,7 +1753,6 @@ void CIMProviderCommand::_printList(
     Uint32 maxModuleLength=0;
     Uint32 maxStatusLength=0;
 
-    Uint32 length=0;
     Array<Uint16> _status;
     String output;
     String statusValue;

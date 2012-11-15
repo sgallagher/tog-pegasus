@@ -234,7 +234,8 @@ printData (const CmpiData& d)
    case CMPI_instance:
    {
       L;CmpiInstance v = d.getInstance ();
-      cout << "Instance";
+      cout << "Instance:";
+      printInstance(v);
       break;
    }
    case CMPI_ref:

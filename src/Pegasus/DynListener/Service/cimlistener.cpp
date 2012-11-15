@@ -868,8 +868,6 @@ MessageLoader::_useProcessLocale = false;
     if (daemonOption)
         _cimListenerProcess->notify_parent(0);
 
-    time_t last = 0;
-
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
     defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) || \
     defined(PEGASUS_OS_PASE) || \

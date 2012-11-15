@@ -498,7 +498,7 @@ void testLanguageTag()
 
         try
         {
-            Boolean test = (lt1 == lt2);
+            (lt1 == lt2);
         }
         catch (UninitializedObjectException&)
         {

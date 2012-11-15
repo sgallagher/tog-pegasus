@@ -379,7 +379,8 @@ int main(int argc, char **argv)
 ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 {
     Thread* my_handle = reinterpret_cast<Thread *>(parm);
-    AtomicInt& count = *(reinterpret_cast<AtomicInt *>(my_handle->get_parm()));
+    AtomicInt * count = reinterpret_cast<AtomicInt *>(my_handle->get_parm());
+    PEGASUS_TEST_ASSERT(0 != count);
 
     char name_buf[128];
 
@@ -457,13 +458,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     MessageQueueService * server = static_cast<MessageQueueService *>(
         MessageQueue::lookup(serverQueue->getQueueId()));
-
-#if 0
-    legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
-
-    // ATTN: handleEnqueue() is not implemented
-    server->enqueue(legacy);
-#endif
+    PEGASUS_TEST_ASSERT(0 != server);
 
     if (verbose)
     {
@@ -501,8 +496,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
 ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
 {
-    Thread *my_handle = reinterpret_cast<Thread *>(parm);
-
     MessageQueueServer *q_server = new MessageQueueServer("test server") ;
 
     while (q_server->dienow.get()  < 3)

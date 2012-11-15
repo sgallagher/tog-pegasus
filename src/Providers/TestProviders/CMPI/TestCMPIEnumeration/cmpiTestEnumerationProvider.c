@@ -86,7 +86,6 @@ static int _testEnumeration (const CMPIContext * ctx,
     CMPIEnumeration* testEnumerationForAssociatorsClone = NULL;
     CMPIEnumeration* testEnumerationForAssociatorNames = NULL;
     CMPIEnumeration* testEnumerationForAssociatorNamesClone = NULL;
-    CMPIEnumeration* testEnumErrClone = NULL;
     CMPIEnumeration* enum_ptr = NULL;
 
     //data Arrays to store the values

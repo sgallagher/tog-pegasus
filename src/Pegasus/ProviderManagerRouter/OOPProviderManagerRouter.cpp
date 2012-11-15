@@ -659,8 +659,6 @@ void ProviderAgentContainer::_initialize()
         v);
     Uint32 maxProviderProcesses = (Uint32)v;
 
-    char* end = 0;
-
     {
         AutoMutex lock(_numProviderProcessesMutex);
 
@@ -1031,21 +1029,16 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
         if (response == _REQUEST_NOT_PROCESSED)
         {
             // Check for request message types that should not be retried.
-            if ((request->getType() ==
-                     CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-                (request->getType() ==
-                     CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
-                (request->getType() ==
-                     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
-                (request->getType() ==
-                     CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
-                (request->getType() ==
-                     CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
+            if ((msgType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+                (msgType == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
+                (msgType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+                (msgType == CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
+                (msgType == CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
             {
                 response = request->buildResponse();
                 break;
             }
-            else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+            else if (msgType == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
             {
                 response = request->buildResponse();
                 CIMDisableModuleResponseMessage* dmResponse =

@@ -599,8 +599,6 @@ BOOL slp_join_multicast(SOCKETD sock, struct slp_if_addr addr)
 {
 #ifdef PEGASUS_ENABLE_IPV6
     struct ipv6_mreq group;
-    unsigned long hash;
-    char buff[PEGASUS_INET6_ADDRSTR_LEN];
 #endif
     struct ip_mreq mreq;
     DEBUG_PRINT((DEBUG_ENTER, "slp_join_multicast "));

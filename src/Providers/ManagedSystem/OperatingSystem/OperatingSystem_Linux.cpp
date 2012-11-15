@@ -506,7 +506,6 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
    //   linux has no notion of kernel-level threads, this is the
    //   same as the total number of processes allowed.  should
    //   this change, the algorithm will need to change.
-   Uint32 count;
    const char proc_file[] = "/proc/sys/kernel/threads-max";
    char buffer[MAXPATHLEN];
 

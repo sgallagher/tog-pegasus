@@ -543,6 +543,7 @@ int main(int argc, char ** argv)
                             cnt++;
 
                             SelectStatement* ss = qexpr.getSelectStatement();
+                            PEGASUS_TEST_ASSERT(0 != ss);
 
                             String returnQuery = qexpr.getQuery();
                             PEGASUS_TEST_ASSERT(returnQuery == query);

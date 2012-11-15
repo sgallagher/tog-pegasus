@@ -34,11 +34,6 @@
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 
-/* ---------------------------------------------------------------------------*/
-static char * _ClassName = "cmpiPerf_TestClassB";
-/* ---------------------------------------------------------------------------*/
-
-
 /* method to create a CMPIObjectPath of this class                            */
 CMPIObjectPath * _makePath_TestClass(
     const CMPIBroker * _broker,

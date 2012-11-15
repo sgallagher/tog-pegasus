@@ -37,8 +37,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
-
 #ifdef PEGASUS_ENABLE_IPV6
 static void _testIPv6()
 {

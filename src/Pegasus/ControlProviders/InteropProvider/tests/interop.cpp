@@ -3336,7 +3336,6 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     pgmName = argv[0];
-    Boolean showNamespaces = false;
     if (argc > 1)
     {
         String cmd = argv[1];

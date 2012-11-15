@@ -418,7 +418,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,
         "CMPILocalProviderManager::_reaper()");
-    Thread *myself = reinterpret_cast<Thread *>(parm);
     do
     {
         _pollingSem.wait();

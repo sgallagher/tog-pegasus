@@ -2089,9 +2089,9 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     // callback asynchronously
     if (response)
     {
-        AsyncLegacyOperationResult* asyncResponse =
-            new AsyncLegacyOperationResult(
-                op, response);
+        // constructor of object is putting itself into a linked list
+        // DO NOT remove the new operator
+        new AsyncLegacyOperationResult(op, response);
 
         // By setting this to complete, this allows ONLY the callback to run
         // without going through the typical async request apparatus
@@ -2099,13 +2099,11 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     }
 
     // If ControlProviderName empty, forward to service.
-    if (controlProviderName == String::EMPTY)
+    if (0 == controlProviderName.size())
     {
-        AsyncLegacyOperationStart* asyncRequest =
-            new AsyncLegacyOperationStart(
-                op,
-                serviceId,
-                request);
+        // constructor of object is putting itself into a linked list
+        // DO NOT remove the new operator
+        new AsyncLegacyOperationStart(op,serviceId,request);
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "Forwarding %s to service %s. Response should go to queue %s.",
@@ -2124,12 +2122,13 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     }
     else
     {
-       AsyncModuleOperationStart* moduleControllerRequest =
-           new AsyncModuleOperationStart(
-               op,
-               serviceId,
-               controlProviderName,
-               request);
+        // constructor of object is putting itself into a linked list
+        // DO NOT remove the new operator
+        new AsyncModuleOperationStart(
+            op,
+            serviceId,
+            controlProviderName,
+            request);
 
        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
            "Forwarding %s to service %s, control provider %s. "
@@ -2205,12 +2204,13 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     }
     else
     {
-        AsyncModuleOperationStart* moduleControllerRequest =
-            new AsyncModuleOperationStart(
-                op,
-                serviceId,
-                controlProviderName,
-                request);
+        // constructor of object is putting itself into a linked list
+        // DO NOT remove the new operator
+        new AsyncModuleOperationStart(
+            op,
+            serviceId,
+            controlProviderName,
+            request);
 
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
@@ -3145,8 +3145,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             request->nameSpace,
             request->className,
             providerCount);
-
-    Uint32 toIssueCount = providerInfos.size();
 
     _checkEnumerateTooBroad(
         request->nameSpace, request->className, providerCount);

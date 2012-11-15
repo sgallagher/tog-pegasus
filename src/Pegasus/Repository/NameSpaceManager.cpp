@@ -453,7 +453,7 @@ void NameSpaceManager::validateNameSpace(
     const CIMNamespaceName& nameSpaceName) const
 {
     // Throws CIM_ERR_INVALID_NAMESPACE if the namespace does not exist.
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    _getNameSpace(nameSpaceName);
 }
 
 Array<CIMNamespaceName> NameSpaceManager::getDependentSchemaNameSpaceNames(

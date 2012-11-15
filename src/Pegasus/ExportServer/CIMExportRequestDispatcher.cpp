@@ -76,10 +76,8 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
         {
             Message* legacy_response = _handleExportIndicationRequest(
                 (CIMExportIndicationRequestMessage*) legacy);
-            AsyncLegacyOperationResult *async_result =
-                new AsyncLegacyOperationResult(
-                    req->op,
-                    legacy_response);
+            // constructor puts itself into a linked list, DO NOT remove the new
+            new AsyncLegacyOperationResult(req->op, legacy_response);
 
             _complete_op_node(req->op);
             delete legacy;

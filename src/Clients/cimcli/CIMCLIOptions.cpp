@@ -404,7 +404,7 @@ void lookupStringOption(Options& opts,
 {
     // Test for existing option. If nothing found, this
     // function exits cimcli with error status
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     if (om.lookupValue(optionName, optsTarget))
     {
@@ -421,7 +421,7 @@ void lookupStringOptionEMPTY(Options& opts,
     String& optsTarget)
 {
     // Test for Existing Option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     String temp;
     if (om.lookupValue(optionName, temp))
@@ -442,7 +442,7 @@ void lookupCIMNameOption(Options& opts,
     const CIMName& defaultValue)
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     String temp;
     if (om.lookupValue(optionName, temp))
@@ -484,7 +484,7 @@ void lookupUint32Option(Options& opts,
     const char* units = "")
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     optsTarget = 0;
     if (!om.lookupIntegerValue(optionName, optsTarget))
@@ -533,7 +533,7 @@ void lookupBooleanOption(Options& opts,
                    Boolean& optsTarget)
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     optsTarget = om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
@@ -548,7 +548,7 @@ void lookupBooleanOptionNegate(Options& opts,
                    Boolean& optsTarget)
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     optsTarget = !om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)

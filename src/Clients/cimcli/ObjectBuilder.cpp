@@ -215,7 +215,6 @@ tokenItem parseInputParam(const String& input)
     TokenType tokenType = UNKNOWN;
     String value;
     String name;
-    Uint32 pos;
 
     // Scan the input string for a terminator character.
     Uint32 index = 0;
@@ -393,7 +392,6 @@ Boolean _stringToArrayValue(
     CIMValue& val)
 {
     CIMType type = val.getType();
-    Uint32 arrayDimension = val.getArraySize();
     String parseStr(str);
 
     csvStringParse strl(parseStr, ',');

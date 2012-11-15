@@ -2366,8 +2366,6 @@ void testMessageSerialization()
     CIMException ex4(CIM_ERR_SUCCESS, "How can you have a \"success\" error?");
 
     // Operation flags
-    Boolean lo1 = false;
-    Boolean lo2 = true;
     Boolean di1 = false;
     Boolean di2 = true;
     Boolean iq1 = false;

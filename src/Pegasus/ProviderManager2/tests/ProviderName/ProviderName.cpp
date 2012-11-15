@@ -40,8 +40,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
-
 void test01()
 {
     /**

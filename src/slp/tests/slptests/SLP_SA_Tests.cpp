@@ -40,8 +40,6 @@
 PEGASUS_USING_PEGASUS;
 //Global variables used for SLP registrations and registration tests.
 static char *predicate;
-static BOOL parsable= TRUE;
-static char fs='\t', rs='\n';
 const char *scopes = "DEFAULT";
 #ifndef PEGASUS_SLP_REG_TIMEOUT
 int life = 0XFFFF;
@@ -417,7 +415,6 @@ void test5()
 {
     struct slp_client *client;
     lslpMsg responses,*temp;
-    char *changedata = (char *)NULL;
 
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA",

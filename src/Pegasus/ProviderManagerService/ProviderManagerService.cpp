@@ -512,8 +512,9 @@ void ProviderManagerService::handleCimRequest(
 
     if(!cimResponse->isAsyncResponsePending)
     {
-        AsyncLegacyOperationResult * async_result =
-            new AsyncLegacyOperationResult(
+        // constructor of object is putting itself into a linked list
+        // DO NOT remove the new operator
+        new AsyncLegacyOperationResult(
             op,
             response.release());
 
@@ -664,10 +665,9 @@ void ProviderManagerService::asyncResponseCallback(
         response->cimException = CIMException(CIM_ERR_FAILED, String());
     }
 
-    AsyncLegacyOperationResult * async_result =
-        new AsyncLegacyOperationResult(
-            op,
-            response);
+    // constructor of object is putting itself into a linked list
+    // DO NOT remove the new operator
+    new AsyncLegacyOperationResult(op, response);
 
     providerManagerService->_complete_op_node(op);
  

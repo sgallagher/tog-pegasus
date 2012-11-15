@@ -218,7 +218,6 @@ void DynamicIndicationProvider::invokeMethod(
     Uint32 severity;
     String classname;
     String description;
-    char buf[256];
 
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"Class %s",
         (const char*)objectReference.toString().getCString()));

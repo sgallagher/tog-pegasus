@@ -236,7 +236,6 @@ extern "C"
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
             SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-            CMPI_Result *xRes=(CMPI_Result*)eRes;
 
             appendInvocationFlags(inst);
 
@@ -303,7 +302,6 @@ extern "C"
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
             SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-            CMPI_Result *xRes=(CMPI_Result*)eRes;
 
             appendInvocationFlags(inst);
 
@@ -369,7 +367,7 @@ extern "C"
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
             SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-            CMPI_Result *xRes=(CMPI_Result*)eRes;
+            
             appendInvocationFlags(inst);
 
             // Ensure that the instance includes a valid ObjectPath with

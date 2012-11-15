@@ -306,6 +306,7 @@ int main(int argc, char** argv)
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
+        PEGASUS_TEST_ASSERT(0 != configManager);
 
         const char* path = getenv("PEGASUS_HOME");
         String pegHome = path;
@@ -338,6 +339,7 @@ int main(int argc, char** argv)
         // -- Create a UserManager object:
 
         UserManager* userManager = UserManager::getInstance(repository);
+        PEGASUS_TEST_ASSERT(0 != userManager);
 
         testHttpAuthHeader();
 

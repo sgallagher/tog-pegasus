@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Stack.h>
@@ -45,50 +41,51 @@ int main(int argc, char** argv)
 {
     try
     {
-    // Simple test with Uint32 Stack of push, pop, top, and tests.
-    Stack<Uint32> s1;
-    PEGASUS_TEST_ASSERT (s1.isEmpty());
+        // Simple test with Uint32 Stack of push, pop, top, and tests.
+        Stack<Uint32> s1;
+        PEGASUS_TEST_ASSERT (s1.isEmpty());
 
-    s1.push(1);
-    PEGASUS_TEST_ASSERT(s1.size() == 1);
-    PEGASUS_TEST_ASSERT (!s1.isEmpty());
+        s1.push(1);
+        PEGASUS_TEST_ASSERT(s1.size() == 1);
+        PEGASUS_TEST_ASSERT (!s1.isEmpty());
 
-    s1.push(2);
-    PEGASUS_TEST_ASSERT(s1.size() == 2);
-    PEGASUS_TEST_ASSERT (!s1.isEmpty());
+        s1.push(2);
+        PEGASUS_TEST_ASSERT(s1.size() == 2);
+        PEGASUS_TEST_ASSERT (!s1.isEmpty());
 
-    PEGASUS_TEST_ASSERT(s1.top() == 2);
+        PEGASUS_TEST_ASSERT(s1.top() == 2);
 
-    s1.pop();
-    PEGASUS_TEST_ASSERT(s1.size() == 1);
-    PEGASUS_TEST_ASSERT (!s1.isEmpty());
+        s1.pop();
+        PEGASUS_TEST_ASSERT(s1.size() == 1);
+        PEGASUS_TEST_ASSERT (!s1.isEmpty());
 
-    s1.pop();
-    PEGASUS_TEST_ASSERT(s1.size() == 0);
-    PEGASUS_TEST_ASSERT (s1.isEmpty());
+        s1.pop();
+        PEGASUS_TEST_ASSERT(s1.size() == 0);
+        PEGASUS_TEST_ASSERT (s1.isEmpty());
 
-    // Performance tests
+        // Performance tests
 
-    Stack<Uint32> s2;
-    Uint32 stackSize = 1000000;
+        Stack<Uint32> s2;
+        Uint32 stackSize = 1000000;
 
-    for (Uint32 i = 0; i < stackSize; i++)
-        s2.push(i);
+        for (Uint32 i = 0; i < stackSize; i++)
+            s2.push(i);
 
-    PEGASUS_TEST_ASSERT(s2.size() == stackSize);
-    for (Uint32 i = 0; i < stackSize; i++)
-        s2.pop();
+        PEGASUS_TEST_ASSERT(s2.size() == stackSize);
+        for (Uint32 i = 0; i < stackSize; i++)
+            s2.pop();
 
-    // SF-HP
-    Stack<Uint32> s3;
-        s3 = s1;
+        // SF-HP
+        Stack<Uint32> s3;
+            s3 = s1;
 
-    const Stack<Uint32> s4;
+        const Stack<Uint32> s4;
 
         // throws Stack underflow
         try
         {
             s4.top();
+            PEGASUS_TEST_ASSERT(false);
         }
         catch(StackUnderflow&)
         {
@@ -97,20 +94,23 @@ int main(int argc, char** argv)
         // throws OutOfBounds
         try
         {
-            Uint32 tmp = s4[0];
+            Uint32 tmp = 314;
+            tmp = s4[0];
+            PEGASUS_TEST_ASSERT(314 == tmp);
+            PEGASUS_TEST_ASSERT(false);
         }
         catch(IndexOutOfBoundsException&)
         {
         }
 
-    s1.push(2);
+        s1.push(2);
         Uint32 tmp = s1[0];
-
+        PEGASUS_TEST_ASSERT(2 == tmp);
     }
     catch (Exception& e)
     {
-    cout << "Exception: " << e.getMessage() << endl;
-    exit(1);
+        cout << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

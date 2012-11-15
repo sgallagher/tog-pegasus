@@ -434,8 +434,6 @@ void _testDuplicate(CIMClient &client)
 
 ThreadReturnType PEGASUS_THREAD_CDECL createSubscriptionFunc(void *parm)
 {
-    Thread* my_handle = reinterpret_cast<Thread *>(parm);
-    Boolean cimExceptionCaught = false;
     CIMClient client;
     CIMException theCIMException;
     try

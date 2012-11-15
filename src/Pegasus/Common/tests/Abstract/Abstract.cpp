@@ -39,9 +39,6 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
-    // get the output display flag.
-    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-
     try
     {
         const String NAMESPACE = "/zzz";

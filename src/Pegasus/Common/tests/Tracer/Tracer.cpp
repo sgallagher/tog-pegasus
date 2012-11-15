@@ -541,7 +541,6 @@ Uint32 test17()
 
 Uint32 test18()
 {
-    const char* METHOD_NAME = "test18";
     Tracer::setTraceComponents("Config,InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,
@@ -677,7 +676,6 @@ Uint32 test23()
 //
 Uint32 test24()
 {
-    const char* METHOD_NAME = "test24";
     Tracer::setTraceFacility("Log");
     Tracer::setTraceFile(FILE4);
     Tracer::setTraceComponents("ALL");
@@ -702,7 +700,6 @@ Uint32 test24()
 //
 Uint32 test25()
 {
-    const char* METHOD_NAME = "test25";
     Tracer::setTraceFacility("File");
     Tracer::setTraceFile(FILE4);
     Tracer::setTraceComponents("ALL");

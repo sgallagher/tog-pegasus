@@ -71,8 +71,6 @@ static AtomicInt _ai2(0);
 
 ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 {
-    Thread* thread = (Thread*)parm;
-
     for (;;)
     {
     const size_t N = 100000;

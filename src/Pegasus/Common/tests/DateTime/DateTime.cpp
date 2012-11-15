@@ -675,7 +675,7 @@ int main(int argc, char **argv)
             Boolean gotException = false;
             try
             {
-                Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+                CIMDateTime::getDifference(dt1, dt2);
             }
             catch(const InvalidDateTimeFormatException &)
             {
@@ -693,7 +693,7 @@ int main(int argc, char **argv)
             Boolean gotException = false;
             try
             {
-                Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+                CIMDateTime::getDifference(dt1, dt2);
             }
             catch(const InvalidDateTimeFormatException &)
             {
@@ -844,6 +844,7 @@ int main(int argc, char **argv)
         Uint64 tot_num3 = top_num3 + topA_num3;
         top_cdt3 += topA_cdt3;
         Uint64 top_3n = top_cdt3.toMicroSeconds();
+        PEGASUS_TEST_ASSERT(0 != top_3n);
         CIMDateTime tA(tot_num3, false);
         if (tA != top_cdt3)
         {
@@ -1057,6 +1058,7 @@ int main(int argc, char **argv)
         Uint64 dul_cn2 = dul2.toMicroSeconds() / d_num2;
         CIMDateTime dulc(dul_cn2, true);
         Uint64 r_num2 = r_c2.toMicroSeconds();
+        PEGASUS_TEST_ASSERT(0 != r_num2);
         if (dulc != r_c2)
         {
             PEGASUS_TEST_ASSERT(false);
@@ -1102,6 +1104,8 @@ int main(int argc, char **argv)
         Uint64 tii_an2 = tii_a2.toMicroSeconds();
         Uint64 div_n2 = tii_n2 / tii_an2;
         Uint64 div_c2 = tii2 / tii_a2;
+        PEGASUS_TEST_ASSERT(0 != div_n2);
+        PEGASUS_TEST_ASSERT(0 != div_c2);
         if (div_n != div_c)
         {
             PEGASUS_TEST_ASSERT(false);

@@ -55,20 +55,20 @@ bool resultTest(const Buffer& buffer, const char * result)
 
    else
     {
-        int maxLen = (int)strlen(result);
+        int resultLen = (int)strlen(result);
         const char* bufData = buffer.getData();
 
-        if (strlen(bufData) != strlen(result))
+        if (strlen(bufData) != resultLen)
         {
             cout << "Size diff error. str1 len = " << strlen(bufData)
-                 << " str2 len = " << strlen(result) << endl;
+                 << " str2 len = " << resultLen << endl;
         }
         cout << "Created Buffer\n<" << bufData
             << ">\nReference String\n<" << result << ">" << endl;
 
         // get min length
-        Uint32 cmplen = (strlen(bufData) < strlen(result))?
-             strlen(bufData) : strlen(result);
+        Uint32 cmplen = (strlen(bufData) < resultLen)?
+             strlen(bufData) : resultLen;
 
         for (Uint32 i = 0; i < cmplen; i++)
         {

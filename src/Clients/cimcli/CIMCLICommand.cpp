@@ -686,9 +686,6 @@ int main(int argc, char** argv)
         opts.client.setTimeout(opts.connectionTimeout * 1000);
     }
 
-    // Save the total connect time.
-    double totalConnectTime = opts.elapsedTime.getElapsed();
-
     // Setup the other timers.
     double totalTime = 0;
     Uint32 repeatCount = opts.repeat;

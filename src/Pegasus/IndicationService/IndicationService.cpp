@@ -3143,7 +3143,6 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
 
     Array<CIMInstance> matchedSubscriptions;
     Array<SubscriptionKey> matchedSubscriptionsKeys;
-    Uint32 timeout = request->timeoutMilliSec;
 
     CIMInstance indication = request->indicationInstance;
     
@@ -3430,8 +3429,6 @@ void IndicationService::_handleIndicationCallBack (
 
     IndicationService * service =
         static_cast<IndicationService *> (destination);
-    CIMInstance * subscription =
-        reinterpret_cast<CIMInstance *> (userParameter);
     AsyncReply * asyncReply =
         static_cast<AsyncReply *>(operation->removeResponse());
     CIMHandleIndicationResponseMessage* handlerResponse =
@@ -3446,11 +3443,6 @@ void IndicationService::_handleIndicationCallBack (
             "Sending Indication and HandlerService returns CIMException: %s",
             (const char*)
                 handlerResponse->cimException.getMessage().getCString()));
-
-        //
-        //  ATTN-CAKG-P1-20020326: Implement subscription's OnFatalErrorPolicy
-        //
-        //service->_subscriptionRepository->reconcileFatalError (*subscription);
     }
 
     delete handlerResponse;
@@ -8055,21 +8047,23 @@ void IndicationService::_sendAsyncDeleteRequests(
         Uint32 serviceId;
         if (!indicationProviders[i].controlProviderName.size())
         {
-            AsyncLegacyOperationStart * async_req =
-                new AsyncLegacyOperationStart(
-                   op,
-                   _providerManager,
-                   request);
+            // constructor puts the object itself into a linked list
+            // DO NOT remove the new !!!
+            new AsyncLegacyOperationStart(
+                op,
+                _providerManager,
+                request);
             serviceId = _providerManager;
         }
         else
         {
-           AsyncModuleOperationStart* moduleControllerRequest =
-               new AsyncModuleOperationStart(
-                   op,
-                   _moduleController,
-                   indicationProviders[i].controlProviderName,
-                   request);
+            // constructor puts the object itself into a linked list
+            // DO NOT remove the new !!!
+            new AsyncModuleOperationStart(
+                op,
+                _moduleController,
+                indicationProviders[i].controlProviderName,
+                request);
            serviceId = _moduleController;
         }
 

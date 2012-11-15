@@ -1487,8 +1487,6 @@ void SLPProvider::_processLinkLocalAddress( String &ip6add2check)
 */
 Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
 {
-    Boolean getByAssociator = false;
-
     // clear existing instances
     _instanceNames.clear();
     _instances.clear();
@@ -1537,8 +1535,6 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
         String protocol  = _getPropertyValueString(instancesObjMgrComm[i],
             CIMName("namespaceType"), "http");
 
-        Uint16 accessProtocol = _getPropertyValueUint16(instancesObjMgrComm[i],
-            CIMName("namespaceAccessProtocol"));
         // get ipaddress property
         String IPAddress = _getPropertyValueString(instancesObjMgrComm[i],
             CIMName("IPAddress"), "127.0.0.1");

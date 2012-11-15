@@ -691,7 +691,6 @@ CIMInstance InteropProvider::getHostedObjectManagerInstance(
 
     // Try to get the current object.  If true then it is already created.
     CIMInstance instance;
-    bool found = false;
 
     CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
     CIMObjectPath omPath = getObjectManagerInstance().getPath();

@@ -86,8 +86,7 @@ void showExamples()
         OperationExampleEntry example = operations.getExampleEntry();
         cout << loadMessage(example.msgKey, example.Example) << endl;
 
-
-        OperationTableEntry thisOperation = operations.next();
+        operations.next();
     }
 }
 
@@ -212,7 +211,6 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
         if (operations.find(cmd))
         {
             OperationTableEntry thisOperation = operations.get();
-            Uint32 index = operations.getIndex();
 
             OperationExampleEntry example = operations.getExampleEntry();
             // format the shortcut and

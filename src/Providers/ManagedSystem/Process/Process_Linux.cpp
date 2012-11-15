@@ -936,9 +936,6 @@ NOTES             :
 */
 Boolean Process::findProcess(const String& handle)
 {
-  int pIndex;
-
-
   // Convert handle to an integer
   int pid = atoi(handle.getCString());
 
@@ -1119,7 +1116,6 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
   static struct stat stat_buff;
   static char path[32];
   static char buffer[512];
-  int allocated = 0;
   DIR* procDir;
   int count;
 
@@ -1225,8 +1221,6 @@ void doPercentCPU(char *inputFileString, peg_proc_t *P)
   // Need to get current time/ process uptime, and calc the rest.
 
    unsigned long seconds_since_boot, seconds;
-   time_t t_now, t_then;
-   struct tm tm_now;
    unsigned long pcpu  = 0;
    unsigned long total_time;
 

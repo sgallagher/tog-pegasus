@@ -83,8 +83,10 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
       PEGASUS_TEST_ASSERT (_role == SERVER);
       Message *response_data =
         new Message (CIM_GET_INSTANCE_RESPONSE_MESSAGE);
-      async_complete *response_msg =
-        new async_complete (static_cast < async_start & >(*rq),
+
+      // DO NOT remove the new, the constructor is putting the object itself
+      // into a linked list
+      new async_complete (static_cast < async_start & >(*rq),
                             async_results::OK,
                             response_data);
       _complete_op_node (rq->op);
@@ -117,9 +119,6 @@ void
 test_async_queue::async_handleEnqueue (AsyncOpNode * op,
                                        MessageQueue * q, void *parm)
 {
-
-  // I am static, get a pointer to my object
-  test_async_queue *myself = static_cast < test_async_queue * >(q);
 
   async_start *rq = static_cast < async_start * >(op->removeRequest());
   PEGASUS_TEST_ASSERT(rq != 0);
@@ -213,8 +212,6 @@ main (int argc, char **argv)
 ThreadReturnType PEGASUS_THREAD_CDECL
 client_func (void *parm)
 {
-    Thread *myself = reinterpret_cast < Thread * >(parm);
-
     test_async_queue *client = new test_async_queue (test_async_queue::CLIENT);
 
     // find the server
@@ -245,11 +242,12 @@ client_func (void *parm)
             Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
 
             AsyncOpNode *op = client->get_op();
-            AsyncOperationStart *async_rq =
-                new AsyncOperationStart(
-                    op,
-                    serverQueue->getQueueId(),
-                    cim_rq);
+            // DO NOT remove the new, the constructor is putting the object
+            // itself into a linked list
+            new AsyncOperationStart(
+                op,
+                serverQueue->getQueueId(),
+                cim_rq);
             client->SendAsync(
                 op,
                 serverQueue->getQueueId(),
@@ -343,8 +341,6 @@ client_func (void *parm)
 ThreadReturnType PEGASUS_THREAD_CDECL
 server_func (void *parm)
 {
-  Thread *myself = reinterpret_cast < Thread * >(parm);
-
   test_async_queue *server = new test_async_queue (test_async_queue::SERVER);
 
   while (server->_die_now.get () < 1)

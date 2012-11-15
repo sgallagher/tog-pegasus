@@ -95,4 +95,6 @@ private:
   CmpiBroker cppBroker;
 };
 
+void printInstance (const CmpiInstance& inst);
+
 #endif

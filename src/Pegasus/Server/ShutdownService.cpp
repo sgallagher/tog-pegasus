@@ -222,8 +222,6 @@ void ShutdownService::shutdownCimomServices()
 
 void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
 {
-    MessageQueueService* _mqs = static_cast<MessageQueueService*>(_controller);
-
     MessageQueue *queue = MessageQueue::lookup(serviceName);
     Uint32 _queueId;
     if (queue)

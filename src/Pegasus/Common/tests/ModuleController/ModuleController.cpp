@@ -246,6 +246,8 @@ void _testModuleController()
             i % 2 ? testModule1 : testModule2,
             request);
 
+        PEGASUS_TEST_ASSERT(0 != mReq);
+
         testService->SendAsync(
             op,
             cqid,

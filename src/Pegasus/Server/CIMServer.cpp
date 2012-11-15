@@ -311,8 +311,7 @@ void CIMServer::_init()
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
-
-    UserManager* userManager = UserManager::getInstance(_repository);
+    UserManager::getInstance(_repository);
 
     // -- Create a SCMOClass Cache and set call back for the repository
 

@@ -55,7 +55,7 @@ tests:
 
 ##  Error tests. One mof file for each syntax error test. 1 - 9 are
 ##  Flavor error. 10-16 are Scope errors.
-	@ $(RM) $(RESULTFILE)
+	@ $(ECHO) > $(RESULTFILE)
 	-@ cimmofl -E -W badQualifierDecl1.mof >> $(RESULTFILE) 2>&1
 	-@ cimmofl -E -W badQualifierDecl2.mof >> $(RESULTFILE) 2>&1
 	-@ cimmofl -E -W badQualifierDecl3.mof >> $(RESULTFILE) 2>&1

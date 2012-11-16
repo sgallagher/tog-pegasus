@@ -55,7 +55,7 @@ bool resultTest(const Buffer& buffer, const char * result)
 
    else
     {
-        int resultLen = (int)strlen(result);
+        Uint32 resultLen = strlen(result);
         const char* bufData = buffer.getData();
 
         if (strlen(bufData) != resultLen)

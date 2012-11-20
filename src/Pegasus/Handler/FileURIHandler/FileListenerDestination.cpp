@@ -46,8 +46,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-
 void FileListenerDestination::initialize(CIMRepository* repository)
 {
 }
@@ -96,13 +94,13 @@ void FileListenerDestination::handleIndication(
         _recordIndicationToFile(
             (const char*)filePath.getCString(), indicationText);
     }
-    catch (Exception&e)
+    catch(const Exception&e)
     {
         PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "Exception: %s",
                     (const char*)e.getMessage().getCString()));
         PEG_METHOD_EXIT();
 
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        throw;
     }
     catch (...)
     {
@@ -123,7 +121,7 @@ void FileListenerDestination::_recordIndicationToFile(
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
             "FileListenerDestination::_recordIndicationToFile");
 
-    FILE *fd = fopen((const char*)path, "a");
+    FILE *fd = fopen(path, "a");
     if(fd)
     {
         if( fprintf(fd, "%s\n", (const char*)formattedText.getCString()) > 0)

@@ -36,8 +36,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-
 class PEGASUS_HANDLER_LINKAGE FileListenerDestination: public CIMHandler
 {
 public:
@@ -78,5 +76,6 @@ private:
         const String& formattedText);
 };
 
-#endif //FILE_LISTENER_DESTINATION_H_
 PEGASUS_NAMESPACE_END
+
+#endif //FILE_LISTENER_DESTINATION_H_

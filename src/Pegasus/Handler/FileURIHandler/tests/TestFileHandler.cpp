@@ -273,12 +273,10 @@ int main(int argc, char** argv)
     {
         client.connectLocal();
     }
-    catch (Exception & e)
+    catch (const Exception & e)
     {
-        PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
-            << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "Client connects local failed"
-            << PEGASUS_STD (endl);
+        cerr << "Exception: " << e.getMessage() << endl;
+        cerr << "Client connects local failed" << endl;
         return -1;
     }
 
@@ -325,33 +323,36 @@ int main(int argc, char** argv)
                     "with Indication ID {1}.",
                     textFormatParams);
         }
-        catch (Exception& e)
+        catch (const Exception& e)
         {
-            PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
-                << PEGASUS_STD (endl);
+            cerr << "Exception: " << e.getMessage() << endl;
             return -1;
         }
 
-        PEGASUS_STD (cout) << "+++++ setup completed succesfully +++++ \n";
+        cout << "+++++ setup completed succesfully +++++ \n";
     }
     else if( !strcmp( argv[1], "test"))
     {
+        bool gotException=false;
         try
         {
             // test bad File Listener handler
             testFileHandler( client,"badFileDestination", "TestFilter01");
 
         }
-        catch (Exception &e)
+        catch(const CannotOpenFile &e)
         {
-           PEGASUS_STD(cout) << "++++Testing File can not be opened+++++\n"
-           << e.getMessage() << ": Test passed\n";
+           cout << "++++Testing File can not be opened+++++\n"
+                << e.getMessage() << ": Test passed\n";
+
+           gotException=true;
         }
-        catch (...)
+        catch(...)
         {
-            PEGASUS_STD (cerr) << "Exception caught: Test Failed \n"; 
+            cerr << "Unexpected exception caught: Test Failed \n"; 
             return -1;
         }
+        PEGASUS_TEST_ASSERT(gotException);
 
         try
         {
@@ -359,14 +360,13 @@ int main(int argc, char** argv)
             testFileHandler( client,"goodFileDestination", "TestFilter01");
 
         }
-        catch (Exception& e)
+        catch (const Exception& e)
         {
-            PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
-                << PEGASUS_STD (endl);
+            cerr << "Exception: " << e.getMessage() << endl;
             return -1;
         }
 
-        PEGASUS_STD (cout) << "+++++ test completed succesfully +++++ \n";
+        cout << "+++++ test completed succesfully +++++ \n";
     }
     else if(!strcmp( argv[1], "clean"))
     {
@@ -386,16 +386,14 @@ int main(int argc, char** argv)
 
             client.disconnect();
         }
-        catch (Exception& e)
+        catch (const Exception& e)
         {
-            PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
-                << PEGASUS_STD (endl);
-            PEGASUS_STD (cerr) << "delete instance failed"
-                << PEGASUS_STD (endl);
+            cerr << "Exception: " << e.getMessage() << endl;
+            cerr << "delete instance failed" << endl;
             exit (-1);
         }
 
-        PEGASUS_STD (cout) << "+++++ cleanup successful+++++\n";
+        cout << "+++++ cleanup successful+++++\n";
     }
     else
     {

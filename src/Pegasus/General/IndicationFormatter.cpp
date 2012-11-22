@@ -290,7 +290,7 @@ String CIMValueLocalizer::_localizeDateTime(
             char* extractedStr = new char[strLen + 1];
             strLen = dateTimeUniStr.extract(0, strLen + 1, extractedStr);
             datetimeStr = extractedStr;
-            delete extractedStr;
+            delete [] extractedStr;
         }
         else
         {

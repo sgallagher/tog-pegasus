@@ -130,17 +130,80 @@ int WindowsStartNetwork();
 #endif   /* WIN 32 */
 
 
+// Some versions of Visual C++ such as Visual C++ 10 
+// have the  error codes defined in errno.h,
+// defining that error  in lslp-windows.h cause
+// a lot of warning of redefinition .
+// To avoid these warning ,undef these error 
+// codes if the errors code are not matching 
+
+#if defined (ENOTSOCK) && (ENOTSOCK != WSAENOTSOCK)
+#undef ENOTSOCK
+#endif 
+#if defined (EADDRNOTAVAIL) && (EADDRNOTAVAIL != WSAEADDRNOTAVAIL)
+#undef EADDRNOTAVAIL
+#endif 
+#if defined (EAFNOSUPPORT) && (EAFNOSUPPORT != WSAEAFNOSUPPORT)
+#undef EAFNOSUPPORT
+#endif 
+#if defined (EISCONN) && (EISCONN != WSAEISCONN)
+#undef EISCONN
+#endif 
+#if defined (ETIMEDOUT) && (ETIMEDOUT != WSAETIMEDOUT)
+#undef ETIMEDOUT
+#endif 
+#if defined (ECONNREFUSED) && (ECONNREFUSED != WSAECONNREFUSED)
+#undef ECONNREFUSED
+#endif 
+#if defined (ENETUNREACH) && (ENETUNREACH != WSAENETUNREACH)
+#undef ENETUNREACH
+#endif 
+#if defined (EADDRINUSE) && (EADDRINUSE != WSAEADDRINUSE)
+#undef EADDRINUSE
+#endif 
+#if defined (EINPROGRESS) && (EINPROGRESS != WSAEINPROGRESS)
+#undef EINPROGRESS
+#endif
+#if defined (EALREADY) && (EALREADY != WSAEALREADY)
+#undef EALREADY
+#endif 
+#if defined (EWOULDBLOCK) && (EWOULDBLOCK != WSAEWOULDBLOCK)
+#undef EWOULDBLOCK
+#endif
+ 
+#if !defined (ENOTSOCK)
 #define ENOTSOCK WSAENOTSOCK
+#endif
+#if !defined (EADDRNOTAVAIL)
 #define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+#endif 
+#if !defined (EAFNOSUPPORT)
 #define EAFNOSUPPORT WSAEAFNOSUPPORT
+#endif 
+#if !defined (EISCONN)
 #define EISCONN WSAEISCONN
+#endif 
+#if !defined (ETIMEDOUT)
 #define ETIMEDOUT WSAETIMEDOUT
+#endif
+#if !defined (ECONNREFUSED)
 #define ECONNREFUSED WSAECONNREFUSED
+#endif
+#if !defined (ENETUNREACH)
 #define ENETUNREACH WSAENETUNREACH
+#endif 
+#if !defined (EADDRINUSE)
 #define EADDRINUSE WSAEADDRINUSE
+#endif
+#if !defined (EINPROGRESS)
 #define EINPROGRESS WSAEINPROGRESS
+#endif
+#if !defined (EALREADY)
 #define EALREADY WSAEALREADY
+#endif
+#if !defined (EWOULDBLOCK)
 #define EWOULDBLOCK WSAEWOULDBLOCK
+#endif
 
 
 #define _LSLP_SOCKET(a, b, c) socket(((int)(a)), ((int)(b)), ((int)(c)))

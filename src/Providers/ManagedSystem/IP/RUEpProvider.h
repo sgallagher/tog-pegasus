@@ -36,6 +36,7 @@
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Providers/ManagedSystem/IP/IPPlatform.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/StringConversion.h>
 
 
 PEGASUS_USING_STD;

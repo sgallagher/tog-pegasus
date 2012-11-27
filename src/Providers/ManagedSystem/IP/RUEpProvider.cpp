@@ -539,7 +539,7 @@ void RUEpProvider::_createAssociationInstances(
     Uint16 nhrInstSize = nhrInst.size();
     Uint16 ipifInstSize = ipifInst.size();
 
-    for (Uint16 i = 0; i<nhrInstSize; i++)  // Routes loop.
+    for (Uint16 i = 0; i < nhrInstSize; i++)  // Routes loop.
     {
         CIMInstance _nhrInstRet, _ipifInstRet;
         CIMInstance _nhrInst = nhrInst[i];
@@ -596,8 +596,11 @@ void RUEpProvider::_createAssociationInstances(
                 }
                 else
                 {
+                    char buffer[22];
+                    Uint32 sz;
+                    String _piftStr = Uint16ToString(buffer, _pift, sz);
                     throw CIMOperationFailedException(
-                        "ProtocolIFType == " +  _pift );
+                        "ProtocolIFType == " +  _piftStr );
                 }
             }
 
@@ -640,8 +643,11 @@ void RUEpProvider::_createAssociationInstances(
                     }
                     else
                     {
+                        char buffer[22];
+                        Uint32 sz;
+                        String _addrtStr = Uint16ToString(buffer, _addrt, sz);
                         throw CIMOperationFailedException(
-                            "Unknown AddressType = " + _addrt);
+                            "Unknown AddressType = " + _addrtStr);
                     }
                 }
 

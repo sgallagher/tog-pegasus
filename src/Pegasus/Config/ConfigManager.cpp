@@ -112,6 +112,8 @@ static struct OwnerEntry _properties[] =
 #ifdef PEGASUS_ENABLE_SLP
     {"slp",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"slpProviderStartupTimeout",
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
     {"enableAssociationTraversal",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},

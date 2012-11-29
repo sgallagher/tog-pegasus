@@ -39,6 +39,9 @@
     {"listenAddress", "All", IS_STATIC, IS_VISIBLE},
     {"hostname", "", IS_STATIC, IS_VISIBLE},
     {"fullyQualifiedHostName", "", IS_STATIC, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_SLP
+    {"slpProviderStartupTimeout", "300000", IS_STATIC, IS_VISIBLE},
+#endif
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "DefaultPropertyTableLinux.h"
 #elif defined(PEGASUS_OS_SOLARIS)

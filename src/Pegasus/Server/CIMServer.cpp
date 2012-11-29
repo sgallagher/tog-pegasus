@@ -52,6 +52,7 @@
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
+#include <Pegasus/Common/StringConversion.h>
 
 #include <Pegasus/General/SSLContextManager.h>
 
@@ -1228,8 +1229,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
     try
     {
         client.connectLocal();
-        // set client timeout to 2 seconds
-        client.setTimeout(40000);
+
+        String timeoutStr=
+            ConfigManager::getInstance()->getCurrentValue(
+                "slpProviderStartupTimeout");
+        Uint64 timeOut;
+
+        StringConversion::decimalStringToUint64(
+            timeoutStr.getCString(),
+            timeOut);
+        client.setTimeout(timeOut & 0xFFFFFFFF);
+        
         String referenceStr = "//";
         referenceStr.append(hostStr);
         referenceStr.append("/");
@@ -1243,12 +1253,29 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
         Array<CIMParamValue> inParams;
         Array<CIMParamValue> outParams;
 
-        CIMValue retValue = client.invokeMethod(
-            PEGASUS_NAMESPACENAME_INTERNAL,
-            reference,
-            CIMName("register"),
-            inParams,
-            outParams);
+        Uint32 retries = 3;
+
+        while (retries > 0)
+        {
+            try
+            {
+                CIMValue retValue = client.invokeMethod(
+                    PEGASUS_NAMESPACENAME_INTERNAL,
+                    reference,
+                    CIMName("register"),
+                    inParams,
+                    outParams);
+                break;
+            }
+            catch(ConnectionTimeoutException&)
+            {
+                retries--;
+                if (retries == 0)
+                {
+                    throw;
+                }
+            }
+        }
 
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,

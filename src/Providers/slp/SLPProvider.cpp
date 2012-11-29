@@ -102,6 +102,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1800,7 +1802,19 @@ void SLPProvider::invokeMethod(
         {
             if (initFlag == false)
             {
-                if (issueSLPRegistrations(context))
+                OperationContext myCopy = context;
+                String timeoutStr=
+                    ConfigManager::getInstance()->getCurrentValue(
+                        "slpProviderStartupTimeout");
+                Uint64 timeOut;
+                
+                StringConversion::decimalStringToUint64(
+                    timeoutStr.getCString(),
+                    timeOut);
+
+                myCopy.insert(TimeoutContainer(timeOut & 0xFFFFFFFF));
+
+                if (issueSLPRegistrations(myCopy))
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
                 // issueRegistration sets initFlag to true.

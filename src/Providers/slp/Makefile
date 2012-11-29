@@ -30,7 +30,6 @@ ROOT = ../../..
 
 DIR = Providers/slp
 
-DEFINES += -DPEGASUS_DEBUG
 include $(ROOT)/mak/config.mak
 
 LIBRARY = SLPProvider

@@ -491,6 +491,16 @@ Boolean DefaultPropertyOwner::isValid(
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
             (v != 0);
     }
+#ifdef PEGASUS_ENABLE_SLP
+    if (String::equal(name, "slpProviderStartupTimeout"))
+    {
+        Uint64 v;
+        return
+            StringConversion::decimalStringToUint64(value.getCString(), v) &&
+            StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
+            (v != 0);
+    }
+#endif
     if (String::equal(name, "maxProviderProcesses") ||
         String::equal(name, "idleConnectionTimeout") ||
         String::equal(name, "maxFailedProviderModuleRestarts"))

@@ -3090,6 +3090,44 @@ configuration properties.</p>
        </tbody></table>
 </p></ul>
 
+<h5>slpProviderStartupTimeout</h5>
+<ul>
+  <b>Description:&nbsp;</b>Timeout value in milli seconds used to specify 
+    how long the registration with an SLP SA may take. Registration will be 
+    retried three times. This value only needs to be increased in case that 
+    the loading of a set of providers who reporting their implementation of a 
+    registered profile takes very long.<br>
+  <b>Default Value:&nbsp;</b>300000<br>
+  <b>Recommended Default Value (Development Build): </b>300000<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>300000<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>No<p>&nbsp;<br>
+  <br>
+     <table bordercolordark="#666666" bordercolorlight="#CCCCCC" style="font-family: Arial;" border="1" cellspacing="1" height="80" width="531">
+       <tbody><tr>
+         <th bgcolor="#cae6ca" height="16" width="168">Platform</th>
+         <th bgcolor="#cae6ca" height="16" width="350">
+           Source Configuration File</th>
+       </tr>
+       <tr align="center">
+        <td height="14" width="168">Linux</td>
+         <td align="left" height="14" width="350">
+           Pegasus/Config/DefaultPropertyTable.h</td>
+       </tr>
+       <tr align="center">
+         <td height="14" width="168">HP-UX</td>
+         <td align="left" height="14" width="350">
+           Pegasus/Config/DefaultPropertyTable.h</td>
+       </tr>
+       <tr align="center">
+         <td height="16" width="168">OpenVMS</td>
+         <td align="left" height="16" width="350">
+           Pegasus/Config/DefaultPropertyTable.h</td>
+       </tr>
+       </tbody></table>
+</p></ul>
+
 <h5>socketWriteTimeout</h5>
 <ul>
   <b>Description:&nbsp;</b>If the CIM Server receives an

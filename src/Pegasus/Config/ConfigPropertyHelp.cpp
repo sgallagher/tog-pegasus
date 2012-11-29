@@ -297,7 +297,14 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "If set to a positive integer, defines the minimal time interval in\n"
         "seconds indication service waits before retrying delivery of\n"
         "indication to a listener destination that previously failed.\n"
-        "Cimserver may take longer due to QoS or other processing."}
+        "Cimserver may take longer due to QoS or other processing."},
+
+    {"slpProviderStartupTimeout",
+        "Timeout value in milli seconds used to specify how long the\n"
+        "registration with an SLP SA may take. Registration will be retried\n"
+        "three times. This value only needs to be increased in case that\n"
+        "the loading of a set of providers who reporting their implementation\n"
+        "of a registered profile takes very long."}
 };
 
 Uint32 configPropertyDescriptionListSize =

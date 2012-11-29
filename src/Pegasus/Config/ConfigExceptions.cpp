@@ -34,6 +34,102 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+    MissingCommandLineOptionArgument Exception class
+*/
+MissingCommandLineOptionArgument::MissingCommandLineOptionArgument(
+    const String& optionName):Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.MISSING_CMDLINE_OPTION",
+            "Missing command line option argument: $0",
+            optionName))
+{
+}
+
+/**
+    UnrecognizedCommandLineOption Exception class
+*/
+UnrecognizedCommandLineOption::UnrecognizedCommandLineOption()
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.UNRECOGNIZED_CMDLINE_OPTION",
+            "Unrecognized command line option. "))
+{
+}
+
+
+/**
+    InvalidPropertyValue Exception class
+*/
+InvalidPropertyValue::InvalidPropertyValue(
+    const String& name,
+    const String& value)
+        :Exception(
+            MessageLoaderParms(
+                "Config.ConfigExceptions.INVALID_PROPERTY_VALUE",
+                "Invalid property value: $0=$1",
+                name,
+                value))
+{
+}
+
+InvalidPropertyValue::InvalidPropertyValue(const MessageLoaderParms& theMessage)
+         :Exception(theMessage)
+{
+}
+
+
+/**
+    InvalidDirectoryPropertyValue Exception class
+*/
+InvalidDirectoryPropertyValue::InvalidDirectoryPropertyValue(
+    const String& name,
+    const String& value)
+        :InvalidPropertyValue(
+            MessageLoaderParms(
+                "Config.ConfigExceptions.INVALID_DIRECTORY_PROPERTY_VALUE",
+                "For property $0 specified value $1 is not a directory or "
+                    "the directory is not writeable.",
+                name,
+                value))
+{
+}
+
+/**
+    InvalidListenAddressPropertyValue Exception class
+*/
+InvalidListenAddressPropertyValue::InvalidListenAddressPropertyValue(
+    const String& name,
+    const String& value)
+        :InvalidPropertyValue(
+            MessageLoaderParms(
+                "Config.ConfigExceptions.INVALID_LISTENADDRESS_PROPERTY_VALUE",
+                "For property $0 specified value $1 is not a valid interface "
+                    "address.",
+                name,
+                value))
+{
+}
+
+/**
+    DuplicateOption Exception class
+*/
+DuplicateOption::DuplicateOption(const String& name)
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.DUPLICATE_OPTION",
+            "Duplicate option: $0",
+            name))
+{
+}
+
+
+ConfigFileSyntaxError::ConfigFileSyntaxError(const String& file, Uint32 line)
+    :Exception(_formatMessage(file, line))
+{
+}
+
+
 String ConfigFileSyntaxError::_formatMessage(
     const String& file,
     Uint32 line)
@@ -50,6 +146,70 @@ String ConfigFileSyntaxError::_formatMessage(
     result.append(buffer);
     result.append(")");
     return result;
+}
+
+
+/**
+    UnrecognizedConfigFileOption Exception class
+*/
+UnrecognizedConfigFileOption::UnrecognizedConfigFileOption(const String& name)
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION",
+            "Unrecognized config file option: $0",
+            name))
+{
+}
+
+
+/**
+    MissingRequiredOptionValue Exception class
+*/
+MissingRequiredOptionValue::MissingRequiredOptionValue(const String& name)
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.MISSING_REQUIRED_OPTION",
+            "Missing required option value: $0",
+            name))
+{
+}
+
+
+/**
+    UnrecognizedConfigProperty Exception class
+*/
+UnrecognizedConfigProperty::UnrecognizedConfigProperty(const String& name)
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.UNRECOGNIZED_CONFIG_PROPERTY",
+            "Unrecognized config property: $0",
+            name))
+{
+}
+
+/**
+    NonDynamicConfigProperty Exception class
+*/
+NonDynamicConfigProperty::NonDynamicConfigProperty(const String& name)
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.NONDYNAMIC_CONFIG_PROPERTY",
+            "NonDynamic config property: $0",
+            name))
+{
+}
+
+/**
+    FailedSaveProperties Exception class
+*/
+FailedSaveProperties::FailedSaveProperties(const String& reason)
+    :Exception(
+        MessageLoaderParms(
+            "Config.ConfigExceptions.FAILED_SAVE_PROPERTIES",
+            "Failed to save configuration properties to file: $0. "
+                "Configuration property not set.",
+            reason))
+{
 }
 
 PEGASUS_NAMESPACE_END

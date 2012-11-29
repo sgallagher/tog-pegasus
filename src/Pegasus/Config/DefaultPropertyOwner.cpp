@@ -45,6 +45,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/HostAddress.h>
+#include "ConfigExceptions.h"
 
 
 PEGASUS_USING_STD;

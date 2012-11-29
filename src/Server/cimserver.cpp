@@ -1087,7 +1087,7 @@ int CIMServerProcess::cimserver_run(
         {
             Uint32 portNumberHttp = 0;
             String httpPort = configManager->getCurrentValue("httpPort");
-            if (httpPort == String::EMPTY)
+            if (httpPort.size() == 0)
             {
                 //
                 // Look up the WBEM-HTTP port number
@@ -1098,16 +1098,13 @@ int CIMServerProcess::cimserver_run(
             }
             else
             {
-                //
-                // user-specified
-                //
-                CString portString = httpPort.getCString();
-                char* end = 0;
-                portNumberHttp = strtol(portString, &end, 10);
-                if (!(end != 0 && *end == '\0'))
-                {
-                    throw InvalidPropertyValue("httpPort", httpPort);
-                }
+                Uint64 longNumber;
+                // use the current value which has been checked for validity at
+                // load(fct. GetOptions), see DefaultPropertyOwner::isValid()
+                StringConversion::decimalStringToUint64(
+                    httpPort.getCString(),
+                    longNumber);
+                portNumberHttp = longNumber & 0xffff;
             }
 
             String listenOn = configManager->getCurrentValue("listenAddress");
@@ -1151,7 +1148,7 @@ int CIMServerProcess::cimserver_run(
         {
             Uint32 portNumberHttps = 0;
             String httpsPort = configManager->getCurrentValue("httpsPort");
-            if (httpsPort == String::EMPTY)
+            if (httpsPort.size() == 0)
             {
                 //
                 // Look up the WBEM-HTTPS port number
@@ -1162,17 +1159,15 @@ int CIMServerProcess::cimserver_run(
             }
             else
             {
-                //
-                // user-specified
-                //
-                CString portString = httpsPort.getCString();
-                char* end = 0;
-                portNumberHttps = strtol(portString, &end, 10);
-                if (!(end != 0 && *end == '\0'))
-                {
-                    throw InvalidPropertyValue("httpsPort", httpsPort);
-                }
+                Uint64 longNumber;
+                // use the current value which has been checked for validity at
+                // load(fct. GetOptions), see DefaultPropertyOwner::isValid()
+                StringConversion::decimalStringToUint64(
+                    httpsPort.getCString(),
+                    longNumber);
+                portNumberHttps = longNumber & 0xffff;
             }
+
             String listenOn = configManager->getCurrentValue("listenAddress");
             if(String::equalNoCase(listenOn, "All"))
             {

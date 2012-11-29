@@ -40,6 +40,7 @@
 #include "SecurityPropertyOwner.h"
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
+#include "ConfigExceptions.h"
 
 PEGASUS_USING_STD;
 

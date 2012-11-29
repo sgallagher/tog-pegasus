@@ -41,7 +41,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include "ProviderDirPropertyOwner.h"
-
+#include "ConfigExceptions.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

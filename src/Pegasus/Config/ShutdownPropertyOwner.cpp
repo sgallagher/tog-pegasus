@@ -39,6 +39,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Constants.h>
 #include "ShutdownPropertyOwner.h"
+#include "ConfigExceptions.h"
 
 
 PEGASUS_USING_STD;

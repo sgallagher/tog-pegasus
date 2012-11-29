@@ -52,6 +52,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Config/ConfigExceptions.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>

@@ -41,6 +41,8 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include "FileSystemPropertyOwner.h"
+#include "ConfigExceptions.h"
+
 
 
 PEGASUS_USING_STD;

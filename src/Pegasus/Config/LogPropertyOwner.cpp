@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/StringConversion.h>
+#include "ConfigExceptions.h"
 
 PEGASUS_USING_STD;
 

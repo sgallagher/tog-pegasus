@@ -35,7 +35,6 @@
 
 #include <cctype>
 #include <Pegasus/Config/Linkage.h>
-#include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/ConfigFile.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/AutoPtr.h>

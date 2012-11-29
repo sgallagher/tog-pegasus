@@ -38,6 +38,7 @@
 
 #include "RepositoryPropertyOwner.h"
 #include "ConfigManager.h"
+#include "ConfigExceptions.h"
 
 PEGASUS_USING_STD;
 

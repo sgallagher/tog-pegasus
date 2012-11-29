@@ -43,6 +43,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include "ConfigManager.h"
 #include "TracePropertyOwner.h"
+#include "ConfigExceptions.h"
 
 PEGASUS_USING_STD;
 

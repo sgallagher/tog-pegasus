@@ -32,6 +32,8 @@
 #include<Pegasus/Common/ObjectNormalizer.h>
 #include "ConfigManager.h"
 #include "NormalizationPropertyOwner.h"
+#include "ConfigExceptions.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 

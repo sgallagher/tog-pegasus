@@ -40,11 +40,9 @@
 #ifndef Pegasus_ConfigPropertyOwner_h
 #define Pegasus_ConfigPropertyOwner_h
 
+#include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Config/ConfigExceptions.h>
-#include <Pegasus/Config/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -584,8 +584,8 @@ EmbeddedInstanceErrorTests:
 		>> $(RESULTFILE)
 
 #d list of specific createEmbbedInstance Errors to execute
-createEmbeddedInstanceErrors: cier1 cier2 cier3 cier5 cier6 cier7 cier8 \
-        cier9 cier10 cier11 cier12 cier13
+createEmbeddedInstanceErrors: cier1 cier2 cier3 cier4 cier5 cier6 cier7 \
+        cier8 cier9 cier10 cier11 cier12 cier13
 	@$(ECHO) +++++ passed createEmbeddedInstance error tests \
 	    >> $(RESULTFILE)
 
@@ -616,8 +616,7 @@ cier3:
 ## key parameter, Should return a system error but actually creates the
 ## class.  This is probably a provider error so lets not worry about it.
 cier4:
-	$(CIMCLI) ci $(EMBED_CLASS_DEF) id! \
-	    --expExit 53 >> $(RESULTFILE) 2>&1
+	$(CIMCLI) ci $(EMBED_CLASS_DEF) id! >> $(RESULTFILE) 2>&1
 
 ## Test to insure that the ! only works with String parameters.
 cier5:

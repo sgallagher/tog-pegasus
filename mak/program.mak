@@ -47,11 +47,11 @@ include $(ROOT)/mak/program-unix.mak
 # GCC supports the -fPIE switch in version 3.4 or later
  ifeq ($(OS),linux)
    ifeq ($(COMPILER), gnu)
-   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.4), 1)
-      FLAGS := $(FLAGS:-fPIC=-fPIE)
-   endif
+       ifeq ($(shell expr $(GCC_VERSION) '>=' 3.4), 1)
+           FLAGS := $(FLAGS:-fPIC=-fPIE)
+       endif
    else
-       FLAGS:= $(FLAGS:-fPIC=-fPIE)
+       FLAGS:= $(FLAGS:-fpic=-fpie)
    endif
  endif
 endif

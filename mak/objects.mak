@@ -39,8 +39,18 @@ ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
   endif
 endif
 
-ifndef BUILD_STATIC
-FLAGS += $(DYNAMIC_FLAGS)
+##=============================================================================
+##
+## A bad trick to include -fPIC to 64 bit machine when static build is required
+## 64 bit machines will complaint(bug 5177)
+##
+##=============================================================================
+ifdef BUILD_STATIC
+    ifeq ($(CXX_MACHINE_OPTIONS),-m64)
+        FLAGS += $(DYNAMIC_FLAGS)
+    endif
+else	
+    FLAGS += $(DYNAMIC_FLAGS)
 endif
 
 ##==============================================================================

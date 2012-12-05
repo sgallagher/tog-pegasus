@@ -61,7 +61,7 @@ void test01()
     PEGASUS_TEST_ASSERT(String::equal(names[2], "c"));
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     try
     {

@@ -128,7 +128,7 @@ void TestQualifierDecl(CIMRepository& r)
     PEGASUS_TEST_ASSERT(nf.equal(CIMFlavor::DEFAULTS));
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     String repositoryRoot;
 

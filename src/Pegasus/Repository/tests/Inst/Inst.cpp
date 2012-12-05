@@ -285,7 +285,7 @@ void _Test02()
     data.clear();
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     const char * envTmpDir = getenv ("PEGASUS_TMP");
     if (envTmpDir == 0 || strlen(envTmpDir) == 0)

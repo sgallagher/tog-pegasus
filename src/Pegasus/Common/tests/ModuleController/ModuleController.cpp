@@ -257,7 +257,7 @@ void _testModuleController()
     }
 }
 
-int main(int argc, char **argv)
+int main()
 {
     controlService = new ModuleController(CONTROLLER_NAME);
     testService = new TestService(TESTSERVICE_NAME);

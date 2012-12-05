@@ -168,7 +168,7 @@ void TestCreateInstances(CIMClient& client)
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }
 
-int main(int argc, char** argv)
+int main()
 {
 
 

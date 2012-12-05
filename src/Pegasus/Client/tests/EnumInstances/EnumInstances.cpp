@@ -42,7 +42,7 @@ const CIMObjectPath INSTANCE2("Sample_InstanceProviderClass.Identifier=2");
 const CIMObjectPath INSTANCE3("Sample_InstanceProviderClass.Identifier=3");
 const String CLASSNAME = "Sample_InstanceProviderClass";
 
-int main(int argc, char** argv)
+int main()
 {
     try
     {

@@ -45,7 +45,7 @@ static Boolean verbose;
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;

@@ -520,7 +520,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
 // Main
 //
 // //////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv)
+int main(int, char **argv)
 {
     verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 

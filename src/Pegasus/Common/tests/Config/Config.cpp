@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -45,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_COMMON_LINKAGE extern int numDummyObjects;
 PEGASUS_NAMESPACE_END
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     PEGASUS_TEST_ASSERT(numDummyObjects == 1);
 

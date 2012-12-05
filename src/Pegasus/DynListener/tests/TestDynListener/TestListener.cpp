@@ -40,7 +40,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main(int argc, char** argv)
+int main()
 {
     //set logging options
     String currentDirectory;

@@ -250,7 +250,7 @@ void _testIndicationServiceCapabilitiesInstance(CIMClient &client)
                 " test completed successfully." << endl;
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     CIMClient client;
     client.connectLocal();

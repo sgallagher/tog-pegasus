@@ -200,7 +200,7 @@ void testLogToTraceDuplication()
 // ATTN-B: Complete this test by reopening the log and making sure it
 // contains what we expect.
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
 
 #ifndef PEGASUS_OS_HPUX

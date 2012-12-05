@@ -175,7 +175,7 @@ Uint16 _validateClientRequest(CIMClient& cli)
    return(0);
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
    Uint16 re_num;
 

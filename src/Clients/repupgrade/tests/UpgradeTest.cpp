@@ -90,7 +90,7 @@ void testInstancesTransfer(
     }
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     String  oldRepositoryPath = argv[1];
     String  newRepositoryPath = argv[2];

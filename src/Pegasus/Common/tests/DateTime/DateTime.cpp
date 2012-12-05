@@ -44,7 +44,7 @@ void put(const char *msg, const CIMDateTime & x)
     cout << endl;
 }
 
-int main(int argc, char **argv)
+int main(int, char **argv)
 {
     try
     {

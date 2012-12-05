@@ -250,7 +250,7 @@ void test10()
     PEGASUS_TEST_ASSERT(dateTime1.toString() == dateTime2.toString());
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     test1();
     test2();

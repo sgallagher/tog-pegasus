@@ -97,8 +97,7 @@ void _test(CIMClient & client)
 }
 
 
-int
-main (int argc, char **argv)
+int main()
 {
   verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
   CIMClient client;

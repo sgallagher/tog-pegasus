@@ -48,7 +48,7 @@ static const String BAD_USER        = "nosuchuser";
 // main
 //
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
 #ifdef PEGASUS_OS_HPUX
 

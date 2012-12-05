@@ -79,7 +79,7 @@ void test01()
     PEGASUS_TEST_ASSERT(get_loc == "//localhost/root/dummy");
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     try
     {

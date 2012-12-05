@@ -181,7 +181,7 @@ void _testMethodError(CIMClient & client)
 }
 
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     providerNamespace = CIMNamespaceName ("test/TestProvider");
     CIMClient client;

@@ -387,7 +387,7 @@ void test01()
     }
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

@@ -61,7 +61,7 @@ private:
 
 typedef List<Person,NullLock> PersonList;
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     // Create list of persons:
 

@@ -43,7 +43,7 @@ const String OUTSTRING = "Yoda";
 const String GOODREPLY = "Hello, " + OUTSTRING + "!";
 const String GOODPARAM = "From Neverland";
 
-int main(int argc, char** argv)
+int main()
 {
     const CIMObjectPath instanceName = CIMObjectPath(
         "Sample_MethodProviderClass.Identifier=1");

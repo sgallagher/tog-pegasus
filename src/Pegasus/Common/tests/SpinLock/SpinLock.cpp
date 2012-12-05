@@ -57,7 +57,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
     return 0;
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     const size_t NUM_THREADS = 10;
     Thread* thread[NUM_THREADS];

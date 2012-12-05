@@ -69,9 +69,7 @@ public:
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function.
     //
-    void setCommand (
-        Uint32 argc,
-        char* argv [])
+    void setCommand (Uint32, char**)
     {
         // Empty function
     };

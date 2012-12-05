@@ -315,8 +315,6 @@ static const char   LONG_VERSION []  = "version";
 /**
 This is a CLI used to manage users of the CIM Server.  This command supports
 operations to add, modify, list and remove users.
-
-@author Sushma Fernandes, Hewlett-Packard Company
 */
 
 class CIMUserCommand : public Command
@@ -334,9 +332,7 @@ public:
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function.
     //
-    void setCommand (
-        Uint32 argc,
-        char* argv[])
+    void setCommand (Uint32, char**)
     {
         // Empty function
     }

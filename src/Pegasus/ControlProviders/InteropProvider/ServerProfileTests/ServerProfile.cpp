@@ -616,7 +616,7 @@ void testIndicationProfileInstances(CIMClient &client)
 //    MAIN
 ///////////////////////////////////////////////////////////////
 
-int main(int argc, char** argv)
+int main()
 {
     cout << "Starting Server Profile Tests" << endl << endl;
     // Create a locally-connected client

@@ -47,7 +47,7 @@ void test(const String& instanceName)
     PEGASUS_TEST_ASSERT(instanceName == reference.toString());
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try

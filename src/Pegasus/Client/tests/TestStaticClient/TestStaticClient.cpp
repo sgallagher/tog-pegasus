@@ -67,7 +67,7 @@ void _errorExit(String message)
 //    Main
 // =========================================================================
 
-int main(int argc, char** argv)
+int main()
 {
     // Connect to server
     try

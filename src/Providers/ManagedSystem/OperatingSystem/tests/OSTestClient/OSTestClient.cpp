@@ -639,7 +639,7 @@ void OSTestClient::testGetInstance(
 //    MAIN
 ///////////////////////////////////////////////////////////////
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     Boolean enumInst = true;
     Boolean enumInstNames = true;

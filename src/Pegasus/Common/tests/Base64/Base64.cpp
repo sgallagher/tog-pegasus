@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -48,7 +43,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
     Uint32 maxLength = 1000;

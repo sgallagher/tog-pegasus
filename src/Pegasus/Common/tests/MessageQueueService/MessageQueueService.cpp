@@ -327,7 +327,7 @@ void MessageQueueClient::sendTestRequestMessage(
 ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm);
 ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm);
 
-int main(int argc, char **argv)
+int main(int, char **argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 

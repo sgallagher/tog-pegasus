@@ -59,8 +59,15 @@ void usage()
     cerr << "cimprovagt should not be invoked directly." << endl;
 }
 
-int setUserContext(int argc, char* argv[])
+int setUserContext(char* argv[])
 {
+    // arg1 is a flag indicating whether the user context must be set
+    // 
+    if (strcmp(argv[1], "0") == 0)
+    {
+        return 0;
+    }
+
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
     PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
     PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
@@ -107,13 +114,9 @@ int setUserContext(int argc, char* argv[])
         return -1;
     }
 # endif
-
     return 0;
-
 #else
-
     return -1;
-
 #endif
 }
 
@@ -151,13 +154,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    if (strcmp(argv[1], "1") == 0)
+    if (setUserContext(argv) == -1)
     {
-        if (setUserContext(argc, argv) == -1)
-        {
-            cerr << "Failed to set user context for user " << argv[4] << endl;
-            return 1;
-        }
+        cerr << "Failed to set user context for user " << argv[4] << endl;
+        return 1;
     }
 
     const char* moduleName = argv[5];

@@ -178,7 +178,7 @@ void test02()
     PEGASUS_TEST_ASSERT(cqclone.identical(cq1) == true);
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try

@@ -115,7 +115,7 @@ static void _cleanup(const String& tmpDir)
     FileSystem::removeDirectoryHier(tmpDir + "/TestDirectory");
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     const char* tmpDir = getenv ("PEGASUS_TMP");

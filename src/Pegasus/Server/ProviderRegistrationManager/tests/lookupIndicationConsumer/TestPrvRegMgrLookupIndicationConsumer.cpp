@@ -179,7 +179,7 @@ Boolean testLookupIndicationConsumer(
     }
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     const char* tmpDir = getenv("PEGASUS_TMP");
     String repositoryRoot;

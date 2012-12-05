@@ -259,7 +259,7 @@ void testModifyInstance(CIMClient& client, const char* ns)
 PEGASUS_NAMESPACE_END
 
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
 
    CIMClient client;

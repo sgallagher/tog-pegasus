@@ -863,7 +863,7 @@ void test05()
     PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

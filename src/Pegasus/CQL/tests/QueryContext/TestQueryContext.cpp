@@ -235,7 +235,7 @@ void drive_RepositoryQueryContext()
     drive_Schema(_query);
 }
 
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
     //
     // NOTE: this test needs to be in poststarttests

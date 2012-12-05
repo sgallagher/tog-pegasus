@@ -462,7 +462,7 @@ void testDisabled()
 }
 #endif
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 

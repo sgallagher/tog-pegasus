@@ -199,7 +199,7 @@ void testHostAddress()
 
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     testHostAddress();
     cout << argv[0] << " +++++ passed all tests" << endl;

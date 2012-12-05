@@ -1746,7 +1746,7 @@ void SCMOInstanceConverterTest()
 }
 
 
-int main (int argc, char *argv[])
+int main (int, char *argv[])
 {
 
     CIMClass CIM_TESTClass2;

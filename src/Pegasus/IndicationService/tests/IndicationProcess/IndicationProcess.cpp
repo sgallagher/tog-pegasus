@@ -504,7 +504,7 @@ void _testConcurrent(CIMClient &client)
    }
 }
 
-int main(int argc, char** argv)
+int main()
 {
     CIMClient client;
     try

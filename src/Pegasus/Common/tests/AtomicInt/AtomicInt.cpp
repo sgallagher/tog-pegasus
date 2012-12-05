@@ -111,7 +111,7 @@ void test02()
     PEGASUS_TEST_ASSERT(_ai2.get() == 0);
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     test01();
     test02();

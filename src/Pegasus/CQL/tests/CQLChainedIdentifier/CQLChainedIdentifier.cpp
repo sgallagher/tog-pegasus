@@ -277,7 +277,7 @@ void drive_CQLChainedIdentifier()
   }
 }
 
-int main( int argc, char *argv[] ){
+int main(int, char *argv[] ){
 
   //BEGIN TESTS....
 

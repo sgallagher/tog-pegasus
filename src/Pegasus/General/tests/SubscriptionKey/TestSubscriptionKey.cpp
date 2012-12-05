@@ -119,7 +119,7 @@ public:
     }
 };
 
-int main (int argc, char** argv)
+int main()
 {
     TestSubscriptionKey x;
     x.testFullObjPath();

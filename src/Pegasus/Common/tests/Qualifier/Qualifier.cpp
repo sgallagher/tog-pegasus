@@ -49,7 +49,7 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
  It creates qualifiers, tests the scope, value and flavor characteristics.
  ATTN: P3 - KS March 2002 Add more tests for scope, etc.
 */
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
 #if defined(PEGASUS_OS_DARWIN) || defined (PEGASUS_OS_VMS)
     static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +

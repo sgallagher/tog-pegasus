@@ -36,7 +36,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char** argv)
+int main (int, char** argv)
 {
     static IDFactory _idFactory(1);
 

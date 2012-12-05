@@ -522,7 +522,7 @@ int removeSubscription(CIMClient& client)
     return 0;
 }
 
-int main(int argc, char** argv)
+int main()
 {
     CIMClient client;
     CIMListener listener(listenerPort);

@@ -126,7 +126,7 @@ void testHostLocator()
     PEGASUS_TEST_ASSERT(!locator.isValid());
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     testHostLocator();
     cout << argv[0] << " +++++ passed all tests" << endl;

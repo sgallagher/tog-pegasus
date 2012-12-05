@@ -307,7 +307,7 @@ void test21()
 
 
 
-int main(int argc, char** argv)
+int main()
 {
     test01();
     test02();

@@ -173,7 +173,7 @@ void test_setSystemNameInHandlerFilterReference()
     PEGASUS_TEST_ASSERT(fullSourcePath == fullSetTargetPath);
 }
 
-int main (int argc, char** argv)
+int main()
 {
     test_setSystemNameInHandlerFilter();
     test_setOrAddSystemNameInHandlerFilter();

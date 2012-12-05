@@ -1,2 +1,0 @@
-// should issue invalid pragma warning message
-#pragma junkname ("junkvalue")

@@ -1,4 +1,0 @@
-/* Comma missing in Flavor */
-Qualifier Abstract : boolean = false, 
-    Scope(class, association, indication), 
-    Flavor(EnableOverride Restricted);

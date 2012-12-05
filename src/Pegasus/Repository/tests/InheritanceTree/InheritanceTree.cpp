@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/InheritanceTree.h>
+#include <Pegasus/Common/ArrayInternal.h>   // bubblesort
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -38,21 +39,54 @@ void TestGetSubClassNames(
     const InheritanceTree& it,
     const CIMName& className,
     Boolean deepInheritance,
-    const Array<CIMName>& expectedSubClassNames)
+    Array<CIMName>& expectedSubClassNames)
 {
     Array<CIMName> subClassNames;
     it.getSubClassNames(className, deepInheritance, subClassNames);
 
-#if 0
-    for (Uint32 i = 0; i < subClassNames.size(); i++)
-    cout << subClassNames[i] << endl;
-#endif
+    if(verbose)
+    {
+        for (Uint32 i = 0; i < subClassNames.size(); i++)
+        {
+            if (i != 0)
+            {
+                cout << ", ";
+            }
+            cout << subClassNames[i].getString();
+        }
+        cout << endl;
+    }
 
-    Array<CIMName> expected = subClassNames;
-
-    BubbleSort(expected);
+    BubbleSort(expectedSubClassNames);
     BubbleSort(subClassNames);
-    PEGASUS_TEST_ASSERT(expected == subClassNames);
+
+    // If error display both arrays
+    if (!(expectedSubClassNames == subClassNames))
+    {
+        cout << "ERROR: expected and result differ. Class " 
+             << className.getString() << endl;
+        cout << "Result =   ";
+        for (Uint32 i = 0; i < subClassNames.size(); i++)
+        {
+            if (i != 0)
+            {
+                cout << ", ";
+            }
+            cout << subClassNames[i].getString();
+        }
+        cout << endl;
+        cout << "Expected = ";
+        for (Uint32 i = 0; i < expectedSubClassNames.size(); i++)
+        {
+            if (i != 0)
+            {
+                cout << ", ";
+            }
+            cout << expectedSubClassNames[i].getString();
+        }
+        cout << endl;                
+    }
+    PEGASUS_TEST_ASSERT(expectedSubClassNames == subClassNames);
 }
 
 int main(int, char** argv)
@@ -73,7 +107,7 @@ int main(int, char** argv)
     //  D     E     F
     //
     //----------------------------------------------------------------------
-        */
+    */
 
     it.insert("D", "B");
     it.insert("E", "B");
@@ -84,7 +118,7 @@ int main(int, char** argv)
     it.check();
 
         if (verbose)
-        it.print(cout);
+            it.print(cout);
 
     {
         Array<CIMName> expected;
@@ -114,11 +148,10 @@ int main(int, char** argv)
         expected.append("D");
         expected.append("E");
         expected.append("F");
-        TestGetSubClassNames(it, "A", true, expected);
+        TestGetSubClassNames(it, CIMName(), true, expected);
     }
     {
         Array<CIMName> expected;
-
         expected.append("F");
         TestGetSubClassNames(it, "C", true, expected);
     }

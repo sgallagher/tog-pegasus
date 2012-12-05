@@ -149,7 +149,7 @@ public:
         This method mimics the client behavior for the EnumerateInstances
         operation, but of course it can only return the instances that reside
         in the repository.  This method does not perform deepInheritance
-        filtering regardless of the value given for that parameter.
+        filtering.
 
         This method is useful mainly for testing purposes, and should not be
         relied upon for complete results in a CIM Server environment.
@@ -157,7 +157,6 @@ public:
     Array<CIMInstance> enumerateInstancesForSubtree(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Boolean deepInheritance = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());

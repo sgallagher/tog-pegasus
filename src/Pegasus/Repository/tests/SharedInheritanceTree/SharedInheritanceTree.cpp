@@ -243,6 +243,7 @@ void test02(NameSpaceManager& nsm) {
 
 int main(int, char** argv)
 {
+
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     NameSpaceManager nsm;

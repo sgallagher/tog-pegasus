@@ -458,7 +458,7 @@ void TestCreateClass(Uint32 mode)
     //
 
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, true, false);
+        CIMName ("SuperClass"), true, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -493,7 +493,7 @@ void TestCreateClass(Uint32 mode)
     // Test for qualifier removal from enumerateinstances
     //
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, false, false);
+        CIMName ("SuperClass"), false, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -542,7 +542,7 @@ void TestCreateClass(Uint32 mode)
     // deepInheritance=true,
     // includeQualifiers=false,includeClassOrigin=false,
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, false, false, pl1);
+        CIMName ("SuperClass"), false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -571,7 +571,7 @@ void TestCreateClass(Uint32 mode)
     pl1.set(pls1);
 
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, false, false, pl1);
+        CIMName ("SuperClass"), false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -601,7 +601,7 @@ void TestCreateClass(Uint32 mode)
     // deepInheritance=true,
     // includeQualifiers=false,includeClassOrigin=false,
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, false, false, pl1);
+        CIMName ("SuperClass"), false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -631,7 +631,7 @@ void TestCreateClass(Uint32 mode)
     pl1.set(pls1);
 
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, false, false, pl1);
+        CIMName ("SuperClass"), false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -867,7 +867,7 @@ int main(int argc, char** argv)
 
     FileSystem::removeDirectoryHier(repositoryRoot);
 
-    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

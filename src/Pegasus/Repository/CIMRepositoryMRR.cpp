@@ -1436,7 +1436,6 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Boolean deepInheritance,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)

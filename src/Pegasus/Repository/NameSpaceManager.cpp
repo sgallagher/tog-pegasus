@@ -97,7 +97,6 @@ private:
         contained in the specified namespace.
     */
     void _buildInheritanceTree(
-        const CIMNamespaceName& nameSpace,
         Array<Pair<String, String> > classList,
         InheritanceTree* parentTree = NULL);
 
@@ -131,16 +130,13 @@ NameSpace::NameSpace(
 
     if (!parent)
     {
-        _buildInheritanceTree(nameSpaceName, classList);
+        _buildInheritanceTree(classList);
     }
     else
     {
         if (updatesAllowed)
         {
-            _buildInheritanceTree(
-                nameSpaceName,
-                classList,
-                &parent->_inheritanceTree);
+            _buildInheritanceTree(classList, &parent->_inheritanceTree);
         }
 
         NameSpace* ens = parent->primaryParent();
@@ -209,7 +205,6 @@ void NameSpace::print(PEGASUS_STD(ostream)& os) const
 }
 
 void NameSpace::_buildInheritanceTree(
-    const CIMNamespaceName& nameSpace,
     Array<Pair<String, String> > classList,
     InheritanceTree* parentTree)
 {
@@ -624,12 +619,11 @@ void NameSpaceManager::checkDeleteClass(
     PEG_METHOD_EXIT();
 }
 
-void NameSpaceManager::checkSetOrDeleteQualifier(
-    const CIMNamespaceName& nameSpaceName,
-    const CIMName& qualifierName) const
+void NameSpaceManager::checkNameSpaceUpdateAllowed(
+    const CIMNamespaceName& nameSpaceName) const
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "NameSpaceManager::checkSetOrDeleteQualifier");
+        "NameSpaceManager::checkNameSpaceUpdateAllowed");
 
     NameSpace* nameSpace = _getNameSpace(nameSpaceName);
 

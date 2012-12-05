@@ -465,7 +465,7 @@ int main(int argc, char ** argv)
         {
             const CIMName _testclass(className);
             _instances = _rep->enumerateInstancesForSubtree(
-                _ns, _testclass, true);
+                _ns, _testclass);
         }
         catch (Exception& e)
         {
@@ -483,9 +483,9 @@ int main(int argc, char ** argv)
         try
         {
             _instances = _rep->enumerateInstancesForSubtree(
-                _ns, _testclass, true);
+                _ns, _testclass);
             _instances.appendArray(_rep->enumerateInstancesForSubtree(
-                _ns, _testclass2, true));
+                _ns, _testclass2));
         }
         catch (Exception& e)
         {

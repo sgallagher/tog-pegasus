@@ -200,7 +200,7 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
 {
     if (_repository)
        return _repository->enumerateInstancesForSubtree(nameSpace, className,
-            deepInheritance, includeQualifiers, includeClassOrigin);
+            includeQualifiers, includeClassOrigin);
 
     if (_client)
        return _client->enumerateInstances(nameSpace, className,

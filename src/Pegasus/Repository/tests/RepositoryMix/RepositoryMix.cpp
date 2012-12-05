@@ -279,7 +279,7 @@ void TestEnumerateInstances(Uint32 num)
     // -- Enumerate instances:
 
     Array<CIMInstance> namedInstances = r->enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, true, true);
+        CIMName ("SuperClass"),true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose

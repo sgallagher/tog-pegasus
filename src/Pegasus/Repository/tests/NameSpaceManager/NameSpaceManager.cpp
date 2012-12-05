@@ -140,6 +140,7 @@ void test01()
 
 int main(int, char** argv)
 {
+
     verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
 
@@ -154,6 +155,5 @@ int main(int, char** argv)
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
-
     return 0;
 }

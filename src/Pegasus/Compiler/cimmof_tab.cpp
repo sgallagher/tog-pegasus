@@ -283,7 +283,6 @@
       in cimmofparser.h and turned on and off manually.
    All debugging must be turned on manually at this point by
    setting the YYDEBUG compile flag and also setting YACCTRACE.
-   ATTN: TODO: automate the debug information flags.
 */
 // Enable this define to compile Bison/Yacc tracing
 // #define YYDEBUG 1
@@ -346,8 +345,14 @@ cimmof_error(const char *msg) {
 }
 
 static void MOF_error(const char * str, const char * S);
+
+#ifdef DEBUG_cimmof
 static void MOF_trace(const char* str);
 static void MOF_trace2(const char * str, const char * S);
+#else
+#define MOF_Trace(X)
+#define MOF_trace2(X, Y)
+#endif
 
 
 
@@ -371,7 +376,7 @@ static void MOF_trace2(const char * str, const char * S);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 171 "cimmof.y"
+#line 176 "cimmof.y"
 {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -395,7 +400,7 @@ typedef union YYSTYPE
   TYPED_INITIALIZER_VALUE  *typedinitializer;
 }
 /* Line 187 of yacc.c.  */
-#line 396 "cimmoftemp"
+#line 401 "cimmoftemp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -408,7 +413,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 409 "cimmoftemp"
+#line 414 "cimmoftemp"
 
 #ifdef short
 # undef short
@@ -753,23 +758,23 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   304,   304,   307,   308,   312,   313,   318,   322,   334,
-     342,   362,   365,   371,   376,   377,   380,   381,   384,   390,
-     395,   415,   426,   445,   448,   451,   461,   462,   463,   466,
-     494,   495,   506,   520,   539,   550,   567,   570,   573,   574,
-     577,   584,   591,   598,   604,   607,   610,   612,   619,   621,
-     623,   630,   636,   642,   648,   658,   661,   674,   676,   680,
-     681,   683,   685,   687,   693,   694,   695,   696,   697,   700,
-     702,   706,   707,   713,   745,   747,   751,   752,   755,   773,
-     802,   804,   807,   810,   820,   822,   826,   845,   848,   857,
-     862,   873,   896,   914,   919,   920,   927,   985,   989,   995,
-    1002,  1005,  1029,  1041,  1053,  1058,  1064,  1070,  1074,  1088,
-    1089,  1092,  1095,  1096,  1097,  1098,  1099,  1106,  1109,  1115,
-    1119,  1120,  1129,  1131,  1132,  1133,  1134,  1137,  1142,  1147,
-    1148,  1151,  1152,  1153,  1154,  1155,  1158,  1159,  1160,  1161,
-    1162,  1163,  1164,  1165,  1166,  1169,  1171,  1181,  1183,  1187,
-    1191,  1193,  1196,  1213,  1222,  1229,  1236,  1242,  1248,  1254,
-    1261,  1264
+       0,   309,   309,   312,   313,   317,   318,   323,   327,   339,
+     351,   371,   374,   380,   385,   386,   389,   390,   393,   399,
+     404,   424,   435,   454,   457,   460,   470,   471,   472,   475,
+     503,   504,   515,   529,   550,   561,   577,   580,   583,   584,
+     587,   594,   601,   609,   616,   621,   624,   626,   633,   635,
+     637,   644,   650,   656,   662,   672,   675,   688,   690,   694,
+     695,   697,   699,   701,   707,   708,   709,   710,   711,   714,
+     716,   720,   721,   727,   759,   761,   765,   766,   769,   790,
+     821,   823,   826,   829,   847,   849,   853,   872,   875,   884,
+     889,   900,   922,   942,   947,   948,   955,  1013,  1017,  1023,
+    1030,  1033,  1057,  1069,  1081,  1086,  1092,  1098,  1102,  1116,
+    1117,  1120,  1123,  1124,  1125,  1126,  1127,  1134,  1137,  1143,
+    1147,  1148,  1157,  1159,  1160,  1161,  1162,  1165,  1170,  1175,
+    1176,  1179,  1180,  1181,  1182,  1183,  1186,  1187,  1188,  1189,
+    1190,  1191,  1192,  1193,  1194,  1197,  1199,  1209,  1211,  1215,
+    1219,  1221,  1224,  1241,  1250,  1257,  1264,  1270,  1276,  1282,
+    1289,  1292
 };
 #endif
 
@@ -1883,12 +1888,12 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 312 "cimmof.y"
+#line 317 "cimmof.y"
     { /* FIXME: Where do we put directives? */ ;}
     break;
 
   case 6:
-#line 314 "cimmof.y"
+#line 319 "cimmof.y"
     {
             cimmofParser::Instance()->addQualifier((yyvsp[(1) - (1)].mofqualifier));
             delete (yyvsp[(1) - (1)].mofqualifier);
@@ -1896,30 +1901,32 @@ yyreduce:
     break;
 
   case 7:
-#line 319 "cimmof.y"
+#line 324 "cimmof.y"
     {
             cimmofParser::Instance()->addClass((yyvsp[(1) - (1)].mofclass));
         ;}
     break;
 
   case 8:
-#line 323 "cimmof.y"
+#line 328 "cimmof.y"
     {
         cimmofParser::Instance()->addInstance((yyvsp[(1) - (1)].instance));
         ;}
     break;
 
   case 9:
-#line 335 "cimmof.y"
+#line 340 "cimmof.y"
     {
     YACCTRACE("classDeclaration");
     if (g_currentAliasDecl != String::EMPTY)
-        cimmofParser::Instance()->addClassAlias(g_currentAliasDecl, (yyval.mofclass), false);
+    {
+        cimmofParser::Instance()->addClassAlias(g_currentAliasDecl, (yyval.mofclass));
+    }
 ;}
     break;
 
   case 10:
-#line 343 "cimmof.y"
+#line 352 "cimmof.y"
     {
     // create new instance of class with className and superclassName
     // put returned class object on stack
@@ -1940,12 +1947,12 @@ yyreduce:
     break;
 
   case 11:
-#line 362 "cimmof.y"
+#line 371 "cimmof.y"
     {;}
     break;
 
   case 12:
-#line 366 "cimmof.y"
+#line 375 "cimmof.y"
     {
     (yyval.cimnameval) = new CIMName(*(yyvsp[(2) - (2)].cimnameval));
     delete (yyvsp[(2) - (2)].cimnameval);
@@ -1953,14 +1960,14 @@ yyreduce:
     break;
 
   case 13:
-#line 371 "cimmof.y"
+#line 380 "cimmof.y"
     {
     (yyval.cimnameval) = new CIMName();
 ;}
     break;
 
   case 18:
-#line 385 "cimmof.y"
+#line 394 "cimmof.y"
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *(yyvsp[(1) - (1)].property));
@@ -1969,7 +1976,7 @@ yyreduce:
     break;
 
   case 19:
-#line 391 "cimmof.y"
+#line 400 "cimmof.y"
     {
         YACCTRACE("classFeature:applyMethod");
         cimmofParser::Instance()->applyMethod(*g_currentClass, *(yyvsp[(1) - (1)].method));
@@ -1977,7 +1984,7 @@ yyreduce:
     break;
 
   case 20:
-#line 396 "cimmof.y"
+#line 405 "cimmof.y"
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *(yyvsp[(1) - (1)].property));
@@ -1986,7 +1993,7 @@ yyreduce:
     break;
 
   case 21:
-#line 416 "cimmof.y"
+#line 425 "cimmof.y"
     {
     YACCTRACE("methodDeclaration");
     (yyval.method) = (yyvsp[(2) - (4)].method);
@@ -1994,7 +2001,7 @@ yyreduce:
     break;
 
   case 22:
-#line 427 "cimmof.y"
+#line 436 "cimmof.y"
     {
     YACCTRACE("methodHead");
     if (g_currentMethod)
@@ -2014,7 +2021,7 @@ yyreduce:
     break;
 
   case 25:
-#line 452 "cimmof.y"
+#line 461 "cimmof.y"
     {
     (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval));
     delete (yyvsp[(1) - (1)].strval);
@@ -2022,7 +2029,7 @@ yyreduce:
     break;
 
   case 29:
-#line 467 "cimmof.y"
+#line 476 "cimmof.y"
     {
     // ATTN: P2 2002 Question Need to create default value including type?
 
@@ -2051,17 +2058,17 @@ yyreduce:
     break;
 
   case 30:
-#line 494 "cimmof.y"
+#line 503 "cimmof.y"
     { (yyval.datatype) = (yyvsp[(1) - (1)].datatype); ;}
     break;
 
   case 31:
-#line 495 "cimmof.y"
+#line 504 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_REFERENCE; ;}
     break;
 
   case 32:
-#line 507 "cimmof.y"
+#line 516 "cimmof.y"
     {
     // set body to stack and apply qualifier list
     // ATTN: the apply qualifer only works here because
@@ -2076,17 +2083,19 @@ yyreduce:
     break;
 
   case 33:
-#line 521 "cimmof.y"
+#line 530 "cimmof.y"
     {
     CIMValue *v = valueFactory::createValue((yyvsp[(1) - (4)].datatype), (yyvsp[(3) - (4)].ival),
             ((yyvsp[(4) - (4)].typedinitializer)->type == CIMMOF_NULL_VALUE), (yyvsp[(4) - (4)].typedinitializer)->value);
+
+    // if scalar, $3 == -1 so set arrayDimension to zero.
     if ((yyvsp[(3) - (4)].ival) == -1)
     {
-        (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(2) - (4)].cimnameval), *v, false, 0);
+        (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(2) - (4)].cimnameval), *v, 0);
     }
     else
     {
-        (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(2) - (4)].cimnameval), *v, true, (yyvsp[(3) - (4)].ival));
+        (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(2) - (4)].cimnameval), *v, (yyvsp[(3) - (4)].ival));
     }
 
     delete (yyvsp[(2) - (4)].cimnameval);
@@ -2096,14 +2105,13 @@ yyreduce:
     break;
 
   case 35:
-#line 552 "cimmof.y"
+#line 563 "cimmof.y"
     {
     String s(*(yyvsp[(2) - (6)].strval));
     if (!String::equal(*(yyvsp[(5) - (6)].strval), String::EMPTY))
         s.append("." + *(yyvsp[(5) - (6)].strval));
     CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
-    //KS add the isArray and arraysize parameters. 8 mar 2002
-    (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(4) - (6)].strval), *v, false,0, *(yyvsp[(2) - (6)].strval));
+    (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(4) - (6)].strval), *v, 0, *(yyvsp[(2) - (6)].strval));
     applyQualifierList(g_qualifierList, *(yyval.property));
     delete (yyvsp[(2) - (6)].strval);
     delete (yyvsp[(4) - (6)].strval);
@@ -2113,27 +2121,27 @@ yyreduce:
     break;
 
   case 36:
-#line 567 "cimmof.y"
+#line 577 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 37:
-#line 570 "cimmof.y"
+#line 580 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 38:
-#line 573 "cimmof.y"
+#line 583 "cimmof.y"
     { (yyval.strval) = (yyvsp[(2) - (2)].strval); ;}
     break;
 
   case 39:
-#line 574 "cimmof.y"
+#line 584 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 40:
-#line 578 "cimmof.y"
+#line 588 "cimmof.y"
     {
     g_referenceClassName = *(yyvsp[(1) - (2)].cimnameval);
     delete (yyvsp[(1) - (2)].cimnameval);
@@ -2141,7 +2149,7 @@ yyreduce:
     break;
 
   case 41:
-#line 585 "cimmof.y"
+#line 595 "cimmof.y"
     {
     (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval));
     delete (yyvsp[(1) - (1)].strval);
@@ -2149,7 +2157,7 @@ yyreduce:
     break;
 
   case 42:
-#line 592 "cimmof.y"
+#line 602 "cimmof.y"
     {
     (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval));
     delete (yyvsp[(1) - (1)].strval);
@@ -2157,7 +2165,7 @@ yyreduce:
     break;
 
   case 43:
-#line 600 "cimmof.y"
+#line 610 "cimmof.y"
     {
             (yyval.ival) = (Uint32) valueFactory::stringToUint(*(yyvsp[(2) - (3)].strval), CIMTYPE_UINT32);
             delete (yyvsp[(2) - (3)].strval);
@@ -2165,22 +2173,22 @@ yyreduce:
     break;
 
   case 44:
-#line 605 "cimmof.y"
+#line 617 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 45:
-#line 607 "cimmof.y"
+#line 621 "cimmof.y"
     { (yyval.ival) = -1; ;}
     break;
 
   case 46:
-#line 610 "cimmof.y"
+#line 624 "cimmof.y"
     { (yyval.typedinitializer) = (yyvsp[(2) - (2)].typedinitializer); ;}
     break;
 
   case 47:
-#line 612 "cimmof.y"
+#line 626 "cimmof.y"
     {   /* empty */
         g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
         g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2189,22 +2197,22 @@ yyreduce:
     break;
 
   case 48:
-#line 620 "cimmof.y"
+#line 634 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 49:
-#line 622 "cimmof.y"
+#line 636 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 50:
-#line 624 "cimmof.y"
+#line 638 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 51:
-#line 631 "cimmof.y"
+#line 645 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2213,7 +2221,7 @@ yyreduce:
     break;
 
   case 52:
-#line 637 "cimmof.y"
+#line 651 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2222,7 +2230,7 @@ yyreduce:
     break;
 
   case 53:
-#line 643 "cimmof.y"
+#line 657 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2231,7 +2239,7 @@ yyreduce:
     break;
 
   case 54:
-#line 649 "cimmof.y"
+#line 663 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_REFERENCE_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2240,13 +2248,13 @@ yyreduce:
     break;
 
   case 55:
-#line 659 "cimmof.y"
+#line 673 "cimmof.y"
     {
         *(yyval.strval) = valueFactory::stringWComma(String(*(yyvsp[(1) - (1)].strval))); ;}
     break;
 
   case 56:
-#line 662 "cimmof.y"
+#line 676 "cimmof.y"
     {
             YACCTRACE("constantValues:1, Value= " << *(yyvsp[(3) - (3)].strval));
             (*(yyval.strval)).append(",");
@@ -2257,66 +2265,66 @@ yyreduce:
     break;
 
   case 57:
-#line 675 "cimmof.y"
+#line 689 "cimmof.y"
     {(yyval.strval) = (yyvsp[(1) - (1)].strval);;}
     break;
 
   case 58:
-#line 677 "cimmof.y"
+#line 691 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 59:
-#line 680 "cimmof.y"
+#line 694 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 60:
-#line 682 "cimmof.y"
+#line 696 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 61:
-#line 684 "cimmof.y"
+#line 698 "cimmof.y"
     { (yyval.strval) =  (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 62:
-#line 686 "cimmof.y"
+#line 700 "cimmof.y"
     { ;}
     break;
 
   case 63:
-#line 688 "cimmof.y"
+#line 702 "cimmof.y"
     {
             (yyval.strval) = new String((yyvsp[(1) - (1)].ival) ? "T" : "F");
     ;}
     break;
 
   case 69:
-#line 701 "cimmof.y"
+#line 715 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 70:
-#line 703 "cimmof.y"
+#line 717 "cimmof.y"
     { (yyval.ival) = 1; ;}
     break;
 
   case 71:
-#line 706 "cimmof.y"
+#line 720 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 72:
-#line 708 "cimmof.y"
+#line 722 "cimmof.y"
     {
         (*(yyval.strval)).append(*(yyvsp[(2) - (2)].strval));  delete (yyvsp[(2) - (2)].strval);
     ;}
     break;
 
   case 73:
-#line 714 "cimmof.y"
+#line 728 "cimmof.y"
     {
    //String oldrep = *$1;
    //String s(oldrep), s1(String::EMPTY);
@@ -2348,35 +2356,38 @@ yyreduce:
     break;
 
   case 74:
-#line 746 "cimmof.y"
+#line 760 "cimmof.y"
     { (yyval.strval) = (yyvsp[(2) - (3)].strval); ;}
     break;
 
   case 75:
-#line 748 "cimmof.y"
+#line 762 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 76:
-#line 751 "cimmof.y"
+#line 765 "cimmof.y"
     {;}
     break;
 
   case 77:
-#line 752 "cimmof.y"
+#line 766 "cimmof.y"
     {  ;}
     break;
 
   case 78:
-#line 756 "cimmof.y"
+#line 770 "cimmof.y"
     {
     // The objectName string is decomposed for syntactical validation purposes
     // and reassembled here for later parsing in creation of an CIMObjectPath
     // instance
     String *s = new String(*(yyvsp[(2) - (4)].strval));
     if (!String::equal(*s, String::EMPTY) && (yyvsp[(3) - (4)].modelpath))
+    {
         (*s).append(":");
-    if ((yyvsp[(3) - (4)].modelpath)) {
+    }
+    if ((yyvsp[(3) - (4)].modelpath))
+    {
         (*s).append((yyvsp[(3) - (4)].modelpath)->toString());
     }
     (yyval.strval) = s;
@@ -2387,7 +2398,7 @@ yyreduce:
     break;
 
   case 79:
-#line 774 "cimmof.y"
+#line 791 "cimmof.y"
     {
 
     CIMObjectPath AOP;
@@ -2401,6 +2412,8 @@ yyreduce:
         g_currentAliasRef.getCString());
     if (cimmofParser::Instance()->getInstanceAlias(g_currentAliasRef, AOP) == 0)
     {
+         MOF_error("ERROR: aliasIdentifier NOT FOUND: aliasIdentifier = ",
+             g_currentAliasRef.getCString());        
         yyerror("aliasInitializer - 'aliasIdentifier' NOT FOUND");
         YYABORT;
     }
@@ -2417,44 +2430,49 @@ yyreduce:
     break;
 
   case 80:
-#line 803 "cimmof.y"
+#line 822 "cimmof.y"
     { ;}
     break;
 
   case 81:
-#line 804 "cimmof.y"
+#line 823 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 82:
-#line 807 "cimmof.y"
+#line 826 "cimmof.y"
     {;}
     break;
 
   case 83:
-#line 810 "cimmof.y"
+#line 830 "cimmof.y"
     {
-    CIMObjectPath *m = new CIMObjectPath(
-        String::EMPTY,
-        CIMNamespaceName(),
-        (*(yyvsp[(1) - (3)].cimnameval)).getString(),
-        g_KeyBindingArray);
-    g_KeyBindingArray.clear();
-    delete (yyvsp[(1) - (3)].cimnameval);;}
+      CIMObjectPath * m = new CIMObjectPath(String::EMPTY,
+           CIMNamespaceName(),
+           (*(yyvsp[(1) - (3)].cimnameval)).getString(),
+           g_KeyBindingArray);
+
+      g_KeyBindingArray.clear();
+      delete (yyvsp[(1) - (3)].cimnameval);
+
+      (yyval.modelpath) = m;
+
+      MOF_trace2 ("modelPath done $$ = ", (yyval.modelpath)->toString().getCString());
+   ;}
     break;
 
   case 84:
-#line 821 "cimmof.y"
+#line 848 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 85:
-#line 823 "cimmof.y"
+#line 850 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 86:
-#line 827 "cimmof.y"
+#line 854 "cimmof.y"
     {
         CIMKeyBinding::Type keyBindingType;
         Char16 firstChar = (*(yyvsp[(3) - (3)].strval))[0];
@@ -2474,7 +2492,7 @@ yyreduce:
     break;
 
   case 88:
-#line 849 "cimmof.y"
+#line 876 "cimmof.y"
     {
         (yyval.strval) = (yyvsp[(2) - (2)].strval);
         g_currentAliasDecl = *(yyvsp[(2) - (2)].strval);
@@ -2486,24 +2504,23 @@ yyreduce:
     break;
 
   case 89:
-#line 857 "cimmof.y"
+#line 884 "cimmof.y"
     {
         (yyval.strval) = new String(String::EMPTY);
         g_currentAliasDecl = String::EMPTY;}
     break;
 
   case 91:
-#line 874 "cimmof.y"
+#line 901 "cimmof.y"
     {
     (yyval.instance) = g_currentInstance;
     if (g_currentAliasDecl != String::EMPTY)
     {
         MOF_trace2("instanceDeclaration g_currentAliasDecl = ",
                   g_currentAliasDecl.getCString());
-        // MOF_trace2 ("instanceDeclaration instance =
-        //  ", ((CIMObject *)$$)->toString().getCString());
+
         if (cimmofParser::Instance()->addInstanceAlias(
-            g_currentAliasDecl, (yyval.instance), true) == 0)
+            g_currentAliasDecl, (yyval.instance)) == 0)
         {
             // Error alias already exist
             MOF_error("ERROR: alias ALREADY EXISTS: aliasIdentifier = ",
@@ -2516,7 +2533,7 @@ yyreduce:
     break;
 
   case 92:
-#line 897 "cimmof.y"
+#line 923 "cimmof.y"
     {
     if (g_currentInstance)
         delete g_currentInstance;
@@ -2528,13 +2545,15 @@ yyreduce:
     delete (yyvsp[(4) - (5)].cimnameval);
     delete (yyvsp[(5) - (5)].strval);
     if (g_currentAliasDecl != String::EMPTY)
+    {
         MOF_trace2("instanceHead g_currentAliasDecl = ",
             g_currentAliasDecl.getCString());
+    }
 ;}
     break;
 
   case 96:
-#line 929 "cimmof.y"
+#line 957 "cimmof.y"
     {
     AutoPtr<String> identifier((yyvsp[(2) - (5)].strval));
     cimmofParser *cp = cimmofParser::Instance();
@@ -2581,33 +2600,33 @@ yyreduce:
     break;
 
   case 97:
-#line 986 "cimmof.y"
+#line 1014 "cimmof.y"
     {
         //printf("compilerDirectiveInclude ");
     ;}
     break;
 
   case 98:
-#line 990 "cimmof.y"
+#line 1018 "cimmof.y"
     {
         //printf("compilerDirectivePragma ");
     ;}
     break;
 
   case 99:
-#line 997 "cimmof.y"
+#line 1025 "cimmof.y"
     {
       cimmofParser::Instance()->enterInlineInclude(*(yyvsp[(4) - (5)].strval)); delete (yyvsp[(4) - (5)].strval);
     ;}
     break;
 
   case 100:
-#line 1002 "cimmof.y"
+#line 1030 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 101:
-#line 1007 "cimmof.y"
+#line 1035 "cimmof.y"
     {
         cimmofParser::Instance()->processPragma(*(yyvsp[(2) - (5)].strval), *(yyvsp[(4) - (5)].strval));
         delete (yyvsp[(2) - (5)].strval);
@@ -2616,7 +2635,7 @@ yyreduce:
     break;
 
   case 102:
-#line 1031 "cimmof.y"
+#line 1059 "cimmof.y"
     {
     (yyval.mofqualifier) = cimmofParser::Instance()->newQualifierDecl(*(yyvsp[(2) - (6)].strval), (yyvsp[(3) - (6)].value), *(yyvsp[(4) - (6)].scope), *(yyvsp[(5) - (6)].flavor));
     delete (yyvsp[(2) - (6)].strval);  // String created in qualifierName
@@ -2626,7 +2645,7 @@ yyreduce:
     break;
 
   case 103:
-#line 1042 "cimmof.y"
+#line 1070 "cimmof.y"
     {
        (yyval.value) = valueFactory::createValue((yyvsp[(2) - (4)].datatype), (yyvsp[(3) - (4)].ival),
                                       ((yyvsp[(4) - (4)].typedinitializer)->type == CIMMOF_NULL_VALUE),
@@ -2636,14 +2655,14 @@ yyreduce:
     break;
 
   case 104:
-#line 1054 "cimmof.y"
+#line 1082 "cimmof.y"
     {
         (yyval.scope) = (yyvsp[(2) - (3)].scope);
     ;}
     break;
 
   case 105:
-#line 1058 "cimmof.y"
+#line 1086 "cimmof.y"
     {
        // terminate in error, no scope statement
           yyerror("\"scope\" definition required on Qualifier Declaration");
@@ -2651,21 +2670,21 @@ yyreduce:
     break;
 
   case 106:
-#line 1065 "cimmof.y"
+#line 1093 "cimmof.y"
     {
         g_scope = CIMScope (CIMScope::NONE);
     ;}
     break;
 
   case 107:
-#line 1071 "cimmof.y"
+#line 1099 "cimmof.y"
     {   /* empty */  
             (yyval.scope) = (yyvsp[(1) - (1)].scope);
         ;}
     break;
 
   case 108:
-#line 1075 "cimmof.y"
+#line 1103 "cimmof.y"
     {
             (yyval.scope)->addScope(*(yyvsp[(3) - (3)].scope));
             delete (yyvsp[(3) - (3)].scope);
@@ -2673,56 +2692,56 @@ yyreduce:
     break;
 
   case 109:
-#line 1088 "cimmof.y"
+#line 1116 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::CLASS);        ;}
     break;
 
   case 110:
-#line 1089 "cimmof.y"
+#line 1117 "cimmof.y"
     { free(metaQualifierName);
                                metaQualifierName = 0;
                                (yyval.scope) = new CIMScope(CIMScope::ASSOCIATION);  ;}
     break;
 
   case 111:
-#line 1092 "cimmof.y"
+#line 1120 "cimmof.y"
     { free(metaQualifierName);
                                metaQualifierName = 0;
                                (yyval.scope) = new CIMScope(CIMScope::INDICATION);   ;}
     break;
 
   case 112:
-#line 1095 "cimmof.y"
+#line 1123 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::PROPERTY);     ;}
     break;
 
   case 113:
-#line 1096 "cimmof.y"
+#line 1124 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::REFERENCE);    ;}
     break;
 
   case 114:
-#line 1097 "cimmof.y"
+#line 1125 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::METHOD);       ;}
     break;
 
   case 115:
-#line 1098 "cimmof.y"
+#line 1126 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::PARAMETER);    ;}
     break;
 
   case 116:
-#line 1099 "cimmof.y"
+#line 1127 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::ANY);          ;}
     break;
 
   case 117:
-#line 1107 "cimmof.y"
+#line 1135 "cimmof.y"
     { (yyval.flavor) = &g_flavor; ;}
     break;
 
   case 118:
-#line 1109 "cimmof.y"
+#line 1137 "cimmof.y"
     {
         g_flavor = CIMFlavor (CIMFlavor::NONE);
         (yyval.flavor) = &g_flavor;
@@ -2730,44 +2749,44 @@ yyreduce:
     break;
 
   case 119:
-#line 1116 "cimmof.y"
+#line 1144 "cimmof.y"
     {g_flavor = CIMFlavor (CIMFlavor::NONE);;}
     break;
 
   case 122:
-#line 1130 "cimmof.y"
+#line 1158 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); ;}
     break;
 
   case 123:
-#line 1131 "cimmof.y"
+#line 1159 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE); ;}
     break;
 
   case 124:
-#line 1132 "cimmof.y"
+#line 1160 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::RESTRICTED); ;}
     break;
 
   case 125:
-#line 1133 "cimmof.y"
+#line 1161 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::TOSUBCLASS); ;}
     break;
 
   case 126:
-#line 1134 "cimmof.y"
+#line 1162 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); ;}
     break;
 
   case 127:
-#line 1138 "cimmof.y"
+#line 1166 "cimmof.y"
     {
             (yyval.flavor) = &g_flavor;
         ;}
     break;
 
   case 128:
-#line 1142 "cimmof.y"
+#line 1170 "cimmof.y"
     {
            g_flavor = CIMFlavor (CIMFlavor::NONE);
            (yyval.flavor) = &g_flavor;
@@ -2775,111 +2794,111 @@ yyreduce:
     break;
 
   case 131:
-#line 1151 "cimmof.y"
+#line 1179 "cimmof.y"
     { (yyval.datatype) = (yyvsp[(1) - (1)].datatype); ;}
     break;
 
   case 132:
-#line 1152 "cimmof.y"
+#line 1180 "cimmof.y"
     { (yyval.datatype) = (yyvsp[(1) - (1)].datatype); ;}
     break;
 
   case 133:
-#line 1153 "cimmof.y"
+#line 1181 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_STRING;   ;}
     break;
 
   case 134:
-#line 1154 "cimmof.y"
+#line 1182 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_BOOLEAN;  ;}
     break;
 
   case 135:
-#line 1155 "cimmof.y"
+#line 1183 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_DATETIME; ;}
     break;
 
   case 136:
-#line 1158 "cimmof.y"
+#line 1186 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT8;  ;}
     break;
 
   case 137:
-#line 1159 "cimmof.y"
+#line 1187 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT8;  ;}
     break;
 
   case 138:
-#line 1160 "cimmof.y"
+#line 1188 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT16; ;}
     break;
 
   case 139:
-#line 1161 "cimmof.y"
+#line 1189 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT16; ;}
     break;
 
   case 140:
-#line 1162 "cimmof.y"
+#line 1190 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT32; ;}
     break;
 
   case 141:
-#line 1163 "cimmof.y"
+#line 1191 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT32; ;}
     break;
 
   case 142:
-#line 1164 "cimmof.y"
+#line 1192 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT64; ;}
     break;
 
   case 143:
-#line 1165 "cimmof.y"
+#line 1193 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT64; ;}
     break;
 
   case 144:
-#line 1166 "cimmof.y"
+#line 1194 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_CHAR16; ;}
     break;
 
   case 145:
-#line 1170 "cimmof.y"
+#line 1198 "cimmof.y"
     { (yyval.datatype) =CIMTYPE_REAL32; ;}
     break;
 
   case 146:
-#line 1172 "cimmof.y"
+#line 1200 "cimmof.y"
     { (yyval.datatype) =CIMTYPE_REAL64; ;}
     break;
 
   case 148:
-#line 1183 "cimmof.y"
+#line 1211 "cimmof.y"
     {
             //yydebug = 1; stderr = stdout;
         ;}
     break;
 
   case 149:
-#line 1187 "cimmof.y"
+#line 1215 "cimmof.y"
     {
     YACCTRACE("qualifierListbegin");
     g_qualifierList.clear(); ;}
     break;
 
   case 150:
-#line 1192 "cimmof.y"
+#line 1220 "cimmof.y"
     { ;}
     break;
 
   case 151:
-#line 1194 "cimmof.y"
+#line 1222 "cimmof.y"
     { ;}
     break;
 
   case 152:
-#line 1197 "cimmof.y"
+#line 1225 "cimmof.y"
     {
     cimmofParser *p = cimmofParser::Instance();
     // The qualifier value can't be set until we know the contents of the
@@ -2896,7 +2915,7 @@ yyreduce:
     break;
 
   case 153:
-#line 1216 "cimmof.y"
+#line 1244 "cimmof.y"
     {
             g_flavor = CIMFlavor (CIMFlavor::NONE);
             (yyval.strval) = new String(metaQualifierName);
@@ -2906,7 +2925,7 @@ yyreduce:
     break;
 
   case 154:
-#line 1223 "cimmof.y"
+#line 1251 "cimmof.y"
     {
             g_flavor = CIMFlavor (CIMFlavor::NONE);
             (yyval.strval) = new String(metaQualifierName);
@@ -2916,7 +2935,7 @@ yyreduce:
     break;
 
   case 155:
-#line 1230 "cimmof.y"
+#line 1258 "cimmof.y"
     {
             // KS Probably hangover for case when no scope supplied
             g_flavor = CIMFlavor (CIMFlavor::NONE);
@@ -2925,7 +2944,7 @@ yyreduce:
     break;
 
   case 156:
-#line 1237 "cimmof.y"
+#line 1265 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(2) - (3)].strval);
@@ -2934,7 +2953,7 @@ yyreduce:
     break;
 
   case 157:
-#line 1243 "cimmof.y"
+#line 1271 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2943,7 +2962,7 @@ yyreduce:
     break;
 
   case 158:
-#line 1249 "cimmof.y"
+#line 1277 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2952,7 +2971,7 @@ yyreduce:
     break;
 
   case 159:
-#line 1254 "cimmof.y"
+#line 1282 "cimmof.y"
     {   /* empty */
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2961,18 +2980,18 @@ yyreduce:
     break;
 
   case 160:
-#line 1261 "cimmof.y"
+#line 1289 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 161:
-#line 1264 "cimmof.y"
+#line 1292 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2973 "cimmoftemp"
+#line 2992 "cimmoftemp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3186,7 +3205,7 @@ yyreturn:
 }
 
 
-#line 1266 "cimmof.y"
+#line 1294 "cimmof.y"
 
 
 /*
@@ -3210,17 +3229,18 @@ static void MOF_error(const char * str, const char * S)
 */
 // #define DEBUG_cimmof 1
 
+#ifdef DEBUG_cimmof
 static void MOF_trace(const char* str)
 {
-#ifdef DEBUG_cimmof
     printf("MOF_trace(): %s \n", str);
-#endif // DEBUG_cimmof
 }
 
 static void MOF_trace2(const char * str, const char * S)
 {
-#ifdef DEBUG_cimmof
     printf("MOF_trace2(): %s %s\n", str, S);
-#endif // DEBUG_cimmof
 }
+
+
+
+#endif // DEBUG_cimmof
 

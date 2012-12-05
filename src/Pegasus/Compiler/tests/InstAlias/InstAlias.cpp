@@ -175,12 +175,51 @@ void TestInstanceAliases(CIMRepository& r)
         PEGASUS_TEST_ASSERT(tmpInstanceName == instanceName_Assoc);
     }
 
-    // Delete all the object we created:
+    // test X2 and X2_Association. get the association and compare
+    // left and rigt they shold be the same path
     {
-        // First delete the association:
+        CIMObjectPath X2_Instance = CIMObjectPath ("X2."
+            "key1=\"Jimmy Smith\",key2=\"son\",key3=true,key4=999");
+        if (verbose)
+        {
+            cout << "X2 Instance " << X2_Instance.toString() << endl;
+        }
 
-        r.deleteInstance(nameSpace, instanceName_Assoc);
+        Array<CIMObject> result = r.references(
+                nameSpace,
+                X2_Instance);
 
+        if (verbose)
+            cout << "result.size() = " << result.size() << endl;
+
+        PEGASUS_TEST_ASSERT(result.size() == 1);
+
+        CIMObject refInst = result[0];
+
+        Uint32 pos1 = refInst.findProperty("left");
+        Uint32 pos2 = refInst.findProperty("right");
+        PEGASUS_TEST_ASSERT(pos1 != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(pos2 != PEG_NOT_FOUND);
+
+        CIMProperty r1 = refInst.getProperty(pos1);
+        CIMProperty r2 = refInst.getProperty(pos2);
+
+        // test to confirm paths are the same.
+
+        CIMValue v1 = r1.getValue();
+        CIMValue v2 = r2.getValue();
+        CIMObjectPath path1;
+        CIMObjectPath path2;
+        v1.get(path1);
+        v2.get(path2);
+        if (verbose)
+        {
+            cout << "X2_Association Paths\n"
+                 << path1.toString() << endl
+                 << path2.toString() << endl;
+        }
+        PEGASUS_TEST_ASSERT(path1 == path2);
+        CIMInstance inst = r.getInstance(nameSpace, path1);
     }
 }
 

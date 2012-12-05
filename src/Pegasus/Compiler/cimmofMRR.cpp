@@ -1426,11 +1426,15 @@ void cimmofMRR::_writeQualifierArray(
         CIMType qt = cq.getType();
 
         if (_discard && qn == "Description")
+        {
             continue;
+        }
 
 #if 0
         if (qt == CIMTYPE_BOOLEAN && !cq.isArray())
+        {
             continue;
+        }
 #endif
 
         _writeQualifier(_qualifiers, cq);

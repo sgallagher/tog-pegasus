@@ -50,7 +50,7 @@ cimmofClient::~cimmofClient()
     delete _client;
 }
 
-void cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
+void cimmofClient::init(compilerCommonDefs::operationType ot)
 {
     _ot = ot;
     // ATTN:  We will want to make failure to connect a more satisfying

@@ -85,6 +85,18 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface
         };
         cimmofRepositoryInterface();
         virtual ~cimmofRepositoryInterface();
+        /*
+            Initialize a repository
+            @param type repository type defines whether client, local or
+            MRR repository is to be initialized
+            @param location String defining location of the repository. The
+            exact format depends on type paramter
+            @param mode
+            @param ot operationType
+            @param descriptions bool that defines whether descripton
+            qualifiers are to be included in the compiled output. This
+            parameter is used ONLY for MMR compilations.
+        */
         void init(_repositoryType type, String location, Uint32 mode,
                 compilerCommonDefs::operationType ot, bool descriptions);
         Boolean ok() const

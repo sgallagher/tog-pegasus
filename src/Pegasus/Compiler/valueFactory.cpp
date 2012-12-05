@@ -223,7 +223,6 @@ static Uint32 nextcsv(const String &csv, int sep, const Uint32 start,
 // -----------------------------------------------------------------
 CIMValue* valueFactory::_buildArrayValue(
     CIMType type,
-    unsigned int arrayDimension,
     const String& rep)
 {
     String sval;
@@ -231,11 +230,6 @@ CIMValue* valueFactory::_buildArrayValue(
     Uint32 strsize = rep.size();
     Uint32 end = strsize;
 
-    /* KS Changed all of the following from whil {...} to do {...}
-     * while (start < end);
-     * The combination of the testing and nexcsv meant the last entry was not
-     * processed.
-     */
     switch (type)
     {
         case CIMTYPE_BOOLEAN:
@@ -431,7 +425,7 @@ CIMValue* valueFactory::_buildArrayValue(
              //  of an embedded object, so it won't be found here.
         case CIMTYPE_OBJECT:
         case CIMTYPE_INSTANCE:
-                             break;
+             break;
     }  // end switch
     return 0;
 }
@@ -451,48 +445,92 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
       const String *repp)
 {
   const String &rep = *repp;
-  //cout << "valueFactory, value = " << rep << endl;
   CIMDateTime dt;
-  if (arrayDimension == -1) { // this is not an array type
 
+  CIMValue * rtn;
+
+  // if arrayDimension == -1 this is not an array type
+  if (arrayDimension == -1)
+  {
     if (isNULL)
     {
-       return new CIMValue(type, false);
+       rtn = new CIMValue(type, false);
     }
 
-    switch(type) {
-    case CIMTYPE_UINT8:  return new CIMValue((Uint8)  stringToUint(rep, type));
-    case CIMTYPE_SINT8:  return new CIMValue((Sint8)  stringToSint(rep, type));
-    case CIMTYPE_UINT16: return new CIMValue((Uint16) stringToUint(rep, type));
-    case CIMTYPE_SINT16: return new CIMValue((Sint16) stringToSint(rep, type));
-    case CIMTYPE_UINT32: return new CIMValue((Uint32) stringToUint(rep, type));
-    case CIMTYPE_SINT32: return new CIMValue((Sint32) stringToSint(rep, type));
-    case CIMTYPE_UINT64: return new CIMValue((Uint64) stringToUint(rep, type));
-    case CIMTYPE_SINT64: return new CIMValue((Sint64) stringToSint(rep, type));
-    case CIMTYPE_REAL32: return new CIMValue((Real32) stringToReal(rep, type));
-    case CIMTYPE_REAL64: return new CIMValue((Real64) stringToReal(rep, type));
-    case CIMTYPE_CHAR16: return new CIMValue((Char16) rep[0]);
-    case CIMTYPE_BOOLEAN: return new CIMValue((Boolean) (rep[0] == 'T'?1:0));
-    case CIMTYPE_STRING: return new CIMValue(rep);
-    case CIMTYPE_DATETIME: return new CIMValue(CIMDateTime(rep));
-    case CIMTYPE_REFERENCE: return new CIMValue(CIMObjectPath(rep));
-//  PEP 194:
-//  Note that "object" (ie. CIMTYPE_OBJECT) is not a real CIM datatype, just a
-//  Pegasus internal representation of an embedded object, so it won't be
-//  found here.
-    case CIMTYPE_OBJECT:
-    case CIMTYPE_INSTANCE:
-        break;
+    else
+    {
+        switch(type)
+        {
+            case CIMTYPE_UINT8:
+                rtn = new CIMValue((Uint8)  stringToUint(rep, type));
+                break;
+            case CIMTYPE_SINT8:
+                rtn = new CIMValue((Sint8)  stringToSint(rep, type));
+                break;
+            case CIMTYPE_UINT16:return
+                rtn = new CIMValue((Uint16) stringToUint(rep, type));
+                break;
+            case CIMTYPE_SINT16:
+                rtn = new CIMValue((Sint16) stringToSint(rep, type));
+                break;
+            case CIMTYPE_UINT32:
+                rtn = new CIMValue((Uint32) stringToUint(rep, type));
+                break;
+            case CIMTYPE_SINT32:
+                rtn = new CIMValue((Sint32) stringToSint(rep, type));
+                break;
+            case CIMTYPE_UINT64:
+                rtn = new CIMValue((Uint64) stringToUint(rep, type));
+                break;
+            case CIMTYPE_SINT64:
+                rtn = new CIMValue((Sint64) stringToSint(rep, type));
+                break;
+            case CIMTYPE_REAL32:
+                rtn = new CIMValue((Real32) stringToReal(rep, type));
+                break;
+            case CIMTYPE_REAL64:
+                rtn = new CIMValue((Real64) stringToReal(rep, type));
+                break;
+            case CIMTYPE_CHAR16:
+                rtn = new CIMValue((Char16) rep[0]);
+                break;
+            case CIMTYPE_BOOLEAN:
+                rtn = new CIMValue((Boolean) (rep[0] == 'T'?1:0));
+                break;
+            case CIMTYPE_STRING:
+                rtn = new CIMValue(rep);
+                break;
+            case CIMTYPE_DATETIME:
+                rtn = new CIMValue(CIMDateTime(rep));
+                break;
+            case CIMTYPE_REFERENCE:
+                rtn = new CIMValue(CIMObjectPath(rep));
+                break;
+            //  PEP 194:  CIMTYPE_OBJECT is not a DMTF CIM datatype,
+            // just an OpenPegasus internal representation of an embedded
+            // object, so it won't be  found here.
+            case CIMTYPE_OBJECT:
+            case CIMTYPE_INSTANCE:
+                rtn = new CIMValue((Uint32) 0);    // return empty CIMValue
+                break;
+            default:
+                rtn = new CIMValue((Uint32) 0);    // default
+        }
     }
-    return(new CIMValue((Uint32) 0));    // default
   }
+
+  // else array type
   else
-  { // an array type, either fixed or variable
-
-      // KS If empty string set CIMValue type but Null attribute.
+  {
+      // If empty string set CIMValue type but Null attribute.
       if (isNULL)
-          return new CIMValue(type, true, arrayDimension);
-
-    return _buildArrayValue(type, (unsigned int)arrayDimension, rep);
+      {
+          rtn = new CIMValue(type, true, (Uint32)arrayDimension);
+      }
+      else
+      {
+        rtn = _buildArrayValue(type, rep);
+      }
   }
+  return rtn;
 }

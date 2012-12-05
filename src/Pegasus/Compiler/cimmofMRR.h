@@ -48,6 +48,11 @@ class PEGASUS_COMPILER_LINKAGE cimmofMRR
 {
 public:
 
+    /**
+        Init the MMR generation object.
+        @param descriptions bool that defines whether description
+        qualifiers are to be included in the output
+    */
     cimmofMRR(bool descriptions);
 
     ~cimmofMRR();

@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/String.h>
-//#include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -76,7 +75,7 @@ void TestQualifierDecl(CIMRepository& r)
     {
         if (e.getCode() != 6)
         {
-            cerr << "CIMException " << e.getCode() << " " 
+            cerr << "CIMException " << e.getCode() << " "
                 << e.getMessage() << endl;
             exit(1);
         }
@@ -115,7 +114,7 @@ void TestQualifierDecl(CIMRepository& r)
     sIndTest.addScope(CIMScope::INDICATION);
     sIndTest.addScope(CIMScope::CLASS);
     CIMScope sInd = qInd.getScope();
-    VCOUT << "Indication Qualifier Decl " << sInd.toString() << " tests " 
+    VCOUT << "Indication Qualifier Decl " << sInd.toString() << " tests "
         << sIndTest.toString() << endl;
     PEGASUS_TEST_ASSERT(sInd.equal(sIndTest));
 

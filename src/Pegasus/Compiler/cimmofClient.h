@@ -75,8 +75,15 @@ class PEGASUS_COMPILER_LINKAGE cimmofClient
     public:
         cimmofClient();
         virtual ~cimmofClient();
-        void init(String &location,
-                compilerCommonDefs::operationType ot);
+
+        /** Connect to the CIM server using connect local
+
+            @param ot compilerCommonDefs enum that defines
+            some selected definitions for the connnection.
+            @exception - All exceptions possible from the OpenPegasus
+            Client.h connectLocal method.
+         */
+        void init( compilerCommonDefs::operationType ot);
         virtual void addClass(
                 const CIMNamespaceName &nameSpace,
                 CIMClass &Class) const;

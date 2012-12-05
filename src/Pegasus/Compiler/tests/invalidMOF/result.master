@@ -11,3 +11,8 @@ Parsing error: badQualifierDecl13.mof:3: syntax error before ')'
 Parsing error: badQualifierDecl15.mof:4: syntax error before 'Flavor'
 Parsing error: badQualifierDecl16.mof:3: syntax error before ')'
 Parsing error: badQualifierDecl20.mof:3: "scope" definition required on Qualifier Declaration before 'Flavor'
+Parsing error: parse error: Error getting class NoClass from namespace root: CIM_ERR_NOT_FOUND: NoClass
+Parsing error: parse error: Error getting class X from namespace root: CIM_ERR_NOT_FOUND: X
+Parsing error: parse error: Error getting class X from namespace root: CIM_ERR_NOT_FOUND: X
+Warning: Pragma "junkname" not implemented by the compiler. Ignored
+Warning: Pragma locale value "junkvalue" not defined by compiler. Ignored

@@ -101,7 +101,6 @@ private:
 
     static CIMValue* _buildArrayValue(
         CIMType type,
-        unsigned int arrayDimension,
         const String& rep);
 };
 

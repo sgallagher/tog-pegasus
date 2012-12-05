@@ -179,7 +179,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 171 "cimmof.y"
+#line 176 "cimmof.y"
 {
   //char                     *strval;
   CIMClass                 *mofclass;

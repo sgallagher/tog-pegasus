@@ -784,7 +784,7 @@ char *cimmof_text;
 
 /* Avoid warn_unused_result warnings in Linux RPM build */
 #ifndef ECHO
-# define ECHO do { size_t ignored = fwrite(cimmof_text, cimmof_leng, 1, cimmof_out); } while(0)
+# define ECHO do { fwrite(cimmof_text, cimmof_leng, 1, cimmof_out); } while(0)
 #endif
 
 /*---------------------------------------------------------------*/
@@ -1431,7 +1431,7 @@ YY_RULE_SETUP
 case 49:
 YY_RULE_SETUP
 #line 206 "cimmof.l"
-{ 
+{
                                        metaQualifierName = strdup(cimmof_text);
                                        return(TOK_INDICATION); }
 	YY_BREAK
@@ -2659,5 +2659,4 @@ void cimmof_free (void * ptr )
 
 
 
-void cimmof_yy_less(int n) { yyless(n); }
 

@@ -95,7 +95,6 @@
       in cimmofparser.h and turned on and off manually.
    All debugging must be turned on manually at this point by
    setting the YYDEBUG compile flag and also setting YACCTRACE.
-   ATTN: TODO: automate the debug information flags.
 */
 // Enable this define to compile Bison/Yacc tracing
 // #define YYDEBUG 1
@@ -158,8 +157,14 @@ cimmof_error(const char *msg) {
 }
 
 static void MOF_error(const char * str, const char * S);
+
+#ifdef DEBUG_cimmof
 static void MOF_trace(const char* str);
 static void MOF_trace2(const char * str, const char * S);
+#else
+#define MOF_Trace(X)
+#define MOF_trace2(X, Y)
+#endif
 
 %}
 
@@ -335,10 +340,14 @@ classDeclaration: classHead  classBody
 {
     YACCTRACE("classDeclaration");
     if (g_currentAliasDecl != String::EMPTY)
-        cimmofParser::Instance()->addClassAlias(g_currentAliasDecl, $$, false);
+    {
+        cimmofParser::Instance()->addClassAlias(g_currentAliasDecl, $$);
+    }
 } ;
 
-
+// NOTE: class alias is deprecated and was removed from DSP0004 between
+// versions 2.2 and 2.5. It was never implemented in this compiler but
+// we catch the error in the cimmofParser for now.
 classHead: qualifierList TOK_CLASS className alias superClass
 {
     // create new instance of class with className and superclassName
@@ -521,13 +530,15 @@ propertyBody: dataType propertyName array typedDefaultValue
 {
     CIMValue *v = valueFactory::createValue($1, $3,
             ($4->type == CIMMOF_NULL_VALUE), $4->value);
+
+    // if scalar, $3 == -1 so set arrayDimension to zero.
     if ($3 == -1)
     {
-        $$ = cimmofParser::Instance()->newProperty(*$2, *v, false, 0);
+        $$ = cimmofParser::Instance()->newProperty(*$2, *v, 0);
     }
     else
     {
-        $$ = cimmofParser::Instance()->newProperty(*$2, *v, true, $3);
+        $$ = cimmofParser::Instance()->newProperty(*$2, *v, $3);
     }
 
     delete $2;
@@ -554,8 +565,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
     if (!String::equal(*$5, String::EMPTY))
         s.append("." + *$5);
     CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
-    //KS add the isArray and arraysize parameters. 8 mar 2002
-    $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
+    $$ = cimmofParser::Instance()->newProperty(*$4, *v, 0, *$2);
     applyQualifierList(g_qualifierList, *$$);
     delete $2;
     delete $4;
@@ -594,15 +604,19 @@ propertyName: TOK_SIMPLE_IDENTIFIER
     delete $1;
 }
 
-
-array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
-     TOK_RIGHTSQUAREBRACKET
+// array definition syntax with dimension integer found [xxx] or
+// dimension integer empty or not array definition
+array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE TOK_RIGHTSQUAREBRACKET
         {
             $$ = (Uint32) valueFactory::stringToUint(*$2, CIMTYPE_UINT32);
             delete $2;
         }
+
+    // array syntax with no number []
     | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET
         { $$ = 0; }
+
+    // no array definition syntax.
     | /* empty */
         { $$ = -1; } ;
 
@@ -759,8 +773,11 @@ objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
     // instance
     String *s = new String(*$2);
     if (!String::equal(*s, String::EMPTY) && $3)
+    {
         (*s).append(":");
-    if ($3) {
+    }
+    if ($3)
+    {
         (*s).append($3->toString());
     }
     $$ = s;
@@ -784,6 +801,8 @@ aliasInitializer : aliasIdentifier
         g_currentAliasRef.getCString());
     if (cimmofParser::Instance()->getInstanceAlias(g_currentAliasRef, AOP) == 0)
     {
+         MOF_error("ERROR: aliasIdentifier NOT FOUND: aliasIdentifier = ",
+             g_currentAliasRef.getCString());
         yyerror("aliasInitializer - 'aliasIdentifier' NOT FOUND");
         YYABORT;
     }
@@ -806,23 +825,31 @@ namespaceHandleRef: namespaceHandle TOK_COLON
 
 namespaceHandle: stringValue {};
 
+// create a model CIMObject path from <className>.<keyValuePairList>
+modelPath: className TOK_PERIOD keyValuePairList
+   {
+      CIMObjectPath * m = new CIMObjectPath(String::EMPTY,
+           CIMNamespaceName(),
+           (*$1).getString(),
+           g_KeyBindingArray);
 
-modelPath: className TOK_PERIOD keyValuePairList {
-    CIMObjectPath *m = new CIMObjectPath(
-        String::EMPTY,
-        CIMNamespaceName(),
-        (*$1).getString(),
-        g_KeyBindingArray);
-    g_KeyBindingArray.clear();
-    delete $1;} ;
+      g_KeyBindingArray.clear();
+      delete $1;
 
+      $$ = m;
 
+      MOF_trace2 ("modelPath done $$ = ", $$->toString().getCString());
+   } ;
+
+// gets the list of keyValuePairs into the global KeyBindingArray
+// keyValuePairList := <keyValuePair> [, <keyValuePair>]
+// Returns SS = 0 because value in global
 keyValuePairList: keyValuePair
         { $$ = 0; }
     | keyValuePairList TOK_COMMA keyValuePair
         { $$ = 0; } ;
 
-
+// parse one keybinding and append to global KeyBindingArray.
 keyValuePair: keyValuePairName TOK_EQUAL initializer
     {
         CIMKeyBinding::Type keyBindingType;
@@ -877,10 +904,9 @@ instanceDeclaration: instanceHead instanceBody
     {
         MOF_trace2("instanceDeclaration g_currentAliasDecl = ",
                   g_currentAliasDecl.getCString());
-        // MOF_trace2 ("instanceDeclaration instance =
-        //  ", ((CIMObject *)$$)->toString().getCString());
+
         if (cimmofParser::Instance()->addInstanceAlias(
-            g_currentAliasDecl, $$, true) == 0)
+            g_currentAliasDecl, $$) == 0)
         {
             // Error alias already exist
             MOF_error("ERROR: alias ALREADY EXISTS: aliasIdentifier = ",
@@ -905,8 +931,10 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
     delete $4;
     delete $5;
     if (g_currentAliasDecl != String::EMPTY)
+    {
         MOF_trace2("instanceHead g_currentAliasDecl = ",
             g_currentAliasDecl.getCString());
+    }
 } ;
 
 
@@ -1068,7 +1096,7 @@ scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN
 
 /* aggregate the keywords used to define scope */
 metaElements: metaElement
-        {   /* empty */  
+        {   /* empty */
             $$ = $1;
         }
     | metaElements TOK_COMMA metaElement
@@ -1081,7 +1109,7 @@ metaElements: metaElement
    returns one scope type.  The ASSOCIATION and INDICATION free the
    variable metaQualifierName since that could be set either by the
    Keywords as a Scope token or metaQualifier name (i.e. these keywords
-   usage is context sensitive) 
+   usage is context sensitive)
    metaElement = CLASS / ASSOCIATION / INDICATION / QUALIFIER
        PROPERTY / REFERENCE / METHOD / PARAMETER / ANY
 */
@@ -1120,7 +1148,7 @@ explicitFlavors: explicitFlavor
     | explicitFlavors TOK_COMMA explicitFlavor ;
 
 // Get an explicitFlavor keyword and add to the g_flavor variable
-// This allows multiple instances of any keyword. 
+// This allows multiple instances of any keyword.
 // Each entity simply sets a bit so that you may
 // set disable and enable and we will not know which overrides the other.
 // Should create the function to insure that you cannot enable then
@@ -1286,16 +1314,17 @@ static void MOF_error(const char * str, const char * S)
 */
 // #define DEBUG_cimmof 1
 
+#ifdef DEBUG_cimmof
 static void MOF_trace(const char* str)
 {
-#ifdef DEBUG_cimmof
     printf("MOF_trace(): %s \n", str);
-#endif // DEBUG_cimmof
 }
 
 static void MOF_trace2(const char * str, const char * S)
 {
-#ifdef DEBUG_cimmof
     printf("MOF_trace2(): %s %s\n", str, S);
-#endif // DEBUG_cimmof
 }
+
+
+
+#endif // DEBUG_cimmof

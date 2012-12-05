@@ -117,6 +117,10 @@ static const char* _cimmofMessages[] =
     "Invalid version format in mof class or repository class"
         " (valid format is m.n.u)", //INVALID_VERSION_FORMAT
     "Invalid $0 value: $1",    // INVALID_LITERAL_VALUE
+    "Class alias $0 found for class $1. This function not implemented",
+    "Class $1 not found for instance alias $0",
+    "Warning: Pragma \"$0\" not implemented by the compiler. Ignored",
+    "Warning: Pragma locale value \"$0\" not defined by compiler. Ignored",
     ""
 };
 
@@ -171,6 +175,10 @@ static const char* _cimmofMessagesKeys [] =
     "Compiler.cimmofMessages.NO_CLASS_UPDATE",
     "Compiler.cimmofMessages.INVALID_VERSION_FORMAT",
     "Compiler.cimmofMessages.INVALID_LITERAL_VALUE",
+    "Compiler.cimmofMessages::CLASS_ALIAS_FOUND",
+    "Compiler.cimmofMessages::INSTANCE_ALIAS_CLASS_NOT_FOUND",
+    "Compiler.cimmofMessages::PRAGMA_NOT_IMPLEMENTED_WARNING",
+    "Compiler.commofMessages::LOCALE_NOT_IMPLEMENTED_WARNING",
     "Compiler.cimmofMessages.END"
 };
 

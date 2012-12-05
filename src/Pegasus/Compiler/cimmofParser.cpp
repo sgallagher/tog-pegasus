@@ -28,8 +28,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-// bug 4573 - cimmof include file search path processing is inadequate
 //
 // Bug 4573 changed the behavior of the processing for locating specified
 //  include files. The new procssing is based on the include file processing
@@ -48,11 +46,6 @@
 //          2. process the include path array from the cimof(l) cmdline
 //             processing which only includes paths specified on the
 //             command line with the -I option.
-//
-
-//
-// implementation of valueFactory
-//
 //
 //
 // Implementation of methods of cimmofParser class
@@ -119,9 +112,9 @@ void cimmofParser::destroy()
     _instance = 0;
 }
 
-  //------------------------------------------------------------------
-  // Methods for manipulating the members added in this specialization
-  //------------------------------------------------------------------
+//------------------------------------------------------------------
+// Methods for manipulating the members added in this specialization
+//------------------------------------------------------------------
 
 //---------------------------------------------------------------------
 // allow someone to set/get our compiler options object reference
@@ -483,28 +476,56 @@ void cimmofParser::log_parse_error(char *token, const char *errmsg) const
     maybeThrowLexerError(message);
 }
 
-  //------------------------------------------------------------------
-  // Handle the processing of CIM-specific constructs
-  //------------------------------------------------------------------
+//------------------------------------------------------------------
+// Handle the processing of CIM-specific constructs
+//------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 // Take the compiler-local action specified by the #pragma (directive).
 // Note that the Include #pragma is handled elsewhere.
+// Today we only handle the pragma locale with en-US value and this only
+// because it is defined throughout the DMTF released mof.
 //--------------------------------------------------------------------
 void cimmofParser::processPragma(const String &name, const String &value)
 {
-    // The valid names are:
-    // instancelocale
-    // locale
-    // namespace
-    // nonlocal
-    // nonlocaltype
-    // source
-    // sourcetype
+    if (String::equalNoCase(name,"locale"))
+    {
+        if (value == "en_US")
+        {
+            // implemented by accepting this pragma
+            return;
+        }
+        String message;
+        cimmofMessages::arglist arglist;
+        arglist.append((char const*)value.getCString());
+        cimmofMessages::getMessage(message,
+            cimmofMessages::LOCALE_NOT_IMPLEMENTED_WARNING,
+            arglist);
+        wlog(message);
+    }
+    else
+    {
+        // Issue a warning that the pragma is not implemented.
+        String message;
+        cimmofMessages::arglist arglist;
+        arglist.append((char const*)name.getCString());
+        cimmofMessages::getMessage(message,
+            cimmofMessages::PRAGMA_NOT_IMPLEMENTED_WARNING,
+            arglist);
+        wlog(message);
+    }
 
-    // ATTN: P1 BB 2001 Des not process several Pragmas
-    // instancelocale, locale, namespace, nonlocal, nonlocaltype, source, etc.
-    // at least.
+    // The names defined in DSP0004 that should be considered are:
+    // instancelocale - Not implemented
+    // locale - Implemented only for en_US today
+    // namespace - Not Implemented
+
+    // The following will NOT be implemented:
+    // nonlocal  - Removed as erratum bin DSP004 v 2.3
+    // nonlocaltype  - Removed as erratum bin DSP004 v 2.3
+    // source  - Removed as erratum bin DSP004 v 2.3
+    // sourcetype - Removed as erratum bin DSP004 v 2.3
+
 }
 
 //-------------------------------------------------------------------
@@ -877,18 +898,15 @@ CIMInstance * cimmofParser::newInstance(const CIMName &className)
 // new CIMProperty object.
 //----------------------------------------------------------------------
 
-// KS 8 Mar 2002 - Added is array and arraySize to parameters
 CIMProperty * cimmofParser::newProperty(const CIMName &name,
     const CIMValue &val,
-    const Boolean isArray,
-    const Uint32 arraySize,
+    const int arraySize,
     const CIMName &referencedObject) const
 {
     CIMProperty *p = 0;
 
     try
     {
-        //ATTNKS: P1 Note that we are not passing isArray
         p = new CIMProperty(name, val, arraySize, referencedObject);
     }
     catch(Exception &e)
@@ -1275,20 +1293,27 @@ CIMValue * cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
     return value;
 }
 
-void cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
-    Boolean isInstance)
+void cimmofParser::addClassAlias(const String &alias, const CIMClass *cd)
 {
-  // ATTN: P3 BB 2001 ClassAlias - to be deprecated.  Simply warning here
-}
+    // Send error message.  Easier than removing the alias
+    // from the syntax for the moment KS 20 Nov 2012
+    cimmofMessages::arglist arglist;
+    String message;
+    arglist.append(alias);
+    arglist.append(cd->getClassName().getString());
 
+    cimmofMessages::getMessage(message,
+            cimmofMessages::CLASS_ALIAS_FOUND,
+            arglist);
+    maybeThrowParseError(message);
+}
 
 Array <String> aliasName;
 Array <CIMObjectPath> aliasObjPath;
 
 
 Uint32 cimmofParser::addInstanceAlias(const String &alias,
-    const CIMInstance *cd,
-    Boolean isInstance)
+    const CIMInstance *cd)
 {
 
     CIMObjectPath objpath;
@@ -1308,7 +1333,6 @@ Uint32 cimmofParser::addInstanceAlias(const String &alias,
         return (0);
     }
 
-
     // Get the class from the repository
     CIMClass classrep;
     Boolean classExist = true;
@@ -1317,25 +1341,40 @@ Uint32 cimmofParser::addInstanceAlias(const String &alias,
     {
         classrep = _repository.getClass(getNamespacePath(), cd->getClassName());
     }
+
     catch (const CIMException &e)
     {
         if (e.getCode() == CIM_ERR_NOT_FOUND)
         {
             classExist = false;
         }
-        else
-            if (e.getCode() == CIM_ERR_INVALID_CLASS)
-            {
-                /* Note:  this is where cimmofl and cimmof fall into */
-                classExist = false;
-            }
-            else
-            {
-                throw;
-            }
-    }
+        else if (e.getCode() == CIM_ERR_INVALID_CLASS)
+        {
 
-    objpath = cd->buildPath(classrep);
+            classExist = false;
+        }
+        else
+        {
+            throw;
+        }
+    }
+    // class does not exist, send error message
+    if (!classExist)
+    {
+        cimmofMessages::arglist arglist;
+        String message;
+        arglist.append(alias);
+        arglist.append(cd->getClassName().getString());
+
+        cimmofMessages::getMessage(message,
+            cimmofMessages::INSTANCE_ALIAS_CLASS_NOT_FOUND,
+            arglist);
+        maybeThrowParseError(message);
+    }
+    else
+    {
+        objpath = cd->buildPath(classrep);
+    }
 
 #ifdef DEBUG_cimmofParser
     cout << "addInstance objPath = " << objpath.toString() << endl;

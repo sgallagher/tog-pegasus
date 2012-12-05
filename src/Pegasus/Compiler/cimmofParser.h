@@ -198,10 +198,10 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         CIMInstance *newInstance(const CIMName &name);
 
         // Called when a new property is discovered
-        CIMProperty *newProperty(const CIMName &name, const CIMValue &val,
-                const Boolean isArray,
-                const Uint32 arraySize,
-                const CIMName &referencedObj = CIMName()) const;
+        CIMProperty *newProperty(const CIMName &name,
+            const CIMValue &val,
+            const int arraySize,
+            const CIMName &referencedObj = CIMName()) const;
 
         // Called when a property production inside a class is complete
         int applyProperty(CIMClass &c, CIMProperty &p);
@@ -237,12 +237,10 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
                 const CIMName &propertyName) const;
 
         // Called when a class alias is found
-        void addClassAlias(const String &alias, const CIMClass *cd,
-                Boolean isInstance);
+        void addClassAlias(const String &alias, const CIMClass *cd);
 
         // Called when an instance alias is found
-        Uint32 addInstanceAlias(const String &alias, const CIMInstance *cd,
-                Boolean isInstance);
+        Uint32 addInstanceAlias(const String &alias, const CIMInstance *cd);
 
         // Called when an instance alias reference is found
         Uint32 getInstanceAlias(const String &alias, CIMObjectPath &ObjPath);

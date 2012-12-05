@@ -100,11 +100,17 @@ class cimmofMessages
             NO_CLASS_UPDATE,
             INVALID_VERSION_FORMAT,
             INVALID_LITERAL_VALUE,
+            CLASS_ALIAS_FOUND,
+            INSTANCE_ALIAS_CLASS_NOT_FOUND,
+            PRAGMA_NOT_IMPLEMENTED_WARNING,
+            LOCALE_NOT_IMPLEMENTED_WARNING,
             END
         };
         typedef Array<String> arglist;
         static const arglist EMPTYLIST;
+
         static const char* msgCodeToString(MsgCode code);
+
         static void getMessage(String &out, MsgCode code,
             const arglist &al =
             cimmofMessages::EMPTYLIST);

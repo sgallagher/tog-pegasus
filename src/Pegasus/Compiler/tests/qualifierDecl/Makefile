@@ -28,50 +28,31 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
 DIR = Pegasus/Compiler/tests/qualifierDecl
+
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = qualifierDecl
+## This name selected because Common tests are named TestQualifierDecl
+PROGRAM = TestQualifierDeclCompile
 SOURCES = qualifierDecl.cpp
 
 include $(ROOT)/mak/program.mak
 
 REPOSITORYDIR = $(TMP_DIR)
-RESULTFILE = $(TMP_DIR)/result
-
-RESULTMASTERFILE = $(ROOT)/src/$(DIR)/result.master
 
 ## test addition of selected qualifierDecls. Note that this is not a complete
-## qualifierDecl test today but largely for fixes in bug 133 and a number
-## of errors in parsing the qualifierDecl
+## qualifierDecl test today but largely for fixes in bug 133
+## NOTE: Error tests for qualifierDecl are implemented in the directory
+## invalidMOF
+
 tests:
 	@ $(RMREPOSITORY) $(REPOSITORYDIR)/repository
-	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" -nroot testqualifiers.mof
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)"  \
+            testqualifiers.mof
 	@ $(PROGRAM)
 	@ $(RMREPOSITORY) $(REPOSITORYDIR)/repository
 	@ $(ECHO) +++ $(PROGRAM) program test passed successfully +++
 
-##  Error tests. One mof file for each syntax error test. 1 - 9 are
-##  Flavor error. 10-16 are Scope errors.
-	@ $(ECHO) > $(RESULTFILE)
-	-@ cimmofl -E -W badQualifierDecl1.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl2.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl3.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl4.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl5.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl6.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl10.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl11.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl12.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl13.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl14.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl15.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl16.mof >> $(RESULTFILE) 2>&1
-	-@ cimmofl -E -W badQualifierDecl20.mof >> $(RESULTFILE) 2>&1
-	@ $(DIFF) $(RESULTFILE) $(RESULTMASTERFILE)
-	@ $(RM) $(RESULTFILE)
-	@ $(ECHO) +++ $(PROGRAM) Syntax error tests passed successfully +++
 poststarttests:
-

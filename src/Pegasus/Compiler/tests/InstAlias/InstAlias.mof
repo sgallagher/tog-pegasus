@@ -29,7 +29,7 @@
 
 // Example of use of Instance Alias
 
-// Defines a Class with key properties
+// Defines a Class with String key properties
 [Version ("2.2.0")]
 class X
 {
@@ -39,7 +39,20 @@ class X
      string key2;
      string valuePropertya;
 };
-
+// Defines a Class with String, numberic, Bool key properties
+[Version ("2.2.0")]
+class X2
+{
+     [key]
+     string key1;
+     [key]
+     string key2;
+     [key]
+     boolean key3;
+     [key]
+     Uint32 key4;
+     string valuePropertya;
+};
 
 // define the class Y
 [Version ("2.2.0")]
@@ -58,6 +71,14 @@ class A
 {
      [key] X ref left;
      [key] Y ref right;
+};
+
+// Define as association between X2 and X2
+[association, Version ("2.2.0")]
+class X2_Association
+{
+     [key] X2 ref left;
+     [key] X2 ref right;
 };
 
 
@@ -85,6 +106,34 @@ instance of X
      valuePropertya= "an instance of class X";
 };
 
+// Create instance of X2
+instance of X2 as $X2_Alias1
+{
+     key1 = "Jimmy Smith";
+     key2 = "son";
+     key3 = true;
+     key4 = 999;
+     valuePropertya= "an instance of class X2";
+};
+// Create instance of X2
+instance of X2 as $X2_Alias2
+{
+     key1 = "Jimmy Smith";
+     key2 = "son";
+     key3 = false;
+     key4 = 333;
+     valuePropertya= "an instance of class X2";
+};
+
+
+// Instance of X2_Association with left key as alias and right key
+// manually created.
+instance of X2_Association
+{
+    left = $X2_Alias1;
+    //right should be same path as left.
+    right = "X2.key1=\"Jimmy Smith\",key2=\"son\",key3=true,key4=999";
+};
 
 // Create an instance of X
 instance of X as $X_Alias
@@ -101,9 +150,6 @@ instance of Y as $Y_Alias
      keyb = "Grandfather";
      valuePropertyb= "instance of class Y";
 };
-
-
-
 
 // Instance of the association using instance Alias
 
@@ -125,8 +171,8 @@ instance of C as $C_Alias
      right = $Y_Alias;
 };
 
-// More stuf to compile using classes from the CIM_InterOp.mof to better test aliases
-
+// More stuff to compile using classes from the CIM_InterOp.mof
+// to better test aliases
 
 // instances of registered profile for test.
 

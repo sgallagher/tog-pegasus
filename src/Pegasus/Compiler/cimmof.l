@@ -41,7 +41,7 @@
 
 /* Avoid warn_unused_result warnings in Linux RPM build */
 #ifndef ECHO
-# define ECHO do { size_t ignored = fwrite(yytext, yyleng, 1, yyout); } while(0)
+# define ECHO do { fwrite(yytext, yyleng, 1, yyout); } while(0)
 #endif
 
 /*---------------------------------------------------------------*/
@@ -203,7 +203,7 @@ class          { return(TOK_CLASS); }
 [Aa][Ss][Ss][Oo][Cc][Ii][Aa][Tt][Ii][Oo][Nn] {
                                        metaQualifierName = strdup(yytext);
                                        return(TOK_ASSOCIATION); }
-[Ii][Nn][Dd][Ii][Cc][Aa][Tt][Ii][Oo][Nn] { 
+[Ii][Nn][Dd][Ii][Cc][Aa][Tt][Ii][Oo][Nn] {
                                        metaQualifierName = strdup(yytext);
                                        return(TOK_INDICATION); }
 
@@ -248,4 +248,3 @@ $[_$0-9a-zA-Z]+                      { cimmof_lval.strval = new String(yytext);
 
 %%
 
-void cimmof_yy_less(int n) { yyless(n); }

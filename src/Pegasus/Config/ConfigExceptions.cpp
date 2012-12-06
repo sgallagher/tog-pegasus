@@ -29,22 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
+#include <Pegasus/Common/StringConversion.h>
 #include "ConfigExceptions.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**
-    MissingCommandLineOptionArgument Exception class
-*/
-MissingCommandLineOptionArgument::MissingCommandLineOptionArgument(
-    const String& optionName):Exception(
-        MessageLoaderParms(
-            "Config.ConfigExceptions.MISSING_CMDLINE_OPTION",
-            "Missing command line option argument: $0",
-            optionName))
-{
-}
 
 /**
     UnrecognizedCommandLineOption Exception class
@@ -111,31 +99,18 @@ InvalidListenAddressPropertyValue::InvalidListenAddressPropertyValue(
 {
 }
 
-/**
-    DuplicateOption Exception class
-*/
-DuplicateOption::DuplicateOption(const String& name)
-    :Exception(
-        MessageLoaderParms(
-            "Config.ConfigExceptions.DUPLICATE_OPTION",
-            "Duplicate option: $0",
-            name))
-{
-}
-
-
 ConfigFileSyntaxError::ConfigFileSyntaxError(const String& file, Uint32 line)
     :Exception(_formatMessage(file, line))
 {
 }
 
-
 String ConfigFileSyntaxError::_formatMessage(
     const String& file,
     Uint32 line)
 {
-    char buffer[32];
-    sprintf(buffer, "%u", line);
+    char buffer[22];
+    Uint32 n;
+    const char * startNum=Uint32ToString(buffer,line,n);
 
     MessageLoaderParms parms(
         "Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR",
@@ -143,35 +118,9 @@ String ConfigFileSyntaxError::_formatMessage(
     String result = MessageLoader::getMessage(parms);
     result.append(file);
     result.append("(");
-    result.append(buffer);
+    result.append(startNum,n);
     result.append(")");
     return result;
-}
-
-
-/**
-    UnrecognizedConfigFileOption Exception class
-*/
-UnrecognizedConfigFileOption::UnrecognizedConfigFileOption(const String& name)
-    :Exception(
-        MessageLoaderParms(
-            "Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION",
-            "Unrecognized config file option: $0",
-            name))
-{
-}
-
-
-/**
-    MissingRequiredOptionValue Exception class
-*/
-MissingRequiredOptionValue::MissingRequiredOptionValue(const String& name)
-    :Exception(
-        MessageLoaderParms(
-            "Config.ConfigExceptions.MISSING_REQUIRED_OPTION",
-            "Missing required option value: $0",
-            name))
-{
 }
 
 

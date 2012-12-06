@@ -45,15 +45,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    MissingCommandLineOptionArgument Exception class
-*/
-class MissingCommandLineOptionArgument : public Exception
-{
-public:
-    MissingCommandLineOptionArgument(const String& optionName);
-};
-
-/**
     UnrecognizedCommandLineOption Exception class
 */
 class UnrecognizedCommandLineOption : public Exception
@@ -96,16 +87,6 @@ public:
 };
 
 /**
-    DuplicateOption Exception class
-*/
-class DuplicateOption : public Exception
-{
-public:
-    DuplicateOption(const String& name);
-};
-
-
-/**
     ConfigFileSyntaxError Exception class
 */
 class ConfigFileSyntaxError : public Exception
@@ -114,26 +95,6 @@ public:
     ConfigFileSyntaxError(const String& file, Uint32 line);
 
     static String _formatMessage(const String& file, Uint32 line);
-};
-
-
-/**
-    UnrecognizedConfigFileOption Exception class
-*/
-class UnrecognizedConfigFileOption : public Exception
-{
-public:
-    UnrecognizedConfigFileOption(const String& name);
-};
-
-
-/**
-    MissingRequiredOptionValue Exception class
-*/
-class MissingRequiredOptionValue : public Exception
-{
-public:
-    MissingRequiredOptionValue(const String& name);
 };
 
 

@@ -78,8 +78,6 @@ else
         endif
 
         SOURCES += snmpDeliverTrap_netsnmp.cpp
-    else
-        SOURCES += snmpDeliverTrap_stub.cpp
     endif
 endif
 

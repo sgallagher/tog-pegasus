@@ -204,16 +204,35 @@ endif
 DIRS += \
     Server \
     Handler/CIMxmlIndicationHandler \
-    Handler/snmpIndicationHandler \
     msg/Server \
     msg/CLI \
     msg/Listener
 
+ifdef PEGASUS_USE_EMANATE
+    DIRS += \
+        Handler/snmpIndicationHandler
+endif
+
+ifdef PEGASUS_USE_NET_SNMP
+    DIRS += \
+        Handler/snmpIndicationHandler
+endif
+
 TEST_DIRS += \
     Server/tests \
     Server/tests/InterfaceRestriction \
-    Handler/CIMxmlIndicationHandler/tests/Destination \
-    Handler/snmpIndicationHandler/tests/testclient \
-    Handler/snmpIndicationHandler/tests/SnmpHandlerException
+    Handler/CIMxmlIndicationHandler/tests/Destination
+
+ifdef PEGASUS_USE_EMANATE
+    TEST_DIRS += \
+        Handler/snmpIndicationHandler/tests/testclient \
+        Handler/snmpIndicationHandler/tests/SnmpHandlerException
+endif
+
+ifdef PEGASUS_USE_NET_SNMP
+    TEST_DIRS += \
+        Handler/snmpIndicationHandler/tests/testclient \
+        Handler/snmpIndicationHandler/tests/SnmpHandlerException
+endif
 
 include $(ROOT)/mak/recurse.mak

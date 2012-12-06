@@ -31,7 +31,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 34
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -56,7 +56,7 @@
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 
 /* C99 says to define __STDC_LIMIT_MACROS before including stdint.h,
- * if you want the limit (max/min) macros for int types.
+ * if you want the limit (max/min) macros for int types. 
  */
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS 1
@@ -73,7 +73,7 @@ typedef uint32_t flex_uint32_t;
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
 typedef int flex_int32_t;
-typedef unsigned char flex_uint8_t;
+typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
 #endif /* ! C99 */
@@ -184,7 +184,7 @@ extern FILE *WQL_in, *WQL_out;
 #define EOB_ACT_LAST_MATCH 2
 
     #define YY_LESS_LINENO(n)
-
+    
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
 	do \
@@ -200,13 +200,6 @@ extern FILE *WQL_in, *WQL_out;
 	while ( 0 )
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
-
-/* The following is because we cannot portably get our hands on size_t
- * (without autoconf's help, which isn't available because we want
- * flex-generated scanners to compile on their own).
- * Given that the standard has decreed that size_t exists since 1989,
- * I guess we can afford to depend on it. Manoj.
- */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
@@ -253,7 +246,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-
+    
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -577,11 +570,6 @@ extern int WQL_error(const char*);
 # define WQL_TRACE(X)
 #endif
 
-/* Avoid warn_unused_result warnings in Linux RPM build */
-#ifndef ECHO
-# define ECHO do { size_t ignored = fwrite(WQL_text, WQL_leng, 1, WQL_out); } while(0)
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 extern WQLParserState* globalParserState;
@@ -592,7 +580,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
-#line 593 "WQLLEX.cpp"
+#line 581 "WQLLEX.cpp"
 
 #define INITIAL 0
 
@@ -610,6 +598,35 @@ PEGASUS_USING_PEGASUS;
 
 static int yy_init_globals (void );
 
+/* Accessor methods to globals.
+   These are made visible to non-reentrant scanners for convenience. */
+
+int WQL_lex_destroy (void );
+
+int WQL_get_debug (void );
+
+void WQL_set_debug (int debug_flag  );
+
+YY_EXTRA_TYPE WQL_get_extra (void );
+
+void WQL_set_extra (YY_EXTRA_TYPE user_defined  );
+
+FILE *WQL_get_in (void );
+
+void WQL_set_in  (FILE * in_str  );
+
+FILE *WQL_get_out (void );
+
+void WQL_set_out  (FILE * out_str  );
+
+int WQL_get_leng (void );
+
+char *WQL_get_text (void );
+
+int WQL_get_lineno (void );
+
+void WQL_set_lineno (int line_number  );
+
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
  */
@@ -623,7 +640,7 @@ extern int WQL_wrap (void );
 #endif
 
     static void yyunput (int c,char *buf_ptr  );
-
+    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -652,7 +669,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO fwrite( WQL_text, WQL_leng, 1, WQL_out )
+#define ECHO do { if (fwrite( WQL_text, WQL_leng, 1, WQL_out )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -663,7 +680,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		unsigned n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( WQL_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -744,11 +761,11 @@ YY_DECL
 	register yy_state_type yy_current_state;
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
+    
+#line 70 "WQL.l"
 
-#line 75 "WQL.l"
 
-
-#line 749 "WQLLEX.cpp"
+#line 766 "WQLLEX.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -829,7 +846,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 77 "WQL.l"
+#line 72 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_SELECT]\n", WQL_text));
@@ -838,7 +855,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 83 "WQL.l"
+#line 78 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_FROM]\n", WQL_text));
@@ -847,7 +864,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 89 "WQL.l"
+#line 84 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_WHERE]\n", WQL_text));
@@ -856,7 +873,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 95 "WQL.l"
+#line 90 "WQL.l"
 {
 
    WQL_TRACE(("LEX: %s [TOK_ISA]\n", WQL_text));
@@ -865,7 +882,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 101 "WQL.l"
+#line 96 "WQL.l"
 {
   WQL_TRACE(("LEX: %s [TOK_DOT]\n", WQL_text));
   return TOK_DOT;
@@ -873,7 +890,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 108 "WQL.l"
+#line 103 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_TRUE]\n", WQL_text));
@@ -882,7 +899,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 114 "WQL.l"
+#line 109 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_FALSE]\n", WQL_text));
@@ -891,7 +908,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 120 "WQL.l"
+#line 115 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_NULL]\n", WQL_text));
@@ -900,7 +917,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 126 "WQL.l"
+#line 121 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_NOT]\n", WQL_text));
@@ -909,7 +926,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 132 "WQL.l"
+#line 127 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_AND]\n", WQL_text));
@@ -918,7 +935,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 138 "WQL.l"
+#line 133 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_OR]\n", WQL_text));
@@ -927,7 +944,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 144 "WQL.l"
+#line 139 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_IS]\n", WQL_text));
@@ -936,7 +953,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 150 "WQL.l"
+#line 145 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_INTEGER]\n", WQL_text));
@@ -946,7 +963,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 157 "WQL.l"
+#line 152 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_INTEGER]\n", WQL_text));
@@ -956,7 +973,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 164 "WQL.l"
+#line 159 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_DOUBLE]\n", WQL_text));
@@ -966,7 +983,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 171 "WQL.l"
+#line 166 "WQL.l"
 {
 
     /* ATTN-B: handle long literals by using yyinput(). */
@@ -993,7 +1010,7 @@ case 17:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up WQL_text again */
 YY_RULE_SETUP
-#line 192 "WQL.l"
+#line 187 "WQL.l"
 {
 
     WQL_error("Unterminated string");
@@ -1001,7 +1018,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 197 "WQL.l"
+#line 192 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %c\n", WQL_text[0]));
@@ -1010,7 +1027,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 203 "WQL.l"
+#line 198 "WQL.l"
 {
     WQL_TRACE(("LEX: %s [TOK_EQ]\n", WQL_text));
     return TOK_EQ;
@@ -1018,7 +1035,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 208 "WQL.l"
+#line 203 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_NE]\n", WQL_text));
@@ -1027,7 +1044,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 214 "WQL.l"
+#line 209 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_LE]\n", WQL_text));
@@ -1036,7 +1053,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 220 "WQL.l"
+#line 215 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_LT]\n", WQL_text));
@@ -1045,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 226 "WQL.l"
+#line 221 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_GE]\n", WQL_text));
@@ -1054,7 +1071,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 232 "WQL.l"
+#line 227 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_NE]\n", WQL_text));
@@ -1063,7 +1080,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 238 "WQL.l"
+#line 233 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_GT]\n", WQL_text));
@@ -1072,7 +1089,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 244 "WQL.l"
+#line 239 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_IDENTIFIER]\n", WQL_text));
@@ -1092,7 +1109,7 @@ YY_RULE_SETUP
 case 27:
 /* rule 27 can match eol */
 YY_RULE_SETUP
-#line 260 "WQL.l"
+#line 255 "WQL.l"
 {
 
     /* Ignore blanks */
@@ -1100,7 +1117,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 265 "WQL.l"
+#line 260 "WQL.l"
 {
     WQL_lval.intValue = 0;
     return TOK_UNEXPECTED_CHAR;
@@ -1108,10 +1125,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 270 "WQL.l"
+#line 265 "WQL.l"
 ECHO;
 	YY_BREAK
-#line 1112 "WQLLEX.cpp"
+#line 1129 "WQLLEX.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1390,7 +1407,7 @@ static int yy_get_next_buffer (void)
 {
 	register yy_state_type yy_current_state;
 	register char *yy_cp;
-
+    
 	yy_current_state = (yy_start);
 
 	for ( yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp )
@@ -1444,7 +1461,7 @@ static int yy_get_next_buffer (void)
     static void yyunput (int c, register char * yy_bp )
 {
 	register char *yy_cp;
-
+    
     yy_cp = (yy_c_buf_p);
 
 	/* undo effects of setting up WQL_text */
@@ -1487,7 +1504,7 @@ static int yy_get_next_buffer (void)
 
 {
 	int c;
-
+    
 	*(yy_c_buf_p) = (yy_hold_char);
 
 	if ( *(yy_c_buf_p) == YY_END_OF_BUFFER_CHAR )
@@ -1554,12 +1571,12 @@ static int yy_get_next_buffer (void)
 
 /** Immediately switch to a different input stream.
  * @param input_file A readable stream.
- *
+ * 
  * @note This function does not reset the start condition to @c INITIAL .
  */
     void WQL_restart  (FILE * input_file )
 {
-
+    
 	if ( ! YY_CURRENT_BUFFER ){
         WQL_ensure_buffer_stack ();
 		YY_CURRENT_BUFFER_LVALUE =
@@ -1572,11 +1589,11 @@ static int yy_get_next_buffer (void)
 
 /** Switch to a different input buffer.
  * @param new_buffer The new input buffer.
- *
+ * 
  */
     void WQL__switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
 {
-
+    
 	/* TODO. We should be able to replace this entire function body
 	 * with
 	 *		WQL_pop_buffer_state();
@@ -1616,13 +1633,13 @@ static void WQL__load_buffer_state  (void)
 /** Allocate and initialize an input buffer state.
  * @param file A readable stream.
  * @param size The character buffer size in bytes. When in doubt, use @c YY_BUF_SIZE.
- *
+ * 
  * @return the allocated buffer state.
  */
     YY_BUFFER_STATE WQL__create_buffer  (FILE * file, int  size )
 {
 	YY_BUFFER_STATE b;
-
+    
 	b = (YY_BUFFER_STATE) WQL_alloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in WQL__create_buffer()" );
@@ -1645,11 +1662,11 @@ static void WQL__load_buffer_state  (void)
 
 /** Destroy the buffer.
  * @param b a buffer created with WQL__create_buffer()
- *
+ * 
  */
     void WQL__delete_buffer (YY_BUFFER_STATE  b )
 {
-
+    
 	if ( ! b )
 		return;
 
@@ -1670,7 +1687,7 @@ static void WQL__load_buffer_state  (void)
 
 {
 	int oerrno = errno;
-
+    
 	WQL__flush_buffer(b );
 
 	b->yy_input_file = file;
@@ -1686,13 +1703,13 @@ static void WQL__load_buffer_state  (void)
     }
 
         b->yy_is_interactive = 0;
-
+    
 	errno = oerrno;
 }
 
 /** Discard all buffered characters. On the next scan, YY_INPUT will be called.
  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
- *
+ * 
  */
     void WQL__flush_buffer (YY_BUFFER_STATE  b )
 {
@@ -1721,7 +1738,7 @@ static void WQL__load_buffer_state  (void)
  *  the current state. This function will allocate the stack
  *  if necessary.
  *  @param new_buffer The new state.
- *
+ *  
  */
 void WQL_push_buffer_state (YY_BUFFER_STATE new_buffer )
 {
@@ -1751,7 +1768,7 @@ void WQL_push_buffer_state (YY_BUFFER_STATE new_buffer )
 
 /** Removes and deletes the top of the stack, if present.
  *  The next element becomes the new top.
- *
+ *  
  */
 void WQL_pop_buffer_state (void)
 {
@@ -1775,7 +1792,7 @@ void WQL_pop_buffer_state (void)
 static void WQL_ensure_buffer_stack (void)
 {
 	int num_to_alloc;
-
+    
 	if (!(yy_buffer_stack)) {
 
 		/* First allocation is just for 2 elements, since we don't know if this
@@ -1788,7 +1805,7 @@ static void WQL_ensure_buffer_stack (void)
 								);
 		if ( ! (yy_buffer_stack) )
 			YY_FATAL_ERROR( "out of dynamic memory in WQL_ensure_buffer_stack()" );
-								
+								  
 		memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
 				
 		(yy_buffer_stack_max) = num_to_alloc;
@@ -1818,13 +1835,13 @@ static void WQL_ensure_buffer_stack (void)
 /** Setup the input buffer state to scan directly from a user-specified character buffer.
  * @param base the character buffer
  * @param size the size in bytes of the character buffer
- *
- * @return the newly allocated buffer state object.
+ * 
+ * @return the newly allocated buffer state object. 
  */
 YY_BUFFER_STATE WQL__scan_buffer  (char * base, yy_size_t  size )
 {
 	YY_BUFFER_STATE b;
-
+    
 	if ( size < 2 ||
 	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
 	     base[size-1] != YY_END_OF_BUFFER_CHAR )
@@ -1853,14 +1870,14 @@ YY_BUFFER_STATE WQL__scan_buffer  (char * base, yy_size_t  size )
 /** Setup the input buffer state to scan a string. The next call to WQL_lex() will
  * scan from a @e copy of @a str.
  * @param yystr a NUL-terminated string to scan
- *
+ * 
  * @return the newly allocated buffer state object.
  * @note If you want to scan bytes that may contain NUL values, then use
  *       WQL__scan_bytes() instead.
  */
 YY_BUFFER_STATE WQL__scan_string (yyconst char * yystr )
 {
-
+    
 	return WQL__scan_bytes(yystr,strlen(yystr) );
 }
 
@@ -1868,7 +1885,7 @@ YY_BUFFER_STATE WQL__scan_string (yyconst char * yystr )
  * scan from a @e copy of @a bytes.
  * @param bytes the byte buffer to scan
  * @param len the number of bytes in the buffer pointed to by @a bytes.
- *
+ * 
  * @return the newly allocated buffer state object.
  */
 YY_BUFFER_STATE WQL__scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
@@ -1877,7 +1894,7 @@ YY_BUFFER_STATE WQL__scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
 	char *buf;
 	yy_size_t n;
 	int i;
-
+    
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
 	buf = (char *) WQL_alloc(n  );
@@ -1931,16 +1948,16 @@ static void yy_fatal_error (yyconst char* msg )
 /* Accessor  methods (get/set functions) to struct members. */
 
 /** Get the current line number.
- *
+ * 
  */
 int WQL_get_lineno  (void)
 {
-
+        
     return WQL_lineno;
 }
 
 /** Get the input stream.
- *
+ * 
  */
 FILE *WQL_get_in  (void)
 {
@@ -1948,7 +1965,7 @@ FILE *WQL_get_in  (void)
 }
 
 /** Get the output stream.
- *
+ * 
  */
 FILE *WQL_get_out  (void)
 {
@@ -1956,7 +1973,7 @@ FILE *WQL_get_out  (void)
 }
 
 /** Get the length of the current token.
- *
+ * 
  */
 int WQL_get_leng  (void)
 {
@@ -1964,7 +1981,7 @@ int WQL_get_leng  (void)
 }
 
 /** Get the current token.
- *
+ * 
  */
 
 char *WQL_get_text  (void)
@@ -1974,18 +1991,18 @@ char *WQL_get_text  (void)
 
 /** Set the current line number.
  * @param line_number
- *
+ * 
  */
 void WQL_set_lineno (int  line_number )
 {
-
+    
     WQL_lineno = line_number;
 }
 
 /** Set the input stream. This does not discard the current
  * input buffer.
  * @param in_str A readable stream.
- *
+ * 
  * @see WQL__switch_to_buffer
  */
 void WQL_set_in (FILE *  in_str )
@@ -2039,7 +2056,7 @@ static int yy_init_globals (void)
 /* WQL_lex_destroy is for both reentrant and non-reentrant scanners. */
 int WQL_lex_destroy  (void)
 {
-
+    
     /* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER){
 		WQL__delete_buffer(YY_CURRENT_BUFFER  );
@@ -2106,7 +2123,7 @@ void WQL_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 270 "WQL.l"
+#line 265 "WQL.l"
 
 
 

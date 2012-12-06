@@ -50,11 +50,6 @@ extern int WQL_error(const char*);
 # define WQL_TRACE(X)
 #endif
 
-/* Avoid warn_unused_result warnings in Linux RPM build */
-#ifndef ECHO
-# define ECHO do { size_t ignored = fwrite(yytext, yyleng, 1, yyout); } while(0)
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 extern WQLParserState* globalParserState;

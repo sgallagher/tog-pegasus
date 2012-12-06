@@ -249,7 +249,6 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     if(!isReal(stringNum))
     {
       // Check if it it is a binary or hex integer
-      Uint32 endString = stringNum.size() - 1;
         if (neg)
             x = stringToSint64(stringNum);
         else

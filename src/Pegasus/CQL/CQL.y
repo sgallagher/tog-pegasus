@@ -747,7 +747,6 @@ chain : literal
         }
         else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE)
         {
-            CQLPredicate* _pred = (CQLPredicate*)$1;
             CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)
                 (_factory.getObject
                 ($1,Predicate,ChainedIdentifier)));

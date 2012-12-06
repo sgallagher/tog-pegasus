@@ -72,11 +72,6 @@ PEGASUS_NAMESPACE_END
 #define CQL_DEBUG_TRACE2(X,Y)
 #endif
 
-/* Avoid warn_unused_result warnings in Linux RPM build */
-#ifndef ECHO
-# define ECHO do { size_t ignored = fwrite(yytext, yyleng, 1, yyout); } while(0)
-#endif
-
 int lineno;
 
 %}

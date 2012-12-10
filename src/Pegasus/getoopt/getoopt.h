@@ -274,14 +274,4 @@ public:
     unsigned int flagcnt() const;
 };
 
-inline int operator==(const Optarg& x, const Optarg& y)
-{
-    return 0;
-}
-
-inline int operator==(const flagspec& x, const flagspec& y)
-{
-    return 0;
-}
-
 #endif

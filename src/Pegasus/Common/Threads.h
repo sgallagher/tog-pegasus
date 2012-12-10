@@ -175,15 +175,11 @@ public:
 
     static void exit(ThreadReturnType rc);
 
-    static void cancel(ThreadType th, ThreadReturnType rc);
+    static void cancel(ThreadType th);
 
     static void yield();
 
     static void sleep(int msec);
-
-    static void cleanup_push(void (*start)(void*), void* arg);
-
-    static void cleanup_pop(int execute);
 
     static ThreadId id(const ThreadType& x = Threads::self());
 
@@ -213,7 +209,7 @@ inline void Threads::exit(ThreadReturnType rc)
     pthread_exit(rc);
 }
 
-inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
+inline void Threads::cancel(ThreadType th)
 {
     pthread_cancel(th.thread);
 }
@@ -225,21 +221,6 @@ inline void Threads::yield()
 #else
     sched_yield();
 #endif
-}
-
-inline void Threads::cleanup_push(void (*func)(void*), void* arg)
-{
-    // ATTN: it is doubtful whether cleanup handlers ever really worked.
-    //       They are only used in two places and not used in many other
-    //       places where mutexes are obtained. Further, they are only
-    //       implemented correctly on one or two platforms. For now, we
-    //       will defer their implementation until we can find a way to
-    //       implement them on all platforms (using thread local storage).
-}
-
-inline void Threads::cleanup_pop(int execute)
-{
-    // ATTN: not implemented.
 }
 
 inline ThreadId Threads::id(const ThreadType& x)
@@ -309,16 +290,6 @@ inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 inline void Threads::yield()
 {
     Sleep(0);
-}
-
-inline void Threads::cleanup_push(void (*func)(void*), void* arg)
-{
-    // ATTN: Not implemented on Windows.
-}
-
-inline void Threads::cleanup_pop(int execute)
-{
-    // ATTN: Not implemented on Windows.
 }
 
 inline ThreadId Threads::id(const ThreadType& x)

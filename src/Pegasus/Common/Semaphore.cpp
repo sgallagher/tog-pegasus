@@ -126,13 +126,6 @@ void Semaphore::wait()
     // Acquire mutex to enter critical section.
     pthread_mutex_lock(&_rep.mutex);
 
-    // Push cleanup function onto cleanup stack
-    // The mutex will unlock if the thread is killed early
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
-    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-    Threads::cleanup_push(&semaphore_cleanup, &_rep);
-#endif
-
     // Keep track of the number of waiters so that <sema_post> works correctly.
     _rep.waiters++;
 
@@ -154,10 +147,7 @@ void Semaphore::wait()
     // Since we push an unlock onto the cleanup stack
     // We will pop it off to release the mutex when leaving the critical
     // section.
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
-    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-    Threads::cleanup_pop(1);
-#endif
+    
     // Release mutex to leave critical section.
     pthread_mutex_unlock(&_rep.mutex);
 }
@@ -167,13 +157,6 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     // Acquire mutex to enter critical section.
     pthread_mutex_lock(&_rep.mutex);
     Boolean timedOut = false;
-
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
-    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-    // Push cleanup function onto cleanup stack
-    // The mutex will unlock if the thread is killed early
-    Threads::cleanup_push(&semaphore_cleanup, &_rep);
-#endif
 
     // Keep track of the number of waiters so that <sema_post> works correctly.
     _rep.waiters++;
@@ -211,14 +194,6 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
 
     // Decrement the waiters count.
     _rep.waiters--;
-
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
-    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-    // Since we push an unlock onto the cleanup stack
-    // We will pop it off to release the mutex when leaving the critical
-    // section.
-    Threads::cleanup_pop(1);
-#endif
 
     // Release mutex to leave critical section.
     pthread_mutex_unlock(&_rep.mutex);

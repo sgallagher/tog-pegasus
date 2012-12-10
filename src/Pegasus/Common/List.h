@@ -115,8 +115,8 @@ public:
 
 private:
 
-    ListRep(const ListRep& x) { }
-    ListRep& operator=(const ListRep& x) { return *this; }
+    ListRep(const ListRep&) { }
+    ListRep& operator=(const ListRep&) { return *this; }
 
     Magic<0x6456FD0A> _magic;
     Linkable* _front;

@@ -66,31 +66,50 @@ tests: clean
 ##  Flavor error. 10-16 are Scope errors.
 qualiferDeclInvalidTests:
 	@ $(ECHO) > $(RESULTFILE)
-	@ cimmofl "-E" "-W" badQualifierDecl1.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl2.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl3.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl4.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl5.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl6.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl10.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl11.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl12.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl13.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl14.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl15.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl16.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" badQualifierDecl20.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl2.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl3.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl4.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl5.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl6.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl10.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl11.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl12.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl13.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl14.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl15.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl16.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDecl20.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ $(ECHO) +++ qualifierDeclInvalid error tests executed successfully +++
 
 instAliasInvalidTests:
-	@ cimmofl "-E" "-W" -nroot InstAliasError.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" -nroot InstAliasError2.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" -nroot InstAliasError3.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    InstAliasError.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    InstAliasError2.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    InstAliasError3.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ $(ECHO) +++ instAliasInvalid error tests executed successfully +++
 
 pragmaInvalidTests:
-	@ cimmofl "-E" "-W" -nroot InvalidPragma1.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@ cimmofl "-E" "-W" -nroot InvalidPragma2.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    InvalidPragma1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    InvalidPragma2.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ $(ECHO) +++ pragmaInvalid error tests executed successfully +++
 
 poststarttests:

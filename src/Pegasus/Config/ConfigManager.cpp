@@ -91,10 +91,6 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
     {"traceMemoryBufferKbytes",
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceFileSizeKBytes",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"numberOfTraceFiles",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",
          (ConfigPropertyOwner*)&ConfigManager::logOwner},
@@ -136,8 +132,6 @@ static struct OwnerEntry _properties[] =
     {"sslKeyFilePath",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslTrustStore",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslBackwardCompatibility",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",
@@ -193,14 +187,6 @@ static struct OwnerEntry _properties[] =
     {"enableAuditLog",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-      {"webRoot",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-      {"indexFile",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-      {"mimeTypesFile",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#endif
     {"socketWriteTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"idleConnectionTimeout",
@@ -222,7 +208,7 @@ static struct OwnerEntry _properties[] =
 #endif
 };
 
-const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);
+const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -251,7 +237,7 @@ static struct FixedValueEntry _fixedValues[] =
 };
 
 const Uint32 NUM_FIXED_PROPERTIES =
-    sizeof(_fixedValues) / sizeof( _fixedValues[0]);
+    sizeof(_fixedValues) / sizeof(struct FixedValueEntry);
 
 
 /**
@@ -305,6 +291,7 @@ Boolean ConfigManager::initCurrentValue(
     const String& propertyValue)
 {
     ConfigPropertyOwner* propertyOwner = 0;
+    Boolean success = true;
 
     //
     // get property owner object from the config table.
@@ -324,7 +311,6 @@ Boolean ConfigManager::initCurrentValue(
     //
     propertyOwner->initCurrentValue(propertyName, propertyValue);
 
-    Boolean success = true;
     if (useConfigFiles)
     {
         try
@@ -355,6 +341,7 @@ Boolean ConfigManager::updateCurrentValue(
     Uint32 timeoutSeconds,
     Boolean unset)
 {
+    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -369,7 +356,7 @@ Boolean ConfigManager::updateCurrentValue(
     //
     // keep a copy of the existing config value
     //
-    String prevValue = propertyOwner->getCurrentValue(name);
+    prevValue = propertyOwner->getCurrentValue(name);
 
     //
     // ask owner to update the current value
@@ -430,6 +417,7 @@ Boolean ConfigManager::updatePlannedValue(
     const String& value,
     Boolean unset)
 {
+    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -444,7 +432,7 @@ Boolean ConfigManager::updatePlannedValue(
     //
     // keep a copy of the existing config value
     //
-    String prevValue = propertyOwner->getPlannedValue(name);
+    prevValue = propertyOwner->getPlannedValue(name);
 
     //
     // ask owner to update the planned value to new value
@@ -600,7 +588,6 @@ void ConfigManager::getPropertyHelp(
         throw UnrecognizedConfigProperty(name);
     }
     propertyHelp.append(propertyOwner->getPropertyHelp(name));
-    propertyHelp.append(propertyOwner->getPropertyHelpSupplement(name));
 }
 
 /**
@@ -987,7 +974,7 @@ String ConfigManager::getHomedPath(const String& value)
 {
     String homedPath;
 
-    if (value.size() != 0 )
+    if (value != String::EMPTY)
     {
         if (System::is_absolute_path((const char *)value.getCString()))
         {
@@ -1025,9 +1012,7 @@ String ConfigManager::getHomedPath(const String& value)
             }
 
             if (token == 1)
-            {
                 homedPath.append(FileSystem::getPathDelimiter());
-            }
             temp.remove(0, pos + token);
         } while (temp.size() > 0);
     }

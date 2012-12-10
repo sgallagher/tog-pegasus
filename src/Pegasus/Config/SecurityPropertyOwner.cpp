@@ -50,8 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
  * The Server message resource name
  */
 
-//// static const char * SSL_POSSIBLE_VALUE_KEY =
-////        "Config.SecurityPropertyOwner.SSLClientVerification_POSSIBLE_VALUE";
+static const char * SSL_POSSIBLE_VALUE_KEY =
+        "Config.SecurityPropertyOwner.SSLClientVerification_POSSIBLE_VALUE";
 
 ///////////////////////////////////////////////////////////////////////////////
 //  SecurityPropertyOwner
@@ -91,7 +91,6 @@ static struct ConfigPropertyRow properties[] =
     {"sslClientVerificationMode", "optional", IS_STATIC, IS_VISIBLE},
     {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
-    {"sslBackwardCompatibility","false", IS_STATIC, IS_VISIBLE},
 # ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", IS_STATIC, IS_VISIBLE},
 # endif
@@ -110,7 +109,6 @@ static struct ConfigPropertyRow properties[] =
 #endif
     {"sslKeyFilePath", "file.pem", IS_STATIC, IS_VISIBLE},
     {"sslTrustStore", "cimserver_trust", IS_STATIC, IS_VISIBLE},
-    {"sslBackwardCompatibility","false", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore", "crl", IS_STATIC, IS_VISIBLE},
 #endif
@@ -154,7 +152,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _httpAuthType.reset(new ConfigProperty());
     _passwordFilePath.reset(new ConfigProperty());
     _certificateFilePath.reset(new ConfigProperty());
-    _sslBackwardCompatibility.reset(new ConfigProperty());
     _keyFilePath.reset(new ConfigProperty());
     _trustStore.reset(new ConfigProperty());
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
@@ -244,22 +241,6 @@ void SecurityPropertyOwner::initialize()
             _certificateFilePath->plannedValue = properties[i].defaultValue;
             _certificateFilePath->dynamic = properties[i].dynamic;
             _certificateFilePath->externallyVisible =
-                properties[i].externallyVisible;
-        }
-        else if (String::equal(
-                     properties[i].propertyName, "sslBackwardCompatibility"))
-        {
-            _sslBackwardCompatibility->propertyName = 
-                properties[i].propertyName;
-            _sslBackwardCompatibility->defaultValue =
-                properties[i].defaultValue;
-            _sslBackwardCompatibility->currentValue = 
-                properties[i].defaultValue;
-            _sslBackwardCompatibility->plannedValue = 
-                properties[i].defaultValue;
-            _sslBackwardCompatibility->dynamic = 
-                properties[i].dynamic;
-            _sslBackwardCompatibility->externallyVisible =
                 properties[i].externallyVisible;
         }
         else if (String::equal(
@@ -434,10 +415,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _certificateFilePath.get();
     }
-    else if (String::equal(_sslBackwardCompatibility->propertyName, name))
-    {
-        return _sslBackwardCompatibility.get();
-    }
     else if (String::equal(_keyFilePath->propertyName, name))
     {
         return _keyFilePath.get();
@@ -512,6 +489,32 @@ void SecurityPropertyOwner::getPropertyInfo(
     buildPropertyInfo(name, configProperty, propertyInfo);
 }
 
+// Adds supplement help info for sslClientVerification property in this
+// class
+String SecurityPropertyOwner::getPropertyHelpSupplement(
+    const String& name) const
+{
+    String localPropertyInfo = "";
+    if (String::equalNoCase(_sslClientVerificationMode->propertyName, name))
+    {
+        String possibleValueString =
+"Possible Values:\n"
+"\"required\" Server requires certificate-based client authentication.\n"
+"    Client MUST present trusted certificateto access the CIM Server.\n"
+"    If client fails to send certificate or sends untrusted certificate,\n"
+"    connection is rejected.\n"
+"\"optional\" Server supports but does not require certificate-based\n"
+"    client authentication. Connection is accepted even if no/untrusted\n"
+"    certificate sent. Server will then seek to authenticate client\n"
+"    via authentication header.\n"
+"\"disabled\" Server does not support certificate-based authentication.\n";
+        MessageLoaderParms parms1(SSL_POSSIBLE_VALUE_KEY,
+            possibleValueString);
+        parms1.msg_src_path = CONFIG_MSG_PATH;
+        localPropertyInfo.append(MessageLoader::getMessage(parms1));
+    }
+    return localPropertyInfo;
+}
 
 /**
     Get default value of the specified property.
@@ -616,9 +619,7 @@ Boolean SecurityPropertyOwner::isValid(
         String::equal(
             _enableRemotePrivilegedUserAccess->propertyName, name) ||
         String::equal(
-            _enableSubscriptionsForNonprivilegedUsers->propertyName, name) ||
-        String::equal(
-            _sslBackwardCompatibility->propertyName, name)
+            _enableSubscriptionsForNonprivilegedUsers->propertyName, name)
 #ifdef PEGASUS_OS_ZOS
         || String::equal(_enableCFZAPPLID->propertyName, name)
 #endif

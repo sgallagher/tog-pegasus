@@ -78,10 +78,6 @@ additional information.</p>
       <td>&nbsp;</td>
     </tr>
     <tr align="left">
-      <td>LINUX_SH4_GNU</td>
-      <td>&nbsp;</td>
-    </tr>
-    <tr align="left">
       <td>LINUX_XSCALE_GNU</td>
       <td>&nbsp;</td>
     </tr>
@@ -282,7 +278,7 @@ build/test environment. It defines the version of the CIM Schema (which
 must exist in the $(PEGASUS_ROOT)/Schemas directory) that will be used
 to build the class repository for testing the pegasus environment
 ("make repository", etc.).<br>
-  <b>Default Value:&nbsp;</b>CIM236 (Note that this may change as newer versions of the CIM Schema are used as the default.<br>
+  <b>Default Value:&nbsp;</b>CIM231 (Note that this may change as newer versions of the CIM Schema are used as the default.<br>
   <b>Recommended Value (Development Build):&nbsp;</b>
      No Specific Recommendation<br>
   <b>Recommended Value (Release Build):&nbsp;</b>
@@ -877,20 +873,6 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      releases. Also note the known limitations specified in PEP 311.<br>
 </ul>
 
-<h5>PEGASUS_ENABLE_PROTOCOL_WEB</h5>
-<ul>
-  <b>Description:&nbsp;</b>Enable pegasus to act as webserver capable
-     of serving webpages by comsuming the JSON output from CIM-RS.<br>
-  <b>Default Value:&nbsp;</b>true<br>
-  <b>Recommended Value (Development Build):&nbsp;</b>true<br>
-  <b>Recommended Value (Release Build):&nbsp;</b>true<br>
-  <b>Required:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b> When authentication is disabled, Anybody can
-  modify the pegasus cimserver. Please enable authentication when using
-  webadmin to prevent unauthorized access. <br>
-</ul>
-
-
 <h5>PEGASUS_ENABLE_REMOTE_CMPI</h5>
 <ul>
   <b>Description:&nbsp;</b>If set, a version of OpenPegasus that
@@ -1115,6 +1097,29 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      2.3.2 on Linux" for additional details.<br>
 </ul>
 
+<h5>PEGASUS_INDICATIONS_Q_THRESHOLD</h5>
+<ul>
+  <b>Description:&nbsp;</b>Controls if indications providers are stalled
+     if the indications service queue is too large. It can be set
+     to any positive value. If not set providers are never
+     stalled. This implies that the indications service
+     queue may become as large as necessary to hold all the
+     indications generated. If set to any value then
+     providers are stalled by forcing them to sleep when they
+     try to deliver an indication and the indications service
+     queue exceeds this value. They are resumed when the queue
+     count falls 10 percent below this value. Stall and resume log
+     entries are made to inform the administrator the condition has
+     occurred.<br>
+  <b>Default Value:&nbsp;</b>Not Set<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>Not Set<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>Not Set<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>Use of this setting may have
+     unintended side-effects when using Out-of-Process Providers
+     including delayed processing of CIM Operation Requests.
+</ul>
+
 <h5>PEGASUS_MAX_THREADS_PER_SVC_QUEUE</h5>
 <ul>
   <b>Description:&nbsp;</b>Controls the maximum number of threads
@@ -1197,8 +1202,7 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
 <h5>PEGASUS_NOASSERTS</h5>
 <ul>
   <b>Description:&nbsp;</b>Defines the NDEBUG compilation macro, which
-     causes the preprocessor to remove PEGASUS_ASSERT() and disables assertion
-     on PEGASUS_FCT_EXECUTE_AND_ASSERT statements.<br>
+     causes the preprocessor to remove PEGASUS_ASSERT() statements.<br>
   <b>Default Value:&nbsp;</b>Not Set<br>
   <b>Recommended Value (Development Build):&nbsp;</b>Not Set<br>
   <b>Recommended Value (Release Build):&nbsp;</b>Set<br>
@@ -1230,26 +1234,6 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
   <b>Default Value:&nbsp;</b>Not Set<br>
   <b>Recommended Value (Development Build):&nbsp;</b>Set<br>
   <b>Recommended Value (Release Build):&nbsp;</b>Set<br>
-  <b>Required:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b>Support for PAM in OpenPegasus is
-     dependent on platform support for PAM.<br>
-</ul>
-
-<h5>PEGASUS_PAM_SESSION_SECURITY</h5>
-<ul>
-  <b>Description:&nbsp;</b>Enables support for PAM-(Pluggable
-     Authentication Modules) based authentication and authorization.<br>
-     When choosing this PAM method the PAM session started through pam_start
-     is kept open for the complete CIM request.
-     The PAM item PAM_RHOST will be set to the connection IP address.
-     This allows PAM modules to restrict number of concurrent connections
-     from a single host.<br>
-     If PEGASUS_PAM_SESSION_SECURITY is set, you cannot enable the Privilege
-     Separation feature (PEGASUS_ENABLE_PRIVILEGE_SEPARATION) or the 
-     authentication-only PAM mechanism (PEGASUS_PAM_AUTHENTICATION).<br>
-  <b>Default Value:&nbsp;</b>Not Set<br>
-  <b>Recommended Value (Development Build):&nbsp;</b>Not Set<br>
-  <b>Recommended Value (Release Build):&nbsp;</b>Not Set<br>
   <b>Required:&nbsp;</b>No<br>
   <b>Considerations:&nbsp;</b>Support for PAM in OpenPegasus is
      dependent on platform support for PAM.<br>
@@ -2011,10 +1995,6 @@ configuration properties.</p>
       <tr align="center">
         <td align="left" height="14" width="1">$MESSAGEDIR</td>
       </tr>
-      <tr align="center">
-        <td align="left" height="14" width="1">$WEBCONFDIR</td>
-      </tr>
-
       </tbody></table>
 </ul>
 
@@ -2766,13 +2746,11 @@ configuration properties.</p>
 
 <h5>maxIndicationDeliveryRetryAttempts</h5>
 <ul>
-  <b>Description:&nbsp;</b> If set to a positive integer, value defines the number
-         of times indication service will enable the reliableIndication feature and try
-         to deliver an indication to a particular listener destination.
-         This does not effect the original delivery attempt. A value of disables
-         reliable indication feature completely, and cimserver will deliver the
-         indication once.This is in accord with DTMF Specification 1054,
-         Indication Profile, version 1.2.1.<br>
+  <b>Description:&nbsp;</b> If set to a positive integer, this value
+     defines the number of times that the indication service will
+     try to deliver an indication to a particular listener destination.
+     This does not effect the original delivery attempt, thus if set to 0,
+     cimserver will only try to deliver the indication once.<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>3<br>
   <b>Recommended Default Value (Release Build):&nbsp;</b>3<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
@@ -3208,24 +3186,6 @@ configuration properties.</p>
      Pegasus/Config/SecurityPropertyOwner.cpp
 </ul>
 
-<h5>sslBackwardCompatibility</h5>
-<ul>
-  <b>Description:&nbsp;</b> If set to true, OpenPegasus support
-     SSLv3 and TLSv1 protocol.If set to false OpenPegasus support
-     only TLS1.2 protocol for openssl 1.0.1+ <br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>
-     false<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>
-     false<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
-  <b>Dynamic?:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b> For a more detailed look at SSL options
-     and their ramifications, please see the SSL guidelines.<br>
-  <b>Source Configuration File:&nbsp;</b>
-     Pegasus/Config/SecurityPropertyOwner.cpp
-</ul>
-
 <h5>sslClientVerificationMode</h5>
 <ul>
   <b>Description:&nbsp;</b>Describes the desired level of support
@@ -3411,80 +3371,6 @@ configuration properties.</p>
   <b>Source Configuration File:&nbsp;</b>
      Pegasus/Config/TracePropertyOwner.cpp<br>
 </ul>
-
-<h5>traceFileSizeKBytes</h5>
-<ul>
-  <b>Description:&nbsp;</b>Defines the size of the tracefile in Kilo bytes. The trace file will be
-     rolled once its size exceeds the specified size. <br>
-  <b>Default Value:&nbsp;</b>1048576<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>1048576<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>1048576<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;No/Yes<br>
-  <b>Dynamic?:</b>&nbsp;Yes<br>
-  <b>Considerations:</b>Minimum accepted value is 10240 KB,Maximum accepted value is 2097152 KB. &nbsp;<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/TracePropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
-<h5>numberOfTraceFiles</h5>
-<ul>
-  <b>Description:&nbsp;</b>Specifies the number of the tracefiles for rolling.<br>
-  <b>Default Value:&nbsp;</b>3<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>3<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>3<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;No/Yes<br>
-  <b>Dynamic?:</b>&nbsp;Yes<br>
-  <b>Considerations:</b>Minimum accepted value is 3,Maximum accepted value is 20. &nbsp;<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/TracePropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
-<h5>webRoot</h5>
-<ul>
-  <b>Description:&nbsp;</b> Points to a location where the static web pages to
-  be served by the pegasus webserver are stored.<br>
-  <b>Default Value:&nbsp;</b>www<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>www<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>$WEBCONFDIR/www<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
-  <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> When not fixed and hidden, it can be modified to
-  point to a location having spurious pages. Please consider fixing this value. &nbsp;<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
-<h5>indexFile</h5>
-<ul>
-  <b>Description:&nbsp;</b> Specifies the name of index file used by pegasus webserver,
-  default to index.html. This file should be available at the webRoot path.<br>
-  <b>Default Value:&nbsp;</b>index.html<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>index.html<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>index.html<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
-  <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> &nbsp; Hide it and fixed in release build to prevent
-  using any file as index file<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
-<h5>mimeTypesFile</h5>
-<ul>
-  <b>Description:&nbsp;</b> Refers to the file which holds the mime types being
-  served by the pegasus webserver.<br>
-  <b>Default Value:&nbsp;</b>www/mimeTypes.txt<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>www/mimeTypes.txt<br>
-  <b>Recommended Default Value (Release
-      Build):&nbsp;</b>$WEBCONFDIR/www/mimeTypes.txt<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
-  <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b>&nbsp;Fix and make it read only when to prevent
-  modification in deployment<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
 
 <h3>Configuration Constants</h3>
 

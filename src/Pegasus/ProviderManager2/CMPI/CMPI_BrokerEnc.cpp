@@ -1343,7 +1343,7 @@ extern "C"
         {
             case CMPI_DEV_DEBUG:
                 logSeverity = Logger::TRACE;
-                logFileType = Logger::TRACE_LOG;
+                logFileType = Logger::STANDARD_LOG;
                 break;
             case  CMPI_SEV_INFO:
                 logSeverity = Logger::INFORMATION;

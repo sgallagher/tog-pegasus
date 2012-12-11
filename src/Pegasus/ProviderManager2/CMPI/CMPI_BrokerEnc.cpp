@@ -1438,6 +1438,7 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewSelectExp()");
         int exception = 1;
+        int useShortNames = 0;
         CMPIStatus rc = { CMPI_RC_OK, NULL };
 
         if (strncmp (lang, CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
@@ -1557,7 +1558,6 @@ extern "C"
             (strncmp (lang, "CIMxCQL", 7) == 0) ||
             (strncmp (lang, "CIM:CQL", 7) == 0))
         {
-            int useShortNames = 0;
             /* IBMKR: This will have to be removed when the CMPI spec is
                updated with a clear explanation of what properties array
                can have as strings. For right now, if useShortNames is set

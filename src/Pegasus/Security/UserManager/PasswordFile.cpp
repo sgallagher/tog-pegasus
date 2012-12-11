@@ -195,7 +195,7 @@ void PasswordFile::load(PasswordTable& passwordTable)
         pColon = pLine;
         while (*pColon && (*pColon != COLON))
         {
-            *pColon++;
+            ++pColon;
         }
         //
         // Expect a colon sign

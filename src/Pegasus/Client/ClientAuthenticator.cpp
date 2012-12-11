@@ -402,7 +402,7 @@ Boolean ClientAuthenticator::_parseAuthHeader(
     //
     while (*authHeader && isspace(*authHeader))
     {
-        *authHeader++;
+        ++authHeader;
     }
 
     //

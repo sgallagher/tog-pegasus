@@ -81,9 +81,9 @@ public:
         Array<HTTPHeader>& headers,
         Uint32& contentLength) const;
 
-
+#ifdef PEGASUS_DEBUG
     void printAll(PEGASUS_STD(ostream)& os) const;
-
+#endif
 
     static void lookupHeaderPrefix(
         Array<HTTPHeader>& headers,
@@ -154,11 +154,14 @@ public:
         Returns a pointer to the first CRLF or a LF separator.
 
         @param  data   input string.
-        
+        @param  size   size of the input string.
+
         @return pointer to the first CRLF or LF separator if any, else
                 returns NULL.
     */
-    static char* findSeparator(const char* data);
+    static char* findSeparator(
+        const char* data,
+        Uint32 size);
 
 private:
 

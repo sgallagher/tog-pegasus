@@ -433,6 +433,13 @@ en:table {
         *    Substitution {0} is a string describing the system error
         */
         Common.InternalException.SOCKET_WRITE_ERROR:string {"PGS00243: Could not write response to client. Client may have timed out. Socket write failed with error: {0}"}
+        
+        /**
+         * @note PGS00244:
+         *    Substitution {0} is a number
+         *
+         */
+        Common.InternalException.TOO_MANY_ELEMENTS:string {"PGS00244: More than {0} elements in a container are not supported."}
 
         // ==========================================================
         // Messages for Exception
@@ -3651,6 +3658,13 @@ en:table {
          *   Do not translate the word 'EmbeddedObject' since it is a standard attribute name for CIM in XML
          */
          Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE:string {"PGS09670: The EmbeddedObject attribute is only valid on string types."}
+
+        /**
+         * @note  PGS09671:
+         *    Substitution {0} is a number
+         *
+         */
+         Common.XmlReader.TOO_MANY_KEYBINDINGS:string {"PGS09671: More than {0} key-value pairs per object path are not supported."}
 
         // ==========================================================
         // Messages for String

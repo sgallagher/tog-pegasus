@@ -1007,7 +1007,7 @@ void testCharSetToUpperHash()
     VCOUT << " +++++ passed" << endl;
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

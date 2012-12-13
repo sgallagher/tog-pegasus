@@ -455,7 +455,7 @@ Boolean StringConversion::decimalStringToUint64(
 Boolean StringConversion::hexStringToUint64(
     const char* stringValue,
     Uint64& x,
-    Boolean allowLeadingZeros)
+    Boolean)
 {
     x = 0;
     const char* p = stringValue;
@@ -504,7 +504,7 @@ Boolean StringConversion::hexStringToUint64(
 Boolean StringConversion::octalStringToUint64(
     const char* stringValue,
     Uint64& x,
-    Boolean allowLeadingZeros)
+    Boolean)
 {
     x = 0;
     const char* p = stringValue;
@@ -552,7 +552,7 @@ Boolean StringConversion::octalStringToUint64(
 Boolean StringConversion::binaryStringToUint64(
     const char* stringValue,
     Uint64& x,
-    Boolean allowLeadingZeros)
+    Boolean)
 {
     x = 0;
     const char* p = stringValue;

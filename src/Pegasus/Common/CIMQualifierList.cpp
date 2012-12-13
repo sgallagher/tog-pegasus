@@ -258,7 +258,7 @@ void CIMQualifierList::resolve(
             }
 
             Resolver::resolveQualifierFlavor(
-                q, CIMFlavor (qd.getFlavor ()), false);
+                q, CIMFlavor (qd.getFlavor ()));
         }
         else  // qualifier exists in superclass
         {   ////// Make Const again
@@ -285,7 +285,7 @@ void CIMQualifierList::resolve(
             }
 
             Resolver::resolveQualifierFlavor(
-                q, CIMFlavor(iq.getFlavor()), true);
+                q, CIMFlavor(iq.getFlavor()));
         }
     }   // end of this objects qualifier loop
 

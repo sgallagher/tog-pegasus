@@ -114,12 +114,12 @@ public:
     /** Constructor - Instantiates a AuthenticationInfo object.
     @param flag - used only to distinguish from the default constructor.
     */
-    AuthenticationInfo(Boolean flag)
+    AuthenticationInfo(Boolean)
     {
         PEG_METHOD_ENTER(
             TRC_AUTHENTICATION, "AuthenticationInfo::AuthenticationInfo");
 
-        _rep = new AuthenticationInfoRep(flag);
+        _rep = new AuthenticationInfoRep();
 
         PEG_METHOD_EXIT();
     }

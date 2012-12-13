@@ -696,9 +696,9 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
     return false;
 }
 
+#if defined(PEGASUS_OS_ZOS)
 String System::getErrorMSG_NLS(int errorCode,int errorCode2)
 {
-#if defined(PEGASUS_OS_ZOS)
 
     char buf[10];
 
@@ -709,15 +709,7 @@ String System::getErrorMSG_NLS(int errorCode,int errorCode2)
            "$0 (error code $1, reason code 0x$2)",
            strerror(errorCode),errorCode,buf);
 
-#else
-    MessageLoaderParms parms(
-           "Common.System.ERROR_MESSAGE.STANDARD",
-           "$0 (error code $1)",strerror(errorCode),errorCode);
-
-#endif
-
-     return MessageLoader::getMessage(parms);
-
+    return MessageLoader::getMessage(parms);
 }
 
 String System::getErrorMSG(int errorCode,int errorCode2)
@@ -732,17 +724,41 @@ String System::getErrorMSG(int errorCode,int errorCode2)
     buffer.append(" (error code ");
     buffer.append(strErrorCode);
 
-#if defined(PEGASUS_OS_ZOS)
     char strErrorCode2[10];
     sprintf(strErrorCode2,"%08X",errorCode2);
     buffer.append(", reason code 0x");
     buffer.append(strErrorCode2);
-#endif
-
     buffer.append(")");
 
     return buffer;
 }
+#else
+
+String System::getErrorMSG_NLS(int errorCode,int)
+{
+    MessageLoaderParms parms(
+           "Common.System.ERROR_MESSAGE.STANDARD",
+           "$0 (error code $1)",strerror(errorCode),errorCode);
+    return MessageLoader::getMessage(parms);
+}
+String System::getErrorMSG(int errorCode,int)
+{
+
+    String buffer;
+
+    char strErrorCode[32];
+    sprintf(strErrorCode, "%d", errorCode);
+
+    buffer.append(strerror(errorCode));
+    buffer.append(" (error code ");
+    buffer.append(strErrorCode);
+    buffer.append(")");
+
+    return buffer;
+}
+#endif
+
+
 
 
 

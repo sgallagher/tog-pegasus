@@ -384,7 +384,7 @@ int main(int argc, char **argv)
                     }
                 }
                 _LSLP_UNLINK(temp);
-                lslpDestroySLPMsg(temp, LSLP_DESTRUCTOR_DYNAMIC);
+                lslpDestroySLPMsg(temp);
             }
             destroy_slp_client(client);
         }

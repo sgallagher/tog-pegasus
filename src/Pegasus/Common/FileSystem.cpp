@@ -578,9 +578,9 @@ Boolean FileSystem::changeFileOwner(
 #endif
 }
 
+#if defined(PEGASUS_OS_HPUX)
 void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
 {
-#if defined(PEGASUS_OS_HPUX)
   #if defined (PEGASUS_PLATFORM_HPUX_IA64_GNU) || \
     defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
     // Writes the data from the iostream buffers to the OS buffers
@@ -593,8 +593,13 @@ void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
     // Writes the data from the OS buffers to the disk
     fsync(fs.rdbuf()->fd());
     #endif
-#endif
 }
+#else
+void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)&)
+{
+    //Not HP-UX, do nothing (compiler will remove this fct on optimization)
+}
+#endif
 
 Boolean FileSystem::glob(
     const String& path,

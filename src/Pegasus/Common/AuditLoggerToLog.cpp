@@ -527,9 +527,9 @@ void AuditLogger::setAuditLogWriterCallback(
 }
 
 void AuditLogger::_writeAuditMessageToLog(
-    AuditType auditType,
-    AuditSubType auditSubType,
-    AuditEvent auditEvent,
+    AuditType,
+    AuditSubType,
+    AuditEvent,
     Uint32 logLevel,
     MessageLoaderParms & msgParms)
 {

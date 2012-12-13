@@ -186,7 +186,7 @@ public:
 // return 1 if revoked, 0 otherwise
 //
 int SSLCallback::verificationCRLCallback(
-    int ok,
+    int,
     X509_STORE_CTX* ctx,
     X509_STORE* sslCRLStore)
 {
@@ -1198,25 +1198,25 @@ void SSLContextRep::validateCertificate()
 //
 
 SSLContextRep::SSLContextRep(
-    const String& trustStore,
-    const String& certPath,
-    const String& keyPath,
-    const String& crlPath,
-    SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile,
-    const String& cipherSuite)
+    const String&,
+    const String&,
+    const String&,
+    const String&,
+    SSLCertificateVerifyFunction*,
+    const String&,
+    const String&)
 {
 }
 
-SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
+SSLContextRep::SSLContextRep(const SSLContextRep&) {}
 
 SSLContextRep::~SSLContextRep() {}
 
 SSL_CTX* SSLContextRep::_makeSSLContext() { return 0; }
 
 Boolean SSLContextRep::_verifyPrivateKey(
-    SSL_CTX *ctx,
-    const String& keyPath)
+    SSL_CTX*,
+    const String&)
 {
     return false;
 }
@@ -1242,7 +1242,7 @@ SharedPtr<X509_STORE, FreeX509STOREPtr> SSLContextRep::getCRLStore() const
     return SharedPtr<X509_STORE, FreeX509STOREPtr>();
 }
 
-void SSLContextRep::setCRLStore(X509_STORE* store) { }
+void SSLContextRep::setCRLStore(X509_STORE*) { }
 
 Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
 
@@ -1342,7 +1342,7 @@ SSLContext::SSLContext(
     const String& certPath,
     const String& keyPath,
     SSLCertificateVerifyFunction* verifyCert,
-    String trustStoreUserName,
+    String,
     const String& randomFile)
 {
     _rep = new SSLContextRep(

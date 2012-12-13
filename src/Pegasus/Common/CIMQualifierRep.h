@@ -118,7 +118,7 @@ public:
         _flavor.removeFlavor (flavor);
     }
 
-    void resolveFlavor (const CIMFlavor & inheritedFlavor, Boolean inherited);
+    void resolveFlavor (const CIMFlavor & inheritedFlavor);
 
     Boolean getPropagated() const
     {

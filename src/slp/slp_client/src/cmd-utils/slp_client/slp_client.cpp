@@ -1400,7 +1400,7 @@ static void _slp_converge_srv_req(
         if (prepare_query( client, client->_xid + xid, type, scopes, predicate))
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST);
-            send_rcv_udp( client , TRUE);
+            send_rcv_udp( client );
         }
 
         while (--convergence > 0)
@@ -1408,7 +1408,7 @@ static void _slp_converge_srv_req(
             if (prepare_query( client, client->_xid, type, scopes, predicate))
             {
                 _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST);
-                send_rcv_udp( client , TRUE);
+                send_rcv_udp( client );
             }
         }
         p_addr++;
@@ -1656,7 +1656,7 @@ void srv_req(
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST);
         }
-        send_rcv_udp( client , retry) ;
+        send_rcv_udp( client ) ;
     } /* prepared query  */
     DEBUG_PRINT((DEBUG_EXIT, "srv_req "));
     return ;
@@ -1707,7 +1707,7 @@ static void _slp_converge_attr_req(
         if (prepare_attr_query( client, client->_xid + xid, url, scopes, tags))
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
-            send_rcv_udp( client, FALSE );
+            send_rcv_udp( client );
         }
 
         while (--convergence > 0)
@@ -1715,7 +1715,7 @@ static void _slp_converge_attr_req(
             if (prepare_attr_query( client, client->_xid, url, scopes, tags))
             {
                 _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
-                send_rcv_udp( client , FALSE);
+                send_rcv_udp( client );
             }
         }
         p_addr++;
@@ -1908,7 +1908,7 @@ void attr_req(
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
         }
 
-        send_rcv_udp( client , retry);
+        send_rcv_udp( client );
     }
 
     DEBUG_PRINT((DEBUG_EXIT, "attr_req "));
@@ -1929,7 +1929,7 @@ void attr_req(
 /*      |# of AttrAuths |  Attribute Authentication Block (if present)  \ */
 /*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
 
-void decode_attr_rply(struct slp_client *client, SOCKADDR *remote)
+void decode_attr_rply(struct slp_client *client)
 {
 
     char *bptr;
@@ -2085,7 +2085,7 @@ void decode_msg(struct slp_client *client, SOCKADDR *remote)
             return;
 
         case LSLP_SRVRPLY:
-            decode_srvrply( client, remote );
+            decode_srvrply( client );
             DEBUG_PRINT((DEBUG_EXIT, "decode_msg %s", "LSLP_SRVRPLY "));
             return;
 
@@ -2099,7 +2099,7 @@ void decode_msg(struct slp_client *client, SOCKADDR *remote)
             return;
 
         case LSLP_ATTRRPLY:
-            decode_attr_rply( client, remote);
+            decode_attr_rply( client );
             DEBUG_PRINT((DEBUG_EXIT, "decode_msg %s", "LSLP_ATTRRPLY "));
             return;
 
@@ -2243,7 +2243,7 @@ void decode_srvreg(struct slp_client *client, SOCKADDR *remote)
 }
 
 
-void decode_srvrply(struct slp_client *client, SOCKADDR *remote)
+void decode_srvrply(struct slp_client *client)
 {
     char *bptr, *xtptr, *xtn_limit;
     lslpMsg *reply;
@@ -3022,7 +3022,7 @@ BOOL  srv_reg(
                     retries = client->_retries;
                     while (--retries)
                     {
-                        if (TRUE == send_rcv_udp(client, TRUE))
+                        if (TRUE == send_rcv_udp(client))
                         {
                             if (LSLP_SRVACK ==
                                 _LSLP_GETFUNCTION(client->_rcv_buf))
@@ -3056,7 +3056,7 @@ BOOL  srv_reg(
 }
 
 
-BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
+BOOL send_rcv_udp(struct slp_client *client)
 {
 #ifdef PEGASUS_ENABLE_IPV6
     SOCKADDR_IN6 ip6;
@@ -3171,14 +3171,6 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
             while (0 < __service_listener(client, sock))
             {
                 ccode = TRUE;
-                // Removing as a temporary fix for bugzilla 2166.
-                // Need to look for a better fix later
-#if 0
-                if (retry == FALSE)
-                {
-                    break;
-                }
-#endif
             }
             _LSLP_CLOSESOCKET(sock);
     }
@@ -6121,7 +6113,7 @@ lslpMsg *alloc_slp_msg(BOOL head)
 }
 
 
-void lslpDestroySLPMsg(lslpMsg *msg, char flag)
+void lslpDestroySLPMsg(lslpMsg *msg)
 {
     PEGASUS_ASSERT(msg != NULL);
     switch (msg->type)

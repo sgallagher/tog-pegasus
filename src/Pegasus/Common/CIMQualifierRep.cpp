@@ -100,9 +100,7 @@ void CIMQualifierRep::setName(const CIMName& name)
     _nameTag = generateCIMNameTag(_name);
 }
 
-void CIMQualifierRep::resolveFlavor (
-    const CIMFlavor & inheritedFlavor,
-    Boolean inherited)
+void CIMQualifierRep::resolveFlavor(const CIMFlavor & inheritedFlavor)
 {
     // ATTN: KS P3 Needs more tests and expansion so we treate first different
     // from inheritance

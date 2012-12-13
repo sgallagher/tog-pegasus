@@ -125,10 +125,6 @@ public:
      * instance.  The TOINSTANCE flavor is ignored.
      * @param includeClassOrigin A Boolean indicating whether ClassOrigin
      * attributes are to be added to the instance.
-     * @param propertyList Is an NULL terminated array of char* to property
-     * names defining the properties that are included in the created instance.
-     * If the propertyList is NULL, all properties are included to the instance.
-     * If the propertyList is empty, no properties are added.
      *
      * Note that this function does NOT generate an error if a property name
      * is supplied that is NOT in the class;
@@ -138,8 +134,7 @@ public:
     SCMOInstance(
         SCMOClass& baseClass,
         Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const char** propertyList);
+        Boolean includeClassOrigin);
 
     /**
      * Builds a SCMOInstance from the given SCMOClass and copies all

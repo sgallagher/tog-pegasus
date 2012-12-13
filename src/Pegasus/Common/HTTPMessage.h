@@ -154,14 +154,11 @@ public:
         Returns a pointer to the first CRLF or a LF separator.
 
         @param  data   input string.
-        @param  size   size of the input string.
-
+        
         @return pointer to the first CRLF or LF separator if any, else
                 returns NULL.
     */
-    static char* findSeparator(
-        const char* data,
-        Uint32 size);
+    static char* findSeparator(const char* data);
 
 private:
 

@@ -810,9 +810,9 @@ MP_Socket::MP_Socket(SocketHandle socket)
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
-    SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    const String& ipAddress)
+    SSLContext *,
+    ReadWriteSem *,
+    const String&)
  : _socket(socket), _isSecure(false),
    _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
 
@@ -825,7 +825,7 @@ MP_Socket::~MP_Socket()
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteSecureReadOccurred(Sint32 retCode)
+Boolean MP_Socket::incompleteSecureReadOccurred(Sint32)
 {
     return false;
 }
@@ -891,7 +891,7 @@ Sint32 MP_Socket::accept()
 #endif
 }
 
-Sint32 MP_Socket::connect(Uint32 timeoutMilliseconds) { return 0; }
+Sint32 MP_Socket::connect(Uint32) { return 0; }
 
 Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 

@@ -576,51 +576,51 @@ PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
 
 
 PEGASUS_COMMON_LINKAGE void PrintValue(
-    PEGASUS_STD(ostream)& os,
-    const CIMValue& x,
-    Uint32 n)
+    PEGASUS_STD(ostream)&,
+    const CIMValue&,
+    Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintProperty(
-    PEGASUS_STD(ostream)& os,
-    const CIMConstProperty& x,
-    Uint32 n)
+    PEGASUS_STD(ostream)&,
+    const CIMConstProperty&,
+    Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintObjectPath(
-    PEGASUS_STD(ostream)& os,
-    const CIMObjectPath& x,
-    Uint32 n)
+    PEGASUS_STD(ostream)&,
+    const CIMObjectPath&,
+    Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintInstance(
-    PEGASUS_STD(ostream)& os,
-    const CIMConstInstance& cimInstance,
-    Uint32 n)
+    PEGASUS_STD(ostream)&,
+    const CIMConstInstance&,
+    Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
-    PEGASUS_STD(ostream)& os,
-    const CIMConstQualifierDecl& x,
-    Uint32 n)
+    PEGASUS_STD(ostream)&,
+    const CIMConstQualifierDecl&,
+    Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintParamValue(
-    PEGASUS_STD(ostream)& os, 
-    const CIMParamValue& x, 
-    Uint32 n)
+    PEGASUS_STD(ostream)&, 
+    const CIMParamValue&, 
+    Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
-    PEGASUS_STD(ostream)& os, 
-    const Array<CIMParamValue>& x, 
-    Uint32 n)
+    PEGASUS_STD(ostream)&, 
+    const Array<CIMParamValue>&, 
+    Uint32)
 {
 }
 #endif /* defined(PEGASUS_DEBUG) */

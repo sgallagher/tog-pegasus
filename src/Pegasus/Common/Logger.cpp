@@ -84,7 +84,7 @@ class LoggerRep
 {
 public:
 
-    LoggerRep(const String& homeDirectory)
+    LoggerRep(const String&)
     {
 # ifdef PEGASUS_OS_ZOS
         logIdentity = strdup(System::CIMSERVER.getCString());
@@ -102,7 +102,7 @@ public:
     }
 
     // Actual logging is done in this routine
-    void log(Logger::LogFileType logFileType,
+    void log(Logger::LogFileType,
         const String& systemId,
         Uint32 logLevel,
         const String localizedMsg)
@@ -310,7 +310,6 @@ Uint32 LoggerRep::_maxLogFileSizeBytes;
 void Logger::_putInternal(
     LogFileType logFileType,
     const String& systemId,
-    const Uint32 logComponent, // FUTURE: Support logComponent mask
     Uint32 logLevel,
     const String& message)
 {
@@ -364,7 +363,7 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+        Logger::_putInternal(logFileType, systemId, logLevel,
             Formatter::format(formatString, arg0, arg1, arg2, arg3,
                 arg4, arg5, arg6, arg7, arg8, arg9));
     }
@@ -378,7 +377,7 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel, formatString);
+        Logger::_putInternal(logFileType, systemId, logLevel, formatString);
     }
 }
 
@@ -391,7 +390,7 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+        Logger::_putInternal(logFileType, systemId, logLevel,
             Formatter::format(formatString, arg0));
     }
 }
@@ -406,7 +405,7 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+        Logger::_putInternal(logFileType, systemId, logLevel,
             Formatter::format(formatString, arg0, arg1));
     }
 }
@@ -422,7 +421,7 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+        Logger::_putInternal(logFileType, systemId, logLevel,
             Formatter::format(formatString, arg0, arg1, arg2));
     }
 }
@@ -437,7 +436,7 @@ void Logger::put_l(
     {
         MessageLoaderParms parms = msgParms;
         parms.useProcessLocale = true;
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+        Logger::_putInternal(logFileType, systemId, logLevel,
             MessageLoader::getMessage(parms));
     }
 }
@@ -445,12 +444,11 @@ void Logger::put_l(
 void Logger::trace(
     LogFileType logFileType,
     const String& systemId,
-    const Uint32 logComponent,
     const String& message)
 {
     if (wouldLog(Logger::TRACE))
     {
-        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+        Logger::_putInternal(logFileType, systemId, Logger::TRACE,
             message);
     }
 }

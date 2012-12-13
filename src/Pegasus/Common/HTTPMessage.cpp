@@ -65,7 +65,7 @@ static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
 //
 //------------------------------------------------------------------------------
 
-char* HTTPMessage::findSeparator(const char* data, Uint32 size)
+char* HTTPMessage::findSeparator(const char* data)
 {
     // [^\0\r\n]
     static const unsigned char _skip[256] =
@@ -173,7 +173,7 @@ Boolean HTTPMessage::parse(
     Boolean firstTime = true;
     Uint32 headersFound = 0;
 
-    while ((sep = findSeparator(line, (Uint32)(size - (line - data)))))
+    while ((sep = findSeparator(line)))
     {
         // Look for double separator which terminates the header?
 

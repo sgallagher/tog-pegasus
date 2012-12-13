@@ -583,7 +583,7 @@ void Monitor::run(Uint32 milliseconds)
 
                             try
                             {
-                                dst->run(1);
+                                dst->run();
                             }
                             catch (...)
                             {
@@ -679,7 +679,6 @@ void Monitor::stopListeningForConnections(Boolean wait)
 
 int Monitor::solicitSocketMessages(
     SocketHandle socket,
-    Uint32 events,
     Uint32 queueId,
     Uint32 type)
 {

@@ -64,7 +64,7 @@ public:
     static const String AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
     static const String AUTH_TYPE_ZOS_ATTLS;
 
-    AuthenticationInfoRep(Boolean flag);
+    AuthenticationInfoRep();
 
     ~AuthenticationInfoRep();
 
@@ -87,8 +87,7 @@ public:
     // steps.
 
     String getConnectionUser() const
-    {
-        return _connectionUser;
+    {        return _connectionUser;
     }
 
     void   setConnectionUser(const String& userName);
@@ -167,11 +166,8 @@ public:
 
 private:
 
-    /** Constructors  */
-    AuthenticationInfoRep();
-
+    /** Default Copy Constructor and assignment operator  */
     AuthenticationInfoRep(const AuthenticationInfoRep& x);
-
     AuthenticationInfoRep& operator=(const AuthenticationInfoRep& x);
 
     String  _authUser;

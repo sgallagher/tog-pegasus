@@ -508,21 +508,25 @@ void MessageLoader::openMessageFile(MessageLoaderParms& parms)
     return;
 }
 
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
 void MessageLoader::closeMessageFile(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::closeMessageFile");
 
-#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
     if (parms._resbundl != NO_ICU_MAGIC)
     {
         ures_close(reinterpret_cast<UResourceBundle*>(parms._resbundl));
         parms._resbundl = NO_ICU_MAGIC;
     }
-#endif
 
     PEG_METHOD_EXIT();
-    return;
 }
+#else
+void MessageLoader::closeMessageFile(MessageLoaderParms&)
+{
+    // Do nothing dummy function
+}
+#endif
 
 String MessageLoader::formatDefaultMessage(MessageLoaderParms& parms)
 {
@@ -586,9 +590,9 @@ void MessageLoader::setPegasusMsgHome(String home)
     PEG_METHOD_EXIT();
 }
 
+#ifdef PEGASUS_HAS_MESSAGES
 void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
 {
-#ifdef PEGASUS_HAS_MESSAGES
     try
     {
         String startingDir, pathDir;
@@ -689,8 +693,13 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
         // Catching the exception if there is any exception while searching
         // in the path variable
     }
-#endif
 }
+#else // PEGASUS_HAS_MESSAGES not defined
+void MessageLoader::setPegasusMsgHomeRelative(const String&)
+{
+    // Do nothing function
+}
+#endif
 
 
 void MessageLoader::initPegasusMsgHome(const String& startDir)

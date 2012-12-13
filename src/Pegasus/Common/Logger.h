@@ -163,7 +163,6 @@ public:
     static void trace(
         LogFileType logFileType,
         const String& systemId,
-        const Uint32 logComponent,
         const String& message);
 
     /** setHomeDirectory
@@ -213,7 +212,6 @@ private:
     static void _putInternal(
         LogFileType logFileType,
         const String& systemId,
-        const Uint32 logComponent,
         Uint32 logLevel,
         const String& message);
 };

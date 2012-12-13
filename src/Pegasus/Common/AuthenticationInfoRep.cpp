@@ -44,7 +44,7 @@ const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
 const String AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET = "LDS";
 const String AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS = "ATTLS";
 
-AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
+AuthenticationInfoRep::AuthenticationInfoRep()
     : _connectionAuthenticated(false),
       _wasRemotePrivilegedUserAccessChecked(false)
 {

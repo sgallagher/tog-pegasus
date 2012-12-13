@@ -118,8 +118,7 @@ int main(int, char** argv)
     PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
     PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-    Resolver::resolveQualifierFlavor(q2, CIMFlavor (CIMFlavor::OVERRIDABLE),
-            false);
+    Resolver::resolveQualifierFlavor(q2, CIMFlavor (CIMFlavor::OVERRIDABLE));
     PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
     q2.setFlavor(CIMFLAVOR_ALL);
@@ -138,7 +137,7 @@ int main(int, char** argv)
     q2.setFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
     Resolver::resolveQualifierFlavor (q2, CIMFlavor
-            (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED), false);
+            (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED));
     PEGASUS_TEST_ASSERT( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
     PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
     PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));

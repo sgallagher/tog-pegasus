@@ -180,13 +180,6 @@ static inline Uint32 _Min(Uint32 x, Uint32 y)
     return x < y ? x : y;
 }
 
-// Used to test signal handling
-void * sigabrt_generator(void * parm)
-{
-    abort();
-    return 0;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1347,8 +1340,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     Boolean gotContentLanguage = false;
     Boolean gotTransferTE = false;
 
-    while ((sep =
-        HTTPMessage::findSeparator(line, (Uint32)(size - (line - data)))))
+    while ((sep = HTTPMessage::findSeparator(line)))
     {
         char save = *sep;
         *sep = '\0';
@@ -2390,7 +2382,7 @@ Boolean HTTPConnection::isResponsePending()
     return _responsePending;
 }
 
-Boolean HTTPConnection::run(Uint32 milliseconds)
+Boolean HTTPConnection::run()
 {
     Boolean handled_events = false;
     int events = 0;

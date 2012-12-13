@@ -235,14 +235,10 @@ public:
         @param theQualifier      The CIMQualifier object for which to resolve
                                  the flavor.
         @param inheritedFlavor   The flavor inherited from higher level
-        @param inherited         True if inherited from definition
-                                 False if this is definition that inherits from
-                                 the declaration
     */
     static void resolveQualifierFlavor(
         CIMQualifier& theQualifier,
-        const CIMFlavor& inheritedFlavor,
-        Boolean inherited);
+        const CIMFlavor& inheritedFlavor);
 };
 
 PEGASUS_NAMESPACE_END

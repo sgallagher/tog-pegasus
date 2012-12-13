@@ -95,7 +95,7 @@ void TraceFileHandler::prepareFileHandle(void)
 
 void TraceFileHandler::handleMessage(
     const char *message,
-    Uint32 msgLen,
+    Uint32,
     const char *fmt, va_list argList)
 {
     if (_configHasChanged)
@@ -134,7 +134,7 @@ void TraceFileHandler::handleMessage(
     // ---- END CRITICAL SECTION
 }
 
-void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
+void TraceFileHandler::handleMessage(const char *message, Uint32)
 {
     if (_configHasChanged)
     {

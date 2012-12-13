@@ -200,7 +200,7 @@ static BOOL _lookup_attrs(
                 }
             } /* if we got an attr reply */
             _LSLP_UNLINK(attrReplyEntry);
-            lslpDestroySLPMsg(attrReplyEntry, LSLP_DESTRUCTOR_DYNAMIC);
+            lslpDestroySLPMsg(attrReplyEntry);
         } /* while traversing response list */
 
         destroy_slp_client(client);
@@ -367,7 +367,7 @@ Array<CIMServerDescription> CIMServerDiscoveryRep::lookup(
                     }/*if urlList*/
                 }/*if srvReplyEntry->type == srvRply*/
                 _LSLP_UNLINK(srvReplyEntry);
-                lslpDestroySLPMsg(srvReplyEntry, LSLP_DESTRUCTOR_DYNAMIC);
+                lslpDestroySLPMsg(srvReplyEntry);
             }/*if srvReplyEntry != NULL*/
         }/*while*/
         destroy_slp_client(client);

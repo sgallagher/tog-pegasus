@@ -452,9 +452,7 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
     char* sep;
     const char* line = requestBuf.get();
 
-    while ((sep = HTTPMessage::findSeparator(
-        line, (Uint32)(requestSize - (line - requestBuf.get())))) &&
-        (line != sep))
+    while ((sep = HTTPMessage::findSeparator(line)) && (line != sep))
     {
         if (HTTPMessage::expectHeaderToken(line, "Authorization") &&
              HTTPMessage::expectHeaderToken(line, ":") &&

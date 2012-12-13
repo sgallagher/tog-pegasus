@@ -59,15 +59,23 @@ extern "C"
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_HAS_SSL
 struct FreeX509STOREPtr
 {
     void operator()(X509_STORE* ptr)
     {
-#ifdef PEGASUS_HAS_SSL
         X509_STORE_free(ptr);
-#endif
     }
 };
+#else
+struct FreeX509STOREPtr
+{
+    void operator()(X509_STORE*)
+    {
+    }
+};
+#endif
+
 
 #ifdef PEGASUS_HAS_SSL
 
@@ -162,8 +170,8 @@ private:
     static void _lockingCallback(
         int mode,
         int type,
-        const char* file,
-        int line)
+        const char*,
+        int)
     {
         if (mode & CRYPTO_LOCK)
         {

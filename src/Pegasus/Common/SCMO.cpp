@@ -1256,8 +1256,7 @@ SCMOInstance::SCMOInstance(SCMOClass& baseClass)
 SCMOInstance::SCMOInstance(
     SCMOClass& baseClass,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const char** propertyList)
+    Boolean includeClassOrigin)
 {
 
     _initSCMOInstance(new SCMOClass(baseClass));

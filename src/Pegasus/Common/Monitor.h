@@ -257,14 +257,11 @@ public:
         be one solicitor per socket.
 
         @param socket the socket to monitor for activity.
-        @param events socket events to monitor (see the SocketMessage::Events
-        enumeration for details).
         @param queueId of queue on which to post socket messages.
         @return false if messages have already been solicited on this socket.
     */
     int solicitSocketMessages(
         SocketHandle socket,
-        Uint32 events,
         Uint32 queueId,
         Uint32 type);
 

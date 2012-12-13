@@ -314,14 +314,10 @@ inline void _setTCPNoDelay(SocketHandle socket)
    int opt = 1;
    setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
 }
-//------------------------------------------------------------------------------
-//
-// _setInformIfNewTCPIP()
-//
-//------------------------------------------------------------------------------
+
+#ifdef PEGASUS_OS_ZOS
 inline void _setInformIfNewTCPIP(SocketHandle socket)
 {
-#ifdef PEGASUS_OS_ZOS
    // This function enables the notification of the CIM Server that a new
    // TCPIP transport layer is active. This is needed to be aware of a
    // restart of the transport layer. When this option is in effect,
@@ -335,8 +331,12 @@ inline void _setInformIfNewTCPIP(SocketHandle socket)
        SO_EioIfNewTP,
        (char*)&NewTcpipOn,
        sizeof(NewTcpipOn));
-#endif
 }
+#else
+inline void _setInformIfNewTCPIP(SocketHandle)
+{
+}
+#endif
 
 
 SocketHandle Socket::createSocket(int domain, int type, int protocol)

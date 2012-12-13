@@ -97,7 +97,7 @@ public:
     */
     Boolean isResponsePending();
 
-    Boolean run(Uint32 milliseconds);
+    Boolean run();
 
     HTTPAcceptor& getOwningAcceptor()
     {

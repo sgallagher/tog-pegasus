@@ -57,16 +57,15 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef PEGASUS_ENABLE_IPV6
 static Boolean _MakeAddress(
     const char* hostname,
     int port,
-    sockaddr_in& address,
     void **addrInfoRoot)
 {
     if (!hostname)
         return false;
 
-#ifdef PEGASUS_ENABLE_IPV6
     struct sockaddr_in6 serveraddr;
     struct addrinfo  hints;
     struct addrinfo *result;
@@ -100,8 +99,16 @@ static Boolean _MakeAddress(
         return false;
     }
     *addrInfoRoot = result;
+    return true;
+}
+
 #else
 
+static Boolean _MakeAddress(
+    const char* hostname,
+    int port,
+    sockaddr_in& address)
+{
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic
 // to indicate hostname instead of IP address. But RFC 1123, section 2.1,
@@ -147,10 +154,10 @@ static Boolean _MakeAddress(
         address.sin_addr.s_addr = tmp_addr;
         address.sin_port = htons(port);
     }
-#endif // PEGASUS_ENABLE_IPV6
-
     return true;
 }
+#endif // PEGASUS_ENABLE_IPV6
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -259,13 +266,14 @@ HTTPConnection* HTTPConnector::connect(
         struct addrinfo *addrInfo, *addrInfoRoot;
 #endif
         sockaddr_in address;
-        if (!_MakeAddress((const char*)host.getCString(), portNumber, address,
 #ifdef PEGASUS_ENABLE_IPV6
-             (void**)(void*)&addrInfoRoot
+        if (!_MakeAddress(
+                 (const char*)host.getCString(),
+                 portNumber,
+                 (void**)(void*)&addrInfoRoot))
 #else
-             0
+        if (!_MakeAddress((const char*)host.getCString(), portNumber, address))
 #endif
-             ))
         {
             char scratch[22];
             Uint32 n;
@@ -394,7 +402,6 @@ HTTPConnection* HTTPConnector::connect(
 
     if (-1 == (index = _monitor->solicitSocketMessages(
             connection->getSocket(),
-            SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)))
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,

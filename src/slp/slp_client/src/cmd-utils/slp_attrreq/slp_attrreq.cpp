@@ -363,7 +363,7 @@ int main(int argc, char **argv)
                     }
                 }/* if we got an attr rply */
                 _LSLP_UNLINK(temp);
-                lslpDestroySLPMsg(temp, LSLP_DESTRUCTOR_DYNAMIC);
+                lslpDestroySLPMsg(temp);
 
             } /* while traversing response list */
             destroy_slp_client(client);

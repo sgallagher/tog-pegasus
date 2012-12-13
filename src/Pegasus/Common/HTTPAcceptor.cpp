@@ -553,7 +553,6 @@ void HTTPAcceptor::_bind()
 
     if (-1 == ( _entry_index = _monitor->solicitSocketMessages(
             _rep->socket,
-            SocketMessage::READ | SocketMessage::EXCEPTION,
             getQueueId(),
             MonitorEntry::TYPE_ACCEPTOR)))
     {
@@ -953,7 +952,6 @@ void HTTPAcceptor::_acceptConnection()
 
     if (-1 ==  (index = _monitor->solicitSocketMessages(
             connection->getSocket(),
-            SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)) )
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,

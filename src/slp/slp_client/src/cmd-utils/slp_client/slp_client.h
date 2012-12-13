@@ -754,7 +754,7 @@ extern "C"
             const char *,
             BOOL);
 
-        void (*decode_attr_rply)( struct slp_client *, SOCKADDR * );
+        void (*decode_attr_rply)( struct slp_client * );
         /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
 
         BOOL (*srv_reg)(
@@ -799,13 +799,13 @@ extern "C"
 
         void (*decode_srvreq)(struct slp_client *, SOCKADDR *);
 
-        void (*decode_srvrply)(struct slp_client *, SOCKADDR *);
+        void (*decode_srvrply)(struct slp_client *);
 
         void (*decode_daadvert)( struct slp_client *, SOCKADDR *);
 
         void (*decode_attrreq)(struct slp_client *, SOCKADDR *);
 
-        BOOL (*send_rcv_udp)(struct slp_client *, BOOL) ;
+        BOOL (*send_rcv_udp)(struct slp_client *) ;
 
         int32 (*service_listener_wait)(
             struct slp_client *,
@@ -905,7 +905,7 @@ extern "C"
     void decode_srvreg(struct slp_client *client, SOCKADDR *remote);
 
     void decode_msg(struct slp_client *client, SOCKADDR *remote);
-    void decode_srvrply( struct slp_client *client, SOCKADDR *remote);
+    void decode_srvrply( struct slp_client *client);
     void decode_attrreq(struct slp_client *client, SOCKADDR *remote);
     void decode_daadvert(struct slp_client *client, SOCKADDR *remote);
     void decode_srvreq(struct slp_client *client, SOCKADDR *remote);
@@ -918,7 +918,7 @@ extern "C"
         const char *scopes,
         int16 lifetime) ;
 
-    BOOL send_rcv_udp(struct slp_client *client , BOOL retry);
+    BOOL send_rcv_udp(struct slp_client *client);
 
     int32 __service_listener(
         struct slp_client *client,
@@ -1123,7 +1123,7 @@ extern "C"
     SLP_STORAGE_DECL char *encode_opaque(void *buffer, int16 length);
     SLP_STORAGE_DECL void *decode_opaque(char *buffer);
     SLP_STORAGE_DECL lslpMsg *alloc_slp_msg(BOOL head);
-    SLP_STORAGE_DECL void lslpDestroySLPMsg(lslpMsg *msg, char flag);
+    SLP_STORAGE_DECL void lslpDestroySLPMsg(lslpMsg *msg);
     SLP_STORAGE_DECL void lslp_print_srv_rply(lslpMsg *srvrply);
     SLP_STORAGE_DECL void lslp_print_srv_rply_parse(
         lslpMsg *srvrply,

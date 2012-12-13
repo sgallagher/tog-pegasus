@@ -3270,7 +3270,7 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
-    Boolean isLast)
+    Boolean)
 {
     Buffer out;
 

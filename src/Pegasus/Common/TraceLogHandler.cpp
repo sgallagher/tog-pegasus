@@ -81,7 +81,6 @@ void TraceLogHandler::handleMessage(
 
         Logger::trace( Logger::TRACE_LOG,
                        System::CIMSERVER,
-                       Logger::TRACE,
                        completeMsg );
     }
 }
@@ -89,12 +88,11 @@ void TraceLogHandler::handleMessage(
 ////////////////////////////////////////////////////////////////////////////////
 //  Sends a simple trace message to the Logger
 ////////////////////////////////////////////////////////////////////////////////
-void TraceLogHandler::handleMessage(const char *message, Uint32 msgLen)
+void TraceLogHandler::handleMessage(const char *message, Uint32)
 {
     if (Logger::wouldLog(Logger::TRACE))
     {
-        Logger::trace( Logger::TRACE_LOG, System::CIMSERVER, Logger::TRACE,
-                       String(message) );
+        Logger::trace(Logger::TRACE_LOG, System::CIMSERVER, String(message));
     }
 }
 PEGASUS_NAMESPACE_END

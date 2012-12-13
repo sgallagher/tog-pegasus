@@ -127,11 +127,10 @@ void Resolver::resolveParameter(
 
 void Resolver::resolveQualifierFlavor(
     CIMQualifier& theQualifier,
-    const CIMFlavor& inheritedFlavor,
-    Boolean inherited)
+    const CIMFlavor& inheritedFlavor)
 {
     CheckRep(theQualifier._rep);
-    theQualifier._rep->resolveFlavor(inheritedFlavor, inherited);
+    theQualifier._rep->resolveFlavor(inheritedFlavor);
 }
 
 PEGASUS_NAMESPACE_END

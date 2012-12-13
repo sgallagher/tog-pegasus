@@ -257,9 +257,9 @@ CIMObjectPath CIMInstanceRep::buildPath(
     return CIMObjectPath(String(), CIMNamespaceName(), className, keyBindings);
 }
 void CIMInstanceRep::filter(
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    Boolean,
+    Boolean,
+    const CIMPropertyList&)
 {
     return;
 }

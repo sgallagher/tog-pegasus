@@ -399,15 +399,23 @@ CIMName XmlReader::getCimNameAttribute(
 
     if (!CIMName::legal(name))
     {
-        char buffer[MESSAGE_SIZE];
-        sprintf(buffer, "%s.NAME", elementName);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // In testing, replace illegal CIMName with this value to avoid the
+    // exception and let xml parsing continue.  THIS IS TEMP.
+    name = "BADNAMESUBSTITUTEDBYPEGASUSCLIENT";
+#else
 
-        MessageLoaderParms mlParms(
-            "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
-            "Illegal value for $0 attribute",
-            buffer);
+    char buffer[MESSAGE_SIZE];
+    sprintf(buffer, "%s.NAME", elementName);
 
-        throw XmlSemanticError(lineNumber, mlParms);
+    MessageLoaderParms mlParms(
+        "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+        "Illegal value for $0 attribute",
+        buffer);
+
+    throw XmlSemanticError(lineNumber, mlParms);
+
+#endif
     }
 
     return CIMNameCast(name);
@@ -572,6 +580,11 @@ CIMName XmlReader::getReferenceClassAttribute(
 
     if (!CIMName::legal(name))
     {
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+        name = "PEGASUS_SUBSTITUED_THIS_FOR_BAD_NAME";
+        return name;
+#endif
+
         char buffer[MESSAGE_SIZE];
         sprintf(buffer, "%s.REFERENCECLASS", elementName);
 
@@ -1011,10 +1024,14 @@ CIMValue XmlReader::stringToValue(
 
             try
             {
+                // KS 20021002 - Exception if no datetime value. Test for
+                // zero length and leave the NULL value in the variable
+                // Bugzilla 137  Adds the following if line.
+                // Expect this to become permanent but test only for now
+#ifdef PEGASUS_SNIA_INTEROP_TEST
                 if (valueStringLen != 0)
-                {
+#endif
                     tmp.set(valueString);
-                }
             }
             catch (InvalidDateTimeFormatException&)
             {
@@ -1203,7 +1220,18 @@ Boolean XmlReader::getValueElement(
 
         expectEndTag(parser, "VALUE");
     }
-    value = stringToValue(parser.getLine(),valueString,valueStringLen,type);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // KS 20021004 - tries to put value in even if empty.
+    // Think this is general problem with empty value
+    // Need to check meaning of (#PCDATA) - Does it allow empty.
+    // Bugzilla tbd
+    if (!empty)
+#endif
+        value = stringToValue(
+            parser.getLine(),
+            valueString,
+            valueStringLen,
+            type);
 
     return true;
 }
@@ -2047,6 +2075,22 @@ Boolean XmlReader::getHostElement(
 
     if (!testStartTag(parser, entry, "HOST"))
         return false;
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // Temp code to allow empty HOST field.
+    // SNIA CIMOMs return empty field particularly on enumerateinstance.
+    // Simply substitute a string for the empty.
+    if (!parser.next(entry))
+        throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
+
+    if (entry.type == XmlEntry::CONTENT)
+        host = String(entry.text);
+    else
+    {
+        parser.putBack(entry);
+        host = "HOSTNAMEINSERTEDBYPEGASUSCLIENT";
+    }
+
+#else
 
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
@@ -2057,6 +2101,7 @@ Boolean XmlReader::getHostElement(
     }
 
     host = String(entry.text);
+#endif
     expectEndTag(parser, "HOST");
     return true;
 }
@@ -2608,10 +2653,7 @@ Boolean XmlReader::getLocalClassPathElement(
 //
 //
 //------------------------------------------------------------------------------
-//
-// Parses the input to a CIMObjectPath.  Note that today the differences
-// between ClassPath and InstancePath are lost in this mapping because
-// Pegasus uses the existence of keys as separator . See BUG_3302
+
 Boolean XmlReader::getValueReferenceElement(
     XmlParser& parser,
     CIMObjectPath& reference)
@@ -3078,7 +3120,7 @@ Boolean XmlReader::getQualifierDeclElement(
     // Get ARRAYSIZE attribute:
 
     Uint32 arraySize = 0;
-    getArraySizeAttribute(parser.getLine(),
+    Boolean gotArraySize = getArraySizeAttribute(parser.getLine(),
         entry, "QUALIFIER.DECLARATION", arraySize);
 
     // Get flavor oriented attributes:
@@ -3865,8 +3907,6 @@ void XmlReader::getObjectArray(
 //
 //------------------------------------------------------------------------------
 
-// Returns true if ClassNameElement or false if InstanceNameElement
-// Parse errors always throw exception
 Boolean XmlReader::getObjectNameElement(
     XmlParser& parser,
     CIMObjectPath& objectName)
@@ -3876,8 +3916,6 @@ Boolean XmlReader::getObjectNameElement(
     if (getClassNameElement(parser, className, false))
     {
         objectName.set(String(), CIMNamespaceName(), className);
-
-        // Return flag indicating this is ClassNameElement
         return true;
     }
 
@@ -3889,8 +3927,7 @@ Boolean XmlReader::getObjectNameElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    // Return flag indicating this is InstanceNameElement
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------

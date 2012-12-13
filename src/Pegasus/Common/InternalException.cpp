@@ -52,8 +52,8 @@ AssertionFailureException::AssertionFailureException(
     _rep->message.append("): ");
     _rep->message.append(message);
 
-    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-        (const char*)_rep->message.getCString());
+    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+        (const char*)_rep->message.getCString()));
 }
 
 AssertionFailureException::~AssertionFailureException()
@@ -480,26 +480,12 @@ BadQualifierOverride::~BadQualifierOverride()
 // BadQualifierType
 //
 //==============================================================================
-BadQualifierType::BadQualifierType(
-    const String& qualifierName, const String& className):
-        Exception(
-            MessageLoaderParms(
-                KEY,
-                MSG,
-                className.size()==0?qualifierName:
-                    qualifierName+"(\""+className+"\")")),
-        _qualifierName(qualifierName),
-        _className(className)
+
+BadQualifierType::BadQualifierType(const String& qualifierName)
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName))
 {
 }
-const String& BadQualifierType:: getQualifierName() const
-{
-    return _qualifierName;
-}
-const String& BadQualifierType:: getClassName() const
-{
-    return _className;
-}
+
 BadQualifierType::~BadQualifierType()
 {
 }
@@ -1022,11 +1008,6 @@ void ThrowIndexOutOfBoundsException()
 void ThrowUninitializedObjectException()
 {
     throw UninitializedObjectException();
-}
-
-void ThrowCannotOpenFileException(const char* path)
-{
-    throw CannotOpenFile(path);
 }
 
 PEGASUS_NAMESPACE_END

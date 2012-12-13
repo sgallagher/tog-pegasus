@@ -2266,6 +2266,13 @@ void HTTPConnection::_handleReadEvent()
         {
             _outputMessageQueue->enqueue(message);
         }
+        catch(TooManyHTTPHeadersException& e)
+        {
+            String httpStatus(HTTP_STATUS_REQUEST_TOO_LARGE);
+            httpStatus.append(httpDetailDelimiter);
+            httpStatus.append(e.getMessage());
+            _handleReadEventFailure(httpStatus);
+        }
         catch (Exception& e)
         {
             String httpStatus =

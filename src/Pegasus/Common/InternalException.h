@@ -137,14 +137,9 @@ public:
 
     static const char MSG[];
     static const char KEY[];
-    BadQualifierType(const String& qualifierName,
-        const String& className = String());
-    virtual ~BadQualifierType();
-    const String _qualifierName;
-    const String _className;
-    const String& getQualifierName() const;
-    const String& getClassName() const;
 
+    BadQualifierType(const String& qualifierName);
+    virtual ~BadQualifierType();
 };
 
 // ATTN: P3  KS documentation Required
@@ -549,9 +544,6 @@ public:
  *  the common library.
  */
 PEGASUS_COMMON_LINKAGE extern void ThrowUninitializedObjectException();
-
-PEGASUS_COMMON_LINKAGE extern void ThrowCannotOpenFileException(
-    const char* path);
 
 inline void CheckRep(void * rep)
 {

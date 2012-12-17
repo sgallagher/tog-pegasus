@@ -85,7 +85,7 @@ static char* toVmsDir(const char* path)
         }
         else
         {
-            delete dir_path;
+            delete [] dir_path;
             dir_path = 0;
         }
     }

@@ -264,8 +264,9 @@ HTTPConnection* HTTPConnector::connect(
         // Make the internet address:
 #ifdef PEGASUS_ENABLE_IPV6
         struct addrinfo *addrInfo, *addrInfoRoot;
-#endif
+#else
         sockaddr_in address;
+#endif
 #ifdef PEGASUS_ENABLE_IPV6
         if (!_MakeAddress(
                  (const char*)host.getCString(),

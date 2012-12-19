@@ -167,7 +167,7 @@ Boolean HTTPMessage::parse(
     contentLength = 0;
 
     char* data = (char*)message.getData();
-    Uint32 size = message.size();
+    const Uint32 size = message.size();
     char* line = data;
     char* sep;
     Boolean firstTime = true;
@@ -185,7 +185,7 @@ Boolean HTTPMessage::parse(
 
             // Determine length of content:
 
-            contentLength = (Uint32)(message.size() - (content - data));
+            contentLength = (Uint32)(size - (content - data));
             break;
         }
 

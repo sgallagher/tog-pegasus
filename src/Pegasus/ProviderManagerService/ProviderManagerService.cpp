@@ -1086,7 +1086,7 @@ void ProviderManagerService::_updateProviderModuleStatus(
             MessageLoaderParms(
                 "ProviderManager.ProviderManagerService."
                     "SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
+                "Failed to update the provider module status."));
     }
 
     operationalStatusProperty.setValue(CIMValue(operationalStatus));
@@ -1258,7 +1258,7 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             MessageLoaderParms(
-                "ProviderManager.OOPProviderManagerRouter."
+                "ProviderManager.ProviderManagerService."
                     "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED",
                 "A failure was detected in provider module $0 with "
                     "user context $1.",
@@ -1269,7 +1269,7 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             MessageLoaderParms(
-                "ProviderManager.OOPProviderManagerRouter."
+                "ProviderManager.ProviderManagerService."
                     "OOP_PROVIDER_MODULE_FAILURE_DETECTED",
                 "A failure was detected in provider module $0.",
                 moduleName));
@@ -1453,7 +1453,7 @@ void ProviderManagerService::_reconcileProviderModuleFailure(
                             System::CIMSERVER,
                             Logger::WARNING,
                             MessageLoaderParms(
-                                "ProviderManager.OOPProviderManagerRouter."
+                                "ProviderManager.ProviderManagerService."
                                    "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
                                  "The generation of indications by providers"
                                      " in module $0 may be affected. To ensure"

@@ -938,8 +938,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                             CIM_ERR_FAILED,
                             MessageLoaderParms("ProviderManager."
                                 "OOPProviderManagerRouter."
-                                    "REQUEST_RETRY_THREAD_"
-                                "ALLOCATION_FAILED",
+                                "REQUEST_RETRY_THREAD_ALLOCATION_FAILED",
                                 "Failed to allocate a thread to "
                                    "retry a request in \"$0\".",
                                 _moduleOrGroupName));

@@ -103,7 +103,7 @@ static int action(char *path, int type_of_file)
         if (dir_path)
         {
             vmsPath = dir_path;
-            delete dir_path;
+            delete [] dir_path;
         }
         ret = dir_path != 0;
     }
@@ -132,7 +132,7 @@ static int toVms(const char* path, String& vms_path)
         if (dir_path)
         {
             vms_path = dir_path;
-            delete dir_path;
+            delete [] dir_path;
             ret = 1;
         }
         else

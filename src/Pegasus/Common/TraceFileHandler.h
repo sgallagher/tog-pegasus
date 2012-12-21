@@ -76,15 +76,6 @@ private:
      */
     char* _fileName;
 
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    /* Base File path to write messages
-     */
-    char* _baseFileName;
-
-    /* Count for the suffix of the trace file
-     */
-    Uint32 _fileCount;
-#endif
 
     /* Handle to the File
      */
@@ -94,6 +85,16 @@ private:
      */
     Uint16 _logErrorBitField;
     Boolean _configHasChanged;
+
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    /* Base File path to write messages
+     */
+    char* _baseFileName;
+
+    /* Count for the suffix of the trace file
+     */
+    Uint32 _fileCount;
+#endif
 
 public:
 

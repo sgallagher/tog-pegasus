@@ -55,9 +55,9 @@ TraceFileHandler::TraceFileHandler():
     _fileName(0), 
     _fileHandle(0),
     _logErrorBitField(0),
-    _configHasChanged(true),
+    _configHasChanged(true)
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    _baseFileName(0),
+    ,_baseFileName(0),
     _fileCount(0)
 #endif
 {

@@ -218,8 +218,6 @@ public:
     */
     void print() const;
 
-    static const WQLSelectStatement EMPTY;
-
     Boolean evaluate(const CIMInstance& inCI);
 
     void validate();

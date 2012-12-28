@@ -37,8 +37,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-const WQLSelectStatement WQLSelectStatement::EMPTY=WQLSelectStatement();
-
 WQLSelectStatement::WQLSelectStatement(
     const String& queryLang,
     const String& query)

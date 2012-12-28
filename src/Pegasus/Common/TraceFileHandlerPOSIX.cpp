@@ -35,6 +35,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 
@@ -77,17 +78,41 @@ void TraceFileHandler::prepareFileHandle(void)
         // approaches 2GB, the next file which gets created would be
         // named "cimserver.trc.1" and so on ...
         fclose(_fileHandle);
-        sprintf(_fileName, "%s.%u", _baseFileName, ++_fileCount);
-        _fileHandle = fopen(_fileName, "a+");
-        if (!_fileHandle)
+
+        char buffer[22];
+        Uint32 sz;
+        ++_fileCount;
+        String cntStr = Uint16ToString(buffer, _fileCount, sz);
+        String newTrcFile = _baseFileName + cntStr;
+
+        //Holds current trace file name  for rolling back in case of failure
+        char lastTraceFileName [strlen(_fileName) +1 ];
+        memset(lastTraceFileName,0x00,sizeof(lastTraceFileName)); 
+        strcpy (lastTraceFileName, _fileName) ; 
+        free(_fileName);
+        _fileName = 0;
+
+        // 2 extra bytes, one for trailling NUL and other for . appended
+        _fileName = (char*)malloc(newTrcFile.size() + 2);
+        if(_fileName)
         {
-            // Unable to open file, log a message
-            MessageLoaderParms parm(
-                "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
-                "Failed to open File $0",
-                _fileName);
-            _logError(TRCFH_FAILED_TO_OPEN_FILE_SYSMSG,parm);
-            return;
+            sprintf(_fileName, "%s.%u", _baseFileName, _fileCount);
+            _fileHandle = _openFile(_fileName);
+            if (!_fileHandle)
+             {
+                 //error handling done by _openFile
+                 free (_fileName);
+                 _fileName = 0;
+                 //roll back to old trace file name for retest
+                 _fileName = strdup(lastTraceFileName);
+                 _fileCount--;
+                 return;
+             }
+        }
+        else
+        {
+            _fileName = strdup(lastTraceFileName);
+            throw PEGASUS_STD(bad_alloc)();  
         }
     }
 # endif

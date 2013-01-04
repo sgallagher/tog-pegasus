@@ -999,7 +999,7 @@ int System::getAddrInfo(
                      servname,
                      hints,
                      res);
-        if( rc != EAI_AGAIN)
+        if( 0 != rc && rc != EAI_AGAIN)
         {
             PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
                         "getaddrinfo failed: %s",gai_strerror(rc)));
@@ -1029,7 +1029,7 @@ int System::getNameInfo(
                 serv,
                 servlen,
                 flags);
-        if( rc != EAI_AGAIN)
+        if( rc != 0 && rc != EAI_AGAIN)
         {
             PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
                         "getnameinfo failed: %s",gai_strerror(rc)));

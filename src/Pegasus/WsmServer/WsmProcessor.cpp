@@ -91,10 +91,10 @@ void WsmProcessor::addReqToSubContext(
     Boolean isCreateReq)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmProcessor::addReqToSubContext()");
-    SubscriptionContext *subContext;
+    SubscriptionContext *subContext=0;
     String className;
-    WxfSubCreateRequest *wsmCreateRequest;
-    WxfSubDeleteRequest *wsmDeleteRequest;
+    WxfSubCreateRequest *wsmCreateRequest=0;
+    WxfSubDeleteRequest *wsmDeleteRequest=0;
     if(isCreateReq == true)
     {
         wsmCreateRequest = (WxfSubCreateRequest *)wsmRequest;
@@ -1017,7 +1017,7 @@ void WsmProcessor::_cleanupSubContext(String & messageId,
     Boolean isFilterDelete,
     Boolean isHandlerDelete)
 {
-    SubscriptionContext *subConTxt ;
+    SubscriptionContext *subConTxt = 0;
     _subscriptionContextTable.lookupReference(messageId,subConTxt);
     if(subConTxt)
     {

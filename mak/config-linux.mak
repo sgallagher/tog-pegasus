@@ -99,7 +99,7 @@ ifeq ($(COMPILER), clang)
     FLAGS += -W -Wall -Wno-unused-parameter  -Wno-unused-value -D_GNU_SOURCE \
         -DTHREAD_SAFE -D_REENTRANT -Wno-unused-function -Werror=unused-variable
 else
-    FLAGS += -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+    FLAGS += -W -Werror -Wall -Wno-unused -Wunused-variable -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif
 ##==============================================================================
 ##

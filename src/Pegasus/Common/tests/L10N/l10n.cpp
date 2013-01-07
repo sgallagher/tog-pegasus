@@ -1235,7 +1235,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL alTestThread(void* parm)
 
 void testICUMessageLoaderOrdering()
 {
-    UErrorCode status = U_ZERO_ERROR;
     String localeStr;
 
     MessageLoaderParms mlp(

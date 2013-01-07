@@ -41,8 +41,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
-
 //------------------------------------------------------------------------------
 //
 // Implementation notes:
@@ -293,6 +291,7 @@ Boolean HTTPMessage::parse(
 #ifdef PEGASUS_DEBUG
 void HTTPMessage::printAll(ostream& os) const
 {
+    static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
     Message::print(os);
 
     String startLine;

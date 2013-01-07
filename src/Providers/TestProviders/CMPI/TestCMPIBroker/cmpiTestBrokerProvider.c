@@ -89,7 +89,6 @@ static int _testBrokerServices(const CMPIContext * ctx,
     CMPIEnumeration* enumeration;
     CMPIArray* arr_ptr;
     CMPICount returnedArraySize;
-    CMPIBoolean bol=0;
     CMPIValue value;
     int flag;
     unsigned int initCount = 0;
@@ -516,15 +515,9 @@ CMPIStatus TestCMPIBrokerProviderInvokeMethod (CMPIMethodMI * mi,
 
     CMPIString *argName = NULL;
 
-    CMPIInstance *instance = NULL;
-    CMPIInstance *paramInst = NULL;
-
     unsigned int arg_cnt = 0, index = 0;
 
     CMPIUint32 oper_rc = 1;
-
-    char *result = NULL;
-
 
     PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 

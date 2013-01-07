@@ -956,7 +956,7 @@ int enumerateAllInstanceNames(Options& opts)
                 // current entry counter
                 if (!instCounter.insert(className, 1))
                 {
-                    Uint32* value;
+                    Uint32* value=0;
                     instCounter.lookupReference(className, value);
                     *value = *value + 1;
                 }

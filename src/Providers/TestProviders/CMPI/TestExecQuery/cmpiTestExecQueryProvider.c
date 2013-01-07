@@ -238,11 +238,8 @@ static CMPISelectExp* construct_instance(
     CMPIInstance* inst)
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
-  CMPIString *type = NULL;
   CMPISelectExp *se_def = NULL;
-  CMPIObjectPath *objPath = NULL;
   unsigned int idx;
-  CMPIString *name = NULL;
   CMPIData data;
   CMPIArray *projection = NULL;
   CMPICount cnt = 0;
@@ -460,7 +457,6 @@ TestCMPIExecQueryProviderExecQuery (CMPIInstanceMI * mi,
 #endif
 {
 
-  CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPISelectExp *se_def = NULL;
   CMPIBoolean evalRes;
   CMPIInstance *inst = NULL;

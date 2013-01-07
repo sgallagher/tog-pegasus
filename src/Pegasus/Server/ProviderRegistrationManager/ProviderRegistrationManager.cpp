@@ -1970,8 +1970,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             Uint32 posLocation = instance.findProperty(_PROPERTY_LOCATION);
             Uint32 posUserContext = instance.findProperty(
                 PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT
             Uint32 posDesignatedUser = instance.findProperty(
                 PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER);
+#endif
 
             if (posModuleName != PEG_NOT_FOUND)
             {

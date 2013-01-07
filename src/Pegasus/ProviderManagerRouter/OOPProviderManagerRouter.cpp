@@ -811,7 +811,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                  i != 0; i++)
             {
                 Boolean sendResponseNow = false;
-                CIMResponseMessage *response;
+                CIMResponseMessage *response = 0;
 
                 MessageType msgType = i.value()->requestMessage->getType();
 

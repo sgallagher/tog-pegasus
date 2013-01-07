@@ -485,7 +485,7 @@ void slp_service_agent::unregister(Boolean stopListener)
         }
 #else
         // Unregister with external SLP SA.
-        sa_reg_params *p;
+        sa_reg_params *p=0;
 
         _internal_regs.lookup(rp->url, p);
         _rep->srv_reg_local(_rep,

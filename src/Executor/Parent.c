@@ -610,8 +610,6 @@ static void HandleAuthenticatePasswordRequest(int sock)
     int status;
     struct ExecutorAuthenticatePasswordRequest request;
     struct ExecutorAuthenticatePasswordResponse response;
-    int gid;
-    int uid;
 
     memset(&response, 0, sizeof(response));
 
@@ -643,6 +641,8 @@ static void HandleAuthenticatePasswordRequest(int sock)
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         {
+            int gid;
+            int uid;
             if (GetUserInfo(request.username, &uid, &gid) != 0)
             {
                 status = -1;

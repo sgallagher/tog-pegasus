@@ -49,10 +49,11 @@ IndicationRouter::IndicationRouter(
 void IndicationRouter::deliverAndWaitForStatus()
 {
     String uniqueMessageId;
-    Uint32 timeoutMilliSec = _request->timeoutMilliSec;
 
 #ifdef PEGASUS_ENABLE_INDICATION_ORDERING
     // Wait only if this indication is not coming from OOP provider.
+    Uint32 timeoutMilliSec = _request->timeoutMilliSec;
+
     if (!_request->oopAgentName.size())
     {
         char messagePtrString[20];

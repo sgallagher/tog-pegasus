@@ -48,7 +48,9 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 static struct timeval deallocateWait = { 300, 0 };
+#endif
 
 IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
     : Base("IndicationHandlerService"),

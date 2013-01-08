@@ -34,9 +34,7 @@
 
 #include <cstring>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CharSet.h>
-#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -228,12 +226,6 @@ inline Uint32 OrderedSet<T, R, N>::find(const CIMName& name,
 template<class T, class R, Uint32 N>
 inline void OrderedSet<T, R, N>::append(const T& x)
 {
-    // throw exception if have more than PEGASUS_MAXELEMENTS_NUM (see
-    // pegasus/src/Pegasus/Common/Constants.h) objects after append
-    if (_size == PEGASUS_MAXELEMENTS_NUM)
-    {
-        ThrowTooManyElementsException();
-    }
     /* To append an element to the OrderedSet we have to
        update the hash table((*_table)) and append the element to
        the dynamic, ordered list(_array)
@@ -296,9 +288,7 @@ template<class T, class R, Uint32 N>
 inline void OrderedSet<T, R, N>::remove(Uint32 index)
 {
     if (index >= _size)
-    {
-        ThrowIndexOutOfBoundsException();
-    }
+        throw IndexOutOfBoundsException();
 
     // Remove node from array (dynamic, ordered list)
     {
@@ -317,16 +307,7 @@ template<class T, class R, Uint32 N>
 inline void OrderedSet<T, R, N>::insert(Uint32 index, const T& x)
 {
     if (index > _size)
-    {
-        ThrowIndexOutOfBoundsException();
-    }
-
-    // throw exception if have more than PEGASUS_MAXELEMENTS_NUM (see
-    // pegasus/src/Pegasus/Common/Constants.h) objects after insert
-    if (_size == PEGASUS_MAXELEMENTS_NUM)
-    {
-        ThrowTooManyElementsException();
-    }
+        throw IndexOutOfBoundsException();
 
     // First write access to the OrderedSet
     // initialise array and hash table
@@ -368,9 +349,7 @@ template<class T, class R, Uint32 N>
 inline T& OrderedSet<T, R, N>::operator[](Uint32 index)
 {
     if (index >= _size)
-    {
-        ThrowIndexOutOfBoundsException();
-    }
+        throw IndexOutOfBoundsException();
 
     const Node* node = (const Node*) _array.getContentPtr() + index;
     return *const_cast<T*>(reinterpret_cast<const T*>(node));

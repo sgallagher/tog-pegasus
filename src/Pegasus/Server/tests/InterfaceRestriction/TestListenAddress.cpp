@@ -54,8 +54,9 @@ String makeBogusIp(String &ip, const String &num1, const String &num2)
     //Decide if the address passed is IPV4 or IPV6
     //assuming that IPV4 contains "." and IPV6 ":"
     Uint32 idx = ip.reverseFind('.');
+#ifdef PEGASUS_ENABLE_IPV6
     Uint32 idx6 = ip.reverseFind(':');
-
+#endif
     if(idx != PEG_NOT_FOUND)
     {
         String tmp = ip.subString(idx+1);

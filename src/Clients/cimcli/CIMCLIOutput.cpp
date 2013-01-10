@@ -250,39 +250,6 @@ static void _Sort(Array<CIMInstance>& x)
     }
 }
 
-// Sort array of CIMObjects.  If the object is a class, compare the
-// class names.  If it is an instance, compare the paths.
-static int _compareObjects(const void* p1, const void* p2)
-{
-    const CIMObject* o1 = (const CIMObject*)p1;
-    const CIMObject* o2 = (const CIMObject*)p2;
-    if (o1->isClass())
-    {
-        return String::compareNoCase(
-            o1->getClassName().getString(),
-            o2->getClassName().getString());
-    }
-    else if (o1->isInstance())
-    {
-        return _compareObjectPaths(o1->getPath() , o2->getPath());
-    }
-    else
-    {
-        cout << "ERROR object not class or instance" << endl;
-        return 0;
-    }
-}
-static void _Sort(Array<CIMObject>& x)
-{
-    CIMObject* data = (CIMObject*)x.getData();
-    Uint32 size = x.size();
-
-    if (size > 1)
-    {
-        qsort((void*)data, size, sizeof(CIMInstance), _compareObjects);
-    }
-}
-
 // Sort array of qualifier decls based on the name
 static int _compareQualDecls(const void* p1, const void* p2)
 {

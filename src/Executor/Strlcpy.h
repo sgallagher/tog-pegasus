@@ -34,36 +34,4 @@
 
 #include <stddef.h>
 
-/*
-**==============================================================================
-**
-** Strlcpy()
-**
-**     This is an original implementation of the strlcpy() function as described
-**     by Todd C. Miller in his popular security paper entitled "strlcpy and
-**     strlcat - consistent, safe, string copy and concatenation".
-**
-**     Note that this implementation favors readability over efficiency. More
-**     efficient implementations are possible but would be too complicated
-**     to verify in a security audit.
-**
-**==============================================================================
-*/
-
-static size_t Strlcpy(char* dest, const char* src, size_t size)
-{
-    size_t i;
-
-    for (i = 0; src[i] && i + 1 < size; i++)
-        dest[i] = src[i];
-
-    if (size > 0)
-        dest[i] = '\0';
-
-    while (src[i])
-        i++;
-
-    return i;
-}
-
 #endif /* _Executor_Strlcpy_h */

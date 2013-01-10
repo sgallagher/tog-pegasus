@@ -871,7 +871,8 @@ size_t url_init_lexer(const char *s);
 
 
 
-#line 874 "l_url.c"
+#define YY_NO_INPUT 1
+#line 875 "l_url.c"
 
 #define INITIAL 0
 #define IP_SITE 1
@@ -933,8 +934,6 @@ extern int urlwrap (void );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  );
-    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -1056,14 +1055,14 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 119 "url.l"
+#line 121 "url.l"
 
 
  /* the ip user @ host syntax is a special state because some reserved */
  /* characters are valid - but user the string itself is optional so we can't */
  /* build it into a full-time rule */
 
-#line 1066 "l_url.c"
+#line 1065 "l_url.c"
 
 	if ( !(yy_init) )
 		{
@@ -1148,7 +1147,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 125 "url.l"
+#line 127 "url.l"
 {
                           BEGIN IP_SITE;
 			  urlless(0);
@@ -1157,14 +1156,14 @@ YY_RULE_SETUP
 /* return the slash as a token */
 case 2:
 YY_RULE_SETUP
-#line 130 "url.l"
+#line 132 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 /* this next rule needs to kick in even if it matches a zero-length string */
 /* i.e., it needs to be guaranteed even if there is no user @ host production */
 case 3:
 YY_RULE_SETUP
-#line 134 "url.l"
+#line 136 "url.l"
 {
 			BEGIN INITIAL;
 			if (urlleng > 0)
@@ -1181,7 +1180,7 @@ YY_RULE_SETUP
 /* chars as tokens. */
 case 4:
 YY_RULE_SETUP
-#line 149 "url.l"
+#line 151 "url.l"
 {
 			BEGIN AT_SITE;
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
@@ -1192,7 +1191,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 157 "url.l"
+#line 159 "url.l"
 {
  			atalk_state++;
 			if (atalk_state == 3)
@@ -1205,12 +1204,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 167 "url.l"
+#line 169 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 168 "url.l"
+#line 170 "url.l"
 {BEGIN INITIAL; urlless(0);}
 	YY_BREAK
 /* ipx syntax includes two reserved characters - give the lexer a chance */
@@ -1218,7 +1217,7 @@ YY_RULE_SETUP
 /* as tokens */
 case 8:
 YY_RULE_SETUP
-#line 174 "url.l"
+#line 176 "url.l"
 {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_IPX);
@@ -1230,58 +1229,58 @@ YY_RULE_SETUP
 /* one of the productions above */
 case 9:
 YY_RULE_SETUP
-#line 183 "url.l"
+#line 185 "url.l"
 {BEGIN ATTRIBUTE; urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 184 "url.l"
+#line 186 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 185 "url.l"
+#line 187 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 186 "url.l"
+#line 188 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 187 "url.l"
+#line 189 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 188 "url.l"
+#line 190 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 189 "url.l"
+#line 191 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 190 "url.l"
+#line 192 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 191 "url.l"
+#line 193 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 192 "url.l"
+#line 194 "url.l"
 {urllval._i = *urltext; return(urllval._i);}
 	YY_BREAK
 /* a string consisting of only hex digits */
 case 19:
 YY_RULE_SETUP
-#line 195 "url.l"
+#line 197 "url.l"
 {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_HEXDIG);
@@ -1292,7 +1291,7 @@ YY_RULE_SETUP
 /* an ipv4 address */
 case 20:
 YY_RULE_SETUP
-#line 203 "url.l"
+#line 205 "url.l"
 {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_IPADDR);
@@ -1304,7 +1303,7 @@ YY_RULE_SETUP
 /* but '+' is reserved and must be escaped */
 case 21:
 YY_RULE_SETUP
-#line 212 "url.l"
+#line 214 "url.l"
 {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_RESNAME);
@@ -1315,7 +1314,7 @@ YY_RULE_SETUP
 /* anything else that is not reserved */
 case 22:
 YY_RULE_SETUP
-#line 221 "url.l"
+#line 223 "url.l"
 {
  			BEGIN INITIAL;
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
@@ -1328,7 +1327,7 @@ YY_RULE_SETUP
 case 23:
 /* rule 23 can match eol */
 YY_RULE_SETUP
-#line 230 "url.l"
+#line 232 "url.l"
 {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_ELEMENT);
@@ -1339,10 +1338,10 @@ YY_RULE_SETUP
 /* anything else is an error */
 case 24:
 YY_RULE_SETUP
-#line 239 "url.l"
+#line 241 "url.l"
 ECHO;
 	YY_BREAK
-#line 1345 "l_url.c"
+#line 1344 "l_url.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IP_SITE):
 case YY_STATE_EOF(AT_SITE):
@@ -1672,43 +1671,6 @@ static int yy_get_next_buffer (void)
 	yy_is_jam = (yy_current_state == 291);
 
 	return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-	register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up urltext */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT
@@ -2343,7 +2305,7 @@ void urlfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 239 "url.l"
+#line 241 "url.l"
 
 
 

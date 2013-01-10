@@ -551,7 +551,8 @@ char *WQL_text;
 //
 /////////////////////////////////////////////////////////////////////////
 */
-#line 35 "WQL.l"
+#define YY_NO_INPUT 1
+#line 37 "WQL.l"
 
 extern int WQLInput(char* buffer, int& numRead, int numRequested);
 extern int WQL_error(const char*);
@@ -574,13 +575,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern WQLParserState* globalParserState;
 
-static char* CloneString(const char* str, Uint32 size = (Uint32)-1);
-
 PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
-#line 581 "WQLLEX.cpp"
+#line 580 "WQLLEX.cpp"
 
 #define INITIAL 0
 
@@ -639,8 +638,6 @@ extern int WQL_wrap (void );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  );
-    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -765,7 +762,7 @@ YY_DECL
 #line 70 "WQL.l"
 
 
-#line 766 "WQLLEX.cpp"
+#line 763 "WQLLEX.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -1128,7 +1125,7 @@ YY_RULE_SETUP
 #line 265 "WQL.l"
 ECHO;
 	YY_BREAK
-#line 1129 "WQLLEX.cpp"
+#line 1126 "WQLLEX.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1456,43 +1453,6 @@ static int yy_get_next_buffer (void)
 	yy_is_jam = (yy_current_state == 73);
 
 	return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-	register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up WQL_text */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT

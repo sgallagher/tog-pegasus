@@ -116,6 +116,8 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 %n    300
 %e    700
 %option noyywrap prefix="url"
+%option nounput
+%option noinput
 %%
 
  /* the ip user @ host syntax is a special state because some reserved */

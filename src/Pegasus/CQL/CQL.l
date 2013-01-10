@@ -38,6 +38,8 @@
 */
 
 %option never-interactive
+%option nounput
+%option noinput
 %{
 extern int CQLInput(char* buffer, int& numRead, int numRequested);
 extern int CQL_error(const char*);

@@ -106,6 +106,8 @@ not_reserved            [^()\&|!=<>~\n]
 /* table size directives */
 
 %option noyywrap prefix="filter"
+%option nounput
+%option noinput
 %%
 
 "\""                { BEGIN QUOTED_STRING; filterless(0); }

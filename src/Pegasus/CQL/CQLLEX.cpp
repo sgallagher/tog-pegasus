@@ -667,7 +667,8 @@ char *CQL_text;
    may happen, then a token identifier is returned to the parser.
 
 */
-#line 42 "CQL.l"
+#define YY_NO_INPUT 1
+#line 44 "CQL.l"
 extern int CQLInput(char* buffer, int& numRead, int numRequested);
 extern int CQL_error(const char*);
 
@@ -703,7 +704,7 @@ PEGASUS_NAMESPACE_END
 
 int lineno;
 
-#line 704 "lex.CQL_.c"
+#line 705 "lex.CQL_.c"
 
 #define INITIAL 0
 
@@ -762,8 +763,6 @@ extern int CQL_wrap (void );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  );
-    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -885,10 +884,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 117 "CQL.l"
+#line 119 "CQL.l"
 
 
-#line 889 "lex.CQL_.c"
+#line 888 "lex.CQL_.c"
 
 	if ( !(yy_init) )
 		{
@@ -969,7 +968,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 119 "CQL.l"
+#line 121 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_SELECT] ", CQL_text);
@@ -980,7 +979,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 127 "CQL.l"
+#line 129 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_FROM] ", CQL_text);
@@ -991,7 +990,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 135 "CQL.l"
+#line 137 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_WHERE] ", CQL_text);
@@ -1002,7 +1001,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 143 "CQL.l"
+#line 145 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_ANY] ", CQL_text);
@@ -1013,7 +1012,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 151 "CQL.l"
+#line 153 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_AS] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1023,7 +1022,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 158 "CQL.l"
+#line 160 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_ASC] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1033,7 +1032,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 165 "CQL.l"
+#line 167 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_BY] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1043,7 +1042,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 172 "CQL.l"
+#line 174 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_DESC] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1053,7 +1052,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 180 "CQL.l"
+#line 182 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_DISTINCT] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1063,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 187 "CQL.l"
+#line 189 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_EVERY] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1073,7 +1072,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 194 "CQL.l"
+#line 196 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_FIRST] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1083,7 +1082,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 201 "CQL.l"
+#line 203 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_IN] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1093,7 +1092,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 208 "CQL.l"
+#line 210 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_IS] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1103,7 +1102,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 215 "CQL.l"
+#line 217 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [ISA] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1113,7 +1112,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 222 "CQL.l"
+#line 224 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOKE_LIKE] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1123,7 +1122,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 229 "CQL.l"
+#line 231 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_ORDER] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1133,7 +1132,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 236 "CQL.l"
+#line 238 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_SATISFIES] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1143,7 +1142,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 243 "CQL.l"
+#line 245 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_TRUE] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1153,7 +1152,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 250 "CQL.l"
+#line 252 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_FALSE] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1163,7 +1162,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 257 "CQL.l"
+#line 259 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NULL] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1173,7 +1172,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 264 "CQL.l"
+#line 266 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NOT] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1183,7 +1182,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 271 "CQL.l"
+#line 273 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_AND] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1193,7 +1192,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 278 "CQL.l"
+#line 280 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_OR] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1204,7 +1203,7 @@ YY_RULE_SETUP
 /* NOCHKSRC */
 case 24:
 YY_RULE_SETUP
-#line 285 "CQL.l"
+#line 287 "CQL.l"
 {
     CQL_globalParserState->currentTokenPos+=CQL_leng;
     CQL_globalParserState->tokenCount++;
@@ -1247,7 +1246,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 325 "CQL.l"
+#line 327 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_HEXADECIMAL] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1266,7 +1265,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 341 "CQL.l"
+#line 343 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_HEXADECIMAL] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1285,7 +1284,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 357 "CQL.l"
+#line 359 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_BINARY] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1304,7 +1303,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 373 "CQL.l"
+#line 375 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_BINARY] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1323,7 +1322,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 390 "CQL.l"
+#line 392 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_INTEGER] ", CQL_text);
@@ -1342,7 +1341,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 406 "CQL.l"
+#line 408 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_INTEGER] ", CQL_text);
@@ -1361,7 +1360,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 422 "CQL.l"
+#line 424 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_REAL] ", CQL_text);
@@ -1381,7 +1380,7 @@ YY_RULE_SETUP
 /* NOCHKSRC */
 case 32:
 YY_RULE_SETUP
-#line 438 "CQL.l"
+#line 440 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_REAL] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1401,7 +1400,7 @@ YY_RULE_SETUP
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 453 "CQL.l"
+#line 455 "CQL.l"
 {
     /* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
@@ -1457,7 +1456,7 @@ case 34:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up CQL_text again */
 YY_RULE_SETUP
-#line 503 "CQL.l"
+#line 505 "CQL.l"
 {
 
     CQL_DEBUG_TRACE("Unterminated string");
@@ -1467,7 +1466,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 510 "CQL.l"
+#line 512 "CQL.l"
 {
    CQL_DEBUG_TRACE("LEX: [TOK_STAR] ");
    CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1477,7 +1476,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 517 "CQL.l"
+#line 519 "CQL.l"
 {
    CQL_DEBUG_TRACE("LEX: [TOK_DIV] ");
    CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1487,7 +1486,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 524 "CQL.l"
+#line 526 "CQL.l"
 {
    CQL_DEBUG_TRACE("LEX: [TOK_PLUS] ");
    CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1497,7 +1496,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 531 "CQL.l"
+#line 533 "CQL.l"
 {
    CQL_DEBUG_TRACE("LEX: [TOK_MINUS] ");
    CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1507,7 +1506,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 538 "CQL.l"
+#line 540 "CQL.l"
 {
    CQL_DEBUG_TRACE("LEX: [TOK_COMMA] ");
    CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1517,7 +1516,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 545 "CQL.l"
+#line 547 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_DOTDOT] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1527,7 +1526,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 552 "CQL.l"
+#line 554 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_HASH] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1537,7 +1536,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 559 "CQL.l"
+#line 561 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_DOT] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1547,7 +1546,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 566 "CQL.l"
+#line 568 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_LBRKT] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1557,7 +1556,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 573 "CQL.l"
+#line 575 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_RBRKT] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1567,7 +1566,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 580 "CQL.l"
+#line 582 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_LPAR] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1577,7 +1576,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 587 "CQL.l"
+#line 589 "CQL.l"
 {
     CQL_DEBUG_TRACE("LEX: [TOK_RPAR] ");
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1587,7 +1586,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 594 "CQL.l"
+#line 596 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_DBL_PIPE] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1597,7 +1596,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 601 "CQL.l"
+#line 603 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_UNDERSCORE] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1607,7 +1606,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 608 "CQL.l"
+#line 610 "CQL.l"
 {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_EQ] ", CQL_text);
     CQL_globalParserState->currentTokenPos+=CQL_leng;
@@ -1617,7 +1616,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 616 "CQL.l"
+#line 618 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NE] ", CQL_text);
@@ -1628,7 +1627,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 625 "CQL.l"
+#line 627 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_LE] ", CQL_text);
@@ -1639,7 +1638,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 633 "CQL.l"
+#line 635 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_LT] ", CQL_text);
@@ -1650,7 +1649,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 641 "CQL.l"
+#line 643 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_GE] ", CQL_text);
@@ -1661,7 +1660,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 649 "CQL.l"
+#line 651 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_GT] ", CQL_text);
@@ -1672,7 +1671,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 657 "CQL.l"
+#line 659 "CQL.l"
 {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_IDENTIFIER] ", CQL_text);
@@ -1692,7 +1691,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 674 "CQL.l"
+#line 676 "CQL.l"
 {
 
     /* Ignore blanks */
@@ -1702,21 +1701,21 @@ YY_RULE_SETUP
 case 57:
 /* rule 57 can match eol */
 YY_RULE_SETUP
-#line 680 "CQL.l"
+#line 682 "CQL.l"
 {
     CQL_globalParserState->currentTokenPos=0;
     return 0;
    }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 685 "CQL.l"
+#line 687 "CQL.l"
 {
              return 0;
         }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 689 "CQL.l"
+#line 691 "CQL.l"
 {
     delete [] CQL_lval.strValue;
     CQL_lval.strValue = 0;
@@ -1727,10 +1726,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 697 "CQL.l"
+#line 699 "CQL.l"
 ECHO;
 	YY_BREAK
-#line 1731 "lex.CQL_.c"
+#line 1730 "lex.CQL_.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2056,43 +2055,6 @@ static int yy_get_next_buffer (void)
 	yy_is_jam = (yy_current_state == 169);
 
 	return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-	register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up CQL_text */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT
@@ -2723,7 +2685,7 @@ void CQL_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 697 "CQL.l"
+#line 699 "CQL.l"
 
 
 extern "C" int CQL_wrap()

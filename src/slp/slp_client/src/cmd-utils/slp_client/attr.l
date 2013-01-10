@@ -114,6 +114,8 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
     attribute-value pairs for each value in the multi-val statement.
  */
 %option noyywrap prefix="attr"
+%option nounput
+%option noinput
 
 %x ATTR
 %x VALUE

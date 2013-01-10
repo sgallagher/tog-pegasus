@@ -605,7 +605,8 @@ size_t filter_init_lexer(const char *s);
 /* special lexer states */
 
 /* table size directives */
-#line 608 "l_filter.c"
+#define YY_NO_INPUT 1
+#line 609 "l_filter.c"
 
 #define INITIAL 0
 #define QUOTED_STRING 1
@@ -665,8 +666,6 @@ extern int filterwrap (void );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  );
-    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -788,10 +787,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 109 "filter.l"
+#line 111 "filter.l"
 
 
-#line 794 "l_filter.c"
+#line 793 "l_filter.c"
 
 	if ( !(yy_init) )
 		{
@@ -876,12 +875,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 111 "filter.l"
+#line 113 "filter.l"
 { BEGIN QUOTED_STRING; filterless(0); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 112 "filter.l"
+#line 114 "filter.l"
 {
                         BEGIN INITIAL;
                         if (NULL != (filterlval.filter_string =
@@ -893,64 +892,64 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 122 "filter.l"
+#line 124 "filter.l"
 { ; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 123 "filter.l"
+#line 125 "filter.l"
 { filterlval.filter_int = L_PAREN; return L_PAREN ; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 124 "filter.l"
+#line 126 "filter.l"
 { filterlval.filter_int = R_PAREN; return R_PAREN ; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 125 "filter.l"
+#line 127 "filter.l"
 { filterlval.filter_int = OP_AND; return OP_AND ; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 126 "filter.l"
+#line 128 "filter.l"
 { filterlval.filter_int = OP_OR; return OP_OR ; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 127 "filter.l"
+#line 129 "filter.l"
 { filterlval.filter_int = OP_NOT; return OP_NOT ; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 128 "filter.l"
+#line 130 "filter.l"
 { filterlval.filter_int = OP_EQU; return OP_EQU ; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 129 "filter.l"
+#line 131 "filter.l"
 { filterlval.filter_int = OP_GT; return OP_GT ; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 130 "filter.l"
+#line 132 "filter.l"
 { filterlval.filter_int = OP_LT; return OP_LT ; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 131 "filter.l"
+#line 133 "filter.l"
 { filterlval.filter_int = OP_PRESENT; return OP_PRESENT ; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 132 "filter.l"
+#line 134 "filter.l"
 { filterlval.filter_int = OP_APPROX; return OP_APPROX ;  }
 	YY_BREAK
 case 14:
-#line 136 "filter.l"
+#line 138 "filter.l"
 case 15:
 YY_RULE_SETUP
-#line 136 "filter.l"
+#line 138 "filter.l"
 {
                               filterlval.filter_int =
                                 strtol(filtertext, (char **) 0, 0) ;
@@ -958,10 +957,10 @@ YY_RULE_SETUP
                             }
 	YY_BREAK
 case 16:
-#line 143 "filter.l"
+#line 145 "filter.l"
 case 17:
 YY_RULE_SETUP
-#line 143 "filter.l"
+#line 145 "filter.l"
 {
                               filterlval.filter_int =
                                 strtoul(filtertext, (char **) 0, 0);
@@ -970,14 +969,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 149 "filter.l"
+#line 151 "filter.l"
 {
                                filterlval.filter_int = 1; return VAL_BOOL;
                             }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 154 "filter.l"
+#line 156 "filter.l"
 {
                                filterlval.filter_int = 0; return VAL_BOOL;
                             }
@@ -985,7 +984,7 @@ YY_RULE_SETUP
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 159 "filter.l"
+#line 161 "filter.l"
 {
                                 if (NULL != (filterlval.filter_string =
                                                  _lslp_strdup(filtertext)))
@@ -996,10 +995,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 169 "filter.l"
+#line 171 "filter.l"
 ECHO;
 	YY_BREAK
-#line 1002 "l_filter.c"
+#line 1001 "l_filter.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(QUOTED_STRING):
 	yyterminate();
@@ -1327,43 +1326,6 @@ static int yy_get_next_buffer (void)
 	yy_is_jam = (yy_current_state == 46);
 
 	return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-	register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up filtertext */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT
@@ -1998,7 +1960,7 @@ void filterfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 169 "filter.l"
+#line 171 "filter.l"
 
 
 

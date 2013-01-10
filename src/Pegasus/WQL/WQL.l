@@ -31,6 +31,8 @@
 
 
 %option never-interactive
+%option nounput
+%option noinput
 %{
 
 extern int WQLInput(char* buffer, int& numRead, int numRequested);
@@ -53,8 +55,6 @@ extern int WQL_error(const char*);
 PEGASUS_NAMESPACE_BEGIN
 
 extern WQLParserState* globalParserState;
-
-static char* CloneString(const char* str, Uint32 size = (Uint32)-1);
 
 PEGASUS_NAMESPACE_END
 

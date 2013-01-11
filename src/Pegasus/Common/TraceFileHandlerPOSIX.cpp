@@ -78,12 +78,9 @@ void TraceFileHandler::prepareFileHandle(void)
         // approaches 2GB, the next file which gets created would be
         // named "cimserver.trc.1" and so on ...
         fclose(_fileHandle);
-
-        char buffer[22];
-        Uint32 sz;
-        ++_fileCount;
-        String cntStr = Uint16ToString(buffer, _fileCount, sz);
-        String newTrcFile = _baseFileName + cntStr;
+        
+        char buf[1024];
+        sprintf(buf, "%s.%u", _baseFileName, ++_fileCount);
 
         //Holds current trace file name  for rolling back in case of failure
         char lastTraceFileName [strlen(_fileName) +1 ];
@@ -92,8 +89,8 @@ void TraceFileHandler::prepareFileHandle(void)
         free(_fileName);
         _fileName = 0;
 
-        // 2 extra bytes, one for trailling NUL and other for . appended
-        _fileName = (char*)malloc(newTrcFile.size() + 2);
+        // 1 extra bytes for trailling NUL
+        _fileName = (char*)malloc(strlen(buf) + 1 );
         if(_fileName)
         {
             sprintf(_fileName, "%s.%u", _baseFileName, _fileCount);

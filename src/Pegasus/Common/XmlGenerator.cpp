@@ -336,32 +336,23 @@ void XmlGenerator::_appendSpecialChar(Buffer& out, const Char16& c)
 }
 
 
-// The code is to checks for the case where the character 
-// type is char or unsigned char, depending on the platform 
-// and compiler.The check avoids comparing to >= 0 for unsigned char 
-// which triggers a GCC warning "comparison is always true"
-
-template <class T> 
-bool isSpecialChar( T c) 
-{ 
-    return (((c < 0x20) && (c >= 0)) || (c == 0x7f)); 
-} 
                                    
-template <> 
-bool isSpecialChar(Sint8 c) 
+//Based on the platforms CHAR_MIN == -127 or CHAR_MIN == 0
+//The above value is used to decide if the platform assumes
+//char as signed char or unsigned char required to stop build
+//btreaks for PPC under linux
+static Boolean isSpecialChar(const char &c) 
 { 
+#if CHAR_MIN < 0
     return (((c < 0x20) && (c >= 0)) || (c == 0x7f)); 
-} 
-
-template <> 
-bool isSpecialChar( Uint8 c) 
-{ 
+#else
     return ((c < 0x20) || (c == 0x7f)); 
-} 
-                                     
+#endif
+}
+
 void XmlGenerator::_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
-    if (isSpecialChar(c))
+    if(isSpecialChar(c))
     {
         char scratchBuffer[22];
         Uint32 outputLength;

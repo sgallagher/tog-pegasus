@@ -1185,7 +1185,6 @@ CIMInstance SQLiteStore::getInstance(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::getInstance");
 
     CIMInstance cimInstance;
-    Boolean foundInstance = false;
 
     DbConnection db(_dbcm, nameSpace);
 
@@ -1414,7 +1413,6 @@ Boolean SQLiteStore::instanceExists(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::instanceExists");
 
-    Boolean foundInstance = false;
     DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT instname FROM InstanceTable "

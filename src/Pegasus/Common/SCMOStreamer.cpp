@@ -47,9 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 SCMOStreamer::SCMOStreamer(CIMBuffer& out, Array<SCMOInstance>& x) :
     _buf(out),
-    _scmoInstances(x),
-    _ttlNumInstances(0),
-    _ttlNumClasses(0)
+    _scmoInstances(x)
 {
 };
 

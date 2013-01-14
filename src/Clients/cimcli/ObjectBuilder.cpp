@@ -821,14 +821,14 @@ class iterateArray
 public:
     // construct an iterator for an array
     iterateArray(Array<String> input)
-    : _array(input), _pos(0), _prev(String()), _start(0)
+    : _array(input), _pos(0), _prev(String())
     {
     }
 
     // Create new iterator starting from nonzero position
     // in input array
     iterateArray(Array<String> input, Uint32 pos)
-    : _array(input), _pos(pos), _prev(String()), _start(pos)
+    : _array(input), _pos(pos), _prev(String())
     {
     }
 
@@ -890,7 +890,6 @@ private:
     Array<String> _array;
     Uint32 _pos;
     String _prev;
-    Uint32 _start;
 };
 
 /******************************************************************

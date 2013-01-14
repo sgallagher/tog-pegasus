@@ -319,7 +319,9 @@ private:
 
     String _repositoryPath;
     ObjectStreamer* _streamer;
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
     Boolean _compressMode;
+#endif
     Boolean _storeCompleteClasses;
 
     /**

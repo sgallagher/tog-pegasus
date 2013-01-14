@@ -788,8 +788,10 @@ FileBasedStore::FileBasedStore(
     ObjectStreamer* streamer,
     Boolean compressMode)
     : _repositoryPath(repositoryPath),
-      _streamer(streamer),
-      _compressMode(compressMode)
+      _streamer(streamer)
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+      ,_compressMode(compressMode)
+#endif
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::FileBasedStore");
 

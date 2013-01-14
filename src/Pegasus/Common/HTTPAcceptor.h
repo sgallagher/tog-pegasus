@@ -137,7 +137,6 @@ private:
     void _acceptConnection();
     void _bind();
 
-    cimom *_meta_dispatcher;
 
     Monitor* _monitor;
     MessageQueue* _outputMessageQueue;

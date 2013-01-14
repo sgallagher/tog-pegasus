@@ -238,7 +238,9 @@ private:
     ClientAuthenticator* _authenticator;
 
     // Controls decoder client displays 1 = con, 2 = log display
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
     Uint32               _showInput;
+#endif
 
     ClientPerfDataStore* dataStore;
 };

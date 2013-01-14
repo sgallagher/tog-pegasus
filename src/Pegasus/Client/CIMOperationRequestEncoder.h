@@ -155,7 +155,9 @@ private:
     CString _hostName;
     ClientAuthenticator* _authenticator;
     // Controls client trace output. 1 = con, 2 == log
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
     Uint32 _showOutput;
+#endif
     ClientPerfDataStore* dataStore_prt;
     bool _binaryRequest;
     bool _binaryResponse;

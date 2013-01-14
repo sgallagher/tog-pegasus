@@ -54,7 +54,9 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     _outputQueue(outputQueue),
     _hostName(hostName.getCString()),
     _authenticator(authenticator),
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
     _showOutput(showOutput),
+#endif
     _binaryRequest(binaryRequest),
     _binaryResponse(binaryResponse)
 {

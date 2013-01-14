@@ -46,7 +46,7 @@ public:
         const ClientOpPerformanceData& item)
     {
         Boolean flagError = false;
-        if (!(0 <= item.operationType) || !(39 >= item.operationType))
+        if (!(0 <= item.operationType) || !(24 >= item.operationType))
         {
             cerr << "Error: operation type " << item.operationType
                  << " is out of expected range in ClientOpPerformanceData"

@@ -128,11 +128,6 @@ private:
     // The array of SCMOInstances to be streamed
     Array<SCMOInstance>& _scmoInstances;
 
-    // Counters for the total number of classes and scmo instances
-    // to be streamed. These counters increase during streaming process.
-    Uint32 _ttlNumInstances;
-    Uint32 _ttlNumClasses;
-
     // Index table used to resolve the absolute pointers to SCMOClasses
     // to a relative sequence number (index) in the stream
     Array<SCMOResolutionTable> _clsResolverTable;

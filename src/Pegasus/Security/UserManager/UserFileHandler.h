@@ -86,11 +86,6 @@ private:
     static const Uint32 _MUTEX_TIMEOUT;
 
     //
-    // Flag to indicate whether password file exists
-    //
-    Boolean _passwordFileExists;
-
-    //
     // Password cache
     //
     PasswordTable _passwordTable;

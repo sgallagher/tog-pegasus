@@ -128,7 +128,6 @@ public:
 private:
 
     Boolean _more;
-    Boolean _isValid;
     String _path;
     DirRep _dirRep;
 };

@@ -53,18 +53,29 @@
  *
  *****************************************************************************/
 
+#ifndef __ENDIAN_H__
+#  define __ENDIAN_H__
+
 #ifndef __LITTLE_ENDIAN__
-#define __LITTLE_ENDIAN__ 1234
+# define __LITTLE_ENDIAN__ 1234
 #endif
 
 #ifndef __BIG_ENDIAN__
-#    define __BIG_ENDIAN__ 4321
+# define __BIG_ENDIAN__ 4321
 #endif
 
-#define __PDP_ENDIAN__ 3412
-
-#ifdef WORDS_BIGENDIAN
-#    define __BYTE_ORDER__ __BIG_ENDIAN__
-#else
-#    define __BYTE_ORDER__ __LITTLE_ENDIAN__
+#ifndef __PDP_ENDIAN__
+#  define __PDP_ENDIAN__ 3412
 #endif
+
+#ifdef __BYTE_ORDER__
+# if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#  undef __BYTE_ORDER__
+#  define __BYTE_ORDER__ __LITTLE_ENDIAN__
+# else
+#  undef __BYTE_ORDER__
+#  define __BYTE_ORDER__ __BIG_ENDIAN__
+# endif
+#endif
+
+#endif //__ENDIAN_H__

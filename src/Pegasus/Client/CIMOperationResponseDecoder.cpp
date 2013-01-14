@@ -57,8 +57,10 @@ CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     MessageQueue(PEGASUS_QUEUENAME_OPRESPDECODER),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
-    _authenticator(authenticator),
-    _showInput(showInput)
+    _authenticator(authenticator)
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    ,_showInput(showInput)
+#endif
 {
 }
 

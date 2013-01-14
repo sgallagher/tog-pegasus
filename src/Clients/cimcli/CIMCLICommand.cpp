@@ -226,7 +226,7 @@ public:
         // diagnostic function.
         // FUTURE - Should test against operation we are expecting
         if (_localVerboseTest &&
-            ((item.operationType <= 0) || item.operationType >= 39))
+            ((item.operationType <= 0) || item.operationType >= 24))
         {
            cerr << "Error:Operation type out of expected range in"
                         " ClientOpPerformanceData "

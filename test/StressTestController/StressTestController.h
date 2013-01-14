@@ -363,19 +363,9 @@ private:
     static double _duration;
 
     /**
-        Indicates that the duration is set.
-     */
-    Boolean _durationSpecified;
-
-    /**
         The ToleranceLevel used for the stress tests
      */
     Uint32 _toleranceLevel;
-
-    /**
-        Indicates that the toleranceLevel is set.
-     */
-    Boolean _toleranceLevelSpecified;
 
     /**
         The NameSpace that may be used by the clients
@@ -383,20 +373,9 @@ private:
     String _nameSpace;
 
     /**
-        Indicates that the Name Space is set.
-     */
-    Boolean _nameSpaceSpecified;
-
-    /**
         The Class Name that may be used by the clients
      */
     String _className;
-
-    /**
-        Indicates that the Class Name is set.
-     */
-    Boolean _ClassNameSpecified;
-
 
     /**
         The option character used to specify the hostname.

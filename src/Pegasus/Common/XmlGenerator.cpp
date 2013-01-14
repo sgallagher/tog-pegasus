@@ -341,7 +341,7 @@ void XmlGenerator::_appendSpecialChar(Buffer& out, const Char16& c)
 //The above value is used to decide if the platform assumes
 //char as signed char or unsigned char required to stop build
 //btreaks for PPC under linux
-static Boolean isSpecialChar(const char &c) 
+static inline Boolean isSpecialChar(const char &c) 
 { 
 #if CHAR_MIN < 0
     return (((c < 0x20) && (c >= 0)) || (c == 0x7f)); 

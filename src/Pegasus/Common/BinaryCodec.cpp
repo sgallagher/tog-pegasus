@@ -296,7 +296,9 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
     STAT_GETSTARTTIME
 
     Boolean deepInheritance = flags & DEEP_INHERITANCE;
+#ifndef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
     Boolean includeQualifiers = flags & INCLUDE_QUALIFIERS;
+#endif
     Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
 
     // [NAMESPACE]
@@ -508,8 +510,9 @@ static CIMGetInstanceRequestMessage* _decodeGetInstanceRequest(
     STAT_GETSTARTTIME
 
     // [FLAGS]
-
+#ifndef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
     Boolean includeQualifiers = flags & INCLUDE_QUALIFIERS;
+#endif
     Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
 
     // [NAMESPACE]

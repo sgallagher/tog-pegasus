@@ -638,49 +638,31 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         // queues these functions are called for their jobs other than
         // aggregating.
 
-        switch(type)
+        // Operations which run through here are:
+        // CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE
+        // CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE
+        // CIM_ASSOCIATORS_REQUEST_MESSAGE
+        // CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE
+        // CIM_REFERENCES_REQUEST_MESSAGE
+        // CIM_REFERENCE_NAMES_REQUEST_MESSAGE
+        // CIM_EXEC_QUERY_REQUEST_MESSAGE
+
+        if (type != CIM_EXEC_QUERY_REQUEST_MESSAGE)
         {
-            case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE :
-                handleEnumerateInstanceNamesResponseAggregation(poA);
-                break;
-
-            case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE :
-                handleEnumerateInstancesResponseAggregation(poA,true);
-                break;
-
-            case CIM_ASSOCIATORS_REQUEST_MESSAGE :
-                handleAssociatorsResponseAggregation(poA);
-                break;
-
-            case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE :
-                handleAssociatorNamesResponseAggregation(poA);
-                break;
-
-            case CIM_REFERENCES_REQUEST_MESSAGE :
-                handleReferencesResponseAggregation(poA);
-                break;
-
-            case CIM_REFERENCE_NAMES_REQUEST_MESSAGE :
-                handleReferenceNamesResponseAggregation(poA);
-                break;
-
-            case CIM_EXEC_QUERY_REQUEST_MESSAGE :
-                handleExecQueryResponseAggregation(poA);
-                break;
-
-            default:
-                static const char failMsg[] =
-                    "Invalid response type to aggregate: ";
-                PEG_TRACE((
-                    TRC_DISCARDED_DATA,
-                    Tracer::LEVEL1,
-                    "%s%s%u",
-                    func,
-                    failMsg,
-                    type));
-                PEGASUS_ASSERT(0);
-                break;
-        } // switch
+            // Hostname completion required for the four assoc-like operations
+            //
+            handleOperationResponseAggregation(
+                poA,
+                ((CIM_ASSOCIATORS_REQUEST_MESSAGE == type) |
+                 (CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE == type) |
+                 (CIM_REFERENCES_REQUEST_MESSAGE == type) |
+                 (CIM_REFERENCE_NAMES_REQUEST_MESSAGE == type)),
+                (type == CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE));
+        }
+        else
+        {
+            handleExecQueryResponseAggregation(poA);
+        }
 
         // now take the aggregated response. This is now the one we will
         // work with
@@ -3250,7 +3232,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         if (numberResponses > 0)
         {
-            handleEnumerateInstancesResponseAggregation(poA,true);
+            handleOperationResponseAggregation(poA,false,true);
 
             CIMResponseMessage* response = poA->removeResponse(0);
 
@@ -3509,7 +3491,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
         if (numberResponses > 0)
         {
-            handleEnumerateInstanceNamesResponseAggregation(poA);
+            handleOperationResponseAggregation(poA,false,false);
 
             CIMResponseMessage* response = poA->removeResponse(0);
 
@@ -4954,256 +4936,57 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 //
 /*********************************************************************/
 
-// Aggregate the responses for reference names into a single response
-//
-void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
-    OperationAggregate* poA)
+
+void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
+    OperationAggregate* poA,
+    bool requiresHostnameCompletion,
+    bool hasPropList)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::"
-            "handleAssociatorNamesResponseAggregation");
-    CIMAssociatorNamesResponseMessage* toResponse =
-        (CIMAssociatorNamesResponseMessage*) poA->getResponse(0);
+            "handleOperationResponseAggregation");
+    CIMResponseDataMessage* toResponse =
+        (CIMResponseDataMessage*) poA->getResponse(0);
     PEG_TRACE((
         TRC_DISPATCHER,
         Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::AssociatorNames Response - "
+        "CIMOperationRequestDispatcher Response - "
             "Namespace: %s  Class name: %s Response Count: %u",
         CSTRING(poA->_nameSpace.getString()),
         CSTRING(poA->_className.getString()),
         poA->numberResponses()));
 
-    // Work backward and delete each response off the end of the array
     CIMResponseData & to = toResponse->getResponseData();
-    for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
-    {
-        CIMAssociatorNamesResponseMessage* fromResponse =
-            (CIMAssociatorNamesResponseMessage*)poA->getResponse(i);
-        CIMResponseData & from = fromResponse->getResponseData();
-        to.appendResponseData(from);
-        poA->deleteResponse(i);
-    }
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required because XML reader
-    // will fail without them populated
-    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
 
-    PEG_METHOD_EXIT();
-}
-
-// Aggregate the responses for Associators into a single response
-
-void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
-    OperationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation");
-
-    CIMAssociatorsResponseMessage* toResponse =
-    (CIMAssociatorsResponseMessage*) poA->getResponse(0);
-
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::Associators Response - "
-            "Namespace: %s  Class name: %s Response Count: %u",
-        CSTRING(poA->_nameSpace.getString()),
-        CSTRING(poA->_className.getString()),
-        poA->numberResponses()));
-
-    // Work backward and delete each response off the end of the array
-    CIMResponseData & to = toResponse->getResponseData();
-    for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
-    {
-        CIMAssociatorsResponseMessage* fromResponse =
-            (CIMAssociatorsResponseMessage*)poA->getResponse(i);
-        CIMResponseData & from = fromResponse->getResponseData();
-        to.appendResponseData(from);
-        poA->deleteResponse(i);
-    }
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required because XML reader
-    // will fail without them populated
-    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
-
-    PEG_METHOD_EXIT();
-}
-
-// Aggregate the responses for References into a single response
-
-void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
-    OperationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::handleReferencesResponseAggregation");
-
-    CIMReferencesResponseMessage* toResponse =
-        (CIMReferencesResponseMessage*) poA->getResponse(0);
-
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::References Response - "
-            "Namespace: %s  Class name: %s Response Count: %u",
-        CSTRING(poA->_nameSpace.getString()),
-        CSTRING(poA->_className.getString()),
-        poA->numberResponses()));
-
-    // Work backward and delete each response off the end of the array
-    CIMResponseData & to = toResponse->getResponseData();
-    for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
-    {
-        CIMReferencesResponseMessage* fromResponse =
-            (CIMReferencesResponseMessage*)poA->getResponse(i);
-        CIMResponseData & from = fromResponse->getResponseData();
-        to.appendResponseData(from);
-        poA->deleteResponse(i);
-    }
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required because XML reader
-    // will fail without them populated
-    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
-
-    PEG_METHOD_EXIT();
-}
-
-// Aggregate the responses for reference names into a single response
-//
-void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
-    OperationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::"
-            "handleReferenceNamesResponseAggregation");
-    CIMReferenceNamesResponseMessage* toResponse =
-    (CIMReferenceNamesResponseMessage*) poA->getResponse(0);
-
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::ReferenceNames Response - "
-            "Namespace: %s  Class name: %s Response Count: %u",
-        CSTRING(poA->_nameSpace.getString()),
-        CSTRING(poA->_className.getString()),
-        poA->numberResponses()));
-
-    // Work backward and delete each response off the end of the array
-    CIMResponseData & to = toResponse->getResponseData();
-    for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
-    {
-        CIMReferenceNamesResponseMessage* fromResponse =
-            (CIMReferenceNamesResponseMessage*)poA->getResponse(i);
-        CIMResponseData & from = fromResponse->getResponseData();
-        to.appendResponseData(from);
-        poA->deleteResponse(i);
-    }
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required because XML reader
-    // will fail without them populated
-    to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
-
-    PEG_METHOD_EXIT();
-}
-
-/* aggregate the responses for enumerateinstancenames into a single response
-*/
-void CIMOperationRequestDispatcher::
-    handleEnumerateInstanceNamesResponseAggregation(
-        OperationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::"
-            "handleEnumerateInstanceNamesResponseAggregation");
-    CIMEnumerateInstanceNamesResponseMessage* toResponse =
-        (CIMEnumerateInstanceNamesResponseMessage*) poA->getResponse(0);
-
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::EnumerateInstanceNames Response - "
-            "Namespace: %s  Class name: %s Response Count: %u",
-        CSTRING(poA->_nameSpace.getString()),
-        CSTRING(poA->_className.getString()),
-        poA->numberResponses()));
-
-    // Work backward and delete each response off the end of the array
-    CIMResponseData & to = toResponse->getResponseData();
-    for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
-    {
-        CIMEnumerateInstanceNamesResponseMessage* fromResponse =
-            (CIMEnumerateInstanceNamesResponseMessage*)poA->getResponse(i);
-
-        CIMResponseData & from = fromResponse->getResponseData();
-        to.appendResponseData(from);
-
-        poA->deleteResponse(i);
-    }
-    PEG_METHOD_EXIT();
-}
-
-/* The function aggregates individual EnumerateInstance Responses into a
-   single response
-   for return to the client. It aggregates the responses into the
-   first response (0).
-   ATTN: KS 28 May 2002 - At this time we do not do the following:
-   1. eliminate duplicates.
-   2. prune the properties if deepInheritance is set.
-   This function does not send any responses.
-*/
-void CIMOperationRequestDispatcher::
-    handleEnumerateInstancesResponseAggregation(
-        OperationAggregate* poA,
-        bool hasPropList)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
-
-    CIMEnumerateInstancesResponseMessage* toResponse =
-        (CIMEnumerateInstancesResponseMessage*)poA->getResponse(0);
-
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation"
-            "- Namespace: %s  Class name: %s Response Count: %u",
-        CSTRING(poA->_nameSpace.getString()),
-        CSTRING(poA->_className.getString()),
-        poA->numberResponses()));
-
-    CIMEnumerateInstancesRequestMessage* request =
-        (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
-
-    CIMResponseData & to = toResponse->getResponseData();
     // Re-add the property list as stored from request after deepInheritance fix
     // since on OOP on the response message the property list gets lost
+    // This is only done for EnumerateInstances type requests
     if (hasPropList)
     {
+        CIMEnumerateInstancesRequestMessage* request =
+            (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
         to.setPropertyList(request->propertyList);
     }
 
     // Work backward and delete each response off the end of the array
     for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
-        CIMEnumerateInstancesResponseMessage* fromResponse =
-            (CIMEnumerateInstancesResponseMessage*)poA->getResponse(i);
-
+        CIMResponseDataMessage* fromResponse =
+            (CIMResponseDataMessage*)poA->getResponse(i);
         CIMResponseData & from = fromResponse->getResponseData();
         to.appendResponseData(from);
         poA->deleteResponse(i);
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL4,
-        "CIMOperationRequestDispatcher::"
-        "EnumerateInstancesResponseAggregation - "
-        "Include Qualifiers: %s Include Class Origin: %s",
-        (request->includeQualifiers == true ? "true" : "false"),
-        (request->includeClassOrigin == true ? "true" : "false")));
-
+    if (requiresHostnameCompletion)
+    {
+        // fill in host, namespace on all instances on all elements of array
+        // if they have been left out. This is required because XML reader
+        // will fail without them populated
+        to.completeHostNameAndNamespace(System::getHostName(),poA->_nameSpace);
+    }
     PEG_METHOD_EXIT();
 }
-
 
 void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
     OperationAggregate* poA)

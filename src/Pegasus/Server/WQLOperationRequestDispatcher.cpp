@@ -390,7 +390,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
         if (numberResponses > 0)
         {
-            handleEnumerateInstancesResponseAggregation(poA,false);
+            handleOperationResponseAggregation(poA,false,false);
             CIMResponseMessage* response = poA->removeResponse(0);
             _forwardRequestForAggregation(
                 getQueueId(),

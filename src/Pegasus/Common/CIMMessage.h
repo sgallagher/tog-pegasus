@@ -1511,6 +1511,37 @@ public:
 // CIMResponseMessages
 //
 
+class PEGASUS_COMMON_LINKAGE CIMResponseDataMessage
+    : public CIMResponseMessage
+{
+public:
+
+    CIMResponseDataMessage(
+        MessageType type_,
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        CIMResponseData::ResponseDataContent rspContent_,
+        Boolean isAsyncResponsePending=false)
+    : CIMResponseMessage(
+        type_,
+        messageId_,
+        cimException_,
+        queueIds_,
+        isAsyncResponsePending),
+        _responseData(rspContent_)
+    {
+    }
+    
+    CIMResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+
+private:
+    CIMResponseData _responseData;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
     : public CIMResponseMessage
 {
@@ -1530,22 +1561,16 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetInstanceResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMGetInstanceResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-      _responseData(CIMResponseData::RESP_INSTANCE)
+    : CIMResponseDataMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCE)
     {
-    }
-
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
     }
 
 private:
@@ -1553,8 +1578,6 @@ private:
     CIMGetInstanceResponseMessage(const CIMGetInstanceResponseMessage&);
     CIMGetInstanceResponseMessage& operator=(
         const CIMGetInstanceResponseMessage&);
-
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
@@ -1696,160 +1719,102 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMEnumerateInstancesResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMEnumerateInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(
+    : CIMResponseDataMessage(
         CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-      _responseData(CIMResponseData::RESP_INSTANCES)
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCES)
     {
     }
-
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-
-private:
-
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMEnumerateInstanceNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-      _responseData(CIMResponseData::RESP_INSTNAMES)
+    : CIMResponseDataMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTNAMES)
     {
     }
-
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-
-private:
-
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExecQueryResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMExecQueryResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-      _responseData(CIMResponseData::RESP_OBJECTS)
+    : CIMResponseDataMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS)
     {
     }
-
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-
-private:
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorsResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMAssociatorsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-      _responseData(CIMResponseData::RESP_OBJECTS)
+    : CIMResponseDataMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS)
     {
     }
-
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-private:
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMAssociatorNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        _responseData(CIMResponseData::RESP_OBJECTPATHS)
+    : CIMResponseDataMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTPATHS)
     {
     }
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-private:
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMReferencesResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMReferencesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        _responseData(CIMResponseData::RESP_OBJECTS)
+    : CIMResponseDataMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS)
     {
     }
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-private:
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMReferenceNamesResponseMessage
-    : public CIMResponseMessage
+    : public CIMResponseDataMessage
 {
 public:
     CIMReferenceNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        _responseData(CIMResponseData::RESP_OBJECTPATHS)
+    : CIMResponseDataMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTPATHS)
     {
     }
-    CIMResponseData& getResponseData()
-    {
-        return _responseData;
-    }
-private:
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetPropertyResponseMessage

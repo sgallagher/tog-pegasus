@@ -319,22 +319,10 @@ public:
 
     // Response Handler functions
 
-    void handleOperationResponseAggregation(OperationAggregate* poA);
-
-    void handleReferencesResponseAggregation(OperationAggregate* poA);
-
-    void handleReferenceNamesResponseAggregation(OperationAggregate* poA);
-
-    void handleAssociatorsResponseAggregation(OperationAggregate* poA);
-
-    void handleAssociatorNamesResponseAggregation(OperationAggregate* poA);
-
-    void handleEnumerateInstancesResponseAggregation(
+    void handleOperationResponseAggregation(
         OperationAggregate* poA,
+        bool requiresHostnameCompletion,
         bool hasPropList);
-
-    void handleEnumerateInstanceNamesResponseAggregation(
-        OperationAggregate* poA);
 
     void handleExecQueryResponseAggregation(OperationAggregate* poA);
 

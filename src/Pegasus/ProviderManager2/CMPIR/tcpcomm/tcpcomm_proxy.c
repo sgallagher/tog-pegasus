@@ -1880,9 +1880,9 @@ static CMPIStatus TCPCOMM_IndicationMI_authorizeFilter(
     (__sft)->serialize_string(socket, owner);
     {
         CMPIStatus rc;
-        CMPIArray *r;
         rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
 #ifndef CMPI_VER_100
+        CMPIArray *r;
         r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
 #endif
         //invokes close(socket) on unix & closesocket(socket) on windows
@@ -1930,9 +1930,9 @@ static CMPIStatus TCPCOMM_IndicationMI_mustPoll(
     (__sft)->serialize_string(socket, indType);
     {
         CMPIStatus rc;
-        CMPIArray *r;
         rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
 #ifndef CMPI_VER_100
+        CMPIArray *r;
         r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
 #endif
         //invokes close(socket) on unix & closesocket(socket) on windows
@@ -1982,9 +1982,9 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(
     (__sft)->serialize_UINT8(socket, firstActivation);
     {
         CMPIStatus rc;
-        CMPIArray *r;
         rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
 #ifndef CMPI_VER_100
+        CMPIArray *r;
         r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
 #endif
         //invokes close(socket) on unix & closesocket(socket) on windows
@@ -2035,9 +2035,9 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(
     (__sft)->serialize_UINT8(socket, lastActivation);
     {
         CMPIStatus rc;
-        CMPIArray *r;
         rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
 #ifndef CMPI_VER_100
+        CMPIArray *r;
         r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
 #endif
         //invokes close(socket) on unix & closesocket(socket) on windows
@@ -2074,7 +2074,6 @@ static CMPIStatus TCPCOMM_IndicationMI_enableIndications(
     }
     {
         CMPIStatus rc;
-        CMPIArray *r;
         rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
         //invokes close(socket) on unix & closesocket(socket) on windows
         PEGASUS_CMPIR_CLOSESOCKET(socket);
@@ -2109,7 +2108,6 @@ static CMPIStatus TCPCOMM_IndicationMI_disableIndications(
     }
     {
         CMPIStatus rc;
-        CMPIArray *r;
         rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
         //invokes close(socket) on unix & closesocket(socket) on windows
         PEGASUS_CMPIR_CLOSESOCKET(socket);

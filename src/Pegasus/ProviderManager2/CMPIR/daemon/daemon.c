@@ -242,7 +242,7 @@ int main (int argc, char *argv[])
     if (!foreground)
     {
 #if defined(PEGASUS_OS_TYPE_UNIX)
-        pid_t pid, sid;
+        pid_t pid;
         unix_platform = 1;
         pid = fork ();
         if (pid > 0)

@@ -1332,9 +1332,6 @@ static CMPIDateTime * __deserialize_CMPIDateTime (
 
 static ssize_t __serialize_CMPIError ( int fd, CMPIError * err )
 {
-    CMPIUint64 msecs;
-    CMPIBoolean i;
-    ssize_t out, tmp;
 
     TRACE_VERBOSE(("entered function."));
 
@@ -1354,7 +1351,7 @@ static CMPIError * __deserialize_CMPIError (
     int fd,
     CONST CMPIBroker * broker )
 {
-    CMPIError* nerr;
+    CMPIError* nerr=0;
 
     TRACE_VERBOSE(("entered function."));
 
@@ -1377,7 +1374,8 @@ static CMPIErrorSeverity __deserialize_CMPIErrorSeverity (
     int fd,
     CONST CMPIBroker * broker )
 {
-    CMPIErrorSeverity sev;
+    
+    CMPIErrorSeverity sev = ErrorSevUnknown ;
     return sev;
 }
 
@@ -1392,7 +1390,7 @@ static CMPIErrorProbableCause __deserialize_CMPIErrorProbableCause (
     int fd,
     CONST CMPIBroker * broker )
 {
-    CMPIErrorProbableCause pc;
+    CMPIErrorProbableCause pc= ErrorProbCauseUnknown;
     return pc;
 }
 
@@ -1403,7 +1401,7 @@ static ssize_t __serialize_CMPIrc ( int fd, CMPIrc cimStatusCode )
 
 static CMPIrc __deserialize_CMPIrc ( int fd, CONST CMPIBroker * broker )
 {
-    CMPIrc cimStatusCode;
+    CMPIrc cimStatusCode = CMPI_RC_OK ;
     return cimStatusCode;
 }
 

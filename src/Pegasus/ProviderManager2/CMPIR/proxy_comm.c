@@ -95,7 +95,6 @@ static provider_comm * load_comm_library (
 {
     void * hLibrary;
     char function[255];
-    CMPIStatus rc = {CMPI_RC_OK, NULL};
 
     TRACE_VERBOSE(("entered function."));
     TRACE_NORMAL(("loading comm-layer library: lib%s.so", id));

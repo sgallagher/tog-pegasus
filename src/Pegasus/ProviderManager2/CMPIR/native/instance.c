@@ -365,7 +365,6 @@ static CMPIStatus __ift_setObjectPath(
     CMPIInstance * instance,
     const CMPIObjectPath *op)
 {
-    CMPIString *clssname, *namespace;
 
     CMPIStatus rc = checkArgsReturnStatus(instance);
     if (rc.rc != CMPI_RC_OK)

@@ -586,7 +586,6 @@ static void TCPCOMM_IndicationMI_authorizeFilter(
     char *indType = (__sft)->deserialize_string(socket, broker);
     char *owner = (__sft)->deserialize_string(socket, broker);
     CMPIStatus rc;
-    CMPIArray *r=NULL;
 #ifndef CMPI_VER_100
     CMPIResult *result = native_new_CMPIResult(NULL);
 #endif
@@ -601,6 +600,7 @@ static void TCPCOMM_IndicationMI_authorizeFilter(
         rc = mi->ft->authorizeFilter(mi, ctx, filter, indType, cop, owner);
     }
 #else
+     CMPIArray *r=NULL;
     if (mi)
     {
         rc = mi->ft->authorizeFilter(
@@ -635,7 +635,6 @@ static void TCPCOMM_IndicationMI_mustPoll(
         PEGASUS_INDICATION_GLOBAL_CONTEXT);
     char *indType = (__sft)->deserialize_string(socket, broker);
     CMPIStatus rc;
-    CMPIArray *r=NULL;
 #ifndef CMPI_VER_100
     CMPIResult *result = native_new_CMPIResult(NULL);
 #endif
@@ -650,6 +649,7 @@ static void TCPCOMM_IndicationMI_mustPoll(
         rc = mi->ft->mustPoll(mi, ctx,  filter, indType, cop);
     }
 #else
+    CMPIArray *r=NULL;
     if (mi)
     {
         rc = mi->ft->mustPoll(mi, ctx, result, filter, indType, cop);
@@ -681,7 +681,6 @@ static void TCPCOMM_IndicationMI_activateFilter(
     char *clsName = (__sft)->deserialize_string(socket, broker);
     CMPIBoolean firstActivation = (__sft)->deserialize_UINT8(socket);
     CMPIStatus rc;
-    CMPIArray *r=NULL;
 #ifndef CMPI_VER_100
     CMPIResult *result = native_new_CMPIResult(NULL);
 #endif
@@ -702,6 +701,7 @@ static void TCPCOMM_IndicationMI_activateFilter(
             firstActivation);;
     }
 #else
+    CMPIArray *r=NULL;
     if (mi)
     {
         rc = mi->ft->activateFilter(
@@ -737,7 +737,6 @@ static void TCPCOMM_IndicationMI_deActivateFilter(
     char *clsName = (__sft)->deserialize_string(socket, broker);
     CMPIBoolean lastActivation = (__sft)->deserialize_UINT8(socket);
     CMPIStatus rc;
-    CMPIArray *r=NULL;
 #ifndef CMPI_VER_100
     CMPIResult *result = native_new_CMPIResult(NULL);
 #endif
@@ -758,6 +757,7 @@ static void TCPCOMM_IndicationMI_deActivateFilter(
             lastActivation);
     }
 #else
+    CMPIArray *r=NULL;
     if (mi)
     {
         rc = mi->ft->deActivateFilter(
@@ -2091,7 +2091,6 @@ CMPIBoolean TCPCOMM_selExp_evaluate (
     CONST CMPIInstance *inst,
     CMPIStatus *rc)
 {
-    CMPIStatus __rc ;
     CMPIContext *context;
     CMPIBroker *broker;
     CMPIBoolean res;
@@ -2172,7 +2171,6 @@ CMPIBoolean TCPCOMM_selExp_evaluateUsingAccessor (
 
 CMPISelectExp* TCPCOMM_selExp_clone (CONST CMPISelectExp* se, CMPIStatus* rc)
 {
-    CMPIStatus __rc ;
     CMPIContext *context;
     CMPIBroker *broker;
     CMPISelectExp *res;
@@ -2210,7 +2208,6 @@ CMPISelectExp* TCPCOMM_selExp_clone (CONST CMPISelectExp* se, CMPIStatus* rc)
 
 CMPIString* TCPCOMM_selExp_getString (CONST CMPISelectExp* se, CMPIStatus* rc)
 {
-    CMPIStatus __rc ;
     CMPIContext *context;
     CMPIBroker *broker;
     CMPIString *str;
@@ -2287,7 +2284,6 @@ CMPISelectExp *TCPCOMM_selExp_newSelExp (
     CMPIArray ** projection,
     CMPIStatus * rc )
 {
-    CMPIStatus __rc ;
     CMPIContext *context;
     CMPIBroker *broker;
     CMPISelectExp *res;

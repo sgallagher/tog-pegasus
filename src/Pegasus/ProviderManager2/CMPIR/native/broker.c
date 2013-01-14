@@ -161,7 +161,6 @@ static CMPISelectExp * __beft_newSelectExp (
 {
     CMPIBroker *brk;
     CMPIContext *ctx;
-    CMPIUint32 id;
 
     if (!queryString || !language)
     {

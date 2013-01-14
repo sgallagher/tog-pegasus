@@ -85,7 +85,7 @@ static provider_address * namespace_resolver (
     const char *hostname)
 {
     provider_address * addr;
-    char *module,*pnp;
+    char *pnp;
     char * in_between;
     in_between = strdup(provider);
 

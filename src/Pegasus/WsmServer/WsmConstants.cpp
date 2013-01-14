@@ -43,9 +43,9 @@ const char* PEGASUS_WS_DELMODE = "Mode";
 
 const char* PEGASUS_WS_NOTIFYTO = "NotifyTo";
 
-const String PEGASUS_WS_CIMNAMESPACE = "__cimnamespace";
+const char* PEGASUS_WS_CIMNAMESPACE = "__cimnamespace";
 
-const String PEGASUS_WS_SUB_DURATION = "SubscriptionDuration";
+const char* PEGASUS_WS_SUB_DURATION = "SubscriptionDuration";
 
 
 //

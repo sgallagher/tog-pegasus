@@ -31,8 +31,9 @@ DIR = Pegasus/WSMANExportClient/tests/WSMANRequestEncoderTests
 include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
-LIBRARIES = pegwsmserver \
-            pegexportclient \
+
+LIBRARIES = pegexportclient \
+            pegwsmserver \
             pegclient  \
             pegcommon 
 

@@ -1151,7 +1151,7 @@ WsmRequest* WsmRequestDecoder::_decodeWSUnsubscribeRequest(
     subscriptionEPR.resourceUri = String(WSM_RESOURCEURI_CIMSCHEMAV2) +
         "/" + PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString();
     subscriptionEPR.selectorSet->selectors.append(WsmSelector
-        (PEGASUS_WS_CIMNAMESPACE,
+        (String(PEGASUS_WS_CIMNAMESPACE),
         PEGASUS_NAMESPACENAME_INTEROP.getString()));
     subscriptionEPR.selectorSet->selectors.append(WsmSelector
         (PEGASUS_PROPERTYNAME_FILTER.getString(), filterEPR));
@@ -1426,7 +1426,7 @@ WsmRequest* WsmRequestDecoder::_decodeWSSubscriptionRequest(
     subscriptionEPR.resourceUri = String(WSM_RESOURCEURI_CIMSCHEMAV2) +
         "/" + PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString();
     subscriptionEPR.selectorSet->selectors.append(WsmSelector
-        (PEGASUS_WS_CIMNAMESPACE,
+        (String(PEGASUS_WS_CIMNAMESPACE),
         PEGASUS_NAMESPACENAME_INTEROP.getString()));
     createSubRequest.reset(new WxfSubCreateRequest(messageId, 
         subscriptionEPR, 
@@ -1447,7 +1447,7 @@ void WsmRequestDecoder::getFilterOrHandlerEPR(
     instanceEPR.resourceUri = String(WSM_RESOURCEURI_CIMSCHEMAV2) 
         + "/" + className;
     instanceEPR.selectorSet->selectors.append(WsmSelector
-        (PEGASUS_WS_CIMNAMESPACE,
+        (String(PEGASUS_WS_CIMNAMESPACE),
         PEGASUS_NAMESPACENAME_INTEROP.getString()));
     instanceEPR.selectorSet->selectors.append(WsmSelector(
         "SystemCreationClassName",

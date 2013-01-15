@@ -397,7 +397,9 @@ void WbemExecCommand::_printContent(
                 // The message ID starts after the last ':' char. (See,
                 // DSP0226 R5.4.4-1.). Position to the last ':' char.
                 const char* colonPos = uuidEnd;
-                for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--);
+                for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--)
+                {
+                }
 
                 char* beginPtr = contentCopy.get() + (colonPos+1 - content);
                 char* endPtr   = contentCopy.get() + (uuidEnd - content);

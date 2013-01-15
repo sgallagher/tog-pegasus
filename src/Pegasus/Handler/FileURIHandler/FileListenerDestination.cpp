@@ -142,7 +142,7 @@ void FileListenerDestination::_recordIndicationToFile(
     else // file opening failed
     {
         PEG_METHOD_EXIT();
-        throw CannotOpenFile(path);
+        ThrowCannotOpenFileException(path);
     }
 
     PEG_METHOD_EXIT();

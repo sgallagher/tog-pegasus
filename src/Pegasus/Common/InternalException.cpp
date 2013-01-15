@@ -1024,4 +1024,9 @@ void ThrowUninitializedObjectException()
     throw UninitializedObjectException();
 }
 
+void ThrowCannotOpenFileException(const char* path)
+{
+    throw CannotOpenFile(path);
+}
+
 PEGASUS_NAMESPACE_END

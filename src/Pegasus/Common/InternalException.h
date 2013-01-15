@@ -550,6 +550,9 @@ public:
  */
 PEGASUS_COMMON_LINKAGE extern void ThrowUninitializedObjectException();
 
+PEGASUS_COMMON_LINKAGE extern void ThrowCannotOpenFileException(
+    const char* path);
+
 inline void CheckRep(void * rep)
 {
     if (!rep)

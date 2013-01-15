@@ -69,13 +69,13 @@
 #endif
 
 #ifdef __BYTE_ORDER__
-# if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#  undef __BYTE_ORDER__
-#  define __BYTE_ORDER__ __LITTLE_ENDIAN__
-# else
-#  undef __BYTE_ORDER__
-#  define __BYTE_ORDER__ __BIG_ENDIAN__
-# endif
+# undef __BYTE_ORDER__
+#endif
+
+#ifdef WORDS_BIGENDIAN
+#    define __BYTE_ORDER__ __BIG_ENDIAN__
+#else
+#    define __BYTE_ORDER__ __LITTLE_ENDIAN__
 #endif
 
 #endif //__ENDIAN_H__

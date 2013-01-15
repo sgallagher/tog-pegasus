@@ -3312,7 +3312,7 @@ int srv_reg_all(
     int16 lifetime)
 {
     int convergence_save;
-    int af;
+    int af = 0;
 
     // keep track of how many times we register
     int registrations = 0;

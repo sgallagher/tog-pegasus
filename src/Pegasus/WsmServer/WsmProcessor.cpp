@@ -526,10 +526,12 @@ void WsmProcessor::_handleSubscriptionResponse(
                 PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL2, 
                     "Handler creation failed for the request with ID %s ",
                     (const char*)wsmRequest->messageId.getCString()));
+                _subscriptionContextTableLock.unlock();
                 sendResponse(new WsmFaultResponse(
                     wsmRequest,
                     _cimToWsmResponseMapper.mapCimExceptionToWsmFault(
                     cimResponse->cimException)));
+                _subscriptionContextTableLock.lock();
                 _cleanupSubContext(wsmRequest->messageId,
                     createFilter,
                     false,
@@ -555,10 +557,12 @@ void WsmProcessor::_handleSubscriptionResponse(
                     wsmRequest->messageId,
                     false,
                     true); 
+                _subscriptionContextTableLock.unlock();
                 sendResponse(new WsmFaultResponse(
                     wsmRequest,
                     _cimToWsmResponseMapper.mapCimExceptionToWsmFault(
                     cimResponse->cimException)));
+                _subscriptionContextTableLock.lock();
                 _cleanupSubContext(wsmRequest->messageId,
                     false,
                     false,
@@ -573,6 +577,7 @@ void WsmProcessor::_handleSubscriptionResponse(
                (subContext->handlerResponse == true)) 
             {
                 _fillSubscriptionInfoTable(subContext->subReq);
+                _subscriptionContextTableLock.unlock();
                 // Subscription has been created successfully
                 // Send Subscription response
                 AutoPtr<WsmResponse> wsmResponse(
@@ -593,11 +598,13 @@ void WsmProcessor::_handleSubscriptionResponse(
                     wsmRequest->messageId,
                     createFilter,
                     true); 
+                _subscriptionContextTableLock.unlock(); 
                 sendResponse(new WsmFaultResponse(
                     wsmRequest,
                     _cimToWsmResponseMapper.mapCimExceptionToWsmFault(
                     cimResponse->cimException)));
             }
+            _subscriptionContextTableLock.lock();
             //Delete the subContext
             _cleanupSubContext(wsmRequest->messageId);
         }
@@ -686,6 +693,7 @@ void WsmProcessor::_handleSubscriptionDeleteResponse(
                 deleteFilter,
                 true);
         }
+        _subscriptionContextTableLock.unlock();
         AutoPtr<WsmResponse> wsmResponse(
             _cimToWsmResponseMapper.mapToWsmResponse(
                 wsmRequest,
@@ -694,7 +702,8 @@ void WsmProcessor::_handleSubscriptionDeleteResponse(
         cimResponse->queueIds.pop();
 
         _wsmResponseEncoder.enqueue(wsmResponse.get());
-        }
+        _subscriptionContextTableLock.lock();
+    }
     // Context entry should usually be found, in case it is not found 
     // log it in the trace
     else

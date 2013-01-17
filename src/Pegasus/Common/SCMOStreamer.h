@@ -44,9 +44,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct SCMOResolutionTable
 {
-    // Though we really store a pointer here, it is stored as Uint64 to
-    // become independent from 64bit versus 32bit incarnations of the struct.
-    Uint64 scmbptr;
+    // Though we only store pointers here, it is stored as union of size 64bit
+    // to become independent from 64bit versus 32bit incarnations of the struct.
+    union
+    {
+        Uint64 uint64;
+        SCMOInstance* scmoInst;
+        SCMBInstance_Main * scmbMain;
+    } scmbptr;
+
     Uint64 index;
 };
 
@@ -95,7 +101,7 @@ private:
     //
     // Returns the index position at which the instance was inserted in the
     // instance resolver table.
-    Uint32 _appendToInstResolverTable(const SCMOInstance& inst, Uint32 idx);
+    Uint32 _appendToInstResolverTable(SCMOInstance& inst, Uint32 idx);
 
 
     // Adds an instance to the class resolution table.

@@ -175,10 +175,13 @@ Uint32 SCMOStreamer::_appendToResolverTables(const SCMOInstance& inst)
 // Returns the index position at which the instance was inserted in the
 // instance resolver table.
 Uint32 SCMOStreamer::_appendToInstResolverTable(
-    const SCMOInstance& inst,
+    SCMOInstance& inst,
     Uint32 idx)
 {
-    SCMOResolutionTable tableEntry = { (Uint64)(void*)&inst, idx};
+    SCMOResolutionTable tableEntry;
+    tableEntry.scmbptr.scmoInst = &inst;
+    tableEntry.index = idx;
+
     _instResolverTable.append(tableEntry);
 
     // The number of elements in the array minus 1 is the index position
@@ -200,7 +203,9 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 
 
     // Now build a new entry for the class resolution table
-    SCMOResolutionTable tableEntry = {(Uint64)(void*)inst.inst.hdr, clsIdx};
+    SCMOResolutionTable tableEntry;
+    tableEntry.scmbptr.scmbMain = inst.inst.hdr;
+    tableEntry.index = clsIdx;
     _clsResolverTable.append(tableEntry);
 
     // The number of elements in the array minus 1 is the index position
@@ -254,7 +259,7 @@ void SCMOStreamer::_dumpTables()
     {
         fprintf(stderr,"\t[%2d] I = %llx - cls = %2lld\n",
                 x,
-                _clsResolverTable[x].scmbptr,
+                _clsResolverTable[x].scmbptr.uint64,
                 _clsResolverTable[x].index);
     }
 
@@ -263,7 +268,7 @@ void SCMOStreamer::_dumpTables()
     {
         fprintf(stderr,"\t[%2d] R = %llx - I = %2lld\n",
                 x,
-                _instResolverTable[x].scmbptr,
+                _instResolverTable[x].scmbptr.uint64,
                 _instResolverTable[x].index);
     }
     fprintf(stderr,"=====================================================\n");
@@ -370,7 +375,7 @@ void SCMOStreamer::_putInstances()
     for (Uint32 x=0; x < numInst; x++)
     {
         // Calculate the in-use size of the SCMOInstance data
-        SCMBInstance_Main* instPtr = (SCMBInstance_Main*)instArray[x].scmbptr;
+        SCMBInstance_Main* instPtr = instArray[x].scmbptr.scmbMain;
         Uint64 size = instPtr->header.totalSize - instPtr->header.freeBytes;
         _buf.putUint64(size);
 
@@ -462,18 +467,17 @@ bool SCMOStreamer::_getInstances()
             for (Uint32 i=0; i < numExtRefs; i++)
             {
                 Uint32 extRefPos = extRefArray[extRefIndex].index;
-                SCMOInstance* extRefPtr =
-                    (SCMOInstance*)instArray[extRefPos].scmbptr;
+                SCMOInstance* extRefPtr = instArray[extRefPos].scmbptr.scmoInst;
                 scmoInstPtr->putExtRef(i,extRefPtr);
 
                 // Mark instance as already consumed
-                instArray[extRefPos].scmbptr = 0;
+                instArray[extRefPos].scmbptr.uint64 = 0;
 
                 extRefIndex++;
             }
         }
 
-        instArray[x].scmbptr = (Uint64)(void*)scmoInstPtr;
+        instArray[x].scmbptr.scmoInst = scmoInstPtr;
 
 #ifdef PEGASUS_DEBUG
         _clsResolverTable.append(instArray[x]);
@@ -483,10 +487,10 @@ bool SCMOStreamer::_getInstances()
     // Append all non-referenced instances to output array
     for (Uint32 x=0; x < numInst; x++)
     {
-        if (instArray[x].scmbptr)
+        if (0 != instArray[x].scmbptr.scmoInst)
         {
-            _scmoInstances.append(*((SCMOInstance*)instArray[x].scmbptr));
-            delete (SCMOInstance*)instArray[x].scmbptr;
+            _scmoInstances.append(*(instArray[x].scmbptr.scmoInst));
+            delete instArray[x].scmbptr.scmoInst;
         }
     }
     delete [] instArray;

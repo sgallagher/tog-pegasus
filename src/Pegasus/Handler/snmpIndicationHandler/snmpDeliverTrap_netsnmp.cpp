@@ -637,9 +637,6 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
             oidSubIdentifiers.append(p);
         }
 
-        long genTrap = 0;
-        long specTrap = 0;
-
         enterpriseOidLength = MAX_OID_LEN;
 
         if (Contains(standard_traps, trapOid))

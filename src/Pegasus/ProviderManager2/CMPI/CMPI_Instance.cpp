@@ -45,7 +45,6 @@
 #include <string.h>
 #include <new>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/SCMODump.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

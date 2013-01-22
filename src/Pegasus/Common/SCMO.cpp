@@ -5200,6 +5200,8 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
 
 }
 
+// class SCMODump only in debug builds available
+#ifdef PEGASUS_DEBUG
 /******************************************************************************
  * SCMODump Print and Dump functions
  *****************************************************************************/
@@ -5208,9 +5210,9 @@ SCMODump::SCMODump()
     _out = stderr;
     _fileOpen = false;
 
-#ifdef PEGASUS_OS_ZOS
+# ifdef PEGASUS_OS_ZOS
     setEBCDICEncoding(fileno(_out));
-#endif
+# endif
 
 }
 
@@ -5236,9 +5238,9 @@ void SCMODump::openFile(const char* filename)
 
     _fileOpen = true;
 
-#ifdef PEGASUS_OS_ZOS
+# ifdef PEGASUS_OS_ZOS
     setEBCDICEncoding(fileno(_out));
-#endif
+# endif
 
 }
 
@@ -6370,6 +6372,7 @@ void SCMODump::printUnionValue(
 
   return;
 }
+#endif // PEGASUS_DEBUG (class SCMODump only in debug builds available)
 
 
 /*****************************************************************************

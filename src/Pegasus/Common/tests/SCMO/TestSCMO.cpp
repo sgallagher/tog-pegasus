@@ -146,6 +146,7 @@ void CIMClassToSCMOClass()
 
     SCMOClass theSCMOClass(theCIMClass);
 
+#ifdef PEGASUS_DEBUG
     const char TestCSMOClassLog[]="TestSCMOClass.log";
     SCMODump dump(&(TestCSMOClassLog[0]));
 
@@ -159,6 +160,7 @@ void CIMClassToSCMOClass()
 
     dump.closeFile();
     dump.deleteFile();
+#endif
 
     VCOUT << "Creating CIMClass out of SCMOClass." << endl;
     CIMClass newCimClass;
@@ -281,6 +283,7 @@ void SCMOClassQualifierTest()
 
     VCOUT << endl << "SCMOClass qualifer test ..." << endl;
 
+#ifdef PEGASUS_DEBUG
     String masterFile (getenv("PEGASUS_ROOT"));
     masterFile.append(MASTERQUALIFIER);
 
@@ -291,6 +294,7 @@ void SCMOClassQualifierTest()
     PEGASUS_TEST_ASSERT(dump.compareFile(masterFile));
 
     dump.deleteFile();
+#endif
 
     VCOUT << "Done." << endl;
 }

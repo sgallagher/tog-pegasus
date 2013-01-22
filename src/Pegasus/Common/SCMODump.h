@@ -31,7 +31,7 @@
 
 #ifndef _SCMODUMP_H_
 #define _SCMODUMP_H_
-
+# ifdef PEGASUS_DEBUG
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
@@ -137,4 +137,5 @@ private:
 
 PEGASUS_NAMESPACE_END
 
+# endif // PEGASUS_DEBUG
 #endif

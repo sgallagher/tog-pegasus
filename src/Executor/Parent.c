@@ -261,8 +261,6 @@ static void HandleOpenFileRequest(int sock)
 static void HandleStartProviderAgentRequest(int sock)
 {
     int status;
-    int uid;
-    int gid;
     int pid;
     int to[2];
     int from[2];
@@ -310,6 +308,8 @@ static void HandleStartProviderAgentRequest(int sock)
 
         /* Look up the user ID and group ID of the specified user. */
 
+        int uid;
+        int gid;
         if (GetUserInfo(request.userName, &uid, &gid) != 0)
         {
             Log(LL_WARNING, "User %s does not exist on this system, " 

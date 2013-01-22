@@ -68,7 +68,7 @@ Options :
     -n, --namespace     - Override default CIM Repository namespace (root/cimv2)
     -uc                 - Allow update of an existing class definition
     -aE                 - Allow Experimental Schema changes
-    -aV                 - Allow both Major and Down Revision Schema changes
+    -aV                 - Allow any Version Schema change
     -aEV                - Allow both Experimental and Version Schema changes
     --xml               - Output XML only, to stdout. Do not update repository
     --trace             - Trace to file (default to stdout)
@@ -104,7 +104,7 @@ Options :
     -n, --namespace     - Override default CIM Repository namespace (root/cimv2)
     -uc                 - Allow update of an existing class definition
     -aE                 - Allow Experimental Schema changes
-    -aV                 - Allow both Major and Down Revision Schema changes
+    -aV                 - Allow any Version Schema change
     -aEV                - Allow both Experimental and Version Schema changes
     --xml               - Output XML only, to stdout. Do not update repository
     --trace             - Trace to file (default to stdout)

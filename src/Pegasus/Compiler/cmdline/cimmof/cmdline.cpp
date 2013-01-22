@@ -154,8 +154,7 @@ ostream & help(ostream &os, int progtype)
     help.append(
         "    -uc             - Allow update of an existing class definition\n");
     help.append( "    -aE             - Allow Experimental Schema changes\n");
-    help.append( "    -aV             - Allow both Major and Down Revision"
-                                        " Schema changes\n");
+    help.append( "    -aV             - Allow any Version Schema change\n");
     help.append( "    -aEV            - Allow both Experimental and Version"
                                         " Schema changes\n");
     if(progtype == 1) {
@@ -212,8 +211,7 @@ ostream & help(ostream &os, int progtype)
                                                 " definition\n");
     help.append( "    -aE                 - Allow Experimental Schema"
                                                 " changes\n");
-    help.append( "    -aV                 - Allow both Major and Down Revision"
-                                                " Schema changes\n");
+    help.append("    -aV                 - Allow any Version Schema change\n");
     help.append( "    -aEV                - Allow both Experimental and"
                                                 " Version Schema changes\n");
 #ifdef PEGASUS_OS_PASE

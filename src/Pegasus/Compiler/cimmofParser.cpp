@@ -1669,7 +1669,11 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                 updateMessage = cimmofMessages::NO_EXPERIMENTAL_UPDATE;
                 return false;
             }
-
+            // -aV is set, do not do class version checking
+            if (_cmdline->allow_version())
+            {
+                return ret;
+            }
             // Some examples:
             // Requires minor and update ids in repository and mof to be
             // set with the
@@ -1685,20 +1689,8 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                 (iU < rU  &&  rU >= 0 && iU >= 0 && rN==iU))
 
             {
-                if (!_cmdline->allow_version())
-                {
-                    /* PEP43: ID = 6 */
-                    //printf("ID=6 (No Action): Exists. -aV not set.\n");
-                    updateMessage = cimmofMessages::NO_VERSION_UPDATE;
-                    return false;
-                }
-                else
-                {
-                    /* ID = 7 */
-                    //printf("ID=7: (ModifyClass): Exists. -aEV set."
-                    //" (Major Update, Down Revision, Version->NULL)\n");
-
-                }
+                updateMessage = cimmofMessages::NO_VERSION_UPDATE;
+                return false;
             }
             else
             {
@@ -1726,7 +1718,6 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                     //printf("ID=9 (NoAction): Exists. Same Version.\n");
                     updateMessage = cimmofMessages::SAME_VERSION;
                     return false;
-
                 }
             }
         }
@@ -1737,6 +1728,12 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
             if ((rExperimental && iExperimental) ||        /* TRUE->TRUE */
                     (!iExperimental))                      /* Any->FALSE */
             {
+                // -aV is set, do not do class version checking
+                if (_cmdline->allow_version())
+                {
+                    return ret;
+                }
+
                 // See above for examples...ID=6
                 if ((rM >= 0  &&  iM < 0)    //remove version (Version->NULL)
                     ||
@@ -1746,20 +1743,8 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                     ||                       // Down Revision of update id
                     (iU < rU  &&  rU >= 0 && iU >= 0 && rN==iU))
                 {
-                    if (!_cmdline->allow_version())
-                    {
-                        /* PEP43: ID = 10 */
-                        //printf("ID=10 (NoAction): Exists. -aV not set.\n");
-                        updateMessage = cimmofMessages::NO_VERSION_UPDATE;
-                        return false;
-                    }
-                    else
-                    {
-                        /* ID = 11 */
-                        //printf("ID=11 (ModifyClass): Exists. -aV set."
-                        //" (Major Update, Down Revision, Version->NULL)\n");
-
-                    }
+                    updateMessage = cimmofMessages::NO_VERSION_UPDATE;
+                    return false;
                 }
                 else
                 {
@@ -1780,7 +1765,6 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                         //printf("ID=13 (NoAction): Exists. Same Version.\n");
                         updateMessage = cimmofMessages::SAME_VERSION;
                         return false;
-
                     }
                 }
             }

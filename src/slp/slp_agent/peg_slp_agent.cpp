@@ -575,7 +575,6 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
     }
     slp_service_agent *agent = (slp_service_agent *)myself->get_parm();
 
-    lslpMsg msg_list;
 
 #if defined(PEGASUS_SLP_REG_TIMEOUT)
     Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60;
@@ -675,7 +674,8 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         {
         }
 #else
-        agent->_rep->service_listener(agent->_rep, 0, &msg_list);
+        lslpMsg msg_list;
+         agent->_rep->service_listener(agent->_rep, 0, &msg_list);
         _LSLP_SLEEP(1);
         if (agent->_update_reg_count.get() && agent->_should_listen.get())
         {

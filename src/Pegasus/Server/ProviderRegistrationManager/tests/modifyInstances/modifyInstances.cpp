@@ -40,6 +40,8 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
+#define VCOUT if (verbose) cout
+
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -194,6 +196,53 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
     propertyList.append(CIMName ("SupportedMethods"));
 
     prmanager.modifyInstance(instanceName3, cimInstance4, false, propertyList);
+
+    // create Instance which will Error when trying to modify instance because
+    // key bad ProviderModuleName does not exist
+    CIMObjectPath returnRef5;
+
+    CIMClass cimClass5(CLASSNAME3);
+
+    CIMInstance cimInstance5(CLASSNAME3);
+
+    cimInstance5.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
+        String("providersModuleNoExist")));
+    cimInstance5.addProperty(CIMProperty(CIMName ("ProviderName"),
+        String("PG_ProviderInstance1")));
+    cimInstance5.addProperty(CIMProperty(CIMName ("CapabilityID"),
+        String("capability1")));
+    cimInstance5.addProperty(CIMProperty(CIMName ("ClassName"),
+        String("TestSoftwarePkg")));
+    cimInstance5.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
+    cimInstance5.addProperty(CIMProperty(CIMName ("ProviderType"),
+        providerType));
+    cimInstance5.addProperty(CIMProperty(CIMName ("SupportedMethods"),
+        supportedMethods));
+    cimInstance5.addProperty(CIMProperty(CIMName ("SupportedProperties"),
+        supportedProperties));
+
+    CIMObjectPath instanceName5 = cimInstance5.buildPath(CLASSNAME3);
+
+    instanceName5.setNameSpace(NAMESPACE);
+    instanceName5.setClassName(CLASSNAME3);
+
+    // Test failure to modify because key does not exist
+    Boolean callFailed = false;
+    try
+    {
+        prmanager.modifyInstance(
+            instanceName5, cimInstance4, false, propertyList);
+    }
+    catch(CIMException& e)
+    {
+        callFailed = true;
+        VCOUT << "CIMException code " << e.getCode()
+            << "(" << cimStatusCodeToString(e.getCode()) << ")"
+            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+    }
+    PEGASUS_TEST_ASSERT(callFailed);
+
 }
 
 int main(int, char** argv)

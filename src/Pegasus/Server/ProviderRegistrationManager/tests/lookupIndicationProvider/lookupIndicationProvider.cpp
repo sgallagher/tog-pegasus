@@ -40,6 +40,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
+#define VCOUT if (verbose) cout
 
 const String NAMESPACE = "root/test";
 const String CLASSNAME = "PG_ProviderModule";
@@ -48,7 +49,6 @@ const String CLASSNAME3 = "PG_ProviderCapabilities";
 
 Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 {
-
     //
     // create Provider module instances
     //
@@ -239,10 +239,49 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     }
 }
 
+void TestLookupIndicationProviderFailures(
+    ProviderRegistrationManager & prmanager)
+{
+    VCOUT << "TestLookupIndicationProviderFailures" << endl;
+    Array <CIMInstance> providerIns;
+    Array <CIMInstance> providerModuleIns;
+
+    Array <CIMName> requiredProperties;
+    requiredProperties.append("p1");
+    requiredProperties.append("p3");
+    requiredProperties.append("p4");
+
+    CIMPropertyList requiredPropertyList(requiredProperties);
+
+    PEGASUS_TEST_ASSERT(!prmanager.getIndicationProviders(
+        "test_namespaceNotExist",
+        "test_class1",
+        requiredPropertyList,
+        providerIns,
+        providerModuleIns));
+
+    PEGASUS_TEST_ASSERT(!prmanager.getIndicationProviders("test_namespace1",
+        "test_classNotExist",
+        requiredPropertyList,
+        providerIns,
+        providerModuleIns));
+
+    // test with property that is not part of class.  NOTE: This test does
+    // pass today.
+    requiredProperties.append("ThisPropertyDoesNotExist");
+    requiredPropertyList.set(requiredProperties);
+
+    PEGASUS_TEST_ASSERT(prmanager.getIndicationProviders("test_namespace1",
+        "test_class1",
+        requiredPropertyList,
+        providerIns,
+        providerModuleIns));
+}
+
 int main(int, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose) cout << argv[0] << ": started" << endl;
+    VCOUT << argv[0] << ": started" << endl;
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     String repositoryRoot;
@@ -260,12 +299,13 @@ int main(int, char** argv)
 
     try
     {
-    if (!TestLookupIndicationProvider(prmanager))
-    {
-        PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed"
-            << PEGASUS_STD(endl);
-            exit (-1);
-    }
+        if (!TestLookupIndicationProvider(prmanager))
+        {
+            PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed"
+                << PEGASUS_STD(endl);
+                exit (-1);
+        }
+        TestLookupIndicationProviderFailures(prmanager);
     }
 
     catch(Exception& e)

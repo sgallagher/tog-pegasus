@@ -40,6 +40,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
+#define VCOUT if (verbose) cout
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/test");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -174,32 +175,57 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
         CIMName ("test_class1"), CIMName ("test_method2"),
         providerIns, providerModuleIns))
     {
-    providerIns.getProperty(providerIns.findProperty
-        (CIMName ("ProviderModuleName"))).getValue().get
-            (_providerModuleName);
+        providerIns.getProperty(providerIns.findProperty
+            (CIMName ("ProviderModuleName"))).getValue().get
+                (_providerModuleName);
 
-    providerModuleIns.getProperty(providerModuleIns.findProperty
-            (CIMName ("Name"))).getValue().get(_providerModuleName2);
+        providerModuleIns.getProperty(providerModuleIns.findProperty
+                (CIMName ("Name"))).getValue().get(_providerModuleName2);
 
-    if (String::equal(_providerModuleName, _providerModuleName2))
-    {
-        return (true);
+        if (String::equal(_providerModuleName, _providerModuleName2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
-        return (false);
+        return false;
     }
-    }
-    else
-    {
-    return (false);
-    }
+}
+
+void TestLookupMethodProviderFailures(ProviderRegistrationManager & prmanager)
+{
+    VCOUT << "TestLookupMethodProviderFailures" << endl;
+    CIMInstance providerIns;
+    CIMInstance providerModuleIns;
+
+    // Test by modifying each of the input parameters to value that 
+    // does not exist. Each case should return false
+
+    PEGASUS_TEST_ASSERT(!prmanager.lookupMethodProvider(
+        CIMNamespaceName ("test_namespaceNotExist"),
+        CIMName ("test_class1"), CIMName ("test_method2"),
+        providerIns, providerModuleIns));
+
+    PEGASUS_TEST_ASSERT(!prmanager.lookupMethodProvider(
+        CIMNamespaceName ("test_namespace1"),
+        CIMName ("test_classNotExist"), CIMName ("test_method2"),
+        providerIns, providerModuleIns));
+
+    PEGASUS_TEST_ASSERT(!prmanager.lookupMethodProvider(
+        CIMNamespaceName ("test_namespace1"),
+        CIMName ("test_class1"), CIMName ("test_methodNotExist"),
+        providerIns, providerModuleIns));
 }
 
 int main(int, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose) cout << argv[0] << ": started" << endl;
+    VCOUT << argv[0] << ": started" << endl;
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     String repositoryRoot;
@@ -217,14 +243,14 @@ int main(int, char** argv)
 
     try
     {
-    if (!TestLookupMethodProvider(prmanager))
-    {
-        PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed"
-            << PEGASUS_STD(endl);
-        exit (-1);
+        if (!TestLookupMethodProvider(prmanager))
+        {
+            PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed"
+                << PEGASUS_STD(endl);
+            exit (-1);
+        }
+        TestLookupMethodProviderFailures(prmanager);
     }
-    }
-
     catch(Exception& e)
     {
     PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
@@ -232,6 +258,7 @@ int main(int, char** argv)
                            << PEGASUS_STD (endl);
     exit(-1);
     }
+
 
     PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests"
         << PEGASUS_STD(endl);

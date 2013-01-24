@@ -40,6 +40,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
+#define VCOUT if (verbose) cout
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -75,6 +76,22 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
 
     returnRef = prmanager.createInstance(instanceName, cimInstance);
 
+    // Test duplicate create of provider instance
+    Boolean callFailed = false;
+    try
+    {
+        returnRef = prmanager.createInstance(instanceName, cimInstance);
+    }
+    catch(CIMException& e)
+    {
+        callFailed = true;
+        VCOUT << "CIMException code " << e.getCode()
+            << "(" << cimStatusCodeToString(e.getCode()) << ")"
+            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+    }
+    PEGASUS_TEST_ASSERT(callFailed);
+
     // Test create PG_Provider instances
 
     CIMObjectPath returnRef2;
@@ -94,6 +111,22 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName2.setClassName(CLASSNAME2);
 
     returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+
+    // test duplicate create fails
+    callFailed = false;
+    try
+    {
+        returnRef = prmanager.createInstance(instanceName2, cimInstance2);
+    }
+    catch(CIMException& e)
+    {
+        callFailed = true;
+        VCOUT << "CIMException code " << e.getCode()
+            << "(" << cimStatusCodeToString(e.getCode()) << ")"
+            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+    }
+    PEGASUS_TEST_ASSERT(callFailed);
 
     //
     // test create provider capability instances
@@ -144,8 +177,60 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName3.setClassName(CLASSNAME3);
 
     returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+
+    // Test duplicate create code
+    callFailed = false;
+    try
+    {
+        returnRef = prmanager.createInstance(instanceName3, cimInstance3);
+    }
+    catch(CIMException& e)
+    {
+        callFailed = true;
+        VCOUT << "CIMException code " << e.getCode()
+            << "(" << cimStatusCodeToString(e.getCode()) << ")"
+            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+    }
 }
 
+// test for error where Provider created before module exists.
+void TestCreateInstancesError1(ProviderRegistrationManager & prmanager)
+{
+    // Test create PG_Provider instances
+
+    CIMObjectPath returnRef2;
+
+    CIMClass cimClass2(CLASSNAME2);
+
+    CIMInstance cimInstance2(CLASSNAME2);
+
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
+        String("providersModuleNotcreated")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
+        String("PG_ProviderInstance100")));
+
+    CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
+
+    instanceName2.setNameSpace(NAMESPACE);
+    instanceName2.setClassName(CLASSNAME2);
+
+    // test create of provider with no module fails
+    Boolean callFailed = false;
+    try
+    {
+        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+    }
+    catch(CIMException& e)
+    {
+        callFailed = true;
+        VCOUT << "CIMException code " << e.getCode()
+            << "(" << cimStatusCodeToString(e.getCode()) << ")"
+            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
+    }
+    PEGASUS_TEST_ASSERT(callFailed);
+}
 int main(int, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
@@ -174,6 +259,7 @@ int main(int, char** argv)
     try
     {
         TestCreateInstances(prmanager);
+        TestCreateInstancesError1(prmanager);
     }
 
     catch(Exception& e)

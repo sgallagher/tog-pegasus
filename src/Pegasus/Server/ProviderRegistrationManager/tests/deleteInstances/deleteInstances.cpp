@@ -40,6 +40,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
+#define VCOUT if (verbose) cout
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/test");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -168,6 +169,7 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
 
     returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
 
+    Boolean callFailed = false;
     switch (i)
     {
         case 1:
@@ -180,6 +182,23 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
                 instanceName2.setKeyBindings(keys2);
 
                 prmanager.deleteInstance(instanceName2);
+
+                // Test duplicate delete which should fail
+                try
+                {
+                    prmanager.deleteInstance(instanceName2);
+                }
+                catch(CIMException& e)
+                {
+                    callFailed = true;
+                    VCOUT << "CIMException code " << e.getCode()
+                        << "(" << cimStatusCodeToString(e.getCode()) << ")"
+                        <<  "\nDescription \"" << e.getMessage() << "\""
+                        << endl;
+                    PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+                }
+                PEGASUS_TEST_ASSERT(callFailed);
+
             break;
 
         case 2:

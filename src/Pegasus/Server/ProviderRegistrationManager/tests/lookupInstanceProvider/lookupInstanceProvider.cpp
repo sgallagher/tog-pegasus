@@ -172,27 +172,44 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager & prmanager)
     if (prmanager.lookupInstanceProvider (CIMNamespaceName ("test_namespace1"),
         CIMName ("test_class1"), providerIns, providerModuleIns))
     {
-    providerIns.getProperty(providerIns.findProperty (
-        CIMName ("ProviderModuleName"))).getValue().get (
-            _providerModuleName);
+        providerIns.getProperty(providerIns.findProperty (
+            CIMName ("ProviderModuleName"))).getValue().get (
+                _providerModuleName);
 
-    providerModuleIns.getProperty(providerModuleIns.findProperty
-            (CIMName ("Name"))).getValue().get(_providerModuleName2);
+        providerModuleIns.getProperty(providerModuleIns.findProperty
+                (CIMName ("Name"))).getValue().get(_providerModuleName2);
 
-    if (String::equal (_providerModuleName, _providerModuleName2))
-    {
-        return (true);
+        if (String::equal (_providerModuleName, _providerModuleName2))
+        {
+            return (true);
+        }
+        else
+        {
+            return (false);
+        }
     }
     else
     {
         return (false);
     }
-    }
-    else
-    {
-    return (false);
-    }
 }
+
+// Test for provider not found. This must be executed after
+// TestLookupInstanceProvider. Should return false
+void TestLookupInstanceProviderFail(ProviderRegistrationManager & prmanager)
+{
+    CIMInstance providerIns;
+    CIMInstance providerModuleIns;
+
+    PEGASUS_TEST_ASSERT(!prmanager.lookupInstanceProvider(
+        CIMNamespaceName ("test_namespace1"),
+        CIMName ("test_classNotExist"), providerIns, providerModuleIns));
+
+    PEGASUS_TEST_ASSERT(!prmanager.lookupInstanceProvider(
+        CIMNamespaceName ("test_namespaceNotExist"),
+        CIMName ("test_class1"), providerIns, providerModuleIns));
+}
+
 
 int main(int, char** argv)
 {
@@ -215,12 +232,13 @@ int main(int, char** argv)
 
     try
     {
-    if (!TestLookupInstanceProvider(prmanager))
-    {
-        PEGASUS_STD(cerr) << "Error: lookupInstanceProvider Failed"
-                          << PEGASUS_STD(endl);
-        exit (-1);
-    }
+        if (!TestLookupInstanceProvider(prmanager))
+        {
+            PEGASUS_STD(cerr) << "Error: lookupInstanceProvider Failed"
+                              << PEGASUS_STD(endl);
+            exit (-1);
+        }
+        TestLookupInstanceProviderFail(prmanager);
     }
 
     catch(Exception& e)

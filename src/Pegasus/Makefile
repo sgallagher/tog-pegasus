@@ -38,7 +38,8 @@ DIRS = \
     Config \
     Repository \
     getoopt \
-    WQL
+    WQL \
+	Handler
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
@@ -96,8 +97,7 @@ DIRS += \
     HandlerService \
     IndicationService \
     ManagedClient \
-    DynListener \
-    Handler/FileURIHandler 
+    DynListener
 
 TEST_DIRS += \
     ExportClient/tests \
@@ -109,8 +109,7 @@ TEST_DIRS += \
     ControlProviders/ProviderRegistrationProvider/tests \
     HandlerService/tests \
     IndicationService/tests \
-    DynListener/tests \
-    Handler/FileURIHandler/tests
+    DynListener/tests 
 
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
@@ -204,6 +203,7 @@ endif
 DIRS += \
     Server \
     Handler/CIMxmlIndicationHandler \
+    Handler/FileURIHandler  \
     msg/Server \
     msg/CLI \
     msg/Listener
@@ -221,7 +221,8 @@ endif
 TEST_DIRS += \
     Server/tests \
     Server/tests/InterfaceRestriction \
-    Handler/CIMxmlIndicationHandler/tests/Destination
+    Handler/CIMxmlIndicationHandler/tests/Destination \
+    Handler/FileURIHandler/tests
 
 ifdef PEGASUS_USE_EMANATE
     TEST_DIRS += \

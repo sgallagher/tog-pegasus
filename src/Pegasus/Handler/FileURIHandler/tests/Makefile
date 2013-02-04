@@ -29,7 +29,13 @@
 ROOT = ../../../../..
 DIR = Pegasus/Handler/FileURIHandler/tests
 include $(ROOT)/mak/config.mak
-include ../../libraries.mak
+
+LIBRARIES = \
+    pegconfig \
+    pegrepository \
+    pegcommon \
+    pegclient \
+    peghandler
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

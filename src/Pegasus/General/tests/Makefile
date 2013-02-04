@@ -34,7 +34,6 @@ DIRS = \
     CIMError \
     DynLib \
     DynamicLibrary \
-    IndicationFormatter \
     OptionManager \
     Stopwatch \
     ToMof \

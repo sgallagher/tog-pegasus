@@ -28,14 +28,15 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT=../../..
 
+DIR = Pegasus/Handler
+
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    CIMxmlIndicationHandler
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        wsmanIndicationHandler
-endif
+LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
+SOURCES = IndicationFormatter.cpp 
 
-include $(ROOT)/mak/recurse.mak
+LIBRARY = \
+	peghandler
+
+include $(ROOT)/mak/dynamic-library.mak

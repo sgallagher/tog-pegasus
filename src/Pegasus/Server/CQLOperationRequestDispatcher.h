@@ -49,9 +49,10 @@ private:
     {
     }
 
-    virtual ~CQLOperationRequestDispatcher() {}
-
 public:
+    
+    virtual ~CQLOperationRequestDispatcher() {}
+    
     void handleQueryRequest(
         CIMExecQueryRequestMessage* request);
 

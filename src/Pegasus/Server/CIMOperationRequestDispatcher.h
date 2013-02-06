@@ -220,7 +220,6 @@ private:
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
-    friend class QuerySupportRouter;
 public:
 
     typedef MessageQueueService Base;

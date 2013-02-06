@@ -43,7 +43,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WQLOperationRequestDispatcher : public CIMOperationRequestDispatcher
 {
-    friend class Nobody;
 private:
     WQLOperationRequestDispatcher(
         CIMRepository* repository,
@@ -52,10 +51,10 @@ private:
               repository,providerRegistrationManager)
     {
     }
+public:
 
     virtual ~WQLOperationRequestDispatcher() {}
 
-public:
     void handleQueryRequest(
         CIMExecQueryRequestMessage* request);
 

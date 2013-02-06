@@ -447,14 +447,23 @@ void LanguageParser::_parseLanguageSubtags(
         if (((i == 0) && !_isValidPrimarySubtagSyntax(subtags[i])) ||
             ((i > 0) && !_isValidSubtagSyntax(subtags[i])))
         {
+            // throw Exception(MessageLoader::getMessage(parms));
+            // do not localize message, requires a language tag for this
+            // localization can cause recursion here
+            // MessageLoaderParms::toString adds 5kb static code size, Do NOT
+            // include in non-debug builds
+#ifdef PEGASUS_DEBUG
             MessageLoaderParms parms(
                 "Common.LanguageParser.MALFORMED_LANGUAGE_TAG",
                 "Malformed language tag \"$0\".", languageTagString);
             PEG_METHOD_EXIT();
-            // throw Exception(MessageLoader::getMessage(parms));
-            // do not localize message, requires a language tag for this
-            // localization can cause recursion here
             throw Exception(parms.toString());
+#else
+            String malFormed("Malformed language tag:");
+            malFormed.append(languageTagString);
+            PEG_METHOD_EXIT();
+            throw Exception(malFormed);
+#endif
         }
     }
 

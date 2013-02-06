@@ -894,6 +894,7 @@ void MessageLoaderParms::_init()
     _resbundl = NO_ICU_MAGIC;
 }
 
+#ifdef PEGASUS_DEBUG
 String MessageLoaderParms::toString()
 {
     String s;
@@ -927,6 +928,7 @@ String MessageLoaderParms::toString()
 
     return s;
 }
+#endif
 
 MessageLoaderParms::~MessageLoaderParms()
 {

@@ -193,8 +193,10 @@ public:
         const Formatter::Arg& arg2,
         const Formatter::Arg& arg3);
 
+#ifdef PEGASUS_DEBUG
     /** Converts to string. */
     String toString();
+#endif
 
     ~MessageLoaderParms();
 

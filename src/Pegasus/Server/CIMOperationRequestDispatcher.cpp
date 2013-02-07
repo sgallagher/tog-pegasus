@@ -170,7 +170,6 @@ MessageType OperationAggregate::getRequestType() const
 
 void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 {
-    static const char* func = "OperationAggregate::resequenceResponse";
     CIMStatusCode error = response.cimException.getCode();
     bool notSupportedReceived = false;
     if (error != CIM_ERR_SUCCESS)
@@ -186,7 +185,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             Tracer::LEVEL1,
             "%s: Response has error.  Namespace: %s, Class name: %s, "
                 "Response Sequence: %s",
-            func,
+            "OperationAggregate::resequenceResponse",
             CSTRING(_nameSpace.getString()),
             CSTRING(_className.getString()),
             (_totalReceived) ? "true" : "false"));
@@ -223,7 +222,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "%s: Message is complete.  Total responses: %u, "
                     "total chunks: %u, total errors: %u",
-                func,
+                "OperationAggregate::resequenceResponse",
                 _totalReceivedComplete,
                 _totalReceived,
                 _totalReceivedErrors));
@@ -610,8 +609,6 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     OperationAggregate*& poA,
     CIMResponseMessage*& response)
 {
-    static const char func[] =
-        "CIMOperationRequestDispatcher::_enqueueResponse";
     // Obtain the _enqueueResponseMutex mutex for this chunked request.
     // This mutex is used to serialize chunked responses from all incoming
     // provider threads. It is imperative that the sequencing done by the
@@ -738,7 +735,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             TRC_DISCARDED_DATA,
             Tracer::LEVEL1,
             "%s%s",
-            func,
+            "CIMOperationRequestDispatcher::_enqueueResponse",
             failMsg));
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)

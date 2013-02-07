@@ -788,8 +788,10 @@ void DefaultProviderManager::_shutdownAllProviders()
             ProviderRequests);
 
     if(exception.getCode() != CIM_ERR_SUCCESS)
+    {
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected Exception in _shutdownAllProviders().");
+    }
 
     PEG_METHOD_EXIT();
 }

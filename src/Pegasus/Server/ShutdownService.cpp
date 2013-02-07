@@ -148,14 +148,7 @@ void ShutdownService::shutdown(
         // Determine if there are any outstanding CIM operation requests
         // (take into account that one of the request is the shutdown request).
         //
-        Boolean noMoreRequests = waitUntilNoMoreRequests(requestPending);
-
-        PEG_TRACE((
-            TRC_SHUTDOWN,
-            Tracer::LEVEL4,
-            "ShutdownService::shutdown - All outstanding CIM operations "
-                "complete = %s",
-            (noMoreRequests) ? "true" : "false"));
+        waitUntilNoMoreRequests(requestPending);
 
         //
         // Send a shutdown signal to the CIMServer. CIMServer itself will take
@@ -367,7 +360,7 @@ void ShutdownService::_shutdownProviders(Boolean controlProviders)
     PEG_METHOD_EXIT();
 }
 
-Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
+void ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
 {
     Uint32 waitTime = _shutdownTimeout;    // maximum wait time in seconds
     const Uint32 waitInterval = 1;         // one second wait interval
@@ -382,7 +375,7 @@ Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
         requestCount = _cimserver->getOutstandingRequestCount();
         if (requestCount <= (requestPending ? 1 : 0))
         {
-            return true;
+            break;
         }
 
         PEG_TRACE((
@@ -395,7 +388,13 @@ Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
         waitTime -= waitInterval;
     }
 
-    return _cimserver->getOutstandingRequestCount() <= (requestPending ? 1 : 0);
+    PEG_TRACE((
+        TRC_SHUTDOWN,
+        Tracer::LEVEL4,
+        "ShutdownService::shutdown - All outstanding CIM operations "
+            "complete = %s",
+        ((_cimserver->getOutstandingRequestCount()) <=
+         (requestPending ? 1 : 0)) ? "true" : "false"));
 }
 
 PEGASUS_NAMESPACE_END

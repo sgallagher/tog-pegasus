@@ -260,14 +260,14 @@ int SSLCallback::verificationCRLCallback(
     //get revoked certificates
     STACK_OF(X509_REVOKED)* revokedCerts = NULL;
     revokedCerts = X509_CRL_get_REVOKED(crl);
-    int numRevoked = sk_X509_REVOKED_num(revokedCerts);
+    int numRevoked= sk_X509_REVOKED_num(revokedCerts);
     PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
         "---> SSL: Number of certificates revoked by the issuer %d\n",
         numRevoked));
 
     //check whether the subject's certificate is revoked
     X509_REVOKED* revokedCert = NULL;
-    for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
+    for (int i = 0; i < numRevoked; i++)
     {
         revokedCert = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
         //a matching serial number indicates revocation
@@ -746,9 +746,11 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             throw SSLException(parms);
         }
         else
+        {
            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Cipher suite set to %s",
                 (const char *)_cipherSuite.getCString()));
+        }
     }
 
     //

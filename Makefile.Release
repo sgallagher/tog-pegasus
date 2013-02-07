@@ -81,6 +81,7 @@ PEGASUS_PROVIDER_MANAGERS =
 
 PEGASUS_LIBRARIES = \
    libCIMxmlIndicationHandler \
+   libFileListenerDestination \
    libConfigSettingProvider \
    libNamespaceProvider \
    libProviderRegistrationProvider \

@@ -31,12 +31,12 @@ DIR = Pegasus/Handler/FileURIHandler/tests
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
+    pegclient \
     pegconfig \
     pegrepository \
-    pegcommon \
-    pegclient \
-    peghandler
-
+    peggeneral \
+    pegcommon
+    
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LIBRARIES := peghandlerservice $(LIBRARIES)

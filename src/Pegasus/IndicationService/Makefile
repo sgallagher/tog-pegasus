@@ -47,6 +47,7 @@ LIBRARIES = \
     pegquerycommon \
     pegqueryexpression \
     pegconfig \
+    peghandler \
     peggeneral \
     pegcommon
 

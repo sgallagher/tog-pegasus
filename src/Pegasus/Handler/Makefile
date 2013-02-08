@@ -30,13 +30,16 @@ ROOT=../../..
 
 DIR = Pegasus/Handler
 
+LIBRARIES = \
+    pegcommon 
+
+
 include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 SOURCES = IndicationFormatter.cpp 
 
-LIBRARY = \
-	peghandler
+LIBRARY = peghandler
 
 include $(ROOT)/mak/dynamic-library.mak

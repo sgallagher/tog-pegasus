@@ -28,7 +28,9 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../..
 
-include ../libraries.mak
+LIBRARIES = \
+    peghandler \
+    pegcommon 
 
 DIR = Pegasus/Handler/EmailListenerDestination
 

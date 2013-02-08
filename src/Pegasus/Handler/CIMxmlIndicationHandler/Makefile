@@ -28,7 +28,10 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../..
 
-include ../libraries.mak
+LIBRARIES = \
+    pegexportclient \
+    pegconfig \
+    pegcommon 
 
 DIR = Pegasus/Handler/CIMxmlIndicationHandler
 

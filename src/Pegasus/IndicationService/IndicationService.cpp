@@ -44,7 +44,6 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
 
-#include <Pegasus/General/IndicationFormatter.h>
 #include <Pegasus/General/Guid.h>
 #ifdef PEGASUS_INDICATION_PERFINST
 #include <Pegasus/General/Stopwatch.h>
@@ -55,6 +54,9 @@ ProviderRegistrationManager.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Repository/RepositoryQueryContext.h>
+
+#include <Pegasus/Handler/IndicationFormatter.h>
+
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"

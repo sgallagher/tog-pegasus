@@ -31,9 +31,9 @@ DIR = Pegasus/Handler/wsmanIndicationHandler/tests/Destination
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegconfig \
     pegrepository \
     peghandlerservice \
+    pegconfig \
     peggeneral \
     pegcommon 
 

@@ -89,6 +89,7 @@ PEGASUS_LIBRARIES = \
    libpegauthentication \
    libpegclient \
    libpegcliutils \
+   libpeghandler \
    libpeggeneral \
    libpegcommon \
    libpegcompiler \

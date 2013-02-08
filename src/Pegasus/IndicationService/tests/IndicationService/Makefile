@@ -46,6 +46,7 @@ endif
 LIBRARIES += \
     pegquerycommon \
     pegconfig \
+    peghandler \
     peggeneral \
     pegcommon
 

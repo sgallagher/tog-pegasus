@@ -29,7 +29,10 @@
 ROOT = ../../../../..
 DIR = Pegasus/Handler/tests/IndicationFormatter
 include $(ROOT)/mak/config.mak
-include ../libraries.mak
+
+LIBRARIES = \
+    peghandler \
+    pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

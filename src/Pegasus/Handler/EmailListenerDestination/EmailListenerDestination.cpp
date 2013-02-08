@@ -34,6 +34,7 @@
 
 #include <iostream>
 #include <Pegasus/Handler/CIMHandler.h>
+#include <Pegasus/Handler/IndicationFormatter.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -41,7 +42,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/IndicationService/IndicationConstants.h>
 
-#include <Pegasus/General/IndicationFormatter.h>
+
 
 #if defined(PEGASUS_OS_VMS)
 #include <unistd>

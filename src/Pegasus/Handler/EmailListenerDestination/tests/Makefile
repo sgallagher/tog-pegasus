@@ -29,7 +29,11 @@
 ROOT = ../../../../..
 DIR = Pegasus/Handler/EmailListenerDestination/tests
 include $(ROOT)/mak/config.mak
-include ../../libraries.mak
+
+LIBRARIES = \
+    pegclient \
+    peggeneral \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

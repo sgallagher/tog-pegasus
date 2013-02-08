@@ -95,6 +95,7 @@ LIBRARIES += \
     pegexportserver \
     pegrepository \
     pegconfig \
+    peghandler \
     peggeneral \
     pegcommon
 

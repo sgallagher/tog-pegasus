@@ -35,7 +35,7 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/InternalException.h>
 
-#include <Pegasus/General/IndicationFormatter.h>
+#include <Pegasus/Handler/IndicationFormatter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

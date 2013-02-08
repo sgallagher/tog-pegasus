@@ -40,7 +40,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
-#include <Pegasus/General/IndicationFormatter.h>
+#include <Pegasus/Handler/IndicationFormatter.h>
 
 #include "FileListenerDestination.h"
 

@@ -28,7 +28,10 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../..
 
-include ../libraries.mak
+LIBRARIES = \
+    pegclient \
+    peghandler \
+    pegcommon 
 
 DIR = Pegasus/Handler/SystemLogListenerDestination
 

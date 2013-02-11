@@ -260,13 +260,12 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
     // Get names of descendent classes:
     Array<ProviderInfo> providerInfos;
 
-    // This gets set by _lookupAllInstanceProviders()
+    // Set by _lookupAllInstanceProviders()
     Uint32 providerCount;
 
     try
     {
-        providerInfos =
-            _lookupAllInstanceProviders(
+        providerInfos = _lookupAllInstanceProviders(
                 request->nameSpace,
                 className,
                 providerCount);
@@ -290,7 +289,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "ERROR: Enumerate operation too broad for class %s.  "
                "Limit = %u, providerCount = %u",
-            (const char*)request->className.getString().getCString(),
+            CSTRING(request->className.getString()),
             _maximumEnumerateBreadth,
             providerCount));
 
@@ -311,7 +310,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
             "CIM_ERROR_NOT_SUPPORTED for %s",
-            (const char*)request->className.getString().getCString()));
+            CSTRING(request->className.getString()) ));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -336,7 +335,6 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
-    poA->_aggregationSN = cimOperationAggregationSN++;
     poA->_nameSpace=request->nameSpace;
     if (_repository->isDefaultInstanceProvider())
     {
@@ -347,17 +345,18 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
             // this class is registered to a provider - skip
             if (providerInfo.hasProvider)
+            {
                 continue;
+            }
 
             // If this class does not have a provider
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Routing ExecQuery request for class %s to the "
-                    "repository.  Class # %u of %u, aggregation SN %u.",
-                (const char*)providerInfo.className.getString().getCString(),
-                (unsigned int)(i + 1),
-                (unsigned int)(numClasses),
-                (unsigned int)(poA->_aggregationSN)));
+                    "repository.  Class # %u of %u",
+                CSTRING(providerInfo.className.getString()),
+                (i + 1),
+                numClasses ));
 
             // Create an EnumerateInstances response from an ExecQuery request
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
@@ -428,13 +427,12 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Routing ExecQuery request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
-                "Class # %u of %u, aggregation SN %u.",
-            (const char*)providerInfo.className.getString().getCString(),
+                "Class # %u of %u",
+            CSTRING(providerInfo.className.getString()),
             lookup(providerInfo.serviceId)->getQueueName(),
-            (const char*)providerInfo.controlProviderName.getCString(),
-            (unsigned int)(i + 1),
-            (unsigned int)numClasses,
-            (unsigned int)(poA->_aggregationSN)));
+            CSTRING(providerInfo.controlProviderName),
+            (i + 1),
+            numClasses ));
 
         ProviderIdContainer* providerIdContainer =
             providerInfo.providerIdContainer.get();
@@ -459,9 +457,12 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
                     identityContainer.getUserName()));
 
             context = &enumReq->operationContext;
+
             if (providerIdContainer)
                 context->insert(*providerIdContainer);
+
             context->insert(identityContainer);
+
             _forwardRequestForAggregation(
                 providerInfo.serviceId,
                 providerInfo.controlProviderName,
@@ -473,6 +474,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
                 new CIMExecQueryRequestMessage(*request));
 
             OperationContext* context = &request->operationContext;
+
             if (providerIdContainer)
                 context->insert(*providerIdContainer);
 

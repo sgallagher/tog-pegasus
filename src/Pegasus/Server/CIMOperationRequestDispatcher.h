@@ -50,13 +50,25 @@
 #include <Pegasus/Server/reg_table.h>
 
 PEGASUS_NAMESPACE_BEGIN
+//
+// Convience Macro to simplify conversion of String to const char*
+//
+#define CSTRING(ARG) (const char*) ARG.getCString()
 
 // Class to aggregate and manage the information about classes and providers
-// this simply masks some of the confusion of control providers, etc. today.
+// this masks some of the confusion of control providers, etc. today.
 
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
 public:
+    /**
+     * Constructor with only className. Used in those cases where
+     * the ProviderInfo object is supplied to one of the lookup
+     * methods with only classname.  The remaining information (ex.
+     * serviceId, controlProviderName, etc. can be added with the
+     * addProviderInfo function.
+     *
+     */
     ProviderInfo(const CIMName& className_)
         : className(className_),
           serviceId(0),
@@ -65,7 +77,11 @@ public:
           hasNoQuery(true)
     {
     }
-
+    /**
+       Constructor with className, serviceId, and
+       controlProviderName. All basic information in the
+       constructor.
+     */
     ProviderInfo(
         const CIMName& className_,
         Uint32 serviceId_,
@@ -78,7 +94,9 @@ public:
           hasNoQuery(true)
     {
     }
-
+    /**
+       Copy constructor
+     */
     ProviderInfo(const ProviderInfo& providerInfo)
         : className(providerInfo.className),
           serviceId(providerInfo.serviceId),
@@ -117,6 +135,19 @@ public:
         return *this;
     }
 
+    /**
+        Method to add serviceID, etc. after the object is constructed.
+        Use with the constructor that only adds className to complete
+        the basic registration info for the provider.
+    */
+    void addProviderInfo(Uint32 serviceId_, Boolean hasProvider_,
+                         Boolean hasNoQuery_)
+    {
+        serviceId = serviceId_;
+        hasProvider = hasProvider_;
+        hasNoQuery = hasNoQuery_;
+    }
+
     CIMName className;
     Uint32 serviceId;
     String controlProviderName;
@@ -126,6 +157,7 @@ public:
     AutoPtr<ProviderIdContainer> providerIdContainer;
 
 private:
+    // Empty constructor not allowed.
     ProviderInfo()
     {
     }
@@ -196,7 +228,6 @@ public:
     CIMNamespaceName _nameSpace;
     CIMName _className;
     Array<String> propertyList;
-    Uint64 _aggregationSN;
     QueryExpressionRep* _query;
     String _queryLanguage;
 
@@ -342,36 +373,10 @@ protected:
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    Boolean _lookupInternalProvider(
+    ProviderIdContainer* _updateProviderContainer(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Uint32 &serviceId,
-        String& provider);
-
-    /* Boolean _lookupNewQueryProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        String& serviceName,
-        String& controlProviderName,
-        Boolean* notQueryProvider); */
-
-    ProviderInfo _lookupNewInstanceProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    /* String _lookupQueryProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean* notQueryProvider); */
-
-    ProviderInfo _lookupInstanceProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    /* Array<ProviderInfo> _lookupAllQueryProviders(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Uint32& providerCount); */
+        const CIMInstance& pInstance,
+        const CIMInstance& pmInstance);
 
     // @exception CIMException
     Array<ProviderInfo> _lookupAllInstanceProviders(
@@ -386,28 +391,15 @@ protected:
         const String& role,
         Uint32& providerCount);
 
-    Boolean _lookupNewAssociationProvider(
+    ProviderInfo _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
-        const CIMName& assocClass,
-        Uint32 &serviceId,
-        String& controlProviderName,
-        ProviderIdContainer** container);
-
-    Array<String> _lookupAssociationProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& assocClass,
-        ProviderIdContainer** container);
+        const CIMName& className);
 
     String _lookupMethodProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         const CIMName& methodName,
         ProviderIdContainer** providerIdContainer);
-
-    void _forwardRequestToService(
-        Uint32 serviceId,
-        CIMRequestMessage* request,
-        CIMRequestMessage* requestCopy);
 
     void _forwardRequestForAggregation(
         Uint32 serviceId,
@@ -416,10 +408,8 @@ protected:
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
-    void _forwardRequestToProviderManager(
-        const CIMName& className,
-        Uint32 serviceId,
-        const String& controlProviderName,
+    void _forwardRequestToProvider(
+        const ProviderInfo& providerInfo,
         CIMRequestMessage* request,
         CIMRequestMessage* requestCopy);
 
@@ -485,30 +475,34 @@ protected:
     Boolean _enableAssociationTraversal;
     Boolean _enableIndicationService;
     Uint32 _maximumEnumerateBreadth;
-    static Uint64 cimOperationAggregationSN;
     Uint32 _providerManagerServiceId;
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Array<String> _excludeModulesFromNormalization;
 #endif
 
-    // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
+    // meta dispatcher integration
     virtual void _handle_async_request(AsyncRequest* req);
-
-    // the following two methods enable specific query language implementations
-
-    /* void handleQueryRequest(
-        CIMExecQueryRequestMessage* request);
-
-    void handleQueryResponseAggregation(
-        OperationAggregate* poA);
-
-    void applyQueryToEnumeration(CIMResponseMessage* msg,
-        QueryExpressionRep* query);
-    */
 
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
 
+
+    Boolean _lookupAssociationProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& assocClass,
+        ProviderInfo& providerInfo );
+
+    Array<String> _lookupRegisteredAssociationProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& assocClass,
+        ProviderIdContainer** container);
+
+    Boolean _lookupInternalProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        ProviderInfo& providerInfo);
+
+    // Pointer to internal RoutingTable for Control Providers and Services
     DynamicRoutingTable *_routing_table;
 };
 

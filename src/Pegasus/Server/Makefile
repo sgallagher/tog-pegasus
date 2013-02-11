@@ -109,7 +109,7 @@ SOURCES = \
 	CIMServerState.cpp \
 	reg_table.cpp \
 	QuerySupportRouter.cpp \
-	WQLOperationRequestDispatcher.cpp \
+	WQLOperationRequestDispatcher.cpp
 
 ifeq ($(OS),zos)
 SOURCES += \

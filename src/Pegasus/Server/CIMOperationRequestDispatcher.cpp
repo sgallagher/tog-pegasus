@@ -46,7 +46,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define CSTRING(ARG) (const char*) ARG.getCString()
 
 // A helper function that resets the Propagated and ClassOrigin attributes on
 // properties of CIMInstance and CIMClass objects. This is used during
@@ -55,16 +54,18 @@ PEGASUS_NAMESPACE_BEGIN
 template <class ObjectClass>
 void removePropagatedAndOriginAttributes(ObjectClass& newObject);
 
-// static counter for aggretation serial numbers.
-// can be used to determine lost aggregations.
-Uint64 CIMOperationRequestDispatcher::cimOperationAggregationSN = 0;
-
 static const char* _getServiceName(Uint32 serviceId)
 {
     MessageQueue *queue = MessageQueue::lookup(serviceId);
 
     return queue ? queue->getQueueName() : "none";
 }
+
+/****************************************************************************
+**
+**  Implementation of OperationAggregate Class
+**
+****************************************************************************/
 OperationAggregate::OperationAggregate(
     CIMRequestMessage* request,
     MessageType msgRequestType,
@@ -81,16 +82,13 @@ OperationAggregate::OperationAggregate(
       _className(className),
       _query(query),
       _queryLanguage(queryLanguage),
-      _request(request)
+      _request(request),
+      _totalIssued(0), _totalReceived(0), _totalReceivedComplete(0),
+      _totalReceivedExpected(0), _totalReceivedErrors(0),
+      _totalReceivedNotSupported(0)
 {
-    _totalIssued = 0;
-    _totalReceived = 0;
-    _totalReceivedComplete = 0;
-    _totalReceivedExpected = 0;
-    _totalReceivedErrors = 0;
-    _totalReceivedNotSupported = 0;
-    _magicNumber = 12345;
-    _aggregationSN = 0;
+    // Set magicNumber to constant  for use by valid() method
+    _magicNumber = 0xc685255e;
 }
 
 OperationAggregate::~OperationAggregate()
@@ -102,7 +100,8 @@ OperationAggregate::~OperationAggregate()
 
 Boolean OperationAggregate::valid() const
 {
-    return (_magicNumber == 12345) ? true : false;
+    // test if valid OperationAggregate object.
+    return (_magicNumber == 0xc685255e) ? true : false;
 }
 
 void OperationAggregate::setTotalIssued(Uint32 i)
@@ -157,7 +156,6 @@ MessageType OperationAggregate::getRequestType() const
     return _msgRequestType;
 }
 
-
 // There are many response pieces (chunks) from potentially many
 // threads funneling through this function in random order. This isolates a
 // single response (by locking) from a given thread and "resequences" the
@@ -180,9 +178,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             _totalReceivedNotSupported++;
         }
         _totalReceivedErrors++;
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "%s: Response has error.  Namespace: %s, Class name: %s, "
                 "Response Sequence: %s",
             "OperationAggregate::resequenceResponse",
@@ -229,8 +225,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         }
         else
         {
-            PEG_TRACE((
-                TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "All completed responses (%u) for current request "
                     "have been accounted for but expected count (%u) does "
                     "not match the received count (%u). error count (%u).",
@@ -269,7 +264,16 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
     response.setComplete(isComplete);
 }
+/*************************************************************************
+**
+** Implementation of CIMOperationRequestDispatcher Class
+**
+***************************************************************************/
 
+// Dispatcher Class Constructor. Setup Dispatcher configuration from
+// compile and runtime options.  This includes setting up QueueIds,
+// limit parameters, etc. that will be used for request operation processing
+//
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
     ProviderRegistrationManager* providerRegistrationManager)
@@ -281,15 +285,18 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
         "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
 
     //
-    // Check whether AssociationTraversal is supported.
+    // Setup enable AssociationTraversal parameter.  Determines whether
+    // Association operations are allowed.
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
     _enableAssociationTraversal = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableAssociationTraversal"));
 
-
-    //
+    //  Set up maximum breadth of Enums parameter.  Determines maximum
+    //  classes that can particpate in an enumeration.  Can be used to
+    //  limit size of enumerations, associations, etc. to a maximum number
+    //  of providers
     //  Get the maximum breadth of enum parameter from config if it exists.
     //
     // ATTN: KS 20030602 Bypass param acquistion until we get it into the
@@ -317,6 +324,10 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     _maximumEnumerateBreadth = 1000;
 #endif
 
+    //
+    // Setup list of provider modules that will be excluded from normalization
+    // List derived from runtime variable with format name, name, ....
+    //
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     String moduleList =
         configManager->getCurrentValue("excludeModulesFromNormalization");
@@ -332,14 +343,23 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     }
 #endif
 
+    // Get pointer to Internal Provider Routing Table. Note that table
+    // probably not actually built at this point since it must be build
+    // very late in initialization. See CIMServer.cpp
     _routing_table = DynamicRoutingTable::getRoutingTable();
 
+    // Get ProviderManager QueueId (Used to forward requests
+    // providerManager must be initialized before
+    // Dispatcher so QueueId set.
     _providerManagerServiceId =
         lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)->getQueueId();
 
     PEG_METHOD_EXIT();
 }
 
+//
+//  CIMOperationDispatcher object destructor
+//
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -347,6 +367,8 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
     PEG_METHOD_EXIT();
 }
 
+//  Get Provider name and moduleName from OperationContext.
+//  Used only by the AuditLog functions
 void CIMOperationRequestDispatcher::_getProviderName(
     const OperationContext& context,
     String& moduleName,
@@ -731,9 +753,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     {
         static const char failMsg[] =
             "Failed to resequence/aggregate/forward response";
-        PEG_TRACE((
-            TRC_DISCARDED_DATA,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "%s%s",
             "CIMOperationRequestDispatcher::_enqueueResponse",
             failMsg));
@@ -771,385 +791,46 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
     PEG_METHOD_EXIT();
 }
 
+/*
+    Get an internal provider that matches the namespace/classname pair
+    @parameter nameSpace CIMNamespaceName of desired provider
+    $param className CIMName input with className of desired provider
+    @providerInfo ProviderInfo with registration information for registered
+    provider if provider found
+    @return True if internal provider found.  If found, registration
+    information is in provider.  False if no internal provider found.
+*/
 Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Uint32 &serviceId,
-    String& provider)
+    ProviderInfo& providerInfo)
 {
-    static AtomicInt _initialized(0);
-    static Mutex _monitor;
-
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupInternalProvider");
-    // Clear the strings since used as test later. Poor code but true now
 
-    serviceId = 0;
-    provider = String::EMPTY;
-    CIMNamespaceName _wild;
-    if (_initialized.get() == 0)
+    // Clear the parameters since used as test after getRouting call
+    Uint32 serviceId = 0;
+    String controlProviderName;
+
+    providerInfo.hasProvider = _routing_table->getRouting(
+        className,
+        nameSpace,
+        controlProviderName,
+        serviceId);
+
+    if (providerInfo.hasProvider)
     {
-        AutoMutex autoMut(_monitor);
-        if (_initialized.get() == 0)
-        {
-            Uint32 controlServiceId = lookup(
-                PEGASUS_QUEUENAME_CONTROLSERVICE)->getQueueId();
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "Internal provider Service = %s provider %s found.",
+            _getServiceName(serviceId),
+            CSTRING(controlProviderName) ));
 
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CONFIGSETTING,
-                PEGASUS_NAMESPACENAME_CONFIG,
-                PEGASUS_MODULENAME_CONFIGPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_AUTHORIZATION,
-                PEGASUS_NAMESPACENAME_AUTHORIZATION,
-                PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_USER,
-                PEGASUS_NAMESPACENAME_USER,
-                PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_SHUTDOWN,
-                PEGASUS_NAMESPACENAME_SHUTDOWN,
-                PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME___NAMESPACE,
-                _wild,
-                PEGASUS_MODULENAME_NAMESPACEPROVIDER,
-                controlServiceId);
-
-#ifdef PEGASUS_HAS_SSL
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CERTIFICATE,
-                PEGASUS_NAMESPACENAME_CERTIFICATE,
-                PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CRL,
-                PEGASUS_NAMESPACENAME_CERTIFICATE,
-                PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
-                controlServiceId);
-#endif
-
-#ifndef PEGASUS_DISABLE_PERFINST
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CIMOMSTATDATA,
-                PEGASUS_NAMESPACENAME_CIMOMSTATDATA,
-                PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
-                controlServiceId);
-#endif
-
-#ifdef PEGASUS_ENABLE_CQL
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES,
-                //PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES,
-                _wild,
-                PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
-                controlServiceId);
-#endif
-
-#if defined PEGASUS_ENABLE_INTEROP_PROVIDER
-            // InteropProvider ObjectManager Class
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            // CIM_Namespace - Implemented to assure that it does not
-            // access the repository and to allow  access to
-            // common class CIM_Namespace for namespace creation.
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CIMNAMESPACE,
-                _wild,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            // PG_NAMESPACE - Implements subclass of CIM_Namespace managed by
-            // InteropProvider.
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PGNAMESPACE,
-                _wild,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_HOSTEDOBJECTMANAGER,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                 PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE,
-                _wild,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                 PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
-                _wild,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                 PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
-                _wild,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                 PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-#endif  // PEGASUS_ENABLE_INTEROP_PROVIDER
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                controlServiceId);
-#endif
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PROVIDERMODULE,
-                PEGASUS_NAMESPACENAME_PROVIDERREG,
-                PEGASUS_MODULENAME_PROVREGPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PROVIDER,
-                PEGASUS_NAMESPACENAME_PROVIDERREG,
-                PEGASUS_MODULENAME_PROVREGPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
-                PEGASUS_NAMESPACENAME_PROVIDERREG,
-                PEGASUS_MODULENAME_PROVREGPROVIDER,
-                controlServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
-                PEGASUS_NAMESPACENAME_PROVIDERREG,
-                PEGASUS_MODULENAME_PROVREGPROVIDER,
-                controlServiceId);
-
-            Uint32 indicationServiceId = lookup(
-                PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-            Uint32 handlerServiceId = lookup(
-                PEGASUS_QUEUENAME_INDHANDLERMANAGER)->getQueueId();
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE,
-                PEGASUS_NAMESPACENAME_INTERNAL,
-                String::EMPTY,
-                handlerServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                String::EMPTY,
-                indicationServiceId);
-#endif
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_INDSUBSCRIPTION,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_INDHANDLER,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_INDHANDLER_WSMAN,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_INDHANDLER_SNMP,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_LSTNRDST_EMAIL,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_LSTNRDST_FILE,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_INDFILTER,
-                _wild,
-                String::EMPTY,
-                indicationServiceId);
-
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_PROVIDERINDDATA,
-                PEGASUS_NAMESPACENAME_INTERNAL,
-                String::EMPTY,
-                indicationServiceId);
-
-            _routing_table->insertRecord(
-                PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA,
-                PEGASUS_NAMESPACENAME_INTERNAL,
-                String::EMPTY,
-                indicationServiceId);
-#endif
-            _initialized = 1;
-        }
-    }
-
-    Boolean gotRouting =
-        _routing_table->getRouting(
-            className,
-            nameSpace,
-            provider,
-            serviceId);
-
-    if (gotRouting)
-    {
-        PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL4,
-        "Internal provider Service = %s provider %s found.",
-        _getServiceName(serviceId),
-        (const char*)provider.getCString()));
+        providerInfo.serviceId = serviceId;
+        providerInfo.controlProviderName = controlProviderName;
     }
 
     PEG_METHOD_EXIT();
-    return gotRouting;
+    return providerInfo.hasProvider;
 }
 
 /**
@@ -1176,22 +857,19 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     //
     // Get names of descendent classes:
     //
+    // Ignore if the special class __Namespace because it works in very
+    // strange way.  NOTE: This class is also deprecated in DSP0200.
     if (!className.equal (PEGASUS_CLASSNAME___NAMESPACE))
     {
         // Get the complete list of subclass names
         // getSubClassNames throws an exception if the class does not exist
         _repository->getSubClassNames(nameSpace,
              className, true, subClassNames);
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL4,
-            "CIMOperationRequestDispatcher::_getSubClassNames - "
-                "Namespace: %s  Class name: %s",
-            CSTRING(nameSpace.getString()),
-            CSTRING(className.getString())));
     }
-    // Prepend the array with the classname that formed the array.
+    // Prepend the array with the classname from the request so
+    // return is this class and all subclasses
     subClassNames.prepend(className);
+
     PEG_METHOD_EXIT();
     return subClassNames;
 }
@@ -1235,9 +913,13 @@ static String _showPropertyList(const CIMPropertyList& pl)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// Provider Lookup Functions
-///////////////////////////////////////////////////////////
-/* _lookupAllInstanceProviders - Returns the list of all subclasses of this
+//
+// Provider Lookup Functions - Gets list of providers for operation types
+//       (ex. associations, enumerate, get, invokeMethod
+//
+//////////////////////////////////////////////////////////////////////////
+//
+/* lookupAllInstanceProviders - Returns the list of all subclasses of this
    class along with information about whether it is an instance provider.
    @param nameSpace - Namespace for the lookup.
    @param className - className for which we are finding providers
@@ -1250,15 +932,14 @@ static String _showPropertyList(const CIMPropertyList& pl)
    provider.
    @exception - Throws one exception if the className is in error.  Note that
    this should NEVER occur since the className should have already been
-   validated in the operation code.
+   validated in the operation validation code.
 */
 Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Uint32& providerCount)
 {
-    PEG_METHOD_ENTER(
-        TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupAllInstanceProviders");
 
     providerCount = 0;
@@ -1272,7 +953,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     {
         // Lookup any instance providers and add to send list
         ProviderInfo providerInfo =
-            _lookupNewInstanceProvider(
+            _lookupInstanceProvider(
                 nameSpace,
                 classNames[i]);
 
@@ -1283,9 +964,9 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                 "Provider found for class = %s servicename = %s "
                 "controlProviderName = %s",
-                (const char*)providerInfo.className.getString().getCString(),
+                CSTRING(providerInfo.className.getString()),
                 _getServiceName(providerInfo.serviceId),
-                (const char*)providerInfo.controlProviderName.getCString()));
+                CSTRING(providerInfo.controlProviderName)));
         }
 
         providerInfoList.append(providerInfo);
@@ -1296,213 +977,158 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
    return providerInfoList;
 }
 
-/* _lookupInstanceProvider - Looks up the instance provider for the
-    classname and namespace.
-    Returns the name of the provider.
-    NOTE: This is the low level lookup for compatibility with
-    the external lookup in provider registration manager.
-    Added value is simply to get the name property from the returned
-    Instance.
+/* _lookupInstanceProvider - Looks up the internal or registered instance
+    provider for the classname and namespace.
+    @return ProviderInfo struct with information about the provider found.
+
+    If ProviderInfo.hasProvider returns false, no provider for this
+    classname/namespace combination.
+
+    This function calls both the _lookupInternalProvider function and if
+    nothing found, the providerRegistration _lookupInstanceProvider function.
 
 */
 ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
    const CIMNamespaceName& nameSpace,
    const CIMName& className)
 {
-    PEG_METHOD_ENTER(
-        TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupInstanceProvider");
 
     ProviderInfo providerInfo(className);
 
-    CIMInstance pInstance;
-    CIMInstance pmInstance;
-    Boolean hasNoQuery = true;
+    // Check for class provided by an internal provider
+    Boolean hasControlProvider = _lookupInternalProvider(
+        nameSpace,
+        className,
+        providerInfo);
 
-    Boolean hasProvider =
-        _providerRegistrationManager->lookupInstanceProvider(
-            nameSpace,
-            className,
-            pInstance,
-            pmInstance,
-            false,
-            &hasNoQuery);
-
-    if (hasProvider)
+    // If no internal provider, try registered providers
+    if (!hasControlProvider)
     {
-        providerInfo.serviceId = _providerManagerServiceId;
-        providerInfo.hasProvider = true;
-        providerInfo.hasNoQuery = hasNoQuery;
+        CIMInstance pInstance;
+        CIMInstance pmInstance;
+        Boolean hasNoQuery = true;
 
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-        String remoteInformation;
-        Boolean isRemote =
-            _repository->isRemoteNameSpace(nameSpace, remoteInformation);
+        Boolean hasProvider =
+            _providerRegistrationManager->lookupInstanceProvider(
+                nameSpace,
+                className,
+                pInstance,
+                pmInstance,
+                false,
+                &hasNoQuery);
 
-        if (isRemote)
+        if (hasProvider)
         {
-            providerInfo.providerIdContainer.reset(new ProviderIdContainer(
-                pmInstance, pInstance, isRemote, remoteInformation));
-        }
-        else
-        {
-            providerInfo.providerIdContainer.reset(
-                new ProviderIdContainer(pmInstance, pInstance));
-        }
-#else
-        providerInfo.providerIdContainer.reset(
-            new ProviderIdContainer(pmInstance, pInstance));
-#endif
+            providerInfo.addProviderInfo(_providerManagerServiceId, true,
+                                         hasNoQuery);
+
+           ProviderIdContainer* pi = _updateProviderContainer(
+               nameSpace, pInstance, pmInstance);
+
+           providerInfo.providerIdContainer.reset(pi);
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if (ObjectNormalizer::getEnableNormalization())
-        {
-            // normalization is enabled for all providers unless they
-            // have an old interface version or are explicity excluded by
-            // the excludeModulesFromNormalization configuration option.
-
-            // check interface type and version
-
-            String interfaceType;
-            String interfaceVersion;
-            Uint32 pos = PEG_NOT_FOUND;
-
-            // get the provder interface type
-            if ((pos = pmInstance.findProperty("InterfaceType")) !=
-                    PEG_NOT_FOUND)
+            if (ObjectNormalizer::getEnableNormalization())
             {
-                pmInstance.getProperty(pos).getValue().get(interfaceType);
-            }
+                // normalization is enabled for all providers unless they
+                // have an old interface version or are explicity excluded by
+                // the excludeMo dulesFromNormalization configuration option.
 
-            // get the provder interface version
-            if ((pos = pmInstance.findProperty("InterfaceVersion")) !=
-                    PEG_NOT_FOUND)
-            {
-                pmInstance.getProperty(pos).getValue().get(interfaceVersion);
-            }
+                // check interface type and version
 
-            // compare the interface type and vesion
-            if (String::equalNoCase(interfaceType, "C++Default"))
-            {
-                // version must be greater than 2.5.0
-                if (VersionUtil::isVersionGreaterOrEqual(
-                    interfaceVersion, 2, 5, 0))
+                String interfaceType;
+                String interfaceVersion;
+                Uint32 pos = PEG_NOT_FOUND;
+
+                // get the provder interface type
+                if ((pos = pmInstance.findProperty("InterfaceType")) !=
+                        PEG_NOT_FOUND)
                 {
-                    providerInfo.hasProviderNormalization = true;
+                    pmInstance.getProperty(pos).getValue().get(interfaceType);
                 }
-            }
-            else if (String::equalNoCase(interfaceType, "CMPI"))
-            {
-                // version must be greater than 2.0.0
-                if (VersionUtil::isVersionGreaterOrEqual(
-                    interfaceVersion, 2, 0, 0))
+
+                // get the provder interface version
+                if ((pos = pmInstance.findProperty("InterfaceVersion")) !=
+                        PEG_NOT_FOUND)
                 {
-                    providerInfo.hasProviderNormalization = true;
+                    pmInstance.getProperty(pos).
+                        getValue().get(interfaceVersion);
                 }
-            }
-            else if (String::equalNoCase(interfaceType, "JMPI"))
-            {
-                // version must be greater than 1.0.0
-                if (VersionUtil::isVersionGreaterOrEqual(
-                    interfaceVersion, 1, 0, 0))
+
+                // compare the interface type and vesion
+                if (String::equalNoCase(interfaceType, "C++Default"))
                 {
-                    providerInfo.hasProviderNormalization = true;
+                    // version must be greater than 2.5.0
+                    if (VersionUtil::isVersionGreaterOrEqual(
+                        interfaceVersion, 2, 5, 0))
+                    {
+                        providerInfo.hasProviderNormalization = true;
+                    }
                 }
-            }
-
-            // check for module exclusion
-
-            String moduleName;
-
-            // get the provider module name
-            if ((pos = pmInstance.findProperty(PEGASUS_PROPERTYNAME_NAME)) !=
-                    PEG_NOT_FOUND)
-            {
-                pmInstance.getProperty(pos).getValue().get(moduleName);
-            }
-
-            // check if module name is on the excludeModulesFromNormalization
-            // list
-            for (Uint32 i = 0, n = _excludeModulesFromNormalization.size();
-                 i < n; i++)
-            {
-                if (String::equalNoCase(
-                        moduleName, _excludeModulesFromNormalization[i]))
+                else if (String::equalNoCase(interfaceType, "CMPI"))
                 {
-                    providerInfo.hasProviderNormalization = false;
-                    break;
+                    // version must be greater than 2.0.0
+                    if (VersionUtil::isVersionGreaterOrEqual(
+                        interfaceVersion, 2, 0, 0))
+                    {
+                        providerInfo.hasProviderNormalization = true;
+                    }
                 }
-            }
+                else if (String::equalNoCase(interfaceType, "JMPI"))
+                {
+                    // version must be greater than 1.0.0
+                    if (VersionUtil::isVersionGreaterOrEqual(
+                        interfaceVersion, 1, 0, 0))
+                    {
+                        providerInfo.hasProviderNormalization = true;
+                    }
+                }
 
-            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                "Normalization for provider module %s is %s.",
-                (const char*)moduleName.getCString(),
-                (providerInfo.hasProviderNormalization ?
-                     "enabled" : "disabled")));
-        }
+                // check for module exclusion
+
+                String moduleName;
+
+                // get the provider module name
+                if ((pos = pmInstance.findProperty(
+                    PEGASUS_PROPERTYNAME_NAME)) != PEG_NOT_FOUND)
+                {
+                    pmInstance.getProperty(pos).getValue().get(moduleName);
+                }
+
+                // check if module name is on excludeModulesFromNormalization
+                // list
+                for (Uint32 i = 0, n = _excludeModulesFromNormalization.size();
+                     i < n; i++)
+                {
+                    if (String::equalNoCase(
+                            moduleName, _excludeModulesFromNormalization[i]))
+                    {
+                        providerInfo.hasProviderNormalization = false;
+                        break;
+                    }
+                }
+
+                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                    "Normalization for provider module %s is %s.",
+                    CSTRING(moduleName),
+                    (providerInfo.hasProviderNormalization ?
+                         "enabled" : "disabled")));
+            }
 #endif
-        PEG_METHOD_EXIT();
 
-        return providerInfo;
+        }  // no provider or control provider
+        else
+        {
+            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL2,
+                "Provider for %s not found.",
+                CSTRING(className.getString()) ));
+        }
     }
 
-    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL2,
-        "Provider for %s not found.",
-        (const char*)className.getString().getCString()));
-
-    PEG_METHOD_EXIT();
-
-    return providerInfo;
-}
-
-/* _lookupNewInstanceProvider - Looks up the internal and/or instance provider
-    for the defined namespace and class and returns the serviceId and
-    control provider name if a provider is found.
-    @return true if a service, control provider, or instance provider is found
-    for the defined class and namespace.
-    This should be combined with the lookupInstanceProvider code eventually but
-    the goal now was to simplify the handlers.
-*/
-ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    PEG_METHOD_ENTER(
-        TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupNewInstanceProvider");
-
-    ProviderInfo providerInfo(className);
-
-    Uint32 serviceId;
-    String controlProviderName;
-
-    // Check for class provided by an internal provider
-    Boolean hasControlProvider =
-        _lookupInternalProvider(
-            nameSpace,
-            className,
-            serviceId,
-            controlProviderName);
-
-    if (hasControlProvider)
-    {
-        providerInfo.serviceId = serviceId;
-        providerInfo.controlProviderName = controlProviderName;
-        providerInfo.hasProvider = true;
-    }
-    else
-    {
-        // get provider for class
-        providerInfo =
-            _lookupInstanceProvider(
-                nameSpace,
-                className);
-    }
-
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL4,
-        "CIMOperationRequestDispatcher::_lookupNewInstanceProvider - "
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "CIMOperationRequestDispatcher::_lookupInstanceProvider - "
             "Namespace: %s  Class Name: %s  Service Name: %s  "
             "Provider Name: %s found. hasProvider = %s",
         CSTRING(nameSpace.getString()),
@@ -1512,10 +1138,16 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
         (providerInfo.hasProvider ? "true" : "false")));
 
     PEG_METHOD_EXIT();
-
     return providerInfo;
 }
 
+/*
+    Lookup the method provider for the namespace, classname, and methodname
+    provided.
+    NOTE: Lookup of internal providers is handled by the method request handler
+    today.  This should probably be fixed to provide exactly the
+    same lookup for all types in the future.
+*/
 String CIMOperationRequestDispatcher::_lookupMethodProvider(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
@@ -1527,62 +1159,40 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 
     CIMInstance pInstance;
     CIMInstance pmInstance;
-    String providerName;
+    String providerName = String::EMPTY;
 
+    // lookup the provider. Returns provider instance and provider
+    // module instance.
     if (_providerRegistrationManager->lookupMethodProvider(
             nameSpace, className, methodName, pInstance, pmInstance))
     {
-        ProviderIdContainer* providercontainer;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-        String remoteInformation;
-        Boolean isRemote = false;
-        isRemote = _repository->isRemoteNameSpace(
-            nameSpace,
-            remoteInformation);
-        if (isRemote)
-            providercontainer = new ProviderIdContainer(
-                pmInstance, pInstance, isRemote, remoteInformation);
-        else
-            providercontainer = new ProviderIdContainer(pmInstance, pInstance);
-#else
-        providercontainer = new ProviderIdContainer(pmInstance, pInstance);
-#endif
-        (*providerIdContainer) = providercontainer;
+        (*providerIdContainer) = _updateProviderContainer(
+            nameSpace, pInstance, pmInstance);
+
         // get the provder name
         Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
 
         if (pos != PEG_NOT_FOUND)
         {
             pInstance.getProperty(pos).getValue().get(providerName);
-
-            PEG_METHOD_EXIT();
-            return providerName;
-        }
-        else
-        {
-            PEG_METHOD_EXIT();
-            return String::EMPTY;
         }
     }
-    else
-    {
-        PEG_METHOD_EXIT();
-        return String::EMPTY;
-    }
+    // return providerName. Empty if method provider not found.
+    PEG_METHOD_EXIT();
+    return providerName;
 }
 
-/* _lookupAllAssociation Providers for Class
-    Returns all of the association providers that exist
-    for the defined class name.  Used the referencenames
-    function to get list of classes for which providers
-    required and then looks up the providers for each
-    class
+/*  _lookupAllAssociation Providers
+    Returns all of the association providers that exist for the defined class
+    name.  Uses the referencenames function to get list of classes for which
+    providers required and then looks up the providers for each     class
     @param nameSpace
     @param objectName
-    @param - referenced parameter that is modified in this funciton.  This
-    is the count of actual providers found, not the count of classes.  This
-    differs from the count of classes in that the providerInfo list is all
-    classes including those that would go to the repository.
+    @param - assocClass referenced parameter that is modified in this function.
+    @param role String defining role for this association
+    @param providerCount count of actual providers found, not the count of
+    classes.  This differs from the count of classes in that the providerInfo
+    list is all classes including those that would go to the repository.
     @returns List of ProviderInfo
     @exception - Exceptions From the Repository
 */
@@ -1595,7 +1205,7 @@ Array<ProviderInfo>
         Uint32& providerCount)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupAllAssociationProviders");
+        "CIMOperationRequestDispatcher::lookupAllAssociationProviders");
 
     providerCount = 0;
     Array<ProviderInfo> providerInfoList;
@@ -1603,8 +1213,8 @@ Array<ProviderInfo>
     CIMName className = objectName.getClassName();
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "Association Class Lookup for Class %s  and assocClass %s",
-        (const char*)className.getString().getCString(),
-        (const char*)assocClass.getString().getCString()));
+        CSTRING(className.getString()),
+        CSTRING(assocClass.getString()) ));
 
     // The association class is the basis for association registration.
     // When an association class request is received by the CIMOM the target
@@ -1623,13 +1233,13 @@ Array<ProviderInfo>
     // option, lets go back and change the call to avoid the double
     // conversion to and from CIM Object path.
 
-    Array<CIMObjectPath> tmp;
+    Array<CIMObjectPath> objPaths;
 
     try
     {
         // Note:  We use assocClass because this is the association function.
         // The Reference(Name)s calls must put the resultClass here.
-        tmp = _repository->referenceNames(
+        objPaths = _repository->referenceNames(
             nameSpace,
             CIMObjectPath(String::EMPTY, CIMNamespaceName(), className),
             assocClass,
@@ -1640,129 +1250,105 @@ Array<ProviderInfo>
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::lookupAllAssociationProvider "
                 "exception.  Namespace: %s  Object Name: %s  Assoc Class: %s",
-            (const char*)nameSpace.getString().getCString(),
-            (const char*)objectName.toString().getCString(),
-            (const char*)assocClass.getString().getCString()));
+            CSTRING(nameSpace.getString()),
+            CSTRING(objectName.toString()),
+            CSTRING(assocClass.getString())));
         throw;
     }
 
-    // returns the list of possible association classes for this target.
-    // Convert to classnames
-
-    Array<CIMName> classNames;
-    for (Uint32 i = 0; i < tmp.size(); i++)
-    {
-        classNames.append(tmp[i].getClassName());
-    }
-
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "Association Lookup: %u classes found",
-        classNames.size()));
+        "Association Lookup: %u classes found", objPaths.size()));
 
-    // ATTN: KS P2 20030420  What should we do with remote associations if
-    // there are any
-    for (Uint32 i = 0; i < classNames.size(); i++)
+    for (Uint32 i = 0; i < objPaths.size(); i++)
     {
-        Uint32 serviceId;
-        String controlProviderName;
-        ProviderInfo pi(classNames[i]);
-        ProviderIdContainer* container=NULL;
+        ProviderInfo providerInfo(objPaths[i].getClassName());
 
-        // We use the returned classname for the association classname
+        // Use the returned classname for the association classname
         // under the assumption that the registration is for the
         // association class, not the target class
-        if (_lookupNewAssociationProvider(nameSpace, classNames[i],
-            serviceId, controlProviderName,&container))
+        if (_lookupAssociationProvider(nameSpace, objPaths[i].getClassName(),
+            providerInfo))
         {
-            pi.serviceId = serviceId;
-            pi.controlProviderName = controlProviderName;
-            pi.hasProvider = true;
-            pi.providerIdContainer.reset(container);
+            providerInfoList.append(providerInfo);
             providerCount++;
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Association append: class = %s to list. count = %u",
+                CSTRING(objPaths[i].getClassName().getString()),
+                providerInfoList.size() ));
         }
-        else
-        {
-            pi.hasProvider = false;
-            pi.providerIdContainer.reset();
-        }
-        providerInfoList.append(pi);
     }
 
     PEG_METHOD_EXIT();
     return providerInfoList;
 }
 
-/* _lookupNewAssociationProvider - Looks up the internal and/or instance
-    provider for the defined namespace and class and returns the serviceId
-    and control provider name if a provider is found.
+/* _lookupAssociationProvider - Look up the internal and/or association
+    provider for the defined namespace and class and return a providerInfo
+    struct containing information about the provider if found
     @param nameSpace
     @param assocClass
-    @param serviceId
-    @param controlProviderName
-    @return true if an service, control provider, or instance provider is found
-    for the defined class and namespace.
-    This should be combined with the lookupInstanceProvider code eventually but
-    the goal now was to simplify the handlers.
+    @param providerInfo ProviderInfo& container holding information about
+    the provider found including name, etc.
+    @return true if a provider is found for the defined class and namespace.
 */
-Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
+Boolean CIMOperationRequestDispatcher::_lookupAssociationProvider(
     const CIMNamespaceName& nameSpace,
     const CIMName& assocClass,
-    Uint32 &serviceId,
-    String& controlProviderName,
-    ProviderIdContainer** providerIdContainer)
+    ProviderInfo& providerInfo)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupNewAssociationProvider");
+        "CIMOperationRequestDispatcher::_lookupAssociationProvider");
 
-    Boolean hasProvider = false;
+    ProviderIdContainer* providerIdContainer=NULL;
     String providerName;
-    // Check for class provided by an internal provider
-    if (_lookupInternalProvider(
-            nameSpace, assocClass, serviceId, controlProviderName))
-    {
-        hasProvider = true;
-    }
-    else
-    {
-        // get provider for class. Note that we reduce it from
-        // Multiple possible class names to a single one here.
-        // This is a hack.  Clean up later
-        Array<String> tmp =
-            _lookupAssociationProvider(
-                nameSpace, assocClass, providerIdContainer);
 
-        if (tmp.size() > 0)
+    // Check for class provided by an internal provider
+    if (!_lookupInternalProvider(nameSpace, assocClass, providerInfo))
+    {
+        // get provider for class from registered providers. Note that we
+        // reduce it from multiple possible class names to a single one here.
+        // This limit is defined by ProviderRegistrationManager in that
+        // it will only return one provider since we allow only a single
+        // provider for a class. (See bug 9581)
+        Array<String> assocProviderList =
+            _lookupRegisteredAssociationProvider(
+                nameSpace, assocClass, &providerIdContainer);
+
+        /// Provider registration should NEVER return more than a single
+        //  provider for this lookup by design of provider registration today.
+        if (assocProviderList.size() > 0)
         {
-            providerName = tmp[0];
+            providerInfo.addProviderInfo(_providerManagerServiceId,true,false);
+            providerName = assocProviderList[0];
         }
     }
 
-    if (0 != providerName.size())
+    // Fill out providerInfo providerIdContainer
+    if (providerInfo.hasProvider)
     {
-        serviceId = _providerManagerServiceId;
-
-        hasProvider = true;
+        providerInfo.providerIdContainer.reset(providerIdContainer);
+    }
+    else
+    {
+        providerInfo.providerIdContainer.reset();
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL4,
-        "Provider %s for class=\"%s\"  in namespace \"%s\"."
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "Association Provider %s for class=\"%s\"  in namespace \"%s\"."
             " servicename=\"%s\" provider = \"%s\" controlProvider = \"%s\"",
-        (hasProvider? "found" : "NOT found"),
+        (providerInfo.hasProvider? "found" : "NOT found"),
         CSTRING(assocClass.getString()),
         CSTRING(nameSpace.getString()),
-        _getServiceName(serviceId),
-        (providerName.size() ? CSTRING(providerName) : "none"),
-        (controlProviderName.size() ? CSTRING(controlProviderName) : "none")));
-
+        _getServiceName(providerInfo.serviceId),
+        CSTRING(providerName),
+        CSTRING(providerInfo.controlProviderName) ));
 
     PEG_METHOD_EXIT();
-    return hasProvider;
+    return providerInfo.hasProvider;
 }
 
-// Lookup the Association provider(s) for this class and convert the
-// result to an array of providernames.
+// Lookup the registered Association provider(s) for this class and convert
+// the result to an array of provider names.
 // NOTE: The code allows for multiple providers but there is no reason
 // to have this until we really support multiple providers per class.
 // The multiple provider code was here because there was some code in to
@@ -1771,13 +1357,14 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
 // the multiple provider code in place.
 // NOTE: assocClass and resultClass are optional
 //
-Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
+Array<String>
+   CIMOperationRequestDispatcher::_lookupRegisteredAssociationProvider(
    const CIMNamespaceName& nameSpace,
    const CIMName& assocClass,
    ProviderIdContainer** providerIdContainer)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupAssociationProvider");
+        "CIMOperationRequestDispatcher::_lookupRegisteredAssociationProvider");
 
     // instances of the provider class and provider module class for the
     // response
@@ -1787,7 +1374,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
     Array<String> providerNames;
     String providerName;
 
-    //Isolate the provider names from the response and return list of providers
+    //get list of registered association providers
     Boolean returnValue =
         _providerRegistrationManager->lookupAssociationProvider(
             nameSpace, assocClass, pInstances, pmInstances);
@@ -1805,29 +1392,12 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
             // providerIdContainer accordingly.
             if (i == 0)
             {
-                ProviderIdContainer* providercontainer;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                String remoteInformation;
-                Boolean isRemote=false;
-                isRemote = _repository->isRemoteNameSpace(
-                    nameSpace, remoteInformation);
-                if (isRemote)
-                    providercontainer = new ProviderIdContainer(
-                        pmInstances[i],
-                        pInstances[i],
-                        isRemote,
-                        remoteInformation);
-                else
-                    providercontainer = new ProviderIdContainer(
-                        pmInstances[i],
-                        pInstances[i]);
-#else
-                providercontainer = new ProviderIdContainer(
-                    pmInstances[i],
-                    pInstances[i]);
-#endif
-                (*providerIdContainer) = providercontainer;
+                // Call function that depends on the Remote CMPI flag
+                // to update ProviderIdContainer
+                (*providerIdContainer) = _updateProviderContainer(
+                    nameSpace, pInstances[i], pmInstances[i]);
             }
+
             // get the provider name
             Uint32 pos = pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME);
 
@@ -1837,27 +1407,62 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "Association providerName = %s found for Class %s",
-                    (const char*)providerName.getCString(),
-                    (const char*)assocClass.getString().getCString()));
-                providerNames.append(providerName);
+                    CSTRING(providerName),
+                    CSTRING(assocClass.getString())));
+                    providerNames.append(providerName);
             }
         }
     }
 
     if (providerNames.size() == 0)
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL3,
+        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL3,
             "Association Provider NOT found for Class %s in nameSpace %s",
-            (const char*)assocClass.getString().getCString(),
-            (const char*)nameSpace.getString().getCString()));
+            CSTRING(assocClass.getString()), CSTRING(nameSpace.getString()) ));
     }
     PEG_METHOD_EXIT();
     return providerNames;
 }
 
-/*  Common Dispatcher callback for response aggregation.
+// Service function to build the ProviderIdContainer.
+// If remote CMPI enabled and if this is a remote namespace, it must
+// place the remote info into the container.  Otherwise it just builds
+// a new container with pmInstance and pInstance and returns it
+
+ProviderIdContainer* CIMOperationRequestDispatcher::_updateProviderContainer(
+    const CIMNamespaceName& nameSpace,
+    const CIMInstance& pInstance,
+    const CIMInstance& pmInstance)
+{
+        ProviderIdContainer* pc;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+        String remoteInformation;
+        Boolean isRemote = false;
+        isRemote = _repository->isRemoteNameSpace(
+            nameSpace,
+            remoteInformation);
+        if (isRemote)
+            pc = new ProviderIdContainer(
+                pmInstance, pInstance, isRemote, remoteInformation);
+        else
+            pc = new ProviderIdContainer(pmInstance, pInstance);
+#else
+        pc = new ProviderIdContainer(pmInstance, pInstance);
+#endif
+        return pc;
+}
+
+/*****************************************************************************
+**
+** Dispatcher callback functions.  These functions are called by the
+** service/providerManager generating responses to return response information
+** to the Dispatcher Response handlers.  The reference to the correct handler
+** is provided by the Dispatcher request handlers when requests are passed
+** forward for services or provider managers, i.e. _forwardRequest* Functions)
+**
+******************************************************************************/
+/*  Dispatcher callback for response aggregation
+    The userParameter contains the OperationAggregate for this operation
 */
 void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     AsyncOpNode* op,
@@ -1875,8 +1480,10 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
 
     OperationAggregate* poA =
         reinterpret_cast<OperationAggregate*>(userParameter);
+
     PEGASUS_ASSERT(asyncRequest != 0);
     PEGASUS_ASSERT(asyncReply != 0);
+
     PEGASUS_ASSERT(poA != 0);
     PEGASUS_ASSERT(poA->valid());
 
@@ -1898,7 +1505,8 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     }
     else
     {
-        // Error
+        // This should never happen.
+        PEGASUS_ASSERT(false);
     }
 
     PEGASUS_ASSERT(response != 0);
@@ -1911,16 +1519,9 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     if (response->isComplete())
     {
         // these are per provider instantiations
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "Provider response is complete.");
         op->removeRequest();
         delete asyncRequest;
         service->return_op(op);
-    }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "Provider response is incomplete.");
     }
 
     // After resequencing, this flag represents the completion status of
@@ -1930,23 +1531,22 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
 
     if (isComplete)
     {
-        // also deletes the copied request attached to it
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "Entire response to a request is complete.");
+        // delete OperationAggregation and attached request.
         delete poA;
         poA = 0;
     }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "The response to a request is not complete.");
-    }
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "Provider response = %s. Entire response = %s",
+        (response->isComplete()? "complete": "incomplete"),
+        (isComplete? "complete": "incomplete")  ));
 
     PEG_METHOD_EXIT();
 }
 
 
-/*  Common Dispatcher callback.
+/*  Dispatcher Callback function for nonAggregation calls.
+    The userParameter contains the request message for this operation
 */
 void CIMOperationRequestDispatcher::_forwardRequestCallback(
     AsyncOpNode* op,
@@ -2005,49 +1605,26 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
     PEG_METHOD_EXIT();
 }
 
+/***************************************************************************
+**
+**  The _forwardRequest* functions forward CIMOperation Requests to
+**  other services for processing. Normally this will be either
+**  Control Providers, services, or Provider Managers
+**
+***************************************************************************/
 
-void CIMOperationRequestDispatcher::_forwardRequestToService(
-    Uint32 serviceId,
-    CIMRequestMessage* request,
-    CIMRequestMessage* requestCopy)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardRequestToService");
+/*  Forward requests for response aggregation( enums, etc. that
+    call multiple providers) to other services (providerManager, etc).
+    (i.e. requests where the callback is the function
+    _forwardForAggregationCallback. These requests include an
+    OperationAggregate structure that controls response handling.
 
-    PEGASUS_ASSERT(serviceId);
-
-    AsyncOpNode* op = this->get_op();
-
-    AsyncLegacyOperationStart* asyncRequest =
-        new AsyncLegacyOperationStart(
-            op,
-            serviceId,
-            request);
-
-    asyncRequest->dest = serviceId;
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-        "Forwarding %s to service %s. Response should go to queue %s.",
-        MessageTypeToString(request->getType()),
-        _getServiceName(serviceId),
-        ((MessageQueue::lookup(request->queueIds.top())) ?
-        ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
-               "BAD queue name")));
-
-    SendAsync(
-        op,
-        serviceId,
-        CIMOperationRequestDispatcher::_forwardRequestCallback,
-        this,
-        requestCopy);
-
-    PEG_METHOD_EXIT();
-}
-
-/* This function simply decides based on the controlProviderNameField
+    This function decides based on the controlProviderName Field
     whether to forward to Service or ControlProvider.
     If controlProviderName String empty, ToService, else toControlProvider.
-    This function specifically forwards requests for response aggregation.
+
+    If a response is provided with the input, the caller wants to execute only
+    the callback asychnonously but not call another service.
 */
 void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     Uint32 serviceId,
@@ -2056,23 +1633,22 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     OperationAggregate* poA,
     CIMResponseMessage* response)
 {
-    PEG_METHOD_ENTER(
-        TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
     PEGASUS_ASSERT(serviceId);
 
     AsyncOpNode* op = this->get_op();
 
-    // if a response is given, this means the caller wants to run only the
-    // callback asynchronously
+    // if a response is provided, execute only the asynchronous callback,
+    // rather than forward to the provider.
     if (response)
     {
         // constructor of object is putting itself into a linked list
         // DO NOT remove the new operator
         new AsyncLegacyOperationResult(op, response);
 
-        // By setting this to complete, this allows ONLY the callback to run
+        // Setting this to complete, allows ONLY the callback to run
         // without going through the typical async request apparatus
         op->complete();
     }
@@ -2091,13 +1667,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                    "BAD queue name")));
-
-        SendAsync(
-            op,
-            serviceId,
-            CIMOperationRequestDispatcher::_forwardForAggregationCallback,
-            this,
-            poA);
     }
     else
     {
@@ -2114,103 +1683,88 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
            "Response should go to queue %s.",
            MessageTypeToString(request->getType()),
            _getServiceName(serviceId),
-           (const char*)controlProviderName.getCString(),
+           CSTRING(controlProviderName),
            ((MessageQueue::lookup(request->queueIds.top())) ?
            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                   "BAD queue name")));
-
-       SendAsync(
-           op,
-           serviceId,
-           CIMOperationRequestDispatcher::_forwardForAggregationCallback,
-           this,
-           poA);
     }
+
+    SendAsync(
+        op,
+        serviceId,
+        CIMOperationRequestDispatcher::_forwardForAggregationCallback,
+        this,
+        poA);
 
     PEG_METHOD_EXIT();
 }
 
-/** _forwardRequestToProviderManager
-    This function decides based on the controlProviderNameField
-    whether to forward to Service or ControlProvider.
+/** _forwardRequestToProvider
+    This function forwards the request to a single provider,
+    control provider or service. It decides based on
+    the controlProviderName parameter whether to forward to
+    Service/controlProvider or to the provider manager service.
     If controlProviderName String empty,
-           ForwardToService,
+           ForwardToProviderManagerService,
        else
-           ForwardtoControlProvider
-    Convience coding to simplify other functions.
+           ForwardtoControlProvider/service
+    As part of that forwarding process in defines a callback
+    function, _forwardRequestCallback(...) for responses to the
+    request.
 */
-void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
-    const CIMName& className,        // only for diagnostic
-    Uint32 serviceId,
-    const String& controlProviderName,
+void CIMOperationRequestDispatcher::_forwardRequestToProvider(
+    const ProviderInfo& providerInfo,
     CIMRequestMessage* request,
     CIMRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardRequestToProviderManager");
+        "CIMOperationRequestDispatcher::_forwardRequestToProvider");
 
-    PEGASUS_ASSERT(serviceId);
+    PEGASUS_ASSERT(providerInfo.serviceId);
 
     AsyncOpNode* op = this->get_op();
 
-    // If ControlProviderName empty, forward to service.
-    if (controlProviderName == String::EMPTY)
+    // If ControlProviderName empty, forward to service defined on input
+    if (providerInfo.controlProviderName == String::EMPTY)
     {
         AsyncLegacyOperationStart* asyncRequest =
             new AsyncLegacyOperationStart(
                 op,
-                serviceId,
+                providerInfo.serviceId,
                 request);
 
-        asyncRequest->dest = serviceId;
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-            "Forwarding %s on class %s to service %s. "
-            "Response should go to queue %s.",
-            MessageTypeToString(request->getType()),
-            (const char*)className.getString().getCString(),
-            _getServiceName(serviceId),
-            ((MessageQueue::lookup(request->queueIds.top())) ?
-            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
-                   "BAD queue name")));
-
-        SendAsync(
-            op,
-            serviceId,
-            CIMOperationRequestDispatcher::_forwardRequestCallback,
-            this,
-            requestCopy);
+        asyncRequest->dest = providerInfo.serviceId;
     }
+    // control provider name exists.
     else
     {
         // constructor of object is putting itself into a linked list
         // DO NOT remove the new operator
         new AsyncModuleOperationStart(
             op,
-            serviceId,
-            controlProviderName,
+            providerInfo.serviceId,
+            providerInfo.controlProviderName,
             request);
-
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-            "Forwarding %s on class %s to service %s, control provider %s. "
-            "Response should go to queue %s.",
-            MessageTypeToString(request->getType()),
-            (const char*)className.getString().getCString(),
-            _getServiceName(serviceId),
-            (const char*)controlProviderName.getCString(),
-            ((MessageQueue::lookup(request->queueIds.top())) ?
-            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
-                   "BAD queue name")));
-
-       // Send to the Control provider
-       SendAsync(
-           op,
-           serviceId,
-           CIMOperationRequestDispatcher::_forwardRequestCallback,
-           this,
-           requestCopy);
     }
+    // Forward the request asynchronously with call back to
+    // _forwardRequestCallback()
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+        "Forwarding %s on class %s to service %s, control provider %s. "
+        "Response to queue %s.",
+        MessageTypeToString(request->getType()),
+        CSTRING(providerInfo.className.getString()),
+        _getServiceName(providerInfo.serviceId),
+        (CSTRING(providerInfo.controlProviderName)),
+        ((MessageQueue::lookup(request->queueIds.top())) ?
+        ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
+               "BAD queue name")));
+
+    SendAsync(
+       op,
+       providerInfo.serviceId,
+       CIMOperationRequestDispatcher::_forwardRequestCallback,
+       this,
+       requestCopy);
 
     PEG_METHOD_EXIT();
 }
@@ -2229,9 +1783,7 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
     PEGASUS_ASSERT(request->getHttpMethod() == response->getHttpMethod());
     PEGASUS_ASSERT(request->getCloseConnect() == response->getCloseConnect());
 
-    PEG_TRACE((
-        TRC_HTTP,
-        Tracer::LEVEL4,
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
         "_CIMOperationRequestDispatcher::_enqueueResponse - "
             "request->getCloseConnect() returned %d",
         request->getCloseConnect()));
@@ -2246,6 +1798,11 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
     PEG_METHOD_EXIT();
 }
 
+/*
+    handleEnqueue is the Request input processor to the Dispatcher.
+    It processes all incoming request messages and distributes them to
+    the appropriate request handler functions based on the operation type.
+*/
 void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -2254,9 +1811,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
     PEGASUS_ASSERT(request != 0);
     PEGASUS_DEBUG_ASSERT(request->magic);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnqueue - Case: %u",
         request->getType()));
 
@@ -2265,8 +1820,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
 
     if (!opRequest)
     {
-        PEG_TRACE((
-            TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE(( TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Ignored unexpected message of type %u in "
                 "CIMOperationRequestDispatcher::handleEnqueue",
             (unsigned int) request->getType()));
@@ -2448,6 +2002,17 @@ void CIMOperationRequestDispatcher::handleEnqueue()
     PEG_METHOD_EXIT();
 }
 
+/****************************************************************************
+**
+** CIMOperationDispatcher request handlers.  There is a handler for each
+** operation request type. These handlers process the requsts including:
+**     - Validation of parameters (may generate error responses)
+**     - Passage to the correct processor (service, control providers,
+**       providers, repository) depending on message type)
+**     - Generation of responses for those handlers that are synchronous.
+**
+****************************************************************************/
+
 /**$*******************************************************
     handleGetClassRequest
 **********************************************************/
@@ -2469,9 +2034,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
             request->includeClassOrigin,
             request->propertyList);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleGetClassRequest - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -2511,9 +2074,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleGetInstanceRequest - "
                 "CIM exist exception has occurred.  Namespace: %s  "
                 "Class Name: %s  Exception message: \"%s\"",
@@ -2530,10 +2091,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         return;
     }
 
-    ProviderInfo providerInfo =
-        _lookupNewInstanceProvider(
-            request->nameSpace,
-            className);
+    ProviderInfo providerInfo = _lookupInstanceProvider(
+        request->nameSpace,
+        className);
 
     if (providerInfo.hasProvider)
     {
@@ -2557,10 +2117,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         CIMGetInstanceRequestMessage* requestCallbackCopy =
             new CIMGetInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            providerInfo.className,
-            providerInfo.serviceId,
-            providerInfo.controlProviderName,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
 
@@ -2613,9 +2171,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
         request->nameSpace,
         request->className);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleDeleteClassRequest - "
             "Namespace: %s  Class Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -2645,9 +2201,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -2659,10 +2213,9 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
             CIM_ERR_INVALID_CLASS, className.getString());
     }
 
-    ProviderInfo providerInfo =
-        _lookupNewInstanceProvider(
-            request->nameSpace,
-            className);
+    ProviderInfo providerInfo = _lookupInstanceProvider(
+        request->nameSpace,
+        className);
 
     if (providerInfo.hasProvider)
     {
@@ -2681,10 +2234,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         CIMDeleteInstanceRequestMessage* requestCallbackCopy =
             new CIMDeleteInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            providerInfo.className,
-            providerInfo.serviceId,
-            providerInfo.controlProviderName,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
 
@@ -2697,9 +2248,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
             request->nameSpace,
             request->instanceName);
 
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL3,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - "
                 "Namespace: %s  Instance Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -2737,9 +2286,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
     _repository->createClass(request->nameSpace, request->newClass);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleCreateClassRequest - "
             "Namespace: %s  Class Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -2769,9 +2316,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleCreateInstanceRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -2783,10 +2328,9 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
             CIM_ERR_INVALID_CLASS, className.getString());
     }
 
-    ProviderInfo providerInfo =
-        _lookupNewInstanceProvider(
-            request->nameSpace,
-            className);
+    ProviderInfo providerInfo = _lookupInstanceProvider(
+        request->nameSpace,
+        className);
 
     if (providerInfo.hasProvider)
     {
@@ -2804,10 +2348,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         CIMCreateInstanceRequestMessage* requestCallbackCopy =
             new CIMCreateInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            providerInfo.className,
-            providerInfo.serviceId,
-            providerInfo.controlProviderName,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
 
@@ -2822,9 +2364,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
             request->nameSpace,
             request->newInstance);
 
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL3,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleCreateInstanceRequest - "
                 "Namespace: %s  Instance Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -2887,9 +2427,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleModifyInstanceRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -2901,10 +2439,9 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
             CIM_ERR_INVALID_CLASS, className.getString());
     }
 
-    ProviderInfo providerInfo =
-        _lookupNewInstanceProvider(
-            request->nameSpace,
-            className);
+    ProviderInfo providerInfo = _lookupInstanceProvider(
+        request->nameSpace,
+        className);
 
     if (providerInfo.hasProvider)
     {
@@ -2920,10 +2457,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         CIMModifyInstanceRequestMessage* requestCallbackCopy =
             new CIMModifyInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            providerInfo.className,
-            providerInfo.serviceId,
-            providerInfo.controlProviderName,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
 
@@ -2939,9 +2474,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
             request->modifiedInstance,
             request->includeQualifiers,request->propertyList);
 
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL3,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleModifyInstanceRequest - "
                 "Namespace: %s  Instance Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -2984,9 +2517,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
             request->includeQualifiers,
             request->includeClassOrigin);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateClassesRequest - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3017,9 +2548,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
             request->className,
             request->deepInheritance);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3092,8 +2621,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         }
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,"PropertyList = %s",
-            (const char*)
-                _showPropertyList(request->propertyList).getCString()));
+            CSTRING(_showPropertyList(request->propertyList)) ));
 
         // If DeepInheritance==false and no PropertyList was specified by the
         // client, the provider PropertyList should contain all the properties
@@ -3105,25 +2633,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             for (Uint32 i = 0; i < numProperties; i++)
             {
                 propertyListArray.append(
-                    cimClass.getProperty(i).getName().getString());          
+                    cimClass.getProperty(i).getName().getString());
             }
             request->propertyList.append(propertyListArray);
         }
-        
     }
 
     //
-    // Get names of descendent classes:
+    // Get names of descendent classes and count of providers
     //
-
     Uint32 providerCount;
 
     // Get list of providers.
-    Array<ProviderInfo> providerInfos =
-        _lookupAllInstanceProviders(
-            request->nameSpace,
-            request->className,
-            providerCount);
+    Array<ProviderInfo> providerInfos = _lookupAllInstanceProviders(
+        request->nameSpace,
+        request->className,
+        providerCount);
 
     _checkEnumerateTooBroad(
         request->nameSpace, request->className, providerCount);
@@ -3135,7 +2660,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     {
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
             "CIM_ERROR_NOT_SUPPORTED for %s",
-            (const char*)request->className.getString().getCString()));
+            CSTRING(request->className.getString())));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -3147,11 +2672,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         return;
     }
 
-    //
-    // Get names of descendent classes:
-    //
-
-    // We have instances for Providers and possibly repository.
     // Set up an aggregate object and save a copy of the original request.
     OperationAggregate* poA= new OperationAggregate(
         new CIMEnumerateInstancesRequestMessage(*request),
@@ -3160,10 +2680,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         request->queueIds.top(),
         request->className);
 
-    poA->_aggregationSN = cimOperationAggregationSN++;
     Uint32 numClasses = providerInfos.size();
 
-    // gather up the repository responses and send it to out as one response
+    // Gather up the repository responses and send it to out as one response
     // with many instances
     if (_repository->isDefaultInstanceProvider())
     {
@@ -3178,11 +2697,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Routing EnumerateInstances request for class %s to the "
-                    "repository.  Class # %u of %u, aggregation SN %u.",
+                    "repository.  Class # %u of %u",
                 CSTRING(providerInfo.className.getString()),
-                (unsigned int)(i + 1),
-                (unsigned int)numClasses,
-                (unsigned int)(poA->_aggregationSN)));
+                (i + 1),
+                numClasses ));
 
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
                 dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
@@ -3263,13 +2781,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Routing EnumerateInstances request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
-                "Class # %u of %u, aggregation SN %u.",
-            (const char*)providerInfo.className.getString().getCString(),
+                "Class # %u of %u",
+            CSTRING(providerInfo.className.getString()),
             _getServiceName(providerInfo.serviceId),
-            (const char*)providerInfo.controlProviderName.getCString(),
-            (unsigned int)(i + 1),
-            (unsigned int)(numClasses),
-            (unsigned int)(poA->_aggregationSN)));
+            CSTRING(providerInfo.controlProviderName),
+            i + 1,
+            numClasses ));
 
         CIMEnumerateInstancesRequestMessage* requestCopy =
             new CIMEnumerateInstancesRequestMessage(*request);
@@ -3313,8 +2830,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         if (checkClassException.getCode() == CIM_ERR_SUCCESS)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,"PropertyList = %s",
-                (const char*)
-                    _showPropertyList(requestCopy->propertyList).getCString()));
+                CSTRING(_showPropertyList(requestCopy->propertyList)) ));
 
             _forwardRequestForAggregation(
                 providerInfo.serviceId,
@@ -3391,11 +2907,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     Uint32 providerCount;
 
     // Get list of providers.
-    Array<ProviderInfo> providerInfos =
-        _lookupAllInstanceProviders(
-            request->nameSpace,
-            request->className,
-            providerCount);
+    Array<ProviderInfo> providerInfos = _lookupAllInstanceProviders(
+        request->nameSpace,
+        request->className,
+        providerCount);
 
     _checkEnumerateTooBroad(
         request->nameSpace, request->className, providerCount);
@@ -3406,7 +2921,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     {
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
             "CIM_ERROR_NOT_SUPPORTED for %s",
-            (const char*)request->className.getString().getCString()));
+            CSTRING(request->className.getString()) ));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -3427,7 +2942,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         request->queueIds.top(),
         request->className);
 
-    poA->_aggregationSN = cimOperationAggregationSN++;
     Uint32 numClasses = providerInfos.size();
 
     if (_repository->isDefaultInstanceProvider())
@@ -3445,11 +2959,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Routing EnumerateInstanceNames request for class %s to the "
-                    "repository.  Class # %u of %u, aggregation SN %u.",
-                (const char*)providerInfo.className.getString().getCString(),
-                (unsigned int)(i + 1),
-                (unsigned int)numClasses,
-                (unsigned int)(poA->_aggregationSN)));
+                    "repository.  Class # %u of %u",
+                CSTRING(providerInfo.className.getString()),
+                i + 1,
+                numClasses ));
 
             AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
                 dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
@@ -3518,13 +3031,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Routing EnumerateInstanceNames request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
-                "Class # %u of %u, aggregation SN %u.",
-            (const char*)providerInfo.className.getString().getCString(),
+                "Class # %u of %u",
+            CSTRING(providerInfo.className.getString()),
             _getServiceName(providerInfo.serviceId),
-            (const char*)providerInfo.controlProviderName.getCString(),
-            (unsigned int)(i + 1),
-            (unsigned int)(numClasses),
-            (unsigned int)(poA->_aggregationSN)));
+            CSTRING(providerInfo.controlProviderName),
+            i + 1,
+            numClasses ));
 
         CIMEnumerateInstanceNamesRequestMessage* requestCopy =
             new CIMEnumerateInstanceNamesRequestMessage(*request);
@@ -3636,9 +3148,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociators - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3682,17 +3192,13 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     else
     {
         //
-        // For Instance requests, get results from providers and the repository
-        //
-
-        //
         // Determine list of providers for this request
         //
 
         Uint32 providerCount;
 
         Array<ProviderInfo> providerInfos =
-            _lookupAllAssociationProviders(
+           _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
@@ -3730,7 +3236,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
-                    (const char*)request->objectName.toString().getCString(),
+                    CSTRING(request->objectName.toString()),
                     response->getResponseData().getObjects().size()));
         }
 
@@ -3747,7 +3253,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for %s",
-                    (const char*)request->className.getString().getCString()));
+                    CSTRING(request->className.getString()) ));
 
                 response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
                     request->buildResponse()));
@@ -3773,10 +3279,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             request->objectName.getClassName(),
             request->nameSpace);
 
-        poA->_aggregationSN = cimOperationAggregationSN++;
-
         // Include the repository response in the aggregation, if applicable
-        if (response.get() != 0)
+        if (response.get())
         {
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
@@ -3803,13 +3307,15 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 requestCopy->assocClass = providerInfos[i].className;
 
                 if (providerInfos[i].providerIdContainer.get() != 0)
+                {
                     requestCopy->operationContext.insert(
                         *(providerInfos[i].providerIdContainer.get()));
+                }
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class %s",
-                    (const char*)
-                        providerInfos[i].className.getString().getCString()));
+                    CSTRING(providerInfos[i].className.getString()) ));
+
                 _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -3877,9 +3383,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociatorNames - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3964,8 +3468,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "AssociatorNames repository access: class = %s, count = %u.",
-                    (const char*)request->objectName.toString().getCString(),
-                    objectNames.size()));
+                CSTRING(request->objectName.toString()),
+                objectNames.size()));
         }
 
         if (providerCount == 0)
@@ -3981,7 +3485,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for %s",
-                    (const char*)request->className.getString().getCString()));
+                    CSTRING(request->className.getString())));
 
                 response.reset(
                     dynamic_cast<CIMAssociatorNamesResponseMessage*>(
@@ -4007,8 +3511,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             request->queueIds.top(),
             request->objectName.getClassName(),
             request->nameSpace);
-
-        poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
         if (response.get() != 0)
@@ -4043,8 +3545,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class %s",
-                    (const char*)
-                        providerInfos[i].className.getString().getCString()));
+                    CSTRING(providerInfos[i].className.getString())));
+
                 _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -4098,9 +3600,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleReferences - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4187,7 +3687,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "References repository access: class = %s, count = %u.",
-                    (const char*)request->objectName.toString().getCString(),
+                    CSTRING(request->objectName.toString()),
                     cimObjects.size()));
         }
 
@@ -4204,7 +3704,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for %s",
-                    (const char*)request->className.getString().getCString()));
+                    CSTRING(request->className.getString()) ));
 
                 response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
                     request->buildResponse()));
@@ -4229,8 +3729,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             request->queueIds.top(),
             request->objectName.getClassName(),
             request->nameSpace);
-
-        poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
         if (response.get() != 0)
@@ -4265,8 +3763,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class %s",
-                    (const char*)
-                        providerInfos[i].className.getString().getCString()));
+                    CSTRING(providerInfos[i].className.getString()) ));
+
                 _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -4328,9 +3826,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleReferenceNames - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4411,8 +3907,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "ReferenceNames repository access: class = %s, count = %u.",
-                    (const char*)request->objectName.toString().getCString(),
-                    objectNames.size()));
+                CSTRING(request->objectName.toString()),
+                objectNames.size()));
         }
 
         if (providerCount == 0)
@@ -4428,7 +3924,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for %s",
-                    (const char*)request->className.getString().getCString()));
+                    CSTRING(request->className.getString()) ));
 
                 response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
                     request->buildResponse()));
@@ -4453,8 +3949,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             request->queueIds.top(),
             request->objectName.getClassName(),
             request->nameSpace);
-
-        poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
         if (response.get() != 0)
@@ -4488,8 +3982,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class %s",
-                    (const char*)
-                        providerInfos[i].className.getString().getCString()));
+                    CSTRING(providerInfos[i].className.getString())));
+
                 _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -4512,10 +4006,9 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
     CIMName className = request->instanceName.getClassName();
 
-    ProviderInfo providerInfo =
-        _lookupNewInstanceProvider(
-            request->nameSpace,
-            className);
+    ProviderInfo providerInfo = _lookupInstanceProvider(
+        request->nameSpace,
+        className);
 
     if (providerInfo.hasProvider)
     {
@@ -4531,10 +4024,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
         CIMGetPropertyRequestMessage* requestCallbackCopy =
             new CIMGetPropertyRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            providerInfo.className,
-            providerInfo.serviceId,
-            providerInfo.controlProviderName,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
     }
@@ -4578,10 +4069,9 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
     CIMName className = request->instanceName.getClassName();
 
-    ProviderInfo providerInfo =
-        _lookupNewInstanceProvider(
-            request->nameSpace,
-            className);
+    ProviderInfo providerInfo = _lookupInstanceProvider(
+        request->nameSpace,
+        className);
 
     if (providerInfo.hasProvider)
     {
@@ -4597,10 +4087,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         CIMSetPropertyRequestMessage* requestCallbackCopy =
             new CIMSetPropertyRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            providerInfo.className,
-            providerInfo.serviceId,
-            providerInfo.controlProviderName,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
     }
@@ -4612,9 +4100,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->propertyName,
             request->newValue);
 
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL3,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
                 "Namespace: %s  Instance Name: %s  Property Name: %s  New "
                 "Value: %s",
@@ -4656,9 +4142,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
             request->nameSpace,
             request->qualifierName);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleGetQualifierRequest - "
             "Namespace: %s  Qualifier Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4688,9 +4172,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
         request->nameSpace,
         request->qualifierDeclaration);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleSetQualifierRequest - "
             "Namespace: %s  Qualifier Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4719,9 +4201,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
         request->nameSpace,
         request->qualifierName);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleDeleteQualifierRequest - "
             "Namespace: %s  Qualifier Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4749,9 +4229,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
     Array<CIMQualifierDecl> qualifierDeclarations =
         _repository->enumerateQualifiers(request->nameSpace);
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest - "
             "Namespace: %s",
         CSTRING(request->nameSpace.getString())));
@@ -4836,26 +4314,68 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleInvokeMethodRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
-            (const char*) request->nameSpace.getString().getCString(),
-            (const char*) className.getString().getCString()));
+            CSTRING(request->nameSpace.getString()),
+            CSTRING(className.getString()) ));
 
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_NOT_FOUND, className.getString());
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className.getString());
     }
 
-    Uint32 serviceId;
-    String controlProviderName;
+    // Find Provider for this method
+    ProviderIdContainer* providerIdContainer=NULL;
+    ProviderInfo providerInfo(className);
 
-    // Check for class provided by an internal provider
-    if (_lookupInternalProvider(
-            request->nameSpace, className, serviceId, controlProviderName))
+    // First determine if there is an internal provider. If not, try
+    // for a registered provider.
+    if (!_lookupInternalProvider(request->nameSpace, className, providerInfo))
+    {
+        // check the class name for a registered provider for this namespace
+        // classname and methodname. There can be only one.
+        String providerName = _lookupMethodProvider(
+            request->nameSpace,
+            className,
+            request->methodName,
+            &providerIdContainer);
+
+        // if provider name returned, set the provider info to
+        // go to providerManagerService
+        if (providerName.size() != 0)
+        {
+            providerInfo.addProviderInfo(
+                _providerManagerServiceId,
+                true,
+                false);
+
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+            "CIMOperationRequestDispatcher::invokeMethodProvider - "
+                "Namespace: %s  Class Name: %s"
+                " Provider Name: %s found. ",
+            CSTRING(request->nameSpace.getString()),
+            CSTRING(className.getString()),
+            CSTRING(providerName) ));
+        }
+        else
+        {
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                "CIMOperationRequestDispatcher::invokeMethodProvider %s - "
+                    "Namespace: %s  Class Name: %s  Service Name: %s  "
+                    "Control Provider Name %s"
+                    "Provider Name: %s found. ",
+                ((providerInfo.controlProviderName.size() ==0)?
+                    "Intern": "Extern"),
+                CSTRING(request->nameSpace.getString()),
+                CSTRING(className.getString()),
+                _getServiceName(_providerManagerServiceId),
+                CSTRING(providerInfo.controlProviderName),
+                CSTRING(providerName) ));
+        }
+    }
+
+    if (providerInfo.hasProvider)
     {
         CIMInvokeMethodRequestMessage* requestCopy =
             new CIMInvokeMethodRequestMessage(*request);
@@ -4863,56 +4383,29 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
         CIMInvokeMethodRequestMessage* requestCallbackCopy =
             new CIMInvokeMethodRequestMessage(*requestCopy);
 
-        _forwardRequestToProviderManager(
-            className,
-            serviceId,
-            controlProviderName,
-            requestCopy,
-            requestCallbackCopy);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    // check the class name for an "external provider"
-    ProviderIdContainer* providerIdContainer=NULL;
-
-    String providerName = _lookupMethodProvider(
-        request->nameSpace,
-        className,
-        request->methodName,
-        &providerIdContainer);
-
-    if (providerName.size() != 0)
-    {
-        CIMInvokeMethodRequestMessage* requestCopy =
-            new CIMInvokeMethodRequestMessage(*request);
-
-        if (providerIdContainer!=NULL)
+        if (providerIdContainer != NULL)
         {
             requestCopy->operationContext.insert(*providerIdContainer);
             delete providerIdContainer;
             providerIdContainer = NULL;
         }
 
-        CIMInvokeMethodRequestMessage* requestCallbackCopy =
-            new CIMInvokeMethodRequestMessage(*requestCopy);
-
-        _forwardRequestToService(
-            _providerManagerServiceId,
+        _forwardRequestToProvider(
+            providerInfo,
             requestCopy,
             requestCallbackCopy);
-
-        PEG_METHOD_EXIT();
-        return;
     }
 
-    CIMResponseMessage* response = request->buildResponse();
-    response->cimException =
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
-            request->methodName.getString());
+    else // No provider for this method.
+    {
+       // No provider or control provider.  Generate exception
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
+                request->methodName.getString());
 
-    _enqueueResponse(request, response);
+        _enqueueResponse(request, response);
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -4920,9 +4413,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 /*********************************************************************/
 //
 //   Return Aggregated responses back to the Correct Aggregator
-//   ATTN: This was temporary to isolate the aggregation processing.
-//   We need to combine this with the other callbacks to create a single
-//   set of functions
 //
 //   The aggregator includes an aggregation object that is used to
 //   accumulate responses.  It is attached to each request sent and
@@ -5139,9 +4629,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeClassOrigin,
                         CIMPropertyList());
 
-                PEG_TRACE((
-                    TRC_DISPATCHER,
-                    Tracer::LEVEL4,
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "CIMOperationRequestDispatcher::"
                         "_fixInvokeMethodParameterTypes - "
                         "Namespace: %s  Class Name: %s",
@@ -5247,9 +4735,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
             false, //includeClassOrigin,
             CIMPropertyList());
 
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL4,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "CIMOperationRequestDispatcher::_fixSetPropertyValueType - "
                 "Namespace: %s  Class Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -5309,6 +4795,10 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
     PEG_METHOD_EXIT();
 }
 
+//  _checkExistenceOfClass queries repository for classname.  Returns
+//  rue if class exists. Else, returns false if exception is class
+//  does not exist. Else generates an exception. There is a special
+//  case for the __namespace class; it always returns true.
 Boolean CIMOperationRequestDispatcher::_checkExistenceOfClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
@@ -5324,8 +4814,7 @@ Boolean CIMOperationRequestDispatcher::_checkExistenceOfClass(
 
     try
     {
-        CIMClass cimClass =
-            _repository->getClass(
+        CIMClass cimClass = _repository->getClass(
                 nameSpace,
                 className,
                 true,
@@ -5346,13 +4835,11 @@ Boolean CIMOperationRequestDispatcher::_checkExistenceOfClass(
         throw;
     }
 
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL4,
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CIMOperationRequestDispatcher::_checkExistenceOfClass - "
             "Namespace: %s  Class Name: %s found.",
-        (const char*) nameSpace.getString().getCString(),
-        (const char*) className.getString().getCString()));
+        CSTRING(nameSpace.getString()),
+        CSTRING(className.getString())));
 
     PEG_METHOD_EXIT();
     return true;
@@ -5381,9 +4868,7 @@ CIMConstClass CIMOperationRequestDispatcher::_getClass(
             nameSpace,
             className);
 
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL3,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::_getClass - "
                 "Namespace: %s  Class Name: %s",
             CSTRING(nameSpace.getString()),
@@ -5415,6 +4900,8 @@ CIMConstClass CIMOperationRequestDispatcher::_getClass(
     return cimClass;
 }
 
+//  _checkEnumerateTooBroad.  Checks providerCount against parameter. Generates
+//  exception of providerCount to large.
 void CIMOperationRequestDispatcher::_checkEnumerateTooBroad(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
@@ -5422,9 +4909,7 @@ void CIMOperationRequestDispatcher::_checkEnumerateTooBroad(
 {
     if (providerCount > _maximumEnumerateBreadth)
     {
-        PEG_TRACE((
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISPATCHER,  Tracer::LEVEL1,
             "ERROR: Enumerate operation too broad for class %s.  "
                 "  Namespace: %s  Limit = %u, providerCount = %u",
             CSTRING(className.getString()),

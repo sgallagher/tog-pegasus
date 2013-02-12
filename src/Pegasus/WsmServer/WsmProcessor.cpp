@@ -91,10 +91,10 @@ void WsmProcessor::addReqToSubContext(
     Boolean isCreateReq)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmProcessor::addReqToSubContext()");
-    SubscriptionContext *subContext=0;
+    SubscriptionContext *subContext;
     String className;
-    WxfSubCreateRequest *wsmCreateRequest=0;
-    WxfSubDeleteRequest *wsmDeleteRequest=0;
+    WxfSubCreateRequest *wsmCreateRequest;
+    WxfSubDeleteRequest *wsmDeleteRequest;
     if(isCreateReq == true)
     {
         wsmCreateRequest = (WxfSubCreateRequest *)wsmRequest;
@@ -255,12 +255,10 @@ void WsmProcessor::handleResponse(CIMResponseMessage* cimResponse)
     AutoPtr<CIMResponseMessage> cimResponseDestroyer(cimResponse);
 
     // Lookup the request this response corresponds to
-    WsmRequest* wsmRequest = 0;
-    
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _requestTable.lookup(cimResponse->messageId, wsmRequest));
-
+    WsmRequest* wsmRequest;
+    Boolean gotRequest =
+        _requestTable.lookup(cimResponse->messageId, wsmRequest);
+    PEGASUS_ASSERT(gotRequest);
     AutoPtr<WsmRequest> wsmRequestDestroyer(wsmRequest);
     _requestTable.remove(cimResponse->messageId);
 
@@ -1028,7 +1026,7 @@ void WsmProcessor::_cleanupSubContext(String & messageId,
     Boolean isFilterDelete,
     Boolean isHandlerDelete)
 {
-    SubscriptionContext *subConTxt = 0;
+    SubscriptionContext *subConTxt ;
     _subscriptionContextTable.lookupReference(messageId,subConTxt);
     if(subConTxt)
     {

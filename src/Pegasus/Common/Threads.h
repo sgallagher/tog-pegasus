@@ -175,8 +175,6 @@ public:
 
     static void exit(ThreadReturnType rc);
 
-    static void cancel(ThreadType th);
-
     static void yield();
 
     static void sleep(int msec);
@@ -207,11 +205,6 @@ inline void Threads::exit(ThreadReturnType rc)
     // documented in Bugzilla 3836.  Where feasible, it may be advantageous
     // to avoid using this function.
     pthread_exit(rc);
-}
-
-inline void Threads::cancel(ThreadType th)
-{
-    pthread_cancel(th.thread);
 }
 
 inline void Threads::yield()
@@ -280,11 +273,6 @@ inline bool Threads::equal(ThreadType x, ThreadType y)
 inline void Threads::exit(ThreadReturnType rc)
 {
     _endthreadex(rc);
-}
-
-inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
-{
-    TerminateThread(th.handle, rc);
 }
 
 inline void Threads::yield()

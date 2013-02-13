@@ -27,6 +27,12 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
+// This code implements test cases for PEP#348 - The CMPI infrastructure using
+// SCMO (Single Chunk Memory Objects). Specifically it tests integrity of the
+// object model.
+// The design document can be found on the OpenPegasus website openpegasus.org
+// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _TestSCMO_H_

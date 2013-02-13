@@ -27,6 +27,13 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
+// Class CIMResponseData encapsulates the possible types of response data
+// representations and supplies conversion methods between these types.
+// PEP#348 - The CMPI infrastructure using SCMO (Single Chunk Memory Objects)
+// describes its usage in the server flow.
+// The design document can be found on the OpenPegasus website openpegasus.org
+// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMResponseData_h

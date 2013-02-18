@@ -98,6 +98,13 @@
         <em>Approved version (Ballot 160).</em>
     </td>
   </tr>
+  <tr>
+    <td align="center">3.4</td>
+    <td align="center">22 January 2013</td>
+    <td align="center">Marek Szermutzky</td>
+    <td>Adding section on Unused's (variables,
+      arguments, values etc.)</td>
+  </tr>
 </table>
 <p>&nbsp;</p>
 <hr>
@@ -574,6 +581,31 @@ Pegasus coding conventions may help to improve code consistency.
       <code>PEGASUS_NAMESPACE()</code> macro instead.</li>
   <li>Use consistent declarations of <code>const</code> parameters in method
       declarations and definitions.</li>
+</ol>
+
+<h3>Avoiding Unused parameter, variables, values, functions ...</h3>
+<p>In general, avoid unused variables, parameters, values and
+  functions. Many compiler come with support to automatically detect
+  these, use them. The OpenPegasus build using gcc will flag unused variables 
+  as errors.
+  The Pegasus Architecture team may completely disallow checkin of code that 
+  generates unused* warnings to CVS in the future.<br>
+</p>
+<ol>
+  <li>Avoid unused parameter warnings. In case the function
+    signature cannot be changed since the function codes an
+    interface, leave the parameter name off in the function
+    definition while keeping the parameter type in place. In the
+    following example of function <i>main()</i> the parameter <i>argv</i>
+    is used later on but parameter <i>argc</i> is not. Do this:<br>
+    <pre><code>int main(int, void** argv)
+{
+};</code></pre>
+    Not this:<br>
+    <pre><code>int main(int argc, void** argv)
+{
+};</code></pre>
+  </li>
 </ol>
 
 

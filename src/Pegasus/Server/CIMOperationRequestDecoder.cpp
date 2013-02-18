@@ -283,11 +283,12 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     // Validate the "CIMOperation" header:
 
     const char* cimOperation;
-    Boolean operationHeaderFound = HTTPMessage::lookupHeader(
-        headers, "CIMOperation", cimOperation, true);
+    
     // If the CIMOperation header was missing, the HTTPAuthenticatorDelegator
     // would not have passed the message to us.
-    PEGASUS_ASSERT(operationHeaderFound);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true));
 
     if (System::strcasecmp(cimOperation, "MethodCall") != 0)
     {

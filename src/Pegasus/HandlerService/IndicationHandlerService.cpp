@@ -857,8 +857,9 @@ CIMNotifyListenerNotActiveResponseMessage*
     {
         queue->cleanup();
         delete queue;
-        Boolean ok = _destinationQueueTable.remove(queueName);
-        PEGASUS_ASSERT(ok);
+        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+            true,
+            _destinationQueueTable.remove(queueName));
     }
 
     CIMNotifyListenerNotActiveResponseMessage *response =
@@ -994,8 +995,10 @@ void IndicationHandlerService::_setSequenceIdentifierAndEnqueue(
     }
 
     queue = new DestinationQueue(handler);
-    Boolean ok = _destinationQueueTable.insert(queueName, queue);
-    PEGASUS_ASSERT(ok);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _destinationQueueTable.insert(queueName, queue));
+
     queue->enqueue(message);
     _dispatcherWaitSemaphore.signal();
     PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,

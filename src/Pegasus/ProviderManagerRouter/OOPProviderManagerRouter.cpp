@@ -1217,9 +1217,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     // Remove this OutstandingRequestTable entry
                     {
                         AutoMutex tableLock(_outstandingRequestTableMutex);
-                        Boolean removed =
-                            _outstandingRequestTable.remove(uniqueMessageId);
-                        PEGASUS_ASSERT(removed);
+                        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                            true,
+                            _outstandingRequestTable.remove(uniqueMessageId));
                     }
 
                     // A response value of _REQUEST_NOT_PROCESSED indicates
@@ -1254,9 +1254,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                 // Remove the OutstandingRequestTable entry for this request
                 {
                     AutoMutex tableLock(_outstandingRequestTableMutex);
-                    Boolean removed =
-                        _outstandingRequestTable.remove(uniqueMessageId);
-                    PEGASUS_ASSERT(removed);
+                    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                        true,
+                        _outstandingRequestTable.remove(uniqueMessageId));
                 }
                 PEG_METHOD_EXIT();
                 throw;
@@ -1570,9 +1570,10 @@ void ProviderAgentContainer::_processResponses()
                     if(foundEntry)
                     {  
                         // Remove the completed request from the table
-                        Boolean removed = _outstandingRequestTable.remove( \
-                            response->messageId);
-                        PEGASUS_ASSERT(removed);
+                        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                            true,
+                            _outstandingRequestTable.remove(
+                                response->messageId));
                     }
 
                 }

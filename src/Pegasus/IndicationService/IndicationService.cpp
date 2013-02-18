@@ -343,11 +343,9 @@ void IndicationService::_buildInternalControlProvidersRegistration()
     String key = PEGASUS_MODULENAME_PROVREGPROVIDER;
     key.append(PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT.getString());
 
-    Boolean ok = _controlProvIndRegTable.insert(
-        key,
-        regProvider);
-
-    PEGASUS_ASSERT(ok);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _controlProvIndRegTable.insert(key,regProvider));
 }
 
 Uint16  IndicationService::_getEnabledState()

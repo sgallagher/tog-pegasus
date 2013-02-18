@@ -531,21 +531,21 @@ void InheritanceTree::remove(
         }
         else
         {
-            Boolean result = superClass->removeSubClass(node);
-            PEGASUS_ASSERT(result);
+            PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                true,
+                superClass->removeSubClass(node));
         }
     }
     else if (superClass)
     {
-        Boolean result = superClass->removeSubClass(node);
-        PEGASUS_ASSERT(result);
+        PEGASUS_FCT_EXECUTE_AND_ASSERT(true,superClass->removeSubClass(node));
     }
 
-
     // -- Remove from the hash table and delete:
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _rep->table.remove(className.getString()));
 
-    Boolean result = _rep->table.remove(className.getString());
-    PEGASUS_ASSERT(result);
     delete node;
 }
 

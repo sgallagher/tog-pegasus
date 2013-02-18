@@ -389,8 +389,9 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
         }
     }
 
-    Boolean success = _rep->table.remove(nameSpaceName.getString());
-    PEGASUS_ASSERT(success);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _rep->table.remove(nameSpaceName.getString()));
     delete nameSpace;
 
     PEG_METHOD_EXIT();

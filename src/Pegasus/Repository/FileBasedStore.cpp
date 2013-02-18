@@ -1030,8 +1030,10 @@ String FileBasedStore::_getNameSpaceDirPath(
     const CIMNamespaceName& nameSpace) const
 {
     String path;
-    Boolean found = _nameSpacePathTable.lookup(nameSpace.getString(), path);
-    PEGASUS_ASSERT(found);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _nameSpacePathTable.lookup(nameSpace.getString(), path));
+    
     return path;
 }
 

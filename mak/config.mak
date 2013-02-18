@@ -520,7 +520,7 @@ endif
 
 # Allow PEGASUS_ASSERT statements to be disabled.
 ifdef PEGASUS_NOASSERTS
-    DEFINES += -DNDEBUG
+    DEFINES += -DNDEBUG -DPEGASUS_NOASSERTS
 endif
 
 # do not compile trace code. sometimes it causes problems debugging

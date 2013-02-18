@@ -2083,9 +2083,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             }
             // Note that per provider subscription path - namespace
             // MUST be unique.
-            Boolean ok = indProvRec->addSelectExp(
-                sPath, request->nameSpace, eSelx);
-            PEGASUS_ASSERT(ok);
+            PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                true,
+                indProvRec->addSelectExp(sPath, request->nameSpace, eSelx));
         }
 
 
@@ -2240,8 +2240,10 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         {
             //  Remove the select expression from the cache
             WriteLock lock(rwSemProvTab);
-            Boolean ok = indProvRec->deleteSelectExp(sPath, request->nameSpace);
-            PEGASUS_ASSERT(ok);
+            PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                true,
+                indProvRec->deleteSelectExp(sPath, request->nameSpace));
+            
             delete eSelx;
             throw CIMException((CIMStatusCode)rc.rc,
                 rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
@@ -2328,8 +2330,9 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                 // failed to get select expression from hash table
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
-            Boolean ok = indProvRec->deleteSelectExp(sPath, request->nameSpace);
-            PEGASUS_ASSERT(ok);
+            PEGASUS_FCT_EXECUTE_AND_ASSERT(
+                true,
+                indProvRec->deleteSelectExp(sPath, request->nameSpace));
         }
 
         CString className = eSelx->classNames[0].getClassName().

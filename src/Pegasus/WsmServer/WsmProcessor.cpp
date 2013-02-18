@@ -255,10 +255,12 @@ void WsmProcessor::handleResponse(CIMResponseMessage* cimResponse)
     AutoPtr<CIMResponseMessage> cimResponseDestroyer(cimResponse);
 
     // Lookup the request this response corresponds to
-    WsmRequest* wsmRequest;
-    Boolean gotRequest =
-        _requestTable.lookup(cimResponse->messageId, wsmRequest);
-    PEGASUS_ASSERT(gotRequest);
+    WsmRequest* wsmRequest = 0;
+    
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _requestTable.lookup(cimResponse->messageId, wsmRequest));
+
     AutoPtr<WsmRequest> wsmRequestDestroyer(wsmRequest);
     _requestTable.remove(cimResponse->messageId);
 

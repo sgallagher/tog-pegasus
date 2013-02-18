@@ -101,16 +101,14 @@ void ReadWriteSem::waitWrite()
 
 void ReadWriteSem::unlockRead()
 {
-    int rc = pthread_rwlock_unlock(&_rwlock.rwlock);
     // All documented error codes represent coding errors.
-    PEGASUS_ASSERT(rc == 0);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(0, pthread_rwlock_unlock(&_rwlock.rwlock));
 }
 
 void ReadWriteSem::unlockWrite()
 {
-    int rc = pthread_rwlock_unlock(&_rwlock.rwlock);
     // All documented error codes represent coding errors.
-    PEGASUS_ASSERT(rc == 0);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(0, pthread_rwlock_unlock(&_rwlock.rwlock));
 }
 
 #endif /* PEGASUS_USE_POSIX_RWLOCK */

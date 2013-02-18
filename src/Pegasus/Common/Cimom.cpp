@@ -100,7 +100,7 @@ Boolean cimom::_monitorCIMService(MessageQueueService *service)
 void cimom::_releaseCIMService(MessageQueueService *service)
 {
     AutoMutex mtx(_registeredServicesTableLock);
-    Boolean *monitoring;
+    Boolean *monitoring=0;
     if (!_registeredServicesTable.lookupReference(service, monitoring))
     {
         PEGASUS_ASSERT(0);
@@ -239,8 +239,7 @@ cimom::~cimom()
     msg->op->_op_dest = _global_this;
     msg->op->_request.reset(msg);
 
-    Boolean done = _routed_ops.enqueue(msg->op);
-    PEGASUS_ASSERT(done);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(true,_routed_ops.enqueue(msg->op));
 
     _routing_thread.join();
 

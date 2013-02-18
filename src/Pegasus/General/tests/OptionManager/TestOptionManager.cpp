@@ -309,15 +309,15 @@ void test02(int argc, char** argv)
     PEGASUS_TEST_ASSERT(om.isTrue("debug"));    
     {
         const Option* op = om.lookupOption("debug");
-        PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(op->isResolved());
+        PEGASUS_TEST_ASSERT(op != 0);
+        PEGASUS_TEST_ASSERT(op->isResolved());
     }
 
     PEGASUS_TEST_ASSERT(om.valueEquals("delay", "3"));    
     {
         const Option* op = om.lookupOption("delay");
-        PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(op->isResolved());
+        PEGASUS_TEST_ASSERT(op != 0);
+        PEGASUS_TEST_ASSERT(op->isResolved());
     }
 
     String passwordValue;
@@ -326,8 +326,8 @@ void test02(int argc, char** argv)
     PEGASUS_TEST_ASSERT(om.valueEquals("Password", "mypassword"));    
     {
         const Option* op = om.lookupOption("Password");
-        PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(op->isResolved());
+        PEGASUS_TEST_ASSERT(op != 0);
+        PEGASUS_TEST_ASSERT(op->isResolved());
     }
 
     // confirmed parameter that are not input are
@@ -335,21 +335,21 @@ void test02(int argc, char** argv)
     PEGASUS_TEST_ASSERT(om.valueEquals("optional", "blah"));
     {
         const Option* op = om.lookupOption("optional");
-        PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(!op->isResolved());
+        PEGASUS_TEST_ASSERT(op != 0);
+        PEGASUS_TEST_ASSERT(!op->isResolved());
     }
     
     {
         const Option* op = om.lookupOption("optional2");
-        PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(!op->isResolved());
+        PEGASUS_TEST_ASSERT(op != 0);
+        PEGASUS_TEST_ASSERT(!op->isResolved());
     }
     PEGASUS_TEST_ASSERT(om.valueEquals("optional2", "999"));
     
     {
         const Option* op = om.lookupOption("configfile1");
-        PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(op->isResolved());
+        PEGASUS_TEST_ASSERT(op != 0);
+        PEGASUS_TEST_ASSERT(op->isResolved());
     }
     PEGASUS_TEST_ASSERT(om.valueEquals("configfile1", "noblah"));   
 }

@@ -105,6 +105,12 @@
     <td>Adding section on Unused's (variables,
       arguments, values etc.)</td>
   </tr>
+  <tr>
+    <td align="center">3.5</td>
+    <td align="center">22 January 2013</td>
+    <td align="center">Marek Szermutzky</td>
+    <td>macro PEGASUS_FCT_EXECUTE_AND_ASSERT added</td>
+  </tr>
 </table>
 <p>&nbsp;</p>
 <hr>
@@ -606,6 +612,22 @@ Pegasus coding conventions may help to improve code consistency.
 {
 };</code></pre>
   </li>
+  <li>Avoid unused variables when the return value of a function is
+    assigned to a variable only to be used to do an assert check
+    with PEGASUS_ASSERT by instead using macro
+    PEGASUS_FCT_EXECUTE_AND_ASSERT. It helps avoid such unused
+    variables when PEGASUS_NOASSERTS is enabled (assertion
+    disabled). PEGASUS_FCT_EXECUTE_AND_ASSERT compares the return
+    value of function against VALUE for equalness but only if
+    asserts are enabled. The Function FCT will always be called
+    (equal if asserts enabled or disabled). Do this:
+    <pre><code>PEGASUS_FCT_EXECUTE_AND_ASSERT(true, f());
+    </code></pre>
+    Not this:
+    <pre><code>bool returnCode = f();<br>PEGASUS_ASSERT(true == returnCode);
+    </code></pre>
+  </li>
+
 </ol>
 
 

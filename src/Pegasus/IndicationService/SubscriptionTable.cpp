@@ -444,9 +444,9 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
     //
     //  Insert returns true on success, false if duplicate key
     //
-    Boolean succeeded = _activeSubscriptionsTable.insert
-        (activeSubscriptionsKey, entry);
-    PEGASUS_ASSERT (succeeded);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _activeSubscriptionsTable.insert(activeSubscriptionsKey, entry));
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     String traceString;
@@ -483,8 +483,7 @@ void SubscriptionTable::_removeActiveSubscriptionsEntry (
     //
     //  Remove returns true on success, false if not found
     //
-    Boolean succeeded = _activeSubscriptionsTable.remove (key);
-    PEGASUS_ASSERT (succeeded);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(true,_activeSubscriptionsTable.remove(key));
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL4,
@@ -541,9 +540,9 @@ void SubscriptionTable::_insertSubscriptionClassesEntry (
     //
     //  Insert returns true on success, false if duplicate key
     //
-    Boolean succeeded = _subscriptionClassesTable.insert
-        (subscriptionClassesKey, entry);
-    PEGASUS_ASSERT (succeeded);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _subscriptionClassesTable.insert(subscriptionClassesKey, entry));
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     String traceString;
@@ -572,8 +571,9 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
     //
     //  Remove returns true on success, false if not found
     //
-    Boolean succeeded = _subscriptionClassesTable.remove (key);
-    PEGASUS_ASSERT (succeeded);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _subscriptionClassesTable.remove(key));
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,

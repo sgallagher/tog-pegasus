@@ -124,16 +124,11 @@ Uint32 _includesType(const String& name)
 // return String for the tokenType. This is a diagnostic tool only.
 String tokenTypeToString(TokenType tokenType)
 {
-    String rtn;
     static const char * tokenTypeString[] =
     {
         "UNKNOWN","ILLEGAL", "VALUE", "NO_VALUE", "EXCLAM", "NAME_ONLY",
              "EMBED", "END_EMBED", "EMBED_NEXT_ARRAY_ITEM"
     };
-    static const Uint32 _NUM_TYPES =
-        sizeof(tokenTypeString) / sizeof(tokenTypeString[0]);
-
-    PEGASUS_ASSERT((Uint32)tokenType <= _NUM_TYPES);
     return tokenTypeString[tokenType];
 }
 

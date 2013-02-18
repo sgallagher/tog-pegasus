@@ -94,8 +94,9 @@ void ProviderIndicationCountTable::insertEntry(
         newEntry.indicationCount = 0;
         newEntry.orphanIndicationCount = 0;
 
-        Boolean succeeded = _table.insert(providerKey, newEntry);
-        PEGASUS_ASSERT(succeeded);
+        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+            true,
+            _table.insert(providerKey, newEntry));
     }
 
     PEG_METHOD_EXIT();
@@ -170,8 +171,7 @@ void ProviderIndicationCountTable::removeModuleEntries(
         // Now remove the entries, outside the Iterator scope.
         for (Uint32 i = 0; i < keysToRemove.size(); i++)
         {
-            Boolean isRemoved = _table.remove(keysToRemove[i]);
-            PEGASUS_ASSERT(isRemoved);
+            PEGASUS_FCT_EXECUTE_AND_ASSERT(true,_table.remove(keysToRemove[i]));
         }
     }
 

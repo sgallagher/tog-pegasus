@@ -91,7 +91,6 @@
 # define PEGASUS_DEBUG_ASSERT(COND)
 #endif
 
-
 #define PEGASUS_TEST_ASSERT(COND)                                         \
     do                                                                    \
     {                                                                     \
@@ -104,6 +103,30 @@
     } while (0)
 
 # endif /* PEGASUS_OS_ZOS */
+
+
+/* define PEGASUS_FCT_EXECUTE_AND_ASSERT assertion statement.
+
+   Use this macro to avoid unused variables instead of PEGASUS_ASSERT when
+   the return value of a function is only used to do an assert check.
+   
+   This statement compares the return value of function against VALUE for
+   equalness but only if assertion is enabled. The Function FCT will always be
+   called (equal if assertion is enabled or disabled).
+      
+   Do this:
+   
+       PEGASUS_FCT_EXECUTE_AND_ASSERT(true, f());
+   
+   Not this:
+       bool returnCode = f();
+       PEGASUS_ASSERT(true == returnCode);
+*/
+#if defined(PEGASUS_NOASSERTS) || defined(NDEBUG)
+# define PEGASUS_FCT_EXECUTE_AND_ASSERT(VALUE,FCT) FCT
+#else
+# define PEGASUS_FCT_EXECUTE_AND_ASSERT(VALUE,FCT) PEGASUS_ASSERT(VALUE == FCT)
+#endif
 
 /**
     Defines PEGASUS_DISABLED_TEST_ASSERT(COND) assertion statement.

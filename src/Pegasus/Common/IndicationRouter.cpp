@@ -63,8 +63,9 @@ void IndicationRouter::deliverAndWaitForStatus()
 
         AutoMutex mtx(_statusMutex);
         _entry =  new DeliveryStatusEntry;
-        Boolean ok = _statusTable.insert(uniqueMessageId, _entry);
-        PEGASUS_ASSERT(ok);
+        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+            true,
+            _statusTable.insert(uniqueMessageId, _entry));
     }
 
     _deliveryRoutine(_request);

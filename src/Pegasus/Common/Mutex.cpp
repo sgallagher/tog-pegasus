@@ -187,9 +187,8 @@ void Mutex::unlock()
     _rep.count--;
 #endif
 
-    int rc = pthread_mutex_unlock(&_rep.mutex);
     // All documented error codes represent coding errors.
-    PEGASUS_ASSERT(rc == 0);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(0, pthread_mutex_unlock(&_rep.mutex));
 }
 
 #if defined(PEGASUS_OS_LINUX)

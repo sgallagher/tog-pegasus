@@ -417,8 +417,8 @@ void DynamicRoutingTable::_insertRecord(
     RegTableRecord *rec = new RegTableRecord(
         className, namespaceName, providerName, serviceId);
     String _routingKey = _getRoutingKey(className, namespaceName);
-    Boolean done = _routingTable.insert(_routingKey, rec);
-    PEGASUS_ASSERT(done);
+    
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(true,_routingTable.insert(_routingKey, rec));
 }
 
 #ifdef PEGASUS_DEBUG

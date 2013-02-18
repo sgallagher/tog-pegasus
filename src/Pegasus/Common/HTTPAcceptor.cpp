@@ -215,12 +215,11 @@ void HTTPAcceptor::handleEnqueue(Message *message)
     {
         case SOCKET_MESSAGE:
         {
-            SocketMessage* socketMessage = (SocketMessage*)message;
-
             // If this is a connection request:
-            PEGASUS_ASSERT(socketMessage->socket == _rep->socket);
+            PEGASUS_ASSERT(((SocketMessage*)message)->socket == _rep->socket);
 
-            PEGASUS_ASSERT(socketMessage->events & SocketMessage::READ);
+            PEGASUS_ASSERT(
+                ((SocketMessage*)message)->events & SocketMessage::READ);
 
             _acceptConnection();
 

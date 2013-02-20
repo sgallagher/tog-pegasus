@@ -85,10 +85,9 @@ OperationAggregate::OperationAggregate(
       _request(request),
       _totalIssued(0), _totalReceived(0), _totalReceivedComplete(0),
       _totalReceivedExpected(0), _totalReceivedErrors(0),
-      _totalReceivedNotSupported(0)
+      _totalReceivedNotSupported(0),
+      _magicNumber(0xc685255e)        // set to constant for use by valid()
 {
-    // Set magicNumber to constant  for use by valid() method
-    _magicNumber = 0xc685255e;
 }
 
 OperationAggregate::~OperationAggregate()
@@ -1205,7 +1204,7 @@ Array<ProviderInfo>
         Uint32& providerCount)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::lookupAllAssociationProviders");
+        "CIMOperationRequestDispatcher::_lookupAllAssociationProviders");
 
     providerCount = 0;
     Array<ProviderInfo> providerInfoList;
@@ -1259,17 +1258,21 @@ Array<ProviderInfo>
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "Association Lookup: %u classes found", objPaths.size()));
 
+    // lookup association providers for all classes returned by the
+    // reference names lookup
     for (Uint32 i = 0; i < objPaths.size(); i++)
     {
-        ProviderInfo providerInfo(objPaths[i].getClassName());
+        CIMName cn = objPaths[i].getClassName();
 
-        // Use the returned classname for the association classname
+        // Create ProviderInfo object with default info and class name
+        ProviderInfo pi(cn);
+
+        // Use returned classname for the association classname
         // under the assumption that the registration is for the
         // association class, not the target class
-        if (_lookupAssociationProvider(nameSpace, objPaths[i].getClassName(),
-            providerInfo))
+        if (_lookupAssociationProvider(nameSpace, cn, pi))
         {
-            providerInfoList.append(providerInfo);
+            providerInfoList.append(pi);
             providerCount++;
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Association append: class = %s to list. count = %u",
@@ -1282,9 +1285,9 @@ Array<ProviderInfo>
     return providerInfoList;
 }
 
-/* _lookupAssociationProvider - Look up the internal and/or association
-    provider for the defined namespace and class and return a providerInfo
-    struct containing information about the provider if found
+/* _lookupAssociationProvider - Look up the internal and/or registered
+    association provider for the defined namespace and class and return a
+    providerInfo struct containing information about the provider if found.
     @param nameSpace
     @param assocClass
     @param providerInfo ProviderInfo& container holding information about
@@ -1516,7 +1519,8 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     // Before resequencing, the isComplete() flag represents the completion
     // status of one provider's response, not the entire response
 
-    if (response->isComplete())
+    Boolean thisResponseIsComplete = response->isComplete();
+    if (thisResponseIsComplete)
     {
         // these are per provider instantiations
         op->removeRequest();
@@ -1527,9 +1531,9 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     // After resequencing, this flag represents the completion status of
     // the ENTIRE response to the request.
 
-    Boolean isComplete = service->_enqueueResponse(poA, response);
+    Boolean entireResponseIsComplete = service->_enqueueResponse(poA, response);
 
-    if (isComplete)
+    if (entireResponseIsComplete)
     {
         // delete OperationAggregation and attached request.
         delete poA;
@@ -1537,9 +1541,9 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     }
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "Provider response = %s. Entire response = %s",
-        (response->isComplete()? "complete": "incomplete"),
-        (isComplete? "complete": "incomplete")  ));
+        "Provider thisResponse = %s. Entire response = %s",
+        (thisResponseIsComplete? "complete": "incomplete"),
+        (entireResponseIsComplete? "complete": "incomplete")  ));
 
     PEG_METHOD_EXIT();
 }

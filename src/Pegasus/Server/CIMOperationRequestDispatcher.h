@@ -240,12 +240,12 @@ private:
     Mutex _enqueueResponseMutex;
     CIMRequestMessage* _request;
     Uint32 _totalIssued;
-    Uint32 _magicNumber;
     Uint32 _totalReceived;
     Uint32 _totalReceivedComplete;
     Uint32 _totalReceivedExpected;
     Uint32 _totalReceivedErrors;
     Uint32 _totalReceivedNotSupported;
+    Uint32 _magicNumber;
 };
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :

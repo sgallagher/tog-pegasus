@@ -502,14 +502,13 @@ public:
         readPipe = new AnonymousPipe(readFdStr, 0);
         writePipe = new AnonymousPipe(0, writeFdStr);
 
-#  if defined(PEGASUS_HAS_SIGNALS)
-#   if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
+#  if defined(PEGASUS_HAS_SIGNALS) && \
+      !(defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS))
         // The cimprovagt forks and returns right away.  Clean up the zombie
         // process now instead of in reapProviderAgent().
         int status = 0;
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
             ;
-#   endif
 #  endif
 
         PEG_METHOD_EXIT();
@@ -539,8 +538,8 @@ public:
         return -1;
     }
 #else  /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION is NOT defined */
-# if defined(PEGASUS_HAS_SIGNALS)
-#  if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
+# if defined(PEGASUS_HAS_SIGNALS) && \
+     (defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS))
     virtual int reapProviderAgent(int pid)
     {
         int status = 0;
@@ -551,12 +550,11 @@ public:
         };
         return status;
     }
-#  else
+# else
     virtual int reapProviderAgent(int)
     {
         return 0;
     }
-#  endif
 # endif
 #endif
 

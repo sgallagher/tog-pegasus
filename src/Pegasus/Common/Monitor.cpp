@@ -510,7 +510,6 @@ void Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
-    int selectErrno = getSocketError();
 
     _entriesMutex.lock();
 
@@ -524,6 +523,9 @@ void Monitor::run(Uint32 milliseconds)
 
     if (events == PEGASUS_SOCKET_ERROR)
     {
+        int selectErrno = 0; 
+        selectErrno = getSocketError();
+
         PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
             "Monitor::run - select() returned error %d.", selectErrno));
         // The EBADF error indicates that one or more or the file

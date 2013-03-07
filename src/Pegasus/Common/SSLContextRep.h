@@ -110,11 +110,15 @@ public:
             "In ~SSLEnvironmentInitializer(), _instanceCount is %d",
             _instanceCount));
 
+
         if (_instanceCount == 0)
         {
+            EVP_cleanup();
+            CRYPTO_cleanup_all_ex_data();
             ERR_free_strings();
             _uninitializeCallbacks();
         }
+        ERR_remove_state(0);
     }
 
 private:

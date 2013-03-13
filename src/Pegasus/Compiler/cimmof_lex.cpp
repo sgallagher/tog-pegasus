@@ -2659,4 +2659,27 @@ void cimmof_free (void * ptr )
 
 
 
+void cimmof_yy_less(int n) { yyless(n); }
+
+// Implemented to hide bison functions that are defined but not used
+// so compiler unused warnings can be enabled.  The functions defined in ths
+// dummy function are those current defined by Flex but never called by
+// Pegasus lex definitions. Since each compiler has different rules for
+// hiding unused functions, we implement each that we know.
+// CLANG can use the pragma below.
+// GCC hides the unused function through the recursive call
+// NOT tested with other compilers.
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+static void UNUSED_LEX_FUNCTIONS()
+{
+   UNUSED_LEX_FUNCTIONS();    // call itself to avoid unused function warning
+   yyunput(3, (char *)"");    // call unused lex functions
+   yy_top_state();
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 

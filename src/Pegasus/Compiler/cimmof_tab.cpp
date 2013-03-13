@@ -2413,7 +2413,7 @@ yyreduce:
     if (cimmofParser::Instance()->getInstanceAlias(g_currentAliasRef, AOP) == 0)
     {
          MOF_error("ERROR: aliasIdentifier NOT FOUND: aliasIdentifier = ",
-             g_currentAliasRef.getCString());        
+             g_currentAliasRef.getCString());
         yyerror("aliasInitializer - 'aliasIdentifier' NOT FOUND");
         YYABORT;
     }
@@ -2678,7 +2678,7 @@ yyreduce:
 
   case 107:
 #line 1099 "cimmof.y"
-    {   /* empty */  
+    {   /* empty */
             (yyval.scope) = (yyvsp[(1) - (1)].scope);
         ;}
     break;
@@ -3239,8 +3239,6 @@ static void MOF_trace2(const char * str, const char * S)
 {
     printf("MOF_trace2(): %s %s\n", str, S);
 }
-
-
 
 #endif // DEBUG_cimmof
 

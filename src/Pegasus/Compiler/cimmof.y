@@ -1325,6 +1325,4 @@ static void MOF_trace2(const char * str, const char * S)
     printf("MOF_trace2(): %s %s\n", str, S);
 }
 
-
-
 #endif // DEBUG_cimmof

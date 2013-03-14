@@ -91,6 +91,10 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
     {"traceMemoryBufferKbytes",
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
+    {"traceFileSizeKBytes",
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
+    {"numberOfTraceFiles",
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",
          (ConfigPropertyOwner*)&ConfigManager::logOwner},

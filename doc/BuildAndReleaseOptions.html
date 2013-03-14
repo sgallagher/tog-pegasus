@@ -3373,6 +3373,33 @@ configuration properties.</p>
      Pegasus/Config/TracePropertyOwner.cpp<br>
 </ul>
 
+<h5>traceFileSizeKBytes</h5>
+<ul>
+  <b>Description:&nbsp;</b>Defines the size of the tracefile in Kilo bytes. The trace file will be
+     rolled once its size exceeds the specified size. <br>
+  <b>Default Value:&nbsp;</b>1048576<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>1048576<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>1048576<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;No/Yes<br>
+  <b>Dynamic?:</b>&nbsp;Yes<br>
+  <b>Considerations:</b>Minimum accepted value is 10240 KB,Maximum accepted value is 2097152 KB. &nbsp;<br>
+  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/TracePropertyOwner.cpp<p>&nbsp;</p>
+</ul>
+
+<h5>numberOfTraceFiles</h5>
+<ul>
+  <b>Description:&nbsp;</b>Specifies the number of the tracefiles for rolling.<br>
+  <b>Default Value:&nbsp;</b>3<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>3<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>3<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;No/Yes<br>
+  <b>Dynamic?:</b>&nbsp;Yes<br>
+  <b>Considerations:</b>Minimum accepted value is 3,Maximum accepted value is 20. &nbsp;<br>
+  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/TracePropertyOwner.cpp<p>&nbsp;</p>
+</ul>
+
 <h3>Configuration Constants</h3>
 
 <h4>Definitions</h4>

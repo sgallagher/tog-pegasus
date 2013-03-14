@@ -242,6 +242,16 @@ public:
     */
     static Boolean setTraceMemoryBufferSize(Uint32 bufferSize);
 
+    /** Set the Max trace File Size
+        @param maxLogFileSizeBytes size of cimserver.trc
+    */
+    static void setMaxTraceFileSize (Uint32 maxLogFileSizeBytes);
+
+    /** Set the Max trace File number
+        @param maxLogFileNumber number of cimserver.trc in trace folder
+    */
+    static void setMaxTraceFileNumber(Uint32 maxLogFileNumber);
+
     /** Flushes the trace buffer to traceFilePath. This method will only
         have an effect when traceFacility=Memory.
     */

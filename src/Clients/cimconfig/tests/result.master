@@ -22,6 +22,10 @@ Current value for the property traceFilePath is set to "/tmp/test.trace" in CIMS
 Current value for the property traceFilePath is set to "/tmp/test1.trace" in CIMServer.
  
 Current value for the property traceFilePath is set to "/tmp/test.trace" in CIMServer.
+
+Current value for the property traceFileSizeKBytes is set to "10240" in CIMServer.
+
+Current value for the property numberOfTraceFiles is set to "3" in CIMServer.
  
 Testing all get options.
  

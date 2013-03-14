@@ -42,8 +42,12 @@ tests:
 poststarttests:
 
 commandtests:
+	- cimserver "traceFileSizeKBytes=2097153" 2>$(RESULTFILE)
+	- cimserver "traceFileSizeKBytes=1023" 2>>$(RESULTFILE)
+	- cimserver "numberOfTraceFiles=2" 2>>$(RESULTFILE)
+	- cimserver "numberOfTraceFiles=21" 2>>$(RESULTFILE)	
 ifdef PEGASUS_HAS_SSL
-	- cimserver "enableHttpsConnection=true" "sslTrustStore=" "sslClientVerificationMode=optional" 2>$(RESULTFILE) 
+	- cimserver "enableHttpsConnection=true" "sslTrustStore=" "sslClientVerificationMode=optional" 2>>$(RESULTFILE) 
 	- cimserver "enableHttpsConnection=true" "sslCipherSuite='*gfh&'" 2>>$(RESULTFILE)
 	$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
 	$(RM) $(RESULTFILE)

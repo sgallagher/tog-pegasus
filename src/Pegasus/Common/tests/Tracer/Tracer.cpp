@@ -45,6 +45,9 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+//constants value
+const Uint32 _traceFileSizeKBytes=10240;
+const Uint32 _numberOfTraceFiles=3;
 
 // Trace Levels 0 and 5 are defined as private constants of the tracer
 // class to avoid inappropriate use in the trace calls and macros.
@@ -158,6 +161,8 @@ Uint32 test1()
 Uint32 test2()
 {
     Tracer::setTraceFile(FILE1);
+    Tracer::setMaxTraceFileSize (_traceFileSizeKBytes);
+    Tracer::setMaxTraceFileNumber(_numberOfTraceFiles);
     PEG_METHOD_ENTER(TRC_CONFIG,"test2");
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %d",
         "This message should not appear value=",123));

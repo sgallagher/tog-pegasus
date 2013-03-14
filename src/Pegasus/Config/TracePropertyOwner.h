@@ -246,7 +246,10 @@ private:
     AutoPtr<struct ConfigProperty>      _traceFacility; //PEP315
 
     AutoPtr<struct ConfigProperty>      _traceMemoryBufferKbytes; //PEP316
+    
+    AutoPtr<struct ConfigProperty>      _traceFileSizeKBytes;
 
+    AutoPtr<struct ConfigProperty>      _numberOfTraceFiles;
     /**
     Remember if configproperties are already initialized.
     */

@@ -1098,4 +1098,15 @@ void Tracer::traceCIMException(
 
 #endif /* !PEGASUS_REMOVE_TRACE */
 
+void Tracer::setMaxTraceFileSize(Uint32 maxTraceFileSizeBytes) 
+{  
+    _getInstance()->_traceHandler->setMaxTraceFileSize(maxTraceFileSizeBytes);
+} 
+
+void Tracer::setMaxTraceFileNumber(Uint32 maxTraceFileNumber)
+{
+    _getInstance()->_traceHandler->setMaxTraceFileNumber(maxTraceFileNumber);
+}
+
+
 PEGASUS_NAMESPACE_END

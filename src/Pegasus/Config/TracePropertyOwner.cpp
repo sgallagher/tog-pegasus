@@ -63,27 +63,37 @@ static struct ConfigPropertyRow properties[] =
     {"traceComponents", "", IS_DYNAMIC, IS_HIDDEN},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_HIDDEN},
     {"traceFacility", "File", IS_DYNAMIC, IS_HIDDEN},
+    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_HIDDEN},
+    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_HIDDEN},
 #elif defined(PEGASUS_OS_PASE)
     {"traceLevel", "0", IS_DYNAMIC, IS_VISIBLE},
     {"traceComponents", "", IS_DYNAMIC, IS_VISIBLE},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
     {"traceFacility", "File", IS_DYNAMIC, IS_VISIBLE},
+    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_VISIBLE},
+    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_VISIBLE},
 #elif defined(PEGASUS_OS_ZOS)
     {"traceLevel", "2", IS_DYNAMIC, IS_VISIBLE},
     {"traceComponents", "All", IS_DYNAMIC, IS_VISIBLE},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
     {"traceFacility", "Memory", IS_DYNAMIC, IS_VISIBLE},
+    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_VISIBLE},
+    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_VISIBLE},
 #else
 # if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
     {"traceLevel", "0", IS_DYNAMIC, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, IS_HIDDEN},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_HIDDEN},
     {"traceFacility", "File", IS_DYNAMIC, IS_HIDDEN},
+    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_HIDDEN},
+    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_HIDDEN},
 # else
     {"traceLevel", "0", IS_DYNAMIC, IS_VISIBLE},
     {"traceComponents", "", IS_DYNAMIC, IS_VISIBLE},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
     {"traceFacility", "File", IS_DYNAMIC, IS_VISIBLE},
+    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_VISIBLE},
+    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_VISIBLE},
 # endif
 #endif
 #if defined(PEGASUS_OS_ZOS)
@@ -192,6 +202,8 @@ TracePropertyOwner::TracePropertyOwner():
     _traceComponents.reset(new ConfigProperty);
     _traceFacility.reset(new ConfigProperty);
     _traceMemoryBufferKbytes.reset(new ConfigProperty);
+    _traceFileSizeKBytes.reset(new ConfigProperty);
+    _numberOfTraceFiles.reset(new ConfigProperty);
 }
 
 /**
@@ -296,6 +308,45 @@ void TracePropertyOwner::initialize()
 
             Tracer::setTraceFacility(_traceFacility->defaultValue);
         }
+        else if (String::equalNoCase(
+                       properties[i].propertyName, "traceFileSizeKBytes"))
+        {
+            _traceFileSizeKBytes->propertyName = properties[i].propertyName;
+            _traceFileSizeKBytes->defaultValue = properties[i].defaultValue;
+            _traceFileSizeKBytes->currentValue = properties[i].defaultValue;
+            _traceFileSizeKBytes->plannedValue = properties[i].defaultValue;
+            _traceFileSizeKBytes->dynamic = properties[i].dynamic;
+            _traceFileSizeKBytes->externallyVisible = 
+                   properties[i].externallyVisible;
+          
+            PEGASUS_ASSERT(_traceFileSizeKBytes->defaultValue.size()!= 0);
+
+            Uint32 traceFileSize;
+            toUint32TraceMemoryBufferSize(
+                   _traceFileSizeKBytes->currentValue,
+                                                     traceFileSize);
+            Tracer::setMaxTraceFileSize(traceFileSize *1024);
+        }
+        else if (String::equalNoCase(
+                          properties[i].propertyName, "numberOfTraceFiles"))
+        {
+            _numberOfTraceFiles->propertyName = properties[i].propertyName;
+            _numberOfTraceFiles->defaultValue = properties[i].defaultValue;
+            _numberOfTraceFiles->currentValue = properties[i].defaultValue;
+            _numberOfTraceFiles->plannedValue = properties[i].defaultValue;
+            _numberOfTraceFiles->dynamic = properties[i].dynamic;
+            _numberOfTraceFiles->externallyVisible = 
+                     properties[i].externallyVisible;
+
+            PEGASUS_ASSERT(_numberOfTraceFiles->defaultValue.size()!= 0);
+
+            Uint32 traceFileNumber;
+            toUint32TraceMemoryBufferSize(
+                    _numberOfTraceFiles->currentValue,
+                                          traceFileNumber);
+            Tracer::setMaxTraceFileNumber(traceFileNumber);
+
+        }
     }
     _initialized = true;
 }
@@ -322,6 +373,14 @@ struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
     else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
     {
         return _traceMemoryBufferKbytes.get();
+    }
+    else if (String::equalNoCase(_traceFileSizeKBytes->propertyName, name))
+    {
+        return _traceFileSizeKBytes.get();
+    }
+    else if (String::equalNoCase(_numberOfTraceFiles->propertyName, name))
+    {
+        return _numberOfTraceFiles.get();
     }
     else
     {
@@ -455,6 +514,35 @@ void TracePropertyOwner::initCurrentValue(
         toUint32TraceMemoryBufferSize( value, bufferSize );
         Tracer::setTraceMemoryBufferSize(bufferSize);
     }
+    else if (String::equalNoCase(_traceFileSizeKBytes->propertyName,name))
+    {
+        Boolean status = false; 
+        Uint32 traceFileSizeKBytes=0;
+        
+        status = toUint32TraceMemoryBufferSize(
+                      value, traceFileSizeKBytes); 
+  
+        if(!status) 
+           throw InvalidPropertyValue(name, value);
+
+        _traceFileSizeKBytes->currentValue = value; 
+        Tracer::setMaxTraceFileSize(traceFileSizeKBytes*1024); 
+         
+    }
+    else if (String::equalNoCase(_numberOfTraceFiles->propertyName,name))
+    {
+         Boolean status = false;
+         Uint32 numberOfTraceFiles=0;
+         
+         status = toUint32TraceMemoryBufferSize(
+                    value, numberOfTraceFiles); 
+
+         if(!status) 
+             throw InvalidPropertyValue(name, value);  
+       
+         _numberOfTraceFiles->currentValue = value; 
+         Tracer::setMaxTraceFileNumber(numberOfTraceFiles);
+    }  
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -584,6 +672,52 @@ Boolean TracePropertyOwner::isValid(
             throw InvalidPropertyValue(name, value);
         }
         return true;
+    }
+    else if (String::equalNoCase(_traceFileSizeKBytes->propertyName,name))
+    {
+        Boolean status = false; 
+        Uint32 traceFileSizeKBytes=0;
+        const Uint32 minimumFileSizeKBytes=10240;
+        const Uint32 maximumFileSizeKBytes=2097152;
+  
+        status = toUint32TraceMemoryBufferSize(
+                      value, traceFileSizeKBytes); 
+  
+        if(!status) 
+           throw InvalidPropertyValue(name, value);
+
+         /* checking File size greater than 10MB 
+            and less than 2GB */
+         if (traceFileSizeKBytes < minimumFileSizeKBytes ||
+                    traceFileSizeKBytes > maximumFileSizeKBytes) 
+         {
+             throw InvalidPropertyValue(name, value);
+         }
+
+        return true;
+    }
+    else if (String::equalNoCase(_numberOfTraceFiles->propertyName,name))
+    { 
+         Boolean status = false;
+         Uint32 numberOfTraceFiles=0;
+         const Uint32 minimumNumberOfTraceFiles=3;
+         const Uint32 maximumNumberOfTraceFiles=20;
+
+         status = toUint32TraceMemoryBufferSize(
+                    value, numberOfTraceFiles); 
+
+         if(!status) 
+             throw InvalidPropertyValue(name, value);  
+ 
+         /* checking number of files greater 3 
+                 and less than 20 */
+         if(numberOfTraceFiles < minimumNumberOfTraceFiles || 
+                           numberOfTraceFiles > maximumNumberOfTraceFiles)
+         {
+             throw InvalidPropertyValue(name, value);
+         }
+
+         return true;
     }
     else
     {

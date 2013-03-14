@@ -388,6 +388,27 @@ is true.
 .BR Dynamic: \0No
 .PD
 .PP
+.B traceFileSizeKBytes
+.IP 
+.BR Description: "Defines the size of the tracefile in Kilo bytes. 
+The trace file will be rolled once its size exceeds the specified size."
+.PD 0
+.IP 
+.BR "Default Value: " 1048576
+.IP 
+.BR Dynamic: \0Yes
+.PD
+.PP 
+.B numberOfTraceFiles
+.IP 
+.BR Description: "Specifies the number of the tracefiles for rolling."
+.PD 0
+.IP 
+.BR "Default Value: " 3
+.IP 
+.BR Dynamic: \0Yes
+.PD
+.PP 
 .B sslCipherSuite
 .IP
 .BR Description: " String containing OpenSSL cipher specifications to 

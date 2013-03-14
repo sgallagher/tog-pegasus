@@ -71,6 +71,16 @@ public:
      */
     virtual void configurationUpdated() {return;};
 
+    /** Sets the Max trace file size for cimserver.trc
+         @param   maxTraceFileSizeBytes maximum trace file size in bytes
+     */
+    virtual void setMaxTraceFileSize (Uint32 maxTraceFileSizeBytes) { return;};
+
+    /** Sets the Max trace file number for cimserver.trc in trace folder
+         @param   maxTraceFileNumber maximum trace number
+     */
+    virtual void setMaxTraceFileNumber(Uint32 maxTraceFileNumber) { return ;};
+
     /** Flushes the trace
      */
     virtual void flushTrace() {return;};

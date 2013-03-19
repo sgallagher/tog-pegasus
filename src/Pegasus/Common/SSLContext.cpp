@@ -585,8 +585,6 @@ void SSLContextRep::_randomInit(const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_randomInit()");
 
-    Boolean ret;
-    int retVal = 0;
 
 #if defined(PEGASUS_SSL_RANDOMFILE) && !defined(PEGASUS_OS_PASE)
     if ( RAND_status() == 0 )
@@ -608,10 +606,10 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //
         // Try the given random seed file
         //
-        ret = FileSystem::exists(randomFile);
+        Boolean ret = FileSystem::exists(randomFile);
         if (ret)
         {
-            retVal = RAND_load_file(randomFile.getCString(), -1);
+            int retVal = RAND_load_file(randomFile.getCString(), -1);
             if ( retVal < 0 )
             {
                 PEG_TRACE((TRC_SSL, Tracer::LEVEL1,

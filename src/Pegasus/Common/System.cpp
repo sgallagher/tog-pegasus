@@ -249,6 +249,21 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
     return dirname;
 }
 
+//Wrapper on ::gethostname to be used in different parts of
+//this file avoiding class membership fee
+//
+// If gethostname() fails, an empty or truncated value is used.
+static void _get_hostName(char *hostname, const Uint32 len)
+{
+    if( 0 > gethostname(hostname, len))
+    {
+        hostname[0] = 0;
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+           "gethostname failed: %s",
+           (const char*)PEGASUS_SYSTEM_ERRORMSG.getCString()));
+    }
+}
+
 String System::getHostName()
 {
     // Use double-checked locking pattern to avoid overhead of
@@ -261,9 +276,7 @@ String System::getHostName()
         if (0 == _hostname.size())
         {
             char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
-            // If gethostname() fails, an empty or truncated value is used.
-            hostname[0] = 0;
-            gethostname(hostname, sizeof(hostname));
+            _get_hostName(hostname, sizeof(hostname));
             hostname[sizeof(hostname)-1] = 0;
             _hostname.assign(hostname);
         }
@@ -276,10 +289,7 @@ static String _getFullyQualifiedHostName()
 {
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
 
-    // Get the short name of the local host.
-    // If gethostname() fails, an empty or truncated value is used.
-    hostName[0] = 0;
-    gethostname(hostName, sizeof(hostName));
+    _get_hostName(hostName, sizeof(hostName));
     hostName[sizeof(hostName)-1] = 0;
 
 #if defined(PEGASUS_OS_ZOS)|| \
@@ -379,7 +389,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     if (String::equalNoCase(hostName, _hostname) || 
         String::equalNoCase(hostName, _fullyQualifiedHostname))
     {
-        gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
+        _get_hostName(localHostName, sizeof(localHostName));
         hostNamePtr= (const char*) localHostName;
     }
     else
@@ -701,7 +711,7 @@ Boolean System::isLocalHost(const String &hostName)
     CString csName = hostName.getCString();
     struct addrinfo hints, *res1, *res2, *res1root, *res2root;
     char localHostName[PEGASUS_MAXHOSTNAMELEN];
-    gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
+    _get_hostName(localHostName, sizeof(localHostName));
     Boolean isLocal = false;
 
     memset(&hints, 0, sizeof(hints));
@@ -909,7 +919,7 @@ struct hostent* System::getHostByName(
         char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
         if (String::equalNoCase("localhost", String(name)))
         {
-            gethostname(hostName, PEGASUS_MAXHOSTNAMELEN);
+            _get_hostName(hostName, sizeof(hostName));
             hostName[sizeof(hostName) - 1] = 0;
             hostEntry = gethostbyname(hostName);
         }

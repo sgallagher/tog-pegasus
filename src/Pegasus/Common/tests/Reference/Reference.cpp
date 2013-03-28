@@ -66,7 +66,7 @@ void test01()
 
         if (verbose)
         {
-            XmlWriter::printValueReferenceElement(r);
+            XmlWriter::printValueReferenceElement(r, false);
             cout << r.toString() << endl;
         }
 

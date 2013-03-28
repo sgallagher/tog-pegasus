@@ -114,15 +114,19 @@ public:
         const CIMObject& objectWithPath,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = true,
+        Boolean isClassObject = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
+    // Appends classPath or instancePath based on isClassPath param
     static void appendValueReferenceElement(
         Buffer& out,
         const CIMObjectPath& reference,
+        Boolean isClassPath,
         Boolean putValueWrapper);
 
     static void printValueReferenceElement(
         const CIMObjectPath& reference,
+        Boolean isClassPath,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
@@ -281,11 +285,6 @@ public:
         Buffer& out,
         const char* name,
         const CIMObjectPath& instanceName);
-
-    static void appendObjectNameIParameter(
-        Buffer& out,
-        const char* name,
-        const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
         Buffer& out,
@@ -513,6 +512,14 @@ private:
 
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
+
+    static void appendValueInstancePathElement(
+        Buffer& out,
+        const CIMObjectPath& reference);
+
+    static void appendValueClassPathElement(
+        Buffer& out,
+        const CIMObjectPath& reference);
 
     XmlWriter();
 };

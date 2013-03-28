@@ -3158,14 +3158,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
-    Boolean isClassRequest =
-        (request->objectName.getKeyBindings().size() == 0);
+    // The entity that creates the CIMMessage determines if this is a class
+    // or instance operation.
 
-    if (isClassRequest)
+    if (request->isClassRequest)
     {
         //
         // For Class requests, get the results from the repository
@@ -3189,6 +3185,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         AutoPtr<CIMAssociatorsResponseMessage> response(
             dynamic_cast<CIMAssociatorsResponseMessage*>(
                 request->buildResponse()));
+
+        // Flag to indicate that these are class objects is passed
+        // from request in buildResponse above
+
         response->getResponseData().setObjects(cimObjects);
 
         _enqueueResponse(request, response.release());
@@ -3393,14 +3393,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
-    Boolean isClassRequest =
-        (request->objectName.getKeyBindings().size() == 0);
-
-    if (isClassRequest)
+    if (request->isClassRequest)
     {
         //
         // For Class requests, get the results from the repository
@@ -3421,6 +3414,10 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         AutoPtr<CIMAssociatorNamesResponseMessage> response(
             dynamic_cast<CIMAssociatorNamesResponseMessage*>(
                 request->buildResponse()));
+
+        // Flag to indicate that these are class objects is passed
+        // from request in buildResponse above.
+
         response->getResponseData().setInstanceNames(objectNames);
 
         _enqueueResponse(request, response.release());
@@ -3610,14 +3607,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
-    Boolean isClassRequest =
-        (request->objectName.getKeyBindings().size() == 0);
-
-    if (isClassRequest)
+    if (request->isClassRequest)
     {
         //
         // For Class requests, get the results from the repository
@@ -3639,6 +3629,10 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         AutoPtr<CIMReferencesResponseMessage> response(
             dynamic_cast<CIMReferencesResponseMessage*>(
                 request->buildResponse()));
+
+        // Flag to indicate that these are class objects is passed
+        // from request in buildResponse above
+
         response->getResponseData().setObjects(cimObjects);
 
         _enqueueResponse(request, response.release());
@@ -3836,14 +3830,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
-    Boolean isClassRequest =
-        (request->objectName.getKeyBindings().size() == 0);
-
-    if (isClassRequest)
+    if (request->isClassRequest)
     {
         //
         // For Class requests, get the results from the repository
@@ -3862,6 +3849,10 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         AutoPtr<CIMReferenceNamesResponseMessage> response(
             dynamic_cast<CIMReferenceNamesResponseMessage*>(
                 request->buildResponse()));
+
+        // Flag to indicate that these are class objects is passed
+        // from request in buildResponse above.
+
         response->getResponseData().setInstanceNames(objectNames);
 
         _enqueueResponse(request, response.release());

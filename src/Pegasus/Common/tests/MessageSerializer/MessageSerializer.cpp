@@ -857,7 +857,7 @@ void testCIMAssociatorsRequestMessage(
 {
     CIMAssociatorsRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        iq, ico, pl, qids, auth, user);
+        iq, ico, pl, qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorsRequestMessage*>(
@@ -902,7 +902,7 @@ void testCIMAssociatorNamesRequestMessage(
 {
     CIMAssociatorNamesRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        qids, auth, user);
+        qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesRequestMessage*>(
@@ -942,7 +942,7 @@ void testCIMReferencesRequestMessage(
     const String& user)
 {
     CIMReferencesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, iq, ico, pl, qids, auth, user);
+        mid, ns, path, resultClass, role, iq, ico, pl, qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesRequestMessage> outMessage(
         dynamic_cast<CIMReferencesRequestMessage*>(
@@ -982,7 +982,7 @@ void testCIMReferenceNamesRequestMessage(
     const String& user)
 {
     CIMReferenceNamesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, qids, auth, user);
+        mid, ns, path, resultClass, role, qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesRequestMessage> outMessage(
         dynamic_cast<CIMReferenceNamesRequestMessage*>(

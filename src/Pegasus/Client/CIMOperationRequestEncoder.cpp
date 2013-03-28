@@ -41,6 +41,32 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// append either ClassPath or InstancePath based IParameter.
+// This function local to client to clean up use of the getKeyBindings test
+// in the common code.  It is used by the associators, etc. requests
+// because the path can be either a class or instance.
+void _appendObjectNameIParameter(
+    Buffer& out,
+    const char* name,
+    const CIMObjectPath& objectName)
+{
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class also
+    //  has no key bindings
+    //
+    if (objectName.getKeyBindings ().size () == 0)
+    {
+        XmlWriter::appendClassNameIParameter(
+            out, name, objectName.getClassName());
+    }
+    else
+    {
+        XmlWriter::appendInstanceNameIParameter(
+            out, name, objectName);
+    }
+}
 
 CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     MessageQueue* outputQueue,
@@ -708,7 +734,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -742,7 +768,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -786,7 +812,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -833,7 +859,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(

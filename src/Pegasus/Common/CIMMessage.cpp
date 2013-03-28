@@ -237,6 +237,7 @@ CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse() const
         includeQualifiers,
         includeClassOrigin,
         propertyList);
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -248,6 +249,8 @@ CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -264,6 +267,7 @@ CIMResponseMessage* CIMReferencesRequestMessage::buildResponse() const
         includeQualifiers,
         includeClassOrigin,
         propertyList);
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -275,6 +279,8 @@ CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -950,6 +956,7 @@ CIMAssociatorsRequestMessage::CIMAssociatorsRequestMessage(
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
         const String& authType_ ,
         const String& userName_ )
 : CIMOperationRequestMessage(
@@ -964,7 +971,8 @@ CIMAssociatorsRequestMessage::CIMAssociatorsRequestMessage(
     resultRole(resultRole_),
     includeQualifiers(includeQualifiers_),
     includeClassOrigin(includeClassOrigin_),
-    propertyList(propertyList_)
+    propertyList(propertyList_),
+    isClassRequest(isClassRequest_)
 {
 }
 
@@ -977,6 +985,7 @@ CIMAssociatorNamesRequestMessage::CIMAssociatorNamesRequestMessage(
         const String& role_,
         const String& resultRole_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
         const String& authType_ ,
         const String& userName_ )
 : CIMOperationRequestMessage(
@@ -988,7 +997,8 @@ CIMAssociatorNamesRequestMessage::CIMAssociatorNamesRequestMessage(
     assocClass(assocClass_),
     resultClass(resultClass_),
     role(role_),
-    resultRole(resultRole_)
+    resultRole(resultRole_),
+    isClassRequest(isClassRequest_)
 {
 }
 CIMReferencesRequestMessage::CIMReferencesRequestMessage(
@@ -1001,6 +1011,7 @@ CIMReferencesRequestMessage::CIMReferencesRequestMessage(
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
         const String& authType_ ,
         const String& userName_ )
 : CIMOperationRequestMessage(
@@ -1013,7 +1024,8 @@ CIMReferencesRequestMessage::CIMReferencesRequestMessage(
     role(role_),
     includeQualifiers(includeQualifiers_),
     includeClassOrigin(includeClassOrigin_),
-    propertyList(propertyList_)
+    propertyList(propertyList_),
+    isClassRequest(isClassRequest_)
 {
 }
 CIMReferenceNamesRequestMessage::CIMReferenceNamesRequestMessage(
@@ -1023,6 +1035,7 @@ CIMReferenceNamesRequestMessage::CIMReferenceNamesRequestMessage(
         const CIMName& resultClass_,
         const String& role_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
         const String& authType_ ,
         const String& userName_ )
 : CIMOperationRequestMessage(
@@ -1032,7 +1045,8 @@ CIMReferenceNamesRequestMessage::CIMReferenceNamesRequestMessage(
         TYPE_ASSOCIATION),
     objectName(objectName_),
     resultClass(resultClass_),
-    role(role_)
+    role(role_),
+    isClassRequest(isClassRequest_)
 {
 }
 

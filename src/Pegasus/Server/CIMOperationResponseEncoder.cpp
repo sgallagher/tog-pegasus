@@ -693,11 +693,6 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
     {
         response->getResponseData().encodeXmlResponse(body);
     }
-/*
-        for (Uint32 i = 0, n = response->cimObjects.size(); i < n;i++)
-            XmlWriter::appendValueObjectWithPathElement(
-                body, response->cimObjects[i]);
-*/
     sendResponse(response, "References", true, &body);
 }
 
@@ -709,15 +704,6 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
     {
         response->getResponseData().encodeXmlResponse(body);
     }
-/*
-        for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
-        {
-            body << "<OBJECTPATH>\n";
-            XmlWriter::appendValueReferenceElement(
-                body, response->objectNames[i], false);
-            body << "</OBJECTPATH>\n";
-        }
-*/
     sendResponse(response, "AssociatorNames", true, &body);
 }
 

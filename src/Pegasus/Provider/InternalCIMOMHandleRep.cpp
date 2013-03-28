@@ -44,6 +44,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// If is class only, return true.  This is used only to determine
+// if the input for associators, etc. requests objectPath is a class or
+// instance request.
+Boolean _isClassRequest(const CIMObjectPath& ref)
+{
+    return ref.getKeyBindings().size () == 0;
+}
+
 InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
     _output_qid(0),
@@ -1217,7 +1225,8 @@ CIMResponseData InternalCIMOMHandleRep::associators(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack());
+            QueueIdStack(),
+            _isClassRequest(objectName));
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1286,7 +1295,8 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
             resultClass,
             role,
             resultRole,
-            QueueIdStack());
+            QueueIdStack(),
+            _isClassRequest(objectName));
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1356,7 +1366,8 @@ CIMResponseData InternalCIMOMHandleRep::references(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack());
+            QueueIdStack(),
+            _isClassRequest(objectName));
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1421,7 +1432,8 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
             objectName,
             resultClass,
             role,
-            QueueIdStack());
+            QueueIdStack(),
+            _isClassRequest(objectName));
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);

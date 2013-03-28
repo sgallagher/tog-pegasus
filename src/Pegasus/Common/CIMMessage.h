@@ -534,6 +534,7 @@ public:
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest = false,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY);
 
@@ -547,6 +548,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    Boolean isClassRequest;    // is request for classes or instances
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesRequestMessage
@@ -562,6 +564,7 @@ public:
         const String& role_,
         const String& resultRole_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest = false,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY);
 
@@ -572,6 +575,7 @@ public:
     CIMName resultClass;
     String role;
     String resultRole;
+    Boolean isClassRequest;  // is request for classes or instances
 };
 
 class PEGASUS_COMMON_LINKAGE CIMReferencesRequestMessage
@@ -588,6 +592,7 @@ public:
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest_ = false,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY);
 
@@ -599,6 +604,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    Boolean isClassRequest;            // is request for classes or instances
 };
 
 class PEGASUS_COMMON_LINKAGE CIMReferenceNamesRequestMessage
@@ -612,6 +618,7 @@ public:
         const CIMName& resultClass_,
         const String& role_,
         const QueueIdStack& queueIds_,
+        Boolean isClassRequest = false,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY);
 
@@ -620,6 +627,7 @@ public:
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
+    Boolean isClassRequest;          // is request for classes or instances
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetPropertyRequestMessage

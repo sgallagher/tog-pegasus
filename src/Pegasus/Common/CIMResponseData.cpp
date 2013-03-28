@@ -577,7 +577,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
-    
+
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
     // fallback
@@ -662,7 +662,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 if (_instances.size() > 0)
                 {
                     XmlWriter::appendInstanceElement(
-                        out, 
+                        out,
                         _instances[0],
                         _includeQualifiers,
                         _includeClassOrigin,
@@ -675,7 +675,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 for (Uint32 i = 0, n = _instances.size(); i < n; i++)
                 {
                     XmlWriter::appendValueNamedInstanceElement(
-                        out, 
+                        out,
                         _instances[i],
                         _includeQualifiers,
                         _includeClassOrigin,
@@ -692,6 +692,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                         _objects[i],
                         _includeQualifiers,
                         _includeClassOrigin,
+                        _isClassOperation,
                         _propertyList);
                 }
                 break;
@@ -704,6 +705,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                     XmlWriter::appendValueReferenceElement(
                         out,
                         _instanceNames[i],
+                        _isClassOperation,
                         false);
                     out << "</OBJECTPATH>\n";
                 }
@@ -736,7 +738,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 {
                     if(_propertyList.isNull())
                     {
-                        Array<Uint32> emptyNodes; 
+                        Array<Uint32> emptyNodes;
                         SCMOXmlWriter::appendInstanceElement(
                             out,
                             _scmoInstances[0],
@@ -746,19 +748,19 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                     else
                     {
                         Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-                        // This searches for an already created array of nodes, 
-                        //if not found, creates it inside propFilterNodesArrays 
-                        const Array<Uint32> & nodes= 
-                            SCMOXmlWriter::getFilteredNodesArray( 
-                                propFilterNodesArrays, 
-                                _scmoInstances[0], 
+                        // This searches for an already created array of nodes,
+                        //if not found, creates it inside propFilterNodesArrays
+                        const Array<Uint32> & nodes=
+                            SCMOXmlWriter::getFilteredNodesArray(
+                                propFilterNodesArrays,
+                                _scmoInstances[0],
                                 _propertyList);
                         SCMOXmlWriter::appendInstanceElement(
                             out,
                             _scmoInstances[0],
                             true,
-                            nodes); 
-                    }  
+                            nodes);
+                    }
                 }
                 break;
             }
@@ -895,7 +897,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                     _scmoInstances.append(SCMOInstance());
                 }
                 SCMOInternalXmlEncoder::_putXMLInstance(
-                    out, 
+                    out,
                     _scmoInstances[0],
                     _propertyList);
                 break;
@@ -1118,7 +1120,7 @@ void CIMResponseData::_deserializeObject(Uint32 idx,CIMObject& cimObject)
         {
             cimObject = CIMObject(cimInstance);
             return;
-        } 
+        }
 
         if (XmlReader::getClassElement(parser, cimClass))
         {
@@ -1143,7 +1145,7 @@ void CIMResponseData::_deserializeInstance(Uint32 idx,CIMInstance& cimInstance)
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to resolve XML instance, parser error!");
     }
-    // reset instance when parsing may not be successfull or 
+    // reset instance when parsing may not be successfull or
     // no instance is present.
     cimInstance = CIMInstance();
 }
@@ -1193,7 +1195,7 @@ Boolean CIMResponseData::_deserializeInstanceName(
             {
                 cimObjectPath.setNameSpace(_nameSpacesData[idx]);
             }
-            return true;                         
+            return true;
         }
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to resolve XML instance name, parser error!");
@@ -1222,7 +1224,7 @@ void CIMResponseData::_resolveXmlToCIM()
             {
                 cimInstance.setPath(cimObjectPath);
                 // A single CIMInstance has to have an objectpath.
-                // So only add it when an objectpath exists. 
+                // So only add it when an objectpath exists.
                 _instances.append(cimInstance);
             }
             break;
@@ -1448,7 +1450,12 @@ void CIMResponseData::setRequestProperties(
 {
     _includeQualifiers = includeQualifiers;
     _includeClassOrigin = includeClassOrigin;
-    _propertyList = propertyList; 
+    _propertyList = propertyList;
+}
+
+void CIMResponseData::setIsClassOperation(Boolean b)
+{
+    _isClassOperation = b;
 }
 
 PEGASUS_NAMESPACE_END

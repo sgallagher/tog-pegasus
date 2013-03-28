@@ -283,7 +283,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     // Validate the "CIMOperation" header:
 
     const char* cimOperation;
-    
+
     // If the CIMOperation header was missing, the HTTPAuthenticatorDelegator
     // would not have passed the message to us.
     PEGASUS_FCT_EXECUTE_AND_ASSERT(
@@ -2246,7 +2246,7 @@ CIMEnumerateInstancesRequestMessage*
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
     }
-    
+
     AutoPtr<CIMEnumerateInstancesRequestMessage> request(
         new CIMEnumerateInstancesRequestMessage(
             messageId,
@@ -2606,14 +2606,19 @@ CIMReferenceNamesRequestMessage*
     Boolean gotResultClass = false;
     Boolean gotRole = false;
     Boolean emptyTag;
+    Boolean isClassNameElement;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
         if (System::strcasecmp(name, "ObjectName") == 0)
         {
+            // If reader returns true, this is class only element, not
+            // key bindings. That state will be set into the request
+            // message
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getObjectNameElement(parser, objectName);
+            isClassNameElement = XmlReader::getObjectNameElement(parser,
+                objectName);
             duplicateParameter = gotObjectName;
             gotObjectName = true;
         }
@@ -2670,7 +2675,8 @@ CIMReferenceNamesRequestMessage*
             objectName,
             resultClass,
             role,
-            QueueIdStack(queueId, _returnQueueId)));
+            QueueIdStack(queueId, _returnQueueId),
+            isClassNameElement));
 
     STAT_SERVERSTART
 
@@ -2700,14 +2706,19 @@ CIMReferencesRequestMessage*
     Boolean gotIncludeClassOrigin = false;
     Boolean gotPropertyList = false;
     Boolean emptyTag;
+    Boolean isClassNameElement;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
         if (System::strcasecmp(name, "ObjectName") == 0)
         {
+            // If reader returns true, this is class only element, not
+            // key bindings. That state will be set into the request
+            // message
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getObjectNameElement(parser, objectName);
+            isClassNameElement = XmlReader::getObjectNameElement(parser,
+                objectName);
             duplicateParameter = gotObjectName;
             gotObjectName = true;
         }
@@ -2796,7 +2807,8 @@ CIMReferencesRequestMessage*
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(queueId, _returnQueueId)));
+            QueueIdStack(queueId, _returnQueueId),
+            isClassNameElement));
 
     STAT_SERVERSTART
 
@@ -2824,14 +2836,19 @@ CIMAssociatorNamesRequestMessage*
     Boolean gotRole = false;
     Boolean gotResultRole = false;
     Boolean emptyTag;
+    Boolean isClassNameElement;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
         if (System::strcasecmp(name, "ObjectName") == 0)
         {
+            // If reader returns true, this is class only element, not
+            // key bindings. That state will be set into the request
+            // message
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getObjectNameElement(parser, objectName);
+            isClassNameElement = XmlReader::getObjectNameElement(parser,
+                objectName);
             duplicateParameter = gotObjectName;
             gotObjectName = true;
         }
@@ -2914,7 +2931,8 @@ CIMAssociatorNamesRequestMessage*
             resultClass,
             role,
             resultRole,
-            QueueIdStack(queueId, _returnQueueId)));
+            QueueIdStack(queueId, _returnQueueId),
+            isClassNameElement));
 
     STAT_SERVERSTART
 
@@ -2948,14 +2966,19 @@ CIMAssociatorsRequestMessage*
     Boolean gotIncludeClassOrigin = false;
     Boolean gotPropertyList = false;
     Boolean emptyTag;
+    Boolean isClassNameElement;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
         if (System::strcasecmp(name, "ObjectName") == 0)
         {
+            // If reader returns true, this is class only element, not
+            // key bindings. That state will be set into the request
+            // message
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getObjectNameElement(parser, objectName);
+            isClassNameElement = XmlReader::getObjectNameElement(parser,
+                objectName);
             duplicateParameter = gotObjectName;
             gotObjectName = true;
         }
@@ -3070,7 +3093,8 @@ CIMAssociatorsRequestMessage*
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(queueId, _returnQueueId)));
+            QueueIdStack(queueId, _returnQueueId),
+            isClassNameElement));
 
     STAT_SERVERSTART
 

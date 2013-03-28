@@ -74,10 +74,13 @@ public:
     };
     //includeClassOrigin & _includeQualifiers are set to true by default.
     //_propertyList is initialized to an empty propertylist to enable
-    // sending all properties by default.
+    // sending all properties by default. _isClassOperation set false and
+    // only reset by selected operations (ex. associator response builder)
     CIMResponseData(ResponseDataContent content):
         _encoding(0),_dataType(content),_includeQualifiers(true),
-        _includeClassOrigin(true),_propertyList(CIMPropertyList())
+        _includeClassOrigin(true),
+        _isClassOperation(false),
+        _propertyList(CIMPropertyList())
     {
     }
 
@@ -97,6 +100,7 @@ public:
         _scmoInstances(x._scmoInstances),
         _includeQualifiers(x._includeQualifiers),
         _includeClassOrigin(x._includeClassOrigin),
+        _isClassOperation(x._isClassOperation),
         _propertyList(x._propertyList)
     {
     }
@@ -201,14 +205,21 @@ public:
     void encodeInternalXmlResponse(CIMBuffer& out);
     // official Xml format(CIM over Http) used to communicate to clients
     void encodeXmlResponse(Buffer& out);
-  
-    //This function is called from buildResponce to set CIMResponcedata 
+
+    //This function is called from buildResponce to set CIMResponcedata
     //with respective values of IncludeQualifiers,IncludeClassOrigin and
     //propertyFilter.
     void setRequestProperties(
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
+
+    // Used with association and reference operations (i.e. operations that
+    // return CIMObject or CIMObjectPath to set a parameter to define whether
+    // responseData is for operation on a class or instance.
+    // Allows building the correct path (classPath or instancePath) and
+    // object type (Class or Instance) on response.
+    void setIsClassOperation(Boolean b);
 
     void setPropertyList(const CIMPropertyList& propertyList)
     {
@@ -277,8 +288,15 @@ private:
 
     // SCMO encoding
     Array<SCMOInstance> _scmoInstances;
-    Boolean _includeQualifiers; 
+
+    // Request characteristics that are carried through operation for
+    // modification of response generation.
+    Boolean _includeQualifiers;
     Boolean _includeClassOrigin;
+    // Defines whether response CIMObjects or ObjectPaths are class or instance.
+    // becasue associators, etc. operations provide both class and instance
+    // responses
+    Boolean _isClassOperation;
     CIMPropertyList _propertyList;
 
 };

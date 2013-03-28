@@ -499,7 +499,7 @@ extern "C"
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings
+        //  key bindings. See bug 3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
@@ -568,7 +568,7 @@ extern "C"
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings
+        //  key bindings. See bug 3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
@@ -631,7 +631,7 @@ extern "C"
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings
+        //  key bindings. See bug 3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
@@ -695,7 +695,7 @@ extern "C"
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings
+        //  key bindings See bug 3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);

@@ -401,12 +401,12 @@ CIMName XmlReader::getCimNameAttribute(
     {
         char buffer[MESSAGE_SIZE];
         sprintf(buffer, "%s.NAME", elementName);
-    
+
         MessageLoaderParms mlParms(
             "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
             "Illegal value for $0 attribute",
             buffer);
-    
+
         throw XmlSemanticError(lineNumber, mlParms);
     }
 
@@ -2047,7 +2047,7 @@ Boolean XmlReader::getHostElement(
 
     if (!testStartTag(parser, entry, "HOST"))
         return false;
-    
+
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
         MessageLoaderParms mlParms(
@@ -3862,6 +3862,8 @@ void XmlReader::getObjectArray(
 //
 //------------------------------------------------------------------------------
 
+// Returns true if ClassNameElement or false if InstanceNameElement
+// Parse errors always throw exception
 Boolean XmlReader::getObjectNameElement(
     XmlParser& parser,
     CIMObjectPath& objectName)
@@ -3871,6 +3873,8 @@ Boolean XmlReader::getObjectNameElement(
     if (getClassNameElement(parser, className, false))
     {
         objectName.set(String(), CIMNamespaceName(), className);
+
+        // Return flag indicating this is ClassNameElement
         return true;
     }
 
@@ -3882,7 +3886,8 @@ Boolean XmlReader::getObjectNameElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    return true;
+    // Return flag indicating this is InstanceNameElement
+    return false;
 }
 
 //------------------------------------------------------------------------------

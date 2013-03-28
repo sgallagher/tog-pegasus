@@ -1839,14 +1839,16 @@ Array<CIMObject> CIMRepository::associators(
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
-        //  has no key bindings
+        //  has no key bindings.
+        //  This works today because we do not use singleton instances in
+        //  the model. See bug 3302.
         //
+        CIMObjectPath tmpRef = names[i];
+        tmpRef.setHost(String());
+        tmpRef.setNameSpace(CIMNamespaceName());
+
         if (names[i].getKeyBindings ().size () == 0)
         {
-            CIMObjectPath tmpRef = names[i];
-            tmpRef.setHost(String());
-            tmpRef.setNameSpace(CIMNamespaceName());
-
             CIMClass cimClass = _getClass(
                 tmpNameSpace,
                 tmpRef.getClassName(),
@@ -1861,10 +1863,6 @@ Array<CIMObject> CIMRepository::associators(
         }
         else
         {
-            CIMObjectPath tmpRef = names[i];
-            tmpRef.setHost(String());
-            tmpRef.setNameSpace(CIMNamespaceName());
-
             CIMInstance cimInstance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
@@ -1936,7 +1934,8 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    //
+    //  This works today because we do not use singleton instances in
+    //  the model. See bug 3302.
     if (objectName.getKeyBindings ().size () == 0)
     {
         CIMName className = objectName.getClassName();
@@ -2039,6 +2038,8 @@ Array<CIMObject> CIMRepository::references(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
+        //  This works today because we do not use singleton instances in
+        //  the model. See bug 3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2116,6 +2117,8 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
+        //  This works today because we do not use singleton instances in
+        //  the model. See bug 3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {

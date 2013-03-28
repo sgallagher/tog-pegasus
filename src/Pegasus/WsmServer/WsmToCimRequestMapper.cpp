@@ -477,6 +477,7 @@ CIMReferencesRequestMessage*
             false, // includeClassOrigin
             CIMPropertyList(),
             QueueIdStack(request->queueId),
+            false,                        // WSMAN does not do class request
             request->authType,
             request->userName);
     cimRequest->ipAddress = request->ipAddress;
@@ -522,6 +523,7 @@ CIMReferenceNamesRequestMessage*
             request->wsmFilter.AssocFilter.resultClassName,
             request->wsmFilter.AssocFilter.role,
             QueueIdStack(request->queueId),
+            false,            // WSMAN does not do class request
             request->authType,
             request->userName);
     cimRequest->ipAddress = request->ipAddress;
@@ -578,6 +580,7 @@ CIMAssociatorsRequestMessage*
             false, // includeClassOrigin
             CIMPropertyList(),
             QueueIdStack(request->queueId),
+            false,          // WSMAN does not do class request
             request->authType,
             request->userName);
     cimRequest->ipAddress = request->ipAddress;
@@ -632,6 +635,7 @@ CIMAssociatorNamesRequestMessage*
             request->wsmFilter.AssocFilter.role,
             request->wsmFilter.AssocFilter.resultRole,
             QueueIdStack(request->queueId),
+            false,            // WSMAN does not do class request
             request->authType,
             request->userName);
     cimRequest->ipAddress = request->ipAddress;

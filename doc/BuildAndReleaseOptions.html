@@ -1097,29 +1097,6 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      2.3.2 on Linux" for additional details.<br>
 </ul>
 
-<h5>PEGASUS_INDICATIONS_Q_THRESHOLD</h5>
-<ul>
-  <b>Description:&nbsp;</b>Controls if indications providers are stalled
-     if the indications service queue is too large. It can be set
-     to any positive value. If not set providers are never
-     stalled. This implies that the indications service
-     queue may become as large as necessary to hold all the
-     indications generated. If set to any value then
-     providers are stalled by forcing them to sleep when they
-     try to deliver an indication and the indications service
-     queue exceeds this value. They are resumed when the queue
-     count falls 10 percent below this value. Stall and resume log
-     entries are made to inform the administrator the condition has
-     occurred.<br>
-  <b>Default Value:&nbsp;</b>Not Set<br>
-  <b>Recommended Value (Development Build):&nbsp;</b>Not Set<br>
-  <b>Recommended Value (Release Build):&nbsp;</b>Not Set<br>
-  <b>Required:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b>Use of this setting may have
-     unintended side-effects when using Out-of-Process Providers
-     including delayed processing of CIM Operation Requests.
-</ul>
-
 <h5>PEGASUS_MAX_THREADS_PER_SVC_QUEUE</h5>
 <ul>
   <b>Description:&nbsp;</b>Controls the maximum number of threads

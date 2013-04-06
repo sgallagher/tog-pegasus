@@ -44,9 +44,7 @@
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMNameCast.h>
-#include <Pegasus/Common/HostAddress.h>
 #include "ConfigExceptions.h"
-
 
 PEGASUS_USING_STD;
 
@@ -111,7 +109,6 @@ void DefaultPropertyOwner::getPropertyInfo(
             propertyInfo.append(_configProperties.get()[i].defaultValue);
             propertyInfo.append(_configProperties.get()[i].currentValue);
             propertyInfo.append(_configProperties.get()[i].plannedValue);
-
             if (_configProperties.get()[i].dynamic)
             {
                 propertyInfo.append(STRING_TRUE);
@@ -120,7 +117,6 @@ void DefaultPropertyOwner::getPropertyInfo(
             {
                 propertyInfo.append(STRING_FALSE);
             }
-
             if (_configProperties.get()[i].externallyVisible)
             {
                 propertyInfo.append(STRING_TRUE);
@@ -129,9 +125,6 @@ void DefaultPropertyOwner::getPropertyInfo(
             {
                 propertyInfo.append(STRING_FALSE);
             }
-
-            propertyInfo.append(getPropertyHelp(name));
-
             return;
         }
     }
@@ -170,22 +163,6 @@ String DefaultPropertyOwner::getCurrentValue(const String& name) const
     {
         if (String::equal(_configProperties.get()[i].propertyName, name))
         {
-            if (String::equalNoCase(name, "hostname"))
-            {
-                if (0 == _configProperties.get()[i].currentValue.size())
-                {
-                    _configProperties.get()[i].currentValue=
-                        System::getHostName();
-                }
-            }
-            if (String::equalNoCase(name, "fullyQualifiedHostName"))
-            {
-                if (0 == _configProperties.get()[i].currentValue.size())
-                {
-                    _configProperties.get()[i].currentValue=
-                        System::getFullyQualifiedHostName();
-                }
-            }
             if (String::equalNoCase(name, "maxProviderProcesses") ||
                 String::equalNoCase(name, "maxFailedProviderModuleRestarts"))
             {
@@ -243,33 +220,6 @@ void DefaultPropertyOwner::initCurrentValue(
             {
                 AutoMutex lock(_dynamicConfigPropertyMutex);
                 _configProperties.get()[index].currentValue = value;
-            }
-            else if (String::equalNoCase(name, "hostname"))
-            {
-                if (0 == value.size())
-                {
-                    _configProperties.get()[index].currentValue=
-                        System::getHostName();
-                }
-                else
-                {
-                    System::setHostName(value);
-                    _configProperties.get()[index].currentValue=value;
-                }
-
-            }
-            else if (String::equalNoCase(name, "fullyQualifiedHostName"))
-            {
-                if (0 == value.size())
-                {
-                    _configProperties.get()[index].currentValue=
-                        System::getFullyQualifiedHostName();
-                }
-                else
-                {
-                    System::setFullyQualifiedHostName(value);
-                    _configProperties.get()[index].currentValue=value;
-                }
             }
             else
             {
@@ -397,80 +347,6 @@ void DefaultPropertyOwner::updatePlannedValue(
     initPlannedValue(name, value);
 }
 
-/**
- *Parse the list of comma seperated interface addresses
- * and return a list of string representation of interfaces
- * and works in following way
- *1)It checks for comma in a specified non empty listenAddress value
- *   a)if not found, it is assumed as single interface is specified
- *2) Otherwise, iterate to find comma and append
- */
-Array<String> DefaultPropertyOwner::parseAndGetListenAddress
-    (const String &value_)
-{
-    PEGASUS_ASSERT(value_.size() != 0 );
-    String value = value_;
-    Array<String> interfaces;
-    try
-    {
-        Uint32 idx = value.find(",");
-        interfaces.clear();
-
-        //it has one ip address only
-        if( idx == PEG_NOT_FOUND)
-        {
-            interfaces.append(value);
-        }
-        else // has multiple address
-        {
-            while(idx !=PEG_NOT_FOUND)
-            {
-                interfaces.append(value.subString(0,idx));
-                value.remove(0,idx+1);
-                idx = value.find(",");
-            }
-            //Last Remaining address
-            PEGASUS_ASSERT (idx == PEG_NOT_FOUND);
-            interfaces.append(value);
-            value.remove(0);
-        }
-    }
-    catch( Exception &e)
-    {
-        PEG_TRACE((TRC_CONFIG,Tracer::LEVEL1,
-            "Exception caught while parsing listenAddresses %s",
-        (const char*)e.getMessage().getCString()));
-        throw;
-    }
-    return interfaces;
-}
-
-static Boolean isListenAddressValid(const String value_)
-{
-    if(value_.size() == 0 )
-    {
-        return false;
-    }
-
-    Boolean isIpListTrue = true;
-    Array<String> interfaces = DefaultPropertyOwner::parseAndGetListenAddress(
-                                   value_);
-
-    HostAddress theAddress;
-    for(Uint32 i = 0, m = interfaces.size(); i < m; ++i)
-    {
-        if(!theAddress.setHostAddress(interfaces[i]))
-        {
-            isIpListTrue = false;
-            throw InvalidListenAddressPropertyValue(
-                "listenAddress", interfaces[i]);
-            break;
-        }
-    }
-
-    return isIpListTrue;
-}
-
 
 /**
 Checks to see if the given value is valid or not.
@@ -517,12 +393,6 @@ Boolean DefaultPropertyOwner::isValid(
         return StringConversion::decimalStringToUint64(value.getCString(), v) &&
                 StringConversion::checkUintBounds(v, CIMTYPE_UINT16) && (v!=0);
     }
-    else if (String::equal(name, "listenAddress"))
-    {
-
-        return isListenAddressValid(value);
-
-    }
     else if (String::equal(name, "enableHttpConnection") ||
         String::equal(name, "enableHttpsConnection") ||
         String::equal(name, "daemon") ||
@@ -538,11 +408,6 @@ Boolean DefaultPropertyOwner::isValid(
         )
     {
         return ConfigManager::isValidBooleanValue(value);
-    }
-    else if (String::equal(name, "hostname") ||
-        String::equal(name, "fullyQualifiedHostName"))
-    {
-        return HostAddress::isValidHostName(value);
     }
     return true;
 }

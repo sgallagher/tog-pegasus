@@ -267,6 +267,21 @@ Minimum value is 2 seconds.
 .BR Dynamic: \0Yes
 .PD
 .PP 
+.B slpProviderStartupTimeout
+.IP
+.BR Description: " Timeout value in milli seconds used to specify 
+how long the registration with an SLP SA may take. Registration will be 
+retried three times.
+.BR  This value only needs to be increased in case that 
+the loading of a set of providers who reporting their implementation of a 
+registered profile takes very long.
+.PD 0
+.IP 
+.BR "Default Value: " 300000
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
 .B socketWriteTimeout
 .IP
 .BR Description: " Specifies the number of seconds the CIM Server will wait

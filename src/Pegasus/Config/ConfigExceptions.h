@@ -77,16 +77,6 @@ public:
 };
 
 /**
-    InvalidListenAddressPropertyValue Exception class
-*/
-class InvalidListenAddressPropertyValue
-   : public InvalidPropertyValue
-{
-public:
-    InvalidListenAddressPropertyValue(const String& name, const String& value);
-};
-
-/**
     ConfigFileSyntaxError Exception class
 */
 class ConfigFileSyntaxError : public Exception
@@ -96,7 +86,6 @@ public:
 
     static String _formatMessage(const String& file, Uint32 line);
 };
-
 
 /**
     UnrecognizedConfigProperty Exception class

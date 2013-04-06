@@ -83,22 +83,6 @@ InvalidDirectoryPropertyValue::InvalidDirectoryPropertyValue(
 {
 }
 
-/**
-    InvalidListenAddressPropertyValue Exception class
-*/
-InvalidListenAddressPropertyValue::InvalidListenAddressPropertyValue(
-    const String& name,
-    const String& value)
-        :InvalidPropertyValue(
-            MessageLoaderParms(
-                "Config.ConfigExceptions.INVALID_LISTENADDRESS_PROPERTY_VALUE",
-                "For property $0 specified value $1 is not a valid interface "
-                    "address.",
-                name,
-                value))
-{
-}
-
 ConfigFileSyntaxError::ConfigFileSyntaxError(const String& file, Uint32 line)
     :Exception(_formatMessage(file, line))
 {

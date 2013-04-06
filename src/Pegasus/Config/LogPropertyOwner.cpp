@@ -186,9 +186,30 @@ void LogPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
+    propertyInfo.clear();
+
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    buildPropertyInfo(name, configProperty, propertyInfo);
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
 }
 
 /**

@@ -45,6 +45,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Config/ConfigExceptions.h>
 #include "CIMConfigCommand.h"
 
 #ifdef PEGASUS_OS_PASE

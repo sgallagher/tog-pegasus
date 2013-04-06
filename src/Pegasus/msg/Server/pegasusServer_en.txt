@@ -963,6 +963,9 @@ en:table {
         /**
         * @note  PGS02200:
         *    Substitution {0} is the option (a string)
+        *
+        * ATTN: This message is no longer used in OpenPegasus release 2.13
+        *
         */
         Config.ConfigExceptions.MISSING_CMDLINE_OPTION:string {"PGS02200: Missing the command line option {0}."}
 
@@ -978,18 +981,27 @@ en:table {
         /**
         * @note  PGS02203:
         *    Substitution {0} is the option (a string)
+        *
+        * ATTN: This message is no longer used in OpenPegasus release 2.13
+        *
         */
         Config.ConfigExceptions.DUPLICATE_OPTION:string {"PGS02203: Duplicate option {0}."}
 
         /**
         * @note  PGS02204:
         *    Substitution {0} is the option (a string)
+        *
+        * ATTN: This message is no longer used in OpenPegasus release 2.13
+        *
         */
         Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION:string {"PGS02204: Configuration file option {0} is not recognized."}
 
         /**
         * @note  PGS02205:
         *    Substitution {0} is the option (a string)
+        *
+        * ATTN: This message is no longer used in OpenPegasus release 2.13
+        *
         */
         Config.ConfigExceptions.MISSING_REQUIRED_OPTION:string {"PGS02205: Missing the required option value {0}."}
 

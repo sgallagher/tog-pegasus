@@ -40,6 +40,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/AuditLogger.h>
+#include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <sys/__messag.h>
@@ -214,32 +215,14 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
                                            planned));
 
     }
-    catch (const NonDynamicConfigProperty& ndcp)
+    catch(const Exception& e)
     {
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             MessageLoaderParms(
                 "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
                 "MODIFY command failed: \"$0\"",
-                ndcp.getMessage()));
-    }
-    catch (const InvalidPropertyValue& ipv)
-    {
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
-                "MODIFY command failed: \"$0\"",
-                ipv.getMessage()));
-    }
-    catch (const UnrecognizedConfigProperty&)
-    {
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS",
-                "$0 is not a valid configuration property",
-                configProperty));
+                e.getMessage()));
     }
 
     PEG_METHOD_EXIT();

@@ -58,6 +58,7 @@ SOURCES = \
     CIMError.cpp \
     PropertyAccessor.cpp\
     DynamicLibrary.cpp \
+    IndicationFormatter.cpp \
     OptionManager.cpp \
     Stopwatch.cpp \
     SSLContextManager.cpp \

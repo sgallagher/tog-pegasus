@@ -37,7 +37,6 @@
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/General/SubscriptionKey.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**

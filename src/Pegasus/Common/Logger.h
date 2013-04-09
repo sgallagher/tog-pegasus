@@ -171,11 +171,11 @@ public:
 
     /** setlogLevelMask
     */
-    static void setlogLevelMask(const String logLevelList);
+    static void setlogLevelMask(const String &logLevelList);
 
     /** Returns true if the given string is one of the legal log levels.
     */
-    static Boolean isValidlogLevel(const String logLevel);
+    static Boolean isValidlogLevel(const String &logLevel);
 
     /** Tests if a log entry would be created by this call before
         the logger is called.  This function is intended to be used

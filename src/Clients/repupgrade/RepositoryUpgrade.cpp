@@ -1151,7 +1151,7 @@ Array<CIMNamespaceName> RepositoryUpgrade::_compareNamespaces(
     return namespaceNames;
 }
 
-void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
+void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName &namespaceName)
 {
 
     //

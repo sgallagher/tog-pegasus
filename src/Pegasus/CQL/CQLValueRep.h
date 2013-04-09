@@ -171,7 +171,7 @@ class CQLValueRep
         </pre>
     */
 
-     CQLValueRep operator+(const CQLValueRep x);
+     CQLValueRep operator+(const CQLValueRep &x);
 
     /** This overload operator (-) subtracts the value of CQLValue
           objects and performs type checking and Uint64 handling.

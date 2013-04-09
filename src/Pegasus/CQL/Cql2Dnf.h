@@ -95,9 +95,9 @@ public:
 
     stack_el getSecond();
 
-    void setFirst(const stack_el s);
+    void setFirst(const stack_el &s);
 
-    void setSecond(const stack_el s);
+    void setSecond(const stack_el &s);
 
     void assign_unary_to_first(const eval_el & assignee);
 

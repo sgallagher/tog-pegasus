@@ -281,7 +281,7 @@ public:
                  False otherwise
      */
     Boolean reconcileFatalError (
-        const CIMInstance subscription);
+        const CIMInstance &subscription);
 
     /**
         Retrieves the specified class object from the repository.
@@ -409,7 +409,7 @@ private:
         @param   subscription          the subscription instance
      */
     void _deleteSubscription (
-        const CIMInstance subscription);
+        const CIMInstance &subscription);
 
     CIMRepository * _repository;
 

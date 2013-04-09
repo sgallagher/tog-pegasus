@@ -104,7 +104,7 @@ snmpIndicationHandler::~snmpIndicationHandler()
 // l10n - note: ignoring indication language
 void snmpIndicationHandler::handleIndication(
     const OperationContext& context,
-    const String nameSpace,
+    const String &nameSpace,
     CIMInstance& indication,
     CIMInstance& handler,
     CIMInstance& subscription,

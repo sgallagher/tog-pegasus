@@ -134,7 +134,7 @@ void generateIndication(CIMClient& client)
         outParams);
 }
 
-void DeleteInstance(CIMClient& client, const CIMObjectPath Ref)
+void DeleteInstance(CIMClient& client, const CIMObjectPath &Ref)
 {
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, Ref);
 }

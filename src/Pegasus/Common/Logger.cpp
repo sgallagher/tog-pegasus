@@ -207,7 +207,7 @@ public:
     void log(Logger::LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String localizedMsg)
+        const String &localizedMsg)
     {
         // Prepend the systemId to the incoming message
         String messageString(systemId);
@@ -458,7 +458,7 @@ void Logger::setHomeDirectory(const String& homeDirectory)
     _homeDirectory = homeDirectory;
 }
 
-void Logger::setlogLevelMask( const String logLevelList )
+void Logger::setlogLevelMask( const String &logLevelList )
 {
     Uint32 logLevelType = 0;
     String logLevelName      = logLevelList;
@@ -520,7 +520,7 @@ void Logger::setlogLevelMask( const String logLevelList )
     }
 }
 
-Boolean Logger::isValidlogLevel(const String logLevel)
+Boolean Logger::isValidlogLevel(const String &logLevel)
 {
     // Validate the logLevel and modify the logLevel argument
     // to reflect the invalid logLevel

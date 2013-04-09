@@ -764,7 +764,7 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
 }
 
 
-CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
+CQLValueRep CQLValueRep::operator+(const CQLValueRep &x)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::operator+");
    _validate(x);

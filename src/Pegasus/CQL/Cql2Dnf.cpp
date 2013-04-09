@@ -72,13 +72,13 @@ stack_el eval_el::getSecond()
    return stack_el(opn2, is_terminal2);
 }
 
-void eval_el::setFirst(const stack_el s)
+void eval_el::setFirst(const stack_el &s)
 {
      opn1 = s.opn;
      is_terminal1 = s.is_terminal;
 }
 
-void eval_el::setSecond(const stack_el s)
+void eval_el::setSecond(const stack_el &s)
 {
     opn2 = s.opn;
     is_terminal2 = s.is_terminal;

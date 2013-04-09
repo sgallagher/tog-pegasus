@@ -1097,7 +1097,7 @@ Array <CIMName> SubscriptionRepository::getIndicationSubclasses (
 }
 
 Boolean SubscriptionRepository::reconcileFatalError (
-    const CIMInstance subscription)
+    const CIMInstance &subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::reconcileFatalError");
@@ -1345,7 +1345,7 @@ void SubscriptionRepository::_disableSubscription (
 }
 
 void SubscriptionRepository::_deleteSubscription (
-    const CIMInstance subscription)
+    const CIMInstance &subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::_deleteSubscription");

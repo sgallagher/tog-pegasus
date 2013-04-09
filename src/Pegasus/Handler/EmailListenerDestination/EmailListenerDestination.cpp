@@ -72,7 +72,7 @@ void EmailListenerDestination::initialize(CIMRepository* repository)
 
 void EmailListenerDestination::handleIndication(
     const OperationContext& context,
-    const String nameSpace,
+    const String &nameSpace,
     CIMInstance& indication,
     CIMInstance& handler,
     CIMInstance& subscription,

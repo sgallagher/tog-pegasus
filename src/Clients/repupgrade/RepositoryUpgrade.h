@@ -466,7 +466,7 @@ private:
     //
     // @param CIMNamespaceName      contains the Namespace name.
     //
-    void _addQualifiers (const CIMNamespaceName namespaceName);
+    void _addQualifiers (const CIMNamespaceName &namespaceName);
 
     //
     // Logs a failed CIM/XML request in to an output file.

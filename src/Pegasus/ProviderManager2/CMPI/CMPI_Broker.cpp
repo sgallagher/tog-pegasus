@@ -496,10 +496,12 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbAssociators()");
         mb = CM_BROKER;
-        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-        //  distinguish instanceNames from classNames in every case
-        //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings. See bug 3302
+        // OpenPegasus does not allow singleton classes so that
+        // a cop with no keys is illegal here.  The test is important
+        // since it insures that the associators request function is
+        // not called with zero keys since that function uses the
+        // existence of keys to determine if it is a class or instance
+        // operation. See BUG_3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
@@ -565,10 +567,12 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbAssociatorNames()");
         mb = CM_BROKER;
-        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-        //  distinguish instanceNames from classNames in every case
-        //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings. See bug 3302
+        // OpenPegasus does not allow singleton classes so that
+        // a cop with no keys is illegal here.  The test is important
+        // since it insures that the associatorNames function is
+        // not called with zero keys since that function uses the
+        // existence of keys to determine if it is a class or instance
+        // operation. See BUG_3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
@@ -628,10 +632,12 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbReferences()");
         mb = CM_BROKER;
-        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-        //  distinguish instanceNames from classNames in every case
-        //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings. See bug 3302
+        // OpenPegasus does not allow singleton classes so that
+        // a cop with no keys is illegal here.  The test is important
+        // since it insures that the references function is
+        // not called with zero keys since that function uses the
+        // existence of keys to determine if it is a class or instance
+        // operation. See BUG_3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
@@ -692,10 +698,12 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbReferenceNames()");
         mb = CM_BROKER;
-        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-        //  distinguish instanceNames from classNames in every case
-        //  The instanceName of a singleton instance of a keyless class has no
-        //  key bindings See bug 3302
+        // OpenPegasus does not allow singleton classes so that
+        // a cop with no keys is illegal here.  The test is important
+        // since it insures that the referenceNames function is
+        // not called with zero keys since that function uses the
+        // existence of keys to determine if it is a class or instance
+        // operation. See BUG_3302
         if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);

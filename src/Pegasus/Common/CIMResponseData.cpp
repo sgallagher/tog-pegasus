@@ -90,8 +90,19 @@ Array<CIMObject>& CIMResponseData::getObjects()
 
 // SCMO representation, single instance stored as one element array
 // object paths are represented as SCMOInstance
+// Resolve all of the information in the CIMResponseData container to
+// SCMO  and return all scmoInstances.
+// Note that since the SCMO representation,
+// a is single instance stored as one element array and object paths are
+// represented as SCMOInstance this returns array of SCMOInstance.
 Array<SCMOInstance>& CIMResponseData::getSCMO()
 {
+    // This function resolves to instances and so cannot handle responses to
+    // the associators,etc.requests that return classes (input object path with
+    // no keys). That issue is resolved however, since CIMResponseData uses the
+    // _isClassOperation variable (set by the request) to determine whether
+    // the responses are classpaths or instancepaths and the default is
+    // false(instancePaths) so that this should always produce instance paths.
     _resolveToSCMO();
     return _scmoInstances;
 }
@@ -1420,10 +1431,8 @@ void CIMResponseData::_resolveCIMToSCMO()
                     _instanceNames[i],
                     _defNamespace,
                     _defNamespaceLen);
-                // TODO: More description about this.
-                if (0 == _instanceNames[i].getKeyBindings().size())
+                if (_isClassOperation)
                 {
-                    // if there is no keybinding, this is a class
                     addme.setIsClassOnly(true);
                 }
                 _scmoInstances.append(addme);

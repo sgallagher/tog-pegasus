@@ -2608,7 +2608,10 @@ Boolean XmlReader::getLocalClassPathElement(
 //
 //
 //------------------------------------------------------------------------------
-
+//
+// Parses the input to a CIMObjectPath.  Note that today the differences
+// between ClassPath and InstancePath are lost in this mapping because
+// Pegasus uses the existence of keys as separator . See BUG_3302
 Boolean XmlReader::getValueReferenceElement(
     XmlParser& parser,
     CIMObjectPath& reference)

@@ -268,7 +268,7 @@ void XmlWriter::appendLocalObjectPathElement(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
     //  key bindings
-    //  See bug 3302.
+    //  See bBUG_3302.
     //
     if (objectPath.getKeyBindings ().size () != 0)
     {

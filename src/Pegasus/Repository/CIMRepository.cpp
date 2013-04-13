@@ -1841,7 +1841,7 @@ Array<CIMObject> CIMRepository::associators(
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings.
         //  This works today because we do not use singleton instances in
-        //  the model. See bug 3302.
+        //  the model. See BUG_3302.
         //
         CIMObjectPath tmpRef = names[i];
         tmpRef.setHost(String());
@@ -1935,7 +1935,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
     //  This works today because we do not use singleton instances in
-    //  the model. See bug 3302.
+    //  the model. See BUG_3302.
     if (objectName.getKeyBindings ().size () == 0)
     {
         CIMName className = objectName.getClassName();
@@ -2039,7 +2039,7 @@ Array<CIMObject> CIMRepository::references(
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
         //  This works today because we do not use singleton instances in
-        //  the model. See bug 3302.
+        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2118,7 +2118,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
         //  This works today because we do not use singleton instances in
-        //  the model. See bug 3302.
+        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {

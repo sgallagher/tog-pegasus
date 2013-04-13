@@ -294,8 +294,10 @@ private:
     Boolean _includeQualifiers;
     Boolean _includeClassOrigin;
     // Defines whether response CIMObjects or ObjectPaths are class or instance.
-    // becasue associators, etc. operations provide both class and instance
-    // responses
+    // because associators, etc. operations provide both class and instance
+    // responses. Default is false and should only be set to true by
+    // operation requests such as associators (which could return either
+    // instances or classes) when the operation is to return class information.
     Boolean _isClassOperation;
     CIMPropertyList _propertyList;
 

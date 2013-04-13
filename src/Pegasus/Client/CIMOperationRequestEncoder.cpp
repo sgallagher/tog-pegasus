@@ -54,7 +54,7 @@ void _appendObjectNameIParameter(
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
+    //  has no key bindings. See BUG_3302
     //
     if (objectName.getKeyBindings ().size () == 0)
     {

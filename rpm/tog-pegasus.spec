@@ -41,7 +41,7 @@
 
 %define Flavor  tog
 %define packageVersion 1
-Version: 2.11.1
+Version: 2.11.2
 Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 

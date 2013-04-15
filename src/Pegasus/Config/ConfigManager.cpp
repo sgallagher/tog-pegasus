@@ -592,6 +592,7 @@ void ConfigManager::getPropertyHelp(
         throw UnrecognizedConfigProperty(name);
     }
     propertyHelp.append(propertyOwner->getPropertyHelp(name));
+    propertyHelp.append(propertyOwner->getPropertyHelpSupplement(name));
 }
 
 /**

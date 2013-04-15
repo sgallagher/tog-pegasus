@@ -39,7 +39,7 @@ const String STRING_TRUE = "true";
 const String STRING_FALSE = "false";
 
 static const char CONFIG_PROP_HELP_NOT_AVAILABLE [] =
-    "Help yet not available";
+    "Help not available for this property";
 static const char  CONFIG_PROP_HELP_NOT_AVAILABLE_KEY [] =
     "Config.ConfigPropertyOwner.CONFIG_PROP_HELP_NOT_AVAILABLE";
 
@@ -57,8 +57,7 @@ String _createKey(const char* propertyName)
 
 String _descriptionWithPrefix(const char* description)
 {
-    String rtn = "Description: ";
-    rtn.append(description);
+    String rtn = description;
     return rtn;
 }
 
@@ -107,7 +106,8 @@ String ConfigPropertyOwner::getPropertyHelp(const String& name) const
         // Return the complete message in propertyInfo if name found
         if (configPropertyDescriptionList[i].name == name)
         {
-            // Create the key and
+            // Create the key and add description with any standard
+            // prefix information.
             localPropertyInfo.append(loadMessage(
                 (const char *)_createKey(
                     configPropertyDescriptionList[i].name).getCString(),

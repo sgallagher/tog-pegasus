@@ -123,7 +123,7 @@ poststarttests_ignoreerror:
 	@cimconfig -u traceComponents -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Testing -H option." >> $(RESULTFILE)
-	@$(ECHO) "Testing -H option with traceComponents." >> $(RESULTFILE)
+	@$(ECHO) "Testing -H option with logLevel." >> $(RESULTFILE)
 	@cimconfig -H logLevel >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Testing all LONG options." >> $(RESULTFILE)

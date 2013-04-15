@@ -139,6 +139,12 @@ private:
         Array <String>&   propertyValues
     );
 
+    /* Get the best possible list of property names, from the server
+        from the server if possible else from the config files
+    */
+    Boolean _getConfigPropertyNames(
+        Array <CIMName>&  propertyNames, Boolean connected);
+
     /**
         Configuration File handler
     */

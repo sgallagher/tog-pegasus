@@ -84,7 +84,7 @@ public:
        getPropertyHelp.  Overrides function in ConfigPropertyOwner
        to provide possible values.
      */
-    String getPropertyHelpSupplement(const String& name) const;
+////    String getPropertyHelpSupplement(const String& name) const;
 
     /**
         Get default value of the specified property.

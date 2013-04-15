@@ -77,11 +77,15 @@ Unset the planned values:
 Property 'traceComponents' is unset in the configuration file.
  
 Testing -H option.
-Testing -H option with traceComponents.
+Testing -H option with logLevel.
 logLevel (Dynamic)
-Description: Keyword defines the desired level of logging.
+Description: Keyword defines the desired level of logging. Log levelsare accumulative(i.e. WARNING logs WARNING, SEVERE, andFATAL.
 Possible Values:
-    TRACE, INFORMATION, WARNING, SEVERE, FATAL
+    'TRACE'       Most Detailed. Output all log events
+    'INFORMATION' Log information level. Default   
+    'WARNING'     Log warnings and more severe 
+    'SEVERE'      Log FATAL and sever events  
+    'FATAL'       Log only events that are fatal to server
  
 Testing all LONG options.
 Usage: cimconfig -g name [ -c ] [ -d ] [ -p ]
@@ -94,6 +98,7 @@ Usage: cimconfig -g name [ -c ] [ -d ] [ -p ]
                  --version
 Options : 
     -c         - Use current configuration
+                 it is the default optional option for options like -l
     -d         - Use default configuration
     -g         - Get the value of specified configuration property
     -H         - Get help on specified configuration property

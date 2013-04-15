@@ -47,6 +47,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Config/ConfigExceptions.h>
 #include "CIMConfigCommand.h"
+#include <Pegasus/Common/ArrayInternal.h>
 
 #ifdef PEGASUS_OS_PASE
 # include <ILEWrapper/ILEUtilities.h>
@@ -262,7 +263,6 @@ static const char CURRENT_VALUE_IS [] = "Current value: $0";
 static const char CURRENT_VALUE_IS_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_IS";
 
-
 static const char DEFAULT_VALUE_IS [] = "Default value: $0";
 static const char DEFAULT_VALUE_IS_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_IS";
@@ -335,7 +335,6 @@ static const char ERR_USAGE [] =
 
 static const char ERR_USAGE_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
-
 
 //l10n end default messages and keys
 
@@ -460,7 +459,7 @@ CIMConfigCommand::CIMConfigCommand ()
 
     usage.append("                 -").
         append(OPTION_CONFIG_HELP).
-        append(" name\n");
+        append(" name | \"All\"\n");
     usage.append("                 -").append(OPTION_HELP).append("\n");
     usage.append("                 --").append(LONG_HELP).append("\n");
     usage.append("                 --").append(LONG_VERSION).append("\n");
@@ -472,8 +471,10 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("    -d         - Use default configuration\n");
     usage.append("    -g         - Get the value of specified configuration"
                                     " property\n");
-    usage.append("    -H         - Get help on specified configuration" \
-        " property\n");
+    usage.append("    -H         - Get help on specified configuration "
+                                      "property\n"
+                 "                 (or all configuration properties with "
+                                       "keyword \"All\"\n");
 
     usage.append("    -h, --help - Display this help message\n");
     usage.append("    -l         - Display all the configuration properties\n");
@@ -481,7 +482,7 @@ CIMConfigCommand::CIMConfigCommand ()
                                     " start\n");
 #ifdef PEGASUS_OS_PASE
     usage.append("    -q         - Specify quiet mode,"
-                 "avoiding output to stdout or stderr\n");
+                                    "avoiding output to stdout or stderr\n");
 #endif
     usage.append("    -s         - Add or Update configuration property"
                                     " value\n");
@@ -574,6 +575,8 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     //
     for (i =  options.first (); i <  options.last (); i++)
     {
+        // First search for long arguments since they cannot be
+        // processed by case statement
         if (options[i].getType () == Optarg::LONGFLAG)
         {
             if (options[i].getopt () == LONG_HELP)
@@ -608,9 +611,10 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             //
             throw UnexpectedArgumentException(options[i].Value());
         }
+
+        // process short arguments with switch
         else /* if (options [i].getType () == Optarg::FLAG) */
         {
-
             c = options [i].getopt () [0];
 
             switch (c)
@@ -749,6 +753,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
                     break;
                 }
+
                 case OPTION_CONFIG_HELP:
                 {
                     if (_operationType != OPERATION_TYPE_UNINITIALIZED)
@@ -1504,61 +1509,105 @@ Uint32 CIMConfigCommand::execute(
             }
             break;
 
-        // Request info on single property. Outputs property attribute and
-        // descriptive (formatted in configManager) information 
+        // Request info on single property or all properties.
+        // Outputs property attributes and descriptive (formatted in
+        // configManager) information
         case OPERATION_TYPE_CONFIG_PROPERTY_HELP:
-            try
             {
-                // Get Description and Possible values for the specified
-                // config property in configInfo String
-                String descriptionInfo;
-                String name = _propertyName.getString();
-                configManager->getPropertyHelp(name, descriptionInfo);
-
-                // Display the property name, "(" attributes ")" NL
-                outPrintWriter << name
-                    << " ("
-                    << configManager->getDynamicAttributeStatus(name)
-                    << ")"
-                    << endl;
-                // Display 
-                outPrintWriter << descriptionInfo << endl;
-                return (RC_SUCCESS);
-            }
-            catch (const CIMException& cimExp)
-            {
-                CIMStatusCode code = cimExp.getCode();
-                if (code == CIM_ERR_NOT_FOUND ||
-                    code == CIM_ERR_FAILED)
+                Array<CIMName> propertyNames;
+                // If propertyName = All get all properties.  Else
+                // display for provided property.
+                if ( String::equalNoCase(_propertyName.getString(),"All"))
                 {
-                    outPrintWriter <<
-                        localizeMessage(MSG_PATH,
-                            PROPERTY_NOT_FOUND_KEY,
-                            PROPERTY_NOT_FOUND)
-                        << endl;
-                    errPrintWriter << cimExp.getMessage() << endl;
+                    // Currently this gets from the config files and not
+                    // what we really want, (all defined properties) when
+                    // server not running. There
+                    // is no funciton to get all defined properties today
+                    // apparently when server not running. KS TODO.
+                    if (!_getConfigPropertyNames(propertyNames, connected))
+                    {
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                            FAILED_TO_GET_PROPERTY_KEY,
+                            FAILED_TO_GET_PROPERTY)
+                            << "Could not get properties from Server"
+                            << endl;
+                        return ( RC_ERROR );
+                    }
+                    else
+                    {
+                        // Sort property names
+                        BubbleSort(propertyNames);
+                    }
                 }
                 else
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        FAILED_TO_GET_PROPERTY_KEY,
-                        FAILED_TO_GET_PROPERTY)
-                        << cimExp.getMessage()
-                        << endl;
+                    // set the single name into the list
+                    propertyNames.append(_propertyName.getString());
                 }
-                return ( RC_ERROR );
+
+                // For all properties in the list, output help info
+                for (Uint32 i = 0; i < propertyNames.size(); i++)
+                {
+                    if (i > 0)
+                    {
+                        outPrintWriter << endl;
+                    }
+
+                    try
+                    {
+                        // Get Description and attributes for the specified
+                        // config property in configInfo String
+                        String descriptionInfo;
+                        String name = propertyNames[i].getString();
+                        configManager->getPropertyHelp(name, descriptionInfo);
+
+                        // Display the property name, "(" attributes ")" EOL
+                        // descriptionInfo
+                        outPrintWriter << name
+                            << " ("
+                            << configManager->getDynamicAttributeStatus(name)
+                            << "," << "Default:"
+                            << configManager->getDefaultValue(name)
+                            << ")\n"
+                            << descriptionInfo << endl;
+                    }
+                    catch (const CIMException& cimExp)
+                    {
+                        CIMStatusCode code = cimExp.getCode();
+                        if (code == CIM_ERR_NOT_FOUND ||
+                            code == CIM_ERR_FAILED)
+                        {
+                            outPrintWriter <<
+                                localizeMessage(MSG_PATH,
+                                    PROPERTY_NOT_FOUND_KEY,
+                                    PROPERTY_NOT_FOUND)
+                                << endl;
+                            errPrintWriter << cimExp.getMessage() << endl;
+                        }
+                        else
+                        {
+                            outPrintWriter << localizeMessage(MSG_PATH,
+                                FAILED_TO_GET_PROPERTY_KEY,
+                                FAILED_TO_GET_PROPERTY)
+                                << cimExp.getMessage()
+                                << endl;
+                        }
+                        return ( RC_ERROR );
+                    }
+                    catch (const Exception& exception)
+                    {
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                            FAILED_TO_GET_PROPERTY_KEY,
+                            FAILED_TO_GET_PROPERTY)
+                            << endl
+                            << exception.getMessage()
+                            << endl;
+                        return ( RC_ERROR );
+                    }
+                }
+                break;
+
             }
-            catch (const Exception& exception)
-            {
-                outPrintWriter << localizeMessage(MSG_PATH,
-                    FAILED_TO_GET_PROPERTY_KEY,
-                    FAILED_TO_GET_PROPERTY)
-                    << endl
-                    << exception.getMessage()
-                    << endl;
-                return ( RC_ERROR );
-            }
-            break;
 
         case OPERATION_TYPE_LIST:
             //
@@ -1654,6 +1703,7 @@ Uint32 CIMConfigCommand::execute(
                                << endl << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
+            break;
 
         default:
             //
@@ -1782,6 +1832,50 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         outParams);
 }
 
+
+Boolean CIMConfigCommand::_getConfigPropertyNames(
+    Array<CIMName>& propertyNames,
+    Boolean connected)
+{
+    if (connected)
+    {
+        //
+        // get all the instances of class PG_ConfigSetting
+        //
+
+        Array<CIMInstance> configNamedInstances =
+            _client->enumerateInstances(
+                PEGASUS_NAMESPACENAME_CONFIG,
+                PEGASUS_CLASSNAME_CONFIGSETTING);
+        //
+        // copy all the property names
+        //
+        for (Uint32 i = 0; i < configNamedInstances.size(); i++)
+        {
+            CIMInstance& configInstance =
+                configNamedInstances[i];
+
+            Uint32 pos = configInstance.findProperty
+                (CIMName ("PropertyName"));
+            CIMProperty prop = (CIMProperty)configInstance.getProperty(pos);
+            propertyNames.append(prop.getValue().toString());
+        }
+    }
+
+    else
+    {
+        if (_plannedValueSet)
+        {
+            _configFileHandler->getAllPlannedPropertyNames(
+                propertyNames);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
 
 /**
     get a list of all property names and value from the CIM Server.

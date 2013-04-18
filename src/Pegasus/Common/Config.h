@@ -278,10 +278,35 @@ typedef PEGASUS_SINT64 Sint64;
 PEGASUS_NAMESPACE_END
 #endif
 
+
+/*
+ *PEGASUS_UNREACHABLE implies unreachable code in pegasus.
+ *Should be used in places where the control should not reached.
+ *Please use in this way
+ * PEGASUS_UNREACHABLE( expression;)
+ *not in this way
+ * PEGASUS_UNREACHABLE(expression);
+ *
+ *Though both are same, Former will prevent ;;(double semicolon)
+ *
+ */
+
 #ifdef PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
 # define PEGASUS_UNREACHABLE(CODE)
 #else
-# define PEGASUS_UNREACHABLE(CODE) CODE
+# if defined(__clang__ )
+#  define PEGASUS_UNREACHABLE(CODE) __builtin_unreachable();
+# elif defined(GCC_VERSION)
+#  if GCC_VERSION >= 40500 //Unreachable supported only for gcc 4.5 and above
+#   define PEGASUS_UNREACHABLE(CODE) __builtin_unreachable();
+#  else
+#   define PEGASUS_UNREACHABLE(CODE) CODE
+#  endif
+# elif defined(_MSC_VER) //PEGASUS_OS_TYPE_WINDOWS
+#  define PEGASUS_UNREACHABLE(CODE) __assume(0);
+# else
+#  define PEGASUS_UNREACHABLE(CODE) CODE
+# endif
 #endif
 
 /*

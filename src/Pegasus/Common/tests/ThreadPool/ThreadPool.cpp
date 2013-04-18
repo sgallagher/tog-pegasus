@@ -92,7 +92,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL funcIncrementCounter(
 ThreadReturnType PEGASUS_THREAD_CDECL funcThrow(void* parm)
 {
     throw Uint32(10);
-    PEGASUS_UNREACHABLE(return 0);
+    PEGASUS_UNREACHABLE(return 0;)
 }
 
 void testDestructAsThreadCompletes()

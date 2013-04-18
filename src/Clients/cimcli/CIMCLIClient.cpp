@@ -2451,7 +2451,7 @@ public:
             "class %s not found in classTreeArray",
             (const char *)name.getString().getCString());
 
-        PEGASUS_UNREACHABLE(return classTreeEntry());
+        PEGASUS_UNREACHABLE(return classTreeEntry();)
     }
 
     // Display a single tree entry

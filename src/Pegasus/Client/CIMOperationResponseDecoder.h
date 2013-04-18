@@ -79,8 +79,8 @@ public:
     CIMOperationResponseDecoder(
         MessageQueue* outputQueue,
         MessageQueue* encoderQueue,
-        ClientAuthenticator* authenticator,
-        Uint32 showInput);
+        ClientAuthenticator* authenticator
+        );
 
     /** Destructor. */
     ~CIMOperationResponseDecoder();
@@ -236,11 +236,6 @@ private:
     MessageQueue*        _encoderQueue;
 
     ClientAuthenticator* _authenticator;
-
-    // Controls decoder client displays 1 = con, 2 = log display
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    Uint32               _showInput;
-#endif
 
     ClientPerfDataStore* dataStore;
 };

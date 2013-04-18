@@ -36,6 +36,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include "CIMOperationRequestEncoder.h"
+#include "CIMClientRep.h"
 
 PEGASUS_USING_STD;
 
@@ -72,7 +73,6 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     MessageQueue* outputQueue,
     const String& hostName,
     ClientAuthenticator* authenticator,
-    Uint32 showOutput,
     bool binaryRequest,
     bool binaryResponse)
     :
@@ -80,9 +80,6 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     _outputQueue(outputQueue),
     _hostName(hostName.getCString()),
     _authenticator(authenticator),
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    _showOutput(showOutput),
-#endif
     _binaryRequest(binaryRequest),
     _binaryResponse(binaryResponse)
 {
@@ -957,18 +954,18 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 {
 #ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    if (_showOutput & 1)
+    if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))
     {
         XmlWriter::indentedPrint(cout, buffer.getData());
         cout << endl;
     }
-    if (_showOutput & 2)
+    if (ClientTrace::displayOutput(ClientTrace::TRACE_LOG))
     {
         Logger::put(
             Logger::STANDARD_LOG,
-            System::CIMSERVER,
+            "CimClient",
             Logger::INFORMATION,
-            "CIMOperationRequestEncoder::SendRequest, XML content: $1",
+            "CIMOperationRequestEncoder::SendRequest, XML content: $0",
             buffer.getData());
     }
 #endif

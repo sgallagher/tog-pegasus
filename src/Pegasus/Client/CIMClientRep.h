@@ -347,6 +347,62 @@ private:
     bool _localConnect;
 };
 
+/**************************************************************************** 
+**  
+**   Implementation of ClientTrace class.  This allows setup of variables
+**   to control display of Client network send and receive.
+**
+****************************************************************************/
+// Tests for Display optons of the form:
+// Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
+// intrace = "con" | "log" | "both"
+// outtrace = intrace
+// ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
+// to console and log
+// Keywords are case insensitive.
+// PEP 90
+// options allowed are:
+//     keyword:keyword  separately define input and output
+//     keyword:         Input only
+//     :keyword         Output Only
+//     keyword          Input and output defined by keyword
+//
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+class ClientTrace
+{
+public:
+    // Bit flags, that define what is to be displayed.
+    enum TraceType
+    {
+        TRACE_NONE = 0,
+        TRACE_CON = 1,
+        TRACE_LOG = 2,
+        TRACE_BOTH = 3
+    };
+
+    // setup the control variables from env variable
+    static void setup();
+
+    // Called from OperationRequest and Response handlers to test for
+    // particular masks set.  Return true if the TraceType mask defined by
+    // tt is set in the state variable.
+    static Boolean displayOutput(TraceType tt);
+    static Boolean displayInput(TraceType tt);
+
+private:
+    // constructors, etc. are private and not to be used.
+    ClientTrace();
+    ClientTrace(ClientTrace const&);
+    ClientTrace& operator=(ClientTrace const&);
+
+    // internal function to translate input strings to TraceTypes
+    static TraceType selectType(const String& str);
+
+    // Define the display states set by setup.
+    static Uint32 inputState;
+    static Uint32 outputState;
+};
+#endif
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_ClientRep_h */

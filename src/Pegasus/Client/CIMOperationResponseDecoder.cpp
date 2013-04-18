@@ -41,6 +41,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/BinaryCodec.h>
 #include "CIMOperationResponseDecoder.h"
+#include "CIMClientRep.h"
 
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -51,16 +52,12 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     MessageQueue* outputQueue,
     MessageQueue* encoderQueue,
-    ClientAuthenticator* authenticator,
-    Uint32 showInput)
+    ClientAuthenticator* authenticator)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPRESPDECODER),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
     _authenticator(authenticator)
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    ,_showInput(showInput)
-#endif
 {
 }
 
@@ -179,17 +176,16 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
 
 #ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    if (_showInput & 1)
-    {
+    if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))    {
         cout << "CIMOperatonResponseDecoder";
         httpMessage->printAll(cout);
     }
-    if (_showInput & 2)
+    if (ClientTrace::displayOutput(ClientTrace::TRACE_LOG))
     {
         Logger::put(Logger::STANDARD_LOG,
-            System::CIMSERVER,
+            "CIMCLient",
             Logger::INFORMATION,
-            "CIMOperationRequestDecoder::Response, XML content: $1",
+            "CIMOperationRequestDecoder::Response, XML content: $0",
             httpMessage->message.getData());
     }
 #endif

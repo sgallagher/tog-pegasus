@@ -58,9 +58,9 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Executor.h>
 
-#include <Executor/Strlcpy.h>
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+#include <Executor/Strlcpy.h>
 # include <Executor/Socket.h>
 # include <Executor/Messages.h>
 #endif

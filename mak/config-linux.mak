@@ -97,19 +97,16 @@ SYS_LIBS = -ldl -lpthread -lcrypt
 
 ifeq ($(COMPILER), clang)
     FLAGS += -W -Wall -Wno-unused-parameter  -Wno-unused-value -D_GNU_SOURCE \
-        -DTHREAD_SAFE -D_REENTRANT -Wno-unused-function -Werror=unused-variable
+        -DTHREAD_SAFE -D_REENTRANT -Werror=unused-variable -Werror=unused-function
 else
     FLAGS += -W -Wall -Wno-unused -Wunused-variable
   # Starting with gcc 4.3 specific warnings can be reported as error
   # Enabling a specific selection of warnings to turn into errors
   ifeq ($(shell expr $(GCC_VERSION) '>=' 4.3), 1)
-    FLAGS += -Werror=unused-variable
+    FLAGS += -Werror=unused-variable -Werror=unused-function
   endif
     FLAGS += -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif
-
-
-
 
 
 ##==============================================================================

@@ -33,7 +33,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Executor.h>
-#include <Executor/Strlcpy.h>
 
 #include "LocalAuthFile.h"
 #include "SecureLocalAuthenticator.h"

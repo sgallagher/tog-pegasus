@@ -55,8 +55,14 @@ PEGASUS_NAMESPACE_BEGIN
 //
 #define CSTRING(ARG) (const char*) ARG.getCString()
 
-// Class to aggregate and manage the information about classes and providers
-// this masks some of the confusion of control providers, etc. today.
+/******************************************************************************
+**
+**  ProviderInfo Class - manage info about classes and providers received
+**      from provider lookup functions. Provides info on classes and providers
+**      in enumerations and association looksups including provider type,
+**      etc. This class is private to the dispatcher.
+**
+******************************************************************************/
 
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
@@ -162,7 +168,51 @@ private:
     {
     }
 };
+/*
+    Container for items of ProviderInfo to manage a list of ProviderInfo
+    information objects. The providerCounter
+    counts the number of providers in the list not the number of objects
+    in the list.  Classes without providers may also exist in the list.
+*/
+class PEGASUS_SERVER_LINKAGE ProviderInfoListStruct
+{
+public:
+    Array<ProviderInfo> array;
+    Uint32 providerCount;
 
+    ProviderInfoListStruct()
+    : providerCount(0)
+    {
+    }
+    // get size of list
+    Uint32 size()
+    {
+        return array.size();
+    }
+    // append to the list
+    void append(ProviderInfo& x)
+    {
+        array.append(x);
+    }
+    void appendProvider(ProviderInfo& x)
+    {
+        array.append(x);
+        providerCount++;
+    }
+    // get item from list
+    ProviderInfo& operator[](Uint32 index)
+    {
+        return array[index];
+    }
+
+};
+typedef  ProviderInfoListStruct ProviderInfoList;
+
+/******************************************************************************
+**
+**  OperationAggregate Class
+**
+******************************************************************************/
 /* Class to manage the aggregation of data required by post processors. This
     class is private to the dispatcher. An instance is created by the operation
     dispatcher to aggregate request and response information and used by the
@@ -196,7 +246,7 @@ public:
 
     Boolean valid() const;
 
-    // Sets the total issued to the input parameter
+    // Sets the total Operation Requests issued parameter.
 
     void setTotalIssued(Uint32 i);
 
@@ -379,17 +429,15 @@ protected:
         const CIMInstance& pmInstance);
 
     // @exception CIMException
-    Array<ProviderInfo> _lookupAllInstanceProviders(
+    ProviderInfoList _lookupAllInstanceProviders(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Uint32& providerCount);
+        const CIMName& className);
 
-    Array<ProviderInfo> _lookupAllAssociationProviders(
+    ProviderInfoList _lookupAllAssociationProviders(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass,
-        const String& role,
-        Uint32& providerCount);
+        const String& role);
 
     ProviderInfo _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
@@ -422,6 +470,20 @@ protected:
         const CIMRequestMessage* request,
         const CIMResponseMessage* response);
 
+
+    void _enqueueExceptionResponse(
+        CIMRequestMessage* request,
+        CIMException& exception);
+
+    void _enqueueExceptionResponse(
+        CIMRequestMessage* request,
+        TraceableCIMException& exception);
+
+    void _enqueueExceptionResponse(
+        CIMRequestMessage* request,
+        CIMStatusCode code,
+        const String& ExtraInfo);
+
     Boolean _enqueueResponse(
         OperationAggregate*& poA,
         CIMResponseMessage*& response);
@@ -435,6 +497,53 @@ protected:
     void _fixInvokeMethodParameterTypes(CIMInvokeMethodRequestMessage* request);
 
     void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
+
+    // Request Error Response Functions - The following functions test for
+    // particular operations parameters, etc. and if the tests fail
+    // generate error response messages.  They all follow the same common
+    // pattern of returning true if the test fails so that the main
+    // function must test the result and return.  This allows putting
+    // the trace method return into the CIMOperationRequestDispatcher main.
+
+    Boolean _rejectAssociationTraversalDisabled(CIMRequestMessage* request,
+        const String& opName);
+
+    Boolean _rejectInvalidRoleParameter(CIMRequestMessage* request,
+        const String& roleParameter,
+        const String& parameterName);
+
+    Boolean _rejectInvalidObjectPathParameter(
+        CIMRequestMessage* request,
+        const CIMObjectPath& path);
+
+    Boolean _rejectInvalidClassParameter(CIMRequestMessage* request,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName);
+
+    Boolean _rejectInvalidClassParameter(CIMRequestMessage* request,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        CIMConstClass& targetClass);
+    /**
+        Reject if no providers or repository for this class
+    */
+    Boolean _rejectNoProvidersOrRepository(CIMRequestMessage* request,
+        Uint32 providerCount, const CIMName& className);
+
+    /**
+        Checks whether the number of providers required to complete an
+        operation is greater than the maximum allowed.
+        @param nameSpace The target namespace of the operation.
+        @param className The name of the class specified in the request.
+        @param providerCount The number of providers required to complete the
+            operation.
+        @exception CIMException if the providerCount is greater than the
+            maximum allowed.
+    */
+    void _rejectEnumerateTooBroad(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Uint32 providerCount);
 
     /**
         Checks whether the specified class is defined in the specified
@@ -453,28 +562,32 @@ protected:
         const CIMName& className,
         CIMException& cimException);
 
-    /**
-        Checks whether the number of providers required to complete an
-        operation is greater than the maximum allowed.
-        @param nameSpace The target namespace of the operation.
-        @param className The name of the class specified in the request.
-        @param providerCount The number of providers required to complete the
-            operation.
-        @exception CIMException if the providerCount is greater than the
-            maximum allowed.
-    */
-    void _checkEnumerateTooBroad(
+    //// KS TODO KS_TBD -- Should this one still be here???
+    void enumerateInstancesFromRepository(
+        CIMEnumerateInstancesResponseMessage *response,
+        OperationAggregate* poA,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Uint32 providerCount);
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     CIMRepository* _repository;
 
     ProviderRegistrationManager* _providerRegistrationManager;
-
+    //
+    // Enable particular Operations or services
+    //
     Boolean _enableAssociationTraversal;
     Boolean _enableIndicationService;
+
+    // Define the maximum number of classes that system will enumerate
+    // Allows the system to limit the size of enumeration responses,
+    // at least in terms of number of classes that can be included in
+    // an enumeration. Does not limit number of objects in enumeration
+    // response.
     Uint32 _maximumEnumerateBreadth;
+
     Uint32 _providerManagerServiceId;
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Array<String> _excludeModulesFromNormalization;

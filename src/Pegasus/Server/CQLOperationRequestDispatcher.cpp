@@ -247,6 +247,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         }
     }
 
+    //// KS_TODO CAN we call standard exception function to build and enqueue
     if (exception)
     {
         CIMResponseMessage* response = request->buildResponse();
@@ -258,17 +259,16 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
     }
 
     // Get names of descendent classes:
-    Array<ProviderInfo> providerInfos;
+    ProviderInfoList providerInfos;
 
-    // Set by _lookupAllInstanceProviders()
-    Uint32 providerCount;
+    // This exception should not be required or we should apply for
+    // all _lookupInstanceProvider Calls.
 
     try
     {
         providerInfos = _lookupAllInstanceProviders(
                 request->nameSpace,
-                className,
-                providerCount);
+                className);
     }
     catch (CIMException& e)
     {
@@ -281,42 +281,13 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         return;
     }
 
-    // Test for "enumerate too Broad" and if so, execute exception.
-    // This limits the number of provider invocations, not the number
-    // of instances returned.
-    if (providerCount > _maximumEnumerateBreadth)
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "ERROR: Enumerate operation too broad for class %s.  "
-               "Limit = %u, providerCount = %u",
-            CSTRING(request->className.getString()),
-            _maximumEnumerateBreadth,
-            providerCount));
-
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-                "Server.CQLOperationRequestDispatcher.QUERY_REQ_TOO_BROAD",
-                "The query request is too broad."));
-
-        _enqueueResponse(request, response);
-        PEG_METHOD_EXIT();
-        return;
-    }
-
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-    if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
+
+    if (_rejectNoProvidersOrRepository(request,
+                                       providerInfos.providerCount,
+                                       className))
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
-            "CIM_ERROR_NOT_SUPPORTED for %s",
-            CSTRING(request->className.getString()) ));
-
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-
-        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
     }
@@ -393,7 +364,8 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         } // for all classes and derived classes
 
         Uint32 numberResponses = poA->numberResponses();
-        Uint32 totalIssued = providerCount + (numberResponses > 0 ? 1 : 0);
+        Uint32 totalIssued = providerInfos.providerCount
+            + (numberResponses > 0 ? 1 : 0);
         poA->setTotalIssued(totalIssued);
 
         if (numberResponses > 0)
@@ -411,8 +383,8 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
     {
         // Set the number of expected responses in the OperationAggregate
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "providerCount:%u",(unsigned int)providerCount));
-        poA->setTotalIssued(providerCount);
+            "providerCount:%u",(unsigned int)providerInfos.providerCount));
+        poA->setTotalIssued(providerInfos.providerCount);
     }
 
     // Loop through providerInfos, forwarding requests to providers

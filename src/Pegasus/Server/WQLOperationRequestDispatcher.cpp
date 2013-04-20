@@ -166,7 +166,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             if (manyResponses)
             {
                 toResponse->getResponseData().appendResponseData(from);
-            }            
+            }
         }
         if (manyResponses)
         {
@@ -248,15 +248,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     //
     // Get names of descendent classes:
     //
-    Array<ProviderInfo> providerInfos;
-    Uint32 providerCount;
+    ProviderInfoList providerInfos;
 
     try
     {
         providerInfos = _lookupAllInstanceProviders(
                 request->nameSpace,
-                className,
-                providerCount);
+                className);
     }
     catch (CIMException& e)
     {
@@ -269,42 +267,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         return;
     }
 
-    // Test for "enumerate too Broad" and if so, execute exception.
-    // This limits the number of provider invocations, not the number
-    // of instances returned.
-    if (providerCount > _maximumEnumerateBreadth)
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "ERROR: Enumerate operation too broad for class %s.  "
-                "Limit = %u, providerCount = %u",
-            CSTRING(request->className.getString()),
-            _maximumEnumerateBreadth,
-            providerCount));
-
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-                "Server.WQLOperationRequestDispatcher.QUERY_REQ_TOO_BROAD",
-                "The query request is too broad."));
-
-        _enqueueResponse(request, response);
-        PEG_METHOD_EXIT();
-        return;
-    }
-
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-    if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
+
+    if (_rejectNoProvidersOrRepository(request,
+                                       providerInfos.providerCount,
+                                       className))
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
-            "CIM_ERROR_NOT_SUPPORTED for %s",
-            CSTRING(request->className.getString()) ));
-
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-
-        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
     }
@@ -323,6 +292,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
+    /// KS _ Should we have to do this???
     poA->_nameSpace=request->nameSpace;
 
     if (_repository->isDefaultInstanceProvider())
@@ -334,7 +304,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
             // this class is registered to a provider - skip
             if (providerInfo.hasProvider)
+            {
                 continue;
+            }
 
             // If this class does not have a provider
 
@@ -380,7 +352,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         } // for all classes and derived classes
 
         Uint32 numberResponses = poA->numberResponses();
-        Uint32 totalIssued = providerCount + (numberResponses > 0 ? 1 : 0);
+        Uint32 totalIssued = providerInfos.providerCount
+            + (numberResponses > 0 ? 1 : 0);
         poA->setTotalIssued(totalIssued);
 
         if (numberResponses > 0)
@@ -397,7 +370,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     else
     {
         // Set the number of expected responses in the OperationAggregate
-        poA->setTotalIssued(providerCount);
+        poA->setTotalIssued(providerInfos.providerCount);
     }
 
     // Loop through providerInfos, forwarding requests to providers

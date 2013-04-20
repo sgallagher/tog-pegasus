@@ -91,6 +91,8 @@ public:
         </pre>
         @param propertyNames An Array of CIMNames specifying the property
             names in the list.
+        @Exception UninitializedObjectException if any CIMName in
+                   the array argument is NULL
     */
     CIMPropertyList(const Array<CIMName>& propertyNames);
 
@@ -113,6 +115,8 @@ public:
         </pre>
         @param propertyNames An Array of CIMNames specifying the property
             names in the list.
+        @Exception UninitializedObjectException if any CIMName in
+                   the array argument is NULL
     */
     void set(const Array<CIMName>& propertyNames);
 

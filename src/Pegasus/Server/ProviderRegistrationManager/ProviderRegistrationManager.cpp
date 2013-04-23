@@ -843,7 +843,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             //
             // get provider name
             //
-            if (!getProviderName(instances[0], providerName))
+            if (!getProviderName(instances[i], providerName))
                 {
                     PEG_METHOD_EXIT();
                     _throwProviderNameNotFoundException();
@@ -852,7 +852,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             //
             // get provider module name
             //
-            if (!getProviderModuleName(instances[0],providerModuleName))
+            if (!getProviderModuleName(instances[i],providerModuleName))
             {
                 PEG_METHOD_EXIT();
                 _throwModuleNameNotFoundException(CIM_ERR_FAILED);

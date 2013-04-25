@@ -79,7 +79,7 @@ public:
                 reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
             address_size = sizeof(struct sockaddr_un);
 #else
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
         }
 #ifdef PEGASUS_ENABLE_IPV6
@@ -98,7 +98,7 @@ public:
         }
         else
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
     }
 
@@ -251,7 +251,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
        }
 
        default:
-           PEGASUS_ASSERT(false);
+           PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
            break;
     }
 
@@ -329,7 +329,7 @@ void HTTPAcceptor::_bind()
         strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
             PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 #else
-        PEGASUS_ASSERT(false);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
     }
 #ifdef PEGASUS_ENABLE_IPV6
@@ -399,7 +399,7 @@ void HTTPAcceptor::_bind()
     }
     else
     {
-        PEGASUS_ASSERT(false);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
 
     // Create socket:
@@ -420,7 +420,7 @@ void HTTPAcceptor::_bind()
     }
     else
     {
-        PEGASUS_ASSERT(false);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
 
     if (_rep->socket < 0)
@@ -590,7 +590,7 @@ void HTTPAcceptor::closeConnectionSocket()
                     reinterpret_cast<struct sockaddr_un*>
                         (_rep->address)->sun_path);
 #else
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
         }
     }
@@ -640,7 +640,7 @@ void HTTPAcceptor::reconnectConnectionSocket()
                     reinterpret_cast<struct sockaddr_un*>(
                         _rep->address)->sun_path);
 #else
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
         }
         // open the socket
@@ -705,7 +705,7 @@ void HTTPAcceptor::unbind()
                     reinterpret_cast<struct sockaddr_un*>
                     (_rep->address)->sun_path);
 #else
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
         }
 
@@ -763,7 +763,7 @@ void HTTPAcceptor::_acceptConnection()
             reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
         address_size = sizeof(struct sockaddr_un);
 #else
-        PEGASUS_ASSERT(false);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
     }
     else

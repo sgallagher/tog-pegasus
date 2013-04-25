@@ -83,7 +83,7 @@ void IndicationTestProvider::enableIndications(
     //
     if (_enabled)
     {
-        PEGASUS_ASSERT(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     _enabled = true;

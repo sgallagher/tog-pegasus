@@ -513,7 +513,7 @@ ExpressionOpType Cql2Dnf::_convertOpType(OperationType op)
         case CQL_LIKE: return LIKE;
         default: break; // should never get here
     }
-    PEGASUS_ASSERT(0);
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     return EQ;
 }
 

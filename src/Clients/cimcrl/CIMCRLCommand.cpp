@@ -384,7 +384,7 @@ String CIMCRLCommand::_formatCIMDateTime(const String& cimDateTimeStr)
           sprintf(monthString, "Dec");
           break;
       default:
-          PEGASUS_ASSERT(false);
+          PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
       return (cimDateTimeStr);
    }
@@ -822,7 +822,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
 
                 default:
                 {
-                    PEGASUS_ASSERT(false);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 }
             }
         }

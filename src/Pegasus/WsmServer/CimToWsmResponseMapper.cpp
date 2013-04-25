@@ -145,7 +145,7 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                     }
                     else
                     {
-                        PEGASUS_ASSERT(0);
+                        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     }
                 }
                 else // association or reference response expected
@@ -181,7 +181,7 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                         }
                         else
                         {
-                            PEGASUS_ASSERT(0);
+                            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                         }
                     }
                     else // references responses
@@ -211,7 +211,7 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                         }
                         else
                         {
-                            PEGASUS_ASSERT(0);
+                            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                         }
                     }
                 }
@@ -226,7 +226,7 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
             }
 
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
     }
@@ -327,7 +327,7 @@ WsmFault CimToWsmResponseMapper::mapCimExceptionToWsmFault(
         default:
             // Initialize to prevent uninitialized subcode error.
             subcode = WsmFault::wsman_InternalError;
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     return WsmFault(subcode, reason, languageList, faultDetail);
@@ -1110,7 +1110,7 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
 
             default:
             {
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             }
         }
     }
@@ -1206,7 +1206,7 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
             }
             default:
             {
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             }
         }
     }

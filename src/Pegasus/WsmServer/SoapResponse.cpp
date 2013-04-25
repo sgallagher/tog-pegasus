@@ -124,7 +124,7 @@ SoapResponse::SoapResponse(WsmResponse* response)
         }
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     WsmWriter::appendHTTPResponseHeader(_httpHeader, action,

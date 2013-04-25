@@ -325,7 +325,7 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(MessageType type)
 
         default:
              // exicution should never get to this point
-             PEGASUS_ASSERT(false);
+             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
     return enum_type;
 }

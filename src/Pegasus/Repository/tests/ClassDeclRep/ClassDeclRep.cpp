@@ -125,22 +125,22 @@ void Test01(Uint32 mode)
     {
         CIMClass c1 = r.getClass(
             NAMESPACE, CIMName ("Class1"), true, true, true);
-        PEGASUS_ASSERT(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     catch (CIMException& e)
     {
-        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
     }
 
     try
     {
         CIMClass c2 = r.getClass(
             NAMESPACE, CIMName ("Class2"), true, true, true);
-        PEGASUS_ASSERT(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     catch (CIMException& e)
     {
-        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
     }
 
     FileSystem::removeDirectoryHier(repositoryRoot);

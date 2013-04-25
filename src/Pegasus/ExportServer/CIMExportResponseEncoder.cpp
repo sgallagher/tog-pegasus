@@ -124,7 +124,7 @@ void CIMExportResponseEncoder::handleEnqueue(Message *message)
             break;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 

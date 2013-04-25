@@ -3140,8 +3140,7 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
            return _decodeExecQueryRequest(
                 in, queueId, returnQueueId, messageId);
         default:
-            // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return 0;
     }
 }
@@ -3249,7 +3248,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
             break;
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 
@@ -3489,7 +3488,7 @@ bool BinaryCodec::encodeRequest(
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return false;
     }
 
@@ -3725,7 +3724,7 @@ bool BinaryCodec::encodeResponseBody(
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return false;
     }
 

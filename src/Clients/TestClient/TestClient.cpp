@@ -1438,7 +1438,7 @@ void connectClient(
                         password);
             }
 #else
-            PEGASUS_ASSERT(false);
+            PEGASUS_TEST_ASSERT(false);
 #endif
         } // useSSL
         else
@@ -1584,7 +1584,7 @@ int main(int argc, char** argv)
 #ifdef PEGASUS_HAS_SSL
             connectionTarget = "localhost:5989";
 #else
-            PEGASUS_ASSERT(false);
+            PEGASUS_TEST_ASSERT(false);
 #endif
         }
         else

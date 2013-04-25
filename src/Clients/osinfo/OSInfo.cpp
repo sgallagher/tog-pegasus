@@ -322,7 +322,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
 #else
-               PEGASUS_ASSERT(false);
+               PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
            }
            else
@@ -373,7 +373,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
 
            client.connect(host, portNumber, sslcontext,  _userName, _password );
 #else
-            PEGASUS_ASSERT(false);
+           PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
         }
         else

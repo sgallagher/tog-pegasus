@@ -154,7 +154,7 @@ struct WsmValueRep
                     break;
 
                 default:
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     break;
             }
         }
@@ -175,7 +175,7 @@ struct WsmValueRep
                     break;
 
                 default:
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     break;
             }
         }
@@ -201,7 +201,7 @@ struct WsmValueRep
                 case WSMTYPE_OTHER:
                     return new WsmValueRep(*((StrA*)buf));
                 default:
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     break;
             }
         }
@@ -216,7 +216,7 @@ struct WsmValueRep
                 case WSMTYPE_OTHER:
                     return new WsmValueRep(*((Str*)buf));
                 default:
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     break;
             }
         }
@@ -339,7 +339,7 @@ Uint32 WsmValue::getArraySize()
                 return _rep->stra().size();
 
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
 
@@ -488,7 +488,7 @@ void WsmValue::add(const WsmValue& x)
             }
             default:
             {
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
             }
         }
@@ -523,7 +523,7 @@ void WsmValue::add(const WsmValue& x)
             }
             default:
             {
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
             }
         }
@@ -560,7 +560,7 @@ void WsmValue::toArray()
         }
         default:
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
         }
     }

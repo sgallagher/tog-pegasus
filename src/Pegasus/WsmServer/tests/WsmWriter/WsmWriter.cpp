@@ -104,7 +104,7 @@ static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
                 break;
             }
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_TEST_ASSERT(0);
         }
     }
     else
@@ -133,7 +133,7 @@ static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
                 return str1 == str2;
             }
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_TEST_ASSERT(0);
         }
     }
 

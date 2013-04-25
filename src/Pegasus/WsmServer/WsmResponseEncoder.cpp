@@ -215,7 +215,7 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
                 // contents to be tuned according to the MaxEnvelopeSize value.
             default:
                 // Unexpected message type
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
     }
@@ -643,7 +643,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     }
     else
     {
-        PEGASUS_ASSERT(0);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     numDataItemsEncoded = i;

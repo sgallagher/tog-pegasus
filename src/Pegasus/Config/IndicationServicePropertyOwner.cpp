@@ -101,7 +101,7 @@ void IndicationServicePropertyOwner::initialize()
         }
         else
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
     }
     _initialized = true;

@@ -557,7 +557,7 @@ void XmlWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
     }
     else if (value.getType() == CIMTYPE_REFERENCE)
@@ -700,7 +700,7 @@ void XmlWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
 
         out << STRLIT("</VALUE>\n");
@@ -3260,7 +3260,7 @@ const StrLit XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
 
         case CIMKeyBinding::REFERENCE:
         default:
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
 
     return STRLIT("unknown");

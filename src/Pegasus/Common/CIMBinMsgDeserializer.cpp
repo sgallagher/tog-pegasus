@@ -253,7 +253,7 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
                 oreq = _getInvokeMethodRequestMessage(in);
                 break;
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
 
@@ -300,7 +300,7 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
                 ireq = _getDeleteSubscriptionRequestMessage(in);
                 break;
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
 
@@ -357,7 +357,7 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
 
 
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
 
@@ -476,7 +476,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             break;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 

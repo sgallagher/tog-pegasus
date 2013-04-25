@@ -523,7 +523,7 @@ public:
         }
         else
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return 0;
         }
     }
@@ -544,7 +544,7 @@ public:
         }
         else
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     void merge(const WsenEnumerationData& data)
@@ -564,7 +564,7 @@ public:
         }
         else
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     void split(WsenEnumerationData& data, Uint32 num)
@@ -615,7 +615,7 @@ public:
         }
         else
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
 

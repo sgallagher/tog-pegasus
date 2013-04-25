@@ -1729,7 +1729,7 @@ void OOPProviderManagerRouter::_handleIndicationDeliveryResponse(
         return;
     }
 
-    PEGASUS_ASSERT(false);
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 }
 
 Message* OOPProviderManagerRouter::processMessage(Message* message)

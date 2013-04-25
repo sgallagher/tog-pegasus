@@ -206,14 +206,10 @@ ProviderClassList IndicationOperationAggregate::findProvider(
 #endif
                     break;
                 }
-
                 default:
                 {
-                    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-                        "Unexpected request type %s in findProvider",
-                        MessageTypeToString(getRequest(i)->getType())));
-                    PEGASUS_ASSERT(false);
-                break;
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+                    break;
                 }
             }
 
@@ -224,7 +220,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     //
     //  No request found with message ID matching message ID from response
     //
-    PEGASUS_ASSERT(false);
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     return provider;
 }
 

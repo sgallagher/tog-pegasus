@@ -837,7 +837,7 @@ CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type) const
             return CQLValue::CIMObject_type;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return CQLValue::Boolean_type; // Never reach here
     }
 }

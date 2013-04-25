@@ -331,7 +331,9 @@ void Thread::cleanup_pop(Boolean execute)
         PEGASUS_ASSERT(0);
     }
     if (execute == true)
+    {
         cu->execute();
+    }
 }
 
 

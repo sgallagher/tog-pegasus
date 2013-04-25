@@ -3157,7 +3157,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
     }
 
     // Should never get here
-    PEGASUS_ASSERT(0);
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
 
     // keep the compiler happy
     return (cimRef);

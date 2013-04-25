@@ -271,7 +271,7 @@ CIMValue::CIMValue(CIMType type, Boolean isArray, Uint32 arraySize)
             break;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 }
 
@@ -604,7 +604,7 @@ Uint32 CIMValue::getArraySize() const
         case CIMTYPE_INSTANCE:
         return CIMValueType<CIMInstance>::arraySize(_rep);
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     return 0;
@@ -691,7 +691,7 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
             CIMValueType<CIMInstance>::setNull(_rep, type, isArray, arraySize);
             break;
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 }
 
@@ -1333,7 +1333,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
             case CIMTYPE_INSTANCE:
                 return CIMValueType<CIMInstance>::equalArray(_rep, x._rep);
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     else
@@ -1392,7 +1392,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
                 return CIMValueType<CIMInstance>::ref(_rep).identical(
                     CIMValueType<CIMInstance>::ref(x._rep));
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
 
@@ -1540,7 +1540,7 @@ String CIMValue::toString() const
                 break;
             }
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     else
@@ -1614,7 +1614,7 @@ String CIMValue::toString() const
                 _toString(out, CIMValueType<CIMInstance>::ref(_rep));
                 break;
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
 

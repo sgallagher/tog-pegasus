@@ -172,7 +172,7 @@ String _getEnabledStateString(Uint32 code)
         case _ENABLEDSTATE_STARTING:
             return String("Starting");
     }
-    PEGASUS_ASSERT(false); // Never reach to unknown state at present.
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
     return String("Unknown");
 }
@@ -187,7 +187,8 @@ String _getHealthStateString(Uint32 code)
         case _HEALTHSTATE_DEGRADEDWARNING:
             return String("Degraded/Warning");
     }
-    PEGASUS_ASSERT(false); // Never reach to unknown state at present.
+    // Never reach to unknown state at present.
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
     return String("Unknown");
 }
@@ -873,8 +874,8 @@ String _getReturnCodeString(Uint32 code)
         case _RETURNCODE_INVALIDPARAMETER:
             return String("Invalid Parameter");
     }
-
-    PEGASUS_ASSERT(false); // Never reach to unknown return code
+    // Never reach to unknown return code
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
     return String("Unknown");
 }
@@ -7041,7 +7042,7 @@ Boolean IndicationService::_getTimeRemaining(
                 //
                 else
                 {
-                    PEGASUS_ASSERT(false);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 }
             }
 
@@ -7488,11 +7489,7 @@ void IndicationService::_sendAsyncCreateRequests(
 
             default:
             {
-                PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL1,
-                    "Unexpected origRequest type %s "
-                    "in _sendAsyncCreateRequests",
-                    MessageTypeToString(origRequest->getType())));
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 break;
             }
         }
@@ -7976,11 +7973,7 @@ void IndicationService::_sendAsyncDeleteRequests(
 
             default:
             {
-                PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL1,
-                    "Unexpected origRequest type %s "
-                    "in _sendAsyncDeleteRequests",
-                    MessageTypeToString(origRequest->getType())));
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 break;
             }
         }
@@ -8273,12 +8266,7 @@ void IndicationService::_handleOperationResponseAggregation(
 
         default:
         {
-            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-                "Unexpected request type %s "
-                "in _handleOperationResponseAggregation",
-                MessageTypeToString(
-                    operationAggregate->getRequest(0)->getType())));
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }

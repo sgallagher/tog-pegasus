@@ -372,7 +372,7 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
         // This should never happen. Gets here only if Security Config
         // property owner has not validated the configured http auth type.
         //
-        PEGASUS_ASSERT(0);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     PEG_METHOD_EXIT();

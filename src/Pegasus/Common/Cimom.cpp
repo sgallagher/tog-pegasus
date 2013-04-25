@@ -185,19 +185,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
         PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
             "Exception caught in cimom::_routing_proc : %s",
                 (const char*)e.getMessage().getCString()));
-        PEGASUS_ASSERT(false);
     }
     catch(const exception &e)
     {
         PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
             "Exception caught in cimom::_routing_proc : %s", e.what()));
-        PEGASUS_ASSERT(false);
     }
     catch(...)
     {
         PEG_TRACE_CSTRING(TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
             "Unknown Exception caught in cimom::_routing_proc");
-        PEGASUS_ASSERT(false);
     }
 
     return 0;

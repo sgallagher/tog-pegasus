@@ -65,7 +65,7 @@ PEGASUS_NAMESPACE_BEGIN
 // 2. This text may be translated since it goes into the message bundle.
 //    Put any words or phrases that are NOT to be translated into single
 //    quotes.  This applies primarily to the possible values but should
-//    include words like 'true', etc. if they are to be literally used\
+//    include words like 'true', etc. if they are to be literally used
 //    on the command line or displayed and used literally.
 //
 struct configPropertyDescription configPropertyDescriptionList[] =

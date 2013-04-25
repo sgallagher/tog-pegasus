@@ -383,7 +383,7 @@ void TestStressTestClient::connectClient(
         }
         client->connect (host, portNumber, sslContext, userName, password);
 #else
-        PEGASUS_ASSERT(false);
+        PEGASUS_TEST_ASSERT(false);
 #endif
     } /* useSSL. */
     else

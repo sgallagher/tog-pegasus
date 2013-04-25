@@ -1217,7 +1217,7 @@ void TestAggregationOutputProvider::deleteInstance(
         case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
-            PEGASUS_ASSERT(false);
+            PEGASUS_TEST_ASSERT(false);
     }
     handler.complete();
 }

@@ -2228,7 +2228,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -2668,7 +2668,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -3151,7 +3151,7 @@ void SCMOInstance::_setSCMBUnion(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -3645,7 +3645,7 @@ void SCMOInstance::_setUnionArrayValue(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -3921,7 +3921,7 @@ void SCMOInstance::_setUnionValue(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -4328,7 +4328,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -4834,7 +4834,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -6222,7 +6222,7 @@ void SCMODump::printArrayValue(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -6370,7 +6370,7 @@ void SCMODump::printUnionValue(
         }
     default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }

@@ -397,7 +397,7 @@ void MofWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
     }
     else
@@ -539,7 +539,7 @@ void MofWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
     }
 }

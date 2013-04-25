@@ -187,7 +187,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                 break;
 
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     else
@@ -221,7 +221,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                     out, (CIMDeleteSubscriptionRequestMessage*)msg);
                 break;
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     else
@@ -278,7 +278,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
             break;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     else
@@ -400,7 +400,7 @@ void CIMBinMsgSerializer::_putResponseMessage(
             break;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 }
 

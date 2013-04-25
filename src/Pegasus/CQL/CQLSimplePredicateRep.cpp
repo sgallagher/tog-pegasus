@@ -185,7 +185,7 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
         case LIKE:
         case ISA:
             // Never get here due to special processing above.
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         case IS_NULL:
         case IS_NOT_NULL:
         case NOOP:

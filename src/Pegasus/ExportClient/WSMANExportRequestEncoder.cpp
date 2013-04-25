@@ -83,10 +83,7 @@ void WSMANExportRequestEncoder::handleEnqueue()
                 (WsExportIndicationRequest*)message);
             break;
         default:
-            PEG_TRACE((TRC_EXPORT_CLIENT,Tracer::LEVEL4,
-                "received wrong message type :%d ",
-                message->getType()));
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 

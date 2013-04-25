@@ -133,7 +133,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
                 }
                 else
                 {
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 }
             }
             else // association filter dialect
@@ -160,7 +160,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
                     }
                     else
                     {
-                        PEGASUS_ASSERT(0);
+                        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     }
                 }
                 else // association calls the Reference Functions
@@ -181,7 +181,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
                     }
                     else
                     {
-                        PEGASUS_ASSERT(0);
+                        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                     }
                 }
             }
@@ -201,7 +201,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
         }
 
         default:
-            PEGASUS_ASSERT(0);
+             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     if (cimRequest.get())
@@ -1003,7 +1003,7 @@ void WsmToCimRequestMapper::convertWsmToCimValue(
 
             default:
             {
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             }
         }
     }
@@ -1046,7 +1046,7 @@ void WsmToCimRequestMapper::convertWsmToCimValue(
 
             default:
             {
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             }
         }
     }
@@ -1159,7 +1159,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
                 }
                 default:
                 {
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 }
             }
             break;
@@ -1239,7 +1239,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
                 }
                 default:
                 {
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 }
             }
             break;
@@ -1310,7 +1310,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
 
         default:
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
 }
@@ -1406,7 +1406,7 @@ void WsmToCimRequestMapper::convertStringArrayToCimValue(
                 break;
             }
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
 }
 

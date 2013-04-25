@@ -1510,7 +1510,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     else
     {
         // This should never happen.
-        PEGASUS_ASSERT(false);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
 
     PEGASUS_ASSERT(response != 0);
@@ -2008,7 +2008,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
             break;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         }
     }
     catch (const CIMException& exception)

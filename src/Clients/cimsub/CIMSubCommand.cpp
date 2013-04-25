@@ -1921,7 +1921,7 @@ Uint32 CIMSubCommand::execute(
                 }
                 else
                 {
-                    PEGASUS_ASSERT(0);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 }
             }
             break;
@@ -2014,7 +2014,7 @@ Uint32 CIMSubCommand::execute(
           break;
         }
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
         }
     }

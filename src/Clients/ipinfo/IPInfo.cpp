@@ -290,7 +290,7 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
         }
         client.connect(host, portNumber, sslcontext,  _userName, _password );
 #else
-        PEGASUS_ASSERT(false);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 #endif
     }
     else

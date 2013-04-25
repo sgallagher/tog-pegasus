@@ -62,7 +62,7 @@ inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
             return x >= y;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     return false;
@@ -86,7 +86,7 @@ static Boolean _Evaluate(
             // operation in which IS_NULL is the unary operation
             // and count is the the unary operand.
 
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
 #endif
         }
@@ -124,7 +124,7 @@ static Boolean _Evaluate(
         }
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
     }
 
     return false;

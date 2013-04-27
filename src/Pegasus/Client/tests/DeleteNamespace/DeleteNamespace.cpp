@@ -596,7 +596,7 @@ int main(int argc, char** argv)
                             sslcontext,userName, password);
                     }
 #else
-                    PEGASUS_ASSERT(false);
+                    PEGASUS_TEST_ASSERT(false);
 #endif
                 }
                 else

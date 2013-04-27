@@ -247,7 +247,7 @@ void CIMOperationRequestEncoder::handleEnqueue()
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 

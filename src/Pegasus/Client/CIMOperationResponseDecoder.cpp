@@ -87,7 +87,7 @@ void CIMOperationResponseDecoder::handleEnqueue()
         }
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 

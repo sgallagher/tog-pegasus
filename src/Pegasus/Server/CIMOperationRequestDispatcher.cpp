@@ -67,7 +67,7 @@ static const char* _getServiceName(Uint32 serviceId)
 **
 ****************************************************************************/
 OperationAggregate::OperationAggregate(
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     MessageType msgRequestType,
     String messageId,
     Uint32 dest,
@@ -122,7 +122,7 @@ Uint32 OperationAggregate::numberResponses() const
     return _responseList.size();
 }
 
-CIMRequestMessage* OperationAggregate::getRequest()
+CIMOperationRequestMessage* OperationAggregate::getRequest()
 {
     return _request;
 }
@@ -397,7 +397,7 @@ void CIMOperationRequestDispatcher::_getProviderName(
 }
 
 void CIMOperationRequestDispatcher::_logOperation(
-    const CIMRequestMessage* request,
+    const CIMOperationRequestMessage* request,
     const CIMResponseMessage* response)
 {
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
@@ -1568,8 +1568,8 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
         static_cast<AsyncRequest*>(op->removeRequest());
     AsyncReply* asyncReply = static_cast<AsyncReply*>(op->removeResponse());
 
-    CIMRequestMessage* request =
-        reinterpret_cast<CIMRequestMessage*>(userParameter);
+    CIMOperationRequestMessage* request =
+        reinterpret_cast<CIMOperationRequestMessage*>(userParameter);
     PEGASUS_ASSERT(request != 0);
 
     CIMResponseMessage* response = 0;
@@ -1634,7 +1634,7 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
 void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     Uint32 serviceId,
     const String& controlProviderName,
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     OperationAggregate* poA,
     CIMResponseMessage* response)
 {
@@ -1719,8 +1719,8 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
 */
 void CIMOperationRequestDispatcher::_forwardRequestToProvider(
     const ProviderInfo& providerInfo,
-    CIMRequestMessage* request,
-    CIMRequestMessage* requestCopy)
+    CIMOperationRequestMessage* request,
+    CIMOperationRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToProvider");
@@ -1780,7 +1780,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProvider(
     with the defined exception and queues it.
 */
 void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
-   CIMRequestMessage* request,
+   CIMOperationRequestMessage* request,
    CIMException& exception)
 {
     CIMResponseMessage* response = request->buildResponse();
@@ -1789,7 +1789,7 @@ void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
 }
 
 void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
-   CIMRequestMessage* request,
+   CIMOperationRequestMessage* request,
    TraceableCIMException& exception)
 {
     CIMResponseMessage* response = request->buildResponse();
@@ -1798,7 +1798,7 @@ void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
 }
 
 void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     CIMStatusCode code,
     const String& ExtraInfo)
 {
@@ -1817,7 +1817,7 @@ void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
       calls queue->enqueue(response)
 */
 void CIMOperationRequestDispatcher::_enqueueResponse(
-   CIMRequestMessage* request,
+   CIMOperationRequestMessage* request,
    CIMResponseMessage* response)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -2069,7 +2069,7 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 // Test to determine if Association traversal is enabled.
 // returns true if Not Enabled, false if enabled
 Boolean CIMOperationRequestDispatcher::_rejectAssociationTraversalDisabled(
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     const String& opName)
 {
     if (_enableAssociationTraversal)
@@ -2091,7 +2091,7 @@ Boolean CIMOperationRequestDispatcher::_rejectAssociationTraversalDisabled(
    @return true if invalid and false if valid
 */
 Boolean CIMOperationRequestDispatcher::_rejectInvalidRoleParameter(
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     const String& roleParameter,
     const String& parameterName)
 {
@@ -2134,7 +2134,7 @@ void CIMOperationRequestDispatcher::_rejectEnumerateTooBroad(
 }
 
 Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     CIMConstClass& targetClass)
@@ -2163,7 +2163,8 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
 }
 
 Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
-    CIMRequestMessage* request, Uint32 providerCount, const CIMName& className)
+    CIMOperationRequestMessage* request, Uint32 providerCount,
+    const CIMName& className)
 {
     if ((providerCount == 0) &&
         !(_repository->isDefaultInstanceProvider()))
@@ -2189,7 +2190,7 @@ Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
 */
 
 Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
-    CIMRequestMessage* request,
+    CIMOperationRequestMessage* request,
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName)
 {

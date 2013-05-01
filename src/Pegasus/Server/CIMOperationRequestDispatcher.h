@@ -230,7 +230,7 @@ public:
         @param dest
         @param className
     */
-    OperationAggregate(CIMRequestMessage* request,
+    OperationAggregate(CIMOperationRequestMessage* request,
         MessageType msgRequestType,
         String messageId,
         Uint32 dest,
@@ -257,7 +257,7 @@ public:
 
     Uint32 numberResponses() const;
 
-    CIMRequestMessage* getRequest();
+    CIMOperationRequestMessage* getRequest();
 
     CIMResponseMessage* getResponse(const Uint32& pos);
 
@@ -288,7 +288,7 @@ private:
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
     Mutex _enqueueResponseMutex;
-    CIMRequestMessage* _request;
+    CIMOperationRequestMessage* _request;
     Uint32 _totalIssued;
     Uint32 _totalReceived;
     Uint32 _totalReceivedComplete;
@@ -452,14 +452,14 @@ protected:
     void _forwardRequestForAggregation(
         Uint32 serviceId,
         const String& controlProviderName,
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
     void _forwardRequestToProvider(
         const ProviderInfo& providerInfo,
-        CIMRequestMessage* request,
-        CIMRequestMessage* requestCopy);
+        CIMOperationRequestMessage* request,
+        CIMOperationRequestMessage* requestCopy);
 
     void _getProviderName(
           const OperationContext& context,
@@ -467,20 +467,20 @@ protected:
           String& providerName);
 
     void _logOperation(
-        const CIMRequestMessage* request,
+        const CIMOperationRequestMessage* request,
         const CIMResponseMessage* response);
 
 
     void _enqueueExceptionResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         CIMException& exception);
 
     void _enqueueExceptionResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         TraceableCIMException& exception);
 
     void _enqueueExceptionResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         CIMStatusCode code,
         const String& ExtraInfo);
 
@@ -489,7 +489,7 @@ protected:
         CIMResponseMessage*& response);
 
     void _enqueueResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         CIMResponseMessage* response);
 
     CIMValue _convertValueType(const CIMValue& value, CIMType type);
@@ -505,29 +505,30 @@ protected:
     // function must test the result and return.  This allows putting
     // the trace method return into the CIMOperationRequestDispatcher main.
 
-    Boolean _rejectAssociationTraversalDisabled(CIMRequestMessage* request,
+    Boolean _rejectAssociationTraversalDisabled(
+        CIMOperationRequestMessage* request,
         const String& opName);
 
-    Boolean _rejectInvalidRoleParameter(CIMRequestMessage* request,
+    Boolean _rejectInvalidRoleParameter(CIMOperationRequestMessage* request,
         const String& roleParameter,
         const String& parameterName);
 
     Boolean _rejectInvalidObjectPathParameter(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         const CIMObjectPath& path);
 
-    Boolean _rejectInvalidClassParameter(CIMRequestMessage* request,
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName);
 
-    Boolean _rejectInvalidClassParameter(CIMRequestMessage* request,
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         CIMConstClass& targetClass);
     /**
         Reject if no providers or repository for this class
     */
-    Boolean _rejectNoProvidersOrRepository(CIMRequestMessage* request,
+    Boolean _rejectNoProvidersOrRepository(CIMOperationRequestMessage* request,
         Uint32 providerCount, const CIMName& className);
 
     /**

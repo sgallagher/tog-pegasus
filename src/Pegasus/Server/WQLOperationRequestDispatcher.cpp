@@ -97,7 +97,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
     if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
     {
         // Create an ExecQuery response from an EnumerateInstances request
-        CIMRequestMessage* request = poA->getRequest();
+        CIMOperationRequestMessage* request = poA->getRequest();
         AutoPtr<CIMExecQueryResponseMessage> query(
             new CIMExecQueryResponseMessage(
                 request->messageId,

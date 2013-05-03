@@ -606,11 +606,11 @@ Pegasus coding conventions may help to improve code consistency.
     is used later on but parameter <i>argc</i> is not. Do this:<br>
     <pre><code>int main(int, void** argv)
 {
-};</code></pre>
+}</code></pre>
     Not this:<br>
     <pre><code>int main(int argc, void** argv)
 {
-};</code></pre>
+}</code></pre>
   </li>
   <li>Avoid unused variables when the return value of a function is
     assigned to a variable only to be used to do an assert check

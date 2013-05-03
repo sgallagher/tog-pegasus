@@ -69,12 +69,12 @@ void TraceFileHandler::handleMessage(
         return;
     }
   
+    AutoMutex writeLock(writeMutex);
+
     if(!_fileExists(_fileName))
     {
         return;
-    }
-     
-        AutoMutex writeLock(writeMutex);
+    }       
 
         //Move to the End of File
         fseek(_fileHandle,0,SEEK_SET);
@@ -128,13 +128,12 @@ void TraceFileHandler::handleMessage(const char* message, Uint32)
         return;
     }
 
+    AutoMutex writeLock(writeMutex);
+
     if(!_fileExists(_fileName))
     {
         return;
     }
-   
-      
-        AutoMutex writeLock(writeMutex);
 
         //Move to the End of File
         fseek(_fileHandle,0,SEEK_SET);

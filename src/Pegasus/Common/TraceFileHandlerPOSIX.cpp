@@ -68,18 +68,16 @@ void TraceFileHandler::handleMessage(
         return;
     }
 
-    if(!_fileExists(_fileName))
-    {
-        return;
-    }
-
     
- 
     // Do not add Trace calls in the Critical section
     // ---- BEGIN CRITICAL SECTION
     AutoMutex writeLock(writeMutex);
 
-   
+    if(!_fileExists(_fileName))
+    {
+        return;
+    }
+     
     // Write the message to the file
     fprintf(_fileHandle, "%s", message);
     vfprintf(_fileHandle, fmt, argList);
@@ -114,15 +112,16 @@ void TraceFileHandler::handleMessage(const char *message, Uint32)
         return;
     }
 
+    // Do not add Trace calls in the Critical section
+    // ---- BEGIN CRITICAL SECTION
+    AutoMutex writeLock(writeMutex);
+
     if(!_fileExists(_fileName))
     {
         return;
     }
 
-    // Do not add Trace calls in the Critical section
-    // ---- BEGIN CRITICAL SECTION
-    AutoMutex writeLock(writeMutex);
-
+   
        // Write the message to the file
     fprintf(_fileHandle, "%s\n", message);
 #if defined(PEGASUS_OS_VMS)

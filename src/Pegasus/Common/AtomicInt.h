@@ -95,6 +95,64 @@ private:
 
 PEGASUS_NAMESPACE_END
 
+// if GNU GCC version >= 4.7.0, use the built-in atomic operations
+#if defined(GCC_VERSION) && GCC_VERSION >= 40700
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile int n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    __atomic_store_n (&_rep.n, n, __ATOMIC_SEQ_CST);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return __atomic_load_n (&_rep.n, __ATOMIC_SEQ_CST);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    __atomic_store_n (&_rep.n, n, __ATOMIC_SEQ_CST);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    __atomic_fetch_add (&_rep.n, 1, __ATOMIC_SEQ_CST);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    __atomic_fetch_sub (&_rep.n, 1, __ATOMIC_SEQ_CST);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    return (__atomic_fetch_sub (&_rep.n, 1, __ATOMIC_SEQ_CST) == 1);
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#else //!(GCC_VERSION && GCC_VERSION >= 40700), use platform specific atomics
+
 //==============================================================================
 //
 // PEGASUS_PLATFORM_LINUX_IX86_GNU
@@ -1055,6 +1113,8 @@ PEGASUS_NAMESPACE_END
 
 #endif /* PEGASUS_PLATFORM_AIX_RS_IBMCXX, \
         PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX */
+
+#endif /* GCC_VERSION && GCC_VERSION >= 40700 */
 
 //==============================================================================
 //

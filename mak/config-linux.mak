@@ -120,21 +120,23 @@ DYNAMIC_FLAGS += -fPIC
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
   FLAGS += -g
 else
-  FLAGS += -s
   #
   # The -fno-enforce-eh-specs is not available in 2.9.5 and it probably
   # appeared in the 3.0 series of compilers.
   #
   ifeq ($(COMPILER), gnu)
-  ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
-    EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
-  endif
-  else
-          EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
+   FLAGS += -s
+   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
+     EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
+   endif
   endif
       
   ifdef PEGASUS_OPTIMIZE_FOR_SIZE
-    FLAGS += -Os
+    ifeq ($(COMPILER), gnu)
+      FLAGS += -Os
+    else
+      FLAGS += -Oz
+    endif
   else
     FLAGS += -O2
   endif
@@ -160,20 +162,20 @@ endif
 ##==============================================================================
 
 ifeq ($(COMPILER), gnu)
-ifeq ($(shell expr $(GCC_VERSION) '>=' 4.0), 1)
+ ifeq ($(shell expr $(GCC_VERSION) '>=' 4.0), 1)
     FLAGS += -fvisibility=hidden
-endif
+ endif
 else
     FLAGS +=-fvisibility=hidden	
 endif
 
 ifndef PEGASUS_ARCH_LIB
-    ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
+  ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
         PEGASUS_ARCH_LIB = lib64
-    endif
-    ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_CLANG)
+  endif
+  ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_CLANG)
         PEGASUS_ARCH_LIB = lib64
-    endif
-    PEGASUS_ARCH_LIB = lib
+  endif
+  PEGASUS_ARCH_LIB = lib
 endif
 DEFINES += -DPEGASUS_ARCH_LIB=\"$(PEGASUS_ARCH_LIB)\"

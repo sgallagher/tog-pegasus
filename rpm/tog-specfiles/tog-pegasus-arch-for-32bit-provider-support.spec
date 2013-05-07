@@ -4,9 +4,16 @@
 %if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
 
 %ifarch x86_64
+
+%if %{PEGASUS_BUILD_WITH_CLANG}
+%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_CLANG
+%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -fexceptions -fstack-protector -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+% global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -fexceptions -fstack-protector -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+%else
 %global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_GNU
 %global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -Wno-unused -m32"
 %global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+%endif
 %else
 %ifarch ppc64 pseries
 %global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_PPC_GNU

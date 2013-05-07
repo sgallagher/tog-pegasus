@@ -68,6 +68,9 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
         Boolean updatesAllowed) = 0;
+    virtual void modifyNameSpaceName(
+        const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName) = 0;
     virtual void deleteNameSpace(const CIMNamespaceName& nameSpace) = 0;
     virtual Boolean isNameSpaceEmpty(const CIMNamespaceName& nameSpace) = 0;
 

@@ -571,6 +571,41 @@ void SQLiteStore::modifyNameSpace(
     PEG_METHOD_EXIT();
 }
 
+void SQLiteStore::modifyNameSpaceName(
+    const CIMNamespaceName& nameSpace,
+    const CIMNamespaceName& newNameSpaceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::modifyNameSpaceName");
+    
+    String dbPath = _dbcm.getDbPath(nameSpace);
+    String dbPathnew = _dbcm.getDbPath(newNameSpaceName);
+   
+    DbConnection db(_dbcm, nameSpace);
+
+    String ns = newNameSpaceName.getString();
+    sqlite3_stmt* stmt = 0;
+
+    // The NamespaceTable contains only a single row, so no WHERE clause is
+    // needed.
+    const char* sqlStatement = "UPDATE NamespaceTable SET nsname=?;";
+
+    CHECK_RC_OK(
+        sqlite3_prepare_v2(db.get(), sqlStatement, -1, &stmt, 0),
+        db.get());
+    AutoPtr<sqlite3_stmt, FinalizeSQLiteStatement> stmtDestroyer(stmt);
+
+    CHECK_RC_OK(
+            sqlite3_bind_text16(
+                stmt, 1, ns.getChar16Data(), ns.size() * 2, SQLITE_STATIC),
+            db.get());
+    CHECK_RC_DONE(sqlite3_step(stmt), db.get());
+
+    stmtDestroyer.reset();
+    db.release();
+    FileSystem::renameFile(dbPath, dbPathnew);
+
+    PEG_METHOD_EXIT();
+}
 void SQLiteStore::deleteNameSpace(const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::deleteNameSpace");

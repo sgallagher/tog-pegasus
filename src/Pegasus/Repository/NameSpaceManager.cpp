@@ -76,6 +76,9 @@ public:
         Boolean shareable_,
         Boolean updatesAllowed_);
 
+    void modifyName(
+        const CIMNamespaceName& newNameSpaceName);
+
     ~NameSpace();
 
     Boolean readOnly() { return !updatesAllowed; }
@@ -167,6 +170,16 @@ void NameSpace::modify(
 
     updatesAllowed = updatesAllowed_;
     shareable = shareable_;
+
+    PEG_METHOD_EXIT();
+}
+
+void NameSpace::modifyName(
+    const CIMNamespaceName& newNameSpaceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::modifyName()");
+
+    _nameSpaceName = newNameSpaceName;
 
     PEG_METHOD_EXIT();
 }
@@ -363,6 +376,23 @@ void NameSpaceManager::modifyNameSpace(
     NameSpace* nameSpace = _getNameSpace(nameSpaceName);
 
     nameSpace->modify(shareable, updatesAllowed);
+
+    PEG_METHOD_EXIT();
+}
+
+void NameSpaceManager::modifyNameSpaceName(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMNamespaceName& newNameSpaceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::modifyNameSpaceName()");
+
+    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _rep->table.remove(nameSpaceName.getString()));
+    nameSpace->modifyName(newNameSpaceName);
+    _rep->table.insert(newNameSpaceName.getString(), nameSpace);
 
     PEG_METHOD_EXIT();
 }

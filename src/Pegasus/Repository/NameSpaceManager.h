@@ -100,6 +100,10 @@ public:
         Boolean shareable,
         Boolean updatesAllowed);
 
+    void modifyNameSpaceName(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMNamespaceName& newNameSpaceName);
+    
     /** Deletes the given namespace.
         @param nameSpaceName name of namespace to be deleted.
         @exception CIMException(CIM_ERR_INVALID_NAMESPACE)

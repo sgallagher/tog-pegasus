@@ -2517,6 +2517,26 @@ void CIMRepository::modifyNameSpace(
     PEG_METHOD_EXIT();
 }
 
+void CIMRepository::modifyNameSpaceName(
+        const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpaceName");
+
+    WriteLock lock(_rep->_lock);
+    AutoFileLock fileLock(_rep->_lockFile);
+
+    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
+
+    _rep->_persistentStore->modifyNameSpaceName(
+            nameSpace, newNameSpaceName);
+
+    _rep->_nameSpaceManager.modifyNameSpaceName(
+        nameSpace, newNameSpaceName);
+
+    PEG_METHOD_EXIT();
+}
+
 Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateNameSpaces");

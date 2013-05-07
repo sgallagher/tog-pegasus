@@ -51,6 +51,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef NS_INTEROP
+const CIMNamespaceName PEGASUS_NAMESPACE_PGINTEROP=
+    CIMNamespaceName ("root/PG_InterOp");
+#endif
+
 /**
 
      The RepositoryUpgrade utility enables upgrade of a repository
@@ -208,6 +213,23 @@ private:
     // The constant representing a version display operation
     //
     static const Uint32 _OPTION_TYPE_VERSION;
+
+#ifdef NS_INTEROP
+    //
+    // The option character used for interop support.
+    //
+    static const char   _OPTION_INTEROP;
+
+    //
+    // The constant representing that interop option has been specified
+    //
+    static const Uint32 _OPTION_TYPE_INTEROP;
+
+    //
+    // Indicates whether root/PG_InterOp has to be changed to interop
+    //
+    Boolean _optionInterop;
+#endif
 
     //
     // Contains the old repository path.
@@ -375,6 +397,10 @@ private:
     void _processClasses( const CIMNamespaceName&   namespaceName,
                           const Array<CIMName>&         oldClasses,
                           Array<CIMName>&       newClasses);
+
+#ifdef NS_INTEROP
+    void _processInstance( CIMInstance&, Array<CIMName>);
+#endif
 
     //
     // Processes the new classes in the hierarchical order and passes them to

@@ -97,6 +97,10 @@ int main(int, char** argv)
 
     CIMRepository oldRepository(oldRepositoryPath);
     CIMRepository newRepository(newRepositoryPath);
+#ifdef NS_INTEROP
+    String  masterRepositoryPath = argv[3];
+    CIMRepository masterRepository(masterRepositoryPath);
+#endif
 
     testQualifierTransfer(oldRepository, newRepository, TESTNS, "ASSOCIATION");
     testQualifierTransfer(oldRepository, newRepository, TESTNS, "Description");
@@ -127,6 +131,12 @@ int main(int, char** argv)
     testInstancesTransfer(
         oldRepository, newRepository, TESTNS, "TST_PersonS");
 
+#ifdef NS_INTEROP
+    // interop support testing
+    testInstancesTransfer( newRepository, masterRepository, 
+        PEGASUS_NAMESPACENAME_INTEROP, "TST_Lineage");
+#endif
+    
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 }

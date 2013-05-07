@@ -1508,6 +1508,25 @@ void FileBasedStore::modifyNameSpace(
     PEG_METHOD_EXIT();
 }
 
+void FileBasedStore::modifyNameSpaceName(
+        const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::modifyNameSpaceName");
+
+    String nameSpacePath = _getNameSpaceDirPath(nameSpace);
+    String repositoryPath = nameSpacePath;
+    Uint32 pos = repositoryPath.reverseFind('/');
+    repositoryPath.remove(pos+1);
+    repositoryPath.append(_namespaceNameToDirName(newNameSpaceName));
+    if (!FileSystem::renameFile(nameSpacePath, repositoryPath))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotRenameFile(nameSpacePath);
+    }
+    PEG_METHOD_EXIT();
+}
+
 void FileBasedStore::deleteNameSpace(const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::deleteNameSpace");

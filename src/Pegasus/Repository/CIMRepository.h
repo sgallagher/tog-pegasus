@@ -385,6 +385,9 @@ public:
     void modifyNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
+    void modifyNameSpaceName(const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName);
+
     Array<CIMNamespaceName> enumerateNameSpaces() const;
 
     /** Deletes a namespace in the repository.

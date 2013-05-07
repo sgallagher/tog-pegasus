@@ -30,9 +30,15 @@ ROOT = ../../../..
 
 OLD_REPOSITORY_PATH = $(TMP_DIR)/
 NEW_REPOSITORY_PATH = $(TMP_DIR)/newRepository
+MASTER_REPOSITORY   = masterRepository
 TESTNAMESPACE       = test/repupgrade
+PGINTEROP           = root/PG_InterOp
 RESULTFILE          = $(TMP_DIR)/result
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+MASTERRESULTFILE    = $(ROOT)/src/$(DIR)/result.master.interop
+else
 MASTERRESULTFILE    = $(ROOT)/src/$(DIR)/result.master
+endif
 
 DIR = Clients/repupgrade/tests
 
@@ -62,9 +68,20 @@ ifndef PEGASUS_USE_RELEASE_DIRS
 	@$(RMREPOSITORY) $(NEW_REPOSITORY_PATH)
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTNAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-n$(TESTNAMESPACE)" $(ROOT)/src/Providers/TestProviders/Load/TST_Family.mof
+	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(PGINTEROP)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-n$(PGINTEROP)" $(ROOT)/src/Clients/repupgrade/tests/PGInteropTST_Family.mof
+	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-N$(MASTER_REPOSITORY)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(NAMESPACE_INTEROP)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-N$(MASTER_REPOSITORY)" "-M$(REPOSITORY_MODE)" "-n$(NAMESPACE_INTEROP)" $(ROOT)/src/Clients/repupgrade/tests/InteropTST_Family.mof
+endif
 	@ $(MKDIRHIER) $(NEW_REPOSITORY_PATH)
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+	@repupgrade -o $(OLD_REPOSITORY_PATH)repository -n $(NEW_REPOSITORY_PATH) -i
+	$(PROGRAM) $(OLD_REPOSITORY_PATH)repository $(NEW_REPOSITORY_PATH) $(OLD_REPOSITORY_PATH)masterRepository
+else
 	@repupgrade -o $(OLD_REPOSITORY_PATH)repository -n $(NEW_REPOSITORY_PATH)
 	$(PROGRAM) $(OLD_REPOSITORY_PATH)repository $(NEW_REPOSITORY_PATH)
+endif
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s tests_ignoreerror
 	@$(STRIPCRS)
@@ -72,6 +89,9 @@ ifndef PEGASUS_USE_RELEASE_DIRS
 	@$(ECHO) +++ Test passed +++
 	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository
 	@$(RMREPOSITORY) $(NEW_REPOSITORY_PATH)
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)masterRepository
+endif
 	@$(RM) $(RESULTFILE)
 endif
 

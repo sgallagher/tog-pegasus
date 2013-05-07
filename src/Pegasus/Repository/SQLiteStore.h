@@ -140,6 +140,9 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
         Boolean updatesAllowed);
+    void modifyNameSpaceName(
+        const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName);
     void deleteNameSpace(const CIMNamespaceName& nameSpace);
     Boolean isNameSpaceEmpty(const CIMNamespaceName& nameSpace);
 

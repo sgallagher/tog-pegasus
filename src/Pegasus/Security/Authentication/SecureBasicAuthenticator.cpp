@@ -225,7 +225,7 @@ Boolean SecureBasicAuthenticator::authenticate(
     if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
-        return (authenticated);
+        return authenticated;
     }
 
     try
@@ -250,7 +250,7 @@ Boolean SecureBasicAuthenticator::authenticate(
     catch(InvalidUser &)
     {
         PEG_METHOD_EXIT();
-        return (authenticated);
+        return authenticated;
     }
     catch(Exception & e)
     {
@@ -262,7 +262,7 @@ Boolean SecureBasicAuthenticator::authenticate(
 
     PEG_METHOD_EXIT();
 
-    return (authenticated);
+    return authenticated;
 }
 
 Boolean SecureBasicAuthenticator::validateUser(const String& userName)
@@ -290,7 +290,7 @@ Boolean SecureBasicAuthenticator::validateUser(const String& userName)
     }
 
     PEG_METHOD_EXIT();
-    return (authenticated);
+    return authenticated;
 }
 
 //
@@ -308,8 +308,7 @@ String SecureBasicAuthenticator::getAuthResponseHeader()
     responseHeader.append(_realm);
 
     PEG_METHOD_EXIT();
-
-    return (responseHeader);
+    return responseHeader;
 }
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -336,7 +335,8 @@ Boolean SecureBasicAuthenticator::set_ZOS_ApplicationID( void )
             " BPXYTHLI control block not found.");
 
         applIDset = false;
-    } else
+    }
+    else
     {
         // The size of applId: BPXYTHLI.THLIAPPLIDLEN
         char* thliApplIDLen = (char *)(thli + 0x052);
@@ -350,7 +350,7 @@ Boolean SecureBasicAuthenticator::set_ZOS_ApplicationID( void )
         applIDset = true;
     }
 
-    return(applIDset);
+    return applIDset;
 }
 #endif // end __TARGET_LIB__
 #endif // end PEGASUS_PLATFORM_ZOS_ZSERIES_IBM

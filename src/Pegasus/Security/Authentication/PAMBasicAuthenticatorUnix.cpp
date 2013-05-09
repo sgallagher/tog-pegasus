@@ -72,6 +72,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     if (Executor::authenticatePassword(
         userName.getCString(), password.getCString()) != 0)
     {
+        PEG_METHOD_EXIT();
         return false;
     }
 
@@ -85,7 +86,10 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
         "PAMBasicAuthenticator::validateUser()");
 
     if (Executor::validateUser(userName.getCString()) != 0)
+    {
+        PEG_METHOD_EXIT();
         return false;
+    }
 
     PEG_METHOD_EXIT();
     return true;

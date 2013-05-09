@@ -85,7 +85,6 @@ Boolean PAMBasicAuthenticator::authenticate(
     Boolean authenticated = false;
 
     PEG_METHOD_EXIT();
-
     return authenticated;
 }
 
@@ -102,7 +101,6 @@ Boolean PAMBasicAuthenticator::validateUser(
     Boolean authenticated = false;
 
     PEG_METHOD_EXIT();
-
     return authenticated;
 }
 
@@ -121,7 +119,6 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
     responseHeader.append(_realm);
 
     PEG_METHOD_EXIT();
-
     return responseHeader;
 }
 

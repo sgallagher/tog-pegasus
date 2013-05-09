@@ -265,7 +265,6 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
         _localAuthHandler->getAuthResponseHeader(authType, userName, authInfo);
 
     PEG_METHOD_EXIT();
-
     return respHeader;
 
 }
@@ -291,7 +290,6 @@ String AuthenticationManager::getHttpAuthResponseHeader()
 #endif
 
     PEG_METHOD_EXIT();
-
     return respHeader;
 }
 

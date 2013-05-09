@@ -136,7 +136,7 @@ Boolean SecureLocalAuthenticator::validateUser (const String& userName)
     }
 
     PEG_METHOD_EXIT();
-    return (authenticated);
+    return authenticated;
 }
 
 //
@@ -164,6 +164,7 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
         if (Executor::challengeLocal(
                 userName.getCString(), filePathBuffer) != 0)
         {
+            PEG_METHOD_EXIT();
             throw CannotOpenFile(filePathBuffer);
         }
         filePath = filePathBuffer;
@@ -189,7 +190,6 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
     }
 
     PEG_METHOD_EXIT();
-
     return responseHeader;
 }
 

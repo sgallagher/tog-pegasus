@@ -96,9 +96,7 @@ private:
 PEGASUS_NAMESPACE_END
 
 // if GNU GCC version >= 4.7.0, use the built-in atomic operations
-// Clang uses libstdc++ and Atmic operations in clang appreared in clang 3.1
-#if defined(GCC_VERSION) && GCC_VERSION >= 40700 || \
-   defined (__clang__ ) && ( __clang_major__ >= 3 && __clang_minor__ >= 1)
+#if defined(GCC_VERSION) && GCC_VERSION >= 40700
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 PEGASUS_NAMESPACE_BEGIN
@@ -158,18 +156,14 @@ PEGASUS_NAMESPACE_END
 //==============================================================================
 //
 // PEGASUS_PLATFORM_LINUX_IX86_GNU
-// PEGASUS_PLATFORM_LINUX_IX86_CLANG
 // PEGASUS_PLATFORM_DARWIN_IX86_GNU
 // PEGASUS_PLATFORM_LINUX_X86_64_GNU
-// PEGASUS_PLATFORM_LINUX_X86_64_CLANG
 //
 //==============================================================================
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || \
-    defined(PEGASUS_PLATFORM_LINUX_IX86_CLANG) || \
     defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU) || \
-    defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU) || \
-    defined(PEGASUS_PLATFORM_LINUX_X86_64_CLANG)
+    defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 // Note: this lock can be eliminated for single processor systems.
@@ -530,112 +524,6 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_LINUX_XSCALE_GNU
-//
-//==============================================================================
-
-#if defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
-# define PEGASUS_ATOMIC_INT_DEFINED
-
-PEGASUS_NAMESPACE_BEGIN
-
-inline void AtomicIntDisableIRQs(unsigned long& flags)
-{
-    unsigned long temp;
-    unsigned long x;
-
-    asm volatile(
-        "mrs %0, cpsr\n"
-        "orr %1, %0, #128\n"
-        "msr cpsr_c, %1\n"
-        : "=r" (x), "=r" (temp)
-        :
-        : "memory");
-
-    flags = x;
-}
-
-inline void AtomicIntEnableIRQs(unsigned long x)
-{
-    unsigned long temp;
-
-    asm volatile(
-        "mrs %0, cpsr\n"
-        "orr %1, %0, #128\n"
-        "msr cpsr_c, %1\n"
-        : "=r" (x), "=r" (temp)
-        :
-        : "memory");
-}
-
-struct AtomicType
-{
-    volatile Uint32 n;
-};
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
-{
-    _rep.n = n;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
-{
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline Uint32 AtomicIntTemplate<AtomicType>::get() const
-{
-    return _rep.n;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
-{
-    _rep.n = n;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::inc()
-{
-    unsigned long flags;
-    AtomicIntDisableIRQs(flags);
-    _rep.n++;
-    AtomicIntEnableIRQs(flags);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::dec()
-{
-    unsigned long flags;
-    AtomicIntDisableIRQs(flags);
-    _rep.n--;
-    AtomicIntEnableIRQs(flags);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
-{
-    Uint32 tmp;
-    unsigned long flags;
-    AtomicIntDisableIRQs(flags);
-    tmp = --_rep.n;
-    AtomicIntEnableIRQs(flags);
-    return tmp == 0;
-}
-
-typedef AtomicIntTemplate<AtomicType> AtomicInt;
-
-PEGASUS_NAMESPACE_END
-
-#endif /* PEGASUS_PLATFORM_LINUX_XSCALE_GNU */
-
-
-#endif /* GCC_VERSION && GCC_VERSION >= 40700 */
-
-//==============================================================================
-//
 // PEGASUS_OS_TYPE_WINDOWS
 //
 //==============================================================================
@@ -922,7 +810,110 @@ typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
 
-#endif //PEGASUS_PLATFORM_HPUX_IA64_ACC
+#endif //PEGASUS_PLATFORM_HPUX_IA64_GNU
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_LINUX_XSCALE_GNU
+//
+//==============================================================================
+
+#if defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+PEGASUS_NAMESPACE_BEGIN
+
+inline void AtomicIntDisableIRQs(unsigned long& flags)
+{
+    unsigned long temp;
+    unsigned long x;
+
+    asm volatile(
+        "mrs %0, cpsr\n"
+        "orr %1, %0, #128\n"
+        "msr cpsr_c, %1\n"
+        : "=r" (x), "=r" (temp)
+        :
+        : "memory");
+
+    flags = x;
+}
+
+inline void AtomicIntEnableIRQs(unsigned long x)
+{
+    unsigned long temp;
+
+    asm volatile(
+        "mrs %0, cpsr\n"
+        "orr %1, %0, #128\n"
+        "msr cpsr_c, %1\n"
+        : "=r" (x), "=r" (temp)
+        :
+        : "memory");
+}
+
+struct AtomicType
+{
+    volatile Uint32 n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    unsigned long flags;
+    AtomicIntDisableIRQs(flags);
+    _rep.n++;
+    AtomicIntEnableIRQs(flags);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    unsigned long flags;
+    AtomicIntDisableIRQs(flags);
+    _rep.n--;
+    AtomicIntEnableIRQs(flags);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    Uint32 tmp;
+    unsigned long flags;
+    AtomicIntDisableIRQs(flags);
+    tmp = --_rep.n;
+    AtomicIntEnableIRQs(flags);
+    return tmp == 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_LINUX_XSCALE_GNU */
 
 //==============================================================================
 //
@@ -1123,6 +1114,7 @@ PEGASUS_NAMESPACE_END
 #endif /* PEGASUS_PLATFORM_AIX_RS_IBMCXX, \
         PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX */
 
+#endif /* GCC_VERSION && GCC_VERSION >= 40700 */
 
 //==============================================================================
 //

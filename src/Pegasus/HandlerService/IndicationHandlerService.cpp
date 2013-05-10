@@ -107,6 +107,22 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
         AutoPtr<Message> legacy(
             static_cast<AsyncLegacyOperationStart *>(req)->get_action());
 
+        // Update the requested language to the service thread language context.
+        if (dynamic_cast<CIMMessage *>(legacy.get()) != 0)
+        {
+            try
+            {
+                ((CIMMessage*)legacy.get())->updateThreadLanguages();
+            }
+            catch (Exception& e)
+            {
+                PEG_TRACE((TRC_THREAD, Tracer::LEVEL2,
+                    "IndicationHandlerService::_handle_async_request update "
+                    "thread languages failed because of %s", 
+                    (const char*)e.getMessage().getCString()));
+            }
+        }
+
         AutoPtr<CIMResponseMessage> response;
 
         CIMHandleIndicationRequestMessage *handleIndicationRequest = 0;

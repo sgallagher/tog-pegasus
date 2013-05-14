@@ -134,6 +134,12 @@ static const char _MSG_STATE_CHANGE_FAILED[] =
     "The requested state change failed : $0. Current IndicationService"
         " EnabledState : $1, HealthState : $2.";
 
+static const char _MSG_NOT_CREATOR_KEY[] =
+    "IndicationService.IndicationService._MSG_NOT_CREATOR";
+static const char _MSG_NOT_CREATOR[] =
+    "The current user($0) is not the creator($1)."
+    "Hence operation not permitted";
+
 // ATTN-RK-20020730: Temporary hack to fix Windows build
 Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
 {
@@ -5720,14 +5726,22 @@ Boolean IndicationService::_canModify (
     //
     String currentUser = ((IdentityContainer)request->operationContext.get
         (IdentityContainer :: NAME)).getUserName();
-    if ((creator != String::EMPTY) &&
+    if ((creator.size() != 0) &&
 #ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
-#endif
         (currentUser != creator))
+#else     
+        !String::equalNoCase(currentUser, creator))
+#endif   
     {
         PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
+        throw PEGASUS_CIM_EXCEPTION_L(
+                        CIM_ERR_ACCESS_DENIED,
+                        MessageLoaderParms(
+                            _MSG_NOT_CREATOR_KEY,
+                            _MSG_NOT_CREATOR,
+                            currentUser,
+                            creator));   
     }
 
     PEG_METHOD_EXIT ();
@@ -5781,14 +5795,22 @@ Boolean IndicationService::_canDelete (
     //  If creator is String::EMPTY, anyone may modify or delete the
     //  instance
     //
-    if ((creator != String::EMPTY) &&
+    if ((creator.size() != 0) &&
 #ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
-#endif
         (currentUser != creator))
+#else     
+        !String::equalNoCase(currentUser, creator))
+#endif 
     {
         PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
+        throw PEGASUS_CIM_EXCEPTION_L(
+                        CIM_ERR_ACCESS_DENIED,
+                        MessageLoaderParms(
+                            _MSG_NOT_CREATOR_KEY,
+                            _MSG_NOT_CREATOR,
+                            currentUser,
+                            creator));  
     }
 
     //

@@ -190,7 +190,10 @@ Boolean HTTPMessage::parse(
         Uint32 lineLength = (Uint32)(sep - line);
 
         if (firstTime)
+        {
             startLine.assign(line, lineLength);
+            firstTime = false;
+        }
         else
         {
             // Find the colon:
@@ -282,7 +285,6 @@ Boolean HTTPMessage::parse(
         }
 
         line = sep + ((*sep == '\r') ? 2 : 1);
-        firstTime = false;
     }
     return true;
 }

@@ -123,7 +123,9 @@ PEGASUS_COMMON_LINKAGE Uint32 StringFindAux(
 inline void _checkBounds(size_t index, size_t size)
 {
     if (index > size)
+    {
         StringThrowOutOfBounds();
+    }
 }
 
 template<class P, class Q>
@@ -174,7 +176,7 @@ static size_t _copyFromUTF8(
     // Process leading 7-bit ASCII characters (to avoid UTF8 overhead later).
     // Use loop-unrolling.
 
-    while (n >=8 && ((q[0]|q[1]|q[2]|q[3]|q[4]|q[5]|q[6]|q[7]) & 0x80) == 0)
+    while ( (n >=8) && ((q[0]|q[1]|q[2]|q[3]|q[4]|q[5]|q[6]|q[7]) & 0x80) == 0)
     {
         p[0] = q[0];
         p[1] = q[1];
@@ -189,7 +191,7 @@ static size_t _copyFromUTF8(
         n -= 8;
     }
 
-    while (n >=4 && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
+    while ((n >=4) && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
     {
         p[0] = q[0];
         p[1] = q[1];

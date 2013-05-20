@@ -367,7 +367,6 @@ private:
 //     :keyword         Output Only
 //     keyword          Input and output defined by keyword
 //
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
 class ClientTrace
 {
 public:
@@ -402,7 +401,7 @@ private:
     static Uint32 inputState;
     static Uint32 outputState;
 };
-#endif
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_ClientRep_h */

@@ -953,7 +953,6 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 // Uses parameter to determine whether to send to console to log.
 void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 {
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
     if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))
     {
         XmlWriter::indentedPrint(cout, buffer.getData());
@@ -968,7 +967,6 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
             "CIMOperationRequestEncoder::SendRequest, XML content: $0",
             buffer.getData());
     }
-#endif
 
 
     HTTPMessage * http_request = new HTTPMessage(buffer);

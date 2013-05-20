@@ -82,9 +82,7 @@ void CIMClientRep::handleEnqueue()
 
 void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 {
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
     ClientTrace::setup();
-#endif
 
     //
     // Create response decoder:
@@ -1256,8 +1254,6 @@ void CIMClientRep::deregisterClientOpPerformanceDataHandler()
 }
 
 
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
-
 /*
     Implementation of the Trace mechanism
 */
@@ -1346,5 +1342,4 @@ void ClientTrace::setup()
         }
     }
 }
-#endif
 PEGASUS_NAMESPACE_END

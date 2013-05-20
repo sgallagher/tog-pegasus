@@ -1141,10 +1141,6 @@ ifdef PEGASUS_DEBUG
         DEFINES += -DPEGASUS_INDICATION_HASHTRACE
     endif
 
-    # Setup the conditional compile for client displays.
-    ifdef PEGASUS_CLIENT_TRACE_ENABLE
-        DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
-    endif
 endif
 
 # compile in the experimental APIs

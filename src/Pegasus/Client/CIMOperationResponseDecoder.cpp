@@ -175,7 +175,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
     if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))    {
         cout << "CIMOperatonResponseDecoder";
         httpMessage->printAll(cout);
@@ -188,7 +187,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             "CIMOperationRequestDecoder::Response, XML content: $0",
             httpMessage->message.getData());
     }
-#endif
 
     try
     {

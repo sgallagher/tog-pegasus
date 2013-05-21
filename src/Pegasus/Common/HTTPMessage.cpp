@@ -290,7 +290,7 @@ Boolean HTTPMessage::parse(
 }
 
 
-#ifdef PEGASUS_DEBUG
+
 void HTTPMessage::printAll(ostream& os) const
 {
     static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
@@ -350,7 +350,7 @@ void HTTPMessage::printAll(ostream& os) const
 
     os << endl;
 }
-#endif
+
 
 /*
  * Find the header prefix (i.e 2-digit number in front of cim keyword) if any.

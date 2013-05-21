@@ -248,11 +248,11 @@ public:
 
     static CIMOperationType convertMessageTypetoCIMOpType(MessageType type);
 
-#ifdef PEGASUS_DEBUG
+
     virtual void print(
         PEGASUS_STD(ostream)& os,
         Boolean printHeader = true) const;
-#endif
+
 
     Message* get_async()
     {

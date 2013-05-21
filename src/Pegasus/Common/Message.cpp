@@ -45,7 +45,7 @@ Message::~Message()
 {
 }
 
-#ifdef PEGASUS_DEBUG
+
 void Message::print(ostream& os, Boolean printHeader) const
 {
     if (printHeader)
@@ -61,7 +61,7 @@ void Message::print(ostream& os, Boolean printHeader) const
         os << "}";
     }
 }
-#endif
+
 
 static const char* _MESSAGE_TYPE_STRINGS[] =
 {

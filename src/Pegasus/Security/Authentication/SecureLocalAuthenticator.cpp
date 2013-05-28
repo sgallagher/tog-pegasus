@@ -123,7 +123,9 @@ Boolean SecureLocalAuthenticator::authenticate(
     return authenticated;
 }
 
-Boolean SecureLocalAuthenticator::validateUser (const String& userName)
+Boolean SecureLocalAuthenticator::validateUser(
+    const String& userName,
+    AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureLocalAuthenticator::validateUser()");

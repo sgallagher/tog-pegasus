@@ -221,9 +221,11 @@ Boolean AuthenticationManager::performPegasusAuthentication(
 //
 // Validate user.
 //
-Boolean AuthenticationManager::validateUserForHttpAuth (const String& userName)
+Boolean AuthenticationManager::validateUserForHttpAuth(
+    const String& userName,
+    AuthenticationInfo* authInfo)
 {
-    return _httpAuthHandler->validateUser(userName);
+    return _httpAuthHandler->validateUser(userName,authInfo);
 }
 
 //

@@ -69,9 +69,13 @@ public:
     /**
         Verify whether the user is valid.
         @param userName String containing the user name
+        @param authInfo reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
         @return true on successful validation, false otherwise
     */
-    Boolean validateUser(const String& userName);
+    Boolean validateUser(
+        const String& userName,
+        AuthenticationInfo* authInfo);
 
     /** Construct and return the Peagaus Local authentication challenge header
         @param authType String containing the authentication type

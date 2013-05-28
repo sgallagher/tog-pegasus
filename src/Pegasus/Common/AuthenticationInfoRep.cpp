@@ -46,7 +46,8 @@ const String AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS = "ATTLS";
 
 AuthenticationInfoRep::AuthenticationInfoRep()
     : _connectionAuthenticated(false),
-      _wasRemotePrivilegedUserAccessChecked(false)
+      _wasRemotePrivilegedUserAccessChecked(false),
+      _authHandle()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");

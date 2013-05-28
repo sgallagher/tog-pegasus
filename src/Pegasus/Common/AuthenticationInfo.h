@@ -45,7 +45,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 /**
     This class keeps the authentication information of a connection
     persistent until the connection is destroyed.
@@ -352,6 +351,18 @@ public:
     {
         CheckRep(_rep);
         return _rep->getRemotePrivilegedUserAccessChecked();
+    }
+
+    void setAuthHandle(const AuthHandle & authHandle)
+    {
+        CheckRep(_rep);
+        _rep->setAuthHandle(authHandle);
+    }
+
+    AuthHandle getAuthHandle()
+    {
+        CheckRep(_rep);
+        return _rep->getAuthHandle();
     }
 
 private:

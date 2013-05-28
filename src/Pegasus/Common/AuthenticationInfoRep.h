@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/AuthHandle.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -164,6 +165,17 @@ public:
         return _wasRemotePrivilegedUserAccessChecked;
     }
 
+    void setAuthHandle(const AuthHandle& authHandle)
+    {
+        _authHandle = authHandle;
+    }
+
+    AuthHandle getAuthHandle()
+    {
+        return _authHandle;
+    }
+
+
 private:
 
     /** Default Copy Constructor and assignment operator  */
@@ -186,6 +198,8 @@ private:
     Boolean _wasRemotePrivilegedUserAccessChecked;
 
     Array<SSLCertificateInfo*> _clientCertificate;
+
+    AuthHandle _authHandle;
 };
 
 PEGASUS_NAMESPACE_END

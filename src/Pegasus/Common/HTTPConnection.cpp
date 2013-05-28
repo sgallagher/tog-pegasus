@@ -518,6 +518,10 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             INTERNAL_SERVER_ERROR_CONNECTION_CLOSED,
                             _ipAddress));
                 }
+
+                // Cleanup Authentication Handle
+                // currently only PAM implemented, see Bug#9642
+                _authInfo->getAuthHandle().destroy();
                 return true;
             }
 
@@ -1183,6 +1187,10 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
         //
         if (_isClient() == false)
         {
+            // Cleanup Authentication Handle
+            // currently only PAM implemented, see Bug#9642
+            _authInfo->getAuthHandle().destroy();
+
             if (_internalError)
             {
                 _closeConnection();

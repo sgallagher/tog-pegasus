@@ -1217,6 +1217,26 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      dependent on platform support for PAM.<br>
 </ul>
 
+<h5>PEGASUS_PAM_SESSION_SECURITY</h5>
+<ul>
+  <b>Description:&nbsp;</b>Enables support for PAM-(Pluggable
+     Authentication Modules) based authentication and authorization.<br>
+     When choosing this PAM method the PAM session started through pam_start
+     is kept open for the complete CIM request.
+     The PAM item PAM_RHOST will be set to the connection IP address.
+     This allows PAM modules to restrict number of concurrent connections
+     from a single host.<br>
+     If PEGASUS_PAM_SESSION_SECURITY is set, you cannot enable the Privilege
+     Separation feature (PEGASUS_ENABLE_PRIVILEGE_SEPARATION) or the 
+     authentication-only PAM mechanism (PEGASUS_PAM_AUTHENTICATION).<br>
+  <b>Default Value:&nbsp;</b>Not Set<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>Not Set<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>Not Set<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>Support for PAM in OpenPegasus is
+     dependent on platform support for PAM.<br>
+</ul>
+
 <h5>PEGASUS_PLATFORM</h5>
 <ul>
   <b>Description:&nbsp;</b>Describes the target platform for the

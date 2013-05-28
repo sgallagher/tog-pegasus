@@ -954,6 +954,18 @@ en:table {
 
         Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE:string {"PGS02000: The CIM server authentication handler for Kerberos failed to initialize properly."}
 
+        // ==========================================================
+        // Messages for Security PAM Authentication session-based 
+        //  Please use message prefix "PGS02100"
+        // ==========================================================
+
+        /**
+        * @note  PGS02100:
+        *    Substitution {0} is the name of a function (a string)
+        *    Substitution {1} is the the return (a number)
+        *    Substitution {2} is the textual description of an error (a string)
+        */
+        Security.Authentication.PAMSession.PAM_FUNCTION_FAILED: string {"PGS02100: Error in PAM function {0} (errorCode={1}, errorText=\'{2}\')."}
 
         // ==========================================================
         // Messages for ConfigExceptions

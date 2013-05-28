@@ -193,9 +193,11 @@ Boolean LocalAuthenticationHandler::authenticate(
     return authenticated;
 }
 
-Boolean LocalAuthenticationHandler::validateUser(const String& userName)
+Boolean LocalAuthenticationHandler::validateUser(
+    const String& userName,
+    AuthenticationInfo* authInfo)
 {
-    return _localAuthenticator->validateUser(userName);
+    return _localAuthenticator->validateUser(userName,authInfo);
 }
 
 String LocalAuthenticationHandler::getAuthResponseHeader(

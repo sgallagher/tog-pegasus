@@ -57,18 +57,25 @@ public:
     /** Verify the authentication of the requesting user.
         @param userName String containing the user name
         @param password String containing the user password
+        @param authInfo AuthenticationInfo holding ALL request specific
+               authentication information
         @return true on successful authentication, false otherwise
     */
     Boolean authenticate(
         const String& userName,
-        const String& password);
+        const String& password,
+        AuthenticationInfo* authInfo);
 
     /**
         Verify whether the user is valid.
         @param userName String containing the user name
+        @param authInfo reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
         @return true on successful validation, false otherwise
     */
-    Boolean validateUser(const String& userName);
+    Boolean validateUser(
+        const String& userName,
+        AuthenticationInfo* authInfo);
 
     /** Construct and return the HTTP Basic authentication challenge header
         @return A string containing the authentication challenge header.

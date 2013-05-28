@@ -53,9 +53,12 @@ public:
 
     Boolean authenticate(
         const String& userName,
-        const String& password);
+        const String& password,
+        AuthenticationInfo* authInfo);
 
-    Boolean validateUser(const String& userName);
+    Boolean validateUser(
+        const String& userName,
+        AuthenticationInfo* authInfo);
 
     String getAuthResponseHeader();
 

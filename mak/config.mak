@@ -1357,6 +1357,41 @@ endif
 
 ##==============================================================================
 ##
+## PEGASUS_PAM_SESSION_SECURITY
+##
+## This is a new method to handle authentication with PAM in case it is required
+## to keep the PAM session established by pam_start() open across an
+## entire CIM request.
+##
+## This feature contradicts PEGASUS_PAM_AUTHENTICATION and
+## PEGASUS_USE_PAM_STANDALONE_PROC
+## Because of the additional process this feature is not compatible with
+## Privilege Separation.
+##
+##==============================================================================
+
+ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
+    ifdef PEGASUS_PAM_AUTHENTICATION
+        $(error "PEGASUS_PAM_AUTHENTICATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
+    endif
+    ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+        $(error "PEGASUS_USE_PAM_STANDALONE_PROC must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
+    endif
+    ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+        $(error "PEGASUS_ENABLE_PRIVILEGE_SEPARATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
+    endif
+    # Compile in the code required for PAM 
+    # and compile out the code that uses the password file.
+    DEFINES += -DPEGASUS_PAM_SESSION_SECURITY -DPEGASUS_NO_PASSWORDFILE
+    # Link with libpam only where it is needed.
+    ifeq ($(HAS_PAM_DEPENDENCY),true)
+        SYS_LIBS += -lpam
+    endif
+endif
+
+
+##==============================================================================
+##
 ## PEGASUS_PAM_AUTHENTICATION
 ##
 ##==============================================================================

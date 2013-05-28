@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_BasicAuthenticator_h
@@ -39,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/AuthenticationInfo.h>
 
 #include <Pegasus/Security/Authentication/Linkage.h>
 
@@ -61,11 +57,14 @@ public:
     /** Verify the authentication of the requesting user.
         @param userName String containing the user name
         @param password String containing the user password
+        @param authInfo AuthenticationInfo holding ALL request specific
+               authentication information
         @return true on successful authentication, false otherwise
     */
     virtual Boolean authenticate(
         const String& userName,
-        const String& password) = 0;
+        const String& password,
+        AuthenticationInfo* authInfo) = 0;
 
     /** Construct and return the HTTP Basic authentication challenge header
         @return A string containing the authentication challenge header.
@@ -75,9 +74,13 @@ public:
     /**
         Verify whether the user is valid.
         @param userName String containing the user name
+        @param authInfo AuthenticationInfo holding ALL request specific
+               authentication information
         @return true on successful validation, false otherwise
     */
-    virtual Boolean validateUser(const String& userName) = 0;
+    virtual Boolean validateUser(
+        const String& userName,
+        AuthenticationInfo* authInfo) = 0;
 };
 
 

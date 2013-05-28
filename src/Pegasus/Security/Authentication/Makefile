@@ -61,6 +61,13 @@ SOURCES = \
     BasicAuthenticationHandler.cpp \
     AuthenticationManager.cpp
 
+# Special code calling pam_end in class AuthHandle only required
+# with session based authentication mechanism
+ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
+    SOURCES += PAMSessionBasicAuthenticator.cpp
+endif
+    
+
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif

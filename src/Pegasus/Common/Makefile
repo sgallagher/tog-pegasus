@@ -210,6 +210,12 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 
+# Special code calling pam_end in class AuthHandle only required
+# with session based authentication mechanism
+ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
+    SOURCES2 += AuthHandle.cpp
+endif
+
 # LoadAndClearWord_HPUX_PARISC_ACC.s will be compiled using aCC
 # in order to use the native assembler to create the object
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)

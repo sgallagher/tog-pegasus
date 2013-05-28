@@ -726,7 +726,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
 
                 if (!_authenticationManager->validateUserForHttpAuth(
-                        certUserName))
+                        certUserName,
+                        httpMessage->authInfo))
                 {
                     PEG_AUDIT_LOG(logCertificateBasedUserValidation(
                         certUserName,

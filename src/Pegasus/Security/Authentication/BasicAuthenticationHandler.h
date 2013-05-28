@@ -88,7 +88,9 @@ public:
         const String& userName = String::EMPTY,
         AuthenticationInfo* authInfo = 0);
 
-    Boolean validateUser(const String& userName);
+    Boolean validateUser(
+        const String& userName,
+        AuthenticationInfo* authInfo);
 
 
 private:

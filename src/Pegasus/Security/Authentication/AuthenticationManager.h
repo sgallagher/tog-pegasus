@@ -82,9 +82,13 @@ public:
     /** Validates whether the user is a valid user for requests
         from HTTP connections.
         @param  userName  name of the user
+        @param authInfo Reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
         @return true on successful validation, false otherwise
     */
-    Boolean validateUserForHttpAuth (const String& userName);
+    Boolean validateUserForHttpAuth(
+        const String& userName,
+        AuthenticationInfo* authInfo);
 
     /** Constructs the Pegasus Local authentication challenge header.
         @param authHeader String containing the Authorization header

@@ -79,9 +79,13 @@ public:
     /**
         Verify whether the user is valid.
         @param userName String containing the user name
+        @param authInfo reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
         @return true on successful validation, false otherwise
     */
-    virtual Boolean validateUser(const String& userName) = 0;
+    virtual Boolean validateUser(
+        const String& userName,
+        AuthenticationInfo* authInfo) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -39,6 +39,7 @@
 
 #include "SecureBasicAuthenticator.h"
 #include "PAMBasicAuthenticator.h"
+#include "PAMSessionBasicAuthenticator.h"
 #include "BasicAuthenticationHandler.h"
 #include "AuthenticationManager.h"
 
@@ -54,8 +55,12 @@ BasicAuthenticationHandler::BasicAuthenticationHandler()
 
 #ifdef PEGASUS_PAM_AUTHENTICATION
     _basicAuthenticator = (BasicAuthenticator*) new PAMBasicAuthenticator();
-#else
+#else 
+# if defined(PEGASUS_PAM_SESSION_SECURITY)
+    _basicAuthenticator=(BasicAuthenticator*)new PAMSessionBasicAuthenticator();
+# else
     _basicAuthenticator = (BasicAuthenticator*) new SecureBasicAuthenticator();
+# endif
 #endif
 
     PEG_METHOD_EXIT();
@@ -149,7 +154,11 @@ Boolean BasicAuthenticationHandler::authenticate(
     }
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    authenticated = _basicAuthenticator->authenticate(userName, password);
+    authenticated=
+        _basicAuthenticator->authenticate(
+            userName,
+            password,
+            authInfo);
 
     // Log audit message.
     PEG_AUDIT_LOG(logBasicAuthentication(
@@ -179,9 +188,11 @@ Boolean BasicAuthenticationHandler::authenticate(
     return authenticated;
 }
 
-Boolean BasicAuthenticationHandler::validateUser(const String& userName)
+Boolean BasicAuthenticationHandler::validateUser(
+    const String& userName,
+    AuthenticationInfo* authInfo)
 {
-    return _basicAuthenticator->validateUser(userName);
+    return _basicAuthenticator->validateUser(userName,authInfo);
 }
 
 String BasicAuthenticationHandler::getAuthResponseHeader(

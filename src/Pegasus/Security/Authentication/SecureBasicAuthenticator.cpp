@@ -145,7 +145,8 @@ SecureBasicAuthenticator::~SecureBasicAuthenticator()
 
 Boolean SecureBasicAuthenticator::authenticate(
     const String & userName,
-    const String & password)
+    const String & password,
+    AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::authenticate()");
@@ -265,7 +266,9 @@ Boolean SecureBasicAuthenticator::authenticate(
     return authenticated;
 }
 
-Boolean SecureBasicAuthenticator::validateUser(const String& userName)
+Boolean SecureBasicAuthenticator::validateUser(
+    const String& userName,
+    AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::validateUser()");

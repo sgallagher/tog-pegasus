@@ -45,6 +45,7 @@
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/BinaryCodec.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 
 PEGASUS_USING_STD;
 
@@ -221,9 +222,10 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     Uint32 queueId = httpMessage->queueId;
 
-    // Save userName and authType:
+    // Save userName, userRole and authType:
 
     String userName;
+    String userRole;
     String authType;
     Boolean closeConnect = httpMessage->getCloseConnect();
 
@@ -236,6 +238,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     userName = httpMessage->authInfo->getAuthenticatedUser();
     authType = httpMessage->authInfo->getAuthType();
+    userRole = httpMessage->authInfo->getUserRole();
 
     // Parse the HTTP message:
 
@@ -557,6 +560,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         cimObject,
         authType,
         userName,
+        userRole,
         httpMessage->ipAddress,
         httpMessage->acceptLanguages,
         httpMessage->contentLanguages,
@@ -577,6 +581,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
     const String& cimObjectInHeader,
     const String& authType,
     const String& userName,
+    const String& userRole,
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
@@ -1424,6 +1429,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
     if (cimmsg != NULL)
     {
         cimmsg->operationContext.insert(IdentityContainer(userName));
+        cimmsg->operationContext.insert(UserRoleContainer(userRole));
         cimmsg->operationContext.set(
             AcceptLanguageListContainer(httpAcceptLanguages));
         cimmsg->operationContext.set(

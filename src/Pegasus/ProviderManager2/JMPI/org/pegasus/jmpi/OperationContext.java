@@ -60,6 +60,8 @@ public class OperationContext
    //                            String:          remoteInfo
    public final static String CachedClassDefinitionContainer       = "CachedClassDefinitionContainer";
    //                            CIMClass:        class
+   public final static String UserRoleContainer                      = "UserRoleContainer";
+   //                            String:          userRole
 
    private long cInst;
 

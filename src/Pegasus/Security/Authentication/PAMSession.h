@@ -62,6 +62,15 @@ typedef struct PAMDataStruct
 }
 PAMData;
 
+/*
+**==============================================================================
+**
+** PAMAuthenticateCallback()
+**
+**     Callback used by PAMAuthenticate().
+**
+**==============================================================================
+*/
 
 static void _freePAMMessage(int numMsg, struct pam_response** rsp)
 {
@@ -73,17 +82,6 @@ static void _freePAMMessage(int numMsg, struct pam_response** rsp)
     }
     free(rsp);
 }
-
-
-/*
-**==============================================================================
-**
-** PAMAuthenticateCallback()
-**
-**     Callback used by PAMAuthenticate().
-**
-**==============================================================================
-*/
 
 static int PAMAuthenticateCallback(
     int num_msg,
@@ -285,6 +283,16 @@ static int _PAMAuthenticate(
         return pam_rc;
     }
 
+    // uncomment the following line for testing purposes
+    // pam_putenv(handle, "CMPIRole=UserTestRole4711");
+
+    String userRole;
+    const char* role = pam_getenv(handle, "CMPIRole");
+    if (NULL != role)
+    {
+        userRole.assign(role);
+    }
+
     pam_rc = pam_acct_mgmt(handle, 0);
     if (pam_rc != PAM_SUCCESS)
     {
@@ -299,6 +307,7 @@ static int _PAMAuthenticate(
     AuthHandle myAuth;
     myAuth.hdl = handle;
     authInfo->setAuthHandle(myAuth);
+    authInfo->setUserRole(userRole);
 
     return pam_rc;
 }

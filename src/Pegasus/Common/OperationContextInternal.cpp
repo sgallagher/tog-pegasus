@@ -337,4 +337,67 @@ NormalizerContext* NormalizerContextContainer::getContext() const
     return normalizerContext.get();
 }
 
+//
+// UserRoleContainer
+//
+
+const String UserRoleContainer::NAME = "UserRoleContainer";
+
+UserRoleContainer::UserRoleContainer(
+    const OperationContext::Container& container)
+{
+    const UserRoleContainer* p =
+        dynamic_cast<const UserRoleContainer*>(&container);
+
+    if (p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    *this = *p;
+}
+
+UserRoleContainer::UserRoleContainer(const String& userRole)
+{
+    _userRole = userRole;
+}
+
+UserRoleContainer::~UserRoleContainer()
+{
+}
+
+UserRoleContainer& UserRoleContainer::operator=(
+    const UserRoleContainer&container)
+{
+    if (this == &container)
+    {
+        return *this;
+    }
+
+    _userRole = container._userRole;
+
+    return *this;
+}
+
+String UserRoleContainer::getName() const
+{
+    return NAME;
+}
+
+OperationContext::Container* UserRoleContainer::clone() const
+{
+    return new UserRoleContainer(*this);
+}
+
+void UserRoleContainer::destroy()
+{
+    delete this;
+}
+
+String UserRoleContainer::getUserRole() const
+{
+    return _userRole;
+}
+
+
 PEGASUS_NAMESPACE_END

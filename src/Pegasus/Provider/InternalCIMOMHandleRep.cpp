@@ -232,6 +232,17 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     {
         temp.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
+    
+    if (context.contains(UserRoleContainer::NAME))
+    {
+        // propagate the user role container if it exists (get() with throw
+        // an exception if it does not)
+        temp.insert(context.get(UserRoleContainer::NAME));
+    }
+    else
+    {
+        temp.insert(UserRoleContainer(String::EMPTY));
+    }
 
     return temp;
 }

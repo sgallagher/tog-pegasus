@@ -175,6 +175,15 @@ public:
         return _authHandle;
     }
 
+    void setUserRole(const String& userRole)
+    {
+        _userRole = userRole;
+    }
+
+    String getUserRole()
+    {
+        return _userRole;
+    }
 
 private:
 
@@ -200,6 +209,7 @@ private:
     Array<SSLCertificateInfo*> _clientCertificate;
 
     AuthHandle _authHandle;
+    String _userRole;
 };
 
 PEGASUS_NAMESPACE_END

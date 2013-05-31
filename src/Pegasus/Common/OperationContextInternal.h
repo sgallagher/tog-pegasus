@@ -164,6 +164,35 @@ private:
     NormalizerContextContainer();
 };
 
+class PEGASUS_COMMON_LINKAGE UserRoleContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    UserRoleContainer(const OperationContext::Container& container);
+    UserRoleContainer(const String& userRole);
+    
+    virtual ~UserRoleContainer();
+
+    UserRoleContainer& operator=(
+        const UserRoleContainer& container);
+
+    virtual String getName() const;
+    virtual OperationContext::Container* clone() const;
+    virtual void destroy();
+
+    String getUserRole() const;
+
+protected:
+    String _userRole;
+
+private:
+    UserRoleContainer();
+};
+
+
+
 PEGASUS_NAMESPACE_END
 
 #endif

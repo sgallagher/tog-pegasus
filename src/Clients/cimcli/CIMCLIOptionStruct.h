@@ -121,6 +121,7 @@ struct  OptionStruct
     Boolean ssl;
     String clientCert;          // client Certificate path
     String clientKey;           // client Key path
+    String clientTruststore;    // Path name for a client truststore
 #endif
 
     // The following variables represent the input Object Name parameter,
@@ -203,8 +204,8 @@ struct  OptionStruct
 
 //EXP_PULL_BEGIN  -- Add parameters for pull operations
     Uint32Arg pullOperationTimeout;
-    Uint32Arg maxPullObjects;
-    Boolean continueOnError;
+    Uint32 maxObjectCount;     // maxObjects to receive for pull operations
+    Boolean continueOnError;      // ContinueOnError Flag for open... operations
     Uint32 maxObjectsToReceive;
     Uint32 pullDelay;
 //EXP_PULL_END

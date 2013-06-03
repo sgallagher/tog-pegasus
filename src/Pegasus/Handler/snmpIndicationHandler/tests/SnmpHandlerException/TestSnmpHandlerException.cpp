@@ -439,7 +439,7 @@ static void TestExceptionHandling(CIMHandler* handler)
 }
 
 
-int main(int argc, char** argv)
+int main()
 {
 
     const char* pegasusHome = getenv("PEGASUS_HOME");

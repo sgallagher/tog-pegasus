@@ -247,7 +247,7 @@ CIMInstance InteropProvider::localGetInstance(
 
 Array<CIMInstance> InteropProvider::getReferencedInstances(
     const Array<CIMInstance> &refs,
-    const String targetRole,
+    const String &targetRole,
     const OperationContext & context,
     const CIMPropertyList & propertyList)
 {

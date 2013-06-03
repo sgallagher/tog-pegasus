@@ -29,14 +29,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#ifndef PEGASUS_PAM_AUTHENTICATION
-# include <Pegasus/Security/UserManager/UserManager.h>
-#endif
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include "CIMOperationRequestAuthorizer.h"
 
@@ -349,7 +347,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
     {
         if ( ! System::isPrivilegedUser(userName) )
         {
-            const Uint32 size = _authorizedUserGroups.size();
+            Uint32 size = _authorizedUserGroups.size();
 
             if (size > 0)
             {
@@ -450,7 +448,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
         //
         if (!System::isPrivilegedUser(userName))
         {
-#ifndef PEGASUS_PAM_AUTHENTICATION
             UserManager* userManager = UserManager::getInstance();
 
             if (!userManager ||
@@ -493,7 +490,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                 PEG_METHOD_EXIT();
                 return;
             }
-#endif
         }
     }
 
@@ -512,9 +508,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
 
     Message* request = dequeue();
     if (request)
-    {
         handleEnqueue(request);
-    }
 
     PEG_METHOD_EXIT();
 }
@@ -548,7 +542,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     //
     // Check if the group name is empty
     //
-    if (groupNames.size() == 0 )
+    if (groupNames == String::EMPTY)
     {
         PEG_METHOD_EXIT();
         return authorizedGroups;
@@ -562,7 +556,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     Uint32 position = 0;
     String groupName;
 
-    while (groupNames.size() != 0 )
+    while (groupNames != String::EMPTY)
     {
         //
         // Get a group name from user groups

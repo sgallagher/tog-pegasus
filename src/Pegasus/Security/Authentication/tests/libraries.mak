@@ -30,12 +30,10 @@ ROOT=../../../../../..
 
 LIBRARIES= \
     pegauthentication \
+    peguser \
     pegrepository \
     pegconfig \
     pegcommon
-ifndef PEGASUS_PAM_AUTHENTICATION
-    LIBRARIES += peguser
-endif
 
 ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
     LIBRARIES += z

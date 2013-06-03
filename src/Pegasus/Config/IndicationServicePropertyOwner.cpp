@@ -33,6 +33,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include "ConfigManager.h"
 #include "IndicationServicePropertyOwner.h"
+#include "ConfigExceptions.h"
 
 
 PEGASUS_USING_STD;
@@ -41,8 +42,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"maxIndicationDeliveryRetryAttempts", "3", IS_STATIC, IS_VISIBLE},
-    {"minIndicationDeliveryRetryInterval", "30", IS_STATIC, IS_VISIBLE},
+    {"maxIndicationDeliveryRetryAttempts", "3", IS_DYNAMIC, IS_VISIBLE},
+    {"minIndicationDeliveryRetryInterval", "30",IS_DYNAMIC, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -100,7 +101,7 @@ void IndicationServicePropertyOwner::initialize()
         }
         else
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
     }
     _initialized = true;
@@ -128,30 +129,10 @@ void IndicationServicePropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
-    propertyInfo.clear();
 
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    propertyInfo.append(configProperty->propertyName);
-    propertyInfo.append(configProperty->defaultValue);
-    propertyInfo.append(configProperty->currentValue);
-    propertyInfo.append(configProperty->plannedValue);
-    if (configProperty->dynamic)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
-    if (configProperty->externallyVisible)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
+    buildPropertyInfo(name, configProperty, propertyInfo);
 }
 
 String IndicationServicePropertyOwner::getDefaultValue(const String& name) const

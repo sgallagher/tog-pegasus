@@ -128,6 +128,11 @@ static const char LONG_HELP [] = "help";
 
 static const char LONG_VERSION [] = "version";
 
+static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY [] =
+    "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
 

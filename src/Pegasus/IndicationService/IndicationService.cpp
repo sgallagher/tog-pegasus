@@ -29,7 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/ArrayInternal.h>
@@ -40,14 +39,11 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
-#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
 
-#include <Pegasus/General/IndicationFormatter.h>
 #include <Pegasus/General/Guid.h>
 #ifdef PEGASUS_INDICATION_PERFINST
 #include <Pegasus/General/Stopwatch.h>
@@ -58,6 +54,9 @@ ProviderRegistrationManager.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Repository/RepositoryQueryContext.h>
+
+#include <Pegasus/Handler/IndicationFormatter.h>
+
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"
@@ -135,6 +134,12 @@ static const char _MSG_STATE_CHANGE_FAILED[] =
     "The requested state change failed : $0. Current IndicationService"
         " EnabledState : $1, HealthState : $2.";
 
+static const char _MSG_NOT_CREATOR_KEY[] =
+    "IndicationService.IndicationService._MSG_NOT_CREATOR";
+static const char _MSG_NOT_CREATOR[] =
+    "The current user($0) is not the creator($1)."
+    "Hence operation not permitted";
+
 // ATTN-RK-20020730: Temporary hack to fix Windows build
 Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
 {
@@ -173,7 +178,7 @@ String _getEnabledStateString(Uint32 code)
         case _ENABLEDSTATE_STARTING:
             return String("Starting");
     }
-    PEGASUS_ASSERT(false); // Never reach to unknown state at present.
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
     return String("Unknown");
 }
@@ -188,7 +193,8 @@ String _getHealthStateString(Uint32 code)
         case _HEALTHSTATE_DEGRADEDWARNING:
             return String("Degraded/Warning");
     }
-    PEGASUS_ASSERT(false); // Never reach to unknown state at present.
+    // Never reach to unknown state at present.
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
     return String("Unknown");
 }
@@ -344,11 +350,9 @@ void IndicationService::_buildInternalControlProvidersRegistration()
     String key = PEGASUS_MODULENAME_PROVREGPROVIDER;
     key.append(PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT.getString());
 
-    Boolean ok = _controlProvIndRegTable.insert(
-        key,
-        regProvider);
-
-    PEGASUS_ASSERT(ok);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _controlProvIndRegTable.insert(key,regProvider));
 }
 
 Uint16  IndicationService::_getEnabledState()
@@ -670,6 +674,147 @@ void IndicationService::handleEnqueue()
     handleEnqueue(message);
 }
 
+void IndicationService::_setOrAddSystemNameInHandlerFilter(
+    CIMInstance& instance,
+    const String& sysname)
+{
+    // Key property SystemName should be ignored by server according to
+    // DSP1054 v1.2, setting it to empty string for further processing
+    // host name will replace empty string on returning instances
+    Uint32 sysNamePos = instance.findProperty(_PROPERTY_SYSTEMNAME);
+    CIMValue x = CIMValue(sysname);
+
+    if (PEG_NOT_FOUND == sysNamePos)
+    {
+        instance.addProperty(
+            CIMProperty(_PROPERTY_SYSTEMNAME,x));
+    }
+    else
+    {
+        CIMProperty p=instance.getProperty(sysNamePos);
+        p.setValue(x);
+    }
+}
+
+void IndicationService::_setSystemNameInHandlerFilter(
+    CIMObjectPath& objPath,
+    const String& sysname)
+{
+    Array<CIMKeyBinding> keys=objPath.getKeyBindings();
+    Array<CIMKeyBinding> updatedKeys;
+
+    updatedKeys.append(keys[0]);
+    updatedKeys.append(keys[1]);
+    updatedKeys.append(keys[2]);
+    updatedKeys.append(CIMKeyBinding(
+        _PROPERTY_SYSTEMNAME,
+        sysname,
+        CIMKeyBinding::STRING));
+    objPath.setKeyBindings(updatedKeys);
+    objPath.setHost(String::EMPTY);
+}
+
+void IndicationService::_setSystemNameInHandlerFilterReference(
+    String& reference,
+    const String& sysname)
+{
+    static const Char16 quote = 0x0022;
+
+    reference.remove(reference.size()-1);
+
+    Uint32 quotePos=reference.reverseFind(quote);
+    
+    reference.remove(quotePos+1);
+    reference.append(sysname);
+    reference.append(quote);
+
+    static const Char16 slash = 0x002F;
+    // remove hostname, don't need it
+    if (reference[0] == slash && reference[1] == slash)
+    {
+        // namespace starts after next slash
+        Uint32 ns = reference.find(2, slash);
+        reference.remove(0,ns+1);
+    }
+}
+
+void IndicationService::_setSubscriptionSystemName(
+    CIMObjectPath& objPath,
+    const String& sysname)
+{
+    Array<CIMKeyBinding> keys=objPath.getKeyBindings();
+
+    String filterValue = keys[0].getValue();
+    String handlerValue = keys[1].getValue();
+
+    _setSystemNameInHandlerFilterReference(filterValue,sysname);
+    _setSystemNameInHandlerFilterReference(handlerValue,sysname);
+
+    Array<CIMKeyBinding> newKeys;
+
+    newKeys.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_FILTER,
+        filterValue,
+        CIMKeyBinding::REFERENCE));
+    
+    newKeys.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_HANDLER,
+        handlerValue,
+        CIMKeyBinding::REFERENCE));
+
+    objPath.setKeyBindings(newKeys);    
+}
+
+void IndicationService::_setSystemName(
+    CIMObjectPath& objPath,
+    const String& sysname)
+{
+
+    // Need different handling for subscriptions
+    if ((objPath.getClassName().equal(
+             PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
+        (objPath.getClassName().equal(
+             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+    {
+        _setSubscriptionSystemName(objPath,sysname);
+    }
+    else
+    {
+        // this is a Filter or Handler object path
+        _setSystemNameInHandlerFilter(objPath,sysname);
+    }
+}
+
+void IndicationService::_setSystemName(
+    CIMInstance& instance,
+    const String& sysname)
+{
+
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_setSystemName");
+
+    CIMObjectPath newPath=instance.getPath();
+
+    // Need different handling for subscriptions
+    if ((instance.getClassName().equal(
+             PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
+        (instance.getClassName().equal(
+             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+    {
+        _setSubscriptionSystemName(newPath,sysname);
+    }
+    else
+    {
+        // this is a Filter or Handler instance
+        _setOrAddSystemNameInHandlerFilter(instance,sysname);
+        _setSystemNameInHandlerFilter(newPath,sysname);
+
+    }
+    instance.setPath(newPath);
+
+    PEG_METHOD_EXIT();
+}
+
 void IndicationService::_initialize()
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE, "IndicationService::_initialize");
@@ -681,156 +826,29 @@ void IndicationService::_initialize()
     _moduleController = find_service_qid(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     //
-    //  Set arrays of valid and supported property values
+    //  Set arrays of supported property values
     //
     //  Note: Valid values are defined by the CIM Event Schema MOF
     //  Supported values are a subset of the valid values
     //  Some valid values, as defined in the MOF, are not currently supported
     //  by the Pegasus IndicationService
     //
-    _validStates.append(STATE_UNKNOWN);
-    _validStates.append(STATE_OTHER);
-    _validStates.append(STATE_ENABLED);
-    _validStates.append(STATE_ENABLEDDEGRADED);
-    _validStates.append(STATE_DISABLED);
     _supportedStates.append(STATE_ENABLED);
     _supportedStates.append(STATE_DISABLED);
-    _validRepeatPolicies.append(_POLICY_UNKNOWN);
-    _validRepeatPolicies.append(_POLICY_OTHER);
-    _validRepeatPolicies.append(_POLICY_NONE);
-    _validRepeatPolicies.append(_POLICY_SUPPRESS);
-    _validRepeatPolicies.append(_POLICY_DELAY);
     _supportedRepeatPolicies.append(_POLICY_UNKNOWN);
     _supportedRepeatPolicies.append(_POLICY_OTHER);
     _supportedRepeatPolicies.append(_POLICY_NONE);
     _supportedRepeatPolicies.append(_POLICY_SUPPRESS);
     _supportedRepeatPolicies.append(_POLICY_DELAY);
-    _validErrorPolicies.append(_ERRORPOLICY_OTHER);
-    _validErrorPolicies.append(_ERRORPOLICY_IGNORE);
-    _validErrorPolicies.append(_ERRORPOLICY_DISABLE);
-    _validErrorPolicies.append(_ERRORPOLICY_REMOVE);
     _supportedErrorPolicies.append(_ERRORPOLICY_IGNORE);
     _supportedErrorPolicies.append(_ERRORPOLICY_DISABLE);
     _supportedErrorPolicies.append(_ERRORPOLICY_REMOVE);
-    _validPersistenceTypes.append(PERSISTENCE_OTHER);
-    _validPersistenceTypes.append(PERSISTENCE_PERMANENT);
-    _validPersistenceTypes.append(PERSISTENCE_TRANSIENT);
     _supportedPersistenceTypes.append(PERSISTENCE_PERMANENT);
     _supportedPersistenceTypes.append(PERSISTENCE_TRANSIENT);
-    _validSNMPVersion.append(SNMPV1_TRAP);
-    _validSNMPVersion.append(SNMPV2C_TRAP);
-    _validSNMPVersion.append(SNMPV2C_INFORM);
-    _validSNMPVersion.append(SNMPV3_TRAP);
-    _validSNMPVersion.append(SNMPV3_INFORM);
     _supportedSNMPVersion.append(SNMPV1_TRAP);
     _supportedSNMPVersion.append(SNMPV2C_TRAP);
     _supportedSNMPVersion.append(SNMPV3_TRAP);
 
-    //
-    //  Set arrays of names of supported properties for each class
-    //
-    //  Currently, all properties in these classes in CIM 2.5 through CIM 2.9
-    //  final schemas are supported.  If support for a new class is added, a new
-    //  list of names of supported properties for the class must be added as a
-    //  private member to the IndicationService class, and the array values
-    //  must be appended here.  When support for a new property is added, the
-    //  property name must be appended to the appropriate array(s) here.
-    //
-    _supportedSubscriptionProperties.append(PEGASUS_PROPERTYNAME_FILTER);
-    _supportedSubscriptionProperties.append(PEGASUS_PROPERTYNAME_HANDLER);
-    _supportedSubscriptionProperties.append(_PROPERTY_ONFATALERRORPOLICY);
-    _supportedSubscriptionProperties.append(_PROPERTY_OTHERONFATALERRORPOLICY);
-    _supportedSubscriptionProperties.append(
-        _PROPERTY_FAILURETRIGGERTIMEINTERVAL);
-    _supportedSubscriptionProperties.append(
-        PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
-    _supportedSubscriptionProperties.append(_PROPERTY_OTHERSTATE);
-    _supportedSubscriptionProperties.append(_PROPERTY_LASTCHANGE);
-    _supportedSubscriptionProperties.append(_PROPERTY_DURATION);
-    _supportedSubscriptionProperties.append(_PROPERTY_STARTTIME);
-    _supportedSubscriptionProperties.append(_PROPERTY_TIMEREMAINING);
-    _supportedSubscriptionProperties.append(_PROPERTY_REPEATNOTIFICATIONPOLICY);
-    _supportedSubscriptionProperties.append(
-        _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
-    _supportedSubscriptionProperties.append(
-        _PROPERTY_REPEATNOTIFICATIONINTERVAL);
-    _supportedSubscriptionProperties.append(_PROPERTY_REPEATNOTIFICATIONGAP);
-    _supportedSubscriptionProperties.append(_PROPERTY_REPEATNOTIFICATIONCOUNT);
-
-    _supportedFormattedSubscriptionProperties =
-        _supportedSubscriptionProperties;
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMATOWNINGENTITY);
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMATID);
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMAT);
-    _supportedFormattedSubscriptionProperties.append(
-        _PROPERTY_TEXTFORMATPARAMETERS);
-
-    _supportedFilterProperties.append(_PROPERTY_CAPTION);
-    _supportedFilterProperties.append(_PROPERTY_DESCRIPTION);
-    _supportedFilterProperties.append(_PROPERTY_ELEMENTNAME);
-    _supportedFilterProperties.append(_PROPERTY_SYSTEMCREATIONCLASSNAME);
-    _supportedFilterProperties.append(_PROPERTY_SYSTEMNAME);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_NAME);
-    _supportedFilterProperties.append(_PROPERTY_SOURCENAMESPACE);
-    _supportedFilterProperties.append(_PROPERTY_SOURCENAMESPACES);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_QUERY);
-    _supportedFilterProperties.append(PEGASUS_PROPERTYNAME_QUERYLANGUAGE);
-
-    Array<CIMName> commonListenerDestinationProperties;
-    commonListenerDestinationProperties.append(_PROPERTY_CAPTION);
-    commonListenerDestinationProperties.append(_PROPERTY_DESCRIPTION);
-    commonListenerDestinationProperties.append(_PROPERTY_ELEMENTNAME);
-    commonListenerDestinationProperties.append(
-        _PROPERTY_SYSTEMCREATIONCLASSNAME);
-    commonListenerDestinationProperties.append(_PROPERTY_SYSTEMNAME);
-    commonListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
-    commonListenerDestinationProperties.append(PEGASUS_PROPERTYNAME_NAME);
-    commonListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
-    commonListenerDestinationProperties.append(_PROPERTY_OTHERPERSISTENCETYPE);
-
-    _supportedCIMXMLHandlerProperties = commonListenerDestinationProperties;
-    _supportedCIMXMLHandlerProperties.append(_PROPERTY_OWNER);
-    _supportedCIMXMLHandlerProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
-
-    _supportedCIMXMLListenerDestinationProperties =
-        commonListenerDestinationProperties;
-    _supportedCIMXMLListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
-
-    _supportedSNMPHandlerProperties = commonListenerDestinationProperties;
-    _supportedSNMPHandlerProperties.append(_PROPERTY_OWNER);
-    _supportedSNMPHandlerProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_TARGETHOSTFORMAT);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_OTHERTARGETHOSTFORMAT);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_PORTNUMBER);
-    _supportedSNMPHandlerProperties.append(PEGASUS_PROPERTYNAME_SNMPVERSION);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYNAME);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPENGINEID);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYLEVEL);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYAUTHPROTOCOL);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYAUTHKEY);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYPRIVPROTO);
-    _supportedSNMPHandlerProperties.append(_PROPERTY_SNMPSECURITYPRIVKEY);
-
-    _supportedSyslogListenerDestinationProperties =
-        commonListenerDestinationProperties;
-
-    _supportedEmailListenerDestinationProperties =
-        commonListenerDestinationProperties;
-    _supportedEmailListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
-    _supportedEmailListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC);
-    _supportedEmailListenerDestinationProperties.append(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT);
 
     ConfigManager* configManager = ConfigManager::getInstance();
 
@@ -862,8 +880,8 @@ String _getReturnCodeString(Uint32 code)
         case _RETURNCODE_INVALIDPARAMETER:
             return String("Invalid Parameter");
     }
-
-    PEGASUS_ASSERT(false); // Never reach to unknown return code
+    // Never reach to unknown return code
+    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
 
     return String("Unknown");
 }
@@ -2050,6 +2068,11 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
                         instance, request->nameSpace, userName,
                         acceptLangs, contentLangs, false);
                     _commitCreateSubscription(subscriptionPath);
+
+                    // put correct SystemName in place
+                    _setSubscriptionSystemName(
+                        instanceRef,
+                        System::getFullyQualifiedHostName());
                 }
             }
             catch (...)
@@ -2066,6 +2089,12 @@ void IndicationService::_handleCreateInstanceRequest(const Message * message)
             instanceRef = _subscriptionRepository->createInstance(
                 instance, request->nameSpace, userName,
                 acceptLangs, contentLangs, false);
+
+            // put correct SystemName in place
+            _setSystemNameInHandlerFilter(
+                instanceRef,
+                System::getFullyQualifiedHostName());
+
         }
     }
 
@@ -2144,12 +2173,18 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         Boolean durationAdded;
         CIMPropertyList propertyList = request->propertyList;
         CIMName className = request->instanceName.getClassName();
+
         _updatePropertyList(
             className,
             propertyList,
             setTimeRemaining,
             startTimeAdded,
             durationAdded);
+
+        // Set SystemName to empty String for internal processing
+        // the SystemName will be fixed with correct fully qualified hostname
+        // on return.
+        _setSystemName(request->instanceName,String::EMPTY);
 
         //
         //  Get instance from repository
@@ -2198,10 +2233,9 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
                 PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
         // Remove Creation Time property from CIMXML handlers
-        CIMName clsName = instance.getClassName();
 
-        if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-            clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+        if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+            className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
         {
             Uint32 idx = instance.findProperty(
                 PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
@@ -2212,6 +2246,15 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
             }
         }
 
+        // Put host name back into SystemName property if not Subscription
+        if ((!className.equal(PEGASUS_CLASSNAME_INDSUBSCRIPTION)) &&
+            (!className.equal(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+        {
+            // this is a Filter or Handler instance
+            _setOrAddSystemNameInHandlerFilter(
+                instance,
+                System::getFullyQualifiedHostName());
+        }
 
         //
         //  Remove the language properties from instance before returning
@@ -2343,14 +2386,23 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         Boolean langMismatch = false;
         Uint32 propIndex;
 
-        //
+        //  In a loop do the following to all instances to be returned:
+        //  ============================================================
         //  Remove Creator and language properties from instances before
         //  returning
+        //  Remove CreationTime property from CIMXML handlers
+        //  Fix-up Content-Language header if necessary
+        //
+        //  If a subscription with a duration, calculate subscription
+        //  time remaining, and add property to the instance
+        //
+        //  put the host name into SystemName properties and key bindings
         //
         for (Uint32 i = 0; i < enumInstances.size(); i++)
         {
+            CIMInstance adjustedInstance=enumInstances[i];
             String creator;
-            if (!_getCreator(enumInstances[i], creator))
+            if (!_getCreator(adjustedInstance, creator))
             {
                 //
                 //  This instance from the repository is corrupted
@@ -2359,7 +2411,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 continue;
             }
 
-            CIMName clsName = enumInstances[i].getClassName();
+            CIMName clsName = adjustedInstance.getClassName();
 
             // check if this is SNMP Handler
             if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_SNMP))
@@ -2372,8 +2424,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 }
             }
 
-            enumInstances[i].removeProperty(
-                enumInstances[i].findProperty(
+            adjustedInstance.removeProperty(
+                adjustedInstance.findProperty(
                     PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
             // Remove CreationTime property from CIMXML handlers
@@ -2381,30 +2433,30 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             if (clsName.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
                 clsName.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
             {
-                Uint32 idx = enumInstances[i].findProperty(
+                Uint32 idx = adjustedInstance.findProperty(
                     PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME);
 
                 if (idx  != PEG_NOT_FOUND)
                 {
-                    enumInstances[i].removeProperty(idx);
+                    adjustedInstance.removeProperty(idx);
                 }
             }
 
-            propIndex = enumInstances[i].findProperty(
+            propIndex = adjustedInstance.findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             String contentLangs;
             if (propIndex != PEG_NOT_FOUND)
             {
-                enumInstances[i].getProperty(propIndex).getValue().get(
+                adjustedInstance.getProperty(propIndex).getValue().get(
                     contentLangs);
-                enumInstances[i].removeProperty(propIndex);
+                adjustedInstance.removeProperty(propIndex);
             }
 
-            propIndex = enumInstances[i].findProperty(
+            propIndex = adjustedInstance.findProperty(
                 PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                enumInstances[i].removeProperty(propIndex);
+                adjustedInstance.removeProperty(propIndex);
             }
 
             // Determine what to set into the Content-Language header back
@@ -2438,7 +2490,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             {
                 try
                 {
-                    _setTimeRemaining(enumInstances[i]);
+                    _setTimeRemaining(adjustedInstance);
                 }
                 catch (DateTimeOutOfRangeException&)
                 {
@@ -2450,17 +2502,21 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 }
                 if (startTimeAdded)
                 {
-                    enumInstances[i].removeProperty(enumInstances[i].
+                    adjustedInstance.removeProperty(adjustedInstance.
                         findProperty(_PROPERTY_STARTTIME));
                 }
                 if (durationAdded)
                 {
-                    enumInstances[i].removeProperty(
-                        enumInstances[i].findProperty(_PROPERTY_DURATION));
+                    adjustedInstance.removeProperty(
+                        adjustedInstance.findProperty(_PROPERTY_DURATION));
                 }
             }
+            // put the host name into SystemName properties and key bindings
+            _setSystemName(
+                adjustedInstance,
+                System::getFullyQualifiedHostName());
 
-            returnedInstances.append(enumInstances[i]);
+            returnedInstances.append(adjustedInstance);
         }
     }
 
@@ -2529,6 +2585,14 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
             _subscriptionRepository->enumerateInstanceNamesForClass(
                 request->nameSpace,
                 request->className);
+
+        // put the hostname back into SystemName key binding
+        for (Uint32 i=0;i<enumInstanceNames.size();i++)
+        {
+            _setSystemName(
+                enumInstanceNames[i],
+                System::getFullyQualifiedHostName());
+        }
     }
 
     // Note: not setting Content-Language in the response
@@ -2557,9 +2621,14 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
     _checkNonprivilegedAuthorization(userName);
 
     //
-    //  Get the instance name
+    //  Get modified instance and instance name from request
     //
-    CIMObjectPath instanceReference = request->modifiedInstance.getPath();
+    CIMInstance modifiedInstance = request->modifiedInstance;
+    CIMObjectPath instanceReference = modifiedInstance.getPath();
+
+    // set SystemName keybinding to empty in request's reference and instance
+    _setSystemName(instanceReference,String::EMPTY);
+    modifiedInstance.setPath(instanceReference);
 
     //
     //  Get instance from repository
@@ -2569,7 +2638,6 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
     instance = _subscriptionRepository->getInstance(
         request->nameSpace, instanceReference);
 
-    CIMInstance modifiedInstance = request->modifiedInstance;
     if (_canModify(request, instanceReference, instance, modifiedInstance))
     {
         //
@@ -2622,23 +2690,7 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
             //  Get current state from instance
             //
             Uint16 currentState;
-            Boolean valid = true;
-            if (_subscriptionRepository->getState(instance, currentState))
-            {
-                valid = _validateState(currentState);
-            }
-
-            if (!valid)
-            {
-                //
-                //  This instance from the repository is corrupted
-                //
-                PEG_METHOD_EXIT();
-                MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY,
-                    _MSG_INVALID_INSTANCES);
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-            }
-
+            _subscriptionRepository->getState(instance, currentState);
             //
             //  Get new state
             //
@@ -2927,6 +2979,9 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
         IdentityContainer::NAME)).getUserName();
     _checkNonprivilegedAuthorization(userName);
 
+    // set eventual SystemName keybinding to empty string
+    _setSystemName(request->instanceName,String::EMPTY);
+
     //
     //  Check if instance may be deleted -- a filter or handler instance
     //  referenced by a subscription instance may not be deleted
@@ -2957,7 +3012,9 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
         if (request->instanceName.getClassName().equal(
                 PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
             request->instanceName.getClassName().equal(
-               PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+               PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+            request->instanceName.getClassName().equal(
+               PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
         {
             CIMObjectPath handlerName = request->instanceName;
             handlerName.setNameSpace(request->nameSpace);
@@ -3092,8 +3149,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     PEGASUS_ASSERT(request != 0);
 
     Array<CIMInstance> matchedSubscriptions;
-    Array<String> matchedSubscriptionsKeys;
-    Uint32 timeout = request->timeoutMilliSec;
+    Array<SubscriptionKey> matchedSubscriptionsKeys;
 
     CIMInstance indication = request->indicationInstance;
     
@@ -3176,7 +3232,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
         // in the subscriptionInstanceNamesContainer
         //
         Array<CIMInstance> subscriptions;
-        Array<String> subscriptionKeys;
+        Array<SubscriptionKey> subscriptionKeys;
 
         _getRelevantSubscriptions(
             request->subscriptionInstanceNames,
@@ -3380,8 +3436,6 @@ void IndicationService::_handleIndicationCallBack (
 
     IndicationService * service =
         static_cast<IndicationService *> (destination);
-    CIMInstance * subscription =
-        reinterpret_cast<CIMInstance *> (userParameter);
     AsyncReply * asyncReply =
         static_cast<AsyncReply *>(operation->removeResponse());
     CIMHandleIndicationResponseMessage* handlerResponse =
@@ -3396,11 +3450,6 @@ void IndicationService::_handleIndicationCallBack (
             "Sending Indication and HandlerService returns CIMException: %s",
             (const char*)
                 handlerResponse->cimException.getMessage().getCString()));
-
-        //
-        //  ATTN-CAKG-P1-20020326: Implement subscription's OnFatalErrorPolicy
-        //
-        //service->_subscriptionRepository->reconcileFatalError (*subscription);
     }
 
     delete handlerResponse;
@@ -4387,12 +4436,6 @@ Boolean IndicationService::_canCreate (
     // class?
 
     //
-    //  Validate that all properties in the instance are supported properties,
-    //  and reject create if an unknown, unsupported property is found
-    //
-    _checkSupportedProperties (instance);
-
-    //
     //  Check all required properties exist
     //  For a property that has a default value, if it does not exist or is
     //  null, add or set property with default value
@@ -4463,6 +4506,26 @@ Boolean IndicationService::_canCreate (
                         PEGASUS_PROPERTYNAME_FILTER.getString()));
             }
         }
+        // Set SystemName key property to empty
+        try
+        {
+            IndicationService::_setSystemNameInHandlerFilter(
+                filterPath,
+                String::EMPTY);
+            filterValue.set(filterPath);
+            filterProperty.setValue(filterValue);
+        }
+        catch(Exception &)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    _MSG_INVALID_VALUE_FOR_PROPERTY,
+                    origFilterPath.toString(),
+                    PEGASUS_PROPERTYNAME_FILTER.getString()));
+        }
 
         CIMObjectPath origHandlerPath = handlerPath;
         if (handlerPath.getHost () != String::EMPTY)
@@ -4481,6 +4544,26 @@ Boolean IndicationService::_canCreate (
                         origHandlerPath.toString(),
                         PEGASUS_PROPERTYNAME_HANDLER.getString()));
             }
+        }
+        // Set SystemName key property to empty
+        try
+        {
+            IndicationService::_setSystemNameInHandlerFilter(
+                handlerPath,
+                String::EMPTY);
+            handlerValue.set(handlerPath);
+            handlerProperty.setValue(handlerValue);
+        }
+        catch(Exception &)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    _MSG_INVALID_VALUE_FOR_PROPERTY,
+                    origHandlerPath.toString(),
+                    PEGASUS_PROPERTYNAME_HANDLER.getString()));
         }
 
         //
@@ -4539,7 +4622,6 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERSTATE,
             (Uint16) STATE_ENABLED,
             (Uint16) STATE_OTHER,
-            _validStates,
             _supportedStates);
 
         _checkPropertyWithOther(
@@ -4548,7 +4630,6 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY,
             (Uint16) _POLICY_NONE,
             (Uint16) _POLICY_OTHER,
-            _validRepeatPolicies,
             _supportedRepeatPolicies);
 
         _checkPropertyWithOther(
@@ -4557,25 +4638,7 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERONFATALERRORPOLICY,
             (Uint16) _ERRORPOLICY_IGNORE,
             (Uint16) _ERRORPOLICY_OTHER,
-            _validErrorPolicies,
             _supportedErrorPolicies);
-
-        //
-        //  For each remaining property, verify that if the property exists in
-        //  the instance it is of the correct type
-        //
-        _checkProperty(instance, _PROPERTY_FAILURETRIGGERTIMEINTERVAL,
-            CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_LASTCHANGE, CIMTYPE_DATETIME);
-        _checkProperty(instance, _PROPERTY_DURATION, CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_STARTTIME, CIMTYPE_DATETIME);
-        _checkProperty(instance, _PROPERTY_TIMEREMAINING, CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_REPEATNOTIFICATIONINTERVAL,
-            CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_REPEATNOTIFICATIONGAP,
-            CIMTYPE_UINT64);
-        _checkProperty(instance, _PROPERTY_REPEATNOTIFICATIONCOUNT,
-            CIMTYPE_UINT16);
 
         if (instance.getClassName().equal(
             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
@@ -4673,7 +4736,7 @@ Boolean IndicationService::_canCreate (
                 CIMTYPE_STRING,
                 true);
         }
-        else
+        else //Handler 
         {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
             // Name is an optional property for Handler. If Name key property
@@ -4694,12 +4757,9 @@ Boolean IndicationService::_canCreate (
             instance,
             PEGASUS_PROPERTYNAME_CREATIONCLASSNAME,
             instance.getClassName().getString());
-
-        _initOrValidateStringProperty(
-            instance,
-            _PROPERTY_SYSTEMNAME,
-            System::getFullyQualifiedHostName());
-
+        
+        _setOrAddSystemNameInHandlerFilter(instance,String::EMPTY);
+        
         _initOrValidateStringProperty(
             instance,
             _PROPERTY_SYSTEMCREATIONCLASSNAME,
@@ -4837,7 +4897,7 @@ Boolean IndicationService::_canCreate (
         }
 
         //
-        //  Currently only five subclasses of the Listener Destination
+        //  Currently only seven subclasses of the Listener Destination
         //  class are supported -- further subclassing is not currently
         //  supported
         //
@@ -4850,8 +4910,14 @@ Boolean IndicationService::_canCreate (
          (instance.getClassName ().equal
           (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
                  (instance.getClassName ().equal
-                  (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
+                  (PEGASUS_CLASSNAME_INDHANDLER_SNMP)) ||
+                 (instance.getClassName ().equal
+                  (PEGASUS_CLASSNAME_INDHANDLER_WSMAN)) ||
+                 (instance.getClassName ().equal
+                  (PEGASUS_CLASSNAME_LSTNRDST_FILE)))
+
         {
+
 #ifndef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
             if (instance.getClassName ().equal
             (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
@@ -4884,25 +4950,36 @@ Boolean IndicationService::_canCreate (
                    _MSG_CLASS_NOT_SERVED));
         }
 #endif
+
+#ifndef PEGASUS_ENABLE_PROTOCOL_WSMAN
+            if (instance.getClassName ().equal
+            (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+            {
+                //
+                //  The WSMAN Handler is not enabled currently,
+                //  this class is not currently served by the Indication Service
+                //
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY,
+            _MSG_CLASS_NOT_SERVED));
+        }
+#endif
             _checkPropertyWithOther(
                 instance,
                 PEGASUS_PROPERTYNAME_PERSISTENCETYPE,
                 _PROPERTY_OTHERPERSISTENCETYPE,
                 (Uint16) PERSISTENCE_PERMANENT,
                 (Uint16) PERSISTENCE_OTHER,
-                _validPersistenceTypes,
                 _supportedPersistenceTypes);
-
-            //
-            //  For remaining property, verify that if the property exists in
-            //  the instance it is of the correct type
-            //
-            _checkProperty(instance, _PROPERTY_OWNER, CIMTYPE_STRING);
 
             if (instance.getClassName().equal(
                     PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
                 instance.getClassName().equal(
-                    PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+                    PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
+                instance.getClassName ().equal(
+                    PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
             {
                 //
                 //  Destination property is required for CIMXML
@@ -4912,6 +4989,18 @@ Boolean IndicationService::_canCreate (
                     instance,
                     PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION,
                     CIMTYPE_STRING,
+                    false);
+            }
+            
+            // WSMAN Indication Handler properties are checked below
+            if (instance.getClassName().equal
+                (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+            {
+                // Delivery Mode property is required for WSMAN Handler
+                _checkRequiredProperty(
+                    instance,
+                    PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE,
+                    CIMTYPE_UINT16,
                     false);
             }
 
@@ -4953,28 +5042,18 @@ Boolean IndicationService::_canCreate (
                 _checkValue(
                     instance,
                     PEGASUS_PROPERTYNAME_SNMPVERSION,
-                    _validSNMPVersion,
                     _supportedSNMPVersion);
+            }
 
-                //
-                //  For each remaining property, verify that if the property
-                //  exists in the instance it is of the correct type
-                //
-                _checkProperty(instance, _PROPERTY_PORTNUMBER, CIMTYPE_UINT32);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYNAME,
-                    CIMTYPE_STRING);
-                _checkProperty(instance, _PROPERTY_SNMPENGINEID,
-                    CIMTYPE_STRING);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYLEVEL,
-                    CIMTYPE_UINT8);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYAUTHPROTOCOL,
-                    CIMTYPE_UINT8);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYAUTHKEY,
-                    CIMTYPE_UINT8,1);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYPRIVPROTO,
-                    CIMTYPE_UINT8);
-                _checkProperty(instance, _PROPERTY_SNMPSECURITYPRIVKEY,
-                    CIMTYPE_UINT8,1);
+            if (instance.getClassName().equal
+                (PEGASUS_CLASSNAME_LSTNRDST_FILE))
+            {
+                // Checks for required file path
+                _checkRequiredProperty(
+                    instance,
+                    PEGASUS_PROPERTYNAME_LSTNRDST_FILE,
+                    CIMTYPE_STRING,
+                    false);
             }
 
             if (instance.getClassName().equal
@@ -5035,19 +5114,8 @@ Boolean IndicationService::_canCreate (
                     PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT,
                     CIMTYPE_STRING,
                     false);
-
-                //
-                //  For MailCc property, verify that if the property
-                //  exists in the instance it is of the correct type
-                //
-                _checkProperty(
-                    instance,
-                    PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
-                    CIMTYPE_STRING,
-                    true);
             }
         }
-
         else
         {
             //
@@ -5167,7 +5235,6 @@ void IndicationService::_checkPropertyWithOther (
     const CIMName& otherPropertyName,
     const Uint16 defaultValue,
     const Uint16 otherValue,
-    const Array<Uint16>& validValues,
     const Array<Uint16>& supportedValues)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -5235,24 +5302,6 @@ void IndicationService::_checkPropertyWithOther (
         else
         {
             theValue.get (result);
-
-            //
-            //  Validate the value
-            //
-            //  Note: Valid values are defined by the CIM Event Schema MOF
-            //
-            if (!Contains (validValues, result))
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                        _MSG_INVALID_VALUE_FOR_PROPERTY,
-                        theValue.toString(),
-                        propertyName.getString()));
-            }
-
             //
             //  Check for valid values that are not supported
             //
@@ -5457,11 +5506,9 @@ String IndicationService::_initOrValidateStringProperty (
 
     if (propertyValue != defaultValue)
     {
-#ifdef PEGASUS_SNIA_EXTENSIONS
-        // SNIA requires SystemName and SystemCreationClassName to be
+        // SNIA requires SystemCreationClassName to be
         // overridden with the correct values.
-        if ((propertyName == _PROPERTY_SYSTEMNAME) ||
-            (propertyName == _PROPERTY_SYSTEMCREATIONCLASSNAME))
+        if (propertyName == _PROPERTY_SYSTEMCREATIONCLASSNAME)
         {
             // The property must exist after _checkPropertyWithDefault is called
             CIMProperty p =
@@ -5470,7 +5517,6 @@ String IndicationService::_initOrValidateStringProperty (
             PEG_METHOD_EXIT();
             return result;
         }
-#endif
 
         //
         //  Property value specified is invalid
@@ -5546,86 +5592,9 @@ void IndicationService::_checkProperty (
     PEG_METHOD_EXIT ();
 }
 
-void IndicationService::_checkSupportedProperties (
-    const CIMInstance& instance)
-{
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_checkSupportedProperties");
-
-    CIMName className = instance.getClassName ();
-    Array<CIMName> emptyArray;
-    Array<CIMName>& supportedProperties = emptyArray;
-
-    //
-    //  Get list of supported properties for the class
-    //
-    if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
-    {
-        supportedProperties = _supportedSubscriptionProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
-    {
-        supportedProperties = _supportedFormattedSubscriptionProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDFILTER))
-    {
-        supportedProperties = _supportedFilterProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
-    {
-        supportedProperties = _supportedCIMXMLHandlerProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
-    {
-        supportedProperties = _supportedCIMXMLListenerDestinationProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
-    {
-        supportedProperties = _supportedSNMPHandlerProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
-    {
-        supportedProperties = _supportedSyslogListenerDestinationProperties;
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
-    {
-        supportedProperties = _supportedEmailListenerDestinationProperties;
-    }
-    else
-    {
-        PEGASUS_ASSERT (false);
-    }
-
-    //
-    //  Check if each property in the instance is in the list of supported,
-    //  known properties for its class
-    //
-    for (Uint32 i = 0; i < instance.getPropertyCount (); i++)
-    {
-        if (!ContainsCIMName (supportedProperties,
-            instance.getProperty (i).getName ()))
-        {
-            //
-            //  Throw an exception if an unknown, unsupported property was found
-            //
-            PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms(
-                    "IndicationService.IndicationService."
-                        "_MSG_PROPERTY_NOT_SUPPORTED",
-                    "Property $0 is not supported in class $1",
-                    instance.getProperty (i).getName ().getString (),
-                    className.getString ()));
-        }
-    }
-
-    PEG_METHOD_EXIT ();
-}
-
 void IndicationService::_checkValue (
     const CIMInstance& instance,
     const CIMName& propertyName,
-    const Array<Uint16>& validValues,
     const Array<Uint16>& supportedValues)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -5642,22 +5611,6 @@ void IndicationService::_checkValue (
         if (!(propertyValue.isNull()))
         {
             propertyValue.get(theValue);
-
-            // Validate the value
-            // Note: Valid values are defined by the PG Events MOF
-            if (!Contains(validValues, theValue))
-            {
-                PEG_METHOD_EXIT();
-
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        _MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                        _MSG_INVALID_VALUE_FOR_PROPERTY,
-                        theValue,
-                        propertyName.getString()));
-
-            }
 
             // Check for valid values that are not supported
             // Note: Supported values are a subset of the valid values
@@ -5747,7 +5700,6 @@ Boolean IndicationService::_canModify (
         _PROPERTY_OTHERSTATE,
         (Uint16) STATE_ENABLED,
         (Uint16) STATE_OTHER,
-        _validStates,
         _supportedStates);
 
     //
@@ -5774,14 +5726,22 @@ Boolean IndicationService::_canModify (
     //
     String currentUser = ((IdentityContainer)request->operationContext.get
         (IdentityContainer :: NAME)).getUserName();
-    if ((creator != String::EMPTY) &&
+    if ((creator.size() != 0) &&
 #ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
-#endif
         (currentUser != creator))
+#else     
+        !String::equalNoCase(currentUser, creator))
+#endif   
     {
         PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
+        throw PEGASUS_CIM_EXCEPTION_L(
+                        CIM_ERR_ACCESS_DENIED,
+                        MessageLoaderParms(
+                            _MSG_NOT_CREATOR_KEY,
+                            _MSG_NOT_CREATOR,
+                            currentUser,
+                            creator));   
     }
 
     PEG_METHOD_EXIT ();
@@ -5835,14 +5795,22 @@ Boolean IndicationService::_canDelete (
     //  If creator is String::EMPTY, anyone may modify or delete the
     //  instance
     //
-    if ((creator != String::EMPTY) &&
+    if ((creator.size() != 0) &&
 #ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
-#endif
         (currentUser != creator))
+#else     
+        !String::equalNoCase(currentUser, creator))
+#endif 
     {
         PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
+        throw PEGASUS_CIM_EXCEPTION_L(
+                        CIM_ERR_ACCESS_DENIED,
+                        MessageLoaderParms(
+                            _MSG_NOT_CREATOR_KEY,
+                            _MSG_NOT_CREATOR,
+                            currentUser,
+                            creator));  
     }
 
     //
@@ -6581,7 +6549,7 @@ Array<ProviderClassList> IndicationService::_getIndicationProviders (
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                         String remoteInformation;
                         Boolean isRemote = _cimRepository->isRemoteNameSpace(
-                            nameSpace, remoteInformation);
+                            nscl.nameSpace, remoteInformation);
                         provider.isRemoteNameSpace = isRemote;
                         provider.remoteInfo = remoteInformation;
 #endif
@@ -6849,7 +6817,6 @@ void IndicationService::_deleteExpiredSubscription(
         "IndicationService::_deleteExpiredSubscription");
 
     CIMInstance subscriptionInstance;
-
     //
     //  Delete instance from repository
     //
@@ -6938,6 +6905,9 @@ void IndicationService::_deleteExpiredSubscription(
                 indicationSubclasses,
                 creator);
         }
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+        _deleteFilterHandler(subscriptionInstance);
+#endif
     }
     else
     {
@@ -6948,6 +6918,84 @@ void IndicationService::_deleteExpiredSubscription(
 
     PEG_METHOD_EXIT();
 }
+
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+//If the subscription is wsman then Delete the filter and handler
+//also from the repository.
+void IndicationService::_deleteFilterHandler(
+    CIMInstance& subscriptionInstance)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_deleteFilterHandler");
+    Uint32 handlerPropIndex = subscriptionInstance.findProperty(
+        PEGASUS_PROPERTYNAME_HANDLER);
+    if(handlerPropIndex != PEG_NOT_FOUND)
+    {
+        CIMProperty handlerProperty = subscriptionInstance.getProperty(
+            handlerPropIndex);
+        CIMObjectPath handlerObjPath;
+        handlerProperty.getValue().get(handlerObjPath);
+        if(handlerObjPath.getClassName() ==
+            PEGASUS_CLASSNAME_INDHANDLER_WSMAN)
+        {
+            Array<CIMKeyBinding> keyBindings = handlerObjPath.
+                getKeyBindings();
+            // Get the Handler name
+            String handlerName;
+            for(Uint32 i = 0 ; i < keyBindings.size(); i++)
+            {
+                 if(keyBindings[i].getName().getString() ==
+                     PEGASUS_PROPERTYNAME_NAME.getString())
+                 {
+                     handlerName = keyBindings[i].getValue();
+                     break;
+                 }
+            }
+            _subscriptionRepository->deleteInstance(
+                handlerObjPath.getNameSpace(), handlerObjPath);
+        }
+    }
+
+    Uint32 filterPropIndex = subscriptionInstance.findProperty(
+        PEGASUS_PROPERTYNAME_FILTER);
+    if(filterPropIndex != PEG_NOT_FOUND)
+    {
+        CIMProperty filterProperty = subscriptionInstance.
+            getProperty(filterPropIndex);
+        CIMObjectPath filterObjPath;
+        filterProperty.getValue().get(filterObjPath);
+        Array<CIMKeyBinding> keyBindings = filterObjPath.
+            getKeyBindings();
+        // Get Filter name
+        String filterName;
+        for(Uint32 i = 0 ; i < keyBindings.size(); i++)
+        {
+             if(keyBindings[i].getName().getString() ==
+                 PEGASUS_PROPERTYNAME_NAME.getString())
+             {
+                 filterName = keyBindings[i].getValue();
+                 break;
+             }
+        }
+        // If filter was created by the wsman subscribe request,
+        // then delete it. If filter is created by wsman subscribe
+        // request, subscriptionInfo and filter name will match.
+        Uint32 subInfoIndex = subscriptionInstance.findProperty(
+            _PROPERTY_SUBSCRIPTION_INFO);
+        CIMProperty subInfoProperty = subscriptionInstance.
+            getProperty(subInfoIndex);
+        String subscriptionInfo;
+        subInfoProperty.getValue().get(subscriptionInfo);
+        if (subscriptionInfo == filterName)
+        {
+            _subscriptionRepository->deleteInstance(
+                filterObjPath.getNameSpace(),filterObjPath);
+        }
+    }
+    PEG_METHOD_EXIT();
+}
+#endif
 
 Boolean IndicationService::_getTimeRemaining(
     const CIMInstance& instance,
@@ -7016,7 +7064,7 @@ Boolean IndicationService::_getTimeRemaining(
                 //
                 else
                 {
-                    PEGASUS_ASSERT(false);
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 }
             }
 
@@ -7463,11 +7511,7 @@ void IndicationService::_sendAsyncCreateRequests(
 
             default:
             {
-                PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL1,
-                    "Unexpected origRequest type %s "
-                    "in _sendAsyncCreateRequests",
-                    MessageTypeToString(origRequest->getType())));
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 break;
             }
         }
@@ -7951,11 +7995,7 @@ void IndicationService::_sendAsyncDeleteRequests(
 
             default:
             {
-                PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL1,
-                    "Unexpected origRequest type %s "
-                    "in _sendAsyncDeleteRequests",
-                    MessageTypeToString(origRequest->getType())));
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
                 break;
             }
         }
@@ -8022,21 +8062,23 @@ void IndicationService::_sendAsyncDeleteRequests(
         Uint32 serviceId;
         if (!indicationProviders[i].controlProviderName.size())
         {
-            AsyncLegacyOperationStart * async_req =
-                new AsyncLegacyOperationStart(
-                   op,
-                   _providerManager,
-                   request);
+            // constructor puts the object itself into a linked list
+            // DO NOT remove the new !!!
+            new AsyncLegacyOperationStart(
+                op,
+                _providerManager,
+                request);
             serviceId = _providerManager;
         }
         else
         {
-           AsyncModuleOperationStart* moduleControllerRequest =
-               new AsyncModuleOperationStart(
-                   op,
-                   _moduleController,
-                   indicationProviders[i].controlProviderName,
-                   request);
+            // constructor puts the object itself into a linked list
+            // DO NOT remove the new !!!
+            new AsyncModuleOperationStart(
+                op,
+                _moduleController,
+                indicationProviders[i].controlProviderName,
+                request);
            serviceId = _moduleController;
         }
 
@@ -8246,12 +8288,7 @@ void IndicationService::_handleOperationResponseAggregation(
 
         default:
         {
-            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-                "Unexpected request type %s "
-                "in _handleOperationResponseAggregation",
-                MessageTypeToString(
-                    operationAggregate->getRequest(0)->getType())));
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
             break;
         }
     }
@@ -8447,6 +8484,12 @@ void IndicationService::_handleCreateResponseAggregation(
                     operationAggregate->getOrigRequest()->buildResponse());
             PEGASUS_ASSERT(response != 0);
             response->cimException = cimException;
+            
+            // put correct SystemName in place
+            _setSubscriptionSystemName(
+                instanceRef,
+                System::getFullyQualifiedHostName());
+
             response->instanceName = instanceRef;
             _enqueueResponse(operationAggregate->getOrigRequest(), response);
         }
@@ -8821,23 +8864,6 @@ Boolean IndicationService::_getCreator(
     return true;
 }
 
-Boolean IndicationService::_validateState(
-    const Uint16 state) const
-{
-    //
-    //  Validate the value
-    //
-    if (!Contains(_validStates, state))
-    {
-        //
-        //  This is a corrupted/invalid instance
-        //
-        return false;
-    }
-
-    return true;
-}
-
 void IndicationService::_updatePropertyList(
     CIMName& className,
     CIMPropertyList& propertyList,
@@ -9035,7 +9061,7 @@ void IndicationService::_getRelevantSubscriptions(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& indicationProvider,
     Array<CIMInstance>& subscriptions,
-    Array<String>& subscriptionKeys)
+    Array<SubscriptionKey>& subscriptionKeys)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_getRelevantlSubscriptions");
@@ -9059,13 +9085,17 @@ void IndicationService::_getRelevantSubscriptions(
     // specified by the indication provider that also appear in the initial
     // subscriptions list is returned.
     //
-
     if (providedSubscriptionNames.size() > 0)
     {
+        Uint32 n = providedSubscriptionNames.size();
+        Array<SubscriptionKey> provSubKeys(n);
+        for (Uint32 i = 0; i < n; i++)
+        {
+            provSubKeys.append(SubscriptionKey(providedSubscriptionNames[i]));
+        }
         for (Uint32 i = 0; i < subscriptions.size(); i++)
         {
-            if (!Contains(providedSubscriptionNames,
-                          subscriptions[i].getPath()))
+            if (!Contains(provSubKeys, subscriptionKeys[i]))
             {
                 subscriptions.remove(i);
                 subscriptionKeys.remove(i);

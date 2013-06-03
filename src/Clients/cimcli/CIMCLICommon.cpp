@@ -198,6 +198,18 @@ void _print(Boolean x)
     cout << _toString(x);
 }
 
+String _toString(Array<CIMName> array)
+{
+    String rtn;
+    for (Uint32 i = 0 ; i < array.size(); i++)
+    {
+        rtn.append(" ");
+
+        rtn.append(array[i].getString());
+    }
+    return rtn;
+}
+
 // Convert a CIMPropertyList parameter to CIM String
 String _toString(const CIMPropertyList& pl)
 {
@@ -396,9 +408,17 @@ void cimcliExit(Uint32 exitCode)
     {
         exit(0);
     }
-    cerr << "WARNING: Expected exit code " << expectedExitCode
-         << ". Program delivered exit code (" << exitCode
-         << ") " << rtnExitCodeToString(exitCode) << endl;
+
+    // Do not print a warning message if the expected return code is
+    // zero (success) since a more precise exception message was
+    // printed already. The warning does not contain additional user-relevant
+    // information in this case but can be misleading.
+    if ( 0 != expectedExitCode )
+    {
+        cerr << "WARNING: Expected exit code " << expectedExitCode
+             << ". Program delivered exit code (" << exitCode
+             << ") " << rtnExitCodeToString(exitCode) << endl;
+    }
     exit(exitCode);
 }
 
@@ -472,6 +492,16 @@ String stringPrintf(const char* format, ...)
     free(rtnCharPtr);
 
     return(rtnString);
+}
+
+String fillString(Uint32 count,  const char x)
+{
+    String str;
+    for (Uint32 i = 0 ; i < count ; i++)
+    {
+        str.append(x);
+    }
+    return str;
 }
 
 /* Remap a long string into a multi-line string that can be positioned on a

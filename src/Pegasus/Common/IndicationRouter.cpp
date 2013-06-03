@@ -49,10 +49,11 @@ IndicationRouter::IndicationRouter(
 void IndicationRouter::deliverAndWaitForStatus()
 {
     String uniqueMessageId;
-    Uint32 timeoutMilliSec = _request->timeoutMilliSec;
 
 #ifdef PEGASUS_ENABLE_INDICATION_ORDERING
     // Wait only if this indication is not coming from OOP provider.
+    Uint32 timeoutMilliSec = _request->timeoutMilliSec;
+
     if (!_request->oopAgentName.size())
     {
         char messagePtrString[20];
@@ -62,8 +63,9 @@ void IndicationRouter::deliverAndWaitForStatus()
 
         AutoMutex mtx(_statusMutex);
         _entry =  new DeliveryStatusEntry;
-        Boolean ok = _statusTable.insert(uniqueMessageId, _entry);
-        PEGASUS_ASSERT(ok);
+        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+            true,
+            _statusTable.insert(uniqueMessageId, _entry));
     }
 
     _deliveryRoutine(_request);

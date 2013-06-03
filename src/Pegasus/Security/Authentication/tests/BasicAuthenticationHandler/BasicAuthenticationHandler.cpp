@@ -116,8 +116,6 @@ void testAuthenticationFailure_1()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -131,8 +129,7 @@ void testAuthenticationFailure_1()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -152,8 +149,6 @@ void testAuthenticationFailure_2()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -168,8 +163,7 @@ void testAuthenticationFailure_2()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -189,8 +183,6 @@ void testAuthenticationFailure_3()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -202,8 +194,7 @@ void testAuthenticationFailure_3()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -223,8 +214,6 @@ void testAuthenticationFailure_4()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -236,8 +225,7 @@ void testAuthenticationFailure_4()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -257,8 +245,6 @@ void testAuthenticationFailure_4()
 void testAuthenticationSuccess()
 {
     String authHeader;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -272,8 +258,7 @@ void testAuthenticationSuccess()
 
     Boolean authenticated;
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -339,10 +324,8 @@ int main(int, char** argv)
 
         // -- Create a UserManager object:
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager* userManager = UserManager::getInstance(repository);
         PEGASUS_TEST_ASSERT(0 != userManager);
-#endif
 
         testAuthHeader();
 
@@ -361,9 +344,7 @@ int main(int, char** argv)
         if (verbose) cout << "Doing testAuthenticationSuccess()...." << endl;
         testAuthenticationSuccess();
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager::destroy();
-#endif
         delete repository;
         FileSystem::removeDirectoryHier(repositoryPath);
     }

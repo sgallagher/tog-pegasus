@@ -63,7 +63,7 @@ PEGASUS_NAMESPACE_BEGIN
 
        Tracer::setTraceComponents("Config,Repository");
 */
-static char const* TRACE_COMPONENT_LIST[] =
+char const* Tracer::TRACE_COMPONENT_LIST[] =
 {
     "Xml",
     "XmlIO",
@@ -102,8 +102,13 @@ static char const* TRACE_COMPONENT_LIST[] =
     "CMPIProviderInterface",
     "WsmServer",
     "LogMessages",
-    "WMIMapperConsumer"
+    "WMIMapperConsumer",
+    "InternalProvider"
 };
+
+// Set the number of defined components
+const Uint32 Tracer::_NUM_COMPONENTS =
+    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 
 // Defines the value values for trace facilities
@@ -138,10 +143,6 @@ Tracer* Tracer::_tracerInstance = 0;
 
 // Set component separator
 const char Tracer::_COMPONENT_SEPARATOR = ',';
-
-// Set the number of defined components
-const Uint32 Tracer::_NUM_COMPONENTS =
-    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 // Set the line maximum
 const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
@@ -326,7 +327,7 @@ char* Tracer::_formatHexDump(
         len = sprintf(targetBuffer, "%02X", c);
         targetBuffer+=len;
 
-        if ( ((col+1)%4) == 0 )
+        if ( ((col+1) & 3) == 0 )
         {
             *targetBuffer = ' ';
             targetBuffer++;
@@ -451,9 +452,7 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
     char* sep;
     const char* line = requestBuf.get();
 
-    while ((sep = HTTPMessage::findSeparator(
-        line, (Uint32)(requestSize - (line - requestBuf.get())))) &&
-        (line != sep))
+    while ((sep = HTTPMessage::findSeparator(line)) && (line != sep))
     {
         if (HTTPMessage::expectHeaderToken(line, "Authorization") &&
              HTTPMessage::expectHeaderToken(line, ":") &&
@@ -607,11 +606,6 @@ void Tracer::_traceCString(
     }
     else
     {
-        //
-        // Since the message is blank, form a string using the pid and tid
-        //
-        char* tmpBuffer;
-
         //
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
@@ -1103,5 +1097,16 @@ void Tracer::traceCIMException(
 }
 
 #endif /* !PEGASUS_REMOVE_TRACE */
+
+void Tracer::setMaxTraceFileSize(Uint32 maxTraceFileSizeBytes) 
+{  
+    _getInstance()->_traceHandler->setMaxTraceFileSize(maxTraceFileSizeBytes);
+} 
+
+void Tracer::setMaxTraceFileNumber(Uint32 maxTraceFileNumber)
+{
+    _getInstance()->_traceHandler->setMaxTraceFileNumber(maxTraceFileNumber);
+}
+
 
 PEGASUS_NAMESPACE_END

@@ -58,7 +58,6 @@ int main()
     Uint32 port = System::lookupPort(
         WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
 
-    const char* pegasusHome = getenv("PEGASUS_HOME");
     String cipherSuite;
     String trustStorePath;
     String certPath;
@@ -66,6 +65,7 @@ int main()
 
     String randPath;
 # ifdef PEGASUS_SSL_RANDOMFILE
+    const char* pegasusHome = getenv("PEGASUS_HOME");
     randPath = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 # endif

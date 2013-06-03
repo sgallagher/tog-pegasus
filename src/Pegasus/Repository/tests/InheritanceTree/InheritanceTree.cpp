@@ -203,7 +203,7 @@ int main(int, char** argv)
         it.insert("A", "");
         it.check();
         // check() should have thrown an InvalidInheritanceTree exception.
-        PEGASUS_TEST_ASSERT(false);
+        PEGASUS_ASSERT(false);
     }
     catch (InvalidInheritanceTree& e)
     {

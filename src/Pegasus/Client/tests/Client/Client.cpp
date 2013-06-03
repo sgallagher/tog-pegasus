@@ -409,7 +409,7 @@ static void TestDomainSocketConnection()
         caughtException = true;
     }
 
-    PEGASUS_TEST_ASSERT(caughtException);
+    PEGASUS_ASSERT(caughtException);
 
 #endif
 }

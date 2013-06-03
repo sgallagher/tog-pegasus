@@ -143,17 +143,17 @@ String _toString(Uint32Arg x)
     @return true if too many
 */
 Boolean _testRcvTooManyElements(
-    const Uint32Arg& maxPullObjects,
+    const Uint32Arg& maxObjectCount,
     Uint32 returnedElementCount, Boolean verbose)
 {
-    if (!maxPullObjects.isNull())
+    if (!maxObjectCount.isNull())
     {
-        if ((maxPullObjects.getValue() < returnedElementCount) && verbose)
+        if ((maxObjectCount.getValue() < returnedElementCount) && verbose)
         {
              cout << "Error. Operation"
                     " returned more than requested elements."
                 << " Returned " << returnedElementCount << " elements. "
-                << "maxPullObjects = " << maxPullObjects.getValue() << endl;
+                << "maxObjectCount = " << maxObjectCount.getValue() << endl;
              return(true);
         }
     }
@@ -197,7 +197,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 
     for (Uint32 i = 0 ; i < listSize; i++)
     {
-        cout << i + 1 << ": " << selectList[i] << endl;
+        cout << i + 1 << ": " << selectList[i].getCString() << endl;
     }
 
     while (rtn < 1 || rtn > listSize)
@@ -436,6 +436,37 @@ Boolean _compareInstances(CIMInstance& inst1,
 {
     Boolean returnValue = true;
 
+
+    // If the number of properties not the same in the two instances
+    // rtnd instance  must have more than test instance.
+    if (inst1.getPropertyCount() != inst2.getPropertyCount())
+    {
+        returnValue = false;
+        if (verbose)
+        {
+            for (Uint32 i = 0 ; i < inst2.getPropertyCount() ; i++)
+            {
+                CIMProperty inst2Property = inst2.getProperty(i);
+                CIMName testName = inst2Property.getName();
+                if (inst1.findProperty(testName) == PEG_NOT_FOUND)
+                {
+                    cout << "Error: property " << testName.getString()
+                        << " not found in test instance" << endl;
+                }
+            }
+            for (Uint32 i = 0 ; i < inst1.getPropertyCount() ; i++)
+            {
+                CIMProperty inst1Property = inst1.getProperty(i);
+                CIMName testName = inst1Property.getName();
+                if (inst2.findProperty(testName) == PEG_NOT_FOUND)
+                {
+                    cout << "Error: property " << testName.getString()
+                        << " not found in returned instance" << endl;
+                }
+            }
+        }
+        return returnValue;
+    }
     // for each property in the test instance.
     // If there are extra properties in the returned instance we do not not
     // that here.  See next set of tests.
@@ -473,26 +504,44 @@ Boolean _compareInstances(CIMInstance& inst1,
                 cout << "Error: Property " << testName.getString()
                     << "not found in returned instance" << endl;
             }
+            return returnValue;
         }
 
-        // If the number of properties not the same in the two instances
-        // rtnd instance  must have more than test instance.
-        if (inst1.getPropertyCount() != inst2.getPropertyCount())
+    }
+    for (Uint32 i = 0; i < inst2.getPropertyCount(); i++ )
+    {
+        CIMProperty inst2Property = inst2.getProperty(i);
+        CIMName testName = inst2Property.getName();
+        Uint32 pos;
+
+        // test for property in returned instance
+        if ((pos = inst1.findProperty(testName)) != PEG_NOT_FOUND)
+        {
+            CIMProperty inst1Property = inst1.getProperty(pos);
+
+            // if the instances are identical pass the test
+            // else we will compare in detail
+            if (!inst2Property.identical(inst1Property))
+            {
+                // compare the properties.  Normally we test primarily
+                // on value but there is a detailed test for all of the
+                // attributes.
+                returnValue = _compareProperty(inst2Property,
+                                 inst1Property,
+                                 opts,
+                                 detailedTest,
+                                 verbose);
+            }
+        }
+        else   // Property not found in second instance
         {
             returnValue = false;
             if (verbose)
             {
-                for (Uint32 i = 0 ; i < inst2.getPropertyCount() ; i++)
-                {
-                    CIMProperty inst2Property = inst2.getProperty(i);
-                    CIMName testName = inst2Property.getName();
-                    if (inst1.findProperty(testName) == PEG_NOT_FOUND)
-                    {
-                        cout << "Error: property " << testName.getString()
-                            << " not found in test instance" << endl;
-                    }
-                }
+                cout << "Error: Property " << testName.getString()
+                     << "not found in test instance" << endl;
             }
+            return returnValue;
         }
     }
     return returnValue;
@@ -558,7 +607,7 @@ Boolean _findInteropNamespace(Options& opts,
                NOTE: Possible exceptions include namespace does not exist
                      and class does not exist.
             */
-            cout << "Info: CIMException return to CIM_NamespaceName enumerate"
+            cerr << "Info: CIMException return to CIM_NamespaceName enumerate"
                 " request. "
                 << e.getMessage() << endl;
         }
@@ -935,8 +984,8 @@ int enumerateAllInstanceNames(Options& opts)
             {
                 cerr << "Warning: Exception in niall for"
                         " enumerateInstanceNames "
-                    << " Namespace=" << opts.nameSpace
-                    << " Class=" << classNames[iClass].getString()
+                     << " Namespace=" << opts.nameSpace
+                     << " Class=" << classNames[iClass].getString()
                      << ".  " << e.getMessage() << ". Continuing." << endl;
                 continue;
             }
@@ -958,7 +1007,7 @@ int enumerateAllInstanceNames(Options& opts)
                 // current entry counter
                 if (!instCounter.insert(className, 1))
                 {
-                    Uint32* value;
+                    Uint32* value=0;
                     instCounter.lookupReference(className, value);
                     *value = *value + 1;
                 }
@@ -1012,8 +1061,8 @@ int enumerateAllInstanceNames(Options& opts)
             {
                 cerr << "Warning: Exception in niall for"
                         " enumerateClassNames "
-                    << " Namespace=" << opts.nameSpace
-                    << " Class=" << opts.className.getString()
+                     << " Namespace=" << opts.nameSpace
+                     << " Class=" << opts.className.getString()
                      << ".  " << e.getMessage() << ". Continuing." << endl;
                 continue;
             }
@@ -1131,7 +1180,7 @@ int _pullInstances(
     CIMEnumerationContext& enumerationContext)
 {
     Boolean endOfSequence = false;
-    Uint32 maxPullObj = opts.maxPullObjects.getValue();
+    Uint32 maxPullObj = opts.maxObjectCount;
     Uint32 maxObjToReceive = opts.maxObjectsToReceive;
     Boolean rtn = true;
     Boolean limitSize = (maxObjToReceive == 0)? false: true;
@@ -1184,7 +1233,7 @@ Boolean _pullInstancePaths(
     CIMEnumerationContext& enumerationContext)
 {
     Boolean endOfSequence = false;
-    Uint32 maxPullObj = opts.maxPullObjects.getValue();
+    Uint32 maxPullObj = opts.maxObjectCount;
     Uint32 maxObjToReceive = opts.maxObjectsToReceive;
 
     Boolean rtn = true;
@@ -1232,8 +1281,8 @@ Boolean _pullInstancePaths(
 // if verbose set.
 String _displayPullCommonParam(Options& opts)
 {
-    String rtn = ", maxPullObjects = ";
-    rtn.append(_toString(opts.maxPullObjects));
+    String rtn = ", maxObjectCount = ";
+    rtn.append(_toString(opts.maxObjectCount));
     rtn.append(", operationTimeout = ");
     rtn.append(", maxObjectsToReceive= ");
     rtn.append(opts.maxObjectsToReceive);
@@ -1274,9 +1323,9 @@ int pullEnumerateInstances(Options& opts)
     if (opts.maxObjectsToReceive != 0)
     {
         // if ask for more than max we want, reset max count.
-        if (opts.maxPullObjects.getValue() > opts.maxObjectsToReceive)
+        if (opts.maxObjectCount > opts.maxObjectsToReceive)
         {
-            opts.maxPullObjects.setValue(opts.maxObjectsToReceive);
+            opts.maxObjectCount = opts.maxObjectsToReceive;
         }
     }
 
@@ -1294,9 +1343,9 @@ int pullEnumerateInstances(Options& opts)
         filterQuery,
         opts.pullOperationTimeout,
         opts.continueOnError,
-        opts.maxPullObjects);
+        opts.maxObjectCount);
 
-    _testRcvTooManyElements(opts.maxPullObjects,
+    _testRcvTooManyElements(opts.maxObjectCount,
         instances.size(), opts.verboseTest);
 
     if (!endOfSequence)
@@ -1339,9 +1388,9 @@ int pullEnumerateInstancePaths(Options& opts)
     if (opts.maxObjectsToReceive != 0)
     {
         // if ask for more than max we want, reset max count.
-        if (opts.maxPullObjects.getValue() > opts.maxObjectsToReceive)
+        if (opts.maxObjectCount > opts.maxObjectsToReceive)
         {
-            opts.maxPullObjects.setValue(opts.maxObjectsToReceive);
+            opts.maxObjectCount = opts.maxObjectsToReceive;
         }
     }
 
@@ -1354,9 +1403,9 @@ int pullEnumerateInstancePaths(Options& opts)
         filterQuery,
         opts.pullOperationTimeout,
         opts.continueOnError,
-        opts.maxPullObjects);
+        opts.maxObjectCount);
 
-    _testRcvTooManyElements(opts.maxPullObjects,
+    _testRcvTooManyElements(opts.maxObjectCount,
         paths.size(), opts.verboseTest);
 
     if (!endOfSequence)
@@ -1412,9 +1461,9 @@ int pullReferenceInstancePaths(Options& opts)
                                 filterQuery,
                                 opts.pullOperationTimeout,
                                 opts.continueOnError,
-                                opts.maxPullObjects
+                                opts.maxObjectCount
                                 );
-    _testRcvTooManyElements(opts.maxPullObjects,
+    _testRcvTooManyElements(opts.maxObjectCount,
         paths.size(), opts.verboseTest);
     
     if (!endOfSequence)
@@ -1481,9 +1530,9 @@ int pullReferenceInstances(Options& opts)
         filterQuery,
         opts.pullOperationTimeout,
         opts.continueOnError,
-        opts.maxPullObjects);
+        opts.maxObjectCount);
 
-    _testRcvTooManyElements(opts.maxPullObjects,
+    _testRcvTooManyElements(opts.maxObjectCount,
         instances.size(), opts.verboseTest);
 
     if (!endOfSequence)
@@ -1542,9 +1591,9 @@ int pullAssociatorInstancePaths(Options& opts)
                                 filterQuery,
                                 opts.pullOperationTimeout,
                                 opts.continueOnError,
-                                opts.maxPullObjects
+                                opts.maxObjectCount
                                 );
-    _testRcvTooManyElements(opts.maxPullObjects,
+    _testRcvTooManyElements(opts.maxObjectCount,
         paths.size(), opts.verboseTest);
 
     if (!endOfSequence)
@@ -1613,9 +1662,9 @@ int pullAssociatorInstances(Options& opts)
         filterQuery,
         opts.pullOperationTimeout,
         opts.continueOnError,
-        opts.maxPullObjects);
+        opts.maxObjectCount);
 
-    _testRcvTooManyElements(opts.maxPullObjects,
+    _testRcvTooManyElements(opts.maxObjectCount,
         instances.size(), opts.verboseTest);
 
     if (!endOfSequence)
@@ -2859,157 +2908,606 @@ int setObjectManagerStatistics(Options& opts, Boolean newState,
     return CIMCLI_RTN_CODE_OK;
 }
 
-//KS_PULL_BEGIN
-Boolean isAssociation(
-    Options& opts,
-    const CIMName& className)
+/*****************************************************************************
+*
+*        Show tree view of classes
+*        Options include:
+*           ClassName - Starting place in the hiearchy for the display
+*           -nlo - Reverse and do the superclasses of this class as tree
+*           -di  - Append info on reference properties to association classes
+*
+******************************************************************************/
+
+/*
+    Return an array of CIMName containing the property names of any
+    Reference properties in the Class
+*/
+
+Array<CIMName> getAssocRefs(const CIMClass& c)
+{
+    Array<CIMName> rtn;
+    if(c.isAssociation())
+    {
+        for (Uint32 i = 0; i < c.getPropertyCount(); i++)
+        {
+            CIMConstProperty p = c.getProperty(i);
+            if (p.getType() == CIMTYPE_REFERENCE)
+            {
+                  rtn.append(p.getReferenceClassName());
+            }
+        }
+    }
+    return rtn;
+}
+
+// Structure defines a single class and subclass set
+struct classTreeEntry
+{
+    CIMName _class;
+    Array<CIMName> _subclasses;
+
+    Array<CIMName> _assocRefs;
+    Boolean _isAssociation;
+
+    classTreeEntry(){}
+    classTreeEntry(const CIMName& className, Array<CIMName>& subclasses,
+        Options& opts)
+        : _class(className), _subclasses(subclasses), _isAssociation(false)
+    {
+        // Null CIMName indicates top level request and there is no
+        // classname. Assumes this is not an association
+        if (!className.isNull())
+        {
+            CIMClass c = opts.client.getClass(opts.nameSpace, className,
+                true, true);
+            if (opts.deepInheritance)
+            {
+                _assocRefs = getAssocRefs(c);
+            }
+            _isAssociation = c.isAssociation();
+        }
+    }
+
+    classTreeEntry(const CIMClass& c, Array<CIMName>& subclasses, Options& opts)
+    {
+        _class = c.getClassName();
+        _subclasses = subclasses;
+        if (opts.deepInheritance)
+        {
+            _assocRefs = getAssocRefs(c);
+        }
+        _isAssociation = c.isAssociation();
+    }
+
+    // Diagnostic Display of a single classTreeEntry struct
+    void show(Uint32 i)
+    {
+        cout << "Entry " << i << " class= "
+             << _class.getString()
+             << "  subclassesCnt=" << _subclasses.size() << " "
+             << " subclasses=" << _toString(_subclasses)
+             << " assocRefs=" << _toString(_assocRefs) << " "
+             << " isAssociation=" << _toString(_isAssociation)
+             << endl;
+    }
+};
+
+// Create a Pegasus array type for classTreeEntry
+#include <Pegasus/Common/ArrayIterator.h>
+#define PEGASUS_ARRAY_T classTreeEntry
+# include <Pegasus/Common/ArrayInter.h>
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+/*
+    Class defining the container for classTreeEntry items.  As classes are
+    analyzed, classTreeEntry items are put into this container and at the
+    end the displayTree displays the complete tree.
+*/
+class classTreeList
+{
+public:
+    classTreeList() {}
+
+    // Constructor for the class tree container
+    classTreeList(Options& opts)
+    {
+        _topLevelClassName = opts.className;
+        _opts = &opts;
+    }
+
+    // find a single entry with name. It is a programming error if
+    // the name does not exist.
+    classTreeEntry findEntry(CIMName& name)
+    {
+        for (Uint32 i = 0 ; i < _classTreeList.size() ; i++)
+        {
+            if (_classTreeList[i]._class == name)
+            {
+                return _classTreeList[i];
+            }
+        }
+
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
+            "class %s not found in classTreeArray",
+            (const char *)name.getString().getCString());
+
+        PEGASUS_UNREACHABLE(return classTreeEntry();)
+    }
+
+    // Display a single tree entry
+    Boolean displayTreeEntry(CIMName& className, Uint32 level, bool isLast);
+
+    // Add an entry to the list
+    void add(classTreeEntry& entry)
+    {
+        _classTreeList.append(entry);
+    }
+
+    // create a new entry in the list with just the classname
+    void add(const CIMName& className, Array<CIMName>& subclasses)
+    {
+        classTreeEntry entry(className, subclasses, *_opts);
+        add(entry);
+    }
+
+    // Create a new entry in the list with the provider class
+    void add(const CIMClass& c, Array<CIMName>& subclasses)
+    {
+        classTreeEntry entry(c, subclasses, *_opts);
+        add(entry);
+    }
+
+    void displayTree()
+    {
+        Uint32 level = 0;
+        displayTreeEntry(_topLevelClassName,level, false);
+    }
+
+    // Set the starting point of the tree
+    void setTopLevel(const CIMName& name)
+    {
+        _topLevelClassName = name;
+    }
+    String generateLevelGraphic(Uint32 index, bool last);
+
+private:
+    Array<classTreeEntry> _classTreeList;
+    CIMName _topLevelClassName;
+    Options * _opts;
+};
+
+/*
+    Create String representing level.  This is a string that uses
+    |, _, + to show the place in the hiearchy for a class.
+    Asterick at end indicates an association class
+    Ex.
+    CIM_System
+    |__CIM_ApplicationSystem
+    |  |__CIM_J2eeServer
+    |  |__CIM_DatabaseSystem
+    |  |__CIM_J2eeApplication
+*/
+
+String classTreeList::generateLevelGraphic(Uint32 index, bool last)
+{
+    // Array controls use of the | mark. Do not want it set if on last
+    // class for this level.
+    static Array<Boolean> lastForLevel;
+    static Uint32 prevLevel = 0;
+
+    // append new entry if array too small
+    if (lastForLevel.size() <= index)
+    {
+        lastForLevel.append(false);
+    }
+
+    Uint32 indent = 2;
+    Uint32 gap = indent-1;
+    String rtn;
+
+    for (Uint32 i = 0 ; i < index ; i++)
+    {
+        // set vertical line (becomes blank after last entry)
+        rtn.append((lastForLevel[i]) ? " " : "|");
+
+        // Set horizontal line for last indent "_" or " "
+        rtn.append(fillString(gap,((i == (index-1)) ? '_' : ' ')));
+    }
+
+    // if uplevel, reset vertical line on all lower levels.
+    if (index < prevLevel)
+    {
+        for (Uint32 i = index ; i < lastForLevel.size() ; i++)
+        {
+            lastForLevel[i] = false;
+        }
+    }
+    prevLevel = index;
+
+    // Set indicator for level display of '|' or ' '
+    if (last)
+    {
+        lastForLevel[index-1] = true;
+    }
+
+    return rtn;
+}
+
+/*
+    Display a single classTreeEntry as a part of a tree
+    @param array of classTreeEntry items where each item defines a
+    single class/subclasses relationship
+    @return true if subclasses exist
+*/
+bool classTreeList::displayTreeEntry(CIMName& className,
+    Uint32 level, bool isLast)
+{
+    classTreeEntry entry = findEntry(className);
+
+    String assocInfo;
+
+    // if is association try to build the assoc info
+    if (entry._isAssociation)
+    {
+        assocInfo.append("(");
+        for (Uint32 i = 0; i < entry._assocRefs.size() ; i++)
+        {
+            if (i > 0)
+            {
+                assocInfo.append(" ");
+            }
+            assocInfo.append(entry._assocRefs[i].getString());
+        }
+        assocInfo.append(")");
+    }
+
+    // Display entry for this class including linking lines
+    cout << generateLevelGraphic(level, isLast)
+         << className.getString()
+         << (entry._isAssociation? "*" : "")
+         << assocInfo
+         << endl;
+
+    // return false if no more subclasses
+    if (entry._subclasses.size() == 0)
+    {
+        return false;
+    }
+
+    // recall for subclasses for the next level
+    level++;
+    for (Uint32 i = 0; i < entry._subclasses.size() ; i++)
+    {
+        bool isLast = ((i+1 == entry._subclasses.size())? true: false);
+        displayTreeEntry(entry._subclasses[i], level, isLast);
+    }
+    return true;
+}
+
+// CIMCLI operation to display class tree on the console.
+int classTree(Options& opts)
+{
+    // Set the options for this output
+    // This option shows reference property information for assciation
+    // properties
+    Boolean showAssocRefs = false;
+
+    // flag to show superclasses vs subclasses based on localOnly option flag
+    Boolean showSuperClasses = !opts.localOnly;
+
+    // Today, we use deepInheritance as flag for showAssocRefs
+    if (opts.deepInheritance)
+    {
+        showAssocRefs = true;
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "classTree. className=" << opts.className.getString()
+             << " namespace=" << opts.nameSpace << endl
+             << "Output (deepInheritance flag)"
+             << (showAssocRefs? "with Assoc Info" : "No assoc Info") << endl
+             << "Show  (localOnly flag)"
+             << (!showSuperClasses? "SuperClasses" : "Subclasses") << endl;
+    }
+
+    classTreeList classTree(opts);
+
+    if (showSuperClasses) // build tree of superclasses
+    {
+        // Must have a class name for tail of tree if showing superclasses
+        if (opts.className.isNull())
+        {
+            cimcliMsg::exit(0, "Class input required");
+        }
+
+        CIMName cn = opts.className;
+        CIMClass c;
+        CIMName prevClassName;
+
+        // Loop to get superclasses starting at the input class
+        do
+        {
+            c = opts.client.getClass(opts.nameSpace, cn);
+
+            // Put this class into the classTree container.
+            Array<CIMName> subclasses;
+            if (!prevClassName.isNull())
+            {
+                subclasses.append(prevClassName);
+            }
+
+            classTree.add(c, subclasses);
+
+            prevClassName = c.getClassName();
+            cn = c.getSuperClassName();
+        }
+        while (!cn.isNull());
+
+        // set the classname for the top of tree
+        classTree.setTopLevel(c.getClassName());
+    }
+
+    else // build tree of subclasses
+    {
+        // get all classnames in namespace starting at the classname
+        // provided with input
+        Array<CIMName> classes = opts.client.enumerateClassNames(
+            opts.nameSpace,
+            opts.className,
+            true);
+
+        // get first subclass at current level with shallow request
+        // This class is not part of the classes array
+        Array<CIMName> subclasses = opts.client.enumerateClassNames(
+            opts.nameSpace,
+            opts.className,
+            false);
+
+        // put top level entry into array
+        classTree.add(opts.className, subclasses);
+
+        // for each classname, do shallow enumClassNames to get first level
+        // subclasses
+        for (size_t i = 0 ; i < classes.size() ; i++)
+        {
+            Array<CIMName> subclasses = opts.client.enumerateClassNames(
+                opts.nameSpace,
+                classes[i],
+                false);
+
+            // Create table entry for this class
+            classTree.add(classes[i], subclasses);
+        }
+    }
+
+    classTree.displayTree();
+
+    return 0;
+}
+
+/************************ countInstances ***********************************
+*
+*    CountInstances
+*    parameters:
+*        optional - classname
+*    Count the number of instances for each class that contains instances
+*    in a namespace. This is different than enumerate instance in that it
+*    actually reports the number of instances by class, not by class and
+*    subclass.
+*    If classname option provided it counts only for that class
+*
+***************************************************************************/
+/*
+    Determine if class defined by name is an association.  Does lookup
+    of classname.
+*/
+Boolean isAssociation(Options& opts,const CIMName& className)
 {
     CIMClass c = opts.client.getClass(opts.nameSpace, className,true, true);
     return(c.isAssociation());
 }
 
-/*
-    Count the number of instances for each class that contains instances
-    in a namespace. This is different than enumerate instance in that it 
-    actually reports the number of instances by class, not by class and
-    subclass.
-*/
-class assoc : public Linkable
+// Structure to keep count of number of instances
+struct instanceCounter
 {
-public:
-    assoc(const String& name) : _name(name) { }
-
-    ~assoc() { }
-private:
-    assoc(const assoc& x);
-    assoc& operator=(const assoc& x);
     String _name;
-    Uint32 count;
+    Uint32 _count;
+
+    instanceCounter(String& name) :
+        _name(name),
+        _count(1){}
+
+    instanceCounter(){}
+
+    const char* name()
+    {
+        return (const char*)_name.getCString();
+    }
+    void inc()
+    {
+        _count++;
+    }
 };
 
-//typedef List<assoc,NullLock> AssocList;
+// Define array of instanceCounter struct
 
-/************************ countInstances **********************/
+#include <Pegasus/Common/ArrayIterator.h>
+#define PEGASUS_ARRAY_T instanceCounter
+# include <Pegasus/Common/ArrayInter.h>
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+// find an instance in array of instanceCounter. Returns true if found
+static bool _findInstance(Array<instanceCounter>& x, String& name, Uint32& pos)
+{
+    for (pos = 0; pos < x.size(); pos++)
+    {
+        if (x[pos]._name == name)
+            return true;
+    }
+    return false;
+}
+
+//
+// Sort the array of instanceCounter
+//
+// Compare  function for qsort. Compares two instanceCounter items
+static int _compareInstanceCounterNames (const void* p1, const void* p2)
+{
+    const  instanceCounter * pa = (const instanceCounter*)p1;
+    const  instanceCounter *pb =  (const instanceCounter*)p2;
+    // use the string compare w or w/o  case sensitiveas as required
+    return String::compareNoCase( pa->_name,   pb->_name);
+}
+
+// sort the array of instanceCounter items in an array
+static void sort(Array<instanceCounter>& x)
+{
+    instanceCounter* data = (instanceCounter*)x.getData();
+
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(instanceCounter),
+              _compareInstanceCounterNames);
+    }
+}
+
+/*
+    CIMCLI operation to count instances and display result
+*/
 int countInstances(Options& opts)
 {
+    if (opts.verboseTest)
+    {
+        cout << "countInstances. ";
+        if (opts.className.isNull())
+        {
+            cout << "Count all instances in ";
+        }
+        else
+        {
+            cout << "Count Instance starting at "
+                 << opts.className.getString()
+                 << " in class hiearchy in ";
+        }
+        cout << opts.nameSpace << endl;
+    }
+
     Array<CIMName> classNames;
 
-    //typedef HashTable<String, EnumerationContext* ,
-    //        EqualFunc<String>, HashFunc<String> > HT;
-    //HT ht
-
+    // Since this operation involves multiple calls to the server the
+    // operation time does not mean much.
     _startCommandTimer(opts);
 
-    classNames = opts.client.enumerateClassNames(opts.nameSpace,
-                                        opts.className,
-                                        false);
-    if (opts.verboseTest)
-        printf("Class request rtnd Count = %u\n",classNames.size());
+    // Get list of classes to explore.  This is just the input
+    // classname if operationTarget is supplied. Otherwise it is all top
+    // level class names.
+    if (opts.className.isNull())
+    {
+        classNames = opts.client.enumerateClassNames(opts.nameSpace,
+            opts.className,
+            true);
+    }
+    else
+    {
+        classNames.append(opts.className);
+    }
 
-    Array<String> names;
-    Array<Uint32> counter;
+    Array<instanceCounter> instCtrArray;
     Uint32 maxNameLen = 0;
 
+    // loop to enumerateInstanceNames for all classes in list
     for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
     {
         Array<CIMObjectPath> instanceNames;
         try
         {
-            instanceNames = opts.client.enumerateInstanceNames(opts.nameSpace,
-                classNames[iClass]);
+            instanceNames = opts.client.enumerateInstanceNames(
+                opts.nameSpace, classNames[iClass]);
+
+            // verbose diagnostic to show actual
             if (instanceNames.size() != 0 && opts.verboseTest)
             {
-                printf("Class %s rtnd %u instances\n",
-                       (const char*)classNames[iClass].getString().getCString(),
-                        instanceNames.size());
+                cout << "Class  " << classNames[iClass].getString()
+                     << " enumeration returned " << instanceNames.size()
+                     << " instances" << endl;
             }
         }
+
+        // Continue after exceptions to the enumerateInstanceNames operation.
+        // Results will probably enoreous but may give more info than
+        // just stopping
         catch(CIMException& e)
         {
-            cout << "CIMException " << classNames[iClass].getString() << " "
+            cerr << "CIMException " << classNames[iClass].getString() << " "
                  << e.getMessage() << " Code " << e.getCode() << endl;
             continue;
         }
         catch(Exception& e)
         {
-            PEGASUS_STD(cerr) << " Pegasus Exception: "
-                << e.getMessage() << " "
-                << classNames[iClass].getString()
-                << PEGASUS_STD(endl);
+            cerr << " Pegasus Exception: " << e.getMessage() << " "
+                 << classNames[iClass].getString() << endl;
             continue;
         }
-        if (instanceNames.size() > 0)
+
+        // insert counter of instances into table
+        for (Uint32 j = 0; j < instanceNames.size(); j++)
         {
-            // insert all into table
-            for (Uint32 j = 0; j < instanceNames.size(); j++)
+            String name = instanceNames[j].getClassName().getString();
+
+            maxNameLen = LOCAL_MAX(name.size(), maxNameLen);
+
+            // Search table for this entry and if not there insert
+            // otherwise, increment counter
+            Uint32 pos;
+            if (_findInstance(instCtrArray, name, pos))
             {
-                String hashKey = instanceNames[j].getClassName().getString();
-                if (hashKey.size() > maxNameLen)
-                {
-                    maxNameLen = hashKey.size();
-                }
-                // search table for this entry and if not there insert
-                // otherwise, increment counter
-                Boolean inserted = false;
-                for (Uint32 k = 0; k < names.size(); k++)
-                {
-                    if (names[k] == hashKey)
-                    {
-                        counter[k]++;
-                        inserted = true;
-                        break;
-                    }
-                }
-                if (!inserted)
-                {
-                    names.append(hashKey);
-                    counter.append(1);
-                }
+                instCtrArray[pos].inc();
+            }
+
+            else
+            {
+                instanceCounter item(name);
+                instCtrArray.append(item);
             }
         }
     }
-    printf("Found %u classes with instances\n",names.size());
-
-    for (Uint32 i = 0; i < names.size(); i++)
-    {
-        String assoc =
-            (isAssociation(opts,CIMName(names[i]))? "*" : " ");
-        printf("%s%-*s  %u\n",
-            (const char*)assoc.getCString(),
-            maxNameLen,(const char *)names[i].getCString(),
-            counter[i]);
-    }
-
-/*
-    for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
-    {
-        Array<CIMObjectPath> instanceNames =
-        client.enumerateInstanceNames(opts.nameSpace, classNames[iClass]);
-
-        hashKey = instanceNames[i].getClass().getString()
-        for (Uint32 i = 0; instanceName.size(); i++)
-        {
-        Counter counter;
-        if(ht.insert(hashKey, counter ))
-            continue;
-
-        if(ht.lookup(enumerationContext, counter)
-           Counter++;
-        }
-
-    }
-    for (HT::Iterator i = ht.start(); i; i++)
-    {
-        PEGASUS_STD(cout) << "[" << i.key() << "]" << PEGASUS_STD(endl);
-        Counter* counter = i.value();
-        enumeration->print();
-    }
-*/
     _stopCommandTimer(opts);
+
+    // Display result. There is no summary option for this output. The first
+    // line summarizes the call parameters and number of classes with
+    // instances
+    cout << instCtrArray.size()
+         << ((instCtrArray.size() == 1) ? " class" : " classes")
+         << " with instances. " << opts.nameSpace;
+
+    if (!opts.className.isNull())
+    {
+        cout << " Start " << opts.className.getString();
+    }
+
+    cout << " (*)association" << endl;
+
+    // sort the array by name for display
+    sort(instCtrArray);
+
+    // Display complete array of
+    for (Uint32 i = 0; i < instCtrArray.size(); i++)
+    {
+        // display Name with assoc indicator and count
+        String name = instCtrArray[i]._name;
+        cout << name << ((isAssociation(opts,
+                            instCtrArray[i]._name))? "*" : " ")
+             << fillString(maxNameLen + 1 - name.size())
+             << instCtrArray[i]._count << endl;
+    }
 
     return(0);
 }
-//KS_PULL_END
 
 PEGASUS_NAMESPACE_END
 // END_OF_FILE

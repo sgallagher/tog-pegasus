@@ -460,9 +460,6 @@ int cimmofParser::parse()
 
 //----------------------------------------------------------------------
 // Override the default parser error routine to enable I18n
-// Token should be the current text being processed.
-// errmsg, complete error message.
-// Prints line number, text, etc. for error message. and throws exception
 //----------------------------------------------------------------------
 void cimmofParser::log_parse_error(char *token, const char *errmsg) const
 {
@@ -1153,7 +1150,6 @@ int cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p)
 
 CIMValue * cimmofParser::QualifierValue(const CIMName &qualifierName,
      Boolean isNull,
-     int strValType,
      const String &valstr)
 {
     CIMQualifierDecl q;
@@ -1183,11 +1179,9 @@ CIMValue * cimmofParser::QualifierValue(const CIMName &qualifierName,
         //   it is implicitly set to TRUE.
         return new CIMValue(Boolean(true));
     }
-
     return valueFactory::createValue(v.getType(),
             v.isArray() ? (int)asize : -1,
             isNull,
-            strValType,
             &valstr);
 }
 

@@ -207,7 +207,19 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
     SOURCES2 += $(SOURCES_SLP)
 endif
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC) 
+    SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+endif
+
+# Special code calling pam_end in class AuthHandle only required
+# with session based authentication mechanism
+ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
+    SOURCES2 += AuthHandle.cpp
+endif
+
+# LoadAndClearWord_HPUX_PARISC_ACC.s will be compiled using aCC
+# in order to use the native assembler to create the object
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 
@@ -242,6 +254,10 @@ endif
 ifeq ($(OS),zos)
     SOURCES2 += Audit_zOS_SMF.cpp \
         PegasusAssertZOS.cpp
+endif
+
+ifeq ($(OS),HPUX)
+    EXTRA_LIBRARIES += -lipv6
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)

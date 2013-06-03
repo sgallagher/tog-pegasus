@@ -365,30 +365,6 @@ public:
         return _rep->getAuthHandle();
     }
 
-    void setUserRole(const String & userRole)
-    {
-        CheckRep(_rep);
-        _rep->setUserRole(userRole);
-    }
-
-    String getUserRole()
-    {
-        CheckRep(_rep);
-        return _rep->getUserRole();
-    }
-
-    void setExpiredPassword(Boolean status)
-    {
-        CheckRep(_rep);
-        _rep->setExpiredPassword(status);
-    }
-
-    Boolean isExpiredPassword() const
-    {
-        CheckRep(_rep);
-        return _rep->isExpiredPassword();
-    }
-
 private:
 
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)

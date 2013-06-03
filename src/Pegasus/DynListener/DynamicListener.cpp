@@ -86,7 +86,8 @@ public:
         const String& certPath,
         Boolean enableConsumerUnload,
         Uint32 consumerIdleTimeout,
-        Uint32 shutdownTimeout);
+        Uint32 shutdownTimeout,
+        const String & sslCipherSuite="DEFAULT");
 
     ~DynamicListenerRep();
 
@@ -165,7 +166,8 @@ DynamicListenerRep::DynamicListenerRep(
     const String& certPath,
     Boolean enableConsumerUnload,          
     Uint32 consumerIdleTimeout,            
-    Uint32 shutdownTimeout) :
+    Uint32 shutdownTimeout,
+    const String & sslCipherSuite) :
         _port(portNumber),
         _sslContext(0),
         _sslContextObjectLock(0),
@@ -184,7 +186,7 @@ DynamicListenerRep::DynamicListenerRep(
             String(),
             true,
             String(),
-            String());
+            sslCipherSuite);
         _sslContext = _sslContextMgr->getSSLContext();
         _sslContextObjectLock = _sslContextMgr->getSSLContextObjectLock();
     }
@@ -334,7 +336,8 @@ DynamicListener::DynamicListener(
     const String& certPath,
     Boolean enableConsumerUnload,
     Uint32 consumerIdleTimeout,
-    Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
+    Uint32 shutdownTimeout,
+    const String & sslCipherSuite)     //ONLY IF PEGASUS_HAS_SSL
 {
 
     _rep = new DynamicListenerRep(
@@ -346,7 +349,8 @@ DynamicListener::DynamicListener(
         certPath,
         enableConsumerUnload,
         consumerIdleTimeout,
-        shutdownTimeout);
+        shutdownTimeout,
+        sslCipherSuite);
 }
 
 DynamicListener::DynamicListener(

@@ -114,7 +114,7 @@ Boolean AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
 //
 // Perform http authentication
 //
-AuthenticationStatus AuthenticationManager::performHttpAuthentication(
+Boolean AuthenticationManager::performHttpAuthentication(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
@@ -136,10 +136,10 @@ AuthenticationStatus AuthenticationManager::performHttpAuthentication(
                 "Malformed HTTP authentication header: %s",
             (const char*)authHeader.getCString()));
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
+    Boolean authenticated = false;
 
     //
     // Check the authenticationinformation and do the authentication
@@ -147,39 +147,39 @@ AuthenticationStatus AuthenticationManager::performHttpAuthentication(
     if ( String::equalNoCase(authType, "Basic") &&
          String::equal(_httpAuthType, "Basic") )
     {
-        authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
+        authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if ( String::equalNoCase(authType, "Negotiate") &&
               String::equal(_httpAuthType, "Kerberos") )
     {
-        authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
+        authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
 #endif
     // FUTURE: Add code to check for "Digest" when digest
     // authentication is implemented.
 
-    if ( authStatus.isSuccess() )
+    if ( authenticated )
     {
         authInfo->setAuthType(authType);
     }
 
     PEG_METHOD_EXIT();
 
-    return authStatus;
+    return authenticated;
 }
 
 //
 // Perform pegasus sepcific local authentication
 //
-AuthenticationStatus AuthenticationManager::performPegasusAuthentication(
+Boolean AuthenticationManager::performPegasusAuthentication(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "AuthenticationManager::performPegasusAuthentication()");
 
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
+    Boolean authenticated = false;
 
     String authType;
     String userName;
@@ -198,29 +198,30 @@ AuthenticationStatus AuthenticationManager::performPegasusAuthentication(
                 "Malformed Pegasus authentication header: %s",
             (const char*)authHeader.getCString()));
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     // The HTTPAuthenticatorDelegator ensures only local authentication
     // requests get here.
     PEGASUS_ASSERT(authType == "Local");
 
-    authStatus = _localAuthHandler->authenticate(cookie, authInfo);
+    authenticated =
+        _localAuthHandler->authenticate(cookie, authInfo);
 
-    if ( authStatus.isSuccess() )
+    if ( authenticated )
     {
         authInfo->setAuthType(authType);
     }
 
     PEG_METHOD_EXIT();
 
-    return authStatus;
+    return authenticated;
 }
 
 //
 // Validate user.
 //
-AuthenticationStatus AuthenticationManager::validateUserForHttpAuth(
+Boolean AuthenticationManager::validateUserForHttpAuth(
     const String& userName,
     AuthenticationInfo* authInfo)
 {

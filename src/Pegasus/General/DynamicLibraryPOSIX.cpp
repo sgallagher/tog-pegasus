@@ -31,6 +31,7 @@
 
 #include "DynamicLibrary.h"
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include <dlfcn.h>
 
@@ -56,12 +57,10 @@ Boolean DynamicLibrary::_load()
     }
 #endif
 
-#if defined(PEGASUS_OS_ZOS)
-    _handle = dlopen(cstr, RTLD_LAZY | RTLD_GLOBAL);
-#elif defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_VMS)
     _handle = dlopen(cstr, RTLD_NOW);
 #else
-    _handle = dlopen(cstr, RTLD_NOW | RTLD_GLOBAL);
+    _handle = dlopen(cstr, RTLD_LAZY | RTLD_GLOBAL);
 #endif
 
     if (_handle == 0)
@@ -75,7 +74,13 @@ Boolean DynamicLibrary::_load()
 
 void DynamicLibrary::_unload()
 {
-    dlclose(_handle);
+    if(dlclose(_handle))
+    {
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "dlclose on %s failed with \"%s\"",
+            (const char*)_fileName.getCString(),
+            dlerror()));
+    }
 }
 
 DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(

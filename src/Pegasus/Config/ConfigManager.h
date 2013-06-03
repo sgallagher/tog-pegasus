@@ -48,6 +48,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 
@@ -116,6 +117,13 @@ private:
     void _initPropertyTable();
 
     /**
+        Check for fixed value and return the fixed value as String if
+        Initializes the two config properties hostName and
+        fullyQualifiedHostname when defined as fixed values
+    */
+    Boolean _fixedValueCheck(const String& name,String & value) const;
+
+    /**
         HashTable used to identify owners.
     */
     typedef HashTable<String,
@@ -169,7 +177,7 @@ public:
         Property Owners
 
         When a new property owner is created be sure to add static
-        variable pointers for each of the new property owner.
+        variable pointers for the new property owner.
     */
     static TracePropertyOwner traceOwner;
 
@@ -320,6 +328,16 @@ public:
     void getPropertyInfo(const String& name, Array<String>& propertyInfo) const;
 
     /**
+        Get the help on the specified property.
+
+        @param name The name of the property.
+        @param propertyInfo List containing the property info.
+
+        @exception UnrecognizedConfigProperty if property is not defined.
+    */
+    void getPropertyHelp(const String& name, String& propertyInfo) const;
+
+    /**
         Get a list of all the property names.
 
         @param propertyNames List containing all the property names.
@@ -433,6 +451,20 @@ public:
             boolean value of 'true' or 'false'
     */
     static Boolean isValidBooleanValue(const String& propertyValue);
+   /**
+        get the ip addresses to listen on for connection
+        @param propertyValue A String containing a comma separated list of ips
+        @return an array of ip adress specified for configuration property
+            listenAdrress
+    */
+    static Array<HostAddress> getListenAddress(const String& propertyValue);
+
+
+    /**
+     * gets the Internationalized string for "dynamic" or "static"
+     */
+
+    String getDynamicAttributeStatus(const String& name);
 
 };
 

@@ -249,7 +249,6 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     if(!isReal(stringNum))
     {
       // Check if it it is a binary or hex integer
-      Uint32 endString = stringNum.size() - 1;
         if (neg)
             x = stringToSint64(stringNum);
         else
@@ -312,7 +311,7 @@ String CQLUtilities::formatRealStringExponent(const String &realString)
     if (newString[index] == '-')
         index++;   // skip the '-' exponent sign
 
-    while (newString[index] == '0' && index < newString.size())
+    while (index < newString.size() && newString[index] == '0')
     {
         newString.remove(index, 1);
     }

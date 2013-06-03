@@ -66,7 +66,7 @@ LocalAuthenticationHandler::~LocalAuthenticationHandler()
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus LocalAuthenticationHandler::authenticate(
+Boolean LocalAuthenticationHandler::authenticate(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
@@ -79,7 +79,7 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
     if (colon1 == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     String userName = authHeader.subString(0, colon1);
@@ -110,7 +110,7 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
     if (filePath != authInfo->getLocalAuthFilePath())
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     //
@@ -119,7 +119,7 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
     if (secretReceived.size() == 0 || userName.size() == 0)
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     String authenticatedUsername = authInfo->getAuthenticatedUser();
@@ -133,7 +133,7 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
         userName != authenticatedUsername)
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     //
@@ -142,7 +142,7 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
     if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     // Check if the user is authorized to CIMSERV
@@ -156,7 +156,7 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
                 "Request UserID $0 doesn't have READ permission "
                     "to profile CIMSERV CL(WBEM).",
                 userName));
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 #endif
 
@@ -165,10 +165,10 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
     authInfo->setRemotePrivilegedUserAccessChecked();
 
     // Authenticate
-    AuthenticationStatus authStatus = _localAuthenticator->authenticate(
+    Boolean authenticated = _localAuthenticator->authenticate(
         filePath, secretReceived, authInfo->getLocalAuthSecret());
 
-    if (authStatus.isSuccess())
+    if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
         // For Privilege Separation, remember the secret on subsequent requests
@@ -186,14 +186,14 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
                 "IP address $1.",userName,authInfo->getIpAddress()));
     }
 
-    PEG_AUDIT_LOG(logLocalAuthentication(userName, authStatus.isSuccess()));
+    PEG_AUDIT_LOG(logLocalAuthentication(userName, authenticated));
 
     PEG_METHOD_EXIT();
 
-    return authStatus;
+    return authenticated;
 }
 
-AuthenticationStatus LocalAuthenticationHandler::validateUser(
+Boolean LocalAuthenticationHandler::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {

@@ -60,5 +60,3 @@ SORT = sort
 TOUCH = touch
 
 ECHO = echo
-
-TAIL = tail

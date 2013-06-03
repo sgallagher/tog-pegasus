@@ -313,7 +313,9 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
     {
         String versionNumber;
         String profileName;
-        Uint16 regOrgNo;
+        //Can use 0 here as registered organization value of 0 is 
+        //ruled out(not specified in the CIM Schema
+        Uint16 regOrgNo = 0;
 
         Uint32 index = profiles[i].findProperty("RegisteredVersion");
         if (index != PEG_NOT_FOUND)
@@ -343,7 +345,7 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
             }
         }
 
-        if (regOrg == regOrgNo)
+        if ( regOrgNo != 0 && regOrg == regOrgNo)
         {
             if (profileName == ServerProfileName ||
                 (regOrg == SNIA_NUM &&

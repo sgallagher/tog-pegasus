@@ -186,7 +186,7 @@ public:
 // return 1 if revoked, 0 otherwise
 //
 int SSLCallback::verificationCRLCallback(
-    int ok,
+    int,
     X509_STORE_CTX* ctx,
     X509_STORE* sslCRLStore)
 {
@@ -260,14 +260,14 @@ int SSLCallback::verificationCRLCallback(
     //get revoked certificates
     STACK_OF(X509_REVOKED)* revokedCerts = NULL;
     revokedCerts = X509_CRL_get_REVOKED(crl);
-    int numRevoked = sk_X509_REVOKED_num(revokedCerts);
+    int numRevoked= sk_X509_REVOKED_num(revokedCerts);
     PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
         "---> SSL: Number of certificates revoked by the issuer %d\n",
         numRevoked));
 
     //check whether the subject's certificate is revoked
     X509_REVOKED* revokedCert = NULL;
-    for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
+    for (int i = 0; i < numRevoked; i++)
     {
         revokedCert = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
         //a matching serial number indicates revocation
@@ -585,8 +585,6 @@ void SSLContextRep::_randomInit(const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_randomInit()");
 
-    Boolean ret;
-    int retVal = 0;
 
 #if defined(PEGASUS_SSL_RANDOMFILE) && !defined(PEGASUS_OS_PASE)
     if ( RAND_status() == 0 )
@@ -608,10 +606,10 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //
         // Try the given random seed file
         //
-        ret = FileSystem::exists(randomFile);
+        Boolean ret = FileSystem::exists(randomFile);
         if (ret)
         {
-            retVal = RAND_load_file(randomFile.getCString(), -1);
+            int retVal = RAND_load_file(randomFile.getCString(), -1);
             if ( retVal < 0 )
             {
                 PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
@@ -746,9 +744,11 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             throw SSLException(parms);
         }
         else
+        {
            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Cipher suite set to %s",
                 (const char *)_cipherSuite.getCString()));
+        }
     }
 
     //
@@ -759,6 +759,11 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_mode(sslContext, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
+
+#ifdef SSL_MODE_RELEASE_BUFFERS
+    // Keep memory usage as low as possible 
+    SSL_CTX_set_mode (sslContext, SSL_MODE_RELEASE_BUFFERS);
+#endif
 
     int options = SSL_OP_ALL;
 #ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
@@ -1193,25 +1198,25 @@ void SSLContextRep::validateCertificate()
 //
 
 SSLContextRep::SSLContextRep(
-    const String& trustStore,
-    const String& certPath,
-    const String& keyPath,
-    const String& crlPath,
-    SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile,
-    const String& cipherSuite)
+    const String&,
+    const String&,
+    const String&,
+    const String&,
+    SSLCertificateVerifyFunction*,
+    const String&,
+    const String&)
 {
 }
 
-SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
+SSLContextRep::SSLContextRep(const SSLContextRep&) {}
 
 SSLContextRep::~SSLContextRep() {}
 
 SSL_CTX* SSLContextRep::_makeSSLContext() { return 0; }
 
 Boolean SSLContextRep::_verifyPrivateKey(
-    SSL_CTX *ctx,
-    const String& keyPath)
+    SSL_CTX*,
+    const String&)
 {
     return false;
 }
@@ -1237,7 +1242,7 @@ SharedPtr<X509_STORE, FreeX509STOREPtr> SSLContextRep::getCRLStore() const
     return SharedPtr<X509_STORE, FreeX509STOREPtr>();
 }
 
-void SSLContextRep::setCRLStore(X509_STORE* store) { }
+void SSLContextRep::setCRLStore(X509_STORE*) { }
 
 Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
 
@@ -1337,7 +1342,7 @@ SSLContext::SSLContext(
     const String& certPath,
     const String& keyPath,
     SSLCertificateVerifyFunction* verifyCert,
-    String trustStoreUserName,
+    String,
     const String& randomFile)
 {
     _rep = new SSLContextRep(

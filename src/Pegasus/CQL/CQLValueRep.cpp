@@ -764,7 +764,7 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
 }
 
 
-CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
+CQLValueRep CQLValueRep::operator+(const CQLValueRep &x)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::operator+");
    _validate(x);
@@ -837,7 +837,7 @@ CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type) const
             return CQLValue::CIMObject_type;
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return CQLValue::Boolean_type; // Never reach here
     }
 }

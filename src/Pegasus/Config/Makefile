@@ -63,10 +63,14 @@ SOURCES = \
     SecurityPropertyOwner.cpp \
     RepositoryPropertyOwner.cpp \
     ProviderDirPropertyOwner.cpp \
-    ShutdownPropertyOwner.cpp
+    ShutdownPropertyOwner.cpp \
+    ConfigPropertyHelp.cpp
 
 ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
     SOURCES += IndicationServicePropertyOwner.cpp
 endif
 
 include $(ROOT)/mak/dynamic-library.mak
+
+
+

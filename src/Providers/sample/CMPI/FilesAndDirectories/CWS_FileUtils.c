@@ -89,8 +89,9 @@ CMPIObjectPath *makePath( const CMPIBroker *broker, const char * classname,
   op = CMNewObjectPath(broker,
                (char*)Namespace,
                (char*)classname,
-               NULL);  CMSetHostname(op,CSName());
+               NULL);
   if (!CMIsNullObject(op)) {
+    CMSetHostname(op,CSName());
     CMAddKey(op,"CSCreationClassName",CSCreationClassName(),CMPI_chars);
     CMAddKey(op,"CSName",CSName(),CMPI_chars);
     CMAddKey(op,"FSCreationClassName",FSCreationClassName(),CMPI_chars);
@@ -106,13 +107,11 @@ CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
 {
   CMPIInstance   *in = NULL;
   CMPIValue       val;
-  CMPIObjectPath *op = CMNewObjectPath(broker,
-                       (char*)Namespace,
-                       (char*)classname,
-                       NULL);  CMSetHostname(op,CSName());
+  CMPIObjectPath *op = makePath(broker,classname,Namespace,cwsf);
 
   if (!CMIsNullObject(op)) {
     in = CMNewInstance(broker,op,NULL);
+    CMRelease(op);
     if (!CMIsNullObject(in)) {
       CMSetProperty(in,"CSCreationClassName",CSCreationClassName(),CMPI_chars);
       CMSetProperty(in,"CSName",CSName(),CMPI_chars);

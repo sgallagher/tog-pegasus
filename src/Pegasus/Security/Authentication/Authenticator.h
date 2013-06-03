@@ -38,7 +38,7 @@
 #include <Pegasus/Common/AuthenticationInfoRep.h>
 
 #include <Pegasus/Security/Authentication/Linkage.h>
-#include <Pegasus/Security/Authentication/AuthenticationStatus.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,9 +59,9 @@ public:
         header.
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    virtual AuthenticationStatus authenticate(
+    virtual Boolean authenticate(
         const String& authHeader,
         AuthenticationInfo* authInfo) = 0;
 
@@ -81,9 +81,9 @@ public:
         @param userName String containing the user name
         @param authInfo reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful validation, false otherwise
     */
-    virtual AuthenticationStatus validateUser(
+    virtual Boolean validateUser(
         const String& userName,
         AuthenticationInfo* authInfo) = 0;
 };

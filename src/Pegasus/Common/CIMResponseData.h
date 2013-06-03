@@ -27,6 +27,13 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
+// Class CIMResponseData encapsulates the possible types of response data
+// representations and supplies conversion methods between these types.
+// PEP#348 - The CMPI infrastructure using SCMO (Single Chunk Memory Objects)
+// describes its usage in the server flow.
+// The design document can be found on the OpenPegasus website openpegasus.org
+// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMResponseData_h
@@ -55,9 +62,14 @@ typedef Array<Sint8> ArraySint8;
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-// KS_TODO _Temp test for size validity DELETE when done
-#define PSVALID PEGASUS_ASSERT(sizeValid())
-
+//// KS_TODO REMOVE THIS _Temp test for size validity DELETE when done
+#define PSVALID PEGASUS_ASSERT(sizeValid());
+/*
+#define PSVALID {printf("PSVALID Error line %u\n",__LINE__); \
+ PEGASUS_ASSERT(sizeValid());}
+#define PSVALID {if(!sizeValid(){printf("PSVALID Error line %u\n",__LINE__);
+PEGASUS_ASSERT(false);}}
+*/
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
 public:
@@ -78,13 +90,17 @@ public:
     };
     //includeClassOrigin & _includeQualifiers are set to true by default.
     //_propertyList is initialized to an empty propertylist to enable
-    // sending all properties by default.
+    // sending all properties by default. _isClassOperation set false and
+    // only reset by selected operations (ex. associator response builder)
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content), _size(0),_includeQualifiers(true),
-        _includeClassOrigin(true),_propertyList(CIMPropertyList())
+        _encoding(0),_dataType(content),_size(0), _includeQualifiers(true),
+        _includeClassOrigin(true),
+        _isClassOperation(false),
+        _propertyList(CIMPropertyList())
     {
         TRACELINE;
-        PEGASUS_ASSERT(valid()); // KS_TEMP
+        PEGASUS_ASSERT(valid()); // KS_TEMP KS_TODO DELETE THIS
+        size();
     }
 
     CIMResponseData(const CIMResponseData & x):
@@ -105,12 +121,14 @@ public:
         _scmoInstances(x._scmoInstances),
         _includeQualifiers(x._includeQualifiers),
         _includeClassOrigin(x._includeClassOrigin),
+        _isClassOperation(x._isClassOperation),
         _propertyList(x._propertyList),
         _magic(x._magic)
     {
         TRACELINE;
         /////PEGASUS_ASSERT(x.valid());     // KS_TEMP
         PEGASUS_ASSERT(valid());            // KS_TEMP
+        size();
     }
 
     // Construct an empty object.  Issue here in that we would like to
@@ -125,6 +143,7 @@ public:
         _propertyList(CIMPropertyList())
     {
         TRACELINE;
+        size();   //// TODOD remove temp
     }
 
     /**
@@ -151,9 +170,9 @@ public:
     {
     }
 
-    // This one may be a hack but we have issue with pull and other operations
+    // Issue with pull and other operations
     // in that the other assoc operations return objects and objectPaths
-    // and the pulls return instances and instancePaths). The pull operation
+    // and the pulls return instances and instancePaths. The pull operation
     // must be able to handle either so we use this to reset the datatype
     // KS_TODO -- This should check size and only allow if nothing in the
     // object.
@@ -325,14 +344,21 @@ public:
 
     // official Xml format(CIM over Http) used to communicate to clients
     void encodeXmlResponse(Buffer& out);
-  
-    //This function is called from buildResponce to set CIMResponcedata 
+
+    //This function is called from buildResponce to set CIMResponcedata
     //with respective values of IncludeQualifiers,IncludeClassOrigin and
     //propertyFilter.
     void setRequestProperties(
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
+
+    // Used with association and reference operations (i.e. operations that
+    // return CIMObject or CIMObjectPath to set a parameter to define whether
+    // responseData is for operation on a class or instance.
+    // Allows building the correct path (classPath or instancePath) and
+    // object type (Class or Instance) on response.
+    void setIsClassOperation(Boolean b);
 
     void setPropertyList(const CIMPropertyList& propertyList)
     {
@@ -345,7 +371,7 @@ public:
         return _propertyList;
     }
 
-    bool sizeValid();                   //KS_TEMP
+    bool sizeValid();                   //KS_TEMP KS_TODO REMOVE
 
 private:
 
@@ -369,6 +395,10 @@ private:
     SCMOInstance _getSCMOFromCIMObject(const CIMObject& cimObj);
     SCMOInstance _getSCMOFromCIMObjectPath(const CIMObjectPath& cimPath);
     SCMOClass* _getSCMOClass(const char* ns,const char* cls);
+    void _deserializeInstance(Uint32 idx,CIMInstance& cimInstance);
+    void _deserializeObject(Uint32 idx,CIMObject& cimObject);
+    Boolean _deserializeReference(Uint32 idx,CIMObjectPath& cimObjectPath);
+    Boolean _deserializeInstanceName(Uint32 idx,CIMObjectPath& cimObjectPath);
 
     // Bitflags in this integer will reflect what data representation types
     // are currently stored in this CIMResponseData object
@@ -410,8 +440,17 @@ private:
 
     // SCMO encoding
     Array<SCMOInstance> _scmoInstances;
-    Boolean _includeQualifiers; 
+
+    // Request characteristics that are carried through operation for
+    // modification of response generation.
+    Boolean _includeQualifiers;
     Boolean _includeClassOrigin;
+    // Defines whether response CIMObjects or ObjectPaths are class or instance.
+    // because associators, etc. operations provide both class and instance
+    // responses. Default is false and should only be set to true by
+    // operation requests such as associators (which could return either
+    // instances or classes) when the operation is to return class information.
+    Boolean _isClassOperation;
     CIMPropertyList _propertyList;
 
     // magic number to use with valid function to confirm validity

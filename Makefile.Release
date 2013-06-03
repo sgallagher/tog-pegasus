@@ -81,6 +81,7 @@ PEGASUS_PROVIDER_MANAGERS =
 
 PEGASUS_LIBRARIES = \
    libCIMxmlIndicationHandler \
+   libFileListenerDestination \
    libConfigSettingProvider \
    libNamespaceProvider \
    libProviderRegistrationProvider \
@@ -88,6 +89,7 @@ PEGASUS_LIBRARIES = \
    libpegauthentication \
    libpegclient \
    libpegcliutils \
+   libpeghandler \
    libpeggeneral \
    libpegcommon \
    libpegcompiler \

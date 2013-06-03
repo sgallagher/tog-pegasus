@@ -33,7 +33,6 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/Tracer.h>
 #include "PAMBasicAuthenticator.h"
-#include "pam_rcToAuthStatus.h"
 
 PEGASUS_USING_STD;
 
@@ -63,7 +62,7 @@ PAMBasicAuthenticator::~PAMBasicAuthenticator()
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus PAMBasicAuthenticator::authenticate(
+Boolean PAMBasicAuthenticator::authenticate(
     const String& userName,
     const String& password,
     AuthenticationInfo* authInfo)
@@ -71,29 +70,32 @@ AuthenticationStatus PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
-    int pam_rc =
-        Executor::authenticatePassword(
-            userName.getCString(),
-            password.getCString());
+    if (Executor::authenticatePassword(
+        userName.getCString(), password.getCString()) != 0)
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
 
-    // return code of -1 will be translated to AUTHSC_UNAUTHORIZED
-    AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pam_rc);
     PEG_METHOD_EXIT();
-    return authStatus;
+    return true;
 }
 
-AuthenticationStatus PAMBasicAuthenticator::validateUser(
+Boolean PAMBasicAuthenticator::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::validateUser()");
 
-    int pam_rc = Executor::validateUser(userName.getCString());
-    // return code of -1 will be translated to AUTHSC_UNAUTHORIZED
-    AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pam_rc);
+    if (Executor::validateUser(userName.getCString()) != 0)
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
     PEG_METHOD_EXIT();
-    return authStatus;
+    return true;
 }
 
 

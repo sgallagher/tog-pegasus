@@ -984,12 +984,12 @@ void InstanceIndexFile::undoBeginTransaction(const String& path)
     rollbackPath.append(".rollback");
 
     //
-    // Remove the original index file and 
+    // Remove the original index file and
     // Rename the rollback file to the original file
     // If the rollback file is present, this function has no effect
     //
     if(FileSystem::existsNoCase(rollbackPath))
-    { 
+    {
         FileSystem::removeFileNoCase(path);
         FileSystem::renameFileNoCase(rollbackPath, path);
     }

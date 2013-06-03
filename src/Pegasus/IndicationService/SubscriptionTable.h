@@ -39,6 +39,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/General/SubscriptionKey.h>
 
 #include "ProviderClassList.h"
 #include "SubscriptionRepository.h"
@@ -91,10 +92,10 @@ struct ActiveSubscriptionsTableEntry
     The terminate() function, when the CIM Server is being shut down, iterates
     through the table to retrieve all active subscriptions.
  */
-typedef HashTable <String,
+typedef HashTable <SubscriptionKey,
                    ActiveSubscriptionsTableEntry,
-                   EqualFunc <String>,
-                   HashFunc <String> > ActiveSubscriptionsTable;
+                   SubscriptionKeyEqualFunc,
+                   SubscriptionKeyHashFunc> ActiveSubscriptionsTable;
 
 /**
     Entry for SubscriptionClasses table
@@ -374,7 +375,7 @@ public:
         const CIMNamespaceName&  nameSpace,
         const CIMInstance & provider,
         Array<CIMInstance>& matchingSubscriptions,
-        Array<String>& matchingSubscriptionKeys);
+        Array<SubscriptionKey>& matchingSubscriptionKeys);
 
     /**
         Returns all the Active Subscriptions table entries.
@@ -397,7 +398,7 @@ public:
      */
     void updateMatchedIndicationCounts(
         const CIMInstance& providerInstance,
-        const Array<String>& subscriptionsKeys);
+        const Array<SubscriptionKey>& subscriptionsKeys);
 
     /**
         Enumerates PG_SubscriptionIndicationData instances using the data
@@ -447,7 +448,7 @@ private:
 
         @return  the generated key
      */
-    String _generateActiveSubscriptionsKey (
+    SubscriptionKey _generateActiveSubscriptionsKey (
         const CIMObjectPath & subscription) const;
 
     /**
@@ -460,7 +461,7 @@ private:
         @return  true if the key is found in the table; false otherwise
      */
     Boolean _lockedLookupActiveSubscriptionsEntry (
-        const String & key,
+        const SubscriptionKey & key,
         ActiveSubscriptionsTableEntry & tableEntry) const;
 
     /**
@@ -481,7 +482,7 @@ private:
         @param   key                   the key of the entry to remove
      */
     void _removeActiveSubscriptionsEntry (
-        const String & key);
+        const SubscriptionKey & key);
 
     /**
         Generates a unique String key for the Subscription Classes table from
@@ -542,7 +543,7 @@ private:
                                            entry (may be empty)
      */
     void _updateSubscriptionProviders (
-        const String & activeSubscriptionsKey,
+        const SubscriptionKey & activeSubscriptionsKey,
         const CIMInstance & subscription,
         const Array <ProviderClassList> & updatedProviderList);
 

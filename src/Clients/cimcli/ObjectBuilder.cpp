@@ -41,6 +41,7 @@
 #include "CIMCLICommon.h"
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/ArrayIterator.h>
+#include <Clients/cliutils/CsvStringParse.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -56,7 +57,6 @@ PEGASUS_NAMESPACE_BEGIN
 bool verboseTest = false;
 #define VCOUT if (verboseTest) cout << "LINE=" << __LINE__ << " TST "
 
-class csvStringParse;
 
 // Cleans an input array by removing the { } tokens that surround
 // the array parameters.  Does nothing if they do not exist.  If there is
@@ -124,16 +124,11 @@ Uint32 _includesType(const String& name)
 // return String for the tokenType. This is a diagnostic tool only.
 String tokenTypeToString(TokenType tokenType)
 {
-    String rtn;
     static const char * tokenTypeString[] =
     {
         "UNKNOWN","ILLEGAL", "VALUE", "NO_VALUE", "EXCLAM", "NAME_ONLY",
              "EMBED", "END_EMBED", "EMBED_NEXT_ARRAY_ITEM"
     };
-    static const Uint32 _NUM_TYPES =
-        sizeof(tokenTypeString) / sizeof(tokenTypeString[0]);
-
-    PEGASUS_ASSERT((Uint32)tokenType <= _NUM_TYPES);
     return tokenTypeString[tokenType];
 }
 
@@ -215,7 +210,6 @@ tokenItem parseInputParam(const String& input)
     TokenType tokenType = UNKNOWN;
     String value;
     String name;
-    Uint32 pos;
 
     // Scan the input string for a terminator character.
     Uint32 index = 0;
@@ -310,112 +304,6 @@ tokenItem parseInputParam(const String& input)
     return ti;
 }
 
-/******************************************************************************
-   Parser for comma-separated-strings (csv). This parser takes into
-   account quoted strings the " character and returns everything
-   within a quoted block in the string in one batch.  It also
-   considers the backslash "\" escape character to escape single
-   double quotes.
-   Example:
-     csvStringParse x (inputstring, ",");
-     while (x.more())
-        rtnString = x.next();
-******************************************************************************/
-class csvStringParse
-{
-public:
-    /* Define a string to parse for comma separated values and the
-       separation character
-    */
-    csvStringParse(const String& csvString, const int separator)
-    {
-        _inputString = csvString;
-        _separator = separator;
-        _idx = 0;
-        _end = csvString.size();
-    }
-
-    /* determine if there is more to parse
-       @return true if there is more to parse
-    */
-    Boolean more()
-    {
-        return (_idx < _end)? true : false;
-    }
-
-    /* get next string from input. Note that this will continue to
-       return empty strings if you parse past the point where more()
-       returns false.
-       @return String
-    */
-    String next()
-    {
-        String rtnValue;
-        parsestate state = NOTINQUOTE;
-
-        while ((_idx <= _end) && (_inputString[_idx]))
-        {
-            char idxchar = _inputString[_idx];
-            switch (state)
-            {
-                case NOTINQUOTE:
-                    switch (idxchar)
-                    {
-                        case '\\':
-                            state = INSQUOTE;
-                            break;
-
-                        case '"':
-                            state = INDQUOTE;
-                            break;
-
-                        default:
-                            if (idxchar == _separator)
-                            {
-                                _idx++;
-                                return rtnValue;
-                            }
-                            else
-                            {
-                                rtnValue.append(idxchar);
-                            }
-                            break;
-                    }
-                    break;
-
-                // add next character and set NOTINQUOTE State
-                case INSQUOTE:
-                    rtnValue.append(idxchar);
-                    state = NOTINQUOTE;
-                    break;
-
-                // append all but quote character
-                case INDQUOTE:
-                    switch (idxchar)
-                    {
-                        case '"':
-                            state = NOTINQUOTE;
-                            break;
-                        default:
-                            rtnValue.append(idxchar);
-                            break;
-                    }
-            }
-            _idx++;
-        }   // end while
-
-        return rtnValue;
-    }
-
-private:
-    enum parsestate {INDQUOTE, INSQUOTE, NOTINQUOTE};
-    Uint32 _idx;
-    int _separator;
-    Uint32 _end;
-    String _inputString;
-};
-
-
 /* Convert a single string provided as input into a new CIM variable
    and place it in a CIMValue.  This function does not process
    Embedded instances/objects since they are not represented as a single
@@ -499,7 +387,6 @@ Boolean _stringToArrayValue(
     CIMValue& val)
 {
     CIMType type = val.getType();
-    Uint32 arrayDimension = val.getArraySize();
     String parseStr(str);
 
     csvStringParse strl(parseStr, ',');
@@ -701,7 +588,7 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
         {
             cimcliMsg::exit(CIMCLI_INPUT_ERR,
                 "Duplicate scalar property Name. $0",
-                   token.tokenInput);                    
+                   token.tokenInput);
         }
     }
 
@@ -929,14 +816,14 @@ class iterateArray
 public:
     // construct an iterator for an array
     iterateArray(Array<String> input)
-    : _array(input), _pos(0), _prev(String()), _start(0)
+    : _array(input), _pos(0), _prev(String())
     {
     }
 
     // Create new iterator starting from nonzero position
     // in input array
     iterateArray(Array<String> input, Uint32 pos)
-    : _array(input), _pos(pos), _prev(String()), _start(pos)
+    : _array(input), _pos(pos), _prev(String())
     {
     }
 
@@ -998,7 +885,6 @@ private:
     Array<String> _array;
     Uint32 _pos;
     String _prev;
-    Uint32 _start;
 };
 
 /******************************************************************

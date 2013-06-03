@@ -281,7 +281,6 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::getConsumer");
 
     DynamicConsumer* consumer = 0;
-    CIMIndicationConsumerProvider* consumerRef = 0;
     Boolean cached = false;
     Boolean entryExists = false;
 

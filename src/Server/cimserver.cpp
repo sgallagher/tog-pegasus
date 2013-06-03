@@ -450,6 +450,32 @@ static void _initConfigProperty(const String &propName, Uint32 value)
         n);
     ConfigManager::getInstance()->initCurrentValue(propName, String(startP, n));
 }
+static void _restrictListening(
+    ConfigManager* configManager,
+    const String &listenOn,
+    const Uint32 &portNumberHttp,
+    const Boolean useSSL)
+{
+    static Array<HostAddress> laddr = configManager ->getListenAddress( 
+                                          listenOn);
+    for(Uint32 i = 0, n = laddr.size(); i < n; ++i)
+    {
+        if(laddr[i].getAddressType() == HostAddress::AT_IPV6)
+        {
+#ifdef PEGASUS_ENABLE_IPV6
+            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                    portNumberHttp, useSSL, 
+                    &laddr[i]);
+#endif
+        }
+        else if(laddr[i].getAddressType() == HostAddress::AT_IPV4)
+        {
+            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                    portNumberHttp, useSSL, 
+                    &laddr[i]);
+        }
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////
 //  MAIN
@@ -902,6 +928,12 @@ int CIMServerProcess::cimserver_run(
         _cimServerProcess->getCompleteVersion() << endl;
 #endif
 
+    // Force initialization of hostname and fullyQualifiedHostName through
+    // retrieving current value from Configuration Manager
+    // - this will run getCurrentValue() in DefaultPropertyOwner.cpp
+    configManager->getCurrentValue("hostname");
+    configManager->getCurrentValue("fullyQualifiedHostName");
+
     // reset message loading to NON-process locale
     MessageLoader::_useProcessLocale = false;
 
@@ -1055,7 +1087,7 @@ int CIMServerProcess::cimserver_run(
         {
             Uint32 portNumberHttp = 0;
             String httpPort = configManager->getCurrentValue("httpPort");
-            if (httpPort == String::EMPTY)
+            if (httpPort.size() == 0)
             {
                 //
                 // Look up the WBEM-HTTP port number
@@ -1066,28 +1098,35 @@ int CIMServerProcess::cimserver_run(
             }
             else
             {
-                //
-                // user-specified
-                //
-                CString portString = httpPort.getCString();
-                char* end = 0;
-                portNumberHttp = strtol(portString, &end, 10);
-                if (!(end != 0 && *end == '\0'))
-                {
-                    throw InvalidPropertyValue("httpPort", httpPort);
-                }
+                Uint64 longNumber;
+                // use the current value which has been checked for validity at
+                // load(fct. GetOptions), see DefaultPropertyOwner::isValid()
+                StringConversion::decimalStringToUint64(
+                    httpPort.getCString(),
+                    longNumber);
+                portNumberHttp = longNumber & 0xffff;
             }
 
-            if (addIP6Acceptor)
+            String listenOn = configManager->getCurrentValue("listenAddress");
+            if(String::equalNoCase(listenOn, "All"))
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                    portNumberHttp, false);
+                if (addIP6Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                        portNumberHttp, false);
+                }
+                if (addIP4Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                        portNumberHttp, false);
+                }
             }
-            if (addIP4Acceptor)
+            else // Restricted listening
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                    portNumberHttp, false);
+                _restrictListening(
+                    configManager, listenOn, portNumberHttp, false);
             }
+
             // The port number is converted to a string to avoid the
             //  addition of localized characters (e.g., "5,988").
             char scratchBuffer[22];
@@ -1109,7 +1148,7 @@ int CIMServerProcess::cimserver_run(
         {
             Uint32 portNumberHttps = 0;
             String httpsPort = configManager->getCurrentValue("httpsPort");
-            if (httpsPort == String::EMPTY)
+            if (httpsPort.size() == 0)
             {
                 //
                 // Look up the WBEM-HTTPS port number
@@ -1120,27 +1159,35 @@ int CIMServerProcess::cimserver_run(
             }
             else
             {
-                //
-                // user-specified
-                //
-                CString portString = httpsPort.getCString();
-                char* end = 0;
-                portNumberHttps = strtol(portString, &end, 10);
-                if (!(end != 0 && *end == '\0'))
+                Uint64 longNumber;
+                // use the current value which has been checked for validity at
+                // load(fct. GetOptions), see DefaultPropertyOwner::isValid()
+                StringConversion::decimalStringToUint64(
+                    httpsPort.getCString(),
+                    longNumber);
+                portNumberHttps = longNumber & 0xffff;
+            }
+
+            String listenOn = configManager->getCurrentValue("listenAddress");
+            if(String::equalNoCase(listenOn, "All"))
+            {
+                if (addIP6Acceptor)
                 {
-                    throw InvalidPropertyValue("httpsPort", httpsPort);
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                        portNumberHttps, true);
+                }
+                if (addIP4Acceptor)
+                {
+                    _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                        portNumberHttps, true);
                 }
             }
-            if (addIP6Acceptor)
+            else //Restricted
             {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                    portNumberHttps, true);
+                _restrictListening(
+                    configManager, listenOn, portNumberHttps, true);
             }
-            if (addIP4Acceptor)
-            {
-                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                    portNumberHttps, true);
-            }
+
             // The port number is converted to a string to avoid the
             //  addition of localized characters (e.g., "5,989").
             char scratchBuffer[22];

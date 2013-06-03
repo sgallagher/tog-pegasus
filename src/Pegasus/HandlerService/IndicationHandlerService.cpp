@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
-
+#include <Pegasus/Common/StringConversion.h>
 #include "IndicationHandlerConstants.h"
 #include "IndicationHandlerService.h"
 
@@ -48,7 +48,9 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 static struct timeval deallocateWait = { 300, 0 };
+#endif
 
 IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
     : Base("IndicationHandlerService"),
@@ -105,6 +107,22 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
         AutoPtr<Message> legacy(
             static_cast<AsyncLegacyOperationStart *>(req)->get_action());
 
+        // Update the requested language to the service thread language context.
+        if (dynamic_cast<CIMMessage *>(legacy.get()) != 0)
+        {
+            try
+            {
+                ((CIMMessage*)legacy.get())->updateThreadLanguages();
+            }
+            catch (Exception& e)
+            {
+                PEG_TRACE((TRC_THREAD, Tracer::LEVEL2,
+                    "IndicationHandlerService::_handle_async_request update "
+                    "thread languages failed because of %s", 
+                    (const char*)e.getMessage().getCString()));
+            }
+        }
+
         AutoPtr<CIMResponseMessage> response;
 
         CIMHandleIndicationRequestMessage *handleIndicationRequest = 0;
@@ -149,6 +167,14 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                            (CIMGetInstanceRequestMessage*)
                            legacy.get()));
                    break;
+
+               case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
+                   response.reset(
+                       _handlePropertyUpdateRequest(
+                           (CIMNotifyConfigChangeRequestMessage*)
+                               legacy.get()));
+                   break;  
+
 #endif
                default:
                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -270,7 +296,8 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
     Uint32 pos = PEG_NOT_FOUND;
 
     if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+        className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML) || 
+        className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
     {
         pos = handler.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
 
@@ -427,7 +454,8 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
         }
     }
     else if ((className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
-             (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)))
+             (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
+             (className.equal (PEGASUS_CLASSNAME_LSTNRDST_FILE)))
     {
         if (request->deliveryStatusAggregator)
         {
@@ -496,7 +524,6 @@ Boolean IndicationHandlerService::_loadHandler(
             ContentLanguageList langs =
                 ((ContentLanguageListContainer)operationContext.
                 get(ContentLanguageListContainer::NAME)).getLanguages();
-
             handlerLib->handleIndication(
                 operationContext,
                 nameSpace,
@@ -553,9 +580,22 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        handlerId = String("snmpIndicationHandler");
    }
    else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+   {
        handlerId = String("SystemLogListenerDestination");
+   }
    else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+   {
        handlerId = String("EmailListenerDestination");
+   }
+   else if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+   {
+       handlerId = String("wsmanIndicationHandler"); 
+   }
+   else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_FILE))
+   {
+       handlerId = String("FileListenerDestination");
+   }
+
 
    PEGASUS_ASSERT(handlerId.size() != 0);
 
@@ -833,8 +873,9 @@ CIMNotifyListenerNotActiveResponseMessage*
     {
         queue->cleanup();
         delete queue;
-        Boolean ok = _destinationQueueTable.remove(queueName);
-        PEGASUS_ASSERT(ok);
+        PEGASUS_FCT_EXECUTE_AND_ASSERT(
+            true,
+            _destinationQueueTable.remove(queueName));
     }
 
     CIMNotifyListenerNotActiveResponseMessage *response =
@@ -844,6 +885,50 @@ CIMNotifyListenerNotActiveResponseMessage*
 
     return response;
 }
+
+//
+// Update the DeliveryRetryAttempts & DeliveryRetryInterval
+// with the new property value
+//
+CIMNotifyConfigChangeResponseMessage*
+    IndicationHandlerService::_handlePropertyUpdateRequest(
+        CIMNotifyConfigChangeRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "IndicationHandlerService::_handlePropertyUpdateRequest");
+
+    CIMNotifyConfigChangeRequestMessage * notifyRequest=
+           dynamic_cast<CIMNotifyConfigChangeRequestMessage*>(message);
+
+    Uint64 v;
+
+    StringConversion::decimalStringToUint64(
+        notifyRequest->newPropertyValue.getCString(),v);
+
+    if (String::equal(
+        notifyRequest->propertyName, "maxIndicationDeliveryRetryAttempts")) 
+    {
+        DestinationQueue::setDeliveryRetryAttempts(v);
+    }
+    else if(String::equal(
+        notifyRequest->propertyName, "minIndicationDeliveryRetryInterval"))
+    {
+        DestinationQueue:: setminDeliveryRetryInterval(v);
+    }
+    else
+    {
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+    }
+
+
+    CIMNotifyConfigChangeResponseMessage *response =
+        dynamic_cast<CIMNotifyConfigChangeResponseMessage*>(
+            message->buildResponse());
+    PEG_METHOD_EXIT();
+    return response;
+}
+
+
 
 void IndicationHandlerService::_stopDispatcher()
 {
@@ -926,8 +1011,10 @@ void IndicationHandlerService::_setSequenceIdentifierAndEnqueue(
     }
 
     queue = new DestinationQueue(handler);
-    Boolean ok = _destinationQueueTable.insert(queueName, queue);
-    PEGASUS_ASSERT(ok);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _destinationQueueTable.insert(queueName, queue));
+
     queue->enqueue(message);
     _dispatcherWaitSemaphore.signal();
     PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,

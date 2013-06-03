@@ -16,7 +16,7 @@ BuildRequires:      gcc-java, libgcj-devel, libgcj, java-1.4.2-gcj-compat
 Requires:           libgcj, java-1.4.2-gcj-compat
 %endif
 %if %{EXTERNAL_SLP_REQUESTED}
-BuildRequires:      openslp, openslp-devel
+BuildRequires:      openslp, openslp_devel
 Requires:           openslp
 %endif
 

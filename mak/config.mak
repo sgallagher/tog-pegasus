@@ -239,7 +239,7 @@ endif
 ## NOTE: If the default below is changed, please update the definition
 ## of default for this variable in pegasus/doc/BuildAndReleaseOptions.html
 ifndef PEGASUS_CIM_SCHEMA
-    PEGASUS_CIM_SCHEMA=CIM231
+    PEGASUS_CIM_SCHEMA=CIM236
 endif
 
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
@@ -385,19 +385,6 @@ endif
 ifeq ($(PEGASUS_HAS_ICU),true)
     DEFINES += -DPEGASUS_HAS_ICU
 
-    ##################################
-    ##
-    ## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root
-    ## resource bundle, default is to uppercase the root resource bundle
-    ##
-    ##################################
-
-    ifdef ICU_NO_UPPERCASE_ROOT
-        CNV_ROOT_FLAGS =
-    else
-        CNV_ROOT_FLAGS = -u
-    endif
-
     ####################################
     ##
     ## ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root
@@ -493,47 +480,9 @@ ifdef PEGASUS_MAX_THREADS_PER_SVC_QUEUE
   DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=$(PEGASUS_MAX_THREADS_PER_SVC_QUEUE)
 endif
 
-##############################################################################
-##
-## PEGASUS_INDICATIONS_Q_THRESHOLD
-##
-## Controls if indications providers are stalled if the indications
-## service queue is too large.
-##
-##      defaults to not set.
-##
-## 	It can be set to any positive value.
-##
-## If not set providers are never stalled. This implies that the
-## indications service queue may become as large as neccesary to hold all
-## the indicaitons generated.
-##
-## If set to any value then providers are stalled by forcing them to sleep
-## when they try to deliver an indication and the indications service queue
-## exceeds this value. They are resumed when the queue count falls 10 percent
-## below this value.
-##
-## Stall and resume log entries are made to inform the administrator
-## the condition has occured.
-##
-## WARNING: This also affects the Out of Process Providers (OOP Providers)
-##    The OOP Providers use two one way pipes for communication.
-##    By stalling the Provider this prevents the pipe from being read
-##    which will cause the pipe to fill up and the remote side will block.
-##    OOP Prividers mix indications and operations on these two pipes.
-##    This means the operations will also be blocked as a side effect of
-##    the indications being stalled.
-##
-##
-
-ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
-  DEFINES += -DPEGASUS_INDICATIONS_Q_THRESHOLD=$(PEGASUS_INDICATIONS_Q_THRESHOLD)
-endif
-
-
 # Allow PEGASUS_ASSERT statements to be disabled.
 ifdef PEGASUS_NOASSERTS
-    DEFINES += -DNDEBUG
+    DEFINES += -DNDEBUG -DPEGASUS_NOASSERTS
 endif
 
 # do not compile trace code. sometimes it causes problems debugging
@@ -1192,10 +1141,6 @@ ifdef PEGASUS_DEBUG
         DEFINES += -DPEGASUS_INDICATION_HASHTRACE
     endif
 
-    # Setup the conditional compile for client displays.
-    ifdef PEGASUS_CLIENT_TRACE_ENABLE
-        DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
-    endif
 endif
 
 # compile in the experimental APIs
@@ -1262,16 +1207,6 @@ endif
 # Allow remote CMPI functionality to be enabled
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     DEFINES += -DPEGASUS_ENABLE_REMOTE_CMPI
-endif
-
-############################################################
-#
-# Set any vendor-specific compile flags
-#
-############################################################
-
-ifdef PEGASUS_VENDOR_HP
-    DEFINES+= -DPEGASUS_VENDOR_HP
 endif
 
 
@@ -1422,6 +1357,41 @@ endif
 
 ##==============================================================================
 ##
+## PEGASUS_PAM_SESSION_SECURITY
+##
+## This is a new method to handle authentication with PAM in case it is required
+## to keep the PAM session established by pam_start() open across an
+## entire CIM request.
+##
+## This feature contradicts PEGASUS_PAM_AUTHENTICATION and
+## PEGASUS_USE_PAM_STANDALONE_PROC
+## Because of the additional process this feature is not compatible with
+## Privilege Separation.
+##
+##==============================================================================
+
+ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
+    ifdef PEGASUS_PAM_AUTHENTICATION
+        $(error "PEGASUS_PAM_AUTHENTICATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
+    endif
+    ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+        $(error "PEGASUS_USE_PAM_STANDALONE_PROC must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
+    endif
+    ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+        $(error "PEGASUS_ENABLE_PRIVILEGE_SEPARATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
+    endif
+    # Compile in the code required for PAM 
+    # and compile out the code that uses the password file.
+    DEFINES += -DPEGASUS_PAM_SESSION_SECURITY -DPEGASUS_NO_PASSWORDFILE
+    # Link with libpam only where it is needed.
+    ifeq ($(HAS_PAM_DEPENDENCY),true)
+        SYS_LIBS += -lpam
+    endif
+endif
+
+
+##==============================================================================
+##
 ## PEGASUS_PAM_AUTHENTICATION
 ##
 ##==============================================================================
@@ -1555,3 +1525,19 @@ ifdef PEGASUS_INITIAL_THREADSTACK_SIZE
 DEFINES += -DPEGASUS_INITIAL_THREADSTACK_SIZE=$(PEGASUS_INITIAL_THREADSTACK_SIZE)
 endif
 
+ifndef PEGASUS_INTEROP_NAMESPACE
+    PEGASUS_INTEROP_NAMESPACE=root/PG_InterOp
+else
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
+DEFINES += -DNS_ROOT_INTEROP
+    endif
+ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
+DEFINES += -DNS_INTEROP
+endif
+endif
+
+##These namespaces will be used in Makefiles.
+
+NAMESPACE_INTEROP = interop
+
+NAMESPACE_ROOT_INTEROP = root/interop

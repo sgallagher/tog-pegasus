@@ -1055,7 +1055,7 @@ public:
     parameter is optional and not all servers accept it.  A server may
     generate an exception response if this parameter is set "true'.
 
-    @param maxObjectCount Uint32Arg parameter that defines the maximum number
+    @param maxObjectCount Uint32 parameter that defines the maximum number
     of elements that this Open operation can return. Any Uint32 value is legal
     including 0.
     The server may deliver up to maxObjectCount objects.  The server may
@@ -1103,7 +1103,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout  = Uint32Arg(),
         Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount = 0
         );
 
     /**
@@ -1173,7 +1173,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount = 0
         );
 
  /**
@@ -1260,7 +1260,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount = 0
         );
 
  /**
@@ -1340,11 +1340,11 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount = 0
         );
 
     /**
-     * TBD Add Description
+     * KS_TODO Add Description
     */
 
     Array<CIMInstance> openAssociatorInstances(
@@ -1362,10 +1362,10 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount = 0
         );
 
-    /** TBD Add Description
+    /** KS_TODO Add Description
     */
     Array<CIMObjectPath> openAssociatorInstancePaths(
         CIMEnumerationContext& enumerationContext,
@@ -1380,7 +1380,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount = 0
         );
 
     /**
@@ -1406,7 +1406,7 @@ public:
     invalid for any future operations. If the <TT>endOfSequence</TT> is
     false additional elements may be available from the server.
 
-    @param maxObjectCount Uint32Arg input parameter (required) that defines
+    @param maxObjectCount Uint32 input parameter (required) that defines
     the maximum number of instances that may be returned by the server. Any
     Uint32 integer is allowed including 0. The client may use
     the value zero to tell the server to keep the enumeration sequence
@@ -1433,7 +1433,7 @@ public:
     Array<CIMInstance> pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        const Uint32Arg& maxObjectCount
+        Uint32 maxObjectCount
         );
 
     /**
@@ -1453,7 +1453,7 @@ public:
     <TT>endOfSequence</TT> parameter for the <TT>pullInstancesWithPath</TT>
     operation.
 
-    @param maxObjectCount Uint32Arg input parameter (required) that defines the
+    @param maxObjectCount Uint32 input parameter (required) that defines the
     maximum number of instances that may be returned by the server. Any
     Uint32 integer is allowed including 0. The client may use
     the value zero to tell the server to keep the enumeration sequence
@@ -1480,7 +1480,7 @@ public:
     Array<CIMObjectPath> pullInstancePaths(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        const Uint32Arg& maxObjectCount
+        Uint32 maxObjectCount
         );
 
     /**

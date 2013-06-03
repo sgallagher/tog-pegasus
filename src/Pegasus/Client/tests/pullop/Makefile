@@ -167,10 +167,10 @@ prn2:
 	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 pa1:
-	$(PROGRAM) a -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) a -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 pan1:
-	$(PROGRAM) an -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) an -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 pa2:
 	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)

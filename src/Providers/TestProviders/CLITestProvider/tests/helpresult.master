@@ -5,7 +5,7 @@ Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>
     -h xx  for <command> and <Example> for <xx> operation 
     -h     for this summary
     --help for full help
-Version 2.12.0
+Version 2.13.0
 The options for this command are:
 
 This command executes single CIM Operations.
@@ -188,6 +188,14 @@ pan   AssociatorInstance paths with Pull Execute Open,Pull
                             AssociatorInstancePaths using the Pull Operations
 cci   Count All instances in Namespace Counts all Instances in Namespace and
                             sorts by ClassName -h for all help, -hc for commands, -ho for options
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands -h for all help, -hc for commands, -ho for options
 
 Examples : 
 cimcli ni -n test/TestProvider TST_Person
@@ -332,6 +340,11 @@ cimcli ns  -- Enumerate all Namespaces in repository
 cimcli son  -- Switch On's the statistical information on CIMServer
 
 cimcli soff  -- Switch OFF's the statistical information on CIMServer
+
+cimcli cci  -- Display count of instances in namespace
+
+cimcli ct CIM_ManagedElement -- Displays tree of class hiearchy
+     Starting at CIM_ManagedElement.
 
 cimcli ?  -- Displays help command
 
@@ -498,6 +511,14 @@ pan   AssociatorInstance paths with Pull Execute Open,Pull
                             AssociatorInstancePaths using the Pull Operations
 cci   Count All instances in Namespace Counts all Instances in Namespace and
                             sorts by ClassName -h for all help, -hc for commands, -ho for options
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands -h for all help, -hc for commands, -ho for options
 The options for this command are:
 
 This command executes single CIM Operations.

@@ -797,11 +797,11 @@ void test03()
         // Attempt to resolve the class with references to non-existent classes
         Resolver::resolveClass(c, context, NAMESPACE);
         // An exception should have been thrown
-        PEGASUS_TEST_ASSERT(false);
+        PEGASUS_ASSERT(false);
     }
     catch (CIMException& e)
     {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
     }
 
     // Make sure we can resolve the class if it is an association.
@@ -1292,11 +1292,11 @@ void test09()
         // Attempt to resolve the class with references to non-existent classes
         Resolver::resolveClass(c, context, NAMESPACE);
         // An exception should have been thrown
-        PEGASUS_TEST_ASSERT(false);
+        PEGASUS_ASSERT(false);
     }
     catch (CIMException& e)
     {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
     }
 
     delete context;

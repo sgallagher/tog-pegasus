@@ -85,9 +85,7 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     _realm.append(Char16('"'));
 
     // Get a user manager instance handler
-#ifndef PEGASUS_PAM_AUTHENTICATION
     _userManager = UserManager::getInstance();
-#endif
 
 #ifdef PEGASUS_OS_ZOS
     ConfigManager* configManager = ConfigManager::getInstance();
@@ -145,7 +143,7 @@ SecureBasicAuthenticator::~SecureBasicAuthenticator()
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus SecureBasicAuthenticator::authenticate(
+Boolean SecureBasicAuthenticator::authenticate(
     const String & userName,
     const String & password,
     AuthenticationInfo* authInfo)
@@ -228,7 +226,7 @@ AuthenticationStatus SecureBasicAuthenticator::authenticate(
     if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(authenticated);
+        return authenticated;
     }
 
     try
@@ -246,16 +244,14 @@ AuthenticationStatus SecureBasicAuthenticator::authenticate(
         }
         else
         {
-#ifndef PEGASUS_PAM_AUTHENTICATION
             if (_userManager->verifyCIMUserPassword(userName, password))
                 authenticated = true;
-#endif
         }
     }
     catch(InvalidUser &)
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(authenticated);
+        return authenticated;
     }
     catch(Exception & e)
     {
@@ -267,10 +263,10 @@ AuthenticationStatus SecureBasicAuthenticator::authenticate(
 
     PEG_METHOD_EXIT();
 
-    return AuthenticationStatus(authenticated);
+    return authenticated;
 }
 
-AuthenticationStatus SecureBasicAuthenticator::validateUser(
+Boolean SecureBasicAuthenticator::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
@@ -289,17 +285,15 @@ AuthenticationStatus SecureBasicAuthenticator::validateUser(
             if (Executor::validateUser(userName.getCString()) != 0)
                 authenticated = true;
         }
-#ifndef PEGASUS_PAM_AUTHENTICATION
         else if (_userManager->verifyCIMUser(userName))
         {
             authenticated = true;
         }
 #endif
-#endif
     }
 
     PEG_METHOD_EXIT();
-    return AuthenticationStatus(authenticated);
+    return authenticated;
 }
 
 //

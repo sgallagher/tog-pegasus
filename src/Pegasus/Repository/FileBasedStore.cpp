@@ -80,8 +80,8 @@ static const Uint32 _MAX_FREE_COUNT = 16;
 
 //
 // This static variable is used inside "rollbackInstanceTransaction" function
-// to determine if it is called from the constructor of "CIMRepository" during 
-// startup in order to avoid the creation of "rollback.progress" state file 
+// to determine if it is called from the constructor of "CIMRepository" during
+// startup in order to avoid the creation of "rollback.progress" state file
 // as it increases the startup time of the cimserver process.
 // true => startup
 //
@@ -244,63 +244,6 @@ void _LoadObject(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// _SaveObject()
-//
-//      Saves objects (classes and qualifiers) from memory to
-//      disk files.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-static void _SaveObject(
-    const String& path,
-    Buffer& objectXml,
-    ObjectStreamer* streamer,
-    Boolean compressMode)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::_SaveObject");
-
-#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
-    if (compressMode)            // PEP214
-    {
-        PEGASUS_STD(ostringstream) os;
-        streamer->write(os, objectXml);
-        string str = os.str();
-
-        gzFile fp = gzopen(path.getCString(), "wb");
-
-        if (fp == NULL)
-          throw CannotOpenFile(path);
-
-        const char* ptr = str.data();
-        size_t rem = str.size();
-        int n;
-
-        while (rem > 0 && (n = gzwrite(fp, (char*)ptr, rem)) > 0)
-        {
-            ptr += n;
-            rem -= n;
-        }
-
-        gzclose(fp);
-    }
-    else
-#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
-    {
-        PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
-
-        if (!os)
-        {
-            PEG_METHOD_EXIT();
-            throw CannotOpenFile(path);
-        }
-
-        streamer->write(os, objectXml);
-    }
-    PEG_METHOD_EXIT();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // _beginInstanceTransaction()
 //
 //      Creates rollback files to allow an incomplete transaction to be voided.
@@ -312,21 +255,21 @@ static void _beginInstanceTransaction(
     const String& dataFilePath)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "_beginInstanceTransaction");
-    
+
     // Create a state file for the begin instance transaction in the same
-    // directory where the rollback files will be created for 
+    // directory where the rollback files will be created for
     // index and data file.
     // The CIMRepository checks if this file is present during
-    // its initialization. 
-    // If it is present, it is assumed that the last begin transaction was 
+    // its initialization.
+    // If it is present, it is assumed that the last begin transaction was
     // incomplete due to system failure and it removes the rollback files along
     // with this state file
 
-    String dirPath = FileSystem::extractFilePath(indexFilePath); 
+    String dirPath = FileSystem::extractFilePath(indexFilePath);
     String stateFilePath = dirPath + REPOSITORY_BEGIN_PROGRESS_FILE;
 
     fstream fs;
-     
+
     fs.open(stateFilePath.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
 
     if (!fs)
@@ -360,11 +303,11 @@ static void _beginInstanceTransaction(
 
     if (!InstanceDataFile::beginTransaction(dataFilePath))
     {
-        // 
+        //
         // The creation of the index and data rollback file should be atomic
-        // So undo the begin transaction of index file in case of error in 
+        // So undo the begin transaction of index file in case of error in
         // the begin transaction of the data file
-        //     
+        //
         InstanceIndexFile::undoBeginTransaction(indexFilePath);
 
         //
@@ -435,9 +378,9 @@ static void _commitInstanceTransaction(
 
     if (!InstanceIndexFile::commitTransaction(indexFilePath))
     {
-        // 
+        //
         // Remove the state file
-        //        
+        //
         FileSystem::removeFile(stateFilePath);
 
         PEG_METHOD_EXIT();
@@ -449,10 +392,10 @@ static void _commitInstanceTransaction(
 
     if (!InstanceDataFile::commitTransaction(dataFilePath))
     {
-        // 
+        //
         // Remove the state file
         //
-        
+
         FileSystem::removeFile(stateFilePath);
 
         PEG_METHOD_EXIT();
@@ -515,20 +458,20 @@ static void _rollbackInstanceTransaction(
     String stateFilePath = dirPath + REPOSITORY_ROLLBACK_PROGRESS_FILE;
 
     //
-    // Check the static variable "startup" to determine if this function is 
-    // called from the constructor of "CIMRepository" during startup. 
+    // Check the static variable "startup" to determine if this function is
+    // called from the constructor of "CIMRepository" during startup.
     // If it is true do not create the "rollback.progress" state file.
     //
 
     if (!startup)
     {
         // Create a state file for the rollback instance transaction in the same
-        // directory where the rollback files are created for 
+        // directory where the rollback files are created for
         // index and data file.
         // The CIMRepository checks if this file is present during
         // its initialization.
         // If it is present, it is assumed that the last rollback transaction
-        // was incomplete due to system failure. So it completes 
+        // was incomplete due to system failure. So it completes
         // the rollback instance transaction and removes this state file
 
         fstream fs;
@@ -579,7 +522,7 @@ static void _rollbackInstanceTransaction(
 
     if (!startup)
     {
-        // Since both the rollback files are removed, 
+        // Since both the rollback files are removed,
         // rollback transaction is over.
         // So remove the state file for the rollback transaction
         FileSystem::removeFile(stateFilePath);
@@ -634,7 +577,7 @@ Boolean FileBasedStore::_completeTransactions()
 
         //
         // Get the instance directory path
-        // 
+        //
         String dirPath = nameSpacePath + _INSTANCES_SUFFIX;
         String classesPath = nameSpacePath + _CLASSES_SUFFIX;
 
@@ -684,17 +627,17 @@ Boolean FileBasedStore::_completeTransactions()
 
                 String dataFilePath = _getInstanceDataFilePath(
                     nameSpaceName, classNames[j]);
-  
+
                 InstanceIndexFile::undoBeginTransaction(indexFilePath);
                 InstanceDataFile::undoBeginTransaction(dataFilePath);
             }
-   
+
             FileSystem::removeFile(beginFilePath);
- 
+
             PEG_METHOD_EXIT();
             return true;
         }
-    
+
         if(FileSystem::exists(commitFilePath))
         {
             //
@@ -725,11 +668,11 @@ Boolean FileBasedStore::_completeTransactions()
             PEG_METHOD_EXIT();
             return true;
         }
- 
+
         if(FileSystem::exists(rollbackfilePath))
         {
             // Rollback transaction is left incomplete
-            // Rollback -> Call rollback 
+            // Rollback -> Call rollback
 
             for (Uint32 j = 0; j < classNames.size(); j++)
             {
@@ -742,7 +685,7 @@ Boolean FileBasedStore::_completeTransactions()
 
                 _rollbackInstanceTransaction(indexFilePath, dataFilePath);
             }
-    
+
             FileSystem::removeFile(rollbackfilePath);
 
             PEG_METHOD_EXIT();
@@ -845,8 +788,10 @@ FileBasedStore::FileBasedStore(
     ObjectStreamer* streamer,
     Boolean compressMode)
     : _repositoryPath(repositoryPath),
-      _streamer(streamer),
-      _compressMode(compressMode)
+      _streamer(streamer)
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+      ,_compressMode(compressMode)
+#endif
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::FileBasedStore");
 
@@ -937,15 +882,15 @@ FileBasedStore::FileBasedStore(
         }
     }
 
-    // 
+    //
     // Check if any state files are present in the repository.
-    // and bring the repository to a consistent state based 
+    // and bring the repository to a consistent state based
     // on the particular state file found.
     //
     if (!_completeTransactions())
     {
         //
-        // No state files are found in the repository. So, try to 
+        // No state files are found in the repository. So, try to
         // rollback any incomplete transactions in the repository
         //
         _rollbackIncompleteTransactions();
@@ -1085,8 +1030,10 @@ String FileBasedStore::_getNameSpaceDirPath(
     const CIMNamespaceName& nameSpace) const
 {
     String path;
-    Boolean found = _nameSpacePathTable.lookup(nameSpace.getString(), path);
-    PEGASUS_ASSERT(found);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+        true,
+        _nameSpacePathTable.lookup(nameSpace.getString(), path));
+    
     return path;
 }
 
@@ -1497,6 +1444,9 @@ void FileBasedStore::createNameSpace(
             throw CannotCreateDirectory(remoteDir);
         }
     }
+#else
+    // use unused parameter
+    remoteInfo.size();
 #endif
 
     _nameSpacePathTable.insert(nameSpace.getString(), nameSpacePath);
@@ -1555,6 +1505,25 @@ void FileBasedStore::modifyNameSpace(
         }
     }
 
+    PEG_METHOD_EXIT();
+}
+
+void FileBasedStore::modifyNameSpaceName(
+        const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::modifyNameSpaceName");
+
+    String nameSpacePath = _getNameSpaceDirPath(nameSpace);
+    String repositoryPath = nameSpacePath;
+    Uint32 pos = repositoryPath.reverseFind('/');
+    repositoryPath.remove(pos+1);
+    repositoryPath.append(_namespaceNameToDirName(newNameSpaceName));
+    if (!FileSystem::renameFile(nameSpacePath, repositoryPath))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotRenameFile(nameSpacePath);
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -1693,7 +1662,7 @@ void FileBasedStore::setQualifier(
 
     Buffer qualifierDeclXml;
     _streamer->encode(qualifierDeclXml, qualifierDecl);
-    _SaveObject(qualifierFilePath, qualifierDeclXml, _streamer, _compressMode);
+    _SaveObject(qualifierFilePath, qualifierDeclXml);
 
     PEG_METHOD_EXIT();
 }
@@ -1802,7 +1771,7 @@ void FileBasedStore::createClass(
         nameSpace, newClass.getClassName(), newClass.getSuperClassName());
     Buffer classXml;
     _streamer->encode(classXml, newClass);
-    _SaveObject(classFilePath, classXml, _streamer, _compressMode);
+    _SaveObject(classFilePath, classXml);
 
     if (classAssocEntries.size())
     {
@@ -1852,7 +1821,7 @@ void FileBasedStore::modifyClass(
 
     Buffer classXml;
     _streamer->encode(classXml, modifiedClass);
-    _SaveObject(classFilePath, classXml, _streamer, _compressMode);
+    _SaveObject(classFilePath, classXml);
 
     //
     // Update the association entries
@@ -2476,6 +2445,61 @@ void FileBasedStore::getInstanceReferenceNames(
         role,
         referenceNames);
 
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _SaveObject()
+//
+//      Saves objects (classes and qualifiers) from memory to
+//      disk files.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void FileBasedStore::_SaveObject(
+    const String& path,
+    Buffer& objectXml)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::_SaveObject");
+
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+    if (_compressMode)            // PEP214
+    {
+        PEGASUS_STD(ostringstream) os;
+        _streamer->write(os, objectXml);
+        string str = os.str();
+
+        gzFile fp = gzopen(path.getCString(), "wb");
+
+        if (fp == NULL)
+          throw CannotOpenFile(path);
+
+        const char* ptr = str.data();
+        size_t rem = str.size();
+        int n;
+
+        while (rem > 0 && (n = gzwrite(fp, (char*)ptr, rem)) > 0)
+        {
+            ptr += n;
+            rem -= n;
+        }
+
+        gzclose(fp);
+    }
+    else
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
+    {
+        PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
+
+        if (!os)
+        {
+            PEG_METHOD_EXIT();
+            throw CannotOpenFile(path);
+        }
+
+        _streamer->write(os, objectXml);
+    }
     PEG_METHOD_EXIT();
 }
 

@@ -377,7 +377,7 @@ Array<CIMServerDescription> CIMServerDiscoveryRep::lookup(
      * has zero size. Rescan the connections and create a fresh slp_client to
      * get the attributes, if none present
      */
-    if (0 == connections.size())
+    if (0==connections.size())
     {
         return connections;
     }

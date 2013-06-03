@@ -36,17 +36,43 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include "CIMOperationRequestEncoder.h"
+#include "CIMClientRep.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// append either ClassPath or InstancePath based IParameter.
+// This function local to client to clean up use of the getKeyBindings test
+// in the common code.  It is used by the associators, etc. requests
+// because the path can be either a class or instance.
+void _appendObjectNameIParameter(
+    Buffer& out,
+    const char* name,
+    const CIMObjectPath& objectName)
+{
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class also
+    //  has no key bindings. See BUG_3302
+    //
+    if (objectName.getKeyBindings ().size () == 0)
+    {
+        XmlWriter::appendClassNameIParameter(
+            out, name, objectName.getClassName());
+    }
+    else
+    {
+        XmlWriter::appendInstanceNameIParameter(
+            out, name, objectName);
+    }
+}
 
 CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     MessageQueue* outputQueue,
     const String& hostName,
     ClientAuthenticator* authenticator,
-    Uint32 showOutput,
     bool binaryRequest,
     bool binaryResponse)
     :
@@ -54,7 +80,6 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     _outputQueue(outputQueue),
     _hostName(hostName.getCString()),
     _authenticator(authenticator),
-    _showOutput(showOutput),
     _binaryRequest(binaryRequest),
     _binaryResponse(binaryResponse)
 {
@@ -274,7 +299,7 @@ void CIMOperationRequestEncoder::handleEnqueue()
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 
@@ -758,7 +783,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -792,7 +817,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -836,7 +861,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -883,7 +908,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "ObjectName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -982,7 +1007,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 */
 void _encodeOpenCommonParameters(
     Boolean continueOnError,
-    const Uint32Arg& maxObjectCount,
+    Uint32 maxObjectCount,
     const Uint32Arg& operationTimeout,
     const String& filterQueryLanguage,
     const String& filterQuery,
@@ -992,9 +1017,9 @@ void _encodeOpenCommonParameters(
         params, "ContinueOnError", continueOnError);
 
     XmlWriter::appendUint32IParameter(
-        params, "MaxObjectCount", maxObjectCount,false);
+        params, "MaxObjectCount", maxObjectCount);
 
-    XmlWriter::appendUint32IParameter(
+    XmlWriter::appendUint32ArgIParameter(
         params, "OperationTimeout", operationTimeout,false);
 
     XmlWriter::appendStringIParameterIfNotEmpty(
@@ -1080,7 +1105,7 @@ void CIMOperationRequestEncoder::_encodeOpenReferenceInstancesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "InstanceName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -1130,7 +1155,7 @@ void CIMOperationRequestEncoder::_encodeOpenReferenceInstancePathsRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "InstanceName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -1172,7 +1197,7 @@ void CIMOperationRequestEncoder::_encodeOpenAssociatorInstancesRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "InstanceName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -1233,7 +1258,7 @@ void CIMOperationRequestEncoder::_encodeOpenAssociatorInstancePathsRequest(
 {
     Buffer params;
 
-    XmlWriter::appendObjectNameIParameter(
+    _appendObjectNameIParameter(
         params, "InstanceName", message->objectName);
 
     XmlWriter::appendClassNameIParameter(
@@ -1273,12 +1298,13 @@ void CIMOperationRequestEncoder::_encodeOpenAssociatorInstancePathsRequest(
     Encoder for input parameters common to all of the PullOperations
 */
 void _encodeCommonPullOperationParameters(
-    const Uint32Arg& maxObjectCount,
+    Uint32 maxObjectCount,
     const String enumerationContext,
     Buffer& params)
 {
+    // This is a required parameter.
     XmlWriter::appendUint32IParameter(
-        params, "MaxObjectCount", maxObjectCount,false);
+        params, "MaxObjectCount", maxObjectCount);
 
     XmlWriter::appendStringIParameter(
         params, "EnumerationContext", enumerationContext);
@@ -1377,28 +1403,26 @@ void CIMOperationRequestEncoder::_encodeEnumerationCountRequest(
 }
 // EXP_PULL_END
 
-// 
+//
 // Enqueue the buffer to the ouptut queue with a conditional display.
 // This function is only enabled if the Pegasus Client trace is enabled.
 // Uses parameter to determine whether to send to console to log.
 void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 {
-#ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    if (_showOutput & 1)
+    if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))
     {
         XmlWriter::indentedPrint(cout, buffer.getData());
         cout << endl;
     }
-    if (_showOutput & 2)
+    if (ClientTrace::displayOutput(ClientTrace::TRACE_LOG))
     {
         Logger::put(
             Logger::STANDARD_LOG,
-            System::CIMSERVER,
+            "CimClient",
             Logger::INFORMATION,
-            "CIMOperationRequestEncoder::SendRequest, XML content: $1",
+            "CIMOperationRequestEncoder::SendRequest, XML content: $0",
             buffer.getData());
     }
-#endif
 
 
     HTTPMessage * http_request = new HTTPMessage(buffer);

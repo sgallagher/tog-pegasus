@@ -230,12 +230,9 @@ void testLocalAuthSuccess()
     if (verbose) cout << "Local Resp AuthHeader: " << authHeader << endl;
 
     Boolean authenticated;
-    // test case looks for success, initialize with failure
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
 
-
-    authStatus = authManager.performPegasusAuthentication(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated =
+        authManager.performPegasusAuthentication(authHeader, authInfo);
 
     //
     // remove the auth file created for this user request
@@ -275,11 +272,9 @@ void testBasicAuthSuccess()
     authHeader.append(encodeUserPass(userPass));
 
     Boolean authenticated;
-    // test case looks for success, initialize with failure
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
 
-    authStatus = authManager.performHttpAuthentication(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated =
+        authManager.performHttpAuthentication(authHeader, authInfo);
 
     if (verbose)
     {
@@ -343,10 +338,8 @@ int main(int, char** argv)
 
         // -- Create a UserManager object:
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager* userManager = UserManager::getInstance(repository);
         PEGASUS_TEST_ASSERT(0 != userManager);
-#endif
 
         testHttpAuthHeader();
 
@@ -365,9 +358,7 @@ int main(int, char** argv)
         if (verbose) cout << "Doing testBasicAuthSuccess()...." << endl;
         testBasicAuthSuccess();
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager::destroy();
-#endif
         delete repository;
         FileSystem::removeDirectoryHier(repositoryPath);
     }

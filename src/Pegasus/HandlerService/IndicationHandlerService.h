@@ -120,6 +120,16 @@ private:
         CIMNotifyListenerNotActiveRequestMessage *message);
 
     /**
+        This method is called when HandlerService receives the
+        CIMNotifyConfigChangeRequestMessage. Property DeliveryRetryAttempts
+        & DeliveryRetryInterval get updated  
+    */
+    CIMNotifyConfigChangeResponseMessage*
+        _handlePropertyUpdateRequest(
+            CIMNotifyConfigChangeRequestMessage *message);
+
+
+    /**
         This method is called to stop dispatcher thread when HandlerService
         receives the CimServiceStop request.
     */

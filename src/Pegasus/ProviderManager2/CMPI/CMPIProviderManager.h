@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/General/SubscriptionKey.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/OperationContextInternal.h>
@@ -131,14 +132,14 @@ public:
     struct IndProvRecKey
     {
         CIMNamespaceName sourceNamespace;
-        CIMObjectPath subscriptionName;
+        SubscriptionKey subscriptionKey;
     };
 
     struct IndProvRecKeyHash
     {
         static Uint32 hash (const IndProvRecKey &key)
         {
-            return key.subscriptionName.makeHashCode() +
+            return SubscriptionKeyHashFunc::hash(key.subscriptionKey) +
                 HashLowerCaseFunc::hash(key.sourceNamespace.getString());
         }
     };
@@ -147,8 +148,10 @@ public:
     {
         static Boolean equal (const IndProvRecKey &x, const IndProvRecKey &y)
         {
-            return x.sourceNamespace == y.sourceNamespace &&
-                x.subscriptionName.identical(y.subscriptionName);
+            return (x.sourceNamespace == y.sourceNamespace) &&
+                SubscriptionKeyEqualFunc::equal(
+                    x.subscriptionKey,
+                    y.subscriptionKey);
         }
     };
 
@@ -158,8 +161,8 @@ private:
         const CIMNamespaceName &nameSpace)
     {
         IndProvRecKey key;
+        key.subscriptionKey = SubscriptionKey(path);
         key.sourceNamespace = nameSpace;
-        key.subscriptionName = path;
         return key;
     }
 

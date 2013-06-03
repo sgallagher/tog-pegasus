@@ -45,7 +45,6 @@
 #include <string.h>
 #include <new>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/SCMODump.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -151,7 +150,6 @@ extern "C"
                 CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
                 CMPIData rdata={0,CMPI_nullValue|CMPI_notFound,{0}};
                 return rdata;
-                break;
             }
 
             case SCMO_NULL_VALUE:
@@ -400,8 +398,8 @@ extern "C"
                         Logger::WARNING,
                         MessageLoaderParms(
                             "ProviderManager.CMPI.CMPI_Instance."
-                                "NO_SUCH_PROPERTY:",
-                            "Property $0 not set on the created instance of"
+                                "NO_SUCH_PROPERTY",
+                            "Property $0 not set on the created instance of "
                                 "class $1",
                             name,
                             inst->getClassName()));

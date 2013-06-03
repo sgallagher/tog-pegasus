@@ -86,8 +86,7 @@ void showExamples()
         OperationExampleEntry example = operations.getExampleEntry();
         cout << loadMessage(example.msgKey, example.Example) << endl;
 
-
-        OperationTableEntry thisOperation = operations.next();
+        operations.next();
     }
 }
 
@@ -144,7 +143,6 @@ void showVersion(const char* pgmName, OptionManager& om)
 
 void showOptions(const char* pgmName, OptionManager& om)
 {
-
     String optionsTrailer = loadMessage(
         "Clients.cimcli.CIMCLIClient.OPTIONS_TRAILER",
         "Options vary by command consistent with CIM Operations");
@@ -213,7 +211,6 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
         if (operations.find(cmd))
         {
             OperationTableEntry thisOperation = operations.get();
-            Uint32 index = operations.getIndex();
 
             OperationExampleEntry example = operations.getExampleEntry();
             // format the shortcut and
@@ -255,7 +252,7 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
                  stringPrintf("%s", "Common Options are : \n");
 
             commonOpStr.append(commonOptions);
-            // = strcat(commonOptStr, commonOptions);
+
             cout << loadMessage("Clients.cimcli.CIMCLIClient."
                         "COMMON_OPTIONS_STRING",
                         commonOpStr.getCString())

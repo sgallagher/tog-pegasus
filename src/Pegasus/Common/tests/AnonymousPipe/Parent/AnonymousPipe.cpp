@@ -56,10 +56,12 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#define XX cout << "Line " << __LINE__ << endl;
+
 int main ()
 {
     Boolean verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-
+    XX
     try
     {
         //
@@ -87,11 +89,11 @@ int main ()
 
         pipeToChild->exportReadHandle (childReadHandle.get ());
         pipeFromChild->exportWriteHandle (childWriteHandle.get ());
-
+        XX
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
         PROCESS_INFORMATION piProcInfo;
         STARTUPINFO siStartInfo;
-
+        XX
         //
         //  Set up members of the PROCESS_INFORMATION structure
         //
@@ -184,6 +186,7 @@ int main ()
         //
         //  fork and exec the child process
         //
+        XX
         pid_t pid;
         if ((pid = fork ()) < 0)
         {
@@ -233,7 +236,7 @@ int main ()
             }
         }
 #endif
-
+        XX
         //
         //  Test writeBuffer and readBuffer
         //
@@ -265,7 +268,7 @@ int main ()
                 << writeBufferStatus << endl;
             PEGASUS_TEST_ASSERT (0);
         }
-
+        XX
         //
         //  Read the response buffer from the child via the anonymous pipe
         //
@@ -282,7 +285,7 @@ int main ()
             cerr << "Parent read response length of 0" << endl;
             PEGASUS_TEST_ASSERT (0);
         }
-
+        XX
         AutoArrayPtr <char> responseBuffer (new char [bufferLength + 1]);
         do
         {
@@ -302,7 +305,7 @@ int main ()
                 << endl;
         }
         PEGASUS_TEST_ASSERT (strcmp (responseBuffer.get (), "Good-bye") == 0);
-
+        XX
         //
         //  Test writeMessage and readMessage
         //
@@ -315,7 +318,7 @@ int main ()
                 false,
                 CIMPropertyList (),
                 QueueIdStack ()));
-
+        XX
         AnonymousPipe::Status writeMessageStatus =
             pipeToChild->writeMessage (request.get ());
         if (writeMessageStatus == AnonymousPipe::STATUS_SUCCESS)
@@ -357,7 +360,7 @@ int main ()
                 << writeMessageStatus << endl;
             PEGASUS_TEST_ASSERT (0);
         }
-
+        XX
         //
         //  Error cases
         //
@@ -382,7 +385,7 @@ int main ()
         catch (Exception &)
         {
         }
-
+        XX
         //
         //  Close handles already closed
         //

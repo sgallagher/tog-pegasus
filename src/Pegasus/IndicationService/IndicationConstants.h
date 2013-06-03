@@ -133,12 +133,6 @@ extern const CIMName _PROPERTY_ONFATALERRORPOLICY;
 extern const CIMName _PROPERTY_OTHERONFATALERRORPOLICY;
 
 /**
-    The name of the Failure Trigger Time Interval property for Indication
-    Subscription class
- */
-extern const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL;
-
-/**
     The name of the Time Of Last State Change property for Indication
     Subscription class
  */
@@ -163,36 +157,7 @@ extern const CIMName _PROPERTY_DURATION;
 extern const CIMName _PROPERTY_TIMEREMAINING;
 
 /**
-    The name of the Repeat Notification Interval property for indication
-    subscription class
- */
-extern const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL;
 
-/**
-    The name of the Repeat Notification Gap property for indication
-    subscription class
- */
-extern const CIMName _PROPERTY_REPEATNOTIFICATIONGAP;
-
-/**
-    The name of the Repeat Notification Count property for indication
-    subscription class
- */
-extern const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT;
-
-/**
-    The name of the TextFormatOwningEntity property for Formatted Indication
-    Subscription class
-*/
-extern const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY;
-
-/**
-    The name of the TextFormatID property for Formatted Indication
-    Subscription class
-*/
-extern const CIMName _PROPERTY_TEXTFORMATID;
-
-/**
     The name of the Caption property for Managed Element class
  */
 extern const CIMName _PROPERTY_CAPTION;
@@ -236,11 +201,6 @@ extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
 extern const CIMName _PROPERTY_OTHERPERSISTENCETYPE;
 
 /**
-    The name of the Owner property for Indication Handler class
- */
-extern const CIMName _PROPERTY_OWNER;
-
-/**
     The name of the TargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
@@ -251,53 +211,6 @@ extern const CIMName _PROPERTY_TARGETHOSTFORMAT;
     Handler subclass
  */
 extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
-
-/**
-    The name of the Port Number property for SNMP Mapper Indication Handler
-    subclass
- */
-extern const CIMName _PROPERTY_PORTNUMBER;
-
-/**
-    The name of the SNMP Security Name property for SNMP Mapper Indication
-    Handler subclass
- */
-extern const CIMName _PROPERTY_SNMPSECURITYNAME;
-
-/**
-    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler
-    subclass
- */
-extern const CIMName _PROPERTY_SNMPENGINEID;
-
-/**
-    The SNMP Security Level for SNMP Mapper Indication Handle subclass.
-*/
-extern const CIMName _PROPERTY_SNMPSECURITYLEVEL;
-
-/**
-    The SNMP Security Authentication protocol for SNMP Mapper Indication Handle 
-    subclass
- */
-extern const CIMName _PROPERTY_SNMPSECURITYAUTHPROTOCOL;
-
-/**
-    The SNMP Security Authentication key for SNMP Mapper Indication Handle
-    subclass
- */
-extern const CIMName _PROPERTY_SNMPSECURITYAUTHKEY;
-
-/**
-    The SNMP Security privacy protocol for SNMP Mapper Indication Handle
-    subclass
- */
-extern const CIMName _PROPERTY_SNMPSECURITYPRIVPROTO;
-
-/**
-    The SNMP Security privacy key for SNMP Mapper Indication Handle
-    subclass
- */
-extern const CIMName _PROPERTY_SNMPSECURITYPRIVKEY;
 
 /**
     The name of the Alert Type property for Alert Indication class
@@ -328,11 +241,6 @@ extern const CIMName _PROPERTY_CREATIONCLASSNAME;
     The name of the Name property of CIM_Service class.
 */
 extern const CIMName _PROPERTY_NAME;
-
-/**
-    The name of the ElementName property of CIM_MangedElement class.
-*/
-extern const CIMName _PROPERTY_ELEMENTNAME;
 
 /**
     The name of the Started property of CIM_Service class.

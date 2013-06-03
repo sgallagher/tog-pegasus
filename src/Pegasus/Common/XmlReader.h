@@ -209,9 +209,14 @@ public:
         Boolean required);
 
 // KS_PULL_BEGIN
-    static Boolean getUint32ValueElement(
+    static Boolean getUint32ArgValueElement(
         XmlParser& parser,
         Uint32Arg& val,
+        Boolean required);
+
+    static Boolean getUint32ValueElement(
+        XmlParser& parser,
+        Uint32& val,
         Boolean required);
 
     static Boolean getUint64ValueElement(

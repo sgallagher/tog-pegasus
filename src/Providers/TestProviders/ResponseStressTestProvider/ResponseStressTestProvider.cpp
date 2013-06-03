@@ -113,7 +113,6 @@ CIMInstance _buildInstance(Uint64 sequenceNumber,
     return(instance);
 }
 
-
 //
 //      ResponseStressTestProvider Class Methods
 //
@@ -131,7 +130,7 @@ void ResponseStressTestProvider::initialize(CIMOMHandle& cimom)
     // save cimom handle
     _cimom = cimom;
 
-    // set default size and response count
+    // set default  instance size and response count
     _instanceSize = 100;
     _responseCount = 5;
     _continue = true;
@@ -156,13 +155,13 @@ void ResponseStressTestProvider::getInstance(
 {
     handler.processing();
 
-    // NOTE: For getInstance we ignore the timeDiff property
+    // NOTE: For getInstance ignore the timeDiff property
     // and set to zero.
 
     CIMInstance instance = _buildInstance(0,
-              _instanceSize,
-              0,
-              propertyList);
+        _instanceSize,
+        0,
+        propertyList);
     handler.deliver(instance);
 
     throw CIMException(CIM_ERR_NOT_FOUND);
@@ -220,7 +219,6 @@ void ResponseStressTestProvider::enumerateInstanceNames(
     for (Uint32 i = 0, n = _responseCount ; i < n; i++)
     {
 
-        //printf("EnumerateInstanceNames Build %u\n", i);
         try
         {
             CIMObjectPath path = _buildPath(i);
@@ -342,9 +340,7 @@ void ResponseStressTestProvider::invokeMethod(
         }
         else
         {
-            cout << "Error, method name "
-                << methodName.getString() << " not in Provider" << endl;
-            rtnCode = 2;
+            throw CIMException(CIM_ERR_METHOD_NOT_AVAILABLE);
         }
     }
     handler.deliver(rtnCode);

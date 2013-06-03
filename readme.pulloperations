@@ -7,7 +7,7 @@ to keep track of problems, errors, notes, etc.  Must be deleted before
 checkin to head of tree. Please feel free to add notes, etc in this
 section as you review/test.>>>>>>
 
-16 Jan 2011
+2 June 2013
 
 Issues  - KS
 1. have not installed the binary move in CIMResponseData. Please run
@@ -24,6 +24,20 @@ expand the test tools to allow testing through the localhost.
 eventually calls the timer thread with trash for the parm (which is
 pointer to the EnumerationTable object). Caught because we do a valid
 test at beginning of the function.
+
+6. Still using the templates in CIMOperationRequestDispatcher to simplify
+the handle... processing.  
+
+7. I think I have a way around the double move of objects in the
+EnumerationContext so that the outputter will just take a defined number
+of objects directly from the gathering cache and save the second move.
+
+8. Not yet passing all tests but getting closer now.
+
+9. Created a tag before this commit TASK_PEP317_1JUNE_2013.
+
+10. Next Tag will be TASK_PEP317_2_JUNE_2013 in the task branch
+
 
 ===========================================
 
@@ -50,6 +64,7 @@ The following new CIM/XML operations as defined in DSP0200 are included;
     -PullInstancePaths
     -CloseEnumeration
     -EnumerationCount
+     OpenExecQuery
 
 The following  operations have not been implemented in this version of Pegasus:
 
@@ -59,8 +74,9 @@ The following limitations on the implementation exist;
 
 1. The filterQueryLanguage and filterQuery parameters are processed by
    the Pegasus client but the server returns error if there is any data in
-   either parameter.  This is because the definition of query language has not
-   been clarified to date by the DMTF.
+   either parameter. This work does not include the development of the
+   query language.  Note that a separate effort to extend Pegasus to use
+   the DMTF FQL query language is in process.
 
 2. The input parameter continueOnError is processed correctly by the client
    but the Pegasus server only provides for false since the server does not
@@ -74,7 +90,10 @@ The following limitations on the implementation exist;
    a) really getting the count would be the same cost as the corresponding
    enumeration, b) the server does not include a history or estimating
    mechanism for this to date.
-   KS_TBD_ confirm this
+   NOTE: After a through review as part of the development of the next version
+   of CMPI we have concluded that this operation is probably not worth the
+   effort.  Since it is optional, Pegasus will only return the unknown status
+   at this point
 
 Since the concept of sequences of operations linked together (open, pull, close)
 is a major extension to the original CIM/XML operation concept of completely
@@ -128,10 +147,19 @@ deliver less than the requested number of objects and specifically to return
 zero objects on open).  We felt that it was worth any extra cost in processing
 to provide the client with exactly what it had requested.
 
-continueOnError Parameter
 The pegasus server always closes an enumeration sequence upon receipt of any
 error from the providers, repository, etc. Therefore the server will reject
-and request that has continueOnError = true;
+any request that has continueOnError = true;
+
+Expansion to allow the continue on error may be added in a future version.
+In any case, the whole purpose of the continue on error is really to allow
+input from good providers to be mixed with providers that return errors so
+that generally this would mean simply changing the logic in the return mechanism 
+to not shutdown when an error is received from any given provider.
+
+Generally we do not believe that the providers need to do much more in the
+future to support the continueOnError other than possibly allowing the provider
+to continue processing after it has received an error.
 
 PROVIDERS
 
@@ -171,6 +199,9 @@ can most efficiently process responses if they are passed from the provider
 to the server individually or in small arrays of objects rather than the
 provider gathering very large arrays of objects and sending them to the
 server.
+
+NEXT GENERATION PROVIDERS
+KS_TODO
 
 CONFIGURATION PARAMETERS
 

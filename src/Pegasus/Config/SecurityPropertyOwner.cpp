@@ -40,11 +40,18 @@
 #include "SecurityPropertyOwner.h"
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
-
+#include "ConfigExceptions.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+/**
+ * The Server message resource name
+ */
+
+//// static const char * SSL_POSSIBLE_VALUE_KEY =
+////        "Config.SecurityPropertyOwner.SSLClientVerification_POSSIBLE_VALUE";
 
 ///////////////////////////////////////////////////////////////////////////////
 //  SecurityPropertyOwner
@@ -477,30 +484,11 @@ void SecurityPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
-    propertyInfo.clear();
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    propertyInfo.append(configProperty->propertyName);
-    propertyInfo.append(configProperty->defaultValue);
-    propertyInfo.append(configProperty->currentValue);
-    propertyInfo.append(configProperty->plannedValue);
-    if (configProperty->dynamic)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
-    if (configProperty->externallyVisible)
-    {
-        propertyInfo.append(STRING_TRUE);
-    }
-    else
-    {
-        propertyInfo.append(STRING_FALSE);
-    }
+    buildPropertyInfo(name, configProperty, propertyInfo);
 }
+
 
 /**
     Get default value of the specified property.
@@ -562,15 +550,16 @@ void SecurityPropertyOwner::updateCurrentValue(
     const String& userName,
     Uint32 timeoutSeconds)
 {
+    struct ConfigProperty* configProperty =_lookupConfigProperty(name);
+
     //
     // make sure the property is dynamic before updating the value.
     //
-    if (!isDynamic(name))
+    if (configProperty->dynamic != IS_DYNAMIC)
     {
         throw NonDynamicConfigProperty(name);
     }
 
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->currentValue = value;
 }
 

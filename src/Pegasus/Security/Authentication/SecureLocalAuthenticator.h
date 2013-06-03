@@ -59,9 +59,9 @@ public:
         sent by the client.
         @param secretKept String containing the authentication secret that
         was sent to client as part of the challenge.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    AuthenticationStatus authenticate(
+    Boolean authenticate(
         const String& userName,
         const String& secretReceived,
         const String& secretKept);
@@ -71,9 +71,9 @@ public:
         @param userName String containing the user name
         @param authInfo reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful validation, false otherwise
     */
-    AuthenticationStatus validateUser(
+    Boolean validateUser(
         const String& userName,
         AuthenticationInfo* authInfo);
 

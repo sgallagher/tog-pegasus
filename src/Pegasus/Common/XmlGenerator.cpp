@@ -335,9 +335,24 @@ void XmlGenerator::_appendSpecialChar(Buffer& out, const Char16& c)
         _appendChar(out, c);
 }
 
+
+                                   
+//Based on the platforms CHAR_MIN == -127 or CHAR_MIN == 0
+//The above value is used to decide if the platform assumes
+//char as signed char or unsigned char required to stop build
+//btreaks for PPC under linux
+static inline Boolean isSpecialChar(const char &c) 
+{ 
+#if CHAR_MIN < 0
+    return (((c < 0x20) && (c >= 0)) || (c == 0x7f)); 
+#else
+    return ((c < 0x20) || (c == 0x7f)); 
+#endif
+}
+
 void XmlGenerator::_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
-    if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
+    if(isSpecialChar(c))
     {
         char scratchBuffer[22];
         Uint32 outputLength;
@@ -829,35 +844,16 @@ static const char _is_uri[128] =
 void XmlGenerator::_encodeURIChar(String& outString, Sint8 char8)
 {
     Uint8 c = (Uint8)char8;
-
-#ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
     if (c > 127 || _is_uri[int(c)])
     {
         char hexencoding[4];
         int n = sprintf(hexencoding, "%%%X%X", c/16, c%16);
-#ifdef PEGASUS_USE_STRING_EXTENSIONS
         outString.append(hexencoding, n);
-#else /* PEGASUS_USE_STRING_EXTENSIONS */
-        outString.append(hexencoding);
-#endif /* PEGASUS_USE_STRING_EXTENSIONS */
     }
     else
-#endif
     {
         outString.append((Uint16)c);
     }
-}
-
-String XmlGenerator::encodeURICharacters(const Buffer& uriString)
-{
-    String encodedString;
-
-    for (Uint32 i=0; i<uriString.size(); i++)
-    {
-        _encodeURIChar(encodedString, uriString[i]);
-    }
-
-    return encodedString;
 }
 
 String XmlGenerator::encodeURICharacters(const String& uriString)

@@ -138,7 +138,7 @@ public:
 
     void handleIndication(
     const OperationContext& context,
-    const String nameSpace,
+    const String &nameSpace,
     CIMInstance& indicationInstance,
     CIMInstance& indicationHandlerInstance,
     CIMInstance& indicationSubscriptionInstance,

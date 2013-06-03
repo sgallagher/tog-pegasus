@@ -94,6 +94,7 @@
 #include <Service/ServerProcess.h>
 #include <Service/ServerRunStatus.h>
 #include <Service/PidFile.h>
+#include <Pegasus/Config/ConfigExceptions.h>
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
 # include <unistd.h>
@@ -642,6 +643,7 @@ int CIMListenerProcess::cimserver_run(
     Boolean httpsConnection;
     String sslKeyFilePath;
     String sslCertificateFilePath;
+    String sslCipherSuite;
     String consumerDir;
     String consumerConfigDir;
     Boolean enableConsumerUnload;
@@ -658,6 +660,10 @@ int CIMListenerProcess::cimserver_run(
     configManager->lookupValue("sslKeyFilePath", sslKeyFilePath);
     configManager->lookupValue("sslCertificateFilePath",
                                sslCertificateFilePath);
+    if(!configManager->lookupValue("sslCipherSuite",sslCipherSuite))
+    {
+        throw InvalidPropertyValue("sslCipherSuite",sslCipherSuite);
+    } 
     configManager->lookupValue("consumerDir", consumerDir);
     configManager->lookupValue("consumerConfigDir", consumerConfigDir);
     enableConsumerUnload = configManager->isTrue("enableConsumerUnload");
@@ -809,7 +815,8 @@ MessageLoader::_useProcessLocale = false;
                 sslCertificateFilePath,
                 enableConsumerUnload,
                 consumerIdleTimeout,
-                shutdownTimeout);
+                shutdownTimeout,
+                sslCipherSuite);
         }
         else
 #endif
@@ -841,6 +848,8 @@ MessageLoader::_useProcessLocale = false;
                 (const char*)sslKeyFilePath.getCString());
         printf("\tsslCertificateFilePath %s\n",
                 (const char*)sslCertificateFilePath.getCString());
+        printf("\tsslCipherSuite %s\n",
+            (const char*)sslCipherSuite.getCString());
         printf("\tconsumerDir %s\n", (const char*)consumerDir.getCString());
         printf("\tconsumerConfigDir %s\n",
                 (const char*)consumerConfigDir.getCString());
@@ -858,8 +867,6 @@ MessageLoader::_useProcessLocale = false;
         // so user knows that there is cimserver ready to serve CIM requests.
     if (daemonOption)
         _cimListenerProcess->notify_parent(0);
-
-    time_t last = 0;
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
     defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) || \

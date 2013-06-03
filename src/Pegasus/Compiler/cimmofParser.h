@@ -225,7 +225,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
 
         // Called when a qualifier value production is complete
         CIMValue *QualifierValue(const CIMName &qualifierName,
-                Boolean isNull, int g_strValType, const String &valstr);
+                Boolean isNull, const String &valstr);
 
         // Called to retrieve the value object for an existing parameter
         CIMProperty *PropertyFromInstance(CIMInstance &instance,

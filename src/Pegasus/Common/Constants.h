@@ -80,6 +80,8 @@
 #define PEGASUS_QUEUENAME_WBEMEXECCLIENT      "WbemExecClient"
 #define PEGASUS_QUEUENAME_INTERNALCLIENT       "InternalClient"
 
+#define PEGASUS_QUEUENAME_WSMANEXPORTCLIENT    "WSMANExportClient"
+#define PEGASUS_QUEUENAME_WSMANEXPORTREQENCODER  "WSMANExportRequestEncoder"
 
 /*
  * ModuleController Module Names
@@ -183,6 +185,11 @@
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
 
+/*
+ * Hard limit for number of HTTP headers, elements in container and keybindings
+ */
+#define PEGASUS_MAXELEMENTS_NUM 1000
+#define PEGASUS_MAXELEMENTS "1000"
 
 /*
  * File system layout
@@ -423,14 +430,6 @@
 #define PEGASUS_DEFAULT_PROV_USERCTXT PG_PROVMODULE_USERCTXT_PRIVILEGED
 #endif
 
-/*
-  Standard Pegasus Global Prefix.
-  This prefix is used as the basis for pegasus defined classes
-  and in identity creation that would require a standard
-  Pegasus prefix
-*/
-#define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
-
 /* Constants defining the size of the hash table used in the OrderedSet
    implementation. Specific classes have their own hash table size to
    accomodate for amounts of probable members
@@ -476,7 +475,6 @@
 #if !defined(PEGASUS_USE_SYSLOGS)
 #define PEGASUS_MAXLOGFILESIZEKBYTES_CONFIG_PROPERTY_MINIMUM_VALUE 32
 #endif
-
 
 /*
 **==============================================================================
@@ -524,6 +522,12 @@ enum PMInstAlertCause {PM_UNKNOWN = 1, PM_OTHER = 2, PM_CREATED = 3,
     PM_PROVIDER_ADDED = 11, PM_PROVIDER_REMOVED = 12,
     PM_ENABLED_CIMSERVER_START = 13, PM_DISABLED_CIMSERVER_STOP = 14};
 
+/* Values for Delivery mode property of CIM_ListenerDestinationWSManagement 
+    class , as defined in CIM_ListenerDestinationWSManagement.mof */
+
+enum deliveryMode {Push = 2 ,PushWithAck = 3, Events = 4 ,Pull = 5,
+    DMTF_Reserved = 6 , Vendor_Reserved = 7 };
+
 //
 // CIM Class Names
 //
@@ -550,8 +554,11 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
+PEGASUS_COMMON_LINKAGE 
+    extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_WSMAN;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_FILE;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDFILTER;
 PEGASUS_COMMON_LINKAGE
@@ -576,6 +583,8 @@ PEGASUS_COMMON_LINKAGE
 
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE;
 
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PG_OBJECTMANAGER;
+
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
 
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER;
@@ -593,7 +602,6 @@ PEGASUS_COMMON_LINKAGE
 //
 // Server Profile-related class names
 //
-PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PG_OBJECTMANAGER;
 
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER;
@@ -689,6 +697,19 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION;
 
 /**
+    Property names for WSMAN Indication Handler subclass.
+*/
+// Delivery Mode
+PEGASUS_COMMON_LINKAGE
+    extern const CIMName PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE;
+
+/**
+    Property names for File Indication Handler subclass.
+*/
+PEGASUS_COMMON_LINKAGE
+    extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_FILE;
+
+/**
     The name of the CreationTime property for CIM XML Indication Handler
     subclass.
 */
@@ -724,6 +745,12 @@ PEGASUS_COMMON_LINKAGE
     The name of the operational status property
 */
     PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_OPERATIONALSTATUS;
+
+/**
+    The name of the SubscriptionInfo property for Formatted Indication
+    Subscription class
+*/
+    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTION_INFO;
 
 /**
     The name of the Filter reference property for indication subscription class

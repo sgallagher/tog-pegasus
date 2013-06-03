@@ -154,6 +154,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     int first = Parm->first;
     int second = Parm->second;
     int count = Parm->count;
+    VCOUT << first << " " << second << " " << count << endl;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
     Mutex * cond_mutex = Parm->cond_mutex;

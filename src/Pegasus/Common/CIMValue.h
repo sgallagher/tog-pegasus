@@ -52,6 +52,13 @@ class CIMInstance;
     The CIMValue class represents a value of any of the CIM data types.
     This class encapsulates a union which holds value of any CIMType.
     A type field indicates the type of the value.
+
+    WARNING: The returned value of CIMValue get(returnValue) is never nodified
+    when a CIMValue is null (i.e. isNull() == true). An isNull() test should
+    be executed before executing any CIMValue get(...) if there is any
+    question of a possible null value and you are not sure of the value in
+    the returned variable.
+
 */
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
@@ -354,6 +361,7 @@ public:
     /**
         Gets the fixed array size of a CIMValue.  This value is undefined for
         non-array values.  A value of 0 is given for variable size arrays.
+        Result is undetermined if CIMValue is null.
         @return An integer indicating the array size.
     */
     Uint32 getArraySize() const;
@@ -612,7 +620,7 @@ public:
             // sets Boolean value from property into v.
             Boolean v = false;
             property.getValue().get(v);
-        </pre>        
+        </pre>
         @param x Output Boolean into which the value is stored if CIMValue
             state is not null.
         @exception TypeMismatchException If the value type does not match the
@@ -625,7 +633,7 @@ public:
         the value is not null and may verify type to avoid the possibility of
         the TypeMismatchException.  The output parameter x is NOT
         updated if the value is null (isNull() == true).
-    
+
         @param x Output Uint8 into which the value is stored if CIMValue
             state is not null.
         @exception TypeMismatchException If the value type does not match the

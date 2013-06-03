@@ -42,17 +42,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class WsmResponse : public Message
+class WsmResponse
 {
 protected:
 
     WsmResponse(
         WsmOperationType type,
         const WsmRequest* request,
-        const ContentLanguageList& contentLanguages,
-        MessageType msgType=DUMMY_MESSAGE)
-        : Message(msgType) , 
-          _type(type),
+        const ContentLanguageList& contentLanguages)
+        : _type(type),
           _messageId(WsmUtils::getMessageId()),
           _relatesTo(request->messageId),
           _queueId(request->queueId),
@@ -71,10 +69,8 @@ protected:
         HttpMethod httpMethod,
         Boolean httpCloseConnect,
         Boolean omitXMLProcessingInstruction,
-        const ContentLanguageList& contentLanguages,
-        MessageType msgType=DUMMY_MESSAGE)
-        : Message(msgType),
-          _type(type),
+        const ContentLanguageList& contentLanguages)
+        : _type(type),
           _messageId(WsmUtils::getMessageId()),
           _relatesTo(relatesTo),
           _queueId(queueId),
@@ -92,7 +88,7 @@ public:
     {
     }
 
-    WsmOperationType getOperationType() const
+    WsmOperationType getType() const
     {
         return _type;
     }
@@ -143,7 +139,6 @@ private:
     WsmResponse& operator=(const WsmResponse&);
 
     WsmOperationType _type;
-    MessageType _msgType;
     String _messageId;
     String _relatesTo;
     Uint32 _queueId;
@@ -916,26 +911,6 @@ public:
     String resourceUri;
 };
 
-class WSMANExportIndicationResponseMessage : public WsmResponse
-{
-public :
-    WSMANExportIndicationResponseMessage(
-        const String & messageId_,
-        const WsmRequest * request_,
-        const ContentLanguageList& contentLanguages_)
-        :
-        WsmResponse(WS_EXPORT_INDICATION,request_,contentLanguages_),
-        messageId(messageId_),
-        request(request_),
-        contentLanguages(contentLanguages_) 
-    {
-    }
-    
-    String messageId;
-    const WsmRequest * request;
-    ContentLanguageList contentLanguages;
-   
-};
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_WsmResponse_h */

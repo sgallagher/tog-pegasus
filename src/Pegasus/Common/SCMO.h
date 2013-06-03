@@ -27,6 +27,11 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
+// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
+// (Single Chunk Memory Objects).
+// The design document can be found on the OpenPegasus website openpegasus.org
+// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SCMO_H_
@@ -45,7 +50,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 //  Constants defining the size of the hash table used in the PropertySet
-//  implementation.
+//  implementation.if size need to be changed, ensure size is power of two
+//  to simplify moudulus calculation .
 
 #define PEGASUS_PROPERTY_SCMB_HASHSIZE 64
 #define PEGASUS_KEYBINDIG_SCMB_HASHSIZE 32

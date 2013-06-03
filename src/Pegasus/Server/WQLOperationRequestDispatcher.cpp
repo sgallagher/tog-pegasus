@@ -82,12 +82,14 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
         Tracer::LEVEL4,
         "WQLOperationRequestDispatcher::ExecQuery Response - "
             "Name Space: %s  Class name: %s Response Count: %u",
-        (const char*) poA->_nameSpace.getString().getCString(),
-        (const char*) poA->_className.getString().getCString(),
+        CSTRING(poA->_nameSpace.getString()),
+        CSTRING(poA->_className.getString()),
         numberResponses));
 
     if (numberResponses == 0)
+    {
         return;
+    }
 
     CIMResponseMessage* response = poA->getResponse(0);
     CIMExecQueryResponseMessage* toResponse = 0;
@@ -97,7 +99,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
     if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
     {
         // Create an ExecQuery response from an EnumerateInstances request
-        CIMRequestMessage* request = poA->getRequest();
+        CIMOperationRequestMessage* request = poA->getRequest();
         AutoPtr<CIMExecQueryResponseMessage> query(
             new CIMExecQueryResponseMessage(
                 request->messageId,
@@ -166,7 +168,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             if (manyResponses)
             {
                 toResponse->getResponseData().appendResponseData(from);
-            }            
+            }
         }
         if (manyResponses)
         {
@@ -248,15 +250,11 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     //
     // Get names of descendent classes:
     //
-    ProviderInfoListStruct providerInfos;
-
-    // This gets set by _lookupAllInstanceProviders()
-    ////Uint32 providerCount;
+    ProviderInfoList providerInfos;
 
     try
     {
-        providerInfos =
-            _lookupAllInstanceProviders(
+        providerInfos = _lookupAllInstanceProviders(
                 request->nameSpace,
                 className);
     }
@@ -271,43 +269,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         return;
     }
 
-    // Test for "enumerate too Broad" and if so, execute exception.
-    // This limits the number of provider invocations, not the number
-    // of instances returned.
-    if (providerInfos.providerCount > _maximumEnumerateBreadth)
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "ERROR: Enumerate operation too broad for class %s.  "
-                "Limit = %u, providerCount = %u",
-            (const char*)request->className.getString().getCString(),
-            _maximumEnumerateBreadth,
-            providerInfos.providerCount));
-
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-                "Server.WQLOperationRequestDispatcher.QUERY_REQ_TOO_BROAD",
-                "The query request is too broad."));
-
-        _enqueueResponse(request, response);
-        PEG_METHOD_EXIT();
-        return;
-    }
-
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-    if ((providerInfos.providerCount == 0) &&
-        !(_repository->isDefaultInstanceProvider()))
+
+    if (_rejectNoProvidersOrRepository(request,
+                                       providerInfos.providerCount,
+                                       className))
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
-            "CIM_ERROR_NOT_SUPPORTED for %s",
-            (const char*)request->className.getString().getCString()));
-
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-
-        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
     }
@@ -320,13 +288,14 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             request->getType(),
             request->messageId,
             request->queueIds.top(),
-            className, CIMNamespaceName(),
+            className,
+            request->nameSpace,
+            false, false,   // KS_TODO this is filler now.  separate CTOR?
             qx.release(),
             "WQL");
 
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
-    poA->_nameSpace=request->nameSpace;
 
     if (_repository->isDefaultInstanceProvider())
     {
@@ -337,17 +306,18 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
             // this class is registered to a provider - skip
             if (providerInfo.hasProvider)
+            {
                 continue;
+            }
 
             // If this class does not have a provider
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Routing ExecQuery request for class %s to the "
-                    "repository.  Class # %u of %u, aggregation SN %u.",
-                (const char*)providerInfo.className.getString().getCString(),
-                (unsigned int)(i + 1),
-                (unsigned int)(numClasses),
-                (unsigned int)(poA->_aggregationSN)));
+                    "repository.  Class # %u of %u",
+                CSTRING(providerInfo.className.getString()),
+                (i + 1),
+                numClasses ));
 
             // Create an EnumerateInstances response from an ExecQuery request
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
@@ -384,13 +354,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         } // for all classes and derived classes
 
         Uint32 numberResponses = poA->numberResponses();
-        Uint32 totalIssued = providerInfos.providerCount +
-            (numberResponses > 0 ? 1 : 0);
+        Uint32 totalIssued = providerInfos.providerCount
+            + (numberResponses > 0 ? 1 : 0);
         poA->setTotalIssued(totalIssued);
 
         if (numberResponses > 0)
         {
-            handleEnumerateInstancesResponseAggregation(poA,false);
+            handleOperationResponseAggregation(poA);
             CIMResponseMessage* response = poA->removeResponse(0);
             _forwardRequestForAggregation(
                 getQueueId(),
@@ -418,13 +388,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Routing ExecQuery request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
-                "Class # %u of %u, aggregation SN %u.",
-            (const char*)providerInfo.className.getString().getCString(),
+                "Class # %u of %u",
+            CSTRING(providerInfo.className.getString()),
             lookup(providerInfo.serviceId)->getQueueName(),
-            (const char*)providerInfo.controlProviderName.getCString(),
-            (unsigned int)(i + 1),
-            (unsigned int)numClasses,
-            (unsigned int)(poA->_aggregationSN)));
+            CSTRING(providerInfo.controlProviderName),
+            (i + 1),
+            numClasses ));
 
         ProviderIdContainer* providerIdContainer =
             providerInfo.providerIdContainer.get();
@@ -449,8 +418,10 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                     identityContainer.getUserName()));
 
             context = &enumReq->operationContext;
+
             if (providerIdContainer)
                 context->insert(*providerIdContainer);
+
             context->insert(identityContainer);
             _forwardRequestForAggregation(
                  providerInfo.serviceId,
@@ -463,6 +434,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 new CIMExecQueryRequestMessage(*request));
 
             OperationContext* context = &request->operationContext;
+
             if (providerIdContainer)
                 context->insert(*providerIdContainer);
 

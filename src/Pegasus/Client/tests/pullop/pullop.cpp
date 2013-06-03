@@ -119,6 +119,7 @@ PEGASUS_USING_STD;
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 #define LOCAL_MAX(a, b) ((a > b) ? a : b)
 
+// Development debug tool.
 //#define TRACE cout << "Line " << __LINE__ << endl;
 #define TRACE
 
@@ -131,6 +132,7 @@ String _toString(Boolean x)
 {
     return (x? "true" : "false");
 }
+
 // Convert a CIMPropertyList parameter to CIM String
 String _toString(const CIMPropertyList& pl)
 {
@@ -170,6 +172,29 @@ String _toStringProperties(const CIMInstance& inst)
 
     return(rtn);
 }
+Uint32 stringToUint32(const char * str)
+{
+    Uint64 x;
+    if (StringConversion::decimalStringToUint64(str,x, true))
+    {
+        if (StringConversion::checkUintBounds(x,CIMTYPE_UINT32))
+        {
+            return (Uint32)x;
+        }
+        else
+        {
+            cout << "Integer parameter " << str
+                << " too large. Terminating." << endl;
+            exit(1);
+        }
+    }
+    else
+    {
+        cout << "Error in converting " << x
+            << " to Uint32. terminating" << endl;
+        exit(1);
+    }
+}
 
 //***************************************************************************
 //
@@ -208,8 +233,8 @@ String password_opt = "";
 // Spec default is null. We are using 0 for the moment.
 // should be without the (0) which would get null state.
 Uint32Arg timeout_opt(0);
-Uint32Arg maxObjectsOnOpen_opt(16);
-Uint32Arg maxObjectsOnPull_opt(16);
+Uint32 maxObjectsOnOpen_opt = 16;
+Uint32 maxObjectsOnPull_opt =16;
 String objectName_opt = "";
 bool compare_opt = false;
 Uint32 sleep_opt = 0;
@@ -283,10 +308,10 @@ OPTIONS:\n\
     -x              ContinueOnError flag set to true.\n\
     -d              Set deepInheritance false where used (i.e enumerate\n\
                     instances. Default: deeInheritance = true.\n\
-    -M MAXOBJECTS   Integer Max objects for open operation or NULL.\n\
-                     (Default 16)\n\
-    -N MAXOBJECTS   Integer Max objects per pull operation. If not specified\n\
-                    defaults to 16.\n\
+    -M MAXOBJECTS   Integer Max objects for open operation.\n\
+                    (Default 16).\n\
+    -N MAXOBJECTS   Integer Max objects per pull operation.\n\
+                    (Default 16).\n\
     -P PROPERTY     Property to include in propertyFilter.  May be repeated\n\
                     to create a multiproperty property list.\n\
                     Use \"\" to represent an empty property list\n\
@@ -458,8 +483,8 @@ void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
              << " enum=" << _showTime(enumResult)
              << " diff=" << _showTime(diff) << " "
              << pullCounter << " pulls="
-            << maxObjectsOnOpen_opt.getValue() << "/"
-            << maxObjectsOnPull_opt.getValue();
+            << maxObjectsOnOpen_opt << "/"
+            << maxObjectsOnPull_opt;
 
         // display more detailed difference info between the
         // pull and original operations.
@@ -779,7 +804,7 @@ void clearHostAndNamespace(CIMInstance& inst)
 }
 
 /*
-    Compare two instances.  Note that the ignorehost allows us to
+    Compare two instances.  The ignorehost parameter allows us to
     clear the host and namespace fields since they will be different
     at least between enumerates and pull enumerates.
 */
@@ -803,7 +828,7 @@ bool compareInstance(const String& s1, const String& s2,
 
     if (i1.getPath() != i2.getPath())
     {
-        VCOUT2 << "WARN: Paths Not identical " << s1 << " "
+        cout << "WARN: Paths Not identical " << s1 << " "
                << i1.getPath().toString()
                << " " << s2 << " " << i2.getPath().toString()
                << endl;
@@ -812,19 +837,19 @@ bool compareInstance(const String& s1, const String& s2,
 
     else
     {
-        VCOUT1 << "ERROR: Instances Not identical "
+        cout << "ERROR: Instances Not identical "
             << i1.getPath().toString() << endl;
 
         if (i1.getQualifierCount() != i2.getQualifierCount())
         {
-            VCOUT1 << "ERROR: Qualifier Counts differ "
+            cout << "ERROR: Qualifier Counts differ "
                 << s1 << " " << i1.getQualifierCount() << " "
                 << s2 << " " << i2.getQualifierCount() << endl;
         }
         bool switchInstances = false;
         if (i1.getPropertyCount() != i2.getPropertyCount())
         {
-            VCOUT1 << "ERROR: PropertyCounts differ " << s1 << " "
+            cout << "ERROR: PropertyCounts differ " << s1 << " "
                 <<  i1.getPropertyCount() << " "
                 << s2 << " " << i2.getPropertyCount() << endl;
 
@@ -868,7 +893,7 @@ bool compareInstance(const String& s1, const String& s2,
             }
             if (!found)
             {
-                VCOUT1 << "Property " << p1.getName().getString()
+                cout << "Property " << p1.getName().getString()
                        << " not found in " << s21 << endl;
                 continue;
             }
@@ -876,7 +901,7 @@ bool compareInstance(const String& s1, const String& s2,
             {
                 if (p1.getName() != p2.getName())
                 {
-                    VCOUT1 << "ERROR: Property Names differ. Property " << i
+                    cout << "ERROR: Property Names differ. Property " << i
                          << " "
                          << s11 << " " << p1.getName().getString() << " "
                          << s21 << " " << p2.getName().getString() << endl;
@@ -884,19 +909,19 @@ bool compareInstance(const String& s1, const String& s2,
 
                 else if (p1.getType() != p2.getType())
                 {
-                    VCOUT1 << "ERROR: Property Types differ "
+                    cout << "ERROR: Property Types differ "
                          << s11 << " " << p1.getName().getString() << " "
                          << p1.getType() << " "
                          << s21 << " " << p2.getType() << endl;
                 }
                 else if(p1.isArray() != p2.isArray())
                 {
-                    VCOUT1 << "Property Array flags differ "
+                    cout << "Property Array flags differ "
                          << p1.getName().getString() << endl;
                 }
                 else if(p1.getArraySize() != p2.getArraySize())
                 {
-                    VCOUT1 << "ERROR: Property Array size parameters differ "
+                    cout << "ERROR: Property Array size parameters differ "
                          << p1.getName().getString() <<  " "
                          << p1.getArraySize() << " "
                          <<  p2.getArraySize() << endl;
@@ -907,14 +932,14 @@ bool compareInstance(const String& s1, const String& s2,
                     CIMValue v2 = p2.getValue();
                     if (!v1.equal(v2))
                     {
-                        VCOUT1 << "ERROR: Property values differ for "
+                        cout << "ERROR: Property values differ for "
                              << p1.getName().getString() << " "
                              << s11 << " " <<  v1.toString() << " "
                              << s21 << " " << v2.toString() << endl;
                     }
                     else
                     {
-                        VCOUT1 << "ERROR: Properties Not identical in param"
+                        cout << "ERROR: Properties Not identical in param"
                                 " other than type, value, etc "
                             << i1.getPath().toString() << endl;
                     }
@@ -939,41 +964,31 @@ bool compareInstance(const String& s1, const String& s2,
 // return true if the ERROR condition (i.e. too many) is returned.
 
 bool displayAndTestReturns(const String& op, Boolean endOfSequence,
-    Uint32 returnedCount, Uint32Arg& expectedCount)
+    Uint32 returnedCount, Uint32 expectedCount)
 {
     // Display the returned counters and msg type
-    VCOUT4 <<  op << " Requested = " << expectedCount.toString()
+    VCOUT4 <<  op << " Requested = " << expectedCount
         << " Returned = " << returnedCount
         << " endOfSequence = " << _toCharP(endOfSequence)
         << endl;
 
-    // Test for correct returns
-    if (expectedCount.isNull())
-    {
-        VCOUT2 <<"WARN: cannot test for return counts with Null maxObjectCount"
-            << endl;
-        warnings++;
-        return(false);
-    }
-    else
-    {
-        // KS_TODO - Account for NULL expectedCount.
-        if (!endOfSequence && returnedCount < expectedCount.getValue())
-            {
-                VCOUT2 << "WARN: Delivered less than requested instances. "
-                     << " Expected " << expectedCount.toString()
-                     << ". Delivered " << returnedCount << endl;
-                warnings++;
-                return false;
-            }
-        if (returnedCount > expectedCount.getValue())
+    // KS_TODO - Account for NULL expectedCount.
+    if (!endOfSequence && (returnedCount < expectedCount))
         {
-            VCOUT1 << "ERROR: Delivered more objects than requested."
-                     << " Expected " << expectedCount.toString()
-                     << ". Delivered " << returnedCount << endl;
-            return true;
+            VCOUT2 << "WARN: Delivered less than requested instances. "
+                 << " Expected " << expectedCount
+                 << ". Delivered " << returnedCount << endl;
+            warnings++;
+            return false;
         }
+    if (returnedCount > expectedCount)
+    {
+        VCOUT1 << "ERROR: Delivered more objects than requested."
+                 << " Expected " << expectedCount
+                 << ". Delivered " << returnedCount << endl;
+        return true;
     }
+
     // unreachable
     PEGASUS_UNREACHABLE(return true);
 }
@@ -1134,7 +1149,7 @@ void displayRtnSizes(const char * op, Uint32Arg& maxObjectCount,
 bool pullInstancePaths(CIMClient& client,
     const String& openOpName,
     Array<CIMObjectPath>& resultArray,
-    Uint32Arg& maxObjectCount,
+    Uint32 maxObjectCount,
     uint32Counter& maxOperationsCounter,
     CIMEnumerationContext& enumerationContext,
     Stopwatch& timer)
@@ -1144,7 +1159,7 @@ bool pullInstancePaths(CIMClient& client,
     {
         pullCounter++;
         VCOUT4 << "Issue pullInstancePaths for " << openOpName
-             << " maxObjectCount = " << maxObjectsOnPull_opt.toString()
+             << " maxObjectCount = " << maxObjectsOnPull_opt
              <<  endl;
         timer.start();
         Array<CIMObjectPath> cimObjectPathsPull = client.pullInstancePaths(
@@ -1184,7 +1199,7 @@ bool pullInstancePaths(CIMClient& client,
 bool pullInstancesWithPath(CIMClient& client,
     const String& openOpName,
     Array<CIMInstance>& resultArray,
-    Uint32Arg& maxObjectCount,
+    Uint32 maxObjectCount,
     uint32Counter& maxOperationsCounter,
     CIMEnumerationContext& enumerationContext,
     Stopwatch& timer)
@@ -1194,7 +1209,7 @@ bool pullInstancesWithPath(CIMClient& client,
     {
         pullCounter++;
         VCOUT4 << "Issue pullInstancesWithPath for " << openOpName
-             << " maxObjectCount = " << maxObjectsOnPull_opt.toString()
+             << " maxObjectCount = " << maxObjectsOnPull_opt
              <<  endl;
         timer.start();
         Array<CIMInstance> cimInstancesPull = client.pullInstancesWithPath(
@@ -1271,7 +1286,6 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         Boolean includeClassOrigin = false;
 
         // KS_TODO Why this????
-        Uint32Arg maxObjectCount = maxObjectsOnOpen_opt;
         Boolean endOfSequence = false;
         CIMPropertyList propertyList(propertyList_opt);
         Boolean deepInheritance = deepInheritance_opt;
@@ -1287,7 +1301,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                << " filterQueryLanguage=" << filterQuery_opt
                << " filterQuery_opt=" << filterQuery_opt
                << " continueOnError=" << _toString(continueOnError_opt)
-               << " maxObjectsOnOpen=" << maxObjectsOnOpen_opt.toString()
+               << " maxObjectsOnOpen=" << maxObjectsOnOpen_opt
 ////               << " maxObjectCount for Operation" << maxObjectCount
                << endl;
 //KS_TODO why did we use maxObject instead of maxObjectOnOpen. Is there
@@ -1399,7 +1413,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
     String operationName = "openEnumerateInstancePaths";
     try
     {
-        Uint32Arg maxObjectCount = maxObjectsOnOpen_opt;
+        Uint32 maxObjectCount = maxObjectsOnOpen_opt;
         Boolean endOfSequence = false;
         Uint32Arg operationTimeout(timeout_opt);
         String filterQueryLanguage = String::EMPTY;
@@ -1408,7 +1422,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
         CIMEnumerationContext enumerationContext;
 
         VCOUT4 << "Issue openEnumerateInstancesPaths. maxObjectCount = "
-            << maxObjectCount.toString()
+            << maxObjectCount
             << ". timeout = " << operationTimeout.toString() << endl;
 
         Stopwatch pullTime;
@@ -1514,7 +1528,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         // input since this can be such a mess.
 
         VCOUT4 << "Issue openReferencesInstances for " << objectPath
-            << " maxObjects " << maxObjectsOnOpen_opt.toString()
+            << " maxObjects " << maxObjectsOnOpen_opt
             << " Instances."
             << " timeout " << timeout_opt.toString() << endl;
 
@@ -1547,7 +1561,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         doSleep(sleep_opt);
 
         // reset the maxObjectCount to the pull parameter
-        Uint32Arg maxObjectCount = maxObjectsOnPull_opt;
+        Uint32 maxObjectCount = maxObjectsOnPull_opt;
         // issue pulls to get remaning objects. Note that we may close
         // early depending on the maxOperationsCounter
         if (!endOfSequence)
@@ -1624,7 +1638,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
         Boolean endOfSequence;
 
         VCOUT4 << "Issue openReferencePaths for instance paths. "
-            << " maxObjectCount = " << maxObjectsOnOpen_opt.toString()
+            << " maxObjectCount = " << maxObjectsOnOpen_opt
             << " timeout " << timeout_opt.toString() << endl;
 
         Stopwatch pullTime;
@@ -1656,7 +1670,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
 
         doSleep(sleep_opt);
 
-        Uint32Arg maxObjectCount = maxObjectsOnPull_opt;
+        Uint32 maxObjectCount = maxObjectsOnPull_opt;
         // issue pulls to get remaning objects. Note that we may close
         // early depending on the maxOperationsCounter
         if (!endOfSequence)
@@ -1725,7 +1739,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
         CIMName resultClass = CIMName();
         CIMName assocClass = CIMName();
         Boolean includeClassOrigin = false;
-        Uint32Arg maxObjectCount = maxObjectsOnOpen_opt;
+        Uint32 maxObjectCount = maxObjectsOnOpen_opt;
         CIMPropertyList cimPropertyList(propertyList_opt);
         CIMEnumerationContext enumerationContext;
         Boolean endOfSequence = false;
@@ -1734,7 +1748,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
         // input since this can be such a mess.
 
         VCOUT4 << "Issue openAssociationInstances for " << objectPath
-            << maxObjectCount.getValue() << " Instances."
+            << maxObjectCount << " Instances."
             << " timeout " << timeout_opt.toString() << endl;
 
         Stopwatch pullTime;
@@ -1853,7 +1867,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
         Boolean endOfSequence;
 
         VCOUT4 << "Issue openAssociatorInstancePaths for instance paths. "
-            << " maxObjectCount = " << maxObjectsOnOpen_opt.toString()
+            << " maxObjectCount = " << maxObjectsOnOpen_opt
             << " timeout " << timeout_opt.toString() << endl;
 
         Stopwatch pullTime;
@@ -1888,7 +1902,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
         //enumerationContext.print();
         // issue pulls to get remaning objects. Note that we may close
         // early depending on the maxOperationsCounter
-        Uint32Arg maxObjectCount = maxObjectsOnPull_opt;
+        Uint32 maxObjectCount = maxObjectsOnPull_opt;
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
@@ -2153,7 +2167,7 @@ int main(int argc, char** argv)
             }
             case 'v':               // verbose display with integer
             {
-                verbose_opt = atoi(optarg);
+                verbose_opt = stringToUint32(optarg);
                 cout << "verbose_opt " << verbose_opt << endl;
                 if (verbose_opt > 5)
                 {
@@ -2203,34 +2217,19 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    timeout_opt.setValue(atoi(optarg));
+                    timeout_opt.setValue(stringToUint32(optarg));
                 }
                 break;
             }
             case 'M':           // set maxObjectsOnOpen operation parameter
             {
-                if (strcasecmp("null", optarg) == 0)
-                {
-                    maxObjectsOnOpen_opt.setNullValue();
-                }
-                else
-                {
-                    maxObjectsOnOpen_opt.setValue(atoi(optarg));
-                }
+                //// TODO Use the string conversion to get this right
+                maxObjectsOnOpen_opt = stringToUint32(optarg);
                 break;
             }
             case 'N':           // set maxObjectsOnPull parameter
             {
-                if (strcasecmp("null", optarg) == 0)
-                {
-                    // KS_TODO - I think this should be illegal
-                    // but we leave it for a test
-                    maxObjectsOnPull_opt.setNullValue();
-                }
-                else
-                {
-                    maxObjectsOnPull_opt.setValue(atoi(optarg));
-                }
+                maxObjectsOnPull_opt = stringToUint32(optarg);
                 break;
             }
             case 'C':           // set flag to compare pull and non pull ops
@@ -2272,7 +2271,7 @@ int main(int argc, char** argv)
             }
             case 's':
             {
-                sleep_opt = atoi(optarg);
+                sleep_opt = stringToUint32(optarg);
                 break;
             }
             case 'o':

@@ -843,12 +843,6 @@ extern "C"
         const char *service_type,
         const char *scopes,
         const char *predicate);
-    /*
-     * Get the responses hold by the client. This also changes the head of
-     * list to head from the client->replies
-     * @param client slp_client for which we will get the responses
-     * @param head store/exchange the head of the list for the replies to head
-     */
     lslpMsg *get_response(struct slp_client *client , lslpMsg *head);
 
     void converge_srv_req(

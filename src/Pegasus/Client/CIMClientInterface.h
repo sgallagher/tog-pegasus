@@ -259,8 +259,8 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),    // Default is NULL
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)) = 0;
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0) = 0;
 
     virtual CIMResponseData openEnumerateInstancePaths(
         CIMEnumerationContext& enumerationContext,
@@ -270,8 +270,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),    // Default is NULL
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)) = 0;
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0) = 0;
 
     virtual CIMResponseData openReferenceInstances(
         CIMEnumerationContext& enumerationContext,
@@ -285,8 +285,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         ) = 0;
 
     virtual CIMResponseData openReferenceInstancePaths(
@@ -299,8 +299,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         ) = 0;
 
     virtual CIMResponseData openAssociatorInstances(
@@ -317,8 +317,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         ) = 0;
 
     virtual CIMResponseData openAssociatorInstancePaths(
@@ -333,19 +333,19 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),   // Default is NULL
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)     // Default is 0
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0     // Default is 0
         ) = 0;
 
     virtual CIMResponseData pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        const Uint32Arg& MaxObjectCount = Uint32Arg(0)) = 0;
+        Uint32 MaxObjectCount) = 0;
 
     virtual CIMResponseData pullInstancePaths(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        const Uint32Arg& MaxObjectCount = Uint32Arg(0)) = 0;
+        Uint32 MaxObjectCount) = 0;
 
     virtual void closeEnumeration(
         CIMEnumerationContext& enumerationContext

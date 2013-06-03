@@ -5,7 +5,7 @@ Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>
     -h xx  for <command> and <Example> for <xx> operation 
     -h     for this summary
     --help for full help
-Version 2.12.0
+Version 2.13.0
 The options for this command are:
 
 This command executes single CIM Operations.
@@ -21,10 +21,15 @@ This command executes single CIM Operations.
  -s  ssl. Specifies to connect over HTTPS. Default(false)
  --cert  clientCert. Specifies a client certificate file path to present to the server.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientKey must also exist. Default()
  --key  clientKey. Specifies a client private key file path.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientCert must also exist. Default()
+ --truststore  clientTruststore. Specifies a path to a client trust store cused to verify server
+    certificates. This is optional and only has an effect     on connections made over HTTPS using -s
+. Default()
  -u  User. Defines User Name for authentication. Default()
  -n  namespace. Specifies namespace to use for operation. Default(root/cimv2)
  -ic  includeClassOrigin. If set includeClassOrigin  parameter
@@ -79,6 +84,10 @@ This command executes single CIM Operations.
  --r  repeat. Number of times to repeat the operation.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
+ -pt  pullTimeout. Pull interoperation timeout in seconds. . Default(10)
+ -mo  maxObjectCount. Maximum number of objects in a single Pull . Default(100)
+ -mr  maxObjectsToReceive. Maximum objects to Receive in a pull sequence. Will Close when this number received.. Default(0)
+ -pullDelay  pullDelay. Delay in Seconds between pull Operations. Default zero, no delay.. Default(0)
  --sort  sort. Sort the returned entities for multi-object responses (ex. enumerations, associators, etc.). Default(false)
  --expExit  expectedExitCode. Set the exit code that cimcli expects for this operation. cimcli exits code = 0 if expectedExitCode matches pgm exit code.. Default(0)
 
@@ -176,9 +185,26 @@ im    invokeMethod          Invoke Method for <object> <method>
                              <paramName>{<embeddedClassName> *[<paramName> }
 xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
-son   Turn On Statistics    Turn on CIM Server Statistics Gathering
-soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
-?     show command options  Show List of Commands -h for all help, -hc for commands, -ho for options
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands
+pei   EunumerateInstances with Pull Execute EnumerateInstances using the Pull
+                            Operations
+pni   EunumerateInstance paths with Pull Execute EnumerateInstances Paths
+                            using the Pull Operations
+pr    ReferenceInstances with Pull Execute Open and Pull References
+prn   ReferencesInstances with Pull Execute Open,Pull ReferenceInstancePaths
+                            using the Pull Operations
+pa    AssociatorInstances with Pull Execute Open and Pull Associations
+pan   AssociatorInstance paths with Pull Execute Open,Pull
+                            AssociatorInstancePaths using the Pull Operations
+cci   Count All instances in Namespace Counts all Instances in Namespace and
+                            sorts by ClassName -h for all help, -hc for commands, -ho for options
 
 Examples : 
 cimcli ni -n test/TestProvider TST_Person
@@ -324,8 +350,68 @@ cimcli son  -- Switch On's the statistical information on CIMServer
 
 cimcli soff  -- Switch OFF's the statistical information on CIMServer
 
+cimcli cci  -- Display count of instances in namespace
+
+cimcli ct CIM_ManagedElement -- Displays tree of class hiearchy
+     Starting at CIM_ManagedElement.
+
 cimcli ?  -- Displays help command
 
+cimcli pei PG_ComputerSystem   -- Pull Enumerate Instances of class
+
+cimcli pni -n test/TestProvider TST_Person
+    -- Pull Enumerate Instance Names of class TST_Person
+
+cimcli pr TST_Person.name=\"Mike\" -n test/TestProvider -rc TST_Lineage
+    -- get references for instances association class TST_Lineage
+       associated with instance of TST_person with key
+       "Mike" in namespace test/TestProvider
+or
+ cimcli pr TST_Person.name=\"Mike\" -n test/TestProvider
+    -- get references for all instances of classes
+       associated with instance of TST_person with key
+       "Mike" in namespace test/TestProvider
+or
+ cimcli pr TST_Person -n test/TestProvider -rc TST_Lineage
+    -- get reference classes for TST_Lineage association class and
+       subclasses in namespace test/TestProvider
+
+cimcli prn TST_Person.name=\"Mike\" -n test/TestProvider -rc TST_Lineage
+    -- get referenceNames for instances association class
+       TST_Lineage associated with instance of TST_person with key
+       "Mike" in namespace test/TestProvider
+or
+ cimcli prn TST_Person.name=\"Mike\" -n test/TestProvider
+    -- get referenceNames for all instances of classes
+       associated with instance of TST_person with key
+       "Mike" in namespace test/TestProvider
+or
+ cimcli prn TST_Person -n test/TestProvider -rc TST_Lineage
+    -- get referenceNames for Class TST_Lineage in namespace
+       test/TestProvider
+
+cimcli pa TST_Person.name=\"Mike\" -n test/TestProvider  -ac TST_Lineage
+ -rc TST_Person
+    -- get associations for instances of association class
+       TST_Lineage and result class TST_Person
+       associated with instance of TST_person with key
+       "Mike" in namespace test/TestProvider
+or
+ cimcli pa TST_Person -n test/TestProvider -ac TST_Lineage
+    -- get associated classes for all instances of classes
+       associated with class TST_person and with
+       association class TST_Lineage
+or
+ cimcli pa TST_Person -n test/TestProvider -ac TST_Lineage -i
+    -- get associated instances by selecting interactively for
+       classes  associated with class TST_person and with
+       association class TST_Lineage
+
+cimcli an TST_Person.name=\"Mike\" -n test/TestProvider -ac TST_Lineage
+or
+ cimcli an TST_Person -n test/TestProvider -ac TST_Lineage
+
+cimcli cci TST_Person
 
 ni    enumerateInstanceNames Enumerate instancenames of <classname>
 niall enumallInstanceNames  Enumerate all instance names and count of
@@ -419,9 +505,26 @@ im    invokeMethod          Invoke Method for <object> <method>
                              <paramName>{<embeddedClassName> *[<paramName> }
 xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
-son   Turn On Statistics    Turn on CIM Server Statistics Gathering
-soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
-?     show command options  Show List of Commands -h for all help, -hc for commands, -ho for options
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands
+pei   EunumerateInstances with Pull Execute EnumerateInstances using the Pull
+                            Operations
+pni   EunumerateInstance paths with Pull Execute EnumerateInstances Paths
+                            using the Pull Operations
+pr    ReferenceInstances with Pull Execute Open and Pull References
+prn   ReferencesInstances with Pull Execute Open,Pull ReferenceInstancePaths
+                            using the Pull Operations
+pa    AssociatorInstances with Pull Execute Open and Pull Associations
+pan   AssociatorInstance paths with Pull Execute Open,Pull
+                            AssociatorInstancePaths using the Pull Operations
+cci   Count All instances in Namespace Counts all Instances in Namespace and
+                            sorts by ClassName -h for all help, -hc for commands, -ho for options
 The options for this command are:
 
 This command executes single CIM Operations.
@@ -437,10 +540,15 @@ This command executes single CIM Operations.
  -s  ssl. Specifies to connect over HTTPS. Default(false)
  --cert  clientCert. Specifies a client certificate file path to present to the server.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientKey must also exist. Default()
  --key  clientKey. Specifies a client private key file path.
     This is optional and only has an effect on connections
-    made over HTTPS using -s. Default()
+    made over HTTPS using -s. If this option specified the
+    clientCert must also exist. Default()
+ --truststore  clientTruststore. Specifies a path to a client trust store cused to verify server
+    certificates. This is optional and only has an effect     on connections made over HTTPS using -s
+. Default()
  -u  User. Defines User Name for authentication. Default()
  -n  namespace. Specifies namespace to use for operation. Default(root/cimv2)
  -ic  includeClassOrigin. If set includeClassOrigin  parameter
@@ -495,6 +603,10 @@ This command executes single CIM Operations.
  --r  repeat. Number of times to repeat the operation.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
+ -pt  pullTimeout. Pull interoperation timeout in seconds. . Default(10)
+ -mo  maxObjectCount. Maximum number of objects in a single Pull . Default(100)
+ -mr  maxObjectsToReceive. Maximum objects to Receive in a pull sequence. Will Close when this number received.. Default(0)
+ -pullDelay  pullDelay. Delay in Seconds between pull Operations. Default zero, no delay.. Default(0)
  --sort  sort. Sort the returned entities for multi-object responses (ex. enumerations, associators, etc.). Default(false)
  --expExit  expectedExitCode. Set the exit code that cimcli expects for this operation. cimcli exits code = 0 if expectedExitCode matches pgm exit code.. Default(0)
 

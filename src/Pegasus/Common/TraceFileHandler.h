@@ -72,19 +72,14 @@ private:
      */
     void _logError(ErrLogMessageIds msgID, const MessageLoaderParms & parms);
 
+    /* Function checking files exists or not and return boolean value
+       if file not there then it will create file */
+    Boolean _fileExists(char* fileName);
+ 
     /* File path to write messages
      */
     char* _fileName;
 
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    /* Base File path to write messages
-     */
-    char* _baseFileName;
-
-    /* Count for the suffix of the trace file
-     */
-    Uint32 _fileCount;
-#endif
 
     /* Handle to the File
      */
@@ -121,18 +116,32 @@ public:
      */
     virtual void configurationUpdated();
 
+    /** Sets the Max trace file size for cimserver.trc
+        @param   maxTraceFileSizeBytes maximum trace file size in bytes
+     */
+    void setMaxTraceFileSize (Uint32 maxTraceFileSizeBytes);
+
+    /** Sets the Max trace file number for cimserver.trc in trace folder
+        @param   maxTraceFileNumber maximum trace number
+     */
+    void setMaxTraceFileNumber(Uint32 maxTraceFileNumber);
+
+    /** Create a new trace file until number of files reach
+        after that it will start rolling all files 
+        (means it will start replacing older files with new files). 
+        @param fileName file to roll, this is the trace file name
+     */
+    void rollTraceFile(const char* fileName);
+
     TraceFileHandler();
 
     virtual ~TraceFileHandler();
 
 private:
-
-    /** Prepares write of message to file.
-        Implementation of this function is platform specific
-     */
-    void prepareFileHandle(void);
+   
     void _reConfigure(void);
-
+    Uint32 _maxTraceFileSizeBytes;
+    Uint32 _maxTraceFileNumber;
 };
 
 PEGASUS_NAMESPACE_END

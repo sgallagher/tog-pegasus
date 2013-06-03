@@ -1411,7 +1411,7 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
     {
         CMyString msg;
         msg.Format(
-            "It is not possible to get a qualifier 
+            "It is not possible to get a qualifier "
                 "set for parameter [%s]! Error: 0x%X",
             255,
             static_cast<char const *>

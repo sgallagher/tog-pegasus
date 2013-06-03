@@ -302,8 +302,8 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         );
 
     virtual CIMResponseData openEnumerateInstancePaths(
@@ -314,8 +314,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         );
 
     virtual CIMResponseData openReferenceInstances(
@@ -330,8 +330,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         );
 
     virtual CIMResponseData openReferenceInstancePaths(
@@ -344,8 +344,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         );
 
     virtual CIMResponseData openAssociatorInstances(
@@ -362,8 +362,8 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         );
 
     virtual CIMResponseData openAssociatorInstancePaths(
@@ -378,20 +378,20 @@ public:
         const String& filterQueryLanguage = String(),
         const String& filterQuery = String(),
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
         );
 
     virtual CIMResponseData pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+         Uint32 maxObjectCount
         );
 
     virtual CIMResponseData pullInstancePaths(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        const Uint32Arg& maxObjectCount = Uint32Arg(0)
+        Uint32 maxObjectCount
         );
 
     virtual void closeEnumeration(
@@ -458,6 +458,61 @@ private:
     ContentLanguageList responseContentLanguages;
     bool _binaryRequest;
     bool _localConnect;
+};
+
+/****************************************************************************
+**
+**   Implementation of ClientTrace class.  This allows setup of variables
+**   to control display of Client network send and receive.
+**
+****************************************************************************/
+// Tests for Display optons of the form:
+// Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
+// intrace = "con" | "log" | "both"
+// outtrace = intrace
+// ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
+// to console and log
+// Keywords are case insensitive.
+// PEP 90
+// options allowed are:
+//     keyword:keyword  separately define input and output
+//     keyword:         Input only
+//     :keyword         Output Only
+//     keyword          Input and output defined by keyword
+//
+class ClientTrace
+{
+public:
+    // Bit flags, that define what is to be displayed.
+    enum TraceType
+    {
+        TRACE_NONE = 0,
+        TRACE_CON = 1,
+        TRACE_LOG = 2,
+        TRACE_BOTH = 3
+    };
+
+    // setup the control variables from env variable
+    static void setup();
+
+    // Called from OperationRequest and Response handlers to test for
+    // particular masks set.  Return true if the TraceType mask defined by
+    // tt is set in the state variable.
+    static Boolean displayOutput(TraceType tt);
+    static Boolean displayInput(TraceType tt);
+
+private:
+    // constructors, etc. are private and not to be used.
+    ClientTrace();
+    ClientTrace(ClientTrace const&);
+    ClientTrace& operator=(ClientTrace const&);
+
+    // internal function to translate input strings to TraceTypes
+    static TraceType selectType(const String& str);
+
+    // Define the display states set by setup.
+    static Uint32 inputState;
+    static Uint32 outputState;
 };
 
 PEGASUS_NAMESPACE_END

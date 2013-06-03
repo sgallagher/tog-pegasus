@@ -285,7 +285,7 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
         //
         if (fs.bad())
         {
-            // 
+            //
             // Close the file
             //
 
@@ -305,8 +305,8 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     }
     while(0);
 
-    // Undo the begin transaction for instance data file 
-    undoBeginTransaction(path); 
+    // Undo the begin transaction for instance data file
+    undoBeginTransaction(path);
 
     PEG_METHOD_EXIT();
     return false;

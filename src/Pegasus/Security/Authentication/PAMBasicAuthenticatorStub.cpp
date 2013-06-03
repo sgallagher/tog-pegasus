@@ -71,7 +71,7 @@ PAMBasicAuthenticator::~PAMBasicAuthenticator()
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus PAMBasicAuthenticator::authenticate(
+Boolean PAMBasicAuthenticator::authenticate(
     const String& userName,
     const String& password,
     AuthenticationInfo* authInfo)
@@ -86,10 +86,10 @@ AuthenticationStatus PAMBasicAuthenticator::authenticate(
     Boolean authenticated = false;
 
     PEG_METHOD_EXIT();
-    return AuthenticationStatus(authenticated);
+    return authenticated;
 }
 
-AuthenticationStatus PAMBasicAuthenticator::validateUser(
+Boolean PAMBasicAuthenticator::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
@@ -103,7 +103,7 @@ AuthenticationStatus PAMBasicAuthenticator::validateUser(
     Boolean authenticated = false;
 
     PEG_METHOD_EXIT();
-    return AuthenticationStatus(authenticated);
+    return authenticated;
 }
 
 //

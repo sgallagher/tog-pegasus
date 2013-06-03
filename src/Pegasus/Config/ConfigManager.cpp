@@ -91,6 +91,10 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
     {"traceMemoryBufferKbytes",
          (ConfigPropertyOwner*)&ConfigManager::traceOwner},
+    {"traceFileSizeKBytes",
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
+    {"numberOfTraceFiles",
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",
          (ConfigPropertyOwner*)&ConfigManager::logOwner},
@@ -111,6 +115,8 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #ifdef PEGASUS_ENABLE_SLP
     {"slp",
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"slpProviderStartupTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
     {"enableAssociationTraversal",
@@ -190,7 +196,13 @@ static struct OwnerEntry _properties[] =
     {"idleConnectionTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"maxFailedProviderModuleRestarts",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"listenAddress",
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"hostname",
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"fullyQualifiedHostName",
+        (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     ,{"maxIndicationDeliveryRetryAttempts",
@@ -495,12 +507,8 @@ Get default value of the specified property.
 */
 String ConfigManager::getDefaultValue(const String& name) const
 {
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue;
-
-    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    String fixedValue;
+    if (_fixedValueCheck(name, fixedValue))
     {
         return fixedValue;
     }
@@ -523,12 +531,8 @@ String ConfigManager::getDefaultValue(const String& name) const
 */
 String ConfigManager::getCurrentValue(const String& name) const
 {
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue;
-
-    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    String fixedValue;
+    if (_fixedValueCheck(name, fixedValue))
     {
         return fixedValue;
     }
@@ -552,12 +556,8 @@ Get planned value of the specified property.
 */
 String ConfigManager::getPlannedValue(const String& name) const
 {
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue;
-
-    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    String fixedValue;
+    if (_fixedValueCheck(name, fixedValue))
     {
         return fixedValue;
     }
@@ -575,6 +575,25 @@ String ConfigManager::getPlannedValue(const String& name) const
     return propertyOwner->getPlannedValue(name);
 }
 
+/**
+Get help on specified attribute
+*/
+void ConfigManager::getPropertyHelp(
+    const String& name,
+    String& propertyHelp) const
+{
+    //
+    // get property owner object from config table
+    //
+    ConfigPropertyOwner* propertyOwner;
+    if ( !_propertyTable->ownerTable.lookup(name,
+        propertyOwner))
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+    propertyHelp.append(propertyOwner->getPropertyHelp(name));
+    propertyHelp.append(propertyOwner->getPropertyHelpSupplement(name));
+}
 
 /**
 Get all the attributes of the specified property.
@@ -883,6 +902,57 @@ void ConfigManager::_initPropertyTable()
     }
 }
 
+Boolean ConfigManager::_fixedValueCheck(const String& name,String & value) const
+{
+    //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue = 0;
+
+    _propertyTable->fixedValueTable.lookup(name, fixedValue);
+
+    // no fixed property 'name' in FixedPropertyTable, bail out
+    if (0 == fixedValue)
+    {
+        return false;
+    }
+
+    // if the fixed value is set to blank, need to replace the value with
+    // the system-supplied host name
+    if (String::equalNoCase(name, "fullyQualifiedHostName"))
+    {
+        if (0 == strlen(fixedValue))
+        {
+            value.assign(System::getFullyQualifiedHostName());
+        }
+        else
+        {
+            value.assign(fixedValue);
+            System::setFullyQualifiedHostName(value);
+        }
+        // returning here already to avoid the following and in this case
+        // unnecessary string compare and assign
+        return true;
+    }
+    if (String::equalNoCase(name, "hostname"))
+    {
+        if (0 == strlen(fixedValue))
+        {
+            value.assign(System::getHostName());
+        }
+        else
+        {
+            value.assign(fixedValue);
+            System::setHostName(value);
+        }
+        // returning here already to avoid the following and in this case
+        // unnecessary assign
+        return true;
+    }
+    value.assign(fixedValue);
+    return true;
+}
+
 /**
     Get Pegasus Home
 */
@@ -967,6 +1037,42 @@ Boolean ConfigManager::isValidBooleanValue(const String& value)
         return true;
     }
     return false;
+}
+Array<HostAddress> ConfigManager::getListenAddress(const String &propertyValue)
+{
+    Array<String> interfaces = DefaultPropertyOwner::parseAndGetListenAddress (
+        propertyValue);
+
+    HostAddress theAddress;
+    Array<HostAddress> listenAddrs;
+    for(Uint32 i = 0, n = interfaces.size(); i < n; i++)
+    {
+        theAddress.setHostAddress(interfaces[i]);
+        listenAddrs.append(theAddress);
+    }
+    return listenAddrs;
+}
+
+String ConfigManager::getDynamicAttributeStatus(const String& name)
+{
+    //
+    // get property owner object from config table
+    //
+    ConfigPropertyOwner* propertyOwner;
+    if ( !_propertyTable->ownerTable.lookup(name, propertyOwner))
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+
+    Boolean _isDynamic = propertyOwner->isDynamic(name);
+
+    MessageLoaderParms parms(
+        (_isDynamic? "Config.ConfigManager.DYNAMIC":
+                     "Config.ConfigManager.STATIC"),
+        (_isDynamic? "Dynamic" : "Static"));
+
+    parms.msg_src_path = "pegasus/pegasusServer";
+    return MessageLoader::getMessage(parms);
 }
 
 PEGASUS_NAMESPACE_END

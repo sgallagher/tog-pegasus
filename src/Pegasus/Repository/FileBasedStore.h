@@ -71,6 +71,11 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
         Boolean updatesAllowed);
+
+    void modifyNameSpaceName(
+        const CIMNamespaceName& nameSpace,
+        const CIMNamespaceName& newNameSpaceName);
+
     void deleteNameSpace(const CIMNamespaceName& nameSpace);
     Boolean isNameSpaceEmpty(const CIMNamespaceName& nameSpace);
 
@@ -196,11 +201,11 @@ private:
 
     void _rollbackIncompleteTransactions();
 
-    /** 
+    /**
         Searches for state file in the "instance" directory of all
-        namespaces. 
+        namespaces.
         i)   Removes the rollback files to void a begin operation.
-        ii)  Removes the rollback files to complete a commit operation. 
+        ii)  Removes the rollback files to complete a commit operation.
         iii) Restores instance index and data files complete a
              rollback operation.
         If no state files are present, this method returns false
@@ -314,10 +319,14 @@ private:
     void _removeInstanceAssociationEntries(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& assocInstanceName);
+    void _SaveObject(const String& path,
+        Buffer& objectXml);
 
     String _repositoryPath;
     ObjectStreamer* _streamer;
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
     Boolean _compressMode;
+#endif
     Boolean _storeCompleteClasses;
 
     /**

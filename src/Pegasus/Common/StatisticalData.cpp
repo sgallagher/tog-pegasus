@@ -73,15 +73,16 @@ String StatisticalData::requestName[] =
   "DeleteQualifier",                //    23          24
   "EnumerateQualifiers",            //    24          25
 //EXP_PULL_BEGIN
-  "OpenEnumerateInstances",         //    24
-  "OpenEnumerateInstancePaths",     //    KS_TODO EXP_PULL Do this
-  "OpenReferences",                 //  
-  "OpenReferenceNames",             //
-  "OpenAssociators",                //
-  "OpenAssociatorPaths",            //
-  "PullInstancesWithPath",          //
-  "PullInstancePaths",              //
-  "CloseEnumeration" ,              //
+//// TODO these are not defined in CIM_StatisticalData class
+  "OpenEnumerateInstances",         //    71
+  "OpenEnumerateInstancePaths",     //    72
+  "OpenReferences",                 //    73   
+  "OpenReferenceNames",             //    74
+  "OpenAssociators",                //    75
+  "OpenAssociatorPaths",            //    76
+  "PullInstancesWithPath",          //    77
+  "PullInstancePaths",              //    77
+  "CloseEnumeration" ,              //    79
 //EXP_PULL_END
   "InvokeMethod"                    //    25          Not Present
 };

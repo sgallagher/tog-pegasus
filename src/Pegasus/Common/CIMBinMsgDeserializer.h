@@ -149,7 +149,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstanceNamesRequestMessage*
-        _getEnumerateInstanceNamesRequestMessage(CIMBuffer& in);
+        _getEnumerateInstanceNamesRequestMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMExecQueryRequestMessage*
@@ -224,11 +224,11 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMSubscriptionInitCompleteRequestMessage*
-        _getSubscriptionInitCompleteRequestMessage(CIMBuffer& in);
+        _getSubscriptionInitCompleteRequestMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMIndicationServiceDisabledRequestMessage*
-        _getIndicationServiceDisabledRequestMessage(CIMBuffer& in);
+        _getIndicationServiceDisabledRequestMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static ProvAgtGetScmoClassRequestMessage*
@@ -240,7 +240,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteInstanceResponseMessage*
-        _getDeleteInstanceResponseMessage(CIMBuffer& in);
+        _getDeleteInstanceResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMCreateInstanceResponseMessage*
@@ -248,7 +248,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMModifyInstanceResponseMessage*
-        _getModifyInstanceResponseMessage(CIMBuffer& in);
+        _getModifyInstanceResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstancesResponseMessage*
@@ -285,7 +285,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMSetPropertyResponseMessage*
-        _getSetPropertyResponseMessage(CIMBuffer& in);
+        _getSetPropertyResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMInvokeMethodResponseMessage*
@@ -293,28 +293,27 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderAgentResponseMessage*
-        _getInitializeProviderAgentResponseMessage(
-            CIMBuffer& in);
+        _getInitializeProviderAgentResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMCreateSubscriptionResponseMessage*
-        _getCreateSubscriptionResponseMessage(CIMBuffer& in);
+        _getCreateSubscriptionResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMModifySubscriptionResponseMessage*
-        _getModifySubscriptionResponseMessage(CIMBuffer& in);
+        _getModifySubscriptionResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteSubscriptionResponseMessage*
-        _getDeleteSubscriptionResponseMessage(CIMBuffer& in);
+        _getDeleteSubscriptionResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMExportIndicationResponseMessage*
-        _getExportIndicationResponseMessage(CIMBuffer& in);
+        _getExportIndicationResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMProcessIndicationResponseMessage*
-        _getProcessIndicationResponseMessage(CIMBuffer& in);
+        _getProcessIndicationResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMDisableModuleResponseMessage*
@@ -326,21 +325,19 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMStopAllProvidersResponseMessage*
-        _getStopAllProvidersResponseMessage(CIMBuffer& in);
+        _getStopAllProvidersResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMNotifyConfigChangeResponseMessage*
-        _getNotifyConfigChangeResponseMessage(CIMBuffer& in);
+        _getNotifyConfigChangeResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMSubscriptionInitCompleteResponseMessage*
-        _getSubscriptionInitCompleteResponseMessage
-            (CIMBuffer& in);
+        _getSubscriptionInitCompleteResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMIndicationServiceDisabledResponseMessage*
-        _getIndicationServiceDisabledResponseMessage
-            (CIMBuffer& in);
+        _getIndicationServiceDisabledResponseMessage();
 
     PEGASUS_HIDDEN_LINKAGE
     static ProvAgtGetScmoClassResponseMessage*

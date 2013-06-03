@@ -263,7 +263,7 @@ void free_da_list_members(struct da_list *da)
 
 void free_da_list_node(struct da_list *da)
 {
-    PEGASUS_ASSERT( ! _LSLP_IS_HEAD(da));
+    PEGASUS_ASSERT(!_LSLP_IS_HEAD(da));
     free_da_list_members(da);
     free(da);
 }
@@ -322,6 +322,7 @@ BOOL _slp_check_url_addr(const char *url, int af, void *url_bin_addr)
 /*** effectively reallocates *list -- FREES MEMORY ***/
 static int _slp_get_local_interface(struct slp_if_addr **list, int af)
 {
+    struct slp_if_addr *ifp;
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -347,7 +348,6 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
     (*list)->af = AF_UNSPEC;
 
 #ifdef PEGASUS_ENABLE_IPV6
-    struct slp_if_addr *ifp;
     if (af == AF_INET6)
     {
         if (!slp_is_ip6_stack_active())
@@ -678,7 +678,6 @@ void slp_join_ip6_service_type_multicast_group(struct slp_client *client,
     const char *srv_type)
 {
     struct ipv6_mreq group;
-    memset ( &group, 0, sizeof(group));
     unsigned long hash;
     char buff[PEGASUS_INET6_ADDRSTR_LEN];
     SOCKETD sock = client->_rcv_sock[1];
@@ -1271,9 +1270,7 @@ lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
         return NULL;
     }
     _LSLP_LINK_HEAD(head, &(client->replies));
-    // make sure both head and replies point to same thing
-    client->replies = *head;
-    return head;
+    return(head);
 }
 
 /*
@@ -1983,7 +1980,6 @@ void decode_attr_rply(struct slp_client *client)
             {
                 printf("Memory allocation failed in file %s at Line number"
                     " %d\n", __FILE__, __LINE__);
-                free(reply);
                 exit(1);
             }
             memcpy(reply->msg.attrRep.attrList,
@@ -2058,12 +2054,12 @@ static char *_slp_get_text_ip(SOCKADDR *remote)
 
 void decode_msg(struct slp_client *client, SOCKADDR *remote)
 {
-    char response;
+    char function, response;
 
     DEBUG_PRINT((DEBUG_ENTER, "decode_msg "));
     message_sanity_check(client);
 
-    char function = _LSLP_GETFUNCTION( client->_rcv_buf );
+    function = _LSLP_GETFUNCTION( client->_rcv_buf );
     if (client->_xid == _LSLP_GETXID( client->_rcv_buf))
     {
         if (function == LSLP_SRVRPLY ||
@@ -2310,7 +2306,6 @@ void decode_srvrply(struct slp_client *client)
             {
                 printf("Memory allocation failed in file %s at Line "
                     "number %d\n", __FILE__, __LINE__);
-                free(reply);
                 exit(1);
             }
             if (NULL != xtptr)
@@ -2320,7 +2315,6 @@ void decode_srvrply(struct slp_client *client)
                 {
                     printf("Memory allocation failed in file %s at Line "
                         "number %d\n", __FILE__, __LINE__);
-                    free(reply);
                     exit(1);
                 }
             }
@@ -2372,7 +2366,6 @@ void decode_srvrply(struct slp_client *client)
                         {
                             printf("Memory allocation failed in file %s at "
                                 "Line number %d\n", __FILE__, __LINE__);
-                            free(reply);
                             exit(1);
                         }
                         memcpy(url_buf, xtptr + 7, url_len);
@@ -2446,7 +2439,7 @@ void decode_srvrply(struct slp_client *client)
 
 void decode_daadvert(struct slp_client *client, SOCKADDR *remote)
 {
-    char *bptr = 0;
+    char *bptr;
     int16 str_len;
     int32 total_len, purported_len;
 
@@ -2522,7 +2515,8 @@ void decode_daadvert(struct slp_client *client, SOCKADDR *remote)
 
                         if (str_len > 0)
                         {
-                            if (NULL == (adv->spi = (char*)malloc(str_len + 1)))
+                            if (NULL == (adv->spi =
+                                (char *)malloc(str_len + 1)))
                             {
                                 printf("Memory allocation failed in file %s at"
                                     " Line number %d\n", __FILE__, __LINE__);
@@ -2550,10 +2544,7 @@ void decode_daadvert(struct slp_client *client, SOCKADDR *remote)
                         strcpy(&(adv->remote[0]), _slp_get_text_ip(remote));
                         _LSLP_INSERT(adv, &(client->das))
                         DEBUG_PRINT((DEBUG_EXIT, "decode_daadvert:1 "));
-                        
-                        //Returning here as we need the da
                         return;
-
                     } /*  spi length field is consistent with hdr */
                 } /* attr length field is consistent with hdr */
             } /*  scope length field is consistent with hdr */
@@ -3206,14 +3197,11 @@ int32 service_listener(
         list->prev = list->next = list;
 
         ccode = __service_listener(client, extra_sock);
-
-        //fills the list with replies and
-        //should be free by caller of this function
         get_response(client, list);
     }
 
 //    DEBUG_PRINT((DEBUG_EXIT, "service_listener ccode = %d", ccode));
-    return ccode;
+    return(ccode);
 }
 
 
@@ -3262,7 +3250,7 @@ int32 __service_listener(
     }while ((err < 0 ) && (errno == EINTR));
 
 
-    if ( 0 < err )
+    if (0 < err)
     {
 #ifdef PEGASUS_ENABLE_IPV6
         SOCKADDR_STORAGE remote;
@@ -3312,7 +3300,7 @@ int32 __service_listener(
     }
 
 //    DEBUG_PRINT((DEBUG_EXIT, "__service_listener err = %d", err));
-    return err;
+    return(err);
 }
 
 int srv_reg_all(

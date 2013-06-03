@@ -100,7 +100,7 @@ Boolean cimom::_monitorCIMService(MessageQueueService *service)
 void cimom::_releaseCIMService(MessageQueueService *service)
 {
     AutoMutex mtx(_registeredServicesTableLock);
-    Boolean *monitoring;
+    Boolean *monitoring=0;
     if (!_registeredServicesTable.lookupReference(service, monitoring))
     {
         PEGASUS_ASSERT(0);
@@ -185,19 +185,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
         PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
             "Exception caught in cimom::_routing_proc : %s",
                 (const char*)e.getMessage().getCString()));
-        PEGASUS_ASSERT(false);
     }
     catch(const exception &e)
     {
         PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
             "Exception caught in cimom::_routing_proc : %s", e.what()));
-        PEGASUS_ASSERT(false);
     }
     catch(...)
     {
         PEG_TRACE_CSTRING(TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
             "Unknown Exception caught in cimom::_routing_proc");
-        PEGASUS_ASSERT(false);
     }
 
     return 0;
@@ -239,8 +236,7 @@ cimom::~cimom()
     msg->op->_op_dest = _global_this;
     msg->op->_request.reset(msg);
 
-    Boolean done = _routed_ops.enqueue(msg->op);
-    PEGASUS_ASSERT(done);
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(true,_routed_ops.enqueue(msg->op));
 
     _routing_thread.join();
 

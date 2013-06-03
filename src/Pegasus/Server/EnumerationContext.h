@@ -154,7 +154,7 @@ public:
     /**
        Get the Type of the CIMResponseData object in the enumeration 
        context. 
-       @paran return Type 
+       @param return Type 
     */
     CIMResponseData::ResponseDataContent getCIMResponseDataType()
     {
@@ -162,12 +162,12 @@ public:
     }
 
     /**
-        Set the propertyList into a created Enumeration Context. Required
-        to set a propertyList into the responseCache CIMResponseData object.
-        @param pl CIMPropertyList from the Open for this operation.
+        Set the request properties that must be moved to subsequent
+        pull operations.
     */
-    void setPropertyList(const CIMPropertyList& pl);
-
+    void setRequestProperties(
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
     // Start the interOperation timer for this context
     void startTimer();
@@ -238,8 +238,7 @@ public:
            c. Future - The errorState to be set KS_TODO
        @param - count - Uint32 count of max number of objects to return 
        @param rtn CIMResponseData containing the objects returned 
-       @return Returns true except if the  errorState 
-       has been set. 
+       @return Returns true unless if the  errorState has been set. 
      */
     Boolean getCacheResponseData(Uint32 count, CIMResponseData& rtn);
 

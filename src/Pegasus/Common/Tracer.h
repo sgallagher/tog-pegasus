@@ -90,7 +90,8 @@ enum TraceComponentId
     TRC_CMPIPROVIDERINTERFACE,
     TRC_WSMSERVER,
     TRC_LOGMSG,
-    TRC_WMI_MAPPER_CONSUMER
+    TRC_WMI_MAPPER_CONSUMER,
+    TRC_INTERNALPROVIDER
 };
 
 /** Token used for tracing functions.
@@ -106,6 +107,13 @@ struct TracerToken
 class PEGASUS_COMMON_LINKAGE Tracer
 {
 public:
+
+    /** Trace Components list defines the strings repesenting each
+        TraceComponentId entry. Externalized to allow display of the
+        possible list of trace components.  The size of this list is
+        defined in _NUM_COMPONENTS variable.
+     */
+    static char const* TRACE_COMPONENT_LIST[];
 
     /** Trace facilities
         File - tracing occurs to the trace file
@@ -233,6 +241,16 @@ public:
         @return true   if function was successfully.
     */
     static Boolean setTraceMemoryBufferSize(Uint32 bufferSize);
+
+    /** Set the Max trace File Size
+        @param maxLogFileSizeBytes size of cimserver.trc
+    */
+    static void setMaxTraceFileSize (Uint32 maxLogFileSizeBytes);
+
+    /** Set the Max trace File number
+        @param maxLogFileNumber number of cimserver.trc in trace folder
+    */
+    static void setMaxTraceFileNumber(Uint32 maxLogFileNumber);
 
     /** Flushes the trace buffer to traceFilePath. This method will only
         have an effect when traceFacility=Memory.

@@ -120,6 +120,7 @@ EnumerationContext::EnumerationContext(
     CIMResponseData::ResponseDataContent contentType
     )
     :
+    _cimException(CIMException()),
     _nameSpace(nameSpace),
     _operationTimeoutSec(interOperationTimeoutValue),
     _continueOnError(continueOnError_),
@@ -130,14 +131,13 @@ EnumerationContext::EnumerationContext(
     _active(false),
     _error(false),
     _waiting(false),
-    _cacheTestCondMutex(Mutex::NON_RECURSIVE),
     _responseCache(contentType),
-    _cimException(CIMException()),
-    _cacheHighWaterMark(0),
+    _cacheTestCondMutex(Mutex::NON_RECURSIVE),
     _conditionCounter(0),
     _providerLimitConditionMutex(Mutex::NON_RECURSIVE),
     _pullOperationCounter(0),
-    _zeroRtnPullOperationCounter(0)
+    _zeroRtnPullOperationCounter(0),
+    _cacheHighWaterMark(0)
 {
     _responseCache.valid();             // KS_TEMP
 
@@ -165,9 +165,14 @@ EnumerationContext::EnumerationContext(const EnumerationContext& x)
     _waiting = x._waiting;
 }
 
-void EnumerationContext::setPropertyList(const CIMPropertyList& pl)
+void EnumerationContext::setRequestProperties(
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-    _responseCache.setPropertyList(pl);
+    // Set request properties into the responseCache that are require
+    // later for pull operations
+    _responseCache.setRequestProperties(
+        false, includeClassOrigin, propertyList);
 
     // KS_TODO_DELETE_THIS
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -516,7 +521,7 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
             static const char failMsg[] =
                 "Invalid response type to pull: ";
             PEG_TRACE(( TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "%u",
+                "%u", failMsg,
                 type));
             PEGASUS_ASSERT(0);
             break;
@@ -558,7 +563,9 @@ Boolean EnumerationContext::getCacheResponseData(
 
     // move the defined number of objects from the cache to the
     // return object.
-    Uint32 rtncount = rtnCIMResponseData.moveObjects(_responseCache, count);
+    // //// TODO Dropped the return variable for now
+    rtnCIMResponseData.moveObjects(_responseCache, count);
+////  Uint32 rtncount = rtnCIMResponseData.moveObjects(_responseCache, count);
     // KS_TODO_QUESTION. Not sure this should be at this level.
     rtnCIMResponseData.setPropertyList(_responseCache.getPropertyList());
 
@@ -569,7 +576,6 @@ Boolean EnumerationContext::getCacheResponseData(
         (const char *)_responseCache.getPropertyList().toString().getCString(),
         (const char *)
                rtnCIMResponseData.getPropertyList().toString().getCString() ));
-
 
     // KS_TODO_DIAG_DELETETHIS
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,

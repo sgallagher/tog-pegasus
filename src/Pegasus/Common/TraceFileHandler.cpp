@@ -33,6 +33,9 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/StringConversion.h>
+
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/TraceFileHandlerWindows.cpp>
@@ -51,16 +54,14 @@ PEGASUS_NAMESPACE_BEGIN
 //  Constructs TraceFileHandler
 ////////////////////////////////////////////////////////////////////////////////
 
-TraceFileHandler::TraceFileHandler()
+TraceFileHandler::TraceFileHandler(): 
+    _fileName(0), 
+    _fileHandle(0),
+    _logErrorBitField(0),
+    _configHasChanged(true),
+    _maxTraceFileSizeBytes(0),
+    _maxTraceFileNumber(0)
 {
-    _fileName = 0;
-    _fileHandle = 0;
-    _logErrorBitField = 0;
-    _configHasChanged = true;
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    _baseFileName = 0;
-    _fileCount = 0;
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,9 +76,6 @@ TraceFileHandler::~TraceFileHandler()
         fclose(_fileHandle);
     }
     free(_fileName);
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    free(_baseFileName);
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,10 +104,6 @@ void TraceFileHandler::_reConfigure()
 
     free(_fileName);
     _fileName = 0;
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    free(_baseFileName);
-    _baseFileName = 0;
-#endif
 
     if (Tracer::_getInstance() ->_traceFile.size() == 0)
     {
@@ -139,10 +133,6 @@ void TraceFileHandler::_reConfigure()
         _configHasChanged=false;
         return;
     }
-
-    #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    _baseFileName = strdup(_fileName);
-    #endif
 
     _configHasChanged=false;
 
@@ -233,5 +223,77 @@ void TraceFileHandler::_logError(
     }
 }
 
+Boolean TraceFileHandler::_fileExists(char* fileName)
+{
+    if (!System::exists(fileName))
+    {
+        _fileHandle = _openFile(fileName);
+        if(!_fileHandle)
+        {
+            return false;
+        }
+    }
+
+    Uint32 traceFileSize = 0;
+     
+    if(!FileSystem::getFileSize(_fileName, traceFileSize))
+    {
+        return false;
+    }
+
+    /* Check if the size of the tracefile 
+         is exceeding configured value.*/
+    if(traceFileSize > _maxTraceFileSizeBytes)
+    {
+        rollTraceFile(_fileName);
+    }
+
+    return true;
+}
+
+void TraceFileHandler::setMaxTraceFileSize(Uint32 maxTraceFileSizeBytes)
+{ 
+    _maxTraceFileSizeBytes = maxTraceFileSizeBytes; 
+}
+
+void TraceFileHandler::setMaxTraceFileNumber(Uint32 maxTraceFileNumber)
+{
+    _maxTraceFileNumber = maxTraceFileNumber;
+}
+
+void TraceFileHandler::rollTraceFile(const char* fileName)
+{
+    // Close the File
+    if (_fileHandle)
+    {
+         fclose(_fileHandle);
+         _fileHandle = 0;
+    }
+
+    String oldFileName;
+    oldFileName.append(fileName);
+    oldFileName.append(".");
+    char buffer[5];
+    Uint32 size = 0;
+    oldFileName.append(Uint32ToString(buffer, _maxTraceFileNumber, size));
+
+    String oldFileName_s(oldFileName);
+    FileSystem::removeFile(oldFileName_s);
+    Uint32 n = strlen(fileName) + 1;
+
+    for(Uint32 i = _maxTraceFileNumber ; i > 1 ; i--)
+    {
+         String newFileName_s = oldFileName_s;
+         oldFileName = oldFileName.subString(0, n);
+         oldFileName.append(Uint32ToString(buffer, (i-1), size));
+         oldFileName_s.assign(oldFileName);
+         FileSystem::renameFile(oldFileName_s, newFileName_s);
+    }
+   
+    String fileName_s(fileName);
+    FileSystem::renameFile(fileName_s, oldFileName_s);
+      
+    _fileHandle = TraceFileHandler::_openFile(fileName);
+}
 
 PEGASUS_NAMESPACE_END

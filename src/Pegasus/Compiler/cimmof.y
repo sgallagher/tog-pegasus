@@ -117,6 +117,7 @@ extern char * metaQualifierName;
 /* ------------------------------------------------------------------- */
   CIMFlavor g_flavor = CIMFlavor (CIMFlavor::NONE);
   CIMScope g_scope = CIMScope ();
+  //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 20. Make larger or var
   CIMQualifierList g_qualifierList;
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
@@ -126,7 +127,6 @@ extern char * metaQualifierName;
   CIMName g_referenceClassName = CIMName();
   Array<CIMKeyBinding> g_KeyBindingArray; // it gets created empty
   TYPED_INITIALIZER_VALUE g_typedInitializerValue;
-  int g_strValType;
 
 /* ------------------------------------------------------------------- */
 /* Pragmas, except for the Include pragma, are not handled yet         */
@@ -149,9 +149,9 @@ cimmof_wrap() {
 
 /* ---------------------------------------------------------------- */
 /* Pass errors to our general log manager.                          */
-/* Appends the current text and msg parameter                       */
 /* ---------------------------------------------------------------- */
-void cimmof_error(const char *msg) {
+void
+cimmof_error(const char *msg) {
   cimmofParser::Instance()->log_parse_error(cimmof_text, msg);
   // printf("Error: %s\n", msg);
 }
@@ -278,8 +278,7 @@ static void MOF_trace2(const char * str, const char * S);
 %type <property>       propertyBody propertyDeclaration referenceDeclaration
 %type <qualifier>      qualifier
 %type <scope>          scope metaElements metaElement
-
-%type <strval>         arrayInitializer constantValueList
+%type <strval>         arrayInitializer constantValues
 %type <strval>         fileName referencedObject referenceName referencePath
 %type <strval>         integerValue TOK_REAL_VALUE TOK_CHAR_VALUE
 %type <strval>         namespaceHandle namespaceHandleRef
@@ -294,10 +293,9 @@ static void MOF_trace2(const char * str, const char * S);
 %type <strval>         TOK_BINARY_VALUE TOK_SIGNED_DECIMAL_VALUE
 %type <strval>         TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
 %type <strval>         TOK_UNEXPECTED_CHAR
-
 %type <typedinitializer> typedInitializer typedDefaultValue
 %type <typedinitializer> typedQualifierParameter
-%type <value>          qualifierType
+%type <value>          qualifierValue
 
 %%
 
@@ -340,7 +338,7 @@ mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
 */
 classDeclaration: classHead  classBody
 {
-    YACCTRACE("classDeclaration:");
+    YACCTRACE("classDeclaration");
     if (g_currentAliasDecl != String::EMPTY)
     {
         cimmofParser::Instance()->addClassAlias(g_currentAliasDecl, $$);
@@ -362,9 +360,7 @@ classHead: qualifierList TOK_CLASS className alias superClass
 
     g_currentAliasRef = *$4;
     if (g_currentClass)
-    {
         delete g_currentClass;
-    }
     g_currentClass = $$;
     delete $3;
     delete $4;
@@ -376,14 +372,14 @@ className: TOK_SIMPLE_IDENTIFIER {} ;
 
 
 superClass: TOK_COLON className
-        {
-            $$ = new CIMName(*$2);
-            delete $2;
-        }
-    | /* empty */
-        {
-            $$ = new CIMName();
-        }
+{
+    $$ = new CIMName(*$2);
+    delete $2;
+}
+| /* empty */
+{
+    $$ = new CIMName();
+}
 
 
 classBody: TOK_LEFTCURLYBRACE classFeatures TOK_RIGHTCURLYBRACE TOK_SEMICOLON
@@ -412,15 +408,17 @@ classFeature: propertyDeclaration
         delete $1;
     };
 
+
+
+
+
+
 /*
 **------------------------------------------------------------------------------
 **
 ** method Declaration productions and processing.
 **
 **------------------------------------------------------------------------------
-
-    methodDeclaration = [ qualifierList ] dataType methodName
-                        "(" [ parameterList ] ")" ";"
 */
 
 methodDeclaration: qualifierList methodHead methodBody methodEnd
@@ -428,6 +426,7 @@ methodDeclaration: qualifierList methodHead methodBody methodEnd
     YACCTRACE("methodDeclaration");
     $$ = $2;
 } ;
+
 
 
 // methodHead processes the datatype and methodName and puts qualifierList.
@@ -451,9 +450,12 @@ methodHead: dataType methodName
     delete $2;
 } ;
 
-methodBody: TOK_LEFTPAREN parameterList TOK_RIGHTPAREN ;
+
+methodBody: TOK_LEFTPAREN parameters TOK_RIGHTPAREN ;
+
 
 methodEnd: TOK_SEMICOLON ;
+
 
 methodName: TOK_SIMPLE_IDENTIFIER
 {
@@ -461,20 +463,15 @@ methodName: TOK_SIMPLE_IDENTIFIER
     delete $1;
 }
 
+
 //
-//  Productions for method parameter list
+//  Productions for method parameters
 //
-/*
-  parameterList = parameter *( "," parameter )
-*/
-parameterList : parameter
-    | parameterList TOK_COMMA parameter
+parameters : parameter
+    | parameters TOK_COMMA parameter
     | /* empty */ ;
 
-/*
-   parameter = [ qualifierList ] ( dataType / objectRef ) parameterName
-               [ array ]
-*/
+
 parameter: qualifierList parameterType parameterName array
 {
     // ATTN: P2 2002 Question Need to create default value including type?
@@ -484,8 +481,7 @@ parameter: qualifierList parameterType parameterName array
     cimmofParser *cp = cimmofParser::Instance();
 
     // Create new parameter with name, type, isArray, array, referenceClassName
-    if ($4 == -1) 
-    {
+    if ($4 == -1) {
         p = cp->newParameter(*$3, $2, false, 0, g_referenceClassName);
     }
     else
@@ -514,9 +510,6 @@ parameterType: dataType { $$ = $1; }
 **   property Declaration productions and processing
 **
 **------------------------------------------------------------------------------
-
-   propertyDeclaration = [ qualifierList ] dataType propertyName
-                         [ array ] [ defaultValue ] ";"
 */
 
 propertyDeclaration: qualifierList propertyBody propertyEnd
@@ -532,20 +525,14 @@ propertyDeclaration: qualifierList propertyBody propertyEnd
     applyQualifierList(g_qualifierList, *$$);
 } ;
 
-/*
 
-*/
 propertyBody: dataType propertyName array typedDefaultValue
 {
-    CIMValue *v = valueFactory::createValue($1,
-        $3,
-        ($4->type == typedInitializerValue::NULL_VALUE),
-        $4->nonNullParserType,
-        $4->value);
+    CIMValue *v = valueFactory::createValue($1, $3,
+            ($4->type == CIMMOF_NULL_VALUE), $4->value);
 
-    // set the value in the new property for the current instance
     // if scalar, $3 == -1 so set arrayDimension to zero.
-    if ($3 == CIMMOF_EMPTY_ARRAY)
+    if ($3 == -1)
     {
         $$ = cimmofParser::Instance()->newProperty(*$2, *v, 0);
     }
@@ -562,15 +549,13 @@ propertyBody: dataType propertyName array typedDefaultValue
 
 propertyEnd: TOK_SEMICOLON ;
 
+
 /*
 **------------------------------------------------------------------------------
 **
 **    reference Declaration productions and processing
 **
 **------------------------------------------------------------------------------
-
-    referenceDeclaration = [ qualifierList ] objectRef referenceName
-                           [ defaultValue ] ";"
 */
 
 referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
@@ -578,17 +563,8 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
 {
     String s(*$2);
     if (!String::equal(*$5, String::EMPTY))
-    {
         s.append("." + *$5);
-    }
-
-    CIMValue *v = valueFactory::createValue(
-        CIMTYPE_REFERENCE,
-        CIMMOF_EMPTY_ARRAY,
-        true,
-        strValTypeNS::NULL_VALUE,
-        &s);
-
+    CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
     $$ = cimmofParser::Instance()->newProperty(*$4, *v, 0, *$2);
     applyQualifierList(g_qualifierList, *$$);
     delete $2;
@@ -600,7 +576,9 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
 
 referencedObject: TOK_SIMPLE_IDENTIFIER { $$ = $1; } ;
 
+
 referenceName: TOK_SIMPLE_IDENTIFIER { $$ = $1; };
+
 
 referencePath: TOK_EQUAL stringValue { $$ = $2; }
     | /* empty */ { $$ = new String(String::EMPTY); } ;
@@ -626,18 +604,9 @@ propertyName: TOK_SIMPLE_IDENTIFIER
     delete $1;
 }
 
-
-/*
-    array = "[" [positiveDecimalValue] "]"
-
-   array definition syntax with dimension integer found [xxx] or
-   dimension integer empty or not array definition
-   NOTE: array type is ival (int) which allows positive and negative.
-         The Empty is actually -1
-*/
-array: 
-    // array syntax with [ number ]
-    TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE TOK_RIGHTSQUAREBRACKET
+// array definition syntax with dimension integer found [xxx] or
+// dimension integer empty or not array definition
+array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE TOK_RIGHTSQUAREBRACKET
         {
             $$ = (Uint32) valueFactory::stringToUint(*$2, CIMTYPE_UINT32);
             delete $2;
@@ -649,29 +618,19 @@ array:
 
     // no array definition syntax.
     | /* empty */
-        { $$ = CIMMOF_EMPTY_ARRAY; } ;
+        { $$ = -1; } ;
 
-/*
-    defaultValue = "=" initializer
-    Used in: TODO
-    Result: *typedInitializer
-*/
-typedDefaultValue:
-    TOK_EQUAL typedInitializer { $$ = $2; }
-    |  /* empty */
-        {
-            g_typedInitializerValue.setNull();
-            $$ = &g_typedInitializerValue;
-        };
 
-/*
-Used in: keyValuePair
-Result: strval
-TODO: This used by keyValue pair and therefore needs better definition
-      of the hint types.
-*/
-initializer:
-    constantValue
+typedDefaultValue: TOK_EQUAL typedInitializer { $$ = $2; }
+|
+    {   /* empty */
+        g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+        g_typedInitializerValue.value = new String(String::EMPTY);
+        $$ = &g_typedInitializerValue;
+    };
+
+
+initializer: constantValue
         { $$ = $1; }
     | arrayInitializer
         { $$ = $1; }
@@ -682,124 +641,66 @@ initializer:
 // The typedInitializer element is syntactially identical to
 // the initializer element. However, the typedInitializer element
 // returns, in addition to the value, the type of the value.
-
-
-/*
-    initializer =       ConstantValue / arrayInitializer / referenceInitializer
-    arrayInitializer =  "{" constantValue*( "," constantValue)"}"
-    constantValue =     integerValue / realValue / charValue / stringValue /
-                        datetimeValue / booleanValue / nullValue
-    integerValue =      binaryValue / octalValue / decimalValue / hexValue
-    referenceInitializer = objectPath / aliasIdentifier
-    Result: struct typedInitializerValue in TYPED_INITIALIZER_VALUE
-*/
-typedInitializer:
-     nonNullConstantValue
+typedInitializer: nonNullConstantValue
         {
-            YACCTRACE("typedInitializer:nonNullConstantValue= " << *$1);
-            g_typedInitializerValue.set(
-                typedInitializerValue::CONSTANT_VALUE, $1);
-            g_typedInitializerValue.nonNullParserType = g_strValType;
+            g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
+            g_typedInitializerValue.value =  $1;
             $$ = &g_typedInitializerValue;
         }
     | TOK_NULL_VALUE
         {
-            g_typedInitializerValue.setNull();
+            g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+            g_typedInitializerValue.value = new String(String::EMPTY);
             $$ = &g_typedInitializerValue;
         }
     | arrayInitializer
         {
-            g_typedInitializerValue.set(
-                typedInitializerValue::ARRAY_VALUE, $1);
-            g_typedInitializerValue.nonNullParserType = g_strValType;
+            g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
+            g_typedInitializerValue.value =  $1;
             $$ = &g_typedInitializerValue;
         }
     | referenceInitializer
         {
-            g_typedInitializerValue.set(
-                typedInitializerValue::REFERENCE_VALUE, $1);
-            g_typedInitializerValue.nonNullParserType = g_strValType;
+            g_typedInitializerValue.type = CIMMOF_REFERENCE_VALUE;
+            g_typedInitializerValue.value =  $1;
             $$ = &g_typedInitializerValue;
         };
 
 
 // BUG 497 - Commmas embedded in strings in arrays change the
-// strings.  Added function stringEscapeComma to escape commas.
-/*
-  Recursively build up list from comma-separated constant values.
-  Used in: arrayInitializer, initializer
-  Result: strval
-  TODO: Make this more efficient by building an array of strings and
-  eliminating the addition of the Escape code
-*/
-constantValueList: constantValue
-    {
-        *$$ = valueFactory::stringEscapeComma(String(*$1));
-    }
-    | constantValueList TOK_COMMA constantValue
+// strings.  Aded function stringWComma to escape commas.
+constantValues: constantValue
         {
-            YACCTRACE("constantValueList:constantValueList TOK_COMMA "
-                      "constantValue, Value= " << *$3);
+        *$$ = valueFactory::stringWComma(String(*$1)); }
+    | constantValues TOK_COMMA constantValue
+        {
+            YACCTRACE("constantValues:1, Value= " << *$3);
             (*$$).append(",");
-
-            // Append the new constantValue after escaping internal commas
-            (*$$).append(valueFactory::stringEscapeComma(String(*$3)));
+            //(*$$).append(*$3);
+            (*$$).append(valueFactory::stringWComma(String(*$3)));
             delete $3;
         } ;
 
 
-/*
-The nonNullConstantValue allows NULL  to be distinguished from the EMPTY STRING.
+// The nonNullConstantValue has been added to allow NULL
+// to be distinguished from the EMPTY STRING.
 
-Used in: constantValueList,
-Result: strval
-*/
-
-constantValue:
-    nonNullConstantValue
+constantValue: nonNullConstantValue
         {$$ = $1;}
     | TOK_NULL_VALUE
-        {
-            g_typedInitializerValue.nonNullParserType = 
-                strValTypeNS::NULL_VALUE;
-            $$ = new String(String::EMPTY);
-        } ;
+        { $$ = new String(String::EMPTY); } ;
 
-/* NOTE: This parses 5 types but loses the type separation 
-   in returning the value.  The known issue is that Strings and
-   Boolean returns look the same so that a String could be substituted
-   for a Boolean nonNullConstantValue and pass the parser. Since there
-   is no further way to understand whetner a string or Boolean was
-   returned, we can create an error like "true" where we meant true.
-   Bug 3574, Modified to save parseType in g_strValType
-   Used in: constantValue, typedInitializer, typedQualifierParameter
-   result: strval and the parseType in g_strValType for use in constructing
-   the typeInitializer struct
-*/
-nonNullConstantValue:
-    integerValue
-    {
-        $$ = $1;
-        g_strValType = strValTypeNS::INTEGER_VALUE;
-    }
+
+nonNullConstantValue: integerValue { $$ = $1; }
     | TOK_REAL_VALUE
-    {
-        $$ = $1;
-        g_strValType = strValTypeNS::REAL_VALUE;
-    }
+        { $$ = $1; }
     | TOK_CHAR_VALUE
-    {
-         $$ =  $1;
-        g_strValType = strValTypeNS::CHAR_VALUE;
-    }
+        { $$ =  $1; }
     | stringValues
-    {
-        g_strValType = strValTypeNS::STRING_VALUE;
-    }
+        { }
     | booleanValue
-    {
-        g_strValType = strValTypeNS::BOOLEAN_VALUE;
-        $$ = new String($1 ? "T" : "F");
+        {
+            $$ = new String($1 ? "T" : "F");
     };
 
 
@@ -809,19 +710,13 @@ integerValue: TOK_POSITIVE_DECIMAL_VALUE
     | TOK_BINARY_VALUE
     | TOK_SIGNED_DECIMAL_VALUE;
 
-/*
-    booleanValue = TRUE / FALSE
-    Used in: nonNullConstantValue
-    Result: ival
-*/
+
 booleanValue: TOK_FALSE
         { $$ = 0; }
     | TOK_TRUE
         { $$ = 1; } ;
 
-/*
-  Append multiple stringValue entities.
-*/
+
 stringValues: stringValue { $$ = $1; }
     | stringValues stringValue
     {
@@ -854,28 +749,17 @@ stringValue: TOK_STRING_VALUE
            //}
        //}
    //delete $1;
-   //$$ = new String(s1);
-   $$ = new String(*$1);
+   $$ = //new String(s1);
+        new String(*$1);
    delete $1;
 } ;
 
-/*
-    arrayInitializer = "{" constantValue*( "," constantValue)"}"
 
-    Intiialize array of comma-separated constant values 
-
-    Used in: Initializer, typedInitializer, typedQualifierParameter
-    Result: strVal
-*/
 arrayInitializer:
-    TOK_LEFTCURLYBRACE constantValueList TOK_RIGHTCURLYBRACE
-        {
-            $$ = $2;
-        }
+        TOK_LEFTCURLYBRACE constantValues TOK_RIGHTCURLYBRACE
+            { $$ = $2; }
     | TOK_LEFTCURLYBRACE  TOK_RIGHTCURLYBRACE
-        {
-            $$ = new String(String::EMPTY);
-        };
+       { $$ = new String(String::EMPTY); };
 
 
 referenceInitializer: objectHandle {}
@@ -965,30 +849,18 @@ keyValuePairList: keyValuePair
     | keyValuePairList TOK_COMMA keyValuePair
         { $$ = 0; } ;
 
-
-/*
-    Parse one keybinding and append to global KeyBindingArray. calcualates
-    keyBinding type from first char of string.  
-*/
+// parse one keybinding and append to global KeyBindingArray.
 keyValuePair: keyValuePairName TOK_EQUAL initializer
     {
         CIMKeyBinding::Type keyBindingType;
         Char16 firstChar = (*$3)[0];
-        // test for string type. TODO NOTSURE THIS IS CORRECT ANY MORE.
         if (firstChar == '\"')
-        {
             keyBindingType = CIMKeyBinding::STRING;
-        }
-        // test for boolean type (i.e. first char value)
         else if ((firstChar == 'T') || (firstChar == 't') ||
                  (firstChar == 'F') || (firstChar == 'f'))
-        {
             keyBindingType = CIMKeyBinding::BOOLEAN;
-        }
         else
-        {
             keyBindingType = CIMKeyBinding::NUMERIC;
-        }
         CIMKeyBinding *kb = new CIMKeyBinding(*$1, *$3, keyBindingType);
         g_KeyBindingArray.append(*kb);
         delete kb;
@@ -1009,11 +881,9 @@ alias: TOK_AS aliasIdentifier
             g_currentAliasDecl.getCString());
 
     }
-    | /* empty */ 
-        {
-            $$ = new String(String::EMPTY);
-            g_currentAliasDecl = String::EMPTY;
-        } ;
+    | /* empty */ {
+        $$ = new String(String::EMPTY);
+        g_currentAliasDecl = String::EMPTY} ;
 
 
 aliasIdentifier: TOK_ALIAS_IDENTIFIER ;
@@ -1048,6 +918,7 @@ instanceDeclaration: instanceHead instanceBody
 };
 
 
+
 instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
 {
     if (g_currentInstance)
@@ -1067,18 +938,20 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
 } ;
 
 
-instanceBody: TOK_LEFTCURLYBRACE valueInitializerList TOK_RIGHTCURLYBRACE
+
+instanceBody: TOK_LEFTCURLYBRACE valueInitializers TOK_RIGHTCURLYBRACE
     TOK_SEMICOLON ;
 
 
-valueInitializerList:
-      valueInitializer
-    | valueInitializerList valueInitializer ;
+
+valueInitializers: valueInitializer
+    | valueInitializers valueInitializer ;
+
 
 
 // ATTN-DE-P1-20020427: Processing NULL Initializer values is incomplete.
 // Currently only the arrayInitializer element has been modified to
-// return typedInitializerValue::NULL_VALUE
+// return CIMMOF_NULL_VALUE
 valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
                   typedInitializer TOK_SEMICOLON
 {
@@ -1094,7 +967,6 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
     //   2. Get  property declaration's value object
     CIMProperty *oldprop =
         cp->PropertyFromInstance(*g_currentInstance, *identifier);
-
     CIMValue *oldv = cp->ValueFromProperty(*oldprop);
 
     //   3. create the new Value object of the same type
@@ -1105,12 +977,11 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
     // validation.
 
     CIMValue *v = valueFactory::createValue(oldv->getType(),
-            (($4->type == typedInitializerValue::ARRAY_VALUE) ||
-             (($4->type == typedInitializerValue::NULL_VALUE)
-                    && (oldprop->isArray()))? 0 : CIMMOF_EMPTY_ARRAY),
-            ($4->type == typedInitializerValue::NULL_VALUE),
-            $4->nonNullParserType,
+            (($4->type == CIMMOF_ARRAY_VALUE) ||
+             (($4->type == CIMMOF_NULL_VALUE) && oldprop->isArray()))?0:-1,
+            ($4->type == CIMMOF_NULL_VALUE),
             $4->value);
+
 
     //   4. create a clone property with the new value
     CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
@@ -1126,6 +997,9 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
     delete v;
     delete newprop;
 };
+
+
+
 
 
 /*
@@ -1165,6 +1039,8 @@ compilerDirectivePragma: TOK_PRAGMA pragmaName
     };
 
 
+
+
 /*
 **------------------------------------------------------------------------------
 **
@@ -1173,17 +1049,12 @@ compilerDirectivePragma: TOK_PRAGMA pragmaName
 **------------------------------------------------------------------------------
 */
 
-/*
-    qualifierDeclaration = QUALIFIER qualifierName qualifierType scope
-                           [ defaultFlavor ] ";"
-
-This is really QualifierTypeDeclaration. It defines the characteristics of the
-qualifier.
-
-Note: What we call qualifierValue is qualifierType in BNF.
+/**
+qualifierDeclaration = QUALIFIER qualifierName qualifierType scope
+                       [ defaultFlavor ] ";"
 */
 
-qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierType scope
+qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
                        defaultFlavor TOK_SEMICOLON
 {
     $$ = cimmofParser::Instance()->newQualifierDecl(*$2, $3, *$4, *$5);
@@ -1192,21 +1063,18 @@ qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierType scope
     delete $4;  // CIMScope object created in scope/metaElements production
 } ;
 
-/*
-    qualifierType = ":" dataType [ array ] [ defaultValue ]
+/**
+qualifierType = ":" dataType [ array ] [ defaultValue ]
 */
-qualifierType: TOK_COLON dataType array typedDefaultValue
+qualifierValue: TOK_COLON dataType array typedDefaultValue
    {
-       $$ = valueFactory::createValue(
-            $2,
-            $3,
-            ($4->type == typedInitializerValue::NULL_VALUE),
-            $4->nonNullParserType,
-            $4->value);
+       $$ = valueFactory::createValue($2, $3,
+                                      ($4->type == CIMMOF_NULL_VALUE),
+                                      $4->value);
        delete $4->value;
    } ;
 
-/*
+/**
    scope = "," SCOPE "(" metaElement *( "," metaElement ) ")"
 */
 // empty implies no scope definition and is illegal
@@ -1227,8 +1095,7 @@ scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN
     } ;
 
 /* aggregate the keywords used to define scope */
-metaElements: 
-    metaElement
+metaElements: metaElement
         {   /* empty */
             $$ = $1;
         }
@@ -1239,11 +1106,10 @@ metaElements:
         } ;
 
 /* Resolve each possible scope keyword (metaElement). Each TOK adds a
-   one scope type.  The ASSOCIATION and INDICATION free the
+   returns one scope type.  The ASSOCIATION and INDICATION free the
    variable metaQualifierName since that could be set either by the
    Keywords as a Scope token or metaQualifier name (i.e. these keywords
    usage is context sensitive)
-
    metaElement = CLASS / ASSOCIATION / INDICATION / QUALIFIER
        PROPERTY / REFERENCE / METHOD / PARAMETER / ANY
 */
@@ -1261,26 +1127,21 @@ metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
            | TOK_ANY         { $$ = new CIMScope(CIMScope::ANY);          } ;
 
 
-
-/*
-    Set the default if no FlavorHead or accumulated explicitFlavors
-
-    defaultFlavor = "," FLAVOR "(" flavor *( "," flavor ) ")"
+// Set the default if no FlavorHead or accumulated explicitFlavors
+/**
+defaultFlavor = "," FLAVOR "(" flavor *( "," flavor ) ")"
 */
-defaultFlavor:
-    TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
-        { $$ = &g_flavor; }
+defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
+    { $$ = &g_flavor; }
     | /* empty */
-        {
-            g_flavor = CIMFlavor (CIMFlavor::NONE);
-            $$ = &g_flavor;
-        } ;
+    {
+        g_flavor = CIMFlavor (CIMFlavor::NONE);
+        $$ = &g_flavor;
+    } ;
 
 // Set the flavors for the defaults required: via DEFAULTS
 flavorHead: TOK_FLAVOR TOK_LEFTPAREN
-    {
-        g_flavor = CIMFlavor (CIMFlavor::NONE);
-    };
+    {g_flavor = CIMFlavor (CIMFlavor::NONE);};
 
 // gather comma-separated explicitFlavor keywords into g_flavor
 explicitFlavors: explicitFlavor
@@ -1314,9 +1175,7 @@ flavor: overrideFlavors
 overrideFlavors: explicitFlavor
     | overrideFlavors explicitFlavor ;
 
-/*
-  Parse CIM Data types into CIMTYPE values
-*/
+
 dataType: intDataType     { $$ = $1; }
     | realDataType    { $$ = $1; }
     | TOK_DT_STR      { $$ = CIMTYPE_STRING;   }
@@ -1361,21 +1220,14 @@ qualifiers: qualifier
         { }
     | qualifiers TOK_COMMA qualifier
         { } ;
-/*
-qualifier = qualifierName [ qualifierParameter ] [ ":" 1*flavor ]
-    ; DEPRECATED: The ABNF rule [ ":" 1*flavor ] is used
-    ; for the concept of implicitly defined qualifier types
-    ; and is deprecated. See DSP 0004 5.1.2.16 for details.
- */
+
 qualifier: qualifierName typedQualifierParameter flavor
 {
     cimmofParser *p = cimmofParser::Instance();
     // The qualifier value can't be set until we know the contents of the
     // QualifierDeclaration.  That's what QualifierValue() does.
     CIMValue *v = p->QualifierValue(*$1,
-                  ($2->type == typedInitializerValue::NULL_VALUE),
-                  g_strValType,
-                  *$2->value);
+                  ($2->type == CIMMOF_NULL_VALUE), *$2->value);
     $$ = p->newQualifier(*$1, *v, g_flavor);
     g_qualifierList.add(*$$);
     delete $$;
@@ -1408,31 +1260,28 @@ qualifierName: TOK_ASSOCIATION
             g_flavor = CIMFlavor (CIMFlavor::NONE);
             $$ = $1;
         };
-/*
-    qualifierParameter = "(" constantValue ")" / arrayInitializer
-    RESULT: info in g_typedInitializerValue.
-*/
+
 typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN
         {
-            g_typedInitializerValue.set(
-                typedInitializerValue::CONSTANT_VALUE, $2);
-            g_typedInitializerValue.nonNullParserType = g_strValType;
+            g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
+            g_typedInitializerValue.value =  $2;
             $$ = &g_typedInitializerValue;
         }
     | TOK_LEFTPAREN TOK_NULL_VALUE TOK_RIGHTPAREN
         {
-            g_typedInitializerValue.setNull();
+            g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+            g_typedInitializerValue.value = new String(String::EMPTY);
             $$ = &g_typedInitializerValue;
         }
     | arrayInitializer
         {
-            g_typedInitializerValue.set(
-                typedInitializerValue::ARRAY_VALUE, $1);
-            g_typedInitializerValue.nonNullParserType = g_strValType;
+            g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
+            g_typedInitializerValue.value =  $1;
             $$ = &g_typedInitializerValue;
         }
     |   {   /* empty */
-            g_typedInitializerValue.setNull();
+            g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+            g_typedInitializerValue.value = new String(String::EMPTY);
             $$ = &g_typedInitializerValue;
         };
 

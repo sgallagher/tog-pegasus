@@ -111,10 +111,10 @@ void test01()
     // Create and delete a class to test these functions
     nsm.createClass(CIMNamespaceName("aa/bb"), "MySuperClass", CIMName());
     nsm.createClass(CIMNamespaceName("aa/bb"), "MyClass", "MySuperClass");
-    PEGASUS_TEST_ASSERT(
+    PEGASUS_ASSERT(
         nsm.getSuperClassName(CIMNamespaceName("aa/bb"), "MySuperClass") ==
         CIMName());
-    PEGASUS_TEST_ASSERT(
+    PEGASUS_ASSERT(
         nsm.getSuperClassName(CIMNamespaceName("aa/bb"), "MyClass") ==
         "MySuperClass");
     nsm.deleteClass(CIMNamespaceName("aa/bb"), "MyClass");

@@ -39,7 +39,7 @@ Options :
 Usage note: The wbemexec command requires that the CIM Server is running.
 
  
-Version 2.12.0
+Version 2.13.0
   
 All options specified except hostname
 wbemexec -p5988 -v1.1 -mM-POST -t10000 -u(PEGASUS_TEST_USER_ID) -w(PEGASUS_TEST_USER_PASS) ./cimrequest.xml
@@ -302,47 +302,17 @@ wbemexec: Use '--help' to obtain command syntax.
  
  
 Non-option argument -
-Works -- getoopt behavior differs from other implementations of getopt
 wbemexec - < ./cimrequest.xml
  
-<?xml version="1.0" encoding="utf-8"?>
-<CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="7873" PROTOCOLVERSION="1.0">
-<SIMPLERSP>
-<IMETHODRESPONSE NAME="EnumerateClassNames">
-<IRETURNVALUE>
-<CLASSNAME NAME="WET_PhysicalStatistics"/>
-<CLASSNAME NAME="WET_DeviceStatistics"/>
-<CLASSNAME NAME="WET_SAPStatistics"/>
-<CLASSNAME NAME="WET_ServiceStatistics"/>
-<CLASSNAME NAME="WET_SystemStatistics"/>
-</IRETURNVALUE>
-</IMETHODRESPONSE>
-</SIMPLERSP>
-</MESSAGE>
-</CIM>
+wbemexec: Missing required option for -
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Non-option argument -
-Works -- getoopt behavior differs from other implementations of getopt
 wbemexec - ./cimrequest.xml
  
-<?xml version="1.0" encoding="utf-8"?>
-<CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="7873" PROTOCOLVERSION="1.0">
-<SIMPLERSP>
-<IMETHODRESPONSE NAME="EnumerateClassNames">
-<IRETURNVALUE>
-<CLASSNAME NAME="WET_PhysicalStatistics"/>
-<CLASSNAME NAME="WET_DeviceStatistics"/>
-<CLASSNAME NAME="WET_SAPStatistics"/>
-<CLASSNAME NAME="WET_ServiceStatistics"/>
-<CLASSNAME NAME="WET_SystemStatistics"/>
-</IRETURNVALUE>
-</IMETHODRESPONSE>
-</SIMPLERSP>
-</MESSAGE>
-</CIM>
+wbemexec: Missing required option for -
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Empty string non-option argument

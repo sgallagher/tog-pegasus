@@ -68,6 +68,19 @@ private:
     Message* _doRequest(
         CIMRequestMessage* request,
         MessageType expectedResponseMessageType);
+
+    Monitor* _monitor;
+    /**
+        The CIMExportClient uses a lazy reconnect algorithm.  A reconnection
+        is necessary when the server (listener) sends a Connection: Close
+        header in the HTTP response or when a connection timeout occurs
+        while waiting for a response.  In these cases, a disconnect is
+        performed immediately and the _doReconnect flag is set.  The
+        connection is re-established only when required to perform another
+        operation.  Note that in the case of a connection timeout, the
+        challenge status must be reset in the ClientAuthenticator to allow
+        authentication to be performed properly on the new connection.
+    */
 };
 
 PEGASUS_NAMESPACE_END

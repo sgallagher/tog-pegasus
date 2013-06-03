@@ -63,9 +63,9 @@ public:
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    AuthenticationStatus performHttpAuthentication(
+    Boolean performHttpAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
@@ -73,9 +73,9 @@ public:
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    AuthenticationStatus performPegasusAuthentication(
+    Boolean performPegasusAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
@@ -84,9 +84,9 @@ public:
         @param  userName  name of the user
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful validation, false otherwise
     */
-    AuthenticationStatus validateUserForHttpAuth(
+    Boolean validateUserForHttpAuth(
         const String& userName,
         AuthenticationInfo* authInfo);
 
@@ -110,7 +110,8 @@ public:
     String getHttpAuthResponseHeader();
 #endif
 
-    static Boolean isRemotePrivilegedUserAccessAllowed( String & userName);
+    static Boolean isRemotePrivilegedUserAccessAllowed(
+        String & userName);
 
 private:
 

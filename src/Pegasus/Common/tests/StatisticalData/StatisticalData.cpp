@@ -32,17 +32,13 @@
 #include <iostream>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/StatisticalData.h>
-#include <Pegasus/Common/Message.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-Boolean verbose;
-#define VCOUT if (verbose) cout
-
 int main(int, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+
 
 StatisticalData* sd = StatisticalData::current();
 StatisticalData* curr = StatisticalData::current();
@@ -62,12 +58,10 @@ PEGASUS_TEST_ASSERT(sd->requestSize[6] == curr->requestSize[6]);
 // check the addToValue() method
 
 // Changes sd.numCalls[5] from 0 to 10
-sd->addToValue(10,CIM_GET_CLASS_REQUEST_MESSAGE,
-               StatisticalData::PEGASUS_STATDATA_SERVER);
+sd->addToValue(10,5,StatisticalData::PEGASUS_STATDATA_SERVER);
 
 // Changes sd.requestSize[6] form 0 to 10
-sd->addToValue(10,CIM_GET_CLASS_REQUEST_MESSAGE,
-               StatisticalData::PEGASUS_STATDATA_BYTES_READ);
+sd->addToValue(10,6,StatisticalData::PEGASUS_STATDATA_BYTES_READ);
 
 //PEGASUS_TEST_ASSERT(sd->numCalls[5] == 0);
 //PEGASUS_TEST_ASSERT(sd->requestSize[6] == 10);

@@ -3336,7 +3336,6 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     pgmName = argv[0];
-    Boolean showNamespaces = false;
     if (argc > 1)
     {
         String cmd = argv[1];
@@ -3397,8 +3396,13 @@ int main(int argc, char** argv)
             }
         }
         it.testPGProviderProfileCapabilities();
-
-        it.testNameSpacesManagement();
+        //If PEGASUS_INTEROP_NAMESPACE is set to interop, interop namespace
+        //does not come under root.The below test need not to run in 
+        //this scenario. 
+        if(PEGASUS_NAMESPACENAME_INTEROP.getString() != "interop" )
+        {
+            it.testNameSpacesManagement();
+        }
 
         it.testSharedNameSpacesManagement();
 

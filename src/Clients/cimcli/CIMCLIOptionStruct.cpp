@@ -152,6 +152,7 @@ OptionStruct::OptionStruct():
     interactive(false),
     setRtnHostNames(false),
 //EXP_PULL_BEGIN -- parameters for pull operations
+    maxObjectCount(0),
     continueOnError(false),
     maxObjectsToReceive(0),
     pullDelay(0)
@@ -163,6 +164,7 @@ OptionStruct::OptionStruct():
         ssl = false;
         clientCert = String();
         clientKey = String();
+        clientTruststore = String();
 #endif
         nameSpace = String();
         cimCmd = "unknown";

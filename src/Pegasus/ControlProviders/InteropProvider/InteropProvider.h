@@ -383,7 +383,7 @@ private:
     // This function fetches the other side of the reference.
     Array<CIMInstance> getReferencedInstances(
         const Array<CIMInstance> &refs,
-        const String targetRole,
+        const String &targetRole,
         const OperationContext & context,
         const CIMPropertyList & propertyList);
 
@@ -424,6 +424,9 @@ private:
     Boolean enableSLP;
     String httpPort;
     String httpsPort;
+
+    // Cached CIM_ObjectManager instance.
+    CIMInstance _CIMObjectManagerInst;
 };
 
 PEGASUS_NAMESPACE_END

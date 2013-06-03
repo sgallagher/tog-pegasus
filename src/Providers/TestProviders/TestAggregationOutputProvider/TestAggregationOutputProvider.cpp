@@ -414,20 +414,14 @@ void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
         Uint32 Student = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Student")));
-        Uint32 Employee = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Employee")));
-        Uint32 Manager = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Manager")));
-        Uint32 Husband = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Husband")));
-        Uint32 Wife = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Wife")));
-        Uint32 Father = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Father")));
-        Uint32 Child = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Child")));
 
         for(Uint32 i = 0, n = _instances.size(); i < n; ++i)
@@ -1223,7 +1217,7 @@ void TestAggregationOutputProvider::deleteInstance(
         case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
-            PEGASUS_ASSERT(false);
+            PEGASUS_TEST_ASSERT(false);
     }
     handler.complete();
 }

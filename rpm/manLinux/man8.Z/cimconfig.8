@@ -15,6 +15,8 @@ cimconfig \- get, set, unset, or list CIM Server configuration properties
 
 \fBcimconfig\fP \fB\-\-help\fP
 
+\fBcimconfig\fP \fB\-\-H name\fP | \fB"All"\fP
+
 \fBcimconfig\fP \fB\-\-version\fP
 
 .SH "DESCRIPTION"
@@ -141,7 +143,9 @@ be configured using
 .B enableRemotePrivilegedUserAccess
 .IP 
 .BR Description: " If True, the CIM Server allows access by a
-privileged user from a remote system
+privileged user from a remote system. Many management operations require
+privileged user access. Disabling remote access by privileged user could
+significantly affect functionality
 .PD 0
 .IP 
 .BR "Default Value: " True
@@ -152,7 +156,8 @@ privileged user from a remote system
 .B enableSubscriptionsForNonprivilegedUsers
 .IP 
 .BR Description: " If True, nonprivileged user of the system will be 
-allowed to create Indication Subscription, otherwise privileged access
+allowed to manipulate indication subscriptions, indication filters,
+and listener destination instances otherwise privileged access
 is required.
 .PD 0
 .IP 
@@ -173,21 +178,82 @@ within the CIM Server process.
 .BR Dynamic: \0No
 .PD
 .PP 
+.B hostname
+.IP 
+.BR Description: " Can be used to override the local system supplied
+hostname (without domain) the CIM Server uses to build objects.
+If not set, querying this configuration option will report the system
+supplied hostname and behavior is not changed.
+Setting this value to a valid hostname on CIM Server startup or as
+planned value will force the server to assume the configured name as the
+local hosts name. Setting this allows the administrator to set the name 
+that operations such as associator, reference etc. return with object paths.
+When setting this option, 
+.B fullyQualifiedHostName
+should be set also.
+.IP
+In common setups it is not recommended to explicitly set this value.
+Some scenarios scenarios in which changing the default value makes sense include:
+.IP
+- The case where what the CIM Server shall return to clients for host name
+is NOT the name of the current host but some administrator defined name
+(ex. system behind a firewall or some redirector).
+.IP
+- Embedded systems that have a system set hostname which is not valid and
+needs to be overridden by CIM administrator without changing the actual IP
+configuration. 
+.PD 0
+.IP 
+.BR "Default Value: " (blank)
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
+.B fullyQualifiedHostName
+.IP 
+.BR Description: "  Can be used to override the local system supplied
+fully qualified hostname (with domain) the CIM Server is using to build objects.
+If not set, querying this configuration option will report the system
+supplied fully qualified hostname and behavior is not changed.
+Setting this value to a valid hostname on CIM Server startup or as planned
+value will force the server to assume the configured name as the local hosts
+name with domain. Setting this allows the administrator to set the name that
+indication operations and the CIM_ObjectManager assume for SystemName returned
+as instance and key properties.
+.IP In common setups it is not recommended to explicitly set this value.
+Some scenarios scenarios in which changing the default value makes sense include:
+.IP
+- The case where what the CIM Server shall return to clients for host name
+is NOT the name of the current host but some administrator defined name
+(ex. system behind a firewall or some redirector).
+.IP
+- Embedded systems that have a system set hostname which is not valid and
+needs to be overridden by CIM administrator without changing the actual IP
+configuration. 
+.PD 0
+.IP 
+.BR "Default Value: " (blank)
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
 .B idleConnectionTimeout
 .IP 
 .BR Description: " If set to a positive integer, this value specifies a
 minimum timeout value for idle client connections.  If set to zero, idle
 client connections do not time out.
-.BR A client connection is considered idle when it is not in the process of
+.IP
+A client connection is considered idle when it is not in the process of
 sending a request and the CIM Server is not processing a request from that
 connection.  An idle connection timeout allows reclamation of the system
 resources allocated for idle CIM Server connections.  Note that the
 CIM Server may allow an idle connection to persist longer than the configured
 timeout value based on server activity.
-.BR Some client applications may not behave correctly if a connection timeout
+.IP
+Some client applications may not behave correctly if a connection timeout
 is introduced.  Client compatibility should be considered when configuring an
 idle connection timeout value.
-.BR The idle connection time is computed using the system clock.  Thus,
+The idle connection time is computed using the system clock.  Thus,
 resetting the system clock may cause unexpected timeout behavior.
 .PD 0
 .IP 
@@ -196,24 +262,52 @@ resetting the system clock may cause unexpected timeout behavior.
 .BR Dynamic: \0No
 .PD
 .PP 
+.B listenAddress
+.IP
+.BR Description: " Network interfaces, if specified,
+.B "cimserver(8) " 
+should listen to for connection requests. It accepts a comma seperated 
+list(without space) of network interfaces. Both ipv4 and ipv6 addresses 
+is accepted. Default value of "All" make cimserver to listen to all the
+available network interfaces. Examples include:
+.PD 0
+.IP
+.BR - "listenAddress=All"
+.PD 0
+.IP
+.BR - "listenAddress=121.12.33.112"
+.PD 0
+.IP
+.BR - "listenAddress=121.33.21.26,127.0.0.1,fe80::fe62:9346%eth0"
+.PD 0
+.IP
+.BR "Default Value: " All
+.IP
+.BR Dynamic: \0No
+.PD
+
+.PP
 .B maxFailedProviderModuleRestarts
 .IP
 .BR Description: " If set to a positive integer, this value specifies the number
-of times the failed provider module with indications enabled are restarted
+of times a failed provider module with indications enabled are restarted
 automatically before being moved to Degraded state. If set to zero, failed
 provider module is not restarted with indications enabled automatically and
 will be moved to Degraded state immediately.
-.BR "This option controls the automatic re-enabling of the failed provider module
+.IP
+This option controls the automatic re-enabling of the failed provider module
 with indications enabled. If the provider module with indications enabled fails
 very frequently, it affects the CIMServer normal operations because CIMServer would
-be busy with reloading the provider module every time it fails. This option would be
-helpful if the long running indication provider crashes and the management
-application want to receive the indications from the provider while provider fix
+be busy reloading the provider module every time it fails. This option would be
+helpful if a long running indication provider crashes and the management
+application wants to receive the indications from the provider while provider fix
 is being delivered.
-.BR "In case of provider module grouping, if one of the indication provider crashes,
+.IP
+In case of provider module grouping, if one of the indication provider crashes,
 it affects all indication providers in the provider modules of the group.
-.BR "Note that this is the facility provided by the CIMServer for temporary
-recovery of the provider and the ultimate goal SHALL be fixing the faulty provider.
+.IP
+Note that this is the facility provided by the CIMServer for temporary
+recovery of the provider and the ultimate goal SHALL be to fix the faulty provider.
 .PD 0
 .IP
 .BR "Default Value: " 3
@@ -227,7 +321,8 @@ recovery of the provider and the ultimate goal SHALL be fixing the faulty provid
 that the indication service will try to deliver an indication to a particular listener
 destination. This does not effect the original delivery attempt, thus if set to 0, cimserver
 will only try to deliver the indication once.
-.BR "This value is used to set the CIM_IndicationService.DeliveryRetryAttempts property. See
+.IP
+This value is used to set the CIM_IndicationService.DeliveryRetryAttempts property. See
 CIM_IndicationService.DeliveryRetryAttempts property for more details.
 .PD 0
 .IP
@@ -241,7 +336,8 @@ CIM_IndicationService.DeliveryRetryAttempts property for more details.
 .BR Description: "If set to a positive integer, this value defines the minimal time interval
 in seconds for the indication service to wait before retrying to deliver an indication to a
 listener destination that previously failed. Cimserver may take longer due to QoS or other processing.
-.BR "This value is used to initialize the property CIM_IndicationService.DeliveryRetryInterval. See
+.IP
+This value is used to initialize the property CIM_IndicationService.DeliveryRetryInterval. See
 CIM_IndicationService.DeliveryRetryInterval property for more details.
 .PD 0
 .IP
@@ -267,15 +363,33 @@ Minimum value is 2 seconds.
 .BR Dynamic: \0Yes
 .PD
 .PP 
+.B slpProviderStartupTimeout
+.IP
+.BR Description: " Timeout value in milli seconds used to specify 
+how long the registration with an SLP SA may take. Registration will be 
+retried three times.
+.IP
+This value only needs to be increased in case that 
+the loading of a set of providers whose implementation of a registered profile
+takes very long.
+.PD 0
+.IP 
+.BR "Default Value: " 300000
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
 .B socketWriteTimeout
 .IP
 .BR Description: " Specifies the number of seconds the CIM Server will wait
 for a client connection to be ready to receive data.  If the CIM Server is
 unable to write to a connection in this time, the connection is closed.
-.BR A client connection can become unable to receive data if the client fails
+.IP
+A client connection can become unable to receive data if the client fails
 to read the data that has already been sent.  This timeout allows the CIM
 Server to reclaim resources that are allocated to a malfunctioning client.
-.BR One might consider increasing this timeout value if the CIM Server
+.IP
+One might consider increasing this timeout value if the CIM Server
 prematurely closes connections with well-behaved clients.
 .PD 0
 .IP 
@@ -317,6 +431,27 @@ is true.
 .BR Dynamic: \0No
 .PD
 .PP
+.B traceFileSizeKBytes
+.IP 
+.BR Description: "Defines the size of the tracefile in Kilo bytes. 
+The trace file will be rolled once its size exceeds the specified size."
+.PD 0
+.IP 
+.BR "Default Value: " 1048576
+.IP 
+.BR Dynamic: \0Yes
+.PD
+.PP 
+.B numberOfTraceFiles
+.IP 
+.BR Description: "Specifies the number of the tracefiles for rolling."
+.PD 0
+.IP 
+.BR "Default Value: " 3
+.IP 
+.BR Dynamic: \0Yes
+.PD
+.PP 
 .B sslCipherSuite
 .IP
 .BR Description: " String containing OpenSSL cipher specifications to 
@@ -400,11 +535,16 @@ planned configuration file if the CIM Server is not running.
 .B \-d
 Specifies that the get operation be performed on the default configuration
 properties.  Returns an error when the CIM Server is not running.
+.TP 
+.B \-h, --help
+Display the command usage message.
+.TP 
+.B \-H name\fP|\fB"All"\FP
+Display detailed help information on the configuraton property defined by
+the name parameter or on all properties if the keyword "All" is used.
 .RE
 .PP 
-If no options are specified, 
-.B cimconfig 
-displays a usage message.
+
 .SH "EXIT STATUS"
 .PP 
 When an error occurs, an

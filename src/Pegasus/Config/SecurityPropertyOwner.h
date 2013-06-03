@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////
 
 /**
-    This is Log property owner class that extends ConfigPropertyOwner
+    This is Security property owner class that extends ConfigPropertyOwner
     class and provide implementation.
 */
 class PEGASUS_CONFIG_LINKAGE SecurityPropertyOwner : public ConfigPropertyOwner
@@ -78,6 +78,13 @@ public:
     void getPropertyInfo(
         const String& name,
         Array<String>& propertyInfo) const;
+
+    /**
+       Supplemental help information above and beyond
+       getPropertyHelp.  Overrides function in ConfigPropertyOwner
+       to provide possible values.
+     */
+////    String getPropertyHelpSupplement(const String& name) const;
 
     /**
         Get default value of the specified property.

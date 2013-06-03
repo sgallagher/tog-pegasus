@@ -93,7 +93,7 @@ enum OperationID {
     ID_PullAssociatorInstancePaths,
 //EXP_PULL_END
     ID_CountInstances            ,
-
+    ID_ClassTree
 //
 //ID_Profile                   ,
 };

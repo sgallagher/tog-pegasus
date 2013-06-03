@@ -1,24 +1,25 @@
 0. +++++ Test For getClass
 
-//    Class Test_CLITestProviderClass
+// ===================================================
+// Test_CLITestProviderClass
+// ===================================================
 
-
-    [Version ("2.5.0") : Restricted, Translatable, 
-    Description ("Class to test input and output of all property types "
+    [Version ( "2.5.0" ), 
+    Description ( "Class to test input and output of all property types "
         "that can be handled by cimcli. Does not cover embedded types. "
         "See other classes in this file for handling of the embedded "
         "entity classes. The REF data type in methods is also covered "
-        "in other classes today.") : Translatable]
+        "in other classes today." )]
 class Test_CLITestProviderClass
 {
     
-        [key : DisableOverride]
+        [key]
     string Id;
     string Name;
     
-        [Description ("Return name value pair defining input parameters "
-            "for the operation received by the provider such as propertylist.") 
-            : Translatable]
+        [Description ( "Return name value pair defining input parameters "
+            "for the operation received by the provider such as propertylist." 
+            )]
     string requestInputParameters;
     boolean scalBool;
     uint8 scalUint8;
@@ -59,141 +60,111 @@ class Test_CLITestProviderClass
     real64 arrayReal64[];
     string arrayString[];
     datetime arrayDateTime[];
-    uint32 ReferenceParamTest([in : DisableOverride] reference InParam1, 
-        [in : DisableOverride] reference InParam2[], [out : DisableOverride] 
-        reference OutParam1, [out : DisableOverride] reference OutParam2[]);
+    uint32 ReferenceParamTest([in] reference InParam1, [in] reference 
+        InParam2[], [out] reference OutParam1, [out] reference OutParam2[]);
     
-        [Description ("Method to test input and output of all parameter "
+        [Description ( "Method to test input and output of all parameter "
             "types except REF and embedded entity. Provider is expected "
-            "to return all parameters input.") : Translatable]
-    uint32 InOutParamTest([in : DisableOverride, 
-    out : DisableOverride] boolean scalBool, [in : DisableOverride, 
-        
-    out : DisableOverride] uint8 scalUint8, [in : DisableOverride, 
-        
-    out : DisableOverride] sint8 scalSint8, [in : DisableOverride, 
-        
-    out : DisableOverride] uint16 scalUint16, [in : DisableOverride, 
-        
-    out : DisableOverride] sint16 scalSint16, [in : DisableOverride, 
-        
-    out : DisableOverride] uint32 scalUint32, [in : DisableOverride, 
-        
-    out : DisableOverride] sint32 scalSint32, [in : DisableOverride, 
-        
-    out : DisableOverride] uint64 scalUint64, [in : DisableOverride, 
-        
-    out : DisableOverride] real32 scalReal32, [in : DisableOverride, 
-        
-    out : DisableOverride] real64 scalReal64, [in : DisableOverride, 
-        
-    out : DisableOverride] string scalString, [in : DisableOverride, 
-        
-    out : DisableOverride] datetime scalDateTime, [in : DisableOverride, 
-        
-    out : DisableOverride] boolean arrayBool[], [in : DisableOverride, 
-        
-    out : DisableOverride] uint8 arrayUint8[], [in : DisableOverride, 
-        
-    out : DisableOverride] sint8 arraySint8[], [in : DisableOverride, 
-        
-    out : DisableOverride] uint16 arrayUint16[], [in : DisableOverride, 
-        
-    out : DisableOverride] sint16 arraySint16[], [in : DisableOverride, 
-        
-    out : DisableOverride] uint32 arrayUint32[], [in : DisableOverride, 
-        
-    out : DisableOverride] sint32 arraySint32[], [in : DisableOverride, 
-        
-    out : DisableOverride] uint64 arrayUint64[], [in : DisableOverride, 
-        
-    out : DisableOverride] real32 arrayReal32[], [in : DisableOverride, 
-        
-    out : DisableOverride] real64 arrayReal64[], [in : DisableOverride, 
-        
-    out : DisableOverride] string arrayString[], [in : DisableOverride, 
-        
-    out : DisableOverride] datetime arrayDateTime[], [in : DisableOverride, 
-        
-    out : DisableOverride] uint32 returnValue);
-    uint32 FullParamTest([in : DisableOverride] boolean inScalBool, 
-        [in : DisableOverride] uint8 inScalUint8, [in : DisableOverride] 
-        sint8 inScalSint8, [in : DisableOverride] uint16 inScalUint16, 
-        [in : DisableOverride] sint16 inScalSint16, [in : DisableOverride] 
-        uint32 inScalUint32, [in : DisableOverride] sint32 inScalSint32, 
-        [in : DisableOverride] uint64 inScalUint64, [in : DisableOverride] 
-        real32 inScalReal32, [in : DisableOverride] real64 inScalReal64, 
-        [in : DisableOverride] string inScalString, [in : DisableOverride] 
-        datetime inScalDateTime, [out : DisableOverride] boolean outScalBool, 
-        [out : DisableOverride] uint8 outScalUint8, [out : DisableOverride] 
-        sint8 outScalSint8, [out : DisableOverride] uint16 outScalUint16, 
-        [out : DisableOverride] sint16 outScalSint16, [out : DisableOverride] 
-        uint32 outScalUint32, [out : DisableOverride] sint32 outScalSint32, 
-        [out : DisableOverride] uint64 outScalUint64, [out : DisableOverride] 
-        real32 outScalReal32, [out : DisableOverride] real64 outScalReal64, 
-        [out : DisableOverride] string outScalString, [out : DisableOverride] 
-        datetime outScalDateTime);
+            "to return all parameters input." )]
+    uint32 InOutParamTest([in, 
+    out] boolean scalBool, [in, 
+    out] uint8 scalUint8, [in, 
+    out] sint8 scalSint8, [in, 
+    out] uint16 scalUint16, [in, 
+    out] sint16 scalSint16, [in, 
+    out] uint32 scalUint32, [in, 
+    out] sint32 scalSint32, [in, 
+    out] uint64 scalUint64, [in, 
+    out] real32 scalReal32, [in, 
+    out] real64 scalReal64, [in, 
+    out] string scalString, [in, 
+    out] datetime scalDateTime, [in, 
+    out] boolean arrayBool[], [in, 
+    out] uint8 arrayUint8[], [in, 
+    out] sint8 arraySint8[], [in, 
+    out] uint16 arrayUint16[], [in, 
+    out] sint16 arraySint16[], [in, 
+    out] uint32 arrayUint32[], [in, 
+    out] sint32 arraySint32[], [in, 
+    out] uint64 arrayUint64[], [in, 
+    out] real32 arrayReal32[], [in, 
+    out] real64 arrayReal64[], [in, 
+    out] string arrayString[], [in, 
+    out] datetime arrayDateTime[], [in, 
+    out] uint32 returnValue);
+    uint32 FullParamTest([in] boolean inScalBool, [in] uint8 inScalUint8, 
+        [in] sint8 inScalSint8, [in] uint16 inScalUint16, [in] sint16 
+        inScalSint16, [in] uint32 inScalUint32, [in] sint32 inScalSint32, 
+        [in] uint64 inScalUint64, [in] real32 inScalReal32, [in] real64 
+        inScalReal64, [in] string inScalString, [in] datetime inScalDateTime, 
+        [out] boolean outScalBool, [out] uint8 outScalUint8, [out] 
+        sint8 outScalSint8, [out] uint16 outScalUint16, [out] sint16 
+        outScalSint16, [out] uint32 outScalUint32, [out] sint32 outScalSint32, 
+        [out] uint64 outScalUint64, [out] real32 outScalReal32, [out] 
+        real64 outScalReal64, [out] string outScalString, [out] datetime 
+        outScalDateTime);
     
-        [Description ("Method to set parameters to modify provider behavior") 
-            : Translatable, 
-        static : DisableOverride]
-    uint32 setProviderParameters([in : DisableOverride, 
-    out : DisableOverride] string substituteHostName);
+        [Description ( "Method to set parameters to modify provider "
+            "behavior" ), 
+        static]
+    uint32 setProviderParameters([in, 
+    out] string substituteHostName);
     
-        [Description ("Method to reset all parameters that control provider "
-            "behavior ") : Translatable, 
-        static : DisableOverride]
+        [Description ( "Method to reset all parameters that control "
+            "provider behavior " ), 
+        static]
     uint32 resetProviderParameters();
     
-        [Description ("Method to reset provider to initial state. Resets "
+        [Description ( "Method to reset provider to initial state. Resets "
             "parameters same as resetProviderParameters and also restores "
-            "internal instance cache to initial state. ") : Translatable, 
-            
-        static : DisableOverride]
+            "internal instance cache to initial state. " ), 
+        static]
     uint32 reset();
     
-        [Description ("Method to set or reset debug mode for the provider. "
+        [Description ( "Method to set or reset debug mode for the provider. "
             "In debug mode, the provider displays information when called. "
             "Parameter is new state. Returns 0 if state changed. Rtn "
-            "1 if same state.  Else return 2, as error ") : Translatable, 
-            
-        static : DisableOverride]
+            "1 if same state.  Else return 2, as error " ), 
+        static]
     uint32 debugMode(boolean newState);
 };
 
-//    Class Test_CLITestProviderLinkClass
+// ===================================================
+// Test_CLITestProviderLinkClass
+// ===================================================
 
-
-    [ASSOCIATION : DisableOverride, 
-    Version ("1.0.0") : Restricted, Translatable, 
-    Description ("Defines the relationship between parents and children. "
+    [Association, 
+    Version ( "1.0.0" ), 
+    Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
-        "of instances in cimli") : Translatable]
+        "of instances in cimli" )]
 class Test_CLITestProviderLinkClass
 {
     
-        [key : DisableOverride]
-    reference parent;
+        [key]
+    Test_CLITestProviderClass REF parent;
     
-        [key : DisableOverride]
-    reference child;
+        [key]
+    Test_CLITestProviderClass REF child;
     
-        [Description ("This property returns a String defining the input "
-            "parameters the provider saw on any operation involving "
-            "this class.") : Translatable]
+        [Description ( "This property returns a String defining the "
+            "input parameters the provider saw on any operation involving "
+            "this class." )]
     string requestInputParameters;
 };
 
-//    Class Test_CLITestProviderLinkClass
+// ===================================================
+// Test_CLITestProviderLinkClass
+// ===================================================
 
 class Test_CLITestProviderLinkClass
 {
-    reference parent;
-    reference child;
+    Test_CLITestProviderClass REF parent;
+    Test_CLITestProviderClass REF child;
     string requestInputParameters;
 };
 <CLASS NAME="Test_CLITestProviderLinkClass">
-    <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+    <QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
         <VALUE>
             TRUE
         </VALUE>
@@ -231,7 +202,7 @@ class Test_CLITestProviderLinkClass
     </PROPERTY>
 </CLASS>
 <CLASS NAME="Test_CLITestProviderLinkClass">
-    <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+    <QUALIFIER NAME="Association" TYPE="boolean" OVERRIDABLE="false">
         <VALUE>
             TRUE
         </VALUE>
@@ -270,69 +241,74 @@ class Test_CLITestProviderLinkClass
 </CLASS>
 8. +++++ Test QualifierDecl Operations
 
-Qualifier ASSOCIATION : boolean = FALSE, Scope(class association), 
-    Flavor(DisableOverride);
+Qualifier Association : boolean = FALSE, Scope(class association), 
+    Flavor(DisableOverride, ToSubclass);
 
 Qualifier Abstract : boolean = FALSE, Scope(class association indication), 
     Flavor(DisableOverride, Restricted);
 
-Qualifier Aggregate : boolean = FALSE, Scope(reference), Flavor(DisableOverride);
+Qualifier Aggregate : boolean = FALSE, Scope(reference), Flavor(DisableOverride, 
+    ToSubclass);
 
-Qualifier Aggregation : boolean = FALSE, Scope(association), Flavor(DisableOverride);
+Qualifier Aggregation : boolean = FALSE, Scope(association), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Alias : string = null, Scope(property reference method), 
-    Flavor(Translatable);
+    Flavor(EnableOverride, ToSubclass, Translatable);
 
 Qualifier ArrayType : string = "Bag", Scope(property parameter);
 
-Qualifier ASSOCIATION : boolean = FALSE, Scope(class association), 
-    Flavor(DisableOverride);
+Qualifier Association : boolean = FALSE, Scope(class association), 
+    Flavor(DisableOverride, ToSubclass);
 
-Qualifier BitMap : string[] = null, Scope(property method parameter);
+Qualifier BitMap : string[], Scope(property method parameter);
 
-Qualifier BitValues : string[] = null, Scope(property method parameter), 
-    Flavor(Translatable);
-
-Qualifier CLASS : string = null, Scope(property method), Flavor(DisableOverride, 
-    Translatable);
+Qualifier BitValues : string[], Scope(property method parameter), Flavor(EnableOverride, 
+    ToSubclass, Translatable);
 
 Qualifier Counter : boolean = FALSE, Scope(property method parameter);
 
 Qualifier Delete : boolean = FALSE, Scope(association reference);
 
-Qualifier Deprecated : string[] = null, Scope(class association property 
-    method);
+Qualifier Deprecated : string[], Scope(class association property method);
 
-Qualifier Description : string = null, Scope(any), Flavor(Translatable);
+Qualifier Description : string = null, Scope(any), Flavor(EnableOverride, 
+    ToSubclass, Translatable);
 
-Qualifier DisplayName : string = null, Scope(any), Flavor(Translatable);
+Qualifier DisplayName : string = null, Scope(any), Flavor(EnableOverride, 
+    ToSubclass, Translatable);
 
-Qualifier DN : boolean = FALSE, Scope(property parameter), Flavor(DisableOverride);
+Qualifier DN : boolean = FALSE, Scope(property parameter), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier EmbeddedObject : boolean = FALSE, Scope(property);
 
 Qualifier Expensive : boolean = FALSE, Scope(class association property 
     reference method);
 
-Qualifier Experimental : boolean = FALSE, Scope(any), Flavor(DisableOverride);
+Qualifier Experimental : boolean = FALSE, Scope(any), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Gauge : boolean = FALSE, Scope(property method parameter);
 
 Qualifier Ifdeleted : boolean = FALSE, Scope(association reference);
 
-Qualifier In : boolean = TRUE, Scope(parameter), Flavor(DisableOverride);
+Qualifier In : boolean = TRUE, Scope(parameter), Flavor(DisableOverride, 
+    ToSubclass);
 
-Qualifier INDICATION : boolean = FALSE, Scope(class indication), Flavor(DisableOverride);
+Qualifier Indication : boolean = FALSE, Scope(class indication), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Invisible : boolean = FALSE, Scope(class association property 
     reference method);
 
-Qualifier Key : boolean = FALSE, Scope(property reference), Flavor(DisableOverride);
+Qualifier Key : boolean = FALSE, Scope(property reference), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Large : boolean = FALSE, Scope(class property);
 
-Qualifier MappingStrings : string[] = null, Scope(class association 
-    indication property reference);
+Qualifier MappingStrings : string[], Scope(class association indication 
+    property reference);
 
 Qualifier Max : uint32 = null, Scope(reference);
 
@@ -344,22 +320,25 @@ Qualifier Min : uint32 = 0, Scope(reference);
 
 Qualifier MinValue : sint64 = null, Scope(property method parameter);
 
-Qualifier ModelCorrespondence : string[] = null, Scope(property);
+Qualifier ModelCorrespondence : string[], Scope(property);
 
 Qualifier Nonlocal : string = null, Scope(reference);
 
 Qualifier NonlocalType : string = null, Scope(reference);
 
-Qualifier NullValue : string = null, Scope(property), Flavor(DisableOverride);
+Qualifier NullValue : string = null, Scope(property), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Octetstring : boolean = FALSE, Scope(property parameter);
 
-Qualifier Out : boolean = FALSE, Scope(parameter), Flavor(DisableOverride);
+Qualifier Out : boolean = FALSE, Scope(parameter), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Override : string = null, Scope(property reference method), 
-    Flavor(DisableOverride);
+    Flavor(DisableOverride, ToSubclass);
 
-Qualifier Propagated : string = null, Scope(property), Flavor(DisableOverride);
+Qualifier Propagated : string = null, Scope(property), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier PropertyUsage : string = "CurrentContext", Scope(property);
 
@@ -370,14 +349,18 @@ Qualifier Read : boolean = TRUE, Scope(property);
 Qualifier Required : boolean = FALSE, Scope(property);
 
 Qualifier Revision : string = ".5", Scope(class association indication), 
-    Flavor(Translatable);
+    Flavor(EnableOverride, ToSubclass, Translatable);
+
+Qualifier Schema : string = null, Scope(property method), Flavor(DisableOverride, 
+    ToSubclass, Translatable);
 
 Qualifier Source : string = null, Scope(class association indication);
 
 Qualifier SourceType : string = null, Scope(class association indication 
     reference);
 
-Qualifier Static : boolean = FALSE, Scope(property method), Flavor(DisableOverride);
+Qualifier Static : boolean = FALSE, Scope(property method), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Syntax : string = null, Scope(property reference method parameter);
 
@@ -390,21 +373,24 @@ Qualifier TriggerType : string = null, Scope(class association indication
     property reference method);
 
 Qualifier Units : string = null, Scope(property method parameter), 
-    Flavor(Translatable);
+    Flavor(EnableOverride, ToSubclass, Translatable);
 
-Qualifier UnknownValues : string[] = null, Scope(property), Flavor(DisableOverride);
+Qualifier UnknownValues : string[], Scope(property), Flavor(DisableOverride, 
+    ToSubclass);
 
-Qualifier UnsupportedValues : string[] = null, Scope(property), Flavor(DisableOverride);
+Qualifier UnsupportedValues : string[], Scope(property), Flavor(DisableOverride, 
+    ToSubclass);
 
-Qualifier ValueMap : string[] = null, Scope(property method parameter);
+Qualifier ValueMap : string[], Scope(property method parameter);
 
-Qualifier Values : string[] = null, Scope(property method parameter), 
-    Flavor(Translatable);
+Qualifier Values : string[], Scope(property method parameter), Flavor(EnableOverride, 
+    ToSubclass, Translatable);
 
 Qualifier Version : string = "V2.5", Scope(class association indication), 
-    Flavor(Translatable);
+    Flavor(EnableOverride, ToSubclass, Translatable);
 
-Qualifier Weak : boolean = FALSE, Scope(reference), Flavor(DisableOverride);
+Qualifier Weak : boolean = FALSE, Scope(reference), Flavor(DisableOverride, 
+    ToSubclass);
 
 Qualifier Write : boolean = FALSE, Scope(property);
 <QUALIFIER.DECLARATION NAME="Abstract" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -426,7 +412,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PROPERTY="true" PARAMETER="true"/><VALUE>Bag</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" ASSOCIATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -435,9 +421,6 @@ Qualifier Write : boolean = FALSE, Scope(property);
 
 <QUALIFIER.DECLARATION NAME="BitValues" TYPE="string" ISARRAY="true" TRANSLATABLE="true">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/></QUALIFIER.DECLARATION>
-
-<QUALIFIER.DECLARATION NAME="CLASS" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
-<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Counter" TYPE="boolean">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/><VALUE>FALSE</VALUE>
@@ -484,7 +467,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PARAMETER="true"/><VALUE>TRUE</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="INDICATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Indication" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" INDICATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -563,6 +546,9 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <QUALIFIER.DECLARATION NAME="Revision" TYPE="string" TRANSLATABLE="true">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/><VALUE>.5</VALUE>
 </QUALIFIER.DECLARATION>
+
+<QUALIFIER.DECLARATION NAME="Schema" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
+<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Source" TYPE="string">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/></QUALIFIER.DECLARATION>
@@ -633,7 +619,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PROPERTY="true" PARAMETER="true"/><VALUE>Bag</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Association" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" ASSOCIATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -642,9 +628,6 @@ Qualifier Write : boolean = FALSE, Scope(property);
 
 <QUALIFIER.DECLARATION NAME="BitValues" TYPE="string" ISARRAY="true" TRANSLATABLE="true">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/></QUALIFIER.DECLARATION>
-
-<QUALIFIER.DECLARATION NAME="CLASS" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
-<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Counter" TYPE="boolean">
 <SCOPE PROPERTY="true" METHOD="true" PARAMETER="true"/><VALUE>FALSE</VALUE>
@@ -691,7 +674,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <SCOPE PARAMETER="true"/><VALUE>TRUE</VALUE>
 </QUALIFIER.DECLARATION>
 
-<QUALIFIER.DECLARATION NAME="INDICATION" TYPE="boolean" OVERRIDABLE="false">
+<QUALIFIER.DECLARATION NAME="Indication" TYPE="boolean" OVERRIDABLE="false">
 <SCOPE CLASS="true" INDICATION="true"/><VALUE>FALSE</VALUE>
 </QUALIFIER.DECLARATION>
 
@@ -770,6 +753,9 @@ Qualifier Write : boolean = FALSE, Scope(property);
 <QUALIFIER.DECLARATION NAME="Revision" TYPE="string" TRANSLATABLE="true">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/><VALUE>.5</VALUE>
 </QUALIFIER.DECLARATION>
+
+<QUALIFIER.DECLARATION NAME="Schema" TYPE="string" OVERRIDABLE="false" TRANSLATABLE="true">
+<SCOPE PROPERTY="true" METHOD="true"/></QUALIFIER.DECLARATION>
 
 <QUALIFIER.DECLARATION NAME="Source" TYPE="string">
 <SCOPE CLASS="true" ASSOCIATION="true" INDICATION="true"/></QUALIFIER.DECLARATION>
@@ -891,21 +877,22 @@ WET_SettingContext
 WET_Statistics
 WET_Synchronized
 
-//    Class CIM_ManagedElement
+// ===================================================
+// CIM_ManagedElement
+// ===================================================
 
-
-    [Abstract : Restricted, 
-    Version ("2.19.0") : Restricted, Translatable, 
-    UMLPackagePath ("CIM::Core::CoreElements"), 
-    Description ("ManagedElement is an abstract class that provides "
+    [Abstract, 
+    Version ( "2.19.0" ), 
+    UMLPackagePath ( "CIM::Core::CoreElements" ), 
+    Description ( "ManagedElement is an abstract class that provides "
         "a common superclass (or top of the inheritance tree) for the "
-        "non-association classes in the CIM Schema.") : Translatable]
+        "non-association classes in the CIM Schema." )]
 class CIM_ManagedElement
 {
     
-        [Description ("InstanceID is an optional property that may be "
-            "used to opaquely and uniquely identify an instance of this "
-            "class within the scope of the instantiating Namespace. "
+        [Description ( "InstanceID is an optional property that may "
+            "be used to opaquely and uniquely identify an instance of "
+            "this class within the scope of the instantiating Namespace. "
             "Various subclasses of this class may override this property "
             "to make it required, or a key. Such subclasses may also "
             "modify the preferred algorithms for ensuring uniqueness "
@@ -930,19 +917,19 @@ class CIM_ManagedElement
             "InstanceIDs produced by this or other providers for the "
             "NameSpace of this instance. \nIf not set to null for DMTF-defined "
             "instances, the \"preferred\" algorithm must be used with "
-            "the <OrgID> set to CIM.") : Translatable]
+            "the <OrgID> set to CIM." )]
     string InstanceID;
     
-        [Description ("The Caption property is a short textual description "
-            "(one- line string) of the object.") : Translatable, 
-        MaxLen (64)]
+        [Description ( "The Caption property is a short textual description "
+            "(one- line string) of the object." ), 
+        MaxLen ( 64 )]
     string Caption;
     
-        [Description ("The Description property provides a textual description "
-            "of the object.") : Translatable]
+        [Description ( "The Description property provides a textual "
+            "description of the object." )]
     string Description;
     
-        [Description ("A user-friendly name for the object. This property "
+        [Description ( "A user-friendly name for the object. This property "
             "allows each instance to define a user-friendly name in "
             "addition to its key properties, identity data, and description "
             "information. \nNote that the Name property of ManagedSystemElement "
@@ -955,8 +942,8 @@ class CIM_ManagedElement
             "properties. Note that if there is an associated instance "
             "of CIM_EnabledLogicalElementCapabilities, restrictions "
             "on this properties may exist as defined in ElementNameMask "
-            "and MaxElementNameLen properties defined in that class.") 
-            : Translatable]
+            "and MaxElementNameLen properties defined in that class." 
+            )]
     string ElementName;
 };
 <CLASS NAME="CIM_ManagedElement">
@@ -1194,6 +1181,16 @@ instance of Test_CLITestProviderClass
 instance of Test_CLITestProviderClass
 {
     Id = "ScalarTest";
+    requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
+        "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
+        "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, "
+        "scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, "
+        "defaultUint16, defaultSint16, defaultUint32, defaultSint32, "
+        "defaultUint64, defaultSint64, defaultReal32, defaultReal64, "
+        "defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, "
+        "arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, "
+        "arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; "
+        "includeQualifiers=false; includeClassOrigin=false";
     scalBool = TRUE;
     scalUint8 = 12;
     scalSint8 = 12;
@@ -1204,6 +1201,13 @@ instance of Test_CLITestProviderClass
     scalUint64 = 99999;
     scalSint64 = 99999;
     scalString = "testString";
+};
+
+// path= Test_CLITestProviderClass.Id="arrayTest"
+
+instance of Test_CLITestProviderClass
+{
+    Id = "arrayTest";
     requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
         "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
         "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, "
@@ -1214,13 +1218,6 @@ instance of Test_CLITestProviderClass
         "arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, "
         "arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; "
         "includeQualifiers=false; includeClassOrigin=false";
-};
-
-// path= Test_CLITestProviderClass.Id="arrayTest"
-
-instance of Test_CLITestProviderClass
-{
-    Id = "arrayTest";
     scalString = "testString";
     scalDateTime = "19991224120000.000000+360";
     arrayBool = {TRUE, TRUE, TRUE, FALSE, TRUE};
@@ -1230,16 +1227,6 @@ instance of Test_CLITestProviderClass
     arraySint32 = {-32000, 0, 32000, -2147483648, 2147483647};
     arrayUint64 = {99, 0, 31000, 63000, 18446744073709551615};
     arraySint64 = {-32000, 0, 32000, -9223372036854775808};
-    requestInputParameters = "propertyList=Id, Name, requestInputParameters, "
-        "scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, "
-        "scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, "
-        "scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, "
-        "defaultUint16, defaultSint16, defaultUint32, defaultSint32, "
-        "defaultUint64, defaultSint64, defaultReal32, defaultReal64, "
-        "defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, "
-        "arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, "
-        "arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; "
-        "includeQualifiers=false; includeClassOrigin=false";
 };
 Test_CLITestProviderClass.Id="Mike"
 Test_CLITestProviderClass.Id="ScalarTest"
@@ -1424,6 +1411,9 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>ScalarTest</VALUE>
 </PROPERTY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
+</PROPERTY>
 <PROPERTY NAME="scalBool"  TYPE="boolean">
 <VALUE>TRUE</VALUE>
 </PROPERTY>
@@ -1454,9 +1444,6 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
 </PROPERTY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
-</PROPERTY>
 </INSTANCE>
 
 
@@ -1464,6 +1451,9 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <INSTANCE CLASSNAME="Test_CLITestProviderClass" >
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>arrayTest</VALUE>
+</PROPERTY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
 </PROPERTY>
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
@@ -1528,9 +1518,6 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <VALUE>-9223372036854775808</VALUE>
 </VALUE.ARRAY>
 </PROPERTY.ARRAY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
-</PROPERTY>
 </INSTANCE>
 
 Test_CLITestProviderClass.Id="Mike"
@@ -1716,6 +1703,9 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>ScalarTest</VALUE>
 </PROPERTY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
+</PROPERTY>
 <PROPERTY NAME="scalBool"  TYPE="boolean">
 <VALUE>TRUE</VALUE>
 </PROPERTY>
@@ -1746,9 +1736,6 @@ path= Test_CLITestProviderClass.Id="ScalarTest"
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
 </PROPERTY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
-</PROPERTY>
 </INSTANCE>
 
 
@@ -1756,6 +1743,9 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <INSTANCE CLASSNAME="Test_CLITestProviderClass" >
 <PROPERTY NAME="Id"  TYPE="string">
 <VALUE>arrayTest</VALUE>
+</PROPERTY>
+<PROPERTY NAME="requestInputParameters"  TYPE="string">
+<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
 </PROPERTY>
 <PROPERTY NAME="scalString"  TYPE="string">
 <VALUE>testString</VALUE>
@@ -1820,9 +1810,6 @@ path= Test_CLITestProviderClass.Id="arrayTest"
 <VALUE>-9223372036854775808</VALUE>
 </VALUE.ARRAY>
 </PROPERTY.ARRAY>
-<PROPERTY NAME="requestInputParameters"  TYPE="string">
-<VALUE>propertyList=Id, Name, requestInputParameters, scalBool, scalUint8, scalSint8, scalUint16, scalSint16, scalUint32, scalSint32, scalUint64, scalSint64, scalReal32, scalReal64, scalString, scalDateTime, defaultBool, defaultUint8, defaultSint8, defaultUint16, defaultSint16, defaultUint32, defaultSint32, defaultUint64, defaultSint64, defaultReal32, defaultReal64, defaultString, defaultDateTime, arrayBool, arrayUint8, arraySint8, arrayUint16, arraySint16, arrayUint32, arraySint32, arrayUint64, arraySint64, arrayReal32, arrayReal64, arrayString, arrayDateTime; includeQualifiers=false; includeClassOrigin=false</VALUE>
-</PROPERTY>
 </INSTANCE>
 
 4. +++++ Test Instances modify Instance
@@ -1968,68 +1955,71 @@ Return Value= <VALUE>0</VALUE>
 
 10. +++++ testPropertyListOptions
 
-//    Class CIM_ManagedElement
+// ===================================================
+// CIM_ManagedElement
+// ===================================================
 
-
-    [Abstract : Restricted, 
-    Version ("2.19.0") : Restricted, Translatable, 
-    UMLPackagePath ("CIM::Core::CoreElements"), 
-    Description ("ManagedElement is an abstract class that provides "
+    [Abstract, 
+    Version ( "2.19.0" ), 
+    UMLPackagePath ( "CIM::Core::CoreElements" ), 
+    Description ( "ManagedElement is an abstract class that provides "
         "a common superclass (or top of the inheritance tree) for the "
-        "non-association classes in the CIM Schema.") : Translatable]
+        "non-association classes in the CIM Schema." )]
 class CIM_ManagedElement
 {
     
-        [Description ("The Caption property is a short textual description "
-            "(one- line string) of the object.") : Translatable, 
-        MaxLen (64)]
+        [Description ( "The Caption property is a short textual description "
+            "(one- line string) of the object." ), 
+        MaxLen ( 64 )]
     string Caption;
 };
 
-//    Class CIM_ManagedElement
+// ===================================================
+// CIM_ManagedElement
+// ===================================================
 
-
-    [Abstract : Restricted, 
-    Version ("2.19.0") : Restricted, Translatable, 
-    UMLPackagePath ("CIM::Core::CoreElements"), 
-    Description ("ManagedElement is an abstract class that provides "
+    [Abstract, 
+    Version ( "2.19.0" ), 
+    UMLPackagePath ( "CIM::Core::CoreElements" ), 
+    Description ( "ManagedElement is an abstract class that provides "
         "a common superclass (or top of the inheritance tree) for the "
-        "non-association classes in the CIM Schema.") : Translatable]
+        "non-association classes in the CIM Schema." )]
 class CIM_ManagedElement
 {
     
-        [Description ("The Caption property is a short textual description "
-            "(one- line string) of the object.") : Translatable, 
-        MaxLen (64)]
+        [Description ( "The Caption property is a short textual description "
+            "(one- line string) of the object." ), 
+        MaxLen ( 64 )]
     string Caption;
     
-        [Description ("The Description property provides a textual description "
-            "of the object.") : Translatable]
+        [Description ( "The Description property provides a textual "
+            "description of the object." )]
     string Description;
 };
 
-//    Class CIM_ManagedElement
+// ===================================================
+// CIM_ManagedElement
+// ===================================================
 
-
-    [Abstract : Restricted, 
-    Version ("2.19.0") : Restricted, Translatable, 
-    UMLPackagePath ("CIM::Core::CoreElements"), 
-    Description ("ManagedElement is an abstract class that provides "
+    [Abstract, 
+    Version ( "2.19.0" ), 
+    UMLPackagePath ( "CIM::Core::CoreElements" ), 
+    Description ( "ManagedElement is an abstract class that provides "
         "a common superclass (or top of the inheritance tree) for the "
-        "non-association classes in the CIM Schema.") : Translatable]
+        "non-association classes in the CIM Schema." )]
 class CIM_ManagedElement
 {
     
-        [Description ("The Caption property is a short textual description "
-            "(one- line string) of the object.") : Translatable, 
-        MaxLen (64)]
+        [Description ( "The Caption property is a short textual description "
+            "(one- line string) of the object." ), 
+        MaxLen ( 64 )]
     string Caption;
     
-        [Description ("The Description property provides a textual description "
-            "of the object.") : Translatable]
+        [Description ( "The Description property provides a textual "
+            "description of the object." )]
     string Description;
     
-        [Description ("A user-friendly name for the object. This property "
+        [Description ( "A user-friendly name for the object. This property "
             "allows each instance to define a user-friendly name in "
             "addition to its key properties, identity data, and description "
             "information. \nNote that the Name property of ManagedSystemElement "
@@ -2042,20 +2032,21 @@ class CIM_ManagedElement
             "properties. Note that if there is an associated instance "
             "of CIM_EnabledLogicalElementCapabilities, restrictions "
             "on this properties may exist as defined in ElementNameMask "
-            "and MaxElementNameLen properties defined in that class.") 
-            : Translatable]
+            "and MaxElementNameLen properties defined in that class." 
+            )]
     string ElementName;
 };
 
-//    Class CIM_ManagedElement
+// ===================================================
+// CIM_ManagedElement
+// ===================================================
 
-
-    [Abstract : Restricted, 
-    Version ("2.19.0") : Restricted, Translatable, 
-    UMLPackagePath ("CIM::Core::CoreElements"), 
-    Description ("ManagedElement is an abstract class that provides "
+    [Abstract, 
+    Version ( "2.19.0" ), 
+    UMLPackagePath ( "CIM::Core::CoreElements" ), 
+    Description ( "ManagedElement is an abstract class that provides "
         "a common superclass (or top of the inheritance tree) for the "
-        "non-association classes in the CIM Schema.") : Translatable]
+        "non-association classes in the CIM Schema." )]
 class CIM_ManagedElement
 {
 };
@@ -2079,8 +2070,8 @@ instance of Test_CLITestProviderClass
 instance of Test_CLITestProviderClass
 {
     scalBool = TRUE;
-    scalString = "teststring";
     arrayUint64 = {4, 128, 240};
+    scalString = "teststring";
 };
 12. +++++ test getInstance Operation
 
@@ -2204,12 +2195,14 @@ Test instance Test_CLITestProviderClass.Id="integerVariationTest" OK
 Test instance Test_CLITestProviderClass.Id="integerVariationTest" OK
 15. +++++ referencetests
 
-//    Class Test_CLITestProviderLinkClass
+// ===================================================
+// Test_CLITestProviderLinkClass
+// ===================================================
 
 class Test_CLITestProviderLinkClass
 {
-    reference parent;
-    reference child;
+    Test_CLITestProviderClass REF parent;
+    Test_CLITestProviderClass REF child;
     string requestInputParameters;
 };
 1 referenceNames
@@ -2220,23 +2213,23 @@ substituteHostName=
 // path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 
-    [ASSOCIATION : DisableOverride, 
-    Version ("1.0.0") : Restricted, Translatable, 
-    Description ("Defines the relationship between parents and children. "
+    [Association, 
+    Version ( "1.0.0" ), 
+    Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
-        "of instances in cimli") : Translatable]
+        "of instances in cimli" )]
 instance of Test_CLITestProviderLinkClass
 {
     
-        [key : DisableOverride]
+        [key]
     parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     
-        [key : DisableOverride]
+        [key]
     child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     
-        [Description ("This property returns a String defining the input "
-            "parameters the provider saw on any operation involving "
-            "this class.") : Translatable]
+        [Description ( "This property returns a String defining the "
+            "input parameters the provider saw on any operation involving "
+            "this class." )]
     requestInputParameters = "role=; resultClass=Test_CLITestProviderLinkClass; "
         "includeQualifiers=true; includeClassOrigin=false; propertyList=NULL";
 };
@@ -2244,23 +2237,23 @@ instance of Test_CLITestProviderLinkClass
 // path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 
-    [ASSOCIATION : DisableOverride, 
-    Version ("1.0.0") : Restricted, Translatable, 
-    Description ("Defines the relationship between parents and children. "
+    [Association, 
+    Version ( "1.0.0" ), 
+    Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
-        "of instances in cimli") : Translatable]
+        "of instances in cimli" )]
 instance of Test_CLITestProviderLinkClass
 {
     
-        [key : DisableOverride]
+        [key]
     parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     
-        [key : DisableOverride]
+        [key]
     child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     
-        [Description ("This property returns a String defining the input "
-            "parameters the provider saw on any operation involving "
-            "this class.") : Translatable]
+        [Description ( "This property returns a String defining the "
+            "input parameters the provider saw on any operation involving "
+            "this class." )]
     requestInputParameters = "role=parent; resultClass=Test_CLITestProviderLinkClass; "
         "includeQualifiers=true; includeClassOrigin=false; propertyList=NULL";
 };
@@ -2270,23 +2263,23 @@ instance of Test_CLITestProviderLinkClass
 // path= //localhost/test/TestProvider:Test_CLITestProviderLinkClass.child="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"",parent="//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\""
 
 
-    [ASSOCIATION : DisableOverride, 
-    Version ("1.0.0") : Restricted, Translatable, 
-    Description ("Defines the relationship between parents and children. "
+    [Association, 
+    Version ( "1.0.0" ), 
+    Description ( "Defines the relationship between parents and children. "
         "Used to test Ref/Assoc functions and creation/modification "
-        "of instances in cimli") : Translatable]
+        "of instances in cimli" )]
 instance of Test_CLITestProviderLinkClass
 {
     
-        [key : DisableOverride]
+        [key]
     parent = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     
-        [key : DisableOverride]
+        [key]
     child = "//localhost/test/TestProvider:Test_CLITestProviderClass.Id=\"Mike\"";
     
-        [Description ("This property returns a String defining the input "
-            "parameters the provider saw on any operation involving "
-            "this class.") : Translatable]
+        [Description ( "This property returns a String defining the "
+            "input parameters the provider saw on any operation involving "
+            "this class." )]
     requestInputParameters = "role=child; resultClass=Test_CLITestProviderLinkClass; "
         "includeQualifiers=true; includeClassOrigin=false; propertyList=parent, "
         "child, requestInputParameters";
@@ -2294,7 +2287,9 @@ instance of Test_CLITestProviderLinkClass
 Return Value= 0
 16. +++++ associationtests
 
-//    Class Test_CLITestProviderClass
+// ===================================================
+// Test_CLITestProviderClass
+// ===================================================
 
 class Test_CLITestProviderClass
 {
@@ -2542,22 +2537,16 @@ instance of Test_CLITestProviderClass
 Test_CLITestProviderClass.Id="Mike"
 1 instances of class Test_CLITestProviderClass returned.
 Failed instances of class count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1  Test_CLITestProviderClass returned.
 Failed  count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 associators  returned.
 Failed associators count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 references  returned.
 Failed references count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 associator names Test_CLITestProviderClass returned.
 Failed associator names count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 1 referenceNames Test_CLITestProviderClass returned.
 Failed referenceNames count test. Expected= 10 Received= 1
-WARNING: Expected exit code 0. Program delivered exit code (61) Count test (--count) failed
 Return Value= 0
 21. +++++ SortInstancesTest
 Test_CLITestProviderClass.Id="Andy"

@@ -50,8 +50,12 @@
 # include <Pegasus/Common/Platform_AIX_RS_IBMCXX.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include <Pegasus/Common/Platform_HPUX_PARISC_ACC.h>
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
+# include <Pegasus/Common/Platform_HPUX_PARISC_GNU.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_IA64_ACC)
 # include <Pegasus/Common/Platform_HPUX_IA64_ACC.h>
+#elif defined (PEGASUS_PLATFORM_HPUX_IA64_GNU)
+# include <Pegasus/Common/Platform_HPUX_IA64_GNU.h>
 #elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 # include <Pegasus/Common/Platform_TRU64_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
@@ -76,6 +80,8 @@
 # include <Pegasus/Common/Platform_LINUX_PPC_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_PPC64_GNU)
 # include <Pegasus/Common/Platform_LINUX_PPC64_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_PPC_E500_GNU)
+# include <Pegasus/Common/Platform_LINUX_PPC_E500_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_ZSERIES_GNU)
 # include <Pegasus/Common/Platform_LINUX_ZSERIES_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_ZSERIES64_GNU)
@@ -90,6 +96,10 @@
 # include <Pegasus/Common/Platform_VMS_IA64_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
 # include <Pegasus/Common/Platform_LINUX_XSCALE_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_X86_64_CLANG)
+# include <Pegasus/Common/Platform_LINUX_X86_64_CLANG.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_CLANG)
+# include <Pegasus/Common/Platform_LINUX_IX86_CLANG.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
@@ -268,10 +278,35 @@ typedef PEGASUS_SINT64 Sint64;
 PEGASUS_NAMESPACE_END
 #endif
 
+
+/*
+ *PEGASUS_UNREACHABLE implies unreachable code in pegasus.
+ *Should be used in places where the control should not reached.
+ *Please use in this way
+ * PEGASUS_UNREACHABLE( expression;)
+ *not in this way
+ * PEGASUS_UNREACHABLE(expression);
+ *
+ *Though both are same, Former will prevent ;;(double semicolon)
+ *
+ */
+
 #ifdef PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
 # define PEGASUS_UNREACHABLE(CODE)
 #else
-# define PEGASUS_UNREACHABLE(CODE) CODE
+# if defined(__clang__ )
+#  define PEGASUS_UNREACHABLE(CODE) __builtin_unreachable();
+# elif defined(GCC_VERSION)
+#  if GCC_VERSION >= 40500 //Unreachable supported only for gcc 4.5 and above
+#   define PEGASUS_UNREACHABLE(CODE) __builtin_unreachable();
+#  else
+#   define PEGASUS_UNREACHABLE(CODE) CODE
+#  endif
+# elif defined(_MSC_VER) //PEGASUS_OS_TYPE_WINDOWS
+#  define PEGASUS_UNREACHABLE(CODE) __assume(0);
+# else
+#  define PEGASUS_UNREACHABLE(CODE) CODE
+# endif
 #endif
 
 /*
@@ -322,8 +357,6 @@ PEGASUS_NAMESPACE_END
 ** This value can be overridden platform specific by defining the macro in
 ** the corresponding PEGASUS_PLATFORM_*.h file.
 */
-
-
 #ifndef PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME
 # ifdef PEGASUS_FLAVOR
 #  define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME PEGASUS_FLAVOR"-pegasus"
@@ -332,5 +365,20 @@ PEGASUS_NAMESPACE_END
 # endif 
 #endif
 
+/*
+** PEGASUS_INSTANCEID_GLOBAL_PREFIX
+** This macro is used to create the Name property on the PG_ObjectManager
+** instance. This value is also used in SLP announcement for service-id.
+**
+** This value can be overridden platform specific by defining the macro in
+** the corresponding PEGASUS_PLATFORM_*.h file.
+*/
+#ifndef PEGASUS_INSTANCEID_GLOBAL_PREFIX
+# ifdef PEGASUS_FLAVOR
+#  define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG-"PEGASUS_FLAVOR
+# else
+#  define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
+# endif
+#endif
 
 #endif  /* Pegasus_Config_h */

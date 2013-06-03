@@ -659,7 +659,7 @@ void _parseKeyBindingPairs(
             }
 
             if (*p++ != '"')
-            {            
+            {
                 MessageLoaderParms mlParms(
                     "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSINGQUOTE",
                     "$0, reason:\"invalid key-value pair, "
@@ -720,7 +720,7 @@ void _parseKeyBindingPairs(
 
             if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
                   ((strncmp(p, "FALSE", n) == 0) && n == 5)))
-            {            
+            {
                 MessageLoaderParms mlParms(
                     "Common.CIMObjectPath.INVALID_BOOLVALUE",
                     "$0, reason:\"invalid key-value pair, "
@@ -757,7 +757,7 @@ void _parseKeyBindingPairs(
             {
                 Sint64 x;
                 if (!StringConversion::stringToSignedInteger(p, x))
-                {                
+                {
                     MessageLoaderParms mlParms(
                         "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
                         "$0, reason:\"invalid key-value pair, "
@@ -771,7 +771,7 @@ void _parseKeyBindingPairs(
             {
                 Uint64 x;
                 if (!StringConversion::stringToUnsignedInteger(p, x))
-                {                
+                {
                     MessageLoaderParms mlParms(
                         "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
                         "$0, reason:\"invalid key-value pair, "
@@ -978,7 +978,7 @@ String CIMObjectPath::toString() const
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
-    //  key bindings
+    //  key bindings. See BUG_3302
     //
     if (_rep->_keyBindings.size () != 0)
     {

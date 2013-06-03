@@ -139,9 +139,7 @@ public:
         const String& action,
         const String& messageId,
         const String& relatesTo,
-        const String& toAddress="",
-        const String& replyTo="",
-        const Boolean& ackRequired=false);
+        const String& toAddress="");
 
     static void appendInvokeOutputElement(
         Buffer& out,

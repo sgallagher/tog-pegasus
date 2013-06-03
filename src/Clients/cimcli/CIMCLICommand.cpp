@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/HostLocator.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/General/Stopwatch.h>
@@ -68,6 +69,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+const String CIMCLI = "cimcli";
 /////////////////////////////////////////////////////////////////////////
 //
 // The following functions process the target object parameter for
@@ -194,7 +196,15 @@ Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
     }
     return(true);
 }
+// static version of opts.verboseTest.  Used because some functions
+// in this code are not part of the classes that reference the opts instance
+static bool _localVerboseTest = false;
 
+// Test if a file path exists
+Boolean _testFileExists(const String& path)
+{
+    return FileSystem::exists(path);
+}
 /*
     Function to handle Client Operation Performance data if the
     server returns this data.
@@ -203,7 +213,7 @@ Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
     explore removing or modifying these tests. At least partly fixed by
     making the displays conditional on verboseTest
 */
-bool _localVerboseTest;
+
 ClientOpPerformanceData returnedPerformanceData;
 class ClientStatistics : public ClientOpPerformanceDataHandler
 {
@@ -216,7 +226,7 @@ public:
         // diagnostic function.
         // FUTURE - Should test against operation we are expecting
         if (_localVerboseTest &&
-            ((item.operationType <= 0) || item.operationType >= 39))
+            ((item.operationType <= 0) || item.operationType >= 24))
         {
            cerr << "Error:Operation type out of expected range in"
                         " ClientOpPerformanceData "
@@ -226,35 +236,35 @@ public:
         returnedPerformanceData.operationType =  item.operationType;
         if ((item.roundTripTime == 0) && _localVerboseTest)
         {
-           cerr << "Error: roundTripTime incorrect (0) in"
-                   " ClientOpPerformanceData. "
-               << endl;
+           cerr << "WARNING: roundTripTime incorrect (0) in"
+                   " ClientOpPerformanceData. " << endl;
         }
         returnedPerformanceData.roundTripTime =  item.roundTripTime;
 
         if ((item.requestSize == 0) && _localVerboseTest)
         {
-            cerr << "Error:requestSize incorrect (0) in"
-                    " ClientOpPerformanceData "
-                << endl;
+            cerr << "WARNING: requestSize incorrect (0) in"
+                    " ClientOpPerformanceData " << endl;
         }
         returnedPerformanceData.requestSize =  item.requestSize;
 
         if ((item.responseSize == 0) && _localVerboseTest)
         {
-            cerr << "Error:responseSize incorrect (0)"
-                    " in ClientOpPerformanceData "
-                << endl;
+            cerr << "WARNING:responseSize incorrect (0)"
+                    " in ClientOpPerformanceData " << endl;
         }
         returnedPerformanceData.responseSize =  item.responseSize;
 
         if (item.serverTimeKnown)
         {
             /* Bypass this because we are getting server times zero
+            KS_TODO There is a server issue returning 0 server time
+            This was a test for that issue and we would like to leave
+            it documented here until server issue resolved. KS
             if (item.serverTime == 0)
             {
-                cerr << "serverTime is incorrect in ClientOpPerformanceData "
-                    << endl;
+                cerr << "WARNING: serverTime is incorrect in "
+                     << " ClientOpPerformanceData." << endl;
             }
             */
             returnedPerformanceData.serverTime =  item.serverTime;
@@ -263,6 +273,22 @@ public:
         }
    }
 };
+
+//////////////////////////////////////////////////////////////////////
+//
+//      SSL certification function
+//
+//////////////////////////////////////////////////////////////////////
+
+Boolean SSLCertVerifyCallback(SSLCertificateInfo& certInfo)
+{
+    if (_localVerboseTest)
+    {
+        cout << "Returned certificate:\n"
+             << certInfo.toString() << endl;
+    }
+    return true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -276,7 +302,7 @@ int main(int argc, char** argv)
     // This is developer tool to sort out issues of incoming parameters
     // Activated by making the last argument the keyword "displaycliargs".
     // It displays all args and then eliminates argv[argc] so the proces
-    // can continue
+    // can continue normally.
     if (strcmp(argv[argc - 1],"displaycliargs") == 0)
     {
         cout << "argc = " << --argc << endl;
@@ -354,21 +380,24 @@ int main(int argc, char** argv)
     }
     catch(CIMException& e)
     {
-        cerr << argv[0] << " Caught CIMException during init: "
+        cerr << CIMCLI << " Caught CIMException during init: "
              << "\n" << e.getMessage()
              << endl;
+        showUsage();
         cimcliExit(e.getCode());
     }
 
     catch (Exception& e)
     {
-        cerr << argv[0] << ": Caught Exception during init. "
+        cerr << CIMCLI << ": Caught Exception during init. "
              << e.getMessage() << endl;
+        showUsage();
         cimcliExit(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
     }
     catch(...)
     {
-        cerr << argv[0] << " Caught General Exception During Init:" << endl;
+        cerr << CIMCLI << " Caught General Exception During Init:" << endl;
+        showUsage();
         cimcliExit(GENERAL_CLI_ERROR_CODE);
     }
 
@@ -380,10 +409,12 @@ int main(int argc, char** argv)
     }
     else
     {
-        cerr << "Error: P[eration name must be first or --c parameter."
-            << " \n  ex. cli enumerateclasses\n"
-            << "Enter " << argv[0] << " -h for help."
-            << endl;
+        cerr << "Error: Command name or shortcut must be first parameter."
+            << " \n  ex. " << CIMCLI << " enumerateclasses or "
+            << CIMCLI << " ec\n" << endl;
+
+        showUsage();
+
         cimcliExit(CIMCLI_INPUT_ERR);
     }
 
@@ -418,7 +449,7 @@ int main(int argc, char** argv)
                 "Operation name must be first parmeter"
                 " or --c parameter."
             << " \n  ex. cli enumerateclasses\n"
-            << "Enter " << argv[0] << " -h for help."
+            << "Enter " << CIMCLI << " -h for help."
             << endl;
         cimcliExit(GENERAL_CLI_ERROR_CODE);
     }
@@ -457,6 +488,7 @@ int main(int argc, char** argv)
 #ifdef PEGASUS_HAS_SSL
             if (opts.ssl)
             {
+                // Default port from system
                 portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                               WBEM_DEFAULT_HTTPS_PORT );
             }
@@ -470,7 +502,9 @@ int main(int argc, char** argv)
             }
 
             //check whether we should use connect() or connectLocal()
-            //an empty location option indicates to use connectLocal()
+            //an empty location option indicates requires using connectLocal()
+            //Use localhost, etc. as option to do connect to same machine
+            //with connect(...)
             if (String::equal(host, String::EMPTY))
             {
                 if (opts.verboseTest)
@@ -490,39 +524,130 @@ int main(int argc, char** argv)
                          << endl;
                 }
 
+
                 // Connect with SSL api only if SSL compile enabled
 #ifdef PEGASUS_HAS_SSL
                 String sslRndFilePath = "sss.rnd";
-                if (opts.ssl) //connect over HTTPS
+
+                // Make connection using the SSL connection and ssl options
+                // of key, cert, truststore.
+                if (opts.ssl)
                 {
-                    if (!String::equal(opts.clientCert, String::EMPTY)
-                            && !String::equal(opts.clientKey, String::EMPTY))
+                    // Test that both cert and key either exist or do not exist.
+                    // We only warn so that tests can be used to test for
+                    // this issue.
+
+                    if ((opts.clientCert.size() == 0
+                            && opts.clientKey.size() != 0)
+                        ||
+                        (opts.clientCert.size() != 0
+                            && opts.clientKey.size() == 0))
+                    {
+                        cerr << "WARNING: Both client key and path required."
+                             << endl;
+                    }
+                    if ((opts.clientKey.size() != 0) &&
+                        !_testFileExists(opts.clientKey))
+                    {
+                        cerr << "WARNING: Key File " << opts.clientKey
+                             << " does not exist" << endl;
+                    }
+
+                    if ((opts.clientCert.size() != 0) &&
+                        !_testFileExists(opts.clientCert))
+                    {
+                        cerr << "WARNING: Certificate File " << opts.clientCert
+                             << " does not exist" << endl;
+                    }
+
+                    if ((opts.clientTruststore.size() != 0) &&
+                        !_testFileExists(opts.clientTruststore))
+                    {
+                        cerr << "WARNING: Directory/file "
+                             << opts.clientTruststore
+                             << " does not exist." << endl;
+                    }
+
+                    if(opts.clientCert.size() != 0
+                       || opts.clientKey.size() != 0)
                     {
                         if (opts.verboseTest)
                         {
-                            cout << "SSL options "
-                                << "CertPath = " << opts.clientCert
-                                << "clientKeyPath = "
-                                << opts.clientKey << endl;
+                            cout << "SSL options: "
+                                << "CertPath(--cert) = " << opts.clientCert
+                                << "clientKeyPath(--key) = " << opts.clientKey;
+
+                            if (opts.clientTruststore.size() != 0)
+                            {
+                                cout << "clientTruststore(--truststore) = "
+                                     << opts.clientTruststore;
+                            }
+                            else
+                            {
+                                cout << "No clientTrustStore(--truststore)";
+                            }
+                            cout << endl;
                         }
-                        opts.client.connect(host,
-                                       portNumber,
-                                       SSLContext("",
-                                           opts.clientCert,
-                                           opts.clientKey,
-                                           NULL, sslRndFilePath),
-                                       opts.user,
-                                       opts.password);
-                    } else
+                        if (opts.clientTruststore.size() == 0)
+                        {
+                            // Use clientCert and clientKey for connect.
+                            // Optional truststore to check server
+                            // cert against.
+                            opts.client.connect(host,
+                                           portNumber,
+                                           SSLContext(opts.clientTruststore,
+                                               opts.clientCert,
+                                               opts.clientKey,
+                                               SSLCertVerifyCallback,
+                                               sslRndFilePath),
+                                           opts.user,
+                                           opts.password);
+                        }
+
+                    } // End if cert and key exist.
+
+                    else
                     {
+                        // No client key or cert. Truststore is
+                        // still an option.
+                        if (opts.verboseTest)
+                        {
+                            cout << "SSL options: No key or cert. ";
+                            if (opts.clientTruststore.size() != 0)
+                            {
+                                cout << "clientTruststore(--truststore) = "
+                                     << opts.clientTruststore;
+                            }
+                            else
+                            {
+                                cout << " No clientTruststore(--truststore)";
+                            }
+                            cout << endl;
+                        }
+                        // Connect over SSL but without client trusted cert
+                        // Client checks server cert against truststore
                         opts.client.connect(host,
                                        portNumber,
-                                       SSLContext("", NULL, sslRndFilePath),
+                                       SSLContext(opts.clientTruststore,
+                                                  SSLCertVerifyCallback,
+                                                  sslRndFilePath),
                                        opts.user,
                                        opts.password);
                     }
-                } else //connect over HTTP
+                } // end is SSL call
+
+                else  // not ssl request
                 {
+                    // warn if any of the ssl parameters set and then
+                    // ignore
+                    if((opts.clientCert.size() != 0)
+                       || (opts.clientKey.size() != 0)
+                       || (opts.clientTruststore.size() != 0))
+                    {
+                        cerr << "WARNING: --key,--cert, or --truststore "
+                             "parameters input  but not used." << endl;
+                    }
+                    // Connect to server only with name and password.
                     opts.client.connect(host, portNumber, opts.user,
                                         opts.password);
                 }
@@ -560,9 +685,6 @@ int main(int argc, char** argv)
     {
         opts.client.setTimeout(opts.connectionTimeout * 1000);
     }
-
-    // Save the total connect time.
-    double totalConnectTime = opts.elapsedTime.getElapsed();
 
     // Setup the other timers.
     double totalTime = 0;
@@ -953,12 +1075,23 @@ int main(int argc, char** argv)
                     break;
 //KS_PULL_END
 
+                case (ID_ClassTree):
+                    if (_getClassNameInput(argc, argv, opts,  false))
+                    {
+                        opts.termCondition = classTree(opts);
+                    }
+                    else
+                    {
+                        exit(CIMCLI_INPUT_ERR);
+                    }
+                    break;
+
                 default:
                     cout << "Invalid cimcli operation name. "
                             "Operation name must be first parmeter"
                             " or --c parameter."
                         << " \n  ex. cli enumerateclasses\n"
-                        << "Enter " << argv[0] << " -h for help."
+                        << "Enter " << CIMCLI << " -h for help."
                         << endl;
                     cimcliExit(CIMCLI_INPUT_ERR);
                     break;
@@ -1059,7 +1192,7 @@ int main(int argc, char** argv)
     // The following exceptions are all routed to cerr
     catch(CIMException& e)
     {
-        cerr << argv[0] << " CIMException: "
+        cerr << CIMCLI << " CIMException: "
              <<" Cmd= " << opts.cimCmd
              << " Object= " << opts.inputObjectName
              << " Code= " << e.getCode()
@@ -1069,7 +1202,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-        cerr << argv[0] << " Pegasus Exception: " << e.getMessage()
+        cerr << CIMCLI << " Pegasus Exception: " << e.getMessage()
                 <<  ". Cmd = " << opts.cimCmd
                 << " Object = " << opts.inputObjectName
                 << endl;
@@ -1077,7 +1210,7 @@ int main(int argc, char** argv)
     }
     catch(...)
     {
-        cerr << argv[0] << " Caught General Exception:" << endl;
+        cerr << CIMCLI << " Caught General Exception:" << endl;
         opts.termCondition = CIMCLI_RTN_CODE_UNKNOWN_EXCEPTION;
     }
 

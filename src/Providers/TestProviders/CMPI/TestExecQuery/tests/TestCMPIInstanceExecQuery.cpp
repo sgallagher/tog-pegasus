@@ -79,7 +79,7 @@ const char *queries[] = {
   // 12
   "SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64",
   // 13
-  "SELECT * FROM TestCMPI_ExecQuery where n64!=40",
+  "SELECT * FROM TestCMPI_ExecQuery where n64<>40",
   // 14
   "SELECT * FROM TestCMPI_ExecQuery where n16 < 4",
   // 15
@@ -91,7 +91,7 @@ const char *queries[] = {
   // 18
   "SELECT * FROM TestCMPI_ExecQuery where b=1",
   // 19
-  "SELECT * FROM TestCMPI_ExecQuery where n8!=64",
+  "SELECT * FROM TestCMPI_ExecQuery where n8<>64",
   // 20
   "SELECT * FROM TestCMPI_ExecQuery where n64=64",
   // 21
@@ -246,13 +246,10 @@ _usage ()
 }
 
 static void
-_test1 (CIMClient & client)
+_test1 (CIMClient & client, const String & ql)
 {
   try
   {
-    String wql ("WQL");
-    String cql ("DMTF:CQL");
-
     for (Uint32 i = 0; i < QUERIES; i++)
       {
 
@@ -260,7 +257,7 @@ _test1 (CIMClient & client)
           cerr << "Querying " << queries[i] << endl;
 
         Array < CIMObject > objects = client.execQuery (providerNamespace,
-                                                        wql, queries[i]);
+                                                        ql, queries[i]);
 
         if (objects.size () == 0)
           {
@@ -300,7 +297,6 @@ _test1 (CIMClient & client)
           }
       }
   }
-
   catch (const Exception & e)
   {
     cerr << "test failed: " << e.getMessage () << endl;
@@ -781,7 +777,9 @@ main (int argc, char **argv)
       if (String::equalNoCase (opt, "test"))
         {
           providerNamespace = CIMNamespaceName (argv[2]);
-          _test1 (client);
+          _test1 (client,"WQL");
+          _test1 (client,"DMTF:CQL");
+
           _test2 (client);
           _test3(client);
           _test4(client);          

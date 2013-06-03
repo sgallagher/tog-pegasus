@@ -95,8 +95,6 @@ void testAuthenticationFailure_1()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -107,8 +105,7 @@ void testAuthenticationFailure_1()
     authHeader.append(filePath);
     authHeader.append(secret);
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -126,8 +123,6 @@ void testAuthenticationFailure_2()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -137,8 +132,7 @@ void testAuthenticationFailure_2()
     authHeader = testUser;
     authHeader.append(filePath);
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -157,8 +151,6 @@ void testAuthenticationFailure_3()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -167,8 +159,7 @@ void testAuthenticationFailure_3()
     authHeader.append(filePath);
     authHeader.append(":");
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -187,8 +178,6 @@ void testAuthenticationFailure_4()
 {
     String authHeader;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -198,8 +187,7 @@ void testAuthenticationFailure_4()
     authHeader.append(":");
     authHeader.append("asd442394asd");
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
     if (verbose)
     {
@@ -217,8 +205,6 @@ void testAuthenticationFailure_4()
 void testAuthenticationSuccess()
 {
     String authHeader;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -229,8 +215,8 @@ void testAuthenticationSuccess()
     authHeader.append(secret);
 
     authInfo->setLocalAuthFilePath(filePath);
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    Boolean authenticated = authStatus.isSuccess();
+    Boolean authenticated =
+        localAuthHandler.authenticate(authHeader, authInfo);
     authInfo->setLocalAuthFilePath(String::EMPTY);
 
     if (verbose)

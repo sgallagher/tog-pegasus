@@ -82,6 +82,7 @@ endif
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
 LIBRARIES += \
+        pegcql \
 	CIMQueryCapabilitiesProvider
 endif
 
@@ -116,6 +117,12 @@ ifeq ($(OS),zos)
 SOURCES += \
 	ConsoleManager_zOS.cpp
 endif
+
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+SOURCES += \
+        CQLOperationRequestDispatcher.cpp
+endif
+
 
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib

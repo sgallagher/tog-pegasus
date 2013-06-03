@@ -234,7 +234,8 @@ printData (const CmpiData& d)
    case CMPI_instance:
    {
       L;CmpiInstance v = d.getInstance ();
-      cout << "Instance";
+      cout << "Instance:";
+      printInstance(v);
       break;
    }
    case CMPI_ref:
@@ -420,6 +421,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
             CMPIUint64 alignment;
             char achData1[3];
         };
+        alignment = 0;
         strcpy(achData1, "13");
 
         L;CmpiDateTime   dtData1;

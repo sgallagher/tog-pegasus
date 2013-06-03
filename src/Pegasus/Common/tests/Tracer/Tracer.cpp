@@ -46,8 +46,8 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 //constants value
-const String _traceFileSizeKBytes = "10240";
-const String _numberOfTraceFiles = "3";
+const Uint32 _traceFileSizeKBytes=10240;
+const Uint32 _numberOfTraceFiles=3;
 
 // Trace Levels 0 and 5 are defined as private constants of the tracer
 // class to avoid inappropriate use in the trace calls and macros.

@@ -39,8 +39,7 @@ DIRS = \
     Repository \
     getoopt \
     WQL \
-	Handler \
-    RSServer
+	Handler
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
@@ -51,11 +50,6 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
         WsmServer
     TEST_DIRS += \
         WsmServer/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-    DIRS += \
-        WebServer
 endif
 
 DIRS += \
@@ -89,20 +83,15 @@ ifneq ($(OS),HPUX)
         Compiler/cmdline/tests
 endif
 
-ifndef PEGASUS_PAM_AUTHENTICATION
-    DIRS += Security/UserManager \
-	    ControlProviders/UserAuthProvider
-    TEST_DIRS += Security/UserManager/tests
-endif
-
-
 DIRS += \
     ExportClient \
     Server/ProviderRegistrationManager \
     ExportServer \
     Listener \
+    Security/UserManager \
     Security/Authentication \
     ControlProviders/ConfigSettingProvider \
+    ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
     HandlerService \
@@ -115,11 +104,13 @@ TEST_DIRS += \
     Server/ProviderRegistrationManager/tests \
     ExportServer/tests \
     Listener/tests \
+    Security/UserManager/tests \
     Security/Authentication/tests \
     ControlProviders/ProviderRegistrationProvider/tests \
     HandlerService/tests \
     IndicationService/tests \
     DynListener/tests 
+
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
@@ -217,12 +208,12 @@ DIRS += \
     msg/CLI \
     msg/Listener
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
+ifdef PEGASUS_USE_EMANATE
     DIRS += \
         Handler/snmpIndicationHandler
 endif
 
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
+ifdef PEGASUS_USE_NET_SNMP
     DIRS += \
         Handler/snmpIndicationHandler
 endif
@@ -233,18 +224,16 @@ TEST_DIRS += \
     Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/FileURIHandler/tests
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
+ifdef PEGASUS_USE_EMANATE
     TEST_DIRS += \
         Handler/snmpIndicationHandler/tests/testclient \
         Handler/snmpIndicationHandler/tests/SnmpHandlerException
 endif
 
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
+ifdef PEGASUS_USE_NET_SNMP
     TEST_DIRS += \
         Handler/snmpIndicationHandler/tests/testclient \
         Handler/snmpIndicationHandler/tests/SnmpHandlerException
 endif
-
 
 include $(ROOT)/mak/recurse.mak

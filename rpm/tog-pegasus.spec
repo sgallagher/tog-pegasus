@@ -41,7 +41,7 @@
 
 %define Flavor  tog
 %define packageVersion 1
-Version: 2.12.0
+Version: 2.13.0
 Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 
@@ -64,6 +64,10 @@ Epoch:   1
 # providers for 64 bit CIMOM.
 %{?!PEGASUS_32BIT_PROVIDER_SUPPORT: %define PEGASUS_32BIT_PROVIDER_SUPPORT 0}
 
+# Use "rpmbuild --define 'PEGASUS_BUILD_WITH_CLANG 1'" to build rpm with clang.
+# This shrinks disk usage by around 4%
+%{?!PEGASUS_BUILD_WITH_CLANG: %define PEGASUS_BUILD_WITH_CLANG 0}
+
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base
@@ -80,12 +84,20 @@ Source:    %{name}-%{version}-%{packageVersion}.tar.gz
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel
 BuildRequires:      openssl-devel >= 0.9.6, e2fsprogs
+
+#Following is commented because, Currently could not find clang shipped
+#Should be changed or uncommented when distros ship clang
+#and expects that system has clang 3 and above installed by other means
+#%if %{PEGASUS_BUILD_WITH_CLANG}
+#BuildRequires:      clang
+#%endif
+
 %if %{JMPI_PROVIDER_REQUESTED}
 BuildRequires:      gcc-java, libgcj-devel, libgcj, java-1.4.2-gcj-compat
 Requires:           libgcj, java-1.4.2-gcj-compat
 %endif
 %if %{EXTERNAL_SLP_REQUESTED}
-BuildRequires:      openslp
+BuildRequires:      openslp, openslp_devel
 Requires:           openslp
 %endif
 
@@ -132,7 +144,11 @@ sources.
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU
 %else
 %ifarch x86_64
+%if %{PEGASUS_BUILD_WITH_CLANG}
+%global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_CLANG
+%else
 %global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_GNU
+%endif
 %else
 %ifarch ppc
 %global PEGASUS_HARDWARE_PLATFORM LINUX_PPC_GNU
@@ -146,7 +162,11 @@ sources.
 %ifarch s390x zseries
 %global PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES64_GNU
 %else
+%if %{PEGASUS_BUILD_WITH_CLANG}
+%global PEGASUS_HARDWARE_PLATFORM LINUX_IX86_CLANG
+%else
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IX86_GNU
+%endif
 %endif
 %endif
 %endif
@@ -162,9 +182,16 @@ sources.
 %if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
 
 %ifarch x86_64
+
+%if %{PEGASUS_BUILD_WITH_CLANG}
+%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_CLANG
+%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -fexceptions -fstack-protector -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+% global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -fexceptions -fstack-protector -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+%else
 %global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_GNU
 %global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -Wno-unused -m32"
 %global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
+%endif
 %else
 %ifarch ppc64 pseries
 %global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_PPC_GNU
@@ -204,7 +231,7 @@ sources.
 %global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
 %global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
 %global PEGASUS_SBIN_DIR /usr/sbin
-%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.12
+%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.13
 
 %global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME %PEGASUS_RPM_ROOT/build
@@ -216,6 +243,7 @@ sources.
 Summary: The OpenPegasus Software Development Kit
 Group: Systems Management/Base
 Requires: %{Flavor}-pegasus >= %{version}
+Requires(preun): bash, procps, grep, coreutils, make
 Obsoletes: %{Flavor}-pegasus-sdk
 
 %description devel
@@ -539,7 +567,7 @@ fi
 /usr/share/Pegasus/mof
 
 %defattr(600,root,pegasus,755)
-%dir /usr/share/doc/tog-pegasus-2.12
+%dir /usr/share/doc/tog-pegasus-2.13
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
 %dir /var/lib/Pegasus
@@ -591,10 +619,10 @@ fi
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(644,root,pegasus) /usr/share/man/man8/*
 
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.12/Admin_Guide_Release.pdf
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.12/PegasusSSLGuidelines.htm
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.12/license.txt
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.12/OpenPegasusNOTICE.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.13/Admin_Guide_Release.pdf
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.13/PegasusSSLGuidelines.htm
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.13/license.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.13/OpenPegasusNOTICE.txt
 /usr/%PEGASUS_ARCH_LIB/libpegclient.so
 /usr/%PEGASUS_ARCH_LIB/libpegcommon.so
 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
@@ -614,7 +642,7 @@ fi
 %defattr(644,root,pegasus,755)
 /usr/share/Pegasus/samples
 /usr/include/Pegasus
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.12/SecurityGuidelinesForDevelopers.html
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.13/SecurityGuidelinesForDevelopers.html
 /usr/share/Pegasus/html
 
 %if %{PEGASUS_BUILD_TEST_RPM}

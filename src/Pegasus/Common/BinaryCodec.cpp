@@ -335,7 +335,9 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
     STAT_GETSTARTTIME
 
     Boolean deepInheritance = flags & DEEP_INHERITANCE;
+#ifndef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
     Boolean includeQualifiers = flags & INCLUDE_QUALIFIERS;
+#endif
     Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
 
     // [NAMESPACE]
@@ -547,8 +549,9 @@ static CIMGetInstanceRequestMessage* _decodeGetInstanceRequest(
     STAT_GETSTARTTIME
 
     // [FLAGS]
-
+#ifndef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
     Boolean includeQualifiers = flags & INCLUDE_QUALIFIERS;
+#endif
     Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
 
     // [NAMESPACE]
@@ -3114,7 +3117,7 @@ static void _encodeOpenEnumerateInstancesRequest(
     // [PROPERTY-LIST]
     buf.putPropertyList(msg->propertyList);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
     buf.putString(msg->filterQuery);  
@@ -3152,8 +3155,8 @@ static CIMOpenEnumerateInstancesRequestMessage*
         return 0;
 
     // These can all be one common function.
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
@@ -3283,7 +3286,7 @@ static void _encodeOpenEnumerateInstancePathsRequest(
     // [CLASSNAME]
     buf.putName(msg->className);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
     buf.putString(msg->filterQuery);  
@@ -3316,8 +3319,8 @@ static CIMOpenEnumerateInstancePathsRequestMessage*
 
     // These can all be one common function.
 
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
@@ -3450,7 +3453,7 @@ static void _encodeOpenReferenceInstancesRequest(
     // [PROPERTY-LIST]
     buf.putPropertyList(msg->propertyList);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
     buf.putString(msg->filterQuery);  
@@ -3504,8 +3507,8 @@ static CIMOpenReferenceInstancesRequestMessage*
         return 0;
 
     // These can all be one common function.
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
@@ -3633,7 +3636,7 @@ static void _encodeOpenReferenceInstancePathsRequest(
     // [ROLE]
     buf.putString(msg->role);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
     buf.putString(msg->filterQuery);  
@@ -3679,8 +3682,8 @@ Server/CIMOperationRequestDecoder.cpp */
         return 0;
 
     // These can all be one common function.
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
@@ -3820,7 +3823,7 @@ static void _encodeOpenAssociatorInstancesRequest(
     // [PROPERTY-LIST]
     buf.putPropertyList(msg->propertyList);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
     buf.putString(msg->filterQuery);  
@@ -3888,8 +3891,8 @@ static CIMOpenAssociatorInstancesRequestMessage*
         return 0;
 
     // These can all be one common function.
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
@@ -4027,7 +4030,7 @@ static void _encodeOpenAssociatorInstancePathsRequest(
     // [RESULT-ROLE]
     buf.putString(msg->resultRole);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
     buf.putString(msg->filterQuery);  
@@ -4084,8 +4087,8 @@ static CIMOpenAssociatorInstancePathsRequestMessage*
         return 0;
 
     // These can all be one common function.
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
@@ -4205,7 +4208,7 @@ static void _encodePullInstancesWithPathRequest(
     // [EnumerationContext]
     buf.putString(msg->enumerationContext);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
 }
 
 static CIMPullInstancesWithPathRequestMessage*
@@ -4234,8 +4237,8 @@ static CIMPullInstancesWithPathRequestMessage*
     }
 
     // [MACTCOUNT]
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
 
     AutoPtr<CIMPullInstancesWithPathRequestMessage> request(
@@ -4338,7 +4341,7 @@ static void _encodePullInstancePathsRequest(
     // [EnumerationContext]
     buf.putString(msg->enumerationContext);
 
-    buf.putUint32Arg(msg->maxObjectCount);
+    buf.putUint32(msg->maxObjectCount);
 }
 
 static CIMPullInstancePathsRequestMessage*
@@ -4367,8 +4370,8 @@ static CIMPullInstancePathsRequestMessage*
     }
 
     // [MAXOBJECTCOUNT]
-    Uint32Arg maxObjectCount;
-    if (!in.getUint32Arg(maxObjectCount))
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
        return 0;
 
     AutoPtr<CIMPullInstancePathsRequestMessage> request(
@@ -4986,7 +4989,7 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
 //EXP_PULL_END
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 
@@ -5011,7 +5014,7 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
-    Boolean isLast)
+    Boolean)
 {
     Buffer out;
 
@@ -5301,7 +5304,7 @@ bool BinaryCodec::encodeRequest(
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return false;
     }
 
@@ -5632,7 +5635,7 @@ bool BinaryCodec::encodeResponseBody(
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return false;
     }
 

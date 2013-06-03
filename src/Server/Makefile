@@ -34,6 +34,7 @@ LIBRARIES = \
     pegservice \
     pegclient \
     pegserver \
+    peguser \
     pegprm \
     NamespaceProvider \
     pegindicationservice \
@@ -42,12 +43,8 @@ LIBRARIES = \
     DefaultProviderManager \
     ProviderRegistrationProvider \
     pegauthentication \
+    UserAuthProvider \
     pegqueryexpression
-
-ifndef PEGASUS_PAM_AUTHENTICATION
-    LIBRARIES += peguser \
-		 UserAuthProvider
-endif
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     LIBRARIES += \
@@ -90,10 +87,6 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
     LIBRARIES += pegwsmserver
 endif
 
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-    LIBRARIES += pegwebserver
-endif
-
 LIBRARIES += \
     pegprovidermanager \
     pegpmservice \
@@ -104,8 +97,7 @@ LIBRARIES += \
     pegconfig \
     peghandler \
     peggeneral \
-    pegcommon \
-    cimrsserver
+    pegcommon
 
 ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
     LIBRARIES += z

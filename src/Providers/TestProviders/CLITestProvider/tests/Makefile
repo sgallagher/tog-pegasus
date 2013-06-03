@@ -1155,7 +1155,7 @@ testExecQuery:
 	@$(ECHO) 23. +++++ Test execQuery  >> $(RESULTFILE)
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@cimcli xq "Select scaleBool from Test_CLITestProviderClass" \
-	  -n "$(PROVIDERNS)" -count 1 
+	  -n "$(PROVIDERNS)" -count 1
 endif
 	@$(ECHO) 23. +++++ Test execQuery
 
@@ -1187,6 +1187,21 @@ testniallOperation:
 	@cimcli niall --sum -n test/cimv2 >> $(RESULTFILE)
 	@$(ECHO) 25. +++++ Test niall operation
 	@$(ECHO) 25. +++++ Test niall operation   >> $(RESULTFILE)
+
+testpullOperations:
+	@$(ECHO) 26. +++++ Test pull Operations
+	@$(ECHO) 26. +++++ Test pull Operations  >> $(RESULTFILE)
+	@cimcli pni -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+         --sum -count 1  >> $(RESULTFILE)
+	@cimcli pei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+         --sum -count 1  >> $(RESULTFILE)
+	@cimcli pa Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+	    -count 1 >> $(RESULTFILE)
+	@cimcli pan Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+            -count 1 --setRtnHostNames ChangedHostName >> $(RESULTFILE) 
+	@$(ECHO) 26. +++++ Test pull Operations
+	@$(ECHO) 26. +++++ Test pull Operations  >> $(RESULTFILE)
+
 ##############################################################################
 ### Execute the set of test targets defined
 poststarttests:
@@ -1224,23 +1239,23 @@ poststarttests:
 	$(MAKE) testEmptyKeyBindings
 	$(MAKE) testErrorInput
 	$(MAKE) testniallOperation
+	$(MAKE) testpullOperations
 
 	@$(ECHO) +++++ Compare Result files
+##      remove each temp file as if it passes the test
 ##      diffsort used because there is at least one instance where
 ##      the redirection of std and err outputs changes order.
-####    @$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
-	@ $(call DIFFSORT,$(RESULTFILE),$(MASTERRESULTFILE))
-	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
 	@$(DIFF) $(MASTERHELPRESULTFILE) $(HELPRESULTFILE)
+	-@$(RM) $(HELPRESULTFILE)
+	@$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
+	@ $(call DIFFSORT,$(RESULTFILE),$(MASTERRESULTFILE))
+	-@$(RM) $(RESULTFILE)
+	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
+	-@$(RM) $(TABLEFORMATFILE)
 
 ##      Following comment out because we cannot depend on the
 ##      total number of namespaces. See bug 8690
-####    -@$(DIFF) $(MASTERNSRESULTFILE) $(NSRESULTFILE)
-
-	@$(ECHO) +++++ Remove Result files since test successful
-	-@$(RM) $(RESULTFILE)
-	-@$(RM) $(TABLEFORMATFILE)
-	-@$(RM) $(HELPRESULTFILE)
+###	@$(DIFF) $(MASTERNSRESULTFILE) $(NSRESULTFILE)
 	-@$(RM) $(NSRESULTFILE)
 
 	@$(ECHO) +++++ All cimcli tests Passed.

@@ -36,7 +36,8 @@ CIMCLI = @cimcli
 LIBRARIES = \
     pegclient \
     peggeneral \
-    pegcommon
+    pegcommon \
+    pegcliutils
 
  LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

@@ -211,15 +211,24 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     "Clients.cimcli.CIMCLIClient.NS_COMMAND_HELP",
     "Enumerate all namespaces on the server."},
 
-    {ID_StatisticsOn,            "Turn On Statistics",2 ,   "son",
+    {ID_StatisticsOn,            "StatisticsOn",2 ,   "son",
     "Clients.cimcli.CIMCLIClient.SON_COMMAND_HELP",
     "Turn on CIM Server Statistics Gathering"},
 
-    {ID_StatisticsOff,           "Turn Off Statistics",2 ,  "soff",
+    {ID_StatisticsOff,           "StatisticsOff",2 ,  "soff",
     "Clients.cimcli.CIMCLIClient.SOFF_COMMAND_HELP",
     "Turn off CIM Server Statistics Gathering"},
 
-    {ID_ShowOptions,             "show command options",2 ,  "?",
+    {ID_CountInstances,          "countInstances",2, "cci",
+    "Clients.cimcli.CIMCLIClient.CCI_COMMAND_HELP",
+        "Count all Instances in Namespace and sort by ClassName.\n"
+        " Warning: Could request large number of instances from Server"},
+
+    {ID_ClassTree,               "classTree",2, "ct",
+    "Clients.cimcli.CIMCLIClient.CT_COMMAND_HELP",
+        "Display graphic tree of classes in a namespace"},
+
+    {ID_ShowOptions,             "showOptions",2 ,  "?",
     "Clients.cimcli.CIMCLIClient.?_COMMAND_HELP",
     "Show List of Commands"},
 
@@ -419,7 +428,6 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS",
     "    -n\n"},
 
-
     // setQualifier
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "Operation Not supported..\n",
@@ -532,6 +540,20 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli soff  -- Switch OFF's the statistical information on CIMServer\n",
     "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
     " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.CCI_COMMAND_EXAMPLE",
+    "cimcli cci  -- Display count of instances in namespace\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    "    No options Required\n"
+    "    -count and output options( -o and -x) do not apply"},
+
+    {"Clients.cimcli.CIMCLIClient.CT_COMMAND_EXAMPLE",
+    "cimcli ct CIM_ManagedElement -- Displays tree of class hiearchy\n"
+    "     Starting at CIM_ManagedElement.\n",
+    "Clients.cimcli.CIMCLIClient.CT_COMMAND_OPTIONS",
+    "    -nlo displays tree of superclasses.\n"
+    "    -di displays association information\n"
+    "    -count and output options( -o and -x) do not apply"},
 
     {"Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE",
     "cimcli ?  -- Displays help command\n",

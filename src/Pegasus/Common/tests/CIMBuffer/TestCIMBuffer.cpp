@@ -285,7 +285,7 @@ void test11()
     PEGASUS_ASSERT(!(a3 == ra4));
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     test1();
     test2();

@@ -390,7 +390,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                     false, false);
                 break;
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
     }
@@ -450,7 +450,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                 putObject(*((CIMObject*)rep->u._instanceValue), false, false);
                 break;
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
     }
@@ -626,7 +626,7 @@ bool CIMBuffer::getValue(CIMValue& x)
                 return true;
             }
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
     }
@@ -771,7 +771,7 @@ bool CIMBuffer::getValue(CIMValue& x)
                 return true;
             }
             default:
-                PEGASUS_ASSERT(0);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
                 break;
         }
     }

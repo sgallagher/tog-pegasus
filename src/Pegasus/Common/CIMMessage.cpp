@@ -237,6 +237,7 @@ CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse() const
         includeQualifiers,
         includeClassOrigin,
         propertyList);
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -248,6 +249,8 @@ CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -264,6 +267,7 @@ CIMResponseMessage* CIMReferencesRequestMessage::buildResponse() const
         includeQualifiers,
         includeClassOrigin,
         propertyList);
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -275,6 +279,8 @@ CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setIsClassOperation(isClassRequest);
     response->syncAttributes(this);
     return response.release();
 }
@@ -555,6 +561,11 @@ CIMResponseMessage*
             true,              // endOfSequence
             String::EMPTY,     // enumerationContext
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        false,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }
@@ -583,6 +594,11 @@ CIMResponseMessage*
             true,              // endOfSequence
             String::EMPTY,     // enumerationContext
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        false,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }
@@ -611,6 +627,11 @@ CIMResponseMessage*
             true,              // endOfSequence
             enumerationContext,
             queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    rspData.setRequestProperties(
+        false,
+        includeClassOrigin,
+        propertyList);
     response->syncAttributes(this);
     return response.release();
 }
@@ -810,6 +831,1260 @@ CIMOperationRequestMessage::CIMOperationRequestMessage(
     nameSpace(nameSpace_),
     className(className_),
     providerType(providerType_)
+{
+}
+
+CIMIndicationRequestMessage::CIMIndicationRequestMessage(
+        MessageType type_,
+        const String & messageId_,
+        const QueueIdStack& queueIds_,
+        const String& authType_,
+        const String& userName_)
+:
+    CIMRequestMessage(type_, messageId_, queueIds_),
+    authType(authType_),
+    userName(userName_)
+{
+}
+
+CIMGetClassRequestMessage::CIMGetClassRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        Boolean localOnly_,
+        Boolean includeQualifiers_,
+        Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const QueueIdStack& queueIds_,
+        const String& authType_,
+        const String& userName_)
+: CIMOperationRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE,
+        messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,className_,
+        TYPE_CLASS),
+    localOnly(localOnly_),
+    includeQualifiers(includeQualifiers_),
+    includeClassOrigin(includeClassOrigin_),
+    propertyList(propertyList_)
+{
+}
+
+CIMGetInstanceRequestMessage::CIMGetInstanceRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& instanceName_,
+        Boolean includeQualifiers_,
+        Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const QueueIdStack& queueIds_,
+        const String& authType_,
+        const String& userName_)
+: CIMOperationRequestMessage(
+        CIM_GET_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,instanceName_.getClassName()),
+    instanceName(instanceName_),
+    localOnly(false),
+    includeQualifiers(includeQualifiers_),
+    includeClassOrigin(includeClassOrigin_),
+    propertyList(propertyList_)
+{
+}
+
+CIMExportIndicationRequestMessage::CIMExportIndicationRequestMessage(
+        const String& messageId_,
+        const String& destinationPath_,
+        const CIMInstance& indicationInstance_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMRequestMessage(
+        CIM_EXPORT_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+    destinationPath(destinationPath_),
+    indicationInstance(indicationInstance_),
+    authType(authType_),
+    userName(userName_)
+{
+}
+
+CIMDeleteClassRequestMessage::CIMDeleteClassRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_DELETE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,className_,
+        TYPE_CLASS)
+{
+}
+
+CIMDeleteInstanceRequestMessage::CIMDeleteInstanceRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& instanceName_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_DELETE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,instanceName_.getClassName()),
+    instanceName(instanceName_)
+{
+}
+CIMCreateClassRequestMessage::CIMCreateClassRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMClass& newClass_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_CREATE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,newClass_.getClassName(),
+        TYPE_CLASS),
+    newClass(newClass_)
+{
+}
+CIMCreateInstanceRequestMessage::CIMCreateInstanceRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMInstance& newInstance_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,newInstance_.getClassName()),
+    newInstance(newInstance_)
+{
+}
+CIMModifyClassRequestMessage::CIMModifyClassRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMClass& modifiedClass_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_MODIFY_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,modifiedClass_.getClassName(),
+        TYPE_CLASS),
+    modifiedClass(modifiedClass_)
+{
+}
+CIMModifyInstanceRequestMessage::CIMModifyInstanceRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMInstance& modifiedInstance_,
+        Boolean includeQualifiers_,
+        const CIMPropertyList& propertyList_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,modifiedInstance_.getClassName()),
+    modifiedInstance(modifiedInstance_),
+    includeQualifiers(includeQualifiers_),
+    propertyList(propertyList_)
+{
+}
+CIMEnumerateClassesRequestMessage::CIMEnumerateClassesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        Boolean deepInheritance_,
+        Boolean localOnly_,
+        Boolean includeQualifiers_,
+        Boolean includeClassOrigin_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,className_,
+        TYPE_CLASS),
+    deepInheritance(deepInheritance_),
+    localOnly(localOnly_),
+    includeQualifiers(includeQualifiers_),
+    includeClassOrigin(includeClassOrigin_)
+{
+}
+
+CIMEnumerateClassNamesRequestMessage::CIMEnumerateClassNamesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        Boolean deepInheritance_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,className_,
+        TYPE_CLASS),
+    deepInheritance(deepInheritance_)
+{
+}
+
+CIMEnumerateInstancesRequestMessage::CIMEnumerateInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        Boolean deepInheritance_,
+        Boolean includeQualifiers_,
+        Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,className_),
+    deepInheritance(deepInheritance_),
+    localOnly(false),
+    includeQualifiers(includeQualifiers_),
+    includeClassOrigin(includeClassOrigin_),
+    propertyList(propertyList_)
+{
+}
+
+CIMEnumerateInstanceNamesRequestMessage::
+CIMEnumerateInstanceNamesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_, className_)
+{
+}
+
+CIMExecQueryRequestMessage::CIMExecQueryRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& queryLanguage_,
+        const String& query_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE,
+        messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,CIMName(),
+        TYPE_QUERY),
+    queryLanguage(queryLanguage_),
+    query(query_)
+{
+}
+
+CIMAssociatorsRequestMessage::CIMAssociatorsRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& assocClass_,
+        const CIMName& resultClass_,
+        const String& role_,
+        const String& resultRole_,
+        Boolean includeQualifiers_,
+        Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,objectName_.getClassName(),
+        TYPE_ASSOCIATION),
+    objectName(objectName_),
+    assocClass(assocClass_),
+    resultClass(resultClass_),
+    role(role_),
+    resultRole(resultRole_),
+    includeQualifiers(includeQualifiers_),
+    includeClassOrigin(includeClassOrigin_),
+    propertyList(propertyList_),
+    isClassRequest(isClassRequest_)
+{
+}
+
+CIMAssociatorNamesRequestMessage::CIMAssociatorNamesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& assocClass_,
+        const CIMName& resultClass_,
+        const String& role_,
+        const String& resultRole_,
+        const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,objectName_.getClassName(),
+        TYPE_ASSOCIATION),
+    objectName(objectName_),
+    assocClass(assocClass_),
+    resultClass(resultClass_),
+    role(role_),
+    resultRole(resultRole_),
+    isClassRequest(isClassRequest_)
+{
+}
+CIMReferencesRequestMessage::CIMReferencesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& resultClass_,
+        const String& role_,
+        Boolean includeQualifiers_,
+        Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,objectName_.getClassName(),
+        TYPE_ASSOCIATION),
+    objectName(objectName_),
+    resultClass(resultClass_),
+    role(role_),
+    includeQualifiers(includeQualifiers_),
+    includeClassOrigin(includeClassOrigin_),
+    propertyList(propertyList_),
+    isClassRequest(isClassRequest_)
+{
+}
+CIMReferenceNamesRequestMessage::CIMReferenceNamesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& resultClass_,
+        const String& role_,
+        const QueueIdStack& queueIds_,
+        Boolean isClassRequest_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_REFERENCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,objectName_.getClassName(),
+        TYPE_ASSOCIATION),
+    objectName(objectName_),
+    resultClass(resultClass_),
+    role(role_),
+    isClassRequest(isClassRequest_)
+{
+}
+
+CIMGetPropertyRequestMessage::CIMGetPropertyRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& instanceName_,
+        const CIMName& propertyName_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_GET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,instanceName_.getClassName()),
+    instanceName(instanceName_),
+    propertyName(propertyName_)
+{
+}
+
+CIMSetPropertyRequestMessage::CIMSetPropertyRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& instanceName_,
+        const CIMName& propertyName_,
+        const CIMValue& newValue_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_SET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,instanceName_.getClassName()),
+    instanceName(instanceName_),
+    propertyName(propertyName_),
+    newValue(newValue_)
+{
+}
+
+CIMGetQualifierRequestMessage::CIMGetQualifierRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& qualifierName_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,CIMName(),
+        TYPE_CLASS),
+    qualifierName(qualifierName_)
+{
+}
+
+CIMSetQualifierRequestMessage::CIMSetQualifierRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMQualifierDecl& qualifierDeclaration_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,CIMName(),
+        TYPE_CLASS),
+    qualifierDeclaration(qualifierDeclaration_)
+{
+}
+
+CIMDeleteQualifierRequestMessage::CIMDeleteQualifierRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& qualifierName_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,CIMName(),
+        TYPE_CLASS),
+    qualifierName(qualifierName_)
+{
+}
+CIMEnumerateQualifiersRequestMessage::CIMEnumerateQualifiersRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,CIMName(),
+        TYPE_CLASS)
+{
+}
+
+CIMInvokeMethodRequestMessage::CIMInvokeMethodRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& instanceName_,
+        const CIMName& methodName_,
+        const Array<CIMParamValue>& inParameters_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMOperationRequestMessage(
+        CIM_INVOKE_METHOD_REQUEST_MESSAGE, messageId_, queueIds_,
+        authType_, userName_,
+        nameSpace_,instanceName_.getClassName(),
+        TYPE_METHOD),
+    instanceName(instanceName_),
+    methodName(methodName_),
+    inParameters(inParameters_)
+{
+}
+CIMProcessIndicationRequestMessage::CIMProcessIndicationRequestMessage(
+        const String & messageId_,
+        const CIMNamespaceName & nameSpace_,
+        const CIMInstance& indicationInstance_,
+        const Array<CIMObjectPath> & subscriptionInstanceNames_,
+        const CIMInstance & provider_,
+        const QueueIdStack& queueIds_,
+        Uint32 timeoutMilliSec_,
+        String oopAgentName_ )
+: CIMRequestMessage(
+        CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+    nameSpace (nameSpace_),
+    indicationInstance(indicationInstance_),
+    subscriptionInstanceNames(subscriptionInstanceNames_),
+    provider(provider_),
+    timeoutMilliSec(timeoutMilliSec_),
+    oopAgentName(oopAgentName_)
+{
+}
+CIMNotifyProviderRegistrationRequestMessage::
+CIMNotifyProviderRegistrationRequestMessage(
+        const String & messageId_,
+        const Operation operation_,
+        const CIMName & className_,
+        const Array <CIMNamespaceName> & newNamespaces_,
+        const Array <CIMNamespaceName> & oldNamespaces_,
+        const CIMPropertyList & newPropertyNames_,
+        const CIMPropertyList & oldPropertyNames_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+    className (className_),
+    newNamespaces (newNamespaces_),
+    oldNamespaces (oldNamespaces_),
+    newPropertyNames (newPropertyNames_),
+    oldPropertyNames (oldPropertyNames_),
+    operation(operation_)
+{
+}
+CIMNotifyProviderTerminationRequestMessage::
+CIMNotifyProviderTerminationRequestMessage(
+        const String & messageId_,
+        const Array <CIMInstance> & providers_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+    providers (providers_)
+{
+}
+
+CIMHandleIndicationRequestMessage::CIMHandleIndicationRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName & nameSpace_,
+        const CIMInstance& handlerInstance_,
+        const CIMInstance& indicationInstance_,
+        const CIMInstance& subscriptionInstance_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMRequestMessage(
+        CIM_HANDLE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+    nameSpace(nameSpace_),
+    handlerInstance(handlerInstance_),
+    indicationInstance(indicationInstance_),
+    subscriptionInstance(subscriptionInstance_),
+    authType(authType_),
+    userName(userName_),
+    deliveryStatusAggregator(0)
+{
+}
+
+CIMCreateSubscriptionRequestMessage::CIMCreateSubscriptionRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName & nameSpace_,
+        const CIMInstance & subscriptionInstance_,
+        const Array<CIMName> & classNames_,
+        const CIMPropertyList & propertyList_,
+        const Uint16 repeatNotificationPolicy_,
+        const String & query_,
+        const QueueIdStack& queueIds_,
+        const String & authType_ ,
+        const String & userName_ )
+: CIMIndicationRequestMessage(
+        CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_,
+        authType_,
+        userName_),
+    nameSpace (nameSpace_),
+    subscriptionInstance(subscriptionInstance_),
+    classNames(classNames_),
+    propertyList (propertyList_),
+    repeatNotificationPolicy (repeatNotificationPolicy_),
+    query (query_)
+{
+}
+CIMModifySubscriptionRequestMessage::CIMModifySubscriptionRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName & nameSpace_,
+        const CIMInstance & subscriptionInstance_,
+        const Array<CIMName> & classNames_,
+        const CIMPropertyList & propertyList_,
+        const Uint16 repeatNotificationPolicy_,
+        const String & query_,
+        const QueueIdStack& queueIds_,
+        const String & authType_ ,
+        const String & userName_ )
+: CIMIndicationRequestMessage(
+        CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_,
+        authType_,
+        userName_),
+    nameSpace(nameSpace_),
+    subscriptionInstance(subscriptionInstance_),
+    classNames(classNames_),
+    propertyList (propertyList_),
+    repeatNotificationPolicy (repeatNotificationPolicy_),
+    query (query_)
+{
+}
+
+CIMDeleteSubscriptionRequestMessage::CIMDeleteSubscriptionRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName & nameSpace_,
+        const CIMInstance & subscriptionInstance_,
+        const Array<CIMName> & classNames_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMIndicationRequestMessage(
+        CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_,
+        authType_,
+        userName_),
+    nameSpace(nameSpace_),
+    subscriptionInstance(subscriptionInstance_),
+    classNames(classNames_)
+{
+}
+CIMSubscriptionInitCompleteRequestMessage::
+CIMSubscriptionInitCompleteRequestMessage(
+        const String & messageId_,
+        const QueueIdStack & queueIds_)
+    : CIMRequestMessage
+      (CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
+       messageId_,
+       queueIds_)
+{
+}
+CIMIndicationServiceDisabledRequestMessage::
+CIMIndicationServiceDisabledRequestMessage(
+        const String & messageId_,
+        const QueueIdStack & queueIds_)
+    : CIMRequestMessage
+      (CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
+       messageId_,
+       queueIds_)
+{
+}
+CIMDisableModuleRequestMessage::
+CIMDisableModuleRequestMessage(
+        const String& messageId_,
+        const CIMInstance& providerModule_,
+        const Array<CIMInstance>& providers_,
+        Boolean disableProviderOnly_,
+        const Array<Boolean>& indicationProviders_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMRequestMessage(
+        CIM_DISABLE_MODULE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    providerModule(providerModule_),
+    providers(providers_),
+    disableProviderOnly(disableProviderOnly_),
+    indicationProviders(indicationProviders_),
+    authType(authType_),
+    userName(userName_)
+{
+}
+CIMEnableModuleRequestMessage::CIMEnableModuleRequestMessage(
+        const String& messageId_,
+        const CIMInstance& providerModule_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ ,
+        const String& userName_ )
+: CIMRequestMessage(
+        CIM_ENABLE_MODULE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    providerModule(providerModule_),
+    authType(authType_),
+    userName(userName_)
+{
+}
+CIMNotifyProviderEnableRequestMessage::CIMNotifyProviderEnableRequestMessage(
+        const String & messageId_,
+        const Array <CIMInstance> & capInstances_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    capInstances(capInstances_)
+{
+}
+CIMNotifyProviderFailRequestMessage::CIMNotifyProviderFailRequestMessage(
+        const String & messageId_,
+        const String & moduleName_,
+        const String & userName_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    moduleName(moduleName_),
+    userName(userName_)
+{
+}
+
+CIMStopAllProvidersRequestMessage::CIMStopAllProvidersRequestMessage(
+        const String& messageId_,
+        const QueueIdStack& queueIds_,
+        Uint32 shutdownTimeout_ )
+: CIMRequestMessage(
+        CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    shutdownTimeout(shutdownTimeout_)
+{
+}
+CIMInitializeProviderAgentRequestMessage::
+CIMInitializeProviderAgentRequestMessage(
+        const String & messageId_,
+        const String& pegasusHome_,
+        const Array<Pair<String, String> >& configProperties_,
+        Boolean bindVerbose_,
+        Boolean subscriptionInitComplete_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    pegasusHome(pegasusHome_),
+    configProperties(configProperties_),
+    bindVerbose(bindVerbose_),
+    subscriptionInitComplete(subscriptionInitComplete_)
+{
+}
+
+CIMNotifyConfigChangeRequestMessage::
+CIMNotifyConfigChangeRequestMessage(
+        const String & messageId_,
+        const String & propertyName_,
+        const String & newPropertyValue_,
+        Boolean currentValueModified_, // false - planned value modified
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    propertyName(propertyName_),
+    newPropertyValue(newPropertyValue_),
+    currentValueModified(currentValueModified_)
+{
+}
+ProvAgtGetScmoClassRequestMessage::ProvAgtGetScmoClassRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    nameSpace(nameSpace_),
+    className(className_)
+{
+}
+
+CIMNotifySubscriptionNotActiveRequestMessage::
+CIMNotifySubscriptionNotActiveRequestMessage(
+        const String & messageId_,
+        const CIMObjectPath &subscriptionName_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+    subscriptionName(subscriptionName_)
+{
+}
+
+CIMNotifyListenerNotActiveRequestMessage::
+CIMNotifyListenerNotActiveRequestMessage(
+        const String & messageId_,
+        const CIMObjectPath &handlerName_,
+        const QueueIdStack& queueIds_)
+: CIMRequestMessage(
+        CIM_NOTIFY_LISTENER_NOT_ACTIVE_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+    handlerName(handlerName_)
+{
+}
+
+
+CIMResponseDataMessage::CIMResponseDataMessage(
+        MessageType type_,
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        CIMResponseData::ResponseDataContent rspContent_,
+        Boolean isAsyncResponsePending)
+: CIMResponseMessage(
+        type_,
+        messageId_,
+        cimException_,
+        queueIds_,
+        isAsyncResponsePending),
+    _responseData(rspContent_)
+{
+}
+
+CIMGetClassResponseMessage:: CIMGetClassResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const CIMClass& cimClass_)
+: CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    cimClass(cimClass_)
+{
+}
+
+CIMGetInstanceResponseMessage::CIMGetInstanceResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCE)
+{
+}
+
+CIMExportIndicationResponseMessage::CIMExportIndicationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_EXPORT_INDICATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+CIMDeleteClassResponseMessage::CIMDeleteClassResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_DELETE_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMDeleteInstanceResponseMessage::CIMDeleteInstanceResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+CIMCreateClassResponseMessage::CIMCreateClassResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMCreateInstanceResponseMessage::CIMCreateInstanceResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const CIMObjectPath& instanceName_)
+: CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    instanceName(instanceName_)
+{
+}
+
+CIMModifyClassResponseMessage::CIMModifyClassResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMModifyInstanceResponseMessage::CIMModifyInstanceResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+CIMEnumerateClassesResponseMessage::CIMEnumerateClassesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Array<CIMClass>& cimClasses_)
+: CIMResponseMessage(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    cimClasses(cimClasses_)
+{
+}
+
+CIMEnumerateClassNamesResponseMessage::CIMEnumerateClassNamesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Array<CIMName>& classNames_)
+: CIMResponseMessage(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    classNames(classNames_)
+{
+}
+CIMEnumerateInstancesResponseMessage::CIMEnumerateInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(
+        CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCES)
+{
+}
+CIMEnumerateInstanceNamesResponseMessage::
+CIMEnumerateInstanceNamesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTNAMES)
+{
+}
+
+CIMExecQueryResponseMessage::CIMExecQueryResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS)
+{
+}
+CIMAssociatorsResponseMessage::CIMAssociatorsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS)
+{
+}
+
+CIMAssociatorNamesResponseMessage::CIMAssociatorNamesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTPATHS)
+{
+}
+
+CIMReferencesResponseMessage::CIMReferencesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS)
+{
+}
+
+CIMReferenceNamesResponseMessage::CIMReferenceNamesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseDataMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTPATHS)
+{
+}
+
+CIMGetPropertyResponseMessage::CIMGetPropertyResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const CIMValue& value_)
+: CIMResponseMessage(CIM_GET_PROPERTY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    value(value_)
+{
+}
+
+CIMSetPropertyResponseMessage::CIMSetPropertyResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMGetQualifierResponseMessage::CIMGetQualifierResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const CIMQualifierDecl& cimQualifierDecl_)
+: CIMResponseMessage(CIM_GET_QUALIFIER_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    cimQualifierDecl(cimQualifierDecl_)
+{
+}
+
+CIMSetQualifierResponseMessage::CIMSetQualifierResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+:
+    CIMResponseMessage(CIM_SET_QUALIFIER_RESPONSE_MESSAGE,
+            messageId_, cimException_, queueIds_)
+{
+}
+
+CIMDeleteQualifierResponseMessage::CIMDeleteQualifierResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+:
+    CIMResponseMessage(CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE,
+            messageId_, cimException_, queueIds_)
+{
+}
+
+CIMEnumerateQualifiersResponseMessage::CIMEnumerateQualifiersResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Array<CIMQualifierDecl>& qualifierDeclarations_)
+: CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    qualifierDeclarations(qualifierDeclarations_)
+{
+}
+
+CIMInvokeMethodResponseMessage::CIMInvokeMethodResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const CIMValue& retValue_,
+        const Array<CIMParamValue>& outParameters_,
+        const CIMName& methodName_)
+: CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    retValue(retValue_),
+    outParameters(outParameters_),
+    methodName(methodName_)
+{
+}
+
+CIMProcessIndicationResponseMessage::CIMProcessIndicationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        String oopAgentName_ )
+: CIMResponseMessage(CIM_PROCESS_INDICATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    oopAgentName(oopAgentName_)
+{
+}
+
+CIMNotifyProviderRegistrationResponseMessage::
+CIMNotifyProviderRegistrationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMNotifyProviderTerminationResponseMessage::
+CIMNotifyProviderTerminationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMHandleIndicationResponseMessage::CIMHandleIndicationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_HANDLE_INDICATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMCreateSubscriptionResponseMessage::CIMCreateSubscriptionResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(
+        CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+{
+}
+
+CIMModifySubscriptionResponseMessage::CIMModifySubscriptionResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(
+        CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+{
+}
+
+CIMDeleteSubscriptionResponseMessage::CIMDeleteSubscriptionResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(
+        CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+{
+}
+
+CIMSubscriptionInitCompleteResponseMessage::
+    CIMSubscriptionInitCompleteResponseMessage
+(const String & messageId_,
+ const CIMException & cimException_,
+ const QueueIdStack & queueIds_)
+    : CIMResponseMessage
+      (CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
+       messageId_,
+       cimException_,
+       queueIds_)
+{
+}
+
+CIMIndicationServiceDisabledResponseMessage::
+    CIMIndicationServiceDisabledResponseMessage
+(const String & messageId_,
+ const CIMException & cimException_,
+ const QueueIdStack & queueIds_)
+    : CIMResponseMessage
+      (CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE,
+       messageId_,
+       cimException_,
+       queueIds_)
+{
+}
+
+CIMDisableModuleResponseMessage::CIMDisableModuleResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Array<Uint16>& operationalStatus_)
+: CIMResponseMessage(CIM_DISABLE_MODULE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    operationalStatus(operationalStatus_)
+{
+}
+
+CIMEnableModuleResponseMessage::CIMEnableModuleResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Array<Uint16>& operationalStatus_)
+: CIMResponseMessage(CIM_ENABLE_MODULE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    operationalStatus(operationalStatus_)
+{
+}
+
+CIMNotifyProviderEnableResponseMessage::CIMNotifyProviderEnableResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMNotifyProviderFailResponseMessage::CIMNotifyProviderFailResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_NOTIFY_PROVIDER_FAIL_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMStopAllProvidersResponseMessage::CIMStopAllProvidersResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMInitializeProviderAgentResponseMessage::
+    CIMInitializeProviderAgentResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+: CIMResponseMessage(CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMNotifyConfigChangeResponseMessage::CIMNotifyConfigChangeResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+ProvAgtGetScmoClassResponseMessage::ProvAgtGetScmoClassResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const SCMOClass& scmoClass_)
+: CIMResponseMessage(PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+    scmoClass(scmoClass_)
+{
+}
+
+CIMNotifySubscriptionNotActiveResponseMessage::
+    CIMNotifySubscriptionNotActiveResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+{
+}
+
+CIMNotifyListenerNotActiveResponseMessage::
+    CIMNotifyListenerNotActiveResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_LISTENER_NOT_ACTIVE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
 {
 }
 

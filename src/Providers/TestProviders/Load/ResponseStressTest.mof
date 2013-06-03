@@ -40,12 +40,12 @@ class TST_ResponseStressTest
     string Id;
 
     [ Description ("Monotonically increasing sequence number for instances "
-        "in the response. Cal be used to confirm ordering correctness "
+        "in the response. Can be used to confirm ordering correctness "
         "at the client. ")]
     Uint64 SequenceNumber;
 
     [ Description ("Requested count of instances to be delivered from "
-        "the set method inout or default. ")]
+        "the set method invoke or default. ")]
     Uint64 ResponseCount;
 
     [ Description ("Requested size for instances from the set invoke method "

@@ -120,13 +120,21 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.CLIENTCERT_OPTION_HELP",
         "Specifies a client certificate file path to present to the server.\n"
             "    This is optional and only has an effect on connections\n"
-            "    made over HTTPS using -s" },
+            "    made over HTTPS using -s. If this option specified the\n"
+            "    clientKey must also exist" },
 
         {"clientKey", "", false, Option::STRING, 0, 0, "-key",
         "Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP",
         "Specifies a client private key file path.\n"
             "    This is optional and only has an effect on connections\n"
-            "    made over HTTPS using -s" },
+            "    made over HTTPS using -s. If this option specified the\n"
+            "    clientCert must also exist" },
+
+        {"clientTruststore", "", false, Option::STRING, 0, 0, "-truststore",
+        "Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP",
+        "Specifies a path to a client trust store cused to verify server\n"
+            "    certificates. This is optional and only has an effect"
+            "     on connections made over HTTPS using -s\n"},
 #endif
         {"User", "", false, Option::STRING, 0, 0, "u",
         "Clients.cimcli.CIMCLIClient.USER_OPTION_HELP",
@@ -294,9 +302,9 @@ void BuildOptionsTable(
             "Clients.cimcli.CIMCLIClient.PULLTIMEOUT",
             "Pull interoperation timeout in seconds. "},
 
-        {"maxPullObjects", "100", false, Option::WHOLE_NUMBER, 0, 0, "mo",
-            "Clients.cimcli.CIMCLIClient.MAXPULLOBJ",
-            "Maximum objects in a single Pull "},
+        {"maxObjectCount", "100", false, Option::WHOLE_NUMBER, 0, 0, "mo",
+            "Clients.cimcli.CIMCLIClient.MAXOBJCNT",
+            "Maximum number of objects in a single Pull "},
 
         {"maxObjectsToReceive", "0", false, Option::WHOLE_NUMBER, 0, 0, "mr",
         "Clients.cimcli.CIMCLIClient.MAXOBJRCV",
@@ -416,7 +424,7 @@ void lookupStringOption(Options& opts,
 {
     // Test for existing option. If nothing found, this
     // function exits cimcli with error status
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     if (om.lookupValue(optionName, optsTarget))
     {
@@ -433,7 +441,7 @@ void lookupStringOptionEMPTY(Options& opts,
     String& optsTarget)
 {
     // Test for Existing Option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     String temp;
     if (om.lookupValue(optionName, temp))
@@ -454,7 +462,7 @@ void lookupCIMNameOption(Options& opts,
     const CIMName& defaultValue)
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     String temp;
     if (om.lookupValue(optionName, temp))
@@ -496,7 +504,7 @@ void lookupUint32Option(Options& opts,
     const char* units = "")
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     optsTarget = 0;
     if (!om.lookupIntegerValue(optionName, optsTarget))
@@ -581,7 +589,7 @@ void lookupBooleanOption(Options& opts,
                    Boolean& optsTarget)
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     optsTarget = om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
@@ -596,7 +604,7 @@ void lookupBooleanOptionNegate(Options& opts,
                    Boolean& optsTarget)
 {
     // Test for existing option
-    const Option* op = _lookupOption(om, optionName);
+    _lookupOption(om, optionName);
 
     optsTarget = !om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
@@ -679,6 +687,9 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // Get value for client key
     om.lookupValue("clientKey", opts.clientKey);
 
+    // Get value for client key
+    om.lookupValue("clientTruststore", opts.clientTruststore);
+
     if (verboseTest && debug && opts.ssl)
     {
         cout << "ssl = true" << endl;
@@ -686,6 +697,11 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         {
             cout << "clientCert = " << opts.clientCert << endl;
             cout << "clientKey = " << opts.clientKey << endl;
+            if (opts.clientTruststore.size() != 0)
+            {
+                cout << "clientTruststore path = "
+                     << opts.clientTruststore << endl;
+            }
         }
     }
 #endif
@@ -705,8 +721,8 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // Options to support parameters on pull operations
     lookupUint32ArgOption(opts, om, "pullTimeout",
                           opts.pullOperationTimeout, 0, "seconds");
-    lookupUint32ArgOption(opts, om, "maxPullObjects",
-                       opts.maxPullObjects, 0, "seconds");
+    lookupUint32Option(opts, om, "maxObjectCount",
+                       opts.maxObjectCount, 0, "max rtn");
 
     lookupUint32Option(opts, om, "pullDelay", opts.pullDelay, 0, "seconds");
     lookupUint32Option(opts, om, "maxObjectsToReceive",

@@ -40,18 +40,13 @@ endif
 
 LIBRARY = pegexportclient
 
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-LIBRARIES =\
-	pegwsmserver
-endif
-
-LIBRARIES += \
-    pegwql \
-    pegquerycommon \
-    pegrepository \
-    pegconfig \
+LIBRARIES = \
     pegcommon \
     pegclient
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+LIBRARIES +=\
+	pegwsmserver
+endif
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -64,8 +59,7 @@ SOURCES = \
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
 SOURCES += \
 	WSMANExportClient.cpp \
-	WSMANExportRequestEncoder.cpp \
-	WSMANExportResponseDecoder.cpp
+	WSMANExportRequestEncoder.cpp
 endif
    
 

@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <iostream>
 #include <cstring>
 #include "HTTPMessage.h"
@@ -39,8 +40,6 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
 
 //------------------------------------------------------------------------------
 //
@@ -64,7 +63,7 @@ static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
 //
 //------------------------------------------------------------------------------
 
-char* HTTPMessage::findSeparator(const char* data, Uint32 size)
+char* HTTPMessage::findSeparator(const char* data)
 {
     // [^\0\r\n]
     static const unsigned char _skip[256] =
@@ -156,7 +155,7 @@ HTTPMessage::HTTPMessage(const HTTPMessage & msg)
 }
 
 
-void HTTPMessage::parse(
+Boolean HTTPMessage::parse(
     String& startLine,
     Array<HTTPHeader>& headers,
     Uint32& contentLength) const
@@ -166,12 +165,13 @@ void HTTPMessage::parse(
     contentLength = 0;
 
     char* data = (char*)message.getData();
-    Uint32 size = message.size();
+    const Uint32 size = message.size();
     char* line = data;
     char* sep;
     Boolean firstTime = true;
+    Uint32 headersFound = 0;
 
-    while ((sep = findSeparator(line, (Uint32)(size - (line - data)))))
+    while ((sep = findSeparator(line)))
     {
         // Look for double separator which terminates the header?
 
@@ -183,14 +183,17 @@ void HTTPMessage::parse(
 
             // Determine length of content:
 
-            contentLength = (Uint32)(message.size() - (content - data));
+            contentLength = (Uint32)(size - (content - data));
             break;
         }
 
         Uint32 lineLength = (Uint32)(sep - line);
 
         if (firstTime)
+        {
             startLine.assign(line, lineLength);
+            firstTime = false;
+        }
         else
         {
             // Find the colon:
@@ -229,6 +232,12 @@ void HTTPMessage::parse(
                 HTTPHeader header(
                     Buffer(line, (Uint32)(end - line), 20),
                     Buffer(start, (Uint32)(sep - start), 50));
+
+                headersFound++;
+                if (headersFound >= PEGASUS_MAXELEMENTS_NUM)
+                {
+                    return false;
+                }
 
                 // From the HTTP/1.1 specification (RFC 2616) section 4.2
                 // Message Headers:
@@ -276,14 +285,15 @@ void HTTPMessage::parse(
         }
 
         line = sep + ((*sep == '\r') ? 2 : 1);
-        firstTime = false;
     }
+    return true;
 }
 
 
-#ifdef PEGASUS_DEBUG
+
 void HTTPMessage::printAll(ostream& os) const
 {
+    static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
     Message::print(os);
 
     String startLine;
@@ -340,7 +350,7 @@ void HTTPMessage::printAll(ostream& os) const
 
     os << endl;
 }
-#endif
+
 
 /*
  * Find the header prefix (i.e 2-digit number in front of cim keyword) if any.

@@ -39,9 +39,7 @@
 
 #include "SecureBasicAuthenticator.h"
 #include "PAMBasicAuthenticator.h"
-# if defined(PEGASUS_PAM_SESSION_SECURITY)
 #include "PAMSessionBasicAuthenticator.h"
-#endif
 #include "BasicAuthenticationHandler.h"
 #include "AuthenticationManager.h"
 
@@ -78,7 +76,7 @@ BasicAuthenticationHandler::~BasicAuthenticationHandler()
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus BasicAuthenticationHandler::authenticate(
+Boolean BasicAuthenticationHandler::authenticate(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
@@ -111,10 +109,11 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
 
     Uint32 pos = decodedStr.find(':');
 
+    Boolean authenticated = false;
     if (pos == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return authenticated;
     }
 
     String userName = decodedStr.subString(0, pos);
@@ -131,7 +130,7 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
                 BASIC_AUTHENTICATION_FAILED, userName,
                 authInfo->getIpAddress()));
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     // PASE APIs require user profile to be uppercase
@@ -151,11 +150,11 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
 
     if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(userName))
     {
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    AuthenticationStatus authStatus=
+    authenticated=
         _basicAuthenticator->authenticate(
             userName,
             password,
@@ -165,9 +164,9 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
     PEG_AUDIT_LOG(logBasicAuthentication(
         userName,
         authInfo->getIpAddress(),
-        authStatus.isSuccess()));
+        authenticated));
 
-    if (authStatus.isSuccess())
+    if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
     }
@@ -186,10 +185,10 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
 #endif
 
     PEG_METHOD_EXIT();
-    return authStatus;
+    return authenticated;
 }
 
-AuthenticationStatus BasicAuthenticationHandler::validateUser(
+Boolean BasicAuthenticationHandler::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {

@@ -171,9 +171,9 @@ CIMObjectPath _createHandlerInstance(
         handlerInstance.addProperty (CIMProperty (
             CIMName ("SNMPSecurityAuthProtocol"),snmpSecAuthProto));
 
+        oid *snmpSecAuthProtoOid;
         size_t snmpSecAuthProtoLen=0;
  
-        oid *snmpSecAuthProtoOid = NULL;
         if(snmpSecAuthKey.size() > 0)
         {
            if(snmpSecAuthProto == 1)

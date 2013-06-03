@@ -59,15 +59,23 @@ extern "C"
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_HAS_SSL
 struct FreeX509STOREPtr
 {
     void operator()(X509_STORE* ptr)
     {
-#ifdef PEGASUS_HAS_SSL
         X509_STORE_free(ptr);
-#endif
     }
 };
+#else
+struct FreeX509STOREPtr
+{
+    void operator()(X509_STORE*)
+    {
+    }
+};
+#endif
+
 
 #ifdef PEGASUS_HAS_SSL
 
@@ -102,11 +110,15 @@ public:
             "In ~SSLEnvironmentInitializer(), _instanceCount is %d",
             _instanceCount));
 
+
         if (_instanceCount == 0)
         {
+            EVP_cleanup();
+            CRYPTO_cleanup_all_ex_data();
             ERR_free_strings();
             _uninitializeCallbacks();
         }
+        ERR_remove_state(0);
     }
 
 private:
@@ -162,8 +174,8 @@ private:
     static void _lockingCallback(
         int mode,
         int type,
-        const char* file,
-        int line)
+        const char*,
+        int)
     {
         if (mode & CRYPTO_LOCK)
         {

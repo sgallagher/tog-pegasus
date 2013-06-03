@@ -51,12 +51,7 @@ PEGASUS_USING_STD;
 class PEGASUS_COMPILER_LINKAGE valueFactory
 {
 public:
-    /**
-        Escape any character comma found in the input string
-        @param str String to be processed.
-        @return String the processed string
-     */
-    static String stringEscapeComma(String str);
+    static String stringWComma(String tmp);
 
     /**
         Converts a String to a Uint64 according to the DMTF specification for
@@ -100,7 +95,6 @@ public:
 
     static CIMValue * createValue(CIMType type, int arrayDimension,
         Boolean isNull,
-        int ParseType,
         const String *rep);
 
 private:
@@ -108,8 +102,6 @@ private:
     static CIMValue* _buildArrayValue(
         CIMType type,
         const String& rep);
-
-    static Boolean compareTypeToParseType(CIMType type, int expectedType );
 };
 
 #endif

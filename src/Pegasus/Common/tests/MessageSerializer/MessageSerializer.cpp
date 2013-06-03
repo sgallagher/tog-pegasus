@@ -867,7 +867,7 @@ void testCIMAssociatorsRequestMessage(
 {
     CIMAssociatorsRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        iq, ico, pl, qids, auth, user);
+        iq, ico, pl, qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorsRequestMessage*>(
@@ -912,7 +912,7 @@ void testCIMAssociatorNamesRequestMessage(
 {
     CIMAssociatorNamesRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        qids, auth, user);
+        qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesRequestMessage*>(
@@ -952,7 +952,7 @@ void testCIMReferencesRequestMessage(
     const String& user)
 {
     CIMReferencesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, iq, ico, pl, qids, auth, user);
+        mid, ns, path, resultClass, role, iq, ico, pl, qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesRequestMessage> outMessage(
         dynamic_cast<CIMReferencesRequestMessage*>(
@@ -992,7 +992,7 @@ void testCIMReferenceNamesRequestMessage(
     const String& user)
 {
     CIMReferenceNamesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, qids, auth, user);
+        mid, ns, path, resultClass, role, qids, false, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesRequestMessage> outMessage(
         dynamic_cast<CIMReferenceNamesRequestMessage*>(
@@ -2478,8 +2478,6 @@ void testMessageSerialization()
     CIMException ex4(CIM_ERR_SUCCESS, "How can you have a \"success\" error?");
 
     // Operation flags
-    Boolean lo1 = false;
-    Boolean lo2 = true;
     Boolean di1 = false;
     Boolean di2 = true;
     Boolean iq1 = false;
@@ -3153,7 +3151,7 @@ void testMessageSerialization()
 //
 // main
 //
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

@@ -115,15 +115,19 @@ public:
         const CIMObject& objectWithPath,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = true,
+        Boolean isClassObject = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
+    // Appends classPath or instancePath based on isClassPath param
     static void appendValueReferenceElement(
         Buffer& out,
         const CIMObjectPath& reference,
+        Boolean isClassPath,
         Boolean putValueWrapper);
 
     static void printValueReferenceElement(
         const CIMObjectPath& reference,
+        Boolean isClassPath,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
@@ -287,17 +291,19 @@ public:
         const char* name,
         Boolean flag);
 
+    //// TODO what about the idea of optional Value as well as optional
+    //// parameter.
     static void appendUint32IParameter(
+        Buffer& out,
+        const char* name,
+        Uint32 val);
+
+    static void appendUint32ArgIParameter(
         Buffer& out,
         const char* name,
         const Uint32Arg& val,
         const Boolean required);
-/* KS_PULL DELETE
-    static void appendUint64Parameter(
-        Buffer& out,
-        const char* name,
-        const Uint64 val);
-*/
+
     static void appendUint64ReturnValue(
         Buffer& out,
         const char* name,
@@ -333,11 +339,6 @@ public:
         Buffer& out,
         const char* name,
         const CIMObjectPath& instanceName);
-
-    static void appendObjectNameIParameter(
-        Buffer& out,
-        const char* name,
-        const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
         Buffer& out,
@@ -583,6 +584,14 @@ private:
 
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
+
+    static void appendValueInstancePathElement(
+        Buffer& out,
+        const CIMObjectPath& reference);
+
+    static void appendValueClassPathElement(
+        Buffer& out,
+        const CIMObjectPath& reference);
 
     XmlWriter();
 };

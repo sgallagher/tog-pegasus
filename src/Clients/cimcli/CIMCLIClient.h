@@ -159,6 +159,9 @@ int PEGASUS_CLI_LINKAGE pullAssociatorInstancePaths(Options& opts);
 int PEGASUS_CLI_LINKAGE countInstances(Options& opts);
 //KS_PULL_END
 
+int PEGASUS_CLI_LINKAGE countInstances(Options& opts);
+
+int PEGASUS_CLI_LINKAGE classTree(Options& opts);
 PEGASUS_NAMESPACE_END
 
 #endif

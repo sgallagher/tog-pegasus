@@ -52,6 +52,10 @@
 #include <Pegasus/Server/reg_table.h>
 
 PEGASUS_NAMESPACE_BEGIN
+//
+// Convience Macro to simplify conversion of String to const char*
+//
+#define CSTRING(ARG) (const char*) ARG.getCString()
 
 /******************************************************************************
 **
@@ -65,7 +69,14 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
 public:
-    // constructor
+    /**
+     * Constructor with only className. Used in those cases where
+     * the ProviderInfo object is supplied to one of the lookup
+     * methods with only classname.  The remaining information (ex.
+     * serviceId, controlProviderName, etc. can be added with the
+     * addProviderInfo function.
+     *
+     */
     ProviderInfo(const CIMName& className_)
         : className(className_),
           serviceId(0),
@@ -74,7 +85,11 @@ public:
           hasNoQuery(true)
     {
     }
-    //constructor
+    /**
+       Constructor with className, serviceId, and
+       controlProviderName. All basic information in the
+       constructor.
+     */
     ProviderInfo(
         const CIMName& className_,
         Uint32 serviceId_,
@@ -87,7 +102,9 @@ public:
           hasNoQuery(true)
     {
     }
-    // copy constructor
+    /**
+       Copy constructor
+     */
     ProviderInfo(const ProviderInfo& providerInfo)
         : className(providerInfo.className),
           serviceId(providerInfo.serviceId),
@@ -126,6 +143,19 @@ public:
         return *this;
     }
 
+    /**
+        Method to add serviceID, etc. after the object is constructed.
+        Use with the constructor that only adds className to complete
+        the basic registration info for the provider.
+    */
+    void addProviderInfo(Uint32 serviceId_, Boolean hasProvider_,
+                         Boolean hasNoQuery_)
+    {
+        serviceId = serviceId_;
+        hasProvider = hasProvider_;
+        hasNoQuery = hasNoQuery_;
+    }
+
     CIMName className;
     Uint32 serviceId;
     String controlProviderName;
@@ -135,12 +165,16 @@ public:
     AutoPtr<ProviderIdContainer> providerIdContainer;
 
 private:
+    // Empty constructor not allowed.
     ProviderInfo()
     {
     }
 };
 /*
-    Manage a list of ProviderInfo information objects
+    Container for items of ProviderInfo to manage a list of ProviderInfo
+    information objects. The providerCounter
+    counts the number of providers in the list not the number of objects
+    in the list.  Classes without providers may also exist in the list.
 */
 class PEGASUS_SERVER_LINKAGE ProviderInfoListStruct
 {
@@ -162,7 +196,12 @@ public:
     {
         array.append(x);
     }
-    // get item from array
+    void appendProvider(ProviderInfo& x)
+    {
+        array.append(x);
+        providerCount++;
+    }
+    // get item from list
     ProviderInfo& operator[](Uint32 index)
     {
         return array[index];
@@ -179,7 +218,7 @@ typedef  ProviderInfoListStruct ProviderInfoList;
 /* Class to manage the aggregation of data required by post processors. This
     class is private to the dispatcher. An instance is created by the operation
     dispatcher to aggregate request and response information and used by the
-    post processor to aggregate responses from providers.
+    post processor to aggregate responses together.
 */
 class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
@@ -192,13 +231,20 @@ public:
         @param messageId
         @param dest
         @param className
+        @param nameSpace
+        @param requiresHostnameCompletion
+        @param hasPropList
+        @param query (Optional)
+        @param queryLanguage (Optional)
     */
-    OperationAggregate(CIMRequestMessage* request,
+    OperationAggregate(CIMOperationRequestMessage* request,
         MessageType msgRequestType,
         String messageId,
         Uint32 dest,
         CIMName className,
-        CIMNamespaceName nameSpace = CIMNamespaceName(),
+        CIMNamespaceName nameSpace,
+        Boolean requiresHostnameCompletion,
+        Boolean hasPropList,
         QueryExpressionRep* query = 0,
         String queryLanguage = String::EMPTY);
 
@@ -213,20 +259,17 @@ public:
 
     void setTotalIssued(Uint32 i);
 
-    void incTotalIssued();
-
-    //KS_TODO The total issued must be atomic.  It is not now.
-
     // Append a new entry to the response list.  Return value indicates
     // whether this response is the last one expected
 
     Boolean appendResponse(CIMResponseMessage* response);
 
+    //// TODO restore constness
     Uint32 numberResponses();
 
-    CIMRequestMessage* getRequest();
+    CIMOperationRequestMessage* getRequest();
 
-    void setRequest(CIMRequestMessage* request);
+    void setRequest(CIMOperationRequestMessage* request);
 
     CIMResponseMessage* getResponse(const Uint32& pos);
 
@@ -237,17 +280,13 @@ public:
 
     void deleteResponse(const Uint32&pos);
 
-    void incObjectCount();
+////    void incObjectCount();
 
-    void decObjectCount();
+////    void decObjectCount();
 
     MessageType getRequestType() const;
 
     void resequenceResponse(CIMResponseMessage& response);
-
-    // Diagnostic only.  We keep serialnumber of aggregation objects and
-    // this gets current serial number.
-    Uint64 getAggregationSN();
 
     /** sets the parameters required for pull operations into a new
      *  operation aggregate that was created as part of an Open...
@@ -256,21 +295,23 @@ public:
      * @param enContext EnumerationContext defined for this sequence
      * @param contextString String representing the operation
      *      Context defined for this sequence
-     * @param nameSpace Namespace for this sequence of Operations
      */
-    void setPullOperation(const void* enContext,
-        const String& contextString,
-        const CIMNamespaceName& nameSpace);
+    void setPullOperation(const void* enContext, const String& contextString);
 
     String _messageId;
     MessageType _msgRequestType;
     Uint32 _dest;
-    CIMNamespaceName _nameSpace;
     CIMName _className;
+    CIMNamespaceName _nameSpace;
+
+    // Set upon creation of OA object and used by handleAggregation
+    Boolean _requiresHostnameCompletion;
+    Boolean _hasPropList;
+
     Array<String> propertyList;
     QueryExpressionRep* _query;
     String _queryLanguage;
-    Uint64 _objectCount;
+///    Uint64 _objectCount;
     Boolean _pullOperation;
     Boolean _enumerationFinished;
     Boolean _closeReceived;
@@ -278,28 +319,27 @@ public:
     void* _enumerationContext;
     String _enumerationContextName;
 
-    // Serial number for aggregation packets.  Diagnostic only.
-    Uint64 _aggregationSN;
-    static Uint64 _operationAggregationSNAccumulator;
-
 private:
-    /** Hidden (unimplemented) copy constructor */
+    /** Hidden (unimplemented) copy and assignment constructors */
     OperationAggregate(const OperationAggregate& x);
+    OperationAggregate& operator=(const OperationAggregate&);
 
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
     Mutex _enqueueResponseMutex;
     Mutex _enqueuePullResponseMutex;
-    CIMRequestMessage* _request;
+    CIMOperationRequestMessage* _request;
     Uint32 _totalIssued;
-    Uint32 _magicNumber;
     Uint32 _totalReceived;
     Uint32 _totalReceivedComplete;
     Uint32 _totalReceivedExpected;
     Uint32 _totalReceivedErrors;
     Uint32 _totalReceivedNotSupported;
-    //Boolean _initialResponseGenerated;
+
+    //// Boolean _initialResponseGenerated;
     Magic<0xC531B144> _magic;
+    Uint32 _magicNumber;
+    //// TODO we have both _magic and _magicNumber.  Should we have both??
 };
 
 /******************************************************************************
@@ -310,6 +350,7 @@ private:
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
+    //// TODO Should these be removed.  They are in head cvs now
     friend class QuerySupportRouter;
     friend class ProviderRequests;
 
@@ -450,21 +491,7 @@ public:
 
     // Response Handler functions
 
-    void handleOperationResponseAggregation(OperationAggregate* poA);
-
-    void handleReferencesResponseAggregation(OperationAggregate* poA);
-
-    void handleReferenceNamesResponseAggregation(OperationAggregate* poA);
-
-    void handleAssociatorsResponseAggregation(OperationAggregate* poA);
-
-    void handleAssociatorNamesResponseAggregation(OperationAggregate* poA);
-
-    void handleEnumerateInstancesResponseAggregation(
-        OperationAggregate* poA,
-        bool hasPropList);
-
-    void handleEnumerateInstanceNamesResponseAggregation(
+    void handleOperationResponseAggregation(
         OperationAggregate* poA);
 
     void handleExecQueryResponseAggregation(OperationAggregate* poA);
@@ -493,36 +520,10 @@ protected:
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    Boolean _lookupInternalProvider(
+    ProviderIdContainer* _updateProviderContainer(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Uint32 &serviceId,
-        String& provider);
-
-    /* Boolean _lookupNewQueryProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        String& serviceName,
-        String& controlProviderName,
-        Boolean* notQueryProvider); */
-
-    ProviderInfo _lookupNewInstanceProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    /* String _lookupQueryProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean* notQueryProvider); */
-
-    ProviderInfo _lookupInstanceProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    /* Array<ProviderInfo> _lookupAllQueryProviders(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Uint32& providerCount); */
+        const CIMInstance& pInstance,
+        const CIMInstance& pmInstance);
 
     // @exception CIMException
     ProviderInfoList _lookupAllInstanceProviders(
@@ -535,17 +536,9 @@ protected:
         const CIMName& assocClass,
         const String& role);
 
-    Boolean _lookupNewAssociationProvider(
+    ProviderInfo _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
-        const CIMName& assocClass,
-        Uint32 &serviceId,
-        String& controlProviderName,
-        ProviderIdContainer** container);
-
-    Array<String> _lookupAssociationProvider(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& assocClass,
-        ProviderIdContainer** container);
+        const CIMName& className);
 
     String _lookupMethodProvider(
         const CIMNamespaceName& nameSpace,
@@ -553,25 +546,21 @@ protected:
         const CIMName& methodName,
         ProviderIdContainer** providerIdContainer);
 
-    void _forwardRequestToService(
-        Uint32 serviceId,
-        CIMRequestMessage* request,
-        CIMRequestMessage* requestCopy);
-
     void _forwardRequestForAggregation(
         Uint32 serviceId,
         const String& controlProviderName,
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
+///// <<<<<<< CIMOperationRequestDispatcher.h
 // KS_PULL_BEGIN
 // KS_PULL_TODO - This and other aggregator
 // can be pulled together.
     void _forwardRequestForPullAggregation(
         Uint32 serviceId,
         const String& controlProviderName,
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 //KS_PULL_END
@@ -579,8 +568,14 @@ protected:
         const CIMName& className,
         Uint32 serviceId,
         const String& controlProviderName,
-        CIMRequestMessage* request,
-        CIMRequestMessage* requestCopy);
+        CIMOperationRequestMessage* request,
+        CIMOperationRequestMessage* requestCopy);
+//// =======
+    void _forwardRequestToProvider(
+        const ProviderInfo& providerInfo,
+        CIMOperationRequestMessage* request,
+        CIMOperationRequestMessage* requestCopy);
+
 
     void _getProviderName(
           const OperationContext& context,
@@ -588,18 +583,26 @@ protected:
           String& providerName);
 
     void _logOperation(
-        const CIMRequestMessage* request,
+        const CIMOperationRequestMessage* request,
         const CIMResponseMessage* response);
 
+//// TODO    Boolean _enqueueAggregateResponse(
+//// =======
+
     void _enqueueExceptionResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         CIMException& exception);
 
     void _enqueueExceptionResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         TraceableCIMException& exception);
 
-    Boolean _enqueueAggregateResponse(
+    void _enqueueExceptionResponse(
+        CIMOperationRequestMessage* request,
+        CIMStatusCode code,
+        const String& ExtraInfo);
+
+    Boolean _enqueueResponse(
         OperationAggregate*& poA,
         CIMResponseMessage*& response);
 // KS_PULL_BEGIN
@@ -608,7 +611,7 @@ protected:
         CIMResponseMessage*& response);
 //KS_PULL_END
     void _enqueueResponse(
-        CIMRequestMessage* request,
+        CIMOperationRequestMessage* request,
         CIMResponseMessage* response);
 
     CIMValue _convertValueType(const CIMValue& value, CIMType type);
@@ -617,57 +620,90 @@ protected:
 
     void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 
-
-    // Error Generating Functions - The following functions test for
-    // particular operations parameters, etc. and if the tests fail
-    // generate error response messages.  The all follow the same common
-    // pattern of returning false if the test fails so that the main
-    // function must test the result and return.  This allows putting
-    // the trace method return into the CIMOperationRequestDispatcher main.
-
-    Boolean _rejectAssociationTraversalDisabled(CIMRequestMessage* request,
-        const String& opName);
-
-    Boolean _rejectInvalidRoleParameter(CIMRequestMessage* request,
-        const String& roleParameter,
-        const String& parameterName);
-
-    Boolean _rejectInvalidObjectPathParameter(
-        CIMRequestMessage* request,
-        const CIMObjectPath& path);
-
-    Boolean _rejectIfContinueOnError(CIMRequestMessage* request,
+//// TODO these should probably be below the next big comment
+    Boolean _rejectIfContinueOnError(CIMOperationRequestMessage* request,
         Boolean continueOnError);
 
-    Boolean _rejectInvalidFilterParameters(CIMRequestMessage* request,
+    Boolean _rejectInvalidFilterParameters(CIMOperationRequestMessage* request,
         const String& filterQueryLanguageParam,
         const String& filterQueryParam);
 
-    Boolean _rejectInvalidMaxObjectCountParam(CIMRequestMessage* request,
-        const Uint32Arg& maxObjectCountParam,
+    Boolean _rejectInvalidMaxObjectCountParam(
+        CIMOperationRequestMessage* request,
+        const Uint32 maxObjectCountParam,
         Boolean requiredParameter,
         Uint32& value,
         const Uint32 defaultValue);
 
-    Boolean _rejectInvalidClassParameter(CIMRequestMessage* request,
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         const CIMName& className,
         const CIMNamespaceName& nameSpace,
         CIMConstClass& cimClass);
 
-    Boolean _rejectInvalidOperationTimeout(CIMRequestMessage* request,
+    Boolean _rejectInvalidOperationTimeout(CIMOperationRequestMessage* request,
         const Uint32Arg& operationTimeout);
 
-    Boolean _rejectInValidEnumerationContext(CIMRequestMessage* request,
+    Boolean _rejectInValidEnumerationContext(
+        CIMOperationRequestMessage* request,
         void* enumerationContext);
 
-    Boolean _rejectIfContextTimedOut(CIMRequestMessage* request,
+    Boolean _rejectIfContextTimedOut(CIMOperationRequestMessage* request,
         Boolean isTimedOut);
 
-    Boolean _rejectInvalidPullRequest(CIMRequestMessage* request,
+    Boolean _rejectInvalidPullRequest(CIMOperationRequestMessage* request,
         Boolean valid);
 
-    Boolean _rejectIfEnumerationContextActive(CIMRequestMessage* request,
+    Boolean _rejectIfEnumerationContextActive(
+        CIMOperationRequestMessage* request,
         Boolean active);
+
+    // Request Error Response Functions - The following functions test for
+    // particular operations parameters, etc. and if the tests fail
+    // generate error response messages.  They all follow the same common
+    // pattern of returning true if the test fails so that the main
+    // function must test the result and return.  This allows putting
+    // the trace method return into the CIMOperationRequestDispatcher main.
+
+    Boolean _rejectAssociationTraversalDisabled(
+        CIMOperationRequestMessage* request,
+        const String& opName);
+
+    Boolean _rejectInvalidRoleParameter(CIMOperationRequestMessage* request,
+        const String& roleParameter,
+        const String& parameterName);
+
+    Boolean _rejectInvalidObjectPathParameter(
+        CIMOperationRequestMessage* request,
+        const CIMObjectPath& path);
+
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName);
+
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        CIMConstClass& targetClass);
+    /**
+        Reject if no providers or repository for this class
+    */
+    Boolean _rejectNoProvidersOrRepository(CIMOperationRequestMessage* request,
+        Uint32 providerCount, const CIMName& className);
+
+    /**
+        Checks whether the number of providers required to complete an
+        operation is greater than the maximum allowed.
+        @param nameSpace The target namespace of the operation.
+        @param className The name of the class specified in the request.
+        @param providerCount The number of providers required to complete the
+            operation.
+        @exception CIMException if the providerCount is greater than the
+            maximum allowed.
+    */
+    void _rejectEnumerateTooBroad(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Uint32 providerCount);
 
     /**
         Checks whether the specified class is defined in the specified
@@ -698,37 +734,37 @@ protected:
     repository is not to be used and there are NO providers registered.
     TODO - Check if this is really valid
 */
-    Boolean _checkNoProvidersOrRepository(CIMRequestMessage* request,
+    Boolean _checkNoProvidersOrRepository(CIMOperationRequestMessage* request,
         Uint32 providerCount, const CIMName& className);
 
-    /**
-        Checks whether the number of providers required to complete an
-        operation is greater than the maximum allowed.
-        @param nameSpace The target namespace of the operation.
-        @param className The name of the class specified in the request.
-        @param providerCount The number of providers required to complete the
-            operation.
-        @exception CIMException if the providerCount is greater than the
-            maximum allowed.
-    */
-    void _checkEnumerateTooBroad(
+
+    //// KS TODO KS_TBD -- Should this one still be here???
+    void enumerateInstancesFromRepository(
+        CIMEnumerateInstancesResponseMessage *response,
+        OperationAggregate* poA,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Uint32 providerCount);
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     CIMRepository* _repository;
 
     ProviderRegistrationManager* _providerRegistrationManager;
 
-    // Determine if association requests are allowed. If false, all
+    // TODO Determine if association requests are allowed. If false, all
     // association and reference requests will be refused.
+    //
+    // Enable particular Operations or services
+    //
     Boolean _enableAssociationTraversal;
     Boolean _enableIndicationService;
 
-    // Define the maximum number of class that is the maximum that
-    // will be allowed on input.  This allows the system to limit the
-    // size of enumeration responses, at least in terms of number of
-    // classes that can be included in a enumeration.
+    // Define the maximum number of classes that system will enumerate
+    // Allows the system to limit the size of enumeration responses,
+    // at least in terms of number of classes that can be included in
+    // an enumeration. Does not limit number of objects in enumeration
+    // response.
     Uint32 _maximumEnumerateBreadth;
 
     // Define the maximum number of objects that the system will accept
@@ -746,28 +782,35 @@ protected:
     Uint32 _systemMaxOperationTimeout;
 
     static Uint64 cimOperationAggregationSN;
+
     Uint32 _providerManagerServiceId;
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Array<String> _excludeModulesFromNormalization;
 #endif
 
+    // meta dispatcher integration
     virtual void _handle_async_request(AsyncRequest* req);
-
-    // the following two methods enable specific query language implementations
-
-    /* void handleQueryRequest(
-        CIMExecQueryRequestMessage* request);
-
-    void handleQueryResponseAggregation(
-        OperationAggregate* poA);
-
-    void applyQueryToEnumeration(CIMResponseMessage* msg,
-        QueryExpressionRep* query);
-    */
 
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
 
+
+    Boolean _lookupAssociationProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& assocClass,
+        ProviderInfo& providerInfo );
+
+    Array<String> _lookupRegisteredAssociationProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& assocClass,
+        ProviderIdContainer** container);
+
+    Boolean _lookupInternalProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        ProviderInfo& providerInfo);
+
+    // Pointer to internal RoutingTable for Control Providers and Services
     DynamicRoutingTable *_routing_table;
 };
 

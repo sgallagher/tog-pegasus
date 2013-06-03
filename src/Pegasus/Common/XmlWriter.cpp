@@ -153,7 +153,8 @@ void XmlWriter::appendInstanceNameElement(
         if (keyBindings[i].getType() == CIMKeyBinding::REFERENCE)
         {
             CIMObjectPath ref = keyBindings[i].getValue();
-            appendValueReferenceElement(out, ref, true);
+            // create an instancePath (i.e. isClassPath = false)
+            appendValueReferenceElement(out, ref, false, true);
         }
         else
         {
@@ -161,7 +162,7 @@ void XmlWriter::appendInstanceNameElement(
             out << keyBindingTypeToString(keyBindings[i].getType());
             out << STRLIT("\">");
 
-            // fixed the special character problem - Markus
+            // fixed the special characters
 
             appendSpecial(out, keyBindings[i].getValue());
             out << STRLIT("</KEYVALUE>\n");
@@ -256,6 +257,8 @@ void XmlWriter::appendLocalInstancePathElement(
 //
 //------------------------------------------------------------------------------
 
+// appendValueReferenceElement does this correctly with isClassPath flag
+// Called only but formatSimple
 void XmlWriter::appendLocalObjectPathElement(
     Buffer& out,
     const CIMObjectPath& objectPath)
@@ -265,6 +268,7 @@ void XmlWriter::appendLocalObjectPathElement(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
     //  key bindings
+    //  See bBUG_3302.
     //
     if (objectPath.getKeyBindings ().size () != 0)
     {
@@ -356,7 +360,8 @@ inline void _xmlWritter_appendValue(Buffer& out, const CIMDateTime& x)
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObjectPath& x)
 {
-    XmlWriter::appendValueReferenceElement(out, x, true);
+    // Emit Instance Path with value wrapper
+    XmlWriter::appendValueReferenceElement(out, x, false, true);
 }
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObject& x)
@@ -552,7 +557,7 @@ void XmlWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
     }
     else if (value.getType() == CIMTYPE_REFERENCE)
@@ -695,7 +700,7 @@ void XmlWriter::appendValueElement(
                 break;
             }
             default:
-                PEGASUS_ASSERT(false);
+                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
         }
 
         out << STRLIT("</VALUE>\n");
@@ -725,11 +730,14 @@ void XmlWriter::appendValueObjectWithPathElement(
     const CIMObject& objectWithPath,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
+    Boolean isClassObject,
     const CIMPropertyList& propertyList)
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
-    appendValueReferenceElement(out, objectWithPath.getPath (), false);
+    appendValueReferenceElement(out, objectWithPath.getPath (),
+        isClassObject , false);
+
     appendObjectElement(
         out,
         objectWithPath,
@@ -750,66 +758,79 @@ void XmlWriter::appendValueObjectWithPathElement(
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendValueReferenceElement(
+// appends INSTANCEPATH | LOCALINSTANCEPATH | INSTANCENAME
+void XmlWriter::appendValueInstancePathElement(
     Buffer& out,
-    const CIMObjectPath& reference,
-    Boolean putValueWrapper)
+    const CIMObjectPath& reference)
 {
-    if (putValueWrapper)
-        out << STRLIT("<VALUE.REFERENCE>\n");
-
-    // See if it is a class or instance reference (instance references have
-    // key-bindings; class references do not).
-    //
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class has no
-    //  key bindings
-    //
-
-    const Array<CIMKeyBinding>& kbs = reference.getKeyBindings();
-
-    if (kbs.size())
+    if (reference.getHost().size())
     {
-        if (reference.getHost().size())
-        {
-            appendInstancePathElement(out, reference);
-        }
-        else if (!reference.getNameSpace().isNull())
-        {
-            appendLocalInstancePathElement(out, reference);
-        }
-        else
-        {
-            appendInstanceNameElement(out, reference);
-        }
+        appendInstancePathElement(out, reference);
+    }
+    else if (!reference.getNameSpace().isNull())
+    {
+        appendLocalInstancePathElement(out, reference);
     }
     else
     {
-        if (reference.getHost().size())
-        {
-            appendClassPathElement(out, reference);
-        }
-        else if (!reference.getNameSpace().isNull())
-        {
-            appendLocalClassPathElement(out, reference);
-        }
-        else
-        {
-            appendClassNameElement(out, reference.getClassName());
-        }
+        appendInstanceNameElement(out, reference);
+    }
+}
+
+// appends CLASSPATH | LOCALCLASSPATH | CLASSNAME
+void XmlWriter::appendValueClassPathElement(
+    Buffer& out,
+    const CIMObjectPath& reference)
+{
+    if (reference.getHost().size())
+    {
+        appendClassPathElement(out, reference);
+    }
+    else if (!reference.getNameSpace().isNull())
+    {
+        appendLocalClassPathElement(out, reference);
+    }
+    else
+    {
+        appendClassNameElement(out, reference.getClassName());
+    }
+}
+
+// Builds either a classPath or InstancePath based on isClassPath
+// parameter which was carried forward from, for example, the
+// request. If wrapper true, wrap output with <VALUE.REFERENCE>
+void XmlWriter::appendValueReferenceElement(
+    Buffer& out,
+    const CIMObjectPath& reference,
+    Boolean isClassPath,
+    Boolean addValueWrapper)
+{
+    if (addValueWrapper)
+    {
+         out << STRLIT("<VALUE.REFERENCE>\n");
+    }
+    if (isClassPath)
+    {
+        appendValueClassPathElement(out,reference);
+    }
+    else
+    {
+        appendValueInstancePathElement(out,reference);
     }
 
-    if (putValueWrapper)
+    if (addValueWrapper)
+    {
         out << STRLIT("</VALUE.REFERENCE>\n");
+    }
 }
 
 void XmlWriter::printValueReferenceElement(
     const CIMObjectPath& reference,
+    Boolean isClassPath,
     PEGASUS_STD(ostream)& os)
 {
     Buffer tmp;
-    appendValueReferenceElement(tmp, reference, true);
+    appendValueReferenceElement(tmp, reference, isClassPath, true);
     indentedPrint(os, tmp.getData());
 }
 
@@ -967,7 +988,7 @@ void XmlWriter::appendInstanceElement(
             XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
     }
     if(propertyList.isNull())
-    { 
+    {
         for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
         {
             XmlWriter::appendPropertyElement(
@@ -1153,8 +1174,8 @@ void XmlWriter::appendPropertyElement(
                 // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
                 // defined, then the EmbeddedInstance qualifier will be added
 # ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE ==
-                        PEG_NOT_FOUND)
+                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
+                        == PEG_NOT_FOUND)
                 {
                     // Note that addQualifiers() cannot be called on a const
                     // CIMQualifierRep.  In this case we really do want to add
@@ -1230,7 +1251,7 @@ void XmlWriter::appendPropertyElement(
 
         out << STRLIT(">\n");
         if(includeQualifiers)
-        {  
+        {
             for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
                 XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
@@ -1835,8 +1856,8 @@ void XmlWriter::appendMethodCallHeader(
     // This should be removed when stable. This should only be turned off in
     // a debugging/testing environment.
 
-    static const char *clientTransferEncodingOff =
-        getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+////    static const char *clientTransferEncodingOff =
+////        getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
 
     // EXP_PULL_TEMP DELETE
     // KS_TODO - Remove this. Temp to insure no chunking during testing
@@ -2466,11 +2487,22 @@ void XmlWriter::appendBooleanIReturnValue(
     out << STRLIT("</VALUE>\n");
     _appendIReturnValueElementEnd(out);
 }
+void XmlWriter::appendUint32IParameter(
+    Buffer& out,
+    const char* name,
+    Uint32 val)
+{
+    _appendIParamValueElementBegin(out, name);
+    out << STRLIT("<VALUE>");
+    append(out, val);
+    out << STRLIT("</VALUE>\n");
+    _appendIParamValueElementEnd(out);
+}
 
 // Can be used to generate either parameters with value,
 // parameters with NULL (i.e. no value element) or
 // no parameters output at all.
-void XmlWriter::appendUint32IParameter(
+void XmlWriter::appendUint32ArgIParameter(
     Buffer& out,
     const char* name,
     const Uint32Arg& val,
@@ -2547,7 +2579,7 @@ void XmlWriter::appendStringIParameterIfNotEmpty(
     {
         appendStringIParameter(out,name,str);
     }
-} 
+}
 
 //------------------------------------------------------------------------------
 //
@@ -2624,29 +2656,6 @@ void XmlWriter::appendInstanceNameIParameter(
     _appendIParamValueElementBegin(out, name);
     appendInstanceNameElement(out, instanceName);
     _appendIParamValueElementEnd(out);
-}
-
-void XmlWriter::appendObjectNameIParameter(
-    Buffer& out,
-    const char* name,
-    const CIMObjectPath& objectName)
-{
-    //
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
-    //
-    if (objectName.getKeyBindings ().size () == 0)
-    {
-        XmlWriter::appendClassNameIParameter(
-            out, name, objectName.getClassName());
-    }
-    else
-    {
-        XmlWriter::appendInstanceNameIParameter(
-            out, name, objectName);
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -3477,7 +3486,7 @@ const StrLit XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
 
         case CIMKeyBinding::REFERENCE:
         default:
-            PEGASUS_ASSERT(false);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
 
     return STRLIT("unknown");

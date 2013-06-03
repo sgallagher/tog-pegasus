@@ -97,16 +97,14 @@ SYS_LIBS = -ldl -lpthread -lcrypt
 
 ifeq ($(COMPILER), clang)
     FLAGS += -W -Wall -Wno-unused-parameter  -Wno-unused-value -D_GNU_SOURCE \
-        -DTHREAD_SAFE -D_REENTRANT -Werror=unused-variable -Wno-unused-function \
-        -Werror=switch
+        -DTHREAD_SAFE -D_REENTRANT -Werror=unused-variable -Wno-unused-function
 else
     FLAGS += -W -Wall -Wno-unused -Wunused-variable
   # Starting with gcc 4.3 specific warnings can be reported as error
   # Enabling a specific selection of warnings to turn into errors
   ifeq ($(shell expr $(GCC_VERSION) '>=' 4.3), 1)
     FLAGS += -Werror=unused-variable
-    FLAGS += -Werror=switch
-   endif
+  endif
     FLAGS += -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif
 
@@ -127,9 +125,9 @@ else
   # appeared in the 3.0 series of compilers.
   #
   ifeq ($(COMPILER), gnu)
-   # disable the strict aliasing
+   FLAGS += -s
    ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
-     PEGASUS_EXTRA_CXX_FLAGS += -fno-enforce-eh-specs -fno-strict-aliasing
+     EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
    endif
   endif
       

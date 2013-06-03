@@ -696,6 +696,31 @@ void ProviderAgent::_processStopAllProvidersRequest(CIMRequestMessage* request)
     PEG_METHOD_EXIT();
 }
 
+inline void _completeHostNameAndNamespace(
+    CIMRequestMessage* request,
+    Message* response)
+{
+    MessageType msgType = request->getType();
+    if (msgType == CIM_ASSOCIATORS_REQUEST_MESSAGE ||
+        msgType == CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE ||
+        msgType == CIM_REFERENCES_REQUEST_MESSAGE ||
+        msgType == CIM_REFERENCE_NAMES_REQUEST_MESSAGE)
+    {
+        // can do this cast here since we know request to be one of the four
+        // association request messages
+        CIMOperationRequestMessage* reqMsg=
+            (CIMOperationRequestMessage*) request;
+        // Can use System::getHostName() reliably here since it was initialized
+        // through the COnfigManager at start of ProviderAgent.
+        CIMResponseDataMessage * rspMsg= (CIMResponseDataMessage*) response;
+        CIMResponseData & rspData = rspMsg->getResponseData();
+
+        rspData.completeHostNameAndNamespace(
+            System::getHostName(),
+            reqMsg->nameSpace);
+    }
+}
+
 Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_processRequest");
@@ -706,6 +731,10 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     {
         // Forward the request to the ProviderManager
         response = _providerManagerRouter.processMessage(request);
+
+        // for association operations we need to complete hostname and
+        // namespace before the response data gets binary encoded in 
+        _completeHostNameAndNamespace(request,response);
     }
     catch (Exception& e)
     {

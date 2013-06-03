@@ -686,6 +686,23 @@ IndicationInfo* DestinationQueue::getNextIndicationForDelivery(
     return 0;
 }
 
+void DestinationQueue::setDeliveryRetryAttempts( Uint16 DeliveryRetryAttempts )
+{
+    AutoMutex mtx(_intializeMutex);
+    _maxDeliveryRetryAttempts = DeliveryRetryAttempts ;
+    _sequenceIdentifierLifetimeUsec = _maxDeliveryRetryAttempts *
+        _minDeliveryRetryIntervalUsec * 10;
+}
+
+void DestinationQueue::setminDeliveryRetryInterval(
+    Uint32 minDeliveryRetryInterval)
+{
+    AutoMutex mtx(_intializeMutex);
+    _minDeliveryRetryIntervalUsec =  Uint64(minDeliveryRetryInterval)*1000000 ;
+    _sequenceIdentifierLifetimeUsec = _maxDeliveryRetryAttempts *
+        _minDeliveryRetryIntervalUsec * 10;
+}
+
 void DestinationQueue::getInfo(QueueInfo &qinfo)
 {
     AutoMutex mtx(_queueMutex);
@@ -707,4 +724,3 @@ void DestinationQueue::getInfo(QueueInfo &qinfo)
 }
 
 PEGASUS_NAMESPACE_END
-

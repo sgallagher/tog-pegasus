@@ -39,11 +39,8 @@ LIBRARY = pegauthentication
 
 LIBRARIES = \
     pegcommon \
+    peguser   \
     pegconfig
-
-ifndef PEGASUS_PAM_AUTHENTICATION
-  LIBRARIES += peguser
-endif
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   LIBRARIES += ILEWrapperUtils
@@ -56,7 +53,6 @@ ifeq ($(OS),HPUX)
 endif
 
 SOURCES = \
-    AuthenticationStatus.cpp \
     LocalAuthFile.cpp \
     SecureLocalAuthenticator.cpp \
     LocalAuthenticationHandler.cpp \

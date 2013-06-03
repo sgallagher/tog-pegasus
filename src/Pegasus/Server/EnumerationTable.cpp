@@ -385,7 +385,7 @@ void EnumerationTable::removeExpiredContexts()
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationTable::removeExpiredContexts");
 
     AutoMutex autoMut(tableLock);
-    Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
+////  Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
 
     // Search enumeration table for entries timed out
     for (HT::Iterator i = ht.start(); i; i++)

@@ -164,9 +164,9 @@ void test04()
     // value of each entry.
     for (HT::Iterator i = ht.start(); i; i++)
     {
-        Uint32* value;
+        Uint32* value = 0;
         Uint32 key = i.key();
-        ht.lookupReference(key,value);
+        PEGASUS_TEST_ASSERT(ht.lookupReference(key,value));
         *value = *value + 1;
     }
 
@@ -183,7 +183,7 @@ void test04()
 
 }
 
-int main(int argc, char** argv)
+int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

@@ -58,7 +58,6 @@ public:
         MessageQueue* outputQueue,
         const String& hostName,
         ClientAuthenticator* authenticator,
-        Uint32 showOutput,
         bool binaryRequest = false,
         bool binaryResponse = false);
 
@@ -190,8 +189,7 @@ private:
     MessageQueue* _outputQueue;
     CString _hostName;
     ClientAuthenticator* _authenticator;
-    // Controls client trace output. 1 = con, 2 == log
-    Uint32 _showOutput;
+
     ClientPerfDataStore* dataStore_prt;
     bool _binaryRequest;
     bool _binaryResponse;

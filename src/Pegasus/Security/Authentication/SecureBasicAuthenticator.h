@@ -32,9 +32,7 @@
 #ifndef Pegasus_SecureBasicAuthenticator_h
 #define Pegasus_SecureBasicAuthenticator_h
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
-# include <Pegasus/Security/UserManager/UserManager.h>
-#endif
+#include <Pegasus/Security/UserManager/UserManager.h>
 
 #include "BasicAuthenticator.h"
 
@@ -61,9 +59,9 @@ public:
         @param password String containing the user password
         @param authInfo AuthenticationInfo holding ALL request specific
                authentication information
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    AuthenticationStatus authenticate(
+    Boolean authenticate(
         const String& userName,
         const String& password,
         AuthenticationInfo* authInfo);
@@ -73,9 +71,9 @@ public:
         @param userName String containing the user name
         @param authInfo reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful validation, false otherwise
     */
-    AuthenticationStatus validateUser(
+    Boolean validateUser(
         const String& userName,
         AuthenticationInfo* authInfo);
 
@@ -103,9 +101,7 @@ private:
 #endif // end PEGASUS_OS_ZOS
 
     String        _realm;
-#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager*  _userManager;
-#endif
 };
 
 PEGASUS_NAMESPACE_END

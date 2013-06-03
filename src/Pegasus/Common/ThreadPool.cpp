@@ -368,7 +368,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
 
     Uint32 numThreadsCleanedUp = 0;
 
-    const Uint32 numIdleThreads = _idleThreads.size();
+    Uint32 numIdleThreads = _idleThreads.size();
     for (Uint32 i = 0; i < numIdleThreads; i++)
     {
         // Do not dip below the minimum thread count

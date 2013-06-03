@@ -75,12 +75,10 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     int flag = 1 ;
     char* illegal;
     char path[100];
-    void* hdl;
     CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIString *type;
     CMPIString *cmpiStr;
     CMPIBoolean bol=0;
-    CMPIBoolean bool=0;
     CMPIArray* cmpiArray = NULL ;
     CMPIInstance* instance = NULL;
     CMPIInstance* instance1 = NULL;
@@ -976,15 +974,9 @@ CMPIStatus TestCMPIBrokerEncProviderInvokeMethod (CMPIMethodMI * mi,
 
     CMPIString *argName = NULL;
 
-    CMPIInstance *instance = NULL;
-    CMPIInstance *paramInst = NULL;
-
     unsigned int arg_cnt = 0, index = 0;
 
     CMPIUint32 oper_rc = 1;
-
-    char *result = NULL;
-
 
     PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 

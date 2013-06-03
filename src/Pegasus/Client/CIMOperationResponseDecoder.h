@@ -79,8 +79,8 @@ public:
     CIMOperationResponseDecoder(
         MessageQueue* outputQueue,
         MessageQueue* encoderQueue,
-        ClientAuthenticator* authenticator,
-        Uint32 showInput);
+        ClientAuthenticator* authenticator
+        );
 
     /** Destructor. */
     ~CIMOperationResponseDecoder();
@@ -238,43 +238,43 @@ private:
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMOpenEnumerateInstancePathsResponseMessage* 
+    CIMOpenEnumerateInstancePathsResponseMessage*
         _decodeOpenEnumerateInstancePathsResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMOpenReferenceInstancesResponseMessage* 
+    CIMOpenReferenceInstancesResponseMessage*
         _decodeOpenReferenceInstancesResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMOpenReferenceInstancePathsResponseMessage* 
+    CIMOpenReferenceInstancePathsResponseMessage*
         _decodeOpenReferenceInstancePathsResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMOpenAssociatorInstancesResponseMessage* 
+    CIMOpenAssociatorInstancesResponseMessage*
         _decodeOpenAssociatorInstancesResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMOpenAssociatorInstancePathsResponseMessage* 
+    CIMOpenAssociatorInstancePathsResponseMessage*
         _decodeOpenAssociatorInstancePathsResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMPullInstancesWithPathResponseMessage* 
+    CIMPullInstancesWithPathResponseMessage*
         _decodePullInstancesWithPathResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMPullInstancePathsResponseMessage* 
+    CIMPullInstancePathsResponseMessage*
         _decodePullInstancePathsResponse(
             XmlParser& parser,
             const String& messageId,
@@ -296,9 +296,6 @@ private:
     MessageQueue*        _encoderQueue;
 
     ClientAuthenticator* _authenticator;
-
-    // Controls decoder client displays 1 = con, 2 = log display
-    Uint32               _showInput;
 
     ClientPerfDataStore* dataStore;
 };

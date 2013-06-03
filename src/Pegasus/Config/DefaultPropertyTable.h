@@ -30,7 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultPropertyTable_h
-# define Pegasus_DefaultPropertyTable_h
+#define Pegasus_DefaultPropertyTable_h
 
     {"socketWriteTimeout", PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS_STRING,
         IS_DYNAMIC, IS_VISIBLE},
@@ -39,15 +39,9 @@
     {"listenAddress", "All", IS_STATIC, IS_VISIBLE},
     {"hostname", "", IS_STATIC, IS_VISIBLE},
     {"fullyQualifiedHostName", "", IS_STATIC, IS_VISIBLE},
-# ifdef PEGASUS_ENABLE_SLP
+#ifdef PEGASUS_ENABLE_SLP
     {"slpProviderStartupTimeout", "300000", IS_STATIC, IS_VISIBLE},
-# endif
-# ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    {"webRoot", "www", IS_STATIC, IS_VISIBLE},
-    {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
-    {"mimeTypesFile", "www/mimeTypes.txt", IS_STATIC, IS_VISIBLE},
-# endif
-
+#endif
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "DefaultPropertyTableLinux.h"
 #elif defined(PEGASUS_OS_SOLARIS)
@@ -86,4 +80,5 @@
 # endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE}
 #endif
+
 #endif /* Pegasus_DefaultPropertyTable_h */

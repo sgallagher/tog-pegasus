@@ -52,6 +52,7 @@
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
+#include <Pegasus/Common/StringConversion.h>
 
 #include <Pegasus/General/SSLContextManager.h>
 
@@ -65,6 +66,7 @@
 #include <Pegasus/IndicationService/IndicationService.h>
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
+#include "reg_table.h"  // Location of DynamicRoutingTable
 
 #if defined PEGASUS_OS_ZOS
 # include "ConsoleManager_zOS.h"
@@ -112,6 +114,7 @@ CIMQueryCapabilitiesProvider.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
+
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void *parm);
 // Configurable SLP port to be handeled in a separate bug.
@@ -236,7 +239,7 @@ SCMOClass CIMServer::_scmoClassCache_GetClass(
     CIMClass cc;
 
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_scmoClassCache_GetClass()");
-    try 
+    try
     {
         cc = _cimserver->_repository->getClass(
             nameSpace,
@@ -256,7 +259,7 @@ SCMOClass CIMServer::_scmoClassCache_GetClass(
                    (const char*)e.getMessage().getCString()));
         // Return a empty class.
         PEG_METHOD_EXIT();
-        return SCMOClass("","");        
+        return SCMOClass("","");
     }
 
     if (cc.isUninitialized())
@@ -311,8 +314,7 @@ void CIMServer::_init()
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
-
-    UserManager* userManager = UserManager::getInstance(_repository);
+    UserManager::getInstance(_repository);
 
     // -- Create a SCMOClass Cache and set call back for the repository
 
@@ -521,6 +523,12 @@ void CIMServer::_init()
         _repository,
         _providerRegistrationManager);
 
+    // Build the Control Provider and Service internal routing table. This must
+    // be called after MessageQueueService initialized and ServiceQueueIds
+    // installed.
+
+    DynamicRoutingTable::buildRoutingTable();
+
     // Enable the signal handler to shutdown gracefully on SIGHUP and SIGTERM
     getSigHandle()->registerHandler(PEGASUS_SIGHUP, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGHUP);
@@ -688,7 +696,8 @@ CIMServer::~CIMServer ()
 void CIMServer::addAcceptor(
     Uint16 connectionType,
     Uint32 portNumber,
-    Boolean useSSL)
+    Boolean useSSL,
+    HostAddress *ipAddress)
 {
     HTTPAcceptor* acceptor;
 
@@ -698,7 +707,8 @@ void CIMServer::addAcceptor(
         connectionType,
         portNumber,
         useSSL ? _getSSLContext() : 0,
-        useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
+        useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0,
+        ipAddress);
 
     _acceptors.append(acceptor);
 }
@@ -1090,8 +1100,8 @@ SSLContext* CIMServer::_getSSLContext()
     //
     String cipherSuite = configManager->getCurrentValue(
         PROPERTY_NAME__SSL_CIPHER_SUITE);
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4, "Cipher suite is %s", 
-        (const char*)cipherSuite.getCString())); 
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4, "Cipher suite is %s",
+        (const char*)cipherSuite.getCString()));
 
     //
     // Create the SSLContext defined by the configuration properties
@@ -1227,8 +1237,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
     try
     {
         client.connectLocal();
-        // set client timeout to 2 seconds
-        client.setTimeout(40000);
+
+        String timeoutStr=
+            ConfigManager::getInstance()->getCurrentValue(
+                "slpProviderStartupTimeout");
+        Uint64 timeOut;
+
+        StringConversion::decimalStringToUint64(
+            timeoutStr.getCString(),
+            timeOut);
+        client.setTimeout(timeOut & 0xFFFFFFFF);
+
         String referenceStr = "//";
         referenceStr.append(hostStr);
         referenceStr.append("/");
@@ -1242,12 +1261,29 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
         Array<CIMParamValue> inParams;
         Array<CIMParamValue> outParams;
 
-        CIMValue retValue = client.invokeMethod(
-            PEGASUS_NAMESPACENAME_INTERNAL,
-            reference,
-            CIMName("register"),
-            inParams,
-            outParams);
+        Uint32 retries = 3;
+
+        while (retries > 0)
+        {
+            try
+            {
+                CIMValue retValue = client.invokeMethod(
+                    PEGASUS_NAMESPACENAME_INTERNAL,
+                    reference,
+                    CIMName("register"),
+                    inParams,
+                    outParams);
+                break;
+            }
+            catch(ConnectionTimeoutException&)
+            {
+                retries--;
+                if (retries == 0)
+                {
+                    throw;
+                }
+            }
+        }
 
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,

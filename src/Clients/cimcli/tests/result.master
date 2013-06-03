@@ -304,6 +304,7 @@ referenceParamArray=Test_CLITestProviderClass.Id="100" Test_CLITestProviderClass
 INPUT ERROR: Missing Embedded object Terminator i.e. "}"
 INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
 INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
+Returned Path  Test_CLITestEmbeddedClass.Id=""
 INPUT ERROR: "!" terminator allowed only on String type.  Parameter= scalBool!
 INPUT ERROR: No name on input parameter =1204 
 INPUT ERROR: No name on input parameter {Test_CLITestEmbedded1 

@@ -47,7 +47,7 @@ LIBRARIES = \
 
 SOURCES = snmpIndicationHandler.cpp
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
+ifdef PEGASUS_USE_EMANATE
     ifdef PEGASUS_EMANATE_LIB_DIR
         EXTRA_LIBRARIES += -L$(PEGASUS_EMANATE_LIB_DIR)
     endif 
@@ -67,7 +67,7 @@ ifeq ($(PEGASUS_USE_EMANATE), true)
     SOURCES += snmpDeliverTrap_emanate.cpp
 else
     # Controls snmp indication handler to use NET-SNMP to deliver trap
-    ifeq ($(PEGASUS_USE_NET_SNMP), true)
+    ifdef PEGASUS_USE_NET_SNMP
         ifdef PEGASUS_NET_SNMP_LIB_DIR
             EXTRA_LIBRARIES += -L$(PEGASUS_NET_SNMP_LIB_DIR)
         endif
@@ -78,8 +78,6 @@ else
         endif
 
         SOURCES += snmpDeliverTrap_netsnmp.cpp
-    else
-        $(error no PEGASUS SNMP option is set)
     endif
 endif
 

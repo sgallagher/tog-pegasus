@@ -127,7 +127,7 @@ EnumerationContext::EnumerationContext(
     _interOperationTimer(0),
     _pullRequestType(pullRequestType_),
     _closed(false),
-    _providersComplete(false),    
+    _providersComplete(false),
     _active(false),
     _error(false),
     _waiting(false),
@@ -201,7 +201,7 @@ void EnumerationContext::startTimer()
 // KS_TODO - Temporarily disabled the timer test thread to determine if this
 // is causing the problem with crashes.  Right not it appears not because
 // the problem occurred in testing 16 Jan.  Will leave this in for one day.
-//    _enumerationTable->dispatchTimerThread((_operationTimeoutSec));
+//    _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
 #endif
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
@@ -230,7 +230,7 @@ void EnumerationContext::stopTimer()
     Returns boolean true if timer not zero and is Interoperation timer
     is greater than interoperation timeout.
 */
-Boolean EnumerationContext::isTimedOut()
+Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
 {
     PEGASUS_ASSERT(valid());            // KS_TEMP
     if (_interOperationTimer == 0)
@@ -239,7 +239,6 @@ Boolean EnumerationContext::isTimedOut()
             "Context Timer _interoperationTimer == 0."));
             return false;
     }
-    Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
     Boolean timedOut = (_interOperationTimer < currentTime)? true : false;
 
     Uint64 diff;
@@ -271,6 +270,11 @@ Boolean EnumerationContext::isTimedOut()
     return(timedOut);
 }
 
+Boolean EnumerationContext::isTimedOut()
+{
+    Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
+    return isTimedOut(currentTime);
+}
 Boolean EnumerationContext::isActive()
 {
     return _active;
@@ -319,7 +323,7 @@ void EnumerationContext::trace()
 
 /**
  * validate the magic object for this context
- * 
+ *
  * @return Boolean True if valid object.
  */
 Boolean EnumerationContext::valid()
@@ -350,7 +354,7 @@ void EnumerationContext::removeContext()
     PEGASUS_ASSERT(valid());   // KS_TEMP;
 
     // KS_TODO - We should be able to go to direct pointer function
-    _enumerationTable->remove(_enumerationContextName);
+    _enumerationContextTable->remove(_enumerationContextName);
     PEG_METHOD_EXIT();
 }
 
@@ -404,13 +408,13 @@ void EnumerationContext::putCache(MessageType type,
     else
     {
         _insertResponseIntoCache(type, response);
-    
+
         // test and set the high water mark for this cache.
         if (responseCacheSize() > _cacheHighWaterMark)
         {
             _cacheHighWaterMark = responseCacheSize();
         }
-    
+
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "After putCache responseCacheSize %u. CIMResponseData size %u."
             " signal CacheSizeConditon",
@@ -428,7 +432,7 @@ void EnumerationContext::putCache(MessageType type,
         // Added waiting flag so that we do not remove the context if it is
         // in waiting mode. But, then we take responsibility for removing
         // it.  NOTE: This means it cannot be used after the putCache call
-            
+
         // Wait for the cache size to drop below the limit requested here
         // before returning to caller. This blocks providers until wait
         // completed.
@@ -450,6 +454,7 @@ void EnumerationContext::putCache(MessageType type,
 
 // Internal function to actually insert into the cache. This function
 // operates with the cache locked.
+// Note that the Type is the Request Type, not the response Type
 void EnumerationContext::_insertResponseIntoCache(MessageType type,
                                   CIMResponseMessage*& response)
 {
@@ -521,8 +526,7 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
             static const char failMsg[] =
                 "Invalid response type to pull: ";
             PEG_TRACE(( TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "%u", failMsg,
-                type));
+                "%s %u", failMsg,  type));
             PEGASUS_ASSERT(0);
             break;
     } // end switch
@@ -530,14 +534,14 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
     PEG_METHOD_EXIT();
 }
 
-/***************************************************************************** 
-** 
+/*****************************************************************************
+**
 **     Methods to support the EnumerationContext CIMResponseData Cache
-** 
-*****************************************************************************/ 
+**
+*****************************************************************************/
 /*
     Move the number of objects defined by count from the CIMResponseData
-    cache for this EnumerationContext to theCIMResponseData object 
+    cache for this EnumerationContext to theCIMResponseData object
      defined by the input parameter.
     The wait function is called before removing items from the cache and
     only completes when a. there are sufficient objects, b. the providers
@@ -611,7 +615,7 @@ Uint32 EnumerationContext::responseCacheSize()
 // processing.
 // The return is executed only when one of these conditions has been met.
 // This function uses a condition variable to control the return.
-    
+
 void EnumerationContext::waitCacheSizeCondition(Uint32 size)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -634,7 +638,7 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     // providers complete
     // KS_TODO change this to automutex
     _cacheTestCondMutex.lock();
-    while (!_providersComplete && (responseCacheSize() < size)) 
+    while (!_providersComplete && (responseCacheSize() < size))
     {
         _cacheTestCondition.wait(_cacheTestCondMutex);
     }
@@ -666,18 +670,18 @@ void EnumerationContext::signalCacheSizeCondition()
     PEG_METHOD_EXIT();
 }
 
-/***************************************************************************** 
-** 
+/*****************************************************************************
+**
 **  Provider Limit Condition Variable functions. wait, signal
-**  
+**
 *****************************************************************************/
 /*
     Wait condition on returning to providers from putcache.  This allows
     dispatcher to stop responses from providers while pull operations
     reduce the size of the cache.  The condition variable should be
     signaled when the cache size drops below a defined point OR
-    if a close is received (so the responses can be discarded) 
-*/ 
+    if a close is received (so the responses can be discarded)
+*/
 void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -690,7 +694,7 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 
     Stopwatch waitTimer;
     waitTimer.start();
-    while (!_closed && (responseCacheSize() > limit)) 
+    while (!_closed && (responseCacheSize() > limit))
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
@@ -772,7 +776,7 @@ Boolean EnumerationContext::ifEnumerationComplete()
     {
         setActiveState(false);
     }
-  
+
     return false;
 }
 

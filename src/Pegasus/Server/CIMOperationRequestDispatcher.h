@@ -280,10 +280,6 @@ public:
 
     void deleteResponse(const Uint32&pos);
 
-////    void incObjectCount();
-
-////    void decObjectCount();
-
     MessageType getRequestType() const;
 
     void resequenceResponse(CIMResponseMessage& response);
@@ -336,10 +332,7 @@ private:
     Uint32 _totalReceivedErrors;
     Uint32 _totalReceivedNotSupported;
 
-    //// Boolean _initialResponseGenerated;
     Magic<0xC531B144> _magic;
-    Uint32 _magicNumber;
-    //// TODO we have both _magic and _magicNumber.  Should we have both??
 };
 
 /******************************************************************************
@@ -350,7 +343,7 @@ private:
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
-    //// TODO Should these be removed.  They are in head cvs now
+    //// KS_TODO Should these be removed.  They are in head cvs now
     friend class QuerySupportRouter;
     friend class ProviderRequests;
 
@@ -472,22 +465,32 @@ public:
         CIMEnumerationCountRequestMessage* request);
 // EXP_PULL END
 
+    /** Callback from Providers, etc. This callback is used for
+        Operations that aggregate response information. This is the
+        callback pointer used by the _forwardForAggregation
+        function.
+        @param AsyncOpNode *
+        @param MessageQueue*
+        @param userParam Pointer to data that is transparently
+        carrried through the call to callback process. It contains
+        a pointer to the OperationAggregate.
+     */
     static void _forwardForAggregationCallback(
         AsyncOpNode*,
         MessageQueue*,
-        void*);
+        void* userParam);
 
-// EXP_PULL_BEGIN
-    static void _forwardForPullAggregationCallback(
-        AsyncOpNode*,
-        MessageQueue*,
-        void*);
-// EXP_PULL_END
-
+    /** Callback from providers etc. for operations that do not
+        aggregate response. This callback pointer used by
+        _forwardToProvider functions.
+        @param AsyncOpNode *
+        @param MessageQueue*
+        @param userParam Contains the request message
+     */
     static void _forwardRequestCallback(
         AsyncOpNode*,
         MessageQueue*,
-        void*);
+        void* userParam);
 
     // Response Handler functions
 
@@ -501,7 +504,6 @@ public:
         Uint32 numberOfClasses,
         ProviderInfoList& providerInfos,
         OperationAggregate* poA);
-//  KS_PULL_END
 
 protected:
 
@@ -553,24 +555,13 @@ protected:
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
-///// <<<<<<< CIMOperationRequestDispatcher.h
-// KS_PULL_BEGIN
-// KS_PULL_TODO - This and other aggregator
-// can be pulled together.
-    void _forwardRequestForPullAggregation(
-        Uint32 serviceId,
-        const String& controlProviderName,
-        CIMOperationRequestMessage* request,
-        OperationAggregate* poA,
-        CIMResponseMessage* response = 0);
-//KS_PULL_END
     void _forwardRequestToProviderManager(
         const CIMName& className,
         Uint32 serviceId,
         const String& controlProviderName,
         CIMOperationRequestMessage* request,
         CIMOperationRequestMessage* requestCopy);
-//// =======
+
     void _forwardRequestToProvider(
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
@@ -586,9 +577,6 @@ protected:
         const CIMOperationRequestMessage* request,
         const CIMResponseMessage* response);
 
-//// TODO    Boolean _enqueueAggregateResponse(
-//// =======
-
     void _enqueueExceptionResponse(
         CIMOperationRequestMessage* request,
         CIMException& exception);
@@ -602,14 +590,31 @@ protected:
         CIMStatusCode code,
         const String& ExtraInfo);
 
+    /** Send the defined response synchronously using the data in
+        the OperationAggragate to define destination.  This function
+        is used to deliver parts of aggregated responses where each
+        response may not be a complete message (i.e chunks). This
+        function is controlled by a mutex so that only one chunk may
+        be delivered at a time.
+        @param poA OperationAggregate* that defines the current
+                   state of the aggregated response
+        @param response CIMResponseMessage defining the current
+                        response segment
+
+        @return Boolean Returns true if the response is complete
+                with this segment.
+     */
     Boolean _enqueueResponse(
         OperationAggregate*& poA,
         CIMResponseMessage*& response);
-// KS_PULL_BEGIN
-    Boolean _enqueuePullAggregateResponse(
-        OperationAggregate*& poA,
-        CIMResponseMessage*& response);
-//KS_PULL_END
+
+    /** Enqueue a simple response aschronously.  Destination is
+        determied by the request.
+        @param request CIMOperationReqeustMessage that defines
+                       destination
+        @param response CIMResponseMessage that contains response
+                        data
+     */
     void _enqueueResponse(
         CIMOperationRequestMessage* request,
         CIMResponseMessage* response);

@@ -48,7 +48,7 @@
 #include <Pegasus/Server/QuerySupportRouter.h>
 
 #include <Pegasus/Server/EnumerationContext.h>
-#include <Pegasus/Server/EnumerationTable.h>
+#include <Pegasus/Server/EnumerationContextTable.h>
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -120,11 +120,12 @@ String _toString(const CIMPropertyList& pl)
 Uint32 responseCacheDefaultMaximumSize = 1000;
 //
 // Define the table that will contain enumeration contexts for Open, Pull,
-// Close, and countEnumeration operaitons.  The default interoperation
+// Close, and countEnumeration operations.  The default interoperation
 // timeout is set as part of creating the table.
 //
-static EnumerationTable enumerationTable(_pullOperationDefaultTimeout,
-                                         responseCacheDefaultMaximumSize);
+static EnumerationContextTable enumerationContextTable(
+    _pullOperationDefaultTimeout,
+    responseCacheDefaultMaximumSize);
 
 // Local save for host name. save host name here.  NOTE: Problem if hostname
 // changes. Set by object init. Used by aggregator.
@@ -146,7 +147,7 @@ static const char* _getServiceName(Uint32 serviceId)
 
 /****************************************************************************
 **
-**  Implementation of OperationAggregate Class
+**  Implementation of OperationAggregate
 **
 ****************************************************************************/
 OperationAggregate::OperationAggregate(
@@ -169,16 +170,13 @@ OperationAggregate::OperationAggregate(
       _hasPropList(hasPropList),
       _query(query),
       _queryLanguage(queryLanguage),
-////      _objectCount(0),
       _pullOperation(false),
       _enumerationFinished(false),
       _closeReceived(false),
       _request(request),
       _totalIssued(0), _totalReceived(0), _totalReceivedComplete(0),
       _totalReceivedExpected(0), _totalReceivedErrors(0),
-      _totalReceivedNotSupported(0),
-
-      _magicNumber(0xc685255e)        // set to constant for use by valid()
+      _totalReceivedNotSupported(0)
 {
 }
 
@@ -191,7 +189,7 @@ OperationAggregate::~OperationAggregate()
 Boolean OperationAggregate::valid() const
 {
     // test if valid OperationAggregate object.
-    return (_magicNumber == 0xc685255e) ? true : false;
+    return(_magic);
 }
 
 void OperationAggregate::setTotalIssued(Uint32 i)
@@ -885,22 +883,22 @@ void CIMOperationRequestDispatcher::_logOperation(
 #endif
 }
 
-/*
-    send the given response synchronously using the given aggregation object.
+/*  Send the given response synchronously using the given aggregation object.
     return whether the sent message was complete or not. The parameters are
     pointer references because they can be come invalid from external deletes
     if the message is complete after queueing. They can be zeroed in this
     function preventing the caller from referencing deleted pointers.
+    If pull operation, sent to EnumerationContext queue.  If not pull sent
+    directly to output queue.
+    Operations for internal clients are gathered completely since there is
+    no chunking.
 */
-//// TODO Boolean CIMOperationRequestDispatcher::_enqueueResponse
-//// There was an enqueueAggregateResponse.
-///  Be sure we have not messed something up
 Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     OperationAggregate*& poA,
     CIMResponseMessage*& response)
 {
     // Obtain the _enqueueResponseMutex mutex for this chunked request.
-    // This mutex is used to serialize chunked responses from all incoming
+    // This mutex serializes chunked responses from all incoming
     // provider threads. It is imperative that the sequencing done by the
     // resequenceResponse() method and the writing of the chunked response
     // to the connection socket (done as a synchronous enqueue at the end
@@ -925,7 +923,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         // queues these functions are called for their jobs other than
         // aggregating.
 
-        // Operations which run through here are:
+        // Operations which run through here include:
         // CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE
         // CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE
         // CIM_ASSOCIATORS_REQUEST_MESSAGE
@@ -937,13 +935,6 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         if (type != CIM_EXEC_QUERY_REQUEST_MESSAGE)
         {
             handleOperationResponseAggregation(poA);
-//// TODO REMOVE          handleOperationResponseAggregation(
-////              poA,
-////              ((CIM_ASSOCIATORS_REQUEST_MESSAGE == type) |
-////               (CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE == type) |
-////               (CIM_REFERENCES_REQUEST_MESSAGE == type) |
-////               (CIM_REFERENCE_NAMES_REQUEST_MESSAGE == type)),
-////              (type == CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE));
         }
         else
         {
@@ -1001,17 +992,20 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             response->setIndex(0);
         }
 
+        // Log only if this is the last of the aggregated response
         if (isComplete)
         {
             _logOperation(poA->getRequest(), response);
         }
 
-        // send it syncronously so that multiple responses will show up in the
+        // Send it syncronously so that multiple responses will show up in the
         // receiving queue according to the order that we have set the response
         // index. If this was a single complete response, we could in theory
         // send it async (i.e SendForget), however, there is no need to make a
         // condition point based off this.
 
+        // If it is a pull operation response, send to the output caching queue
+        // in the enumeration context.  If not, directly queue.
         if (poA->_pullOperation)
         {
             // pull operation. Put CIMResponseData into Enum Context unless
@@ -1022,15 +1016,16 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
 
             EnumerationContext* en =
                 (EnumerationContext*)poA->_enumerationContext;
-
+            // All of the following is test and validation code
+            // KS_TODO remove all of this before release
             PEGASUS_ASSERT(en);          // KS_TEMP
             PEGASUS_ASSERT(en->valid()); // KS_TEMP
-            enumerationTable.valid();    // KS_TEMP
+            enumerationContextTable.valid();    // KS_TEMP
             en->trace();                 // KS_TEMP
 
-            enumerationTable.tableValidate();
+            enumerationContextTable.tableValidate();
 
-            EnumerationContext* enTest = enumerationTable.find(
+            EnumerationContext* enTest = enumerationContextTable.find(
                 en->getContextName());
 
             if (enTest == 0)
@@ -2125,7 +2120,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProvider(
 
 /*
     Enqueue an Exception response
-    This is a helper function that creates a response message
+    These are helper functions that create a response message
     with the defined exception and queues it.
 */
 void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
@@ -2155,10 +2150,9 @@ void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
     _enqueueExceptionResponse(request, exception);
 }
 
-// TODO there seems to be one _enqueueExceptionResponse missing here
-
 /*
-   Enqueue the response provided with the call
+   Enqueue the response provided with the call to dest defined
+   by request.
    Logs this operation, assures resquest and response
    attributes are syncd, gets queue from request,
    gets queue name from request,
@@ -2508,7 +2502,7 @@ Boolean CIMOperationRequestDispatcher::_rejectAssociationTraversalDisabled(
 {
     if (_enableAssociationTraversal)
     {
-        // return enabled
+        // return when AssociationTraversal is enabled
         return false;
     }
     else
@@ -3263,7 +3257,7 @@ struct ProviderRequests
 
         // Find the enumerationContext object from the request parameter
         EnumerationContext* enumerationContext =
-             enumerationTable.find(request->enumerationContext);
+             enumerationContextTable.find(request->enumerationContext);
 
         // If enumeration Context not found, return invalid exception
         if (dispatcher->_rejectInValidEnumerationContext(request,
@@ -5494,25 +5488,26 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     //
 
     String enContextIdStr;
-    EnumerationContext* enumerationContext = enumerationTable.createContext(
-        request->nameSpace,
-        request->operationTimeout,
-        request->continueOnError,
-        CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-        CIMResponseData::RESP_INSTANCES,
-        enContextIdStr);
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_INSTANCES,
+            enContextIdStr);
 
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
 
-    //// KS_TEMP debugging code. Delete. OCT2011
+    //// KS_TEMP KS_TODO REMOVE debugging code. Delete. OCT2011
     if (enumerationContext->responseCacheSize() != 0)
     {
         cout << "Error in responseCacheSize() " << enContextIdStr
              << endl;
         enumerationContext->valid();
         enumerationContext->trace();
-        enumerationTable.trace();
+        enumerationContextTable.trace();
     }
 
     PEGASUS_ASSERT(enumerationContext->responseCacheSize() == 0);  // KS_TEMP
@@ -5886,13 +5881,14 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     //
 
     String enContextIdStr;
-    EnumerationContext* enumerationContext = enumerationTable.createContext(
-        request->nameSpace,
-        request->operationTimeout,
-        request->continueOnError,
-        CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
-        CIMResponseData::RESP_INSTNAMES,
-        enContextIdStr);
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
+            CIMResponseData::RESP_INSTNAMES,
+            enContextIdStr);
 
     //
     // Set up op aggregate object and save a copy of the original request.
@@ -6262,13 +6258,14 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     // Create new context object.
     String enContextIdStr;
-    EnumerationContext* enumerationContext = enumerationTable.createContext(
-        request->nameSpace,
-        request->operationTimeout,
-        request->continueOnError,
-        CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-        CIMResponseData::RESP_OBJECTS,
-        enContextIdStr);
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTS,
+            enContextIdStr);
 
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
@@ -6645,13 +6642,14 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     String enContextIdStr;
     // Create new context object. Returns pointer to object and context ID
     // string
-    EnumerationContext* enumerationContext = enumerationTable.createContext(
-        request->nameSpace,
-        request->operationTimeout,
-        request->continueOnError,
-        CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
-        CIMResponseData::RESP_OBJECTPATHS,
-        enContextIdStr);
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTPATHS,
+            enContextIdStr);
 
     // Build corresponding EnumerateInstancePathsRequest to send to
     // providers. We do not pass the Pull operations request
@@ -7056,13 +7054,14 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
 
     // Create a new enumeration context
     String enContextIdStr;
-    EnumerationContext* enumerationContext = enumerationTable.createContext(
-        request->nameSpace,
-        request->operationTimeout,
-        request->continueOnError,
-        CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-        CIMResponseData::RESP_OBJECTS,
-        enContextIdStr);
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTS,
+            enContextIdStr);
 
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
@@ -7431,13 +7430,14 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // Create new enumerationContext and enumerationContextString.
     //
     String enContextIdStr;
-    EnumerationContext* enumerationContext = enumerationTable.createContext(
-        request->nameSpace,
-        request->operationTimeout,
-        request->continueOnError,
-        CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
-        CIMResponseData::RESP_OBJECTPATHS,
-        enContextIdStr);
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTPATHS,
+            enContextIdStr);
 
     // Build corresponding EnumerateInstancePathsRequest to send to
     // providers. We do not pass the Pull operations request
@@ -7652,7 +7652,7 @@ void CIMOperationRequestDispatcher::handleEnumerationCount(
     // Determine if the enumerationContext exists
 
     EnumerationContext* en =
-        enumerationTable.find(request->enumerationContext);
+        enumerationContextTable.find(request->enumerationContext);
 
     // test for invalid context and if found, error out.
     if (en == 0)
@@ -7718,10 +7718,10 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CloseEnumeration request for  "
             "enumerationContext = \"%s\" .  ",
-        (const char*)request->enumerationContext.getCString())
-        );
+        (const char*)request->enumerationContext.getCString() ));
 
-    EnumerationContext* en = enumerationTable.find(request->enumerationContext);
+    EnumerationContext* en =
+        enumerationContextTable.find(request->enumerationContext);
 
     if (_rejectInValidEnumerationContext(request, en))
     {
@@ -7755,7 +7755,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
 //      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
 //         "Close Operation. Providers complete, Close enumeration"));
 //
-//      enumerationTable.remove(request->enumerationContext);
+//      enumerationContextTable.remove(request->enumerationContext);
 //  }
 //  else
 //  {

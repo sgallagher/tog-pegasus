@@ -68,7 +68,7 @@ PEGASUS_NAMESPACE_BEGIN
 **
 **    Class that caches each outstanding enumeration sequence. Contains
 **    the parameters and current status of existing enumerations
-**    that the server is processing.  Enumerations are those 
+**    that the server is processing.  Enumerations are those
 **    sequences of operations starting with an Open... operation
 **    and proceeding through Pull... and possible close Enumeration
 **    operations.  The enumerationContext is the glue information
@@ -77,7 +77,7 @@ PEGASUS_NAMESPACE_BEGIN
 **    life of the sequence.
 **    This structure also contains the queue of CIMOperationData objects
 **    that is fed from provider returns and accessed by the operation requests
-** 
+**
 ******************************************************************************/
 
 /*
@@ -125,8 +125,8 @@ private:
     active - If true, an operation is active on this context
     and any pull or close operation request will be refused.
 */
-// Forward Reference to EnumerationTable class
-class EnumerationTable;
+
+class EnumerationContextTable;
 
 class PEGASUS_SERVER_LINKAGE EnumerationContext
 {
@@ -138,28 +138,22 @@ public:
         Boolean continueOnError_,
         MessageType originatingOpenRequestType,
         CIMResponseData::ResponseDataContent contentType);
-    
+
     ~EnumerationContext();
 
     /**
-       Get the name of this enumeration context. The id is the key to 
+       Get the name of this enumeration context. The id is the key to
        access the enumeration table.
-       @return Context name String. 
+       @return Context name String.
      */
-    String& getContextName()
-    {
-        return _enumerationContextName;
-    }
+    String& getContextName();
 
     /**
-       Get the Type of the CIMResponseData object in the enumeration 
-       context. 
-       @param return Type 
+       Get the Type of the CIMResponseData object in the enumeration
+       context.
+       @param return Type
     */
-    CIMResponseData::ResponseDataContent getCIMResponseDataType()
-    {
-        return _responseCache.getResponseDataContent();
-    }
+    CIMResponseData::ResponseDataContent getCIMResponseDataType();
 
     /**
         Set the request properties that must be moved to subsequent
@@ -176,13 +170,21 @@ public:
     void stopTimer();
 
     /**
-        Test if this context timed out.
+        Test if this context timed out given the current time
+        @param currentTime
+        @return true if interoperation timer timed out
+    */
+    Boolean isTimedOut(Uint64 currentTime);
+    /**
+        Test if this context timed out. Gets current time and tests
+        against the timeout in the enumeration context entry
+
         @return true if interoperation timer timed out
     */
     Boolean isTimedOut();
 
     // diagnostic tests magic number in context to see if valid
-    // Diagnostic tool only. 
+    // Diagnostic tool only.
     Boolean valid();
 
     Boolean isClosed();
@@ -214,57 +216,54 @@ public:
     void trace();
 
     /**
-       Put the CIMResponseData from the response message into the 
-       enumerationContext cache and if isComplete is true, set the 
-       enumeration state to providersComplete. This function signals 
-       the getCache function conditional variable. This function may also 
-       wait if the cache is full. 
+       Put the CIMResponseData from the response message into the
+       enumerationContext cache and if isComplete is true, set the
+       enumeration state to providersComplete. This function signals
+       the getCache function conditional variable. This function may also
+       wait if the cache is full.
      */
     void putCache(MessageType type,
                   CIMResponseMessage*& response,
                   Boolean isComplete);
 
     /**
-       Get up to the number of objects defined by count from the 
-       CIMResponseData cache in the enumerationContext.  This function 
-       waits for a number of possible events as defined below and 
-       returns only when one of these events is true. 
-  
-       REMEMBER: This function gives up control while waiting. 
+       Get up to the number of objects defined by count from the
+       CIMResponseData cache in the enumerationContext.  This function
+       waits for a number of possible events as defined below and
+       returns only when one of these events is true.
 
-       Wait events: 
+       REMEMBER: This function gives up control while waiting.
+
+       Wait events:
            a. the number of objects to match or exceed count
            b. the _providersComplete flag to be set.
            c. Future - The errorState to be set KS_TODO
-       @param - count - Uint32 count of max number of objects to return 
-       @param rtn CIMResponseData containing the objects returned 
-       @return Returns true unless if the  errorState has been set. 
+       @param - count - Uint32 count of max number of objects to return
+       @param rtn CIMResponseData containing the objects returned
+       @return Returns true unless if the  errorState has been set.
      */
     Boolean getCacheResponseData(Uint32 count, CIMResponseData& rtn);
 
-    /** 
-        Return reference to the CIMResponseData in the Enumeration Context
-        that holds CIMResponseData for this context.  
-    */ 
-    CIMResponseData& getResponseData()
-    {
-        return _responseCache;
-    }
-    
     /**
-        Returns count of objects in the EnumerationContext CIMResponseData 
-        cache. 
-        @return  Uint32 count of objects currently in the cache 
+        Return reference to the CIMResponseData in the Enumeration Context
+        that holds CIMResponseData for this context.
+    */
+    CIMResponseData& getResponseData();
+
+    /**
+        Returns count of objects in the EnumerationContext CIMResponseData
+        cache.
+        @return  Uint32 count of objects currently in the cache
     */
     Uint32 responseCacheSize();
 
      /**
-        Set the ProvidersComplete state.  This should be set from provider 
-        responses when all responses processed. 
+        Set the ProvidersComplete state.  This should be set from provider
+        responses when all responses processed.
     */
     void setProvidersComplete();
 
-    /** 
+    /**
         Determine if the aggregation can be closed and if so close it.
         Should be done before it is removed from the table. Closed means
         providers complete and either we are not going to deliver more.
@@ -288,14 +287,14 @@ public:
         @return true if provider processing is complete.
      */
     Boolean ifProvidersComplete();
-    
-    /**    
+
+    /**
         Test the enumeration for completeness.  Complete is when
         providers are complete and there is nothing in the cache.
         This test does not consider error state.
         If not complete, the timer is started.
         @param Boolean true if the enumeration is complete.
-    */ 
+    */
     Boolean ifEnumerationComplete();
 
     // copy constructor
@@ -305,7 +304,7 @@ public:
         Increment the count of the number of pull operations executed
         for this context. This method also controls the counting
         of operations with zero length through the input parameter
-        
+
         @param isZeroLength Boolean indicating if this operation is a request
         for zero objects which is used to count consecutive zero length
         pull operations.
@@ -324,12 +323,12 @@ public:
 
 private:
 
-    friend class EnumerationTable;
+    friend class EnumerationContextTable;
 
     /**
-       Private function to actually add new response to CIMResponseData 
-       in the EnumerationContext cache 
-       @param Message type 
+       Private function to add new response to CIMResponseData
+       in the EnumerationContext cache
+       @param Message type
        @param response CIMResponseMessage to be inserted
     */
     void _insertResponseIntoCache(MessageType type,
@@ -339,13 +338,15 @@ private:
     // pull and close operations.
     String _enumerationContextName;
 
+    // Namespace for this pull sequence.  Set by open and used by
+    // pull and close.
     CIMNamespaceName _nameSpace;
-    // interopertion timeout value in seconds.  From operation request
+
+    // Interoperation timeout value in seconds.  From operation request
     // parameters.
     Uint32 _operationTimeoutSec;
 
-    // ContinueOnError request flag. Currently always FALSE since we do not
-    // allow it in this version of Pegasus
+    // ContinueOnError request flag.Set by open...
     Boolean _continueOnError;
 
     // Timeout absolute time value for interoperation timeout.  If 0 indicates
@@ -367,7 +368,7 @@ private:
     Boolean _waiting;
 
     // Object cache for this context.  All pull responses feed their
-    // CIMResponseData into this cache using putCache(..) and all 
+    // CIMResponseData into this cache using putCache(..) and all
     // Open and Pull responses get data from the cache using getCache()
     // Simultaneous access to the cache is controlled with _cacheBlock mutex.
     Mutex _responseCacheMutex;
@@ -383,10 +384,10 @@ private:
         Tests the cache to determine if we are ready to send a response.
         The test is two parts, a) enough objects (i.e. GE size input parameter)
         or end-of-sequence set indicating that we have completed provider
-        processing. 
-    */ 
+        processing.
+    */
     void waitCacheSizeCondition(Uint32 size);
-    
+
     /**
         Signal that the cache size condition may have been met. Normally
         called for every putcache and when providers complete set.
@@ -426,12 +427,30 @@ private:
     Uint64 _startTime;
     // Max number of objects in the cache.
     Uint32 _cacheHighWaterMark;
- 
+
     // Pointer to enumeration table.
-    EnumerationTable* _enumerationTable;
+    EnumerationContextTable* _enumerationContextTable;
 
     Magic<0x57D11474> _magic;
 };
+
+// Inline functions
+
+inline String& EnumerationContext::getContextName()
+{
+    return _enumerationContextName;
+}
+
+inline CIMResponseData::ResponseDataContent
+    EnumerationContext::getCIMResponseDataType()
+{
+    return _responseCache.getResponseDataContent();
+}
+
+inline CIMResponseData& EnumerationContext::getResponseData()
+{
+    return _responseCache;
+}
 
 PEGASUS_NAMESPACE_END
 

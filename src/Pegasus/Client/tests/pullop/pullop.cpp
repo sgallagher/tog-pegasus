@@ -82,9 +82,6 @@
              not as error prone.
            - Drop the existing defaults in favor of namespace = root/cimv2
              and no target default.
-           - Question - Is timeout on all operations or just open.  Answer.
-             Just open. Check to be sure we comply
-           - Expand object compare to more details (maybe)
            - Finish connect code so we can connect to other systems.  Needs
              to be tested and determine if we need security.
            - Combine verbose and verbose_opt.  i.e. Use a particular level
@@ -190,8 +187,8 @@ Uint32 stringToUint32(const char * str)
     }
     else
     {
-        cout << "Error in converting " << x
-            << " to Uint32. terminating" << endl;
+        cout << "Error in converting "  << str
+            << " to Uint32. Terminating" << endl;
         exit(1);
     }
 }
@@ -243,8 +240,7 @@ bool timeOperation_opt = false;
 bool continueOnError_opt = false;
 bool reverseExitCode_opt = false;
 bool deepInheritance_opt = true;
-
-
+bool requestClassOrigin_opt = false;
 
 // Actual property list to be used. This should be null unless a property
 // list is provided.
@@ -267,7 +263,8 @@ String filterQueryLanguage_opt = "";
     issue before executing a close.  This is a means to force the close
     operation in testing with this client.
 */
-Uint32Arg maxOperationsCount_opt;
+Uint32Arg maxOperationsBeforeCloseCount_opt;
+
 Uint32 pullCounter = 0;
 Uint32 exitCode = 0;
 
@@ -306,8 +303,10 @@ OPTIONS:\n\
     -s seconds      Time to sleep between operations. Used to test timeouts\n\
     -T              Show results of detailed timing of the operations\n\
     -x              ContinueOnError flag set to true.\n\
+    -o              Request ClassOrigin flag true where used.\n\
+                    Default classOrigin = false \n\
     -d              Set deepInheritance false where used (i.e enumerate\n\
-                    instances. Default: deeInheritance = true.\n\
+                    instances. Default: deepInheritance = true.\n\
     -M MAXOBJECTS   Integer Max objects for open operation.\n\
                     (Default 16).\n\
     -N MAXOBJECTS   Integer Max objects per pull operation.\n\
@@ -328,7 +327,7 @@ OPTIONS:\n\
                     Makefiles where we can conduct tests that expect\n\
                     exception returns. If return code is zero this option\n\
                     sets it to nonzero and viceversa.\n\
-    -o MAXOPERATIONS Integer. Maximum operations in enumeration sequence\n\
+    -X MAXOPERATIONS Integer. Maximum operations in enumeration sequence\n\
                      before close executed. Default is not used. If set\n\
                      close will be executed after that number of operations.\n\
                      Zero(0) Not allowed since has no meaning. One(1) means\n\
@@ -387,14 +386,14 @@ struct uint32Counter
     // The value component.
     Uint32Arg counter;
     /*
-        Constructor sets NULL
+        Constructor. sets NULL
     */
     uint32Counter()
     {
         // do nothing.  Already setup as null
     }
     /*
-        Set to value of Uint32 input. This automatically sets nonNull
+        Set to value of Uint32 input. This sets nonNull
     */
     uint32Counter(Uint32 in)
     {
@@ -427,6 +426,10 @@ struct uint32Counter
         }
         else
             return true;
+    }
+    String toString()
+    {
+        return counter.toString();
     }
     // diagnostic only.
     void print()
@@ -751,7 +754,6 @@ void doSleep(Uint32 seconds)
 **      Compare objects and instance functions
 **
 ****************************************************************************/
-
 
 void clearHostAndNamespace(CIMObjectPath& p)
 {
@@ -1150,12 +1152,12 @@ bool pullInstancePaths(CIMClient& client,
     const String& openOpName,
     Array<CIMObjectPath>& resultArray,
     Uint32 maxObjectCount,
-    uint32Counter& maxOperationsCounter,
+    uint32Counter& maxOperationsBeforeCloseCounter,
     CIMEnumerationContext& enumerationContext,
     Stopwatch& timer)
 {
     Boolean endOfSequence = false;
-    while (!endOfSequence  && maxOperationsCounter.ok())
+    while (!endOfSequence  && maxOperationsBeforeCloseCounter.ok())
     {
         pullCounter++;
         VCOUT4 << "Issue pullInstancePaths for " << openOpName
@@ -1179,15 +1181,15 @@ bool pullInstancePaths(CIMClient& client,
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
              << openOpName << ". Received count " << resultArray.size()
-             << endl;
+             << "endOfSequence=" << _toCharP(endOfSequence) << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
         timer.stop();
     }
     else
     {
-        VCOUT3 << "Total ObjectPaths count = " << resultArray.size()
-             << endl;
+        VCOUT4 << "Total ObjectPaths count=" << resultArray.size()
+             << "endOfSequence=" << _toCharP(endOfSequence) << endl;
         if (verbose)
         {
             displayObjectPaths(resultArray);
@@ -1200,12 +1202,12 @@ bool pullInstancesWithPath(CIMClient& client,
     const String& openOpName,
     Array<CIMInstance>& resultArray,
     Uint32 maxObjectCount,
-    uint32Counter& maxOperationsCounter,
+    uint32Counter& maxOperationsBeforeCloseCounter,
     CIMEnumerationContext& enumerationContext,
     Stopwatch& timer)
 {
     Boolean endOfSequence = false;
-    while (!endOfSequence  && maxOperationsCounter.ok())
+    while (!endOfSequence  && maxOperationsBeforeCloseCounter.ok())
     {
         pullCounter++;
         VCOUT4 << "Issue pullInstancesWithPath for " << openOpName
@@ -1227,14 +1229,15 @@ bool pullInstancesWithPath(CIMClient& client,
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
              << openOpName << ". Received count " << resultArray.size()
-             << endl;
+             << "endOfSequence=" << _toCharP(endOfSequence) << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
         timer.stop();
     }
     else
     {
-        VCOUT4 << "Total Instances count = " << resultArray.size() << endl;
+        VCOUT4 << "Total Instances count=" << resultArray.size()
+          << "endOfSequence=" << _toCharP(endOfSequence)<< endl;
         if (verbose)
         {
             displayInstances(resultArray);
@@ -1278,14 +1281,14 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String ClassName )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsCounter(maxOperationsCount_opt);
+    uint32Counter maxOperationsBeforeCloseCounter(
+        maxOperationsBeforeCloseCount_opt);
 
     try
     {
         String operationName = "openEnumerateInstances";
-        Boolean includeClassOrigin = false;
+        Boolean includeClassOrigin = requestClassOrigin_opt;
 
-        // KS_TODO Why this????
         Boolean endOfSequence = false;
         CIMPropertyList propertyList(propertyList_opt);
         Boolean deepInheritance = deepInheritance_opt;
@@ -1295,17 +1298,17 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         VCOUT4 << "Issue openEnumerateInstances " << ClassName
                << " namespace=" << nameSpace.getString()
-               << " deepInheritance=" << _toString(deepInheritance_opt)
+               << " deepInheritance=" << _toString(deepInheritance)
+               << " classOrigin=" << _toString(includeClassOrigin)
                << " propertyList=" << _toString(propertyList)
                << " timeout=" << timeout_opt.toString()
                << " filterQueryLanguage=" << filterQuery_opt
                << " filterQuery_opt=" << filterQuery_opt
                << " continueOnError=" << _toString(continueOnError_opt)
                << " maxObjectsOnOpen=" << maxObjectsOnOpen_opt
-////               << " maxObjectCount for Operation" << maxObjectCount
+               << " maxCountBeforeClose for Operation "
+                   << maxOperationsBeforeCloseCounter.toString()
                << endl;
-//KS_TODO why did we use maxObject instead of maxObjectOnOpen. Is there
-// a max objects before we close option???
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1335,18 +1338,14 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         doSleep(sleep_opt);
 
-        // reset the maxObjectCount to the pull parameter
-        ///maxObjectCount = maxObjectsOnPull_opt;
-
-        //enumerationContext.print();
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsCounter
+        // early depending on the maxOperationsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
                 pulledInstances,
                 maxObjectsOnPull_opt,
-                maxOperationsCounter,
+                maxOperationsBeforeCloseCounter,
                 enumerationContext,
                 pullTime);
         }
@@ -1409,7 +1408,8 @@ void testPullEnumerationInstancePaths(CIMClient& client,
     String ClassName )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsCounter(maxOperationsCount_opt);
+    uint32Counter maxOperationsBeforeCloseCounter(
+        maxOperationsBeforeCloseCount_opt);
     String operationName = "openEnumerateInstancePaths";
     try
     {
@@ -1423,7 +1423,10 @@ void testPullEnumerationInstancePaths(CIMClient& client,
 
         VCOUT4 << "Issue openEnumerateInstancesPaths. maxObjectCount = "
             << maxObjectCount
-            << ". timeout = " << operationTimeout.toString() << endl;
+            << ". timeout = " << operationTimeout.toString()
+            << " maxCountBeforeClose for Operation "
+                << maxOperationsBeforeCloseCounter.toString()
+            << endl;
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1450,19 +1453,16 @@ void testPullEnumerationInstancePaths(CIMClient& client,
 
         doSleep(sleep_opt);
 
-        maxObjectCount = maxObjectsOnPull_opt;
-
-        //enumerationContext.print();
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsCounter
+        // early depending on the maxOperationsBeforeCloseCounter
 
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
-                                              cimObjectPaths, maxObjectCount,
-                                              maxOperationsCounter,
-                                              enumerationContext,
-                                              pullTime);
+                cimObjectPaths, maxObjectsOnPull_opt,
+                maxOperationsBeforeCloseCounter,
+                enumerationContext,
+                pullTime);
         }
 
         elapsedPullTime.stop();
@@ -1512,25 +1512,29 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsCounter(maxOperationsCount_opt);
+    uint32Counter maxOperationsBeforeCloseCounter(
+        maxOperationsBeforeCloseCount_opt);
     String operationName = "openReferenceInstances";
     try
     {
         CIMObjectPath targetObjectPath(objectPath);
         String role = "";
         CIMName resultClass = CIMName();
-        Boolean includeClassOrigin = false;
+        Boolean includeClassOrigin = requestClassOrigin_opt;
         CIMPropertyList cimPropertyList(propertyList_opt);
         CIMEnumerationContext enumerationContext;
         Boolean endOfSequence = false;
 
         // TODO - Fix up function to test creation of cimobjectPath from
         // input since this can be such a mess.
-
+        // KS_TODO this display not showing everything
         VCOUT4 << "Issue openReferencesInstances for " << objectPath
             << " maxObjects " << maxObjectsOnOpen_opt
             << " Instances."
-            << " timeout " << timeout_opt.toString() << endl;
+            << " timeout " << timeout_opt.toString()
+            << " maxCountBeforeClose for Operation "
+                << maxOperationsBeforeCloseCounter.toString()
+        << endl;
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1560,15 +1564,14 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         doSleep(sleep_opt);
 
-        // reset the maxObjectCount to the pull parameter
-        Uint32 maxObjectCount = maxObjectsOnPull_opt;
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsCounter
+        // early depending on the maxOperationsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
-                                              pulledInstances, maxObjectCount,
-                                              maxOperationsCounter,
+                                              pulledInstances,
+                                              maxObjectsOnPull_opt,
+                                              maxOperationsBeforeCloseCounter,
                                               enumerationContext,
                                               pullTime);
         }
@@ -1625,7 +1628,8 @@ void testPullReferenceInstancePaths(CIMClient& client,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsCounter(maxOperationsCount_opt);
+    uint32Counter maxOperationsBeforeCloseCounter(
+        maxOperationsBeforeCloseCount_opt);
     String operationName = "openReferencePaths";
     try
     {
@@ -1639,7 +1643,10 @@ void testPullReferenceInstancePaths(CIMClient& client,
 
         VCOUT4 << "Issue openReferencePaths for instance paths. "
             << " maxObjectCount = " << maxObjectsOnOpen_opt
-            << " timeout " << timeout_opt.toString() << endl;
+            << " timeout " << timeout_opt.toString()
+            << " maxCountBeforeClose for Operation "
+                << maxOperationsBeforeCloseCounter.toString()
+            << endl;
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1666,18 +1673,16 @@ void testPullReferenceInstancePaths(CIMClient& client,
         displayAndTestReturns(operationName, endOfSequence,
             cimObjectPaths.size(), maxObjectsOnOpen_opt);
 
-        //enumerationContext.print();
-
         doSleep(sleep_opt);
 
         Uint32 maxObjectCount = maxObjectsOnPull_opt;
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsCounter
+        // early depending on the maxOperationsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
                                               cimObjectPaths, maxObjectCount,
-                                              maxOperationsCounter,
+                                              maxOperationsBeforeCloseCounter,
                                               enumerationContext,
                                               pullTime);
         }
@@ -1729,7 +1734,9 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsCounter(maxOperationsCount_opt);
+    uint32Counter maxOperationsBeforeCloseCounter(
+        maxOperationsBeforeCloseCount_opt);
+
     String operationName = "openAssociatorInstances";
     try
     {
@@ -1749,7 +1756,10 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         VCOUT4 << "Issue openAssociationInstances for " << objectPath
             << maxObjectCount << " Instances."
-            << " timeout " << timeout_opt.toString() << endl;
+            << " timeout " << timeout_opt.toString()
+            << " maxCountBeforeClose for Operation "
+                << maxOperationsBeforeCloseCounter.toString()
+            << endl;
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1780,18 +1790,16 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
         displayAndTestReturns(operationName, endOfSequence,
             cimInstances.size(), maxObjectCount);
 
-        //enumerationContext.print();
-
         doSleep(sleep_opt);
 
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsCounter
+        // early depending on the maxOperationsBeforeCloseCounter
 
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
                               cimInstances, maxObjectCount,
-                              maxOperationsCounter,
+                              maxOperationsBeforeCloseCounter,
                               enumerationContext,
                               pullTime);
         }
@@ -1851,7 +1859,9 @@ void testPullAssociatorInstancePaths(CIMClient& client,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsCounter(maxOperationsCount_opt);
+    uint32Counter maxOperationsBeforeCloseCounter(
+        maxOperationsBeforeCloseCount_opt);
+
     String operationName = "openAssociatorInstancePaths";
     try
     {
@@ -1868,7 +1878,10 @@ void testPullAssociatorInstancePaths(CIMClient& client,
 
         VCOUT4 << "Issue openAssociatorInstancePaths for instance paths. "
             << " maxObjectCount = " << maxObjectsOnOpen_opt
-            << " timeout " << timeout_opt.toString() << endl;
+            << " timeout " << timeout_opt.toString()
+            << " maxCountBeforeClose for Operation "
+                << maxOperationsBeforeCloseCounter.toString()
+            << endl;
 
         Stopwatch pullTime;
         Stopwatch elapsedPullTime;
@@ -1899,15 +1912,14 @@ void testPullAssociatorInstancePaths(CIMClient& client,
 
         doSleep(sleep_opt);
 
-        //enumerationContext.print();
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsCounter
-        Uint32 maxObjectCount = maxObjectsOnPull_opt;
+        // early depending on the maxOperationsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
-                                              cimObjectPaths, maxObjectCount,
-                                              maxOperationsCounter,
+                                              cimObjectPaths,
+                                              maxObjectsOnPull_opt,
+                                              maxOperationsBeforeCloseCounter,
                                               enumerationContext,
                                               pullTime);
         }
@@ -2125,7 +2137,7 @@ int main(int argc, char** argv)
     */
     int opt;
     while ((opt = getopt(argc, argv,
-                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:o:xR-:s:")) != -1)
+                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:")) != -1)
     {
         switch (opt)
         {
@@ -2163,6 +2175,11 @@ int main(int argc, char** argv)
             case 'd':               // set deepInheritance = false;
             {
                 deepInheritance_opt = false;
+                break;
+            }
+            case 'o':               // set deepInheritance = false;
+            {
+                requestClassOrigin_opt = true;
                 break;
             }
             case 'v':               // verbose display with integer
@@ -2274,23 +2291,23 @@ int main(int argc, char** argv)
                 sleep_opt = stringToUint32(optarg);
                 break;
             }
-            case 'o':
+            case 'X':
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
                     // KS_TODO - I think this should be illegal
                     // but we leave it for a test. Besides this is
                     // the default if not used.
-                    maxOperationsCount_opt.setNullValue();
+                    maxOperationsBeforeCloseCount_opt.setNullValue();
                 }
                 else
                 {
-                    maxOperationsCount_opt.setValue(atoi(optarg));
-                    if (maxOperationsCount_opt.getValue() == 0)
+                    maxOperationsBeforeCloseCount_opt.setValue(atoi(optarg));
+                    if (maxOperationsBeforeCloseCount_opt.getValue() == 0)
                     {
                         printf("ERROR: option %c. parameter value = 0"
                                    " not allowed: %u",
-                              opt, maxOperationsCount_opt.getValue());
+                              opt,maxOperationsBeforeCloseCount_opt.getValue());
                         exit(1);
                     }
                 }
@@ -2442,20 +2459,26 @@ int main(int argc, char** argv)
     }
     else if (exitCode != 0)
     {
-        cout << arg0 <<" +++++ failed tests with exception generated.";
         if (reverseExitCode_opt)
         {
-            cout << " Return +++ passed tests exit (-R set) ";
+            cout << " Return +++ passed tests exit (-R set) "
+                << " exitcode=" << exitCode << endl;
+        }
+        else
+        {
+            cout << arg0 <<" +++++ failed tests. exit code ="
+                << exitCode << endl;
         }
         cout << endl;
     }
     else if (errors != 0)
     {
-        cout << arg0 <<" +++++ failed tests with "
+        cout << arg0 <<" +++++ tests show failed with "
              <<  errors << " error(s).";
         if (reverseExitCode_opt)
         {
-            cout << " Return +++ passed tests exit (-R set) ";
+            cout << " Return +++ passed tests because exit code"
+                    " reversed (-R set) ";
         }
         cout << endl;
         exitCode = 2;

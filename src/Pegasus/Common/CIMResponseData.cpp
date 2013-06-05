@@ -373,6 +373,9 @@ bool CIMResponseData::setXml(CIMBuffer& in)
 
 // Move the number of objects defined by the input parameter from
 // one CIMResponse Object to another CIMResponse Object.
+// Returns the new size of the CIMResponseData object.
+// NOTE: This is not protected by a mutex so the user must be certain
+// that the from object is not used during the move.
 Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 {
     TRACELINE;
@@ -380,6 +383,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
         "CIMResponseData::move(%u)", count));
 
     PEGASUS_ASSERT(valid());                 // KS_TEMP
+    PEGASUS_ASSERT(_size == 0);    // Validate that to size == 0 or fix below
     if (_dataType != from._dataType)         // KS_TEMP
     {
         printf("ERROR moveObjects _dataType %u. from._dataType %u\n",
@@ -547,6 +551,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 
 Uint32 CIMResponseData::size()
 {
+    AutoMutex autoMut(testLock);
     TRACELINE;
     PEG_METHOD_ENTER(TRC_XML,"CIMResponseData::size()");
     PSVALID;
@@ -587,7 +592,8 @@ Uint32 CIMResponseData::size()
         // Cannot resolve this one without actually processing
         // the data since it is a stream.
         rtnSize += 0;
-        //PEGASUS_ASSERT(false);
+        //  KS_TODO flag on this one
+        //// PEGASUS_ASSERT(false);
         TEMPLOG;
     }
 
@@ -629,9 +635,12 @@ Uint32 CIMResponseData::size()
         "CIMResponseData::size ERROR. debug size mismatch."
             "Computed = %u. variable = %u",rtnSize, _size ));
         // KS_TEMP
-        cout << "Size err " << rtnSize << " " << _size << endl;
+        cout << "Size err rtnsize=" << rtnSize << " _size=" << _size
+             << " diff=" << (_size - rtnSize) << endl;
         TEMPLOG;
     }
+    PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));
+
     //PEGASUS_TEST_ASSERT(rtnSize == _size);
 #endif
     PEG_METHOD_EXIT();

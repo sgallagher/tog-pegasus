@@ -8,15 +8,24 @@ The program options determine
      interoperation timeout, max object count, etc.
    - If the results are to be compared with the corresponding non pull
      operation (ex. e (the openEnumerateInstances, pull, ...) would
-     be compared with enumerateInstances on the same class.
+     be compared with enumerateInstances on the same class.  This automatically
+     tests for things like properties returned, use of classorigin, etc.
    - Level or verbosity of status and error information
 
 The goal of this program is to provide a relatively complete test for
 the operation of the DMTF pull operations (client and server) that can
 be executed from the command line.
 
-This program does not generally test errors.  There is another client
-program that executes a test of Server errors.
+The Makefile defines a broad set of tests (both correct and return) that
+use pullop as the execution tool.
+
+To see the options for pullop pullop -h or pullop --help.
+
+
+There is another client program that executes a test of a number of
+Pull errors (See PullErrors).
+
+
 
 
 

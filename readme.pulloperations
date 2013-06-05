@@ -7,6 +7,40 @@ to keep track of problems, errors, notes, etc.  Must be deleted before
 checkin to head of tree. Please feel free to add notes, etc in this
 section as you review/test.>>>>>>
 
+5 June 2013
+
+Missing:
+   1. Binary operation from OOP.  Need to add counter to binary
+      protocol to be able to count objects in response. Generates
+      warnings in things like messageserializer and does not work with
+      OOP right now.
+   2. OpenExecQuery - Code not there
+   3. Lots of minor TODOs, etc.
+   4. External runtime variables
+   5. Decision on EnumerationContext timeout (separate thread or just
+      checks during other operations)
+   6. Clean up code in Dispatcher
+   7. Extension to avoid double move of objects in CIMResponseData (one
+      into enumerationContext queue and second to new cimResponseData for
+      response.  Want to avoid second move by extending Open/Pull response
+      messages to include count and CIMResponse data to count objects out
+      of queue when converting (avoids the second move).  Big issue here
+      with binary data since need to extend format to count it.
+   8. Still using templates, etc. in messy code in the Dispatcher.  Cleaning
+      that up now
+What was fixed
+   1. Extended ResponseTest MOF for for both CMPI and C++ subclasses
+   2. Fixed issues with pullop.
+   3. Fixed temp issue with CIMResponseData size by putting in mutex. That
+      is not a permanent fix but it gets around issue probably in the control
+      of the move logic that meant counts were off.
+   4. Fixed issues in Dispatcher so that associator code works. Still messy
+      code in the dispatcher.
+   5. Changed name of Enumerationtable.h & cpp to EnumerationContextTable.*
+   6  Changed name of ResponseStressTest module, classes, etc.
+
+TAG: TASK_PEP317_5JUNE_2013_2
+
 2 June 2013
 
 Issues  - KS

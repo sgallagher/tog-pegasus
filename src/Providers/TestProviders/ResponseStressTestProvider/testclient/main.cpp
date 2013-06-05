@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
 
-static const CIMName TEST_CLASS = CIMName("TST_ResponseStressTest");
+static const CIMName TEST_CLASS = CIMName("TST_ResponseStressTestCxx");
 
 static Boolean verbose;
 

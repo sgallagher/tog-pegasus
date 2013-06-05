@@ -48,8 +48,8 @@ CMPIASSOCOBJ =  CMPI_TEST_Person.name=\"Melvin\"
 CMPIASSOCOBJ2 = CMPI_TEST_Vehicle.vehiclename="\Ferrari\"
 
 ## ResponseStressTest provider class and namespace
-NS = test/testProvider
-CL = TST_ResponseStressTest
+NStressCxx = test/testProvider
+CStressCxx = TST_ResponseStressTestCxx
 
 ## Simple C++ Provider classes and namespaces
 CxxNS = root/SampleProvider
@@ -94,9 +94,8 @@ poststarttests2:
 
 	@$(ECHO)  Associator and Reference tests - get to completion      
 	make SimpleRef
-	make prn1
-	make pa1
-	make pan1
+	make passoc1
+	make passoc2
 	make pcmpir1
 	make pcmpirn1
 	make pcmpian1
@@ -149,16 +148,45 @@ pcmpie1:
 	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P Message
 	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P ""
 
-## KS_TODO movet his test up to enumerates
+## KS_TODO move this test up to enumerates
 pcmpien1:
 	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 
 ## Simple pull ref and assoc operations.
 SimpleRef:
-	$(PROGRAM) r  -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) r -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) rn -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) a -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) an -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+
+## returns a single association object and asks for one object per request
+## compares results with assoc request so counts should match.  This
+
+passoc1: a1tst pa1 pan1 pr1 prn1
+
+a1tst:
+	cimcli a $(CxxAssocOB) -n $(CxxAssocNS) --sum -count 1
+pa1:
+	$(PROGRAM) a  -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+
+pan1:
+	$(PROGRAM) an -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+
+pr1:
+	$(PROGRAM) r  -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 prn1:
-	$(PROGRAM) r  -N 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) rn -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+
+## Request class that returns a single object but ask for more than one in
+## response
+
+passoc2: pa2 pan2 pr2 prn2
+pa2:
+	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+
+pan2:
+	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 pr2:
 	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
@@ -166,22 +194,16 @@ pr2:
 prn2:
 	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
-pa1:
-	$(PROGRAM) a -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-
-pan1:
-	$(PROGRAM) an -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-
-pa2:
-	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
-
-pan2:
-	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 ## With repository entry
+passoc3: pa3 pan3 pr3 prn3
 pa3:
 	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 pan3:
+	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+pr3:
+	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+prn3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 
 peManagedElement:
@@ -215,21 +237,23 @@ pempty:
 ## the interval property that defines intervals between the delivery
 ## of subsequent instances to the CIMOM and therefore is not constant.
 ## Included list of properties to return to make this test valid.
+## CIMCLi is called before each test to set the response size and number
+## of responses requested
 stresse1:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CL) -n $(NS) -C \
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
 
 stressen1:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CL) -n $(NS) -C -T -v 3 $(HOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=5000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -T -v 3 $(HOSTID)
 
 stressVariation:
-#	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-#	$(PROGRAM) e -c $(CL) -n $(NS) -M 10 -N 10 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
-#	$(PROGRAM) e -c $(CL) -n $(NS) -M 100 -N 100 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 1000 -N 1000 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+#	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+#	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 10 -N 10 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+#	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 100 -N 100 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1000 -N 1000 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 
 
 ### Error Tests 
@@ -242,7 +266,7 @@ pullClassParamError:
 
 ## Generates an error because reqested object count too large
 maxPullObjectCountError:
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 9999 -N 9999 -C -R -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9999 -N 9999 -C -R -T -v 3 $(HOSTID)
 # the following tests should pass Makefile exit error tests.
 filterParamError:
 	$(PROGRAM) e Test_Person -f abc -R $(HOSTID)
@@ -280,19 +304,19 @@ invalidAssocObjectPath:
 ### responses. Then call pullop to get small set of objects and then
 ### close
 testenumclose: 
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 9 -N 50 -o 4 $(HOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -o 4 $(HOSTID)
 
 testenumpathsclose: 
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CL) -n $(NS) -M 9 -N 50 -o 4 $(HOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -o 4 $(HOSTID)
 pr: pr1 pr2
 #################################
 #### timeout test. Set interoptime to 5 sec and sleep to 10 sec. This
 #### test should timeout after with the first pull.
 testtimeout:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 1 -N 1 -t 2 -T -s 4 -R $(HOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -s 4 -R $(HOSTID)
 
 ##################################
 ## CMPI Provider tests
@@ -331,9 +355,6 @@ r2:
 
 pe: pullOneEnumerateInstances pe2
 
-pr3:
-	$(PROGRAM) r -M 9 -N 1 -n test/TestProvider -c Test_CLITestProviderClass.Id=\"Mike\" $(HOSTID)
-
 ## Tests for reference names and pull referencenames.
 r1:
 	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
@@ -365,36 +386,36 @@ checkinvalidroleparam:
 ## Tests with StressTestProvider
 
 rsgc:
-	cimcli gc $(CL) -n $(NS) $(CIMCLIHOSTID)
+	cimcli gc $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
 
 rsget:
-	cimcli im $(CL) get -n $(NS) $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) get -n $(NStressCxx) $(CIMCLIHOSTID)
 
 rsset:
-	cimcli im $(CL) set -n $(NS) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 
 rsset1:
-	cimcli im set $(CL) -n $(NS) $(CIMCLIHOSTID)
+	cimcli im set $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
 
 ## cimcli enumerateInstances
 rsei: rsset
-	cimcli ei $(CL) get -n $(NS) --sum --t $(CIMCLIHOSTID)
+	cimcli ei $(CStressCxx) get -n $(NStressCxx) --sum --t $(CIMCLIHOSTID)
 
 rseip:
-	cimcli pei $(CL) get -n $(NS) --sum --t $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) get -n $(NStressCxx) --sum --t $(CIMCLIHOSTID)
 
 ## pull the number of objects defined by rsset with Timing and comparison
 rseip1: rsset
-	$(PROGRAM) e -c $(CL) -n $(NS) -M 9 -N 100 -T -C $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 100 -T -C $(HOSTID)
 
 rseipn:
-	cimcli ni $(CL) get -n $(NS) --sum $(CIMCLIHOSTID)
+	cimcli ni $(CStressCxx) get -n $(NStressCxx) --sum $(CIMCLIHOSTID)
 
 ##################################################
 ## Test with pull operations in cimcli
 cimclipei:
-	cimcli pei $(CL) -n $(NS) -mo 1 --sum $(CIMCLIHOSTID)
-	cimcli pni $(CL) -n $(NS) -mo 1 $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) -n $(NStressCxx) -mo 1 --sum $(CIMCLIHOSTID)
+	cimcli pni $(CStressCxx) -n $(NStressCxx) -mo 1 $(CIMCLIHOSTID)
 
 cmpigc:
 	cimcli gc $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)

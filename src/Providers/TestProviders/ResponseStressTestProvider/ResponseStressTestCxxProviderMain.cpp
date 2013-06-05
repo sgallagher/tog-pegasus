@@ -26,41 +26,25 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-#pragma locale("en_US")
-
 //
-// Define the C++ provider module for TST_ResponseStressTestCxx class
-//
+//%/////////////////////////////////////////////////////////////////////////////
 
-instance of PG_ProviderModule
+#include <Pegasus/Common/Config.h>
+
+#include "ResponseStressTestCxxProvider.h"
+
+
+PEGASUS_NAMESPACE_BEGIN
+
+extern "C"
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
-    Description = "A C++ test provider to test large operation responses";
-    Caption = "Pegasus Response Stress Test C++ Provider Module";
-    Name = "ResponseStressTestCxxProviderModule";
-    Vendor = "OpenPegasus";
-    Version = "2.5.0";
-    InterfaceType = "C++Default";
-    InterfaceVersion = "2.5.0";
-    Location = "ResponseStressTestCxxProvider";
-};
+    if (String::equalNoCase(providerName, "ResponseStressTestCxxProvider"))
+    {
+        return new ResponseStressTestCxxProvider();
+    }
 
-instance of PG_Provider
-{
-    ProviderModuleName = "ResponseStressTestCxxProviderModule";
-    Name = "ResponseStressTestCxxProvider";
-};
+    return 0;
+}
 
-// instance defines the C++ Provider capabilities
-instance of PG_ProviderCapabilities
-{
-    ProviderModuleName = "ResponseStressTestCxxProviderModule";
-    ProviderName = "ResponseStressTestCxxProvider";
-    CapabilityID = "ResponseStressTestCxxProvider001";
-    ClassName = "TST_ResponseStressTestCxx";
-    Namespaces = { "test/TestProvider" };
-    ProviderType = { 2, 5 };
-    SupportedProperties = NULL;
-    SupportedMethods = NULL;
-};
-
-
+PEGASUS_NAMESPACE_END

@@ -46,6 +46,7 @@
 #include <Pegasus/Common/SCMOClass.h>
 #include <Pegasus/Common/SCMOInstance.h>
 #include <Pegasus/Common/SCMODump.h>
+#include <Pegasus/Common/Mutex.h>           // KS_TODO  Remove
 #include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -98,6 +99,7 @@ public:
         _isClassOperation(false),
         _propertyList(CIMPropertyList())
     {
+        /// KS_TODO the following is all test code.
         TRACELINE;
         PEGASUS_ASSERT(valid()); // KS_TEMP KS_TODO DELETE THIS
         size();
@@ -452,6 +454,8 @@ private:
     // instances or classes) when the operation is to return class information.
     Boolean _isClassOperation;
     CIMPropertyList _propertyList;
+
+    Mutex testLock;
 
     // magic number to use with valid function to confirm validity
     // of response data.

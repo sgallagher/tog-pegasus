@@ -32,7 +32,7 @@ DIR = Providers/TestProviders/ResponseStressTest
 
 include $(ROOT)/mak/config.mak
 
-LIBRARY = ResponseStressTestProvider
+LIBRARY = ResponseStressTestCxxProvider
 
 LIBRARIES = \
 	pegprovider \
@@ -40,8 +40,8 @@ LIBRARIES = \
 	pegcommon
 
 SOURCES = \
-	ResponseStressTestProviderMain.cpp \
-	ResponseStressTestProvider.cpp
+	ResponseStressTestCxxProviderMain.cpp \
+	ResponseStressTestCxxProvider.cpp
 
 include $(ROOT)/mak/dynamic-library.mak
 

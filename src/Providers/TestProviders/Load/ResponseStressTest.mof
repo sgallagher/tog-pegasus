@@ -31,10 +31,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-    [Version("1.0.0"), Description (" Class for testing "
-        "stress on system with large numbers of possibly large "
-        "instances ")]
-class TST_ResponseStressTest
+    [Version("1.0.0"), Description (" Common Class for testing "
+        "Response message stress on system with large numbers of possibly large "
+        " large instances in the response. Size and number of instances are "
+        " modifiable via methods on the class. This is a class common to "
+        " classed defined for particular provider APIs  ")]
+class TST_ResponseStress
 {
     [key]
     string Id;
@@ -73,16 +75,27 @@ class TST_ResponseStressTest
          "approximate size of the returned instances. This persists "
          "until the provider is reloaded."),
     static] Uint32 set(
-	    [in] uint64 ResponseCount,
-	    [in] uint64 Size);
+        [in] uint64 ResponseCount,
+        [in] uint64 Size);
 
     [ Description ("Method returns the current control parameters. "),
     static] Uint32 get(
-	    [out] uint64 ResponseCount,
-	    [out] uint64 Size);
+        [out] uint64 ResponseCount,
+        [out] uint64 Size);
 
     [ Description ("Method stops the provider from generating instances. "
         "Reset by the next operation or method request. This is an  "
         "attempt to allow the client to stop generation in process."),
     static] Uint32 stop();
 };
+
+// Stress test subclass for  C++ Provider.
+class TST_ResponseStressTestCxx : TST_ResponseStress
+{
+};
+
+// Corresponding CMPI subclass for CMPI provider
+class TST_ResponseStressTestCMPI : TST_ResponseStress
+{
+};
+

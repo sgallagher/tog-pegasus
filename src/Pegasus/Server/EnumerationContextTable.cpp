@@ -202,42 +202,40 @@ EnumerationContext* EnumerationContextTable::createContext(
     // Create the new context, Context name is guid appended by
     // monolithically increasing counter. The interoperationTimeout is
     // defined by either the default or input value.
-    EnumerationContext* ec = new EnumerationContext(nameSpace,
+    EnumerationContext* enumCtxt = new EnumerationContext(nameSpace,
         operationTimeout,
         continueOnError,
         pullRequestType,
         contentType);
 
     // set the pointer to the enumeration table into the context
-    ec->_enumerationContextTable = this;
+    enumCtxt->_enumerationContextTable = this;
 
     // Set the maximum size for the response Cache from the default
     // value in the table
-    ec->_responseCacheMaximumSize = _responseCacheDefaultMaximumSize;
+    enumCtxt->_responseCacheMaximumSize = _responseCacheDefaultMaximumSize;
 
     // Create new context name (guid + monolithic increasing counter)
-    // KS_TODO - Do not need guid for each enum.  We should be able to
-    // use this once and then just append the counter for the life of
-    // the context table. KS_TODO - What issues might there be with
-    // a context that is simply monolithicly increasing?? i.e. security.
-    // KS_TODO - Modify this to use Pegasus StringConversion
     // KS_TODO - Modify this whole thing to a Uint64 so we are not mapping
     // Strings.  Works since passed as PCDATA
     //
     _enumContextCounter++;
     Uint32 size;
-    String ecn;
     char t[22];
     const char* x = Uint32ToString(t,_enumContextCounter.get(),size);
-    ecn = x;
+
+    // Put the name into the context and return value
+    // KS_TODO We should not be duplicating the name.
+    enumCtxt->_enumerationContextName = x;
+    enumerationContextName = x;
 
     // insert new context into the table
-    if(!ht.insert(ecn, ec))
+    if(!ht.insert(enumerationContextName, enumCtxt))
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "Error Creating Enumeration Context %s. System Failed",
-            (const char*)ecn.getCString() ));
-        ec = 0;
+            (const char*)enumerationContextName.getCString() ));
+        enumCtxt = 0;
         PEGASUS_ASSERT(false);
     }
 #ifndef PEGASUS_USE_PULL_TIMEOUT_THREAD
@@ -247,9 +245,10 @@ EnumerationContext* EnumerationContextTable::createContext(
     }
 #endif
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "CreateContext ContextId= %s", (const char*)ecn.getCString()));
-    ec->trace();    // KS_TEMP
-    return ec;
+        "CreateContext ContextId= %s",
+               (const char*)enumerationContextName.getCString()));
+    enumCtxt->trace();    // KS_TEMP
+    return enumCtxt;
 }
 
 Boolean EnumerationContextTable::remove(const String& enumerationContextName)

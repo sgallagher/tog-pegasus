@@ -300,13 +300,13 @@ void EnumerationContext::trace()
 {
     PEGASUS_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        " EnumerationContext.ContextId= %s."
-        " namespace %s timeOut %lu operationTimer %lu"
-        " continueOnError %s pull msg Type %s"
-        " providers complete %s"
-        " closed %s"
-        " timeOpen %lu millisec totalPullCount %u"
-        " cache highWaterMark %u",
+        "EnumerationContext.ContextId=%s "
+        "namespace %s timeOut %lu operationTimer=%lu "
+        "continueOnError=%s pull msg Type=%s "
+        "providers complete=%s "
+        "closed=%s "
+        "timeOpen %lu millisec totalPullCount=%u "
+        "cache highWaterMark=%u ",
         (const char *)_enumerationContextName.getCString(),
         (const char *)_nameSpace.getString().getCString(),
         (long unsigned int)_operationTimeoutSec,

@@ -230,9 +230,12 @@ void testLocalAuthSuccess()
     if (verbose) cout << "Local Resp AuthHeader: " << authHeader << endl;
 
     Boolean authenticated;
+    // test case looks for success, initialize with failure
+    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
 
-    authenticated =
-        authManager.performPegasusAuthentication(authHeader, authInfo);
+
+    authStatus = authManager.performPegasusAuthentication(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     //
     // remove the auth file created for this user request
@@ -272,9 +275,11 @@ void testBasicAuthSuccess()
     authHeader.append(encodeUserPass(userPass));
 
     Boolean authenticated;
+    // test case looks for success, initialize with failure
+    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
 
-    authenticated =
-        authManager.performHttpAuthentication(authHeader, authInfo);
+    authStatus = authManager.performHttpAuthentication(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     if (verbose)
     {

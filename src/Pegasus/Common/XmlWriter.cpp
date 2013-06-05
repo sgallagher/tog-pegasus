@@ -1983,6 +1983,7 @@ void XmlWriter::appendHttpErrorResponseHeader(
 //     Returns unauthorized message in the following format:
 //
 //        HTTP/1.1 401 Unauthorized
+//        PGErrorDetail: <error text>    (if specified by caller)
 //        WWW-Authenticate: Basic realm="HostName"
 //        <HTML><HEAD>
 //        <TITLE>401 Unauthorized</TITLE>
@@ -1995,9 +1996,16 @@ void XmlWriter::appendHttpErrorResponseHeader(
 
 void XmlWriter::appendUnauthorizedResponseHeader(
     Buffer& out,
+    const String& errorDetail,
     const String& content)
 {
     out << STRLIT("HTTP/1.1 " HTTP_STATUS_UNAUTHORIZED "\r\n");
+    if (errorDetail.size() > 0)
+    {
+        out << STRLIT(PEGASUS_HTTPHEADERTAG_ERRORDETAIL ": ")
+            << encodeURICharacters(errorDetail) << STRLIT("\r\n");
+    }
+
     OUTPUT_CONTENTLENGTH(out, 0);
     out << content << STRLIT("\r\n\r\n");
 

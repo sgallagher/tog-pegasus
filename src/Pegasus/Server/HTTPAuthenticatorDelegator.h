@@ -99,6 +99,7 @@ private:
 
     void _sendChallenge(
         Uint32 queueId,
+        const String& errorDetail,
         const String& authResponse,
         Boolean closeConnect);
 

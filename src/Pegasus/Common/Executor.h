@@ -180,7 +180,7 @@ public:
         file).
         @param username the name of a valid system user.
         @param password the clear text password for the given user.
-        @return 0=success, -1=failure
+        @return 0=success, -1=failure, >0 = PAM return code
     */
     static int authenticatePassword(
         const char* username,
@@ -189,7 +189,7 @@ public:
     /** Check whether the given user is valid for the underlying authentcation
         mechanism.
         @param username the name of the user.
-        @return 0=success, -1=failure
+        @return 0=success, -1=failure, >0 = PAM return code
     */
     static int validateUser(
         const char* username);

@@ -71,7 +71,7 @@ SecureLocalAuthenticator::~SecureLocalAuthenticator()
 //
 // Does local authentication
 //
-Boolean SecureLocalAuthenticator::authenticate(
+AuthenticationStatus SecureLocalAuthenticator::authenticate(
    const String& filePath,
    const String& secretReceived,
    const String& secretKept)
@@ -120,10 +120,10 @@ Boolean SecureLocalAuthenticator::authenticate(
 
     PEG_METHOD_EXIT();
 
-    return authenticated;
+    return AuthenticationStatus(authenticated);
 }
 
-Boolean SecureLocalAuthenticator::validateUser(
+AuthenticationStatus SecureLocalAuthenticator::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
@@ -138,7 +138,7 @@ Boolean SecureLocalAuthenticator::validateUser(
     }
 
     PEG_METHOD_EXIT();
-    return authenticated;
+    return AuthenticationStatus(authenticated);
 }
 
 //

@@ -1,3 +1,4 @@
+/*
 //%LICENSE////////////////////////////////////////////////////////////////
 //
 // Licensed to The Open Group (TOG) under one or more contributor license
@@ -26,46 +27,73 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
+*/
 
-#ifndef Pegasus_PAMSessionBasicAuthenticator_h
-#define Pegasus_PAMSessionBasicAuthenticator_h
+#ifndef AuthenticationStatus_h
+#define AuthenticationStatus_h
 
 #include <Pegasus/Security/Authentication/Linkage.h>
-#include "BasicAuthenticator.h"
-
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class provides PAM basic authentication implementation by extending
-    the BasicAuthenticator.
-*/
-class PEGASUS_SECURITY_LINKAGE 
-    PAMSessionBasicAuthenticator:public BasicAuthenticator
+
+enum AuthenticationStatusCode
+{
+    AUTHSC_SUCCESS,
+    AUTHSC_UNAUTHORIZED,
+    AUTHSC_PASSWORD_CHG_REQUIRED,
+    AUTHSC_ACCOUNT_EXPIRED,
+    AUTHSC_SERVICE_UNAVAILABLE,
+    AUTHSC_NO_ROLE_DEFINED_FOR_USER,
+    AUTHSC_PASSWORD_EXPIRED,
+    AUTHSC_AUTHTOK_LOCKED,
+    AUTHSC_SERVICE_ERR,
+    AUTHSC_CRED_INSUFFICIENT
+};
+
+class PEGASUS_SECURITY_LINKAGE AuthenticationStatus
 {
 public:
 
-    PAMSessionBasicAuthenticator();
+    /** Constructors  */
+    AuthenticationStatus(AuthenticationStatusCode code);
+    AuthenticationStatus(Boolean authenticated);
 
-    ~PAMSessionBasicAuthenticator();
+    /** Destructor  */
+    ~AuthenticationStatus() { };
 
-    AuthenticationStatus authenticate(
-        const String& userName,
-        const String& password,
-        AuthenticationInfo* authInfo);
+    bool isSuccess()
+    {
+        return (_code == AUTHSC_SUCCESS);
+    }
 
-    AuthenticationStatus validateUser(
-        const String& userName,
-        AuthenticationInfo* authInfo);
+    bool doChallenge()
+    {
+        return _doChallenge;
+    }
 
-    String getAuthResponseHeader();
+    String getHttpStatus()
+    {
+        return _httpStatus;
+    }
+
+    String getErrorDetail()
+    {
+        return _errorDetail;
+    }
 
 private:
 
-    String _realm;
+    /* Prohibit usage of default constructor */
+    AuthenticationStatus();
+
+    String _httpStatus;
+    String _errorDetail;
+    AuthenticationStatusCode _code;
+    bool _doChallenge;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_PAMSessionBasicAuthenticator_h */
+#endif /* AuthenticationStatus_h */

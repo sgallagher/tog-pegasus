@@ -1,3 +1,4 @@
+/*
 //%LICENSE////////////////////////////////////////////////////////////////
 //
 // Licensed to The Open Group (TOG) under one or more contributor license
@@ -26,46 +27,83 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
+*/
 
-#ifndef Pegasus_PAMSessionBasicAuthenticator_h
-#define Pegasus_PAMSessionBasicAuthenticator_h
+#ifndef pam_rcToAuthStatus_h
+#define pam_rcToAuthStatus_h
 
+#include <security/pam_appl.h>
 #include <Pegasus/Security/Authentication/Linkage.h>
-#include "BasicAuthenticator.h"
-
+#include <Pegasus/Security/Authentication/AuthenticationStatus.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class provides PAM basic authentication implementation by extending
-    the BasicAuthenticator.
-*/
-class PEGASUS_SECURITY_LINKAGE 
-    PAMSessionBasicAuthenticator:public BasicAuthenticator
+static AuthenticationStatus _getAuthStatusFromPAM_RC(int pam_rc)
 {
-public:
+    enum AuthenticationStatusCode authCode;
 
-    PAMSessionBasicAuthenticator();
-
-    ~PAMSessionBasicAuthenticator();
-
-    AuthenticationStatus authenticate(
-        const String& userName,
-        const String& password,
-        AuthenticationInfo* authInfo);
-
-    AuthenticationStatus validateUser(
-        const String& userName,
-        AuthenticationInfo* authInfo);
-
-    String getAuthResponseHeader();
-
-private:
-
-    String _realm;
-};
+    switch (pam_rc)
+    {
+        case PAM_SUCCESS:
+        {
+            authCode = AUTHSC_SUCCESS;
+            break;
+        }
+        case PAM_NEW_AUTHTOK_REQD:
+        {
+            authCode = AUTHSC_PASSWORD_CHG_REQUIRED;
+            break;
+        }
+        case PAM_ACCT_EXPIRED:
+        {
+            authCode = AUTHSC_ACCOUNT_EXPIRED;
+            break;
+        }
+        case PAM_AUTH_ERR:
+        case PAM_USER_UNKNOWN:
+        {
+            authCode = AUTHSC_UNAUTHORIZED;
+            break;
+        }
+        case PAM_CRED_UNAVAIL:
+        {
+            authCode = AUTHSC_NO_ROLE_DEFINED_FOR_USER;
+            break;
+        }
+        case PAM_CRED_EXPIRED:
+        {
+            authCode = AUTHSC_PASSWORD_EXPIRED;
+            break;
+        }
+        case PAM_AUTHTOK_LOCK_BUSY:
+        {
+            authCode = AUTHSC_AUTHTOK_LOCKED;
+            break;
+        }
+        case PAM_CRED_INSUFFICIENT:
+        {
+            authCode = AUTHSC_CRED_INSUFFICIENT;
+            break;
+        }
+        case PAM_SERVICE_ERR:
+        case PAM_SYSTEM_ERR:
+        {
+            authCode = AUTHSC_SERVICE_ERR;
+            break;
+        }
+        case PAM_AUTHINFO_UNAVAIL:
+        {
+            authCode = AUTHSC_SERVICE_UNAVAILABLE;
+            break;
+        }
+        default:
+        {
+            authCode = AUTHSC_UNAUTHORIZED;
+        }
+    }
+    return AuthenticationStatus(authCode);
+}
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_PAMSessionBasicAuthenticator_h */
+#endif /* pam_rcToAuthStatus_h */

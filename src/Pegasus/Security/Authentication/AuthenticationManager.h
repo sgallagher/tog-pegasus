@@ -63,9 +63,9 @@ public:
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return true on successful authentication, false otherwise
+        @return AuthenticationStatus holding http status code and error detail
     */
-    Boolean performHttpAuthentication(
+    AuthenticationStatus performHttpAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
@@ -73,9 +73,9 @@ public:
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return true on successful authentication, false otherwise
+        @return AuthenticationStatus holding http status code and error detail
     */
-    Boolean performPegasusAuthentication(
+    AuthenticationStatus performPegasusAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
@@ -84,9 +84,9 @@ public:
         @param  userName  name of the user
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return true on successful validation, false otherwise
+        @return AuthenticationStatus holding http status code and error detail
     */
-    Boolean validateUserForHttpAuth(
+    AuthenticationStatus validateUserForHttpAuth(
         const String& userName,
         AuthenticationInfo* authInfo);
 

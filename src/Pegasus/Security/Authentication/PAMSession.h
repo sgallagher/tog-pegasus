@@ -269,6 +269,10 @@ static int _PAMAuthenticate(
     int pam_rc;
     PAMData data;
 
+    /* commented out statement in place to allow triggering a Http 500 Error */
+    /* intentionally for testing purposes */
+    // return PAM_SERVICE_ERR;
+
     pam_rc = _preparePAM(true, &handle, &data, username, password, authInfo);
     if (pam_rc != PAM_SUCCESS)
     {

@@ -143,7 +143,7 @@ SecureBasicAuthenticator::~SecureBasicAuthenticator()
     PEG_METHOD_EXIT();
 }
 
-Boolean SecureBasicAuthenticator::authenticate(
+AuthenticationStatus SecureBasicAuthenticator::authenticate(
     const String & userName,
     const String & password,
     AuthenticationInfo* authInfo)
@@ -226,7 +226,7 @@ Boolean SecureBasicAuthenticator::authenticate(
     if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
-        return authenticated;
+        return AuthenticationStatus(authenticated);
     }
 
     try
@@ -251,7 +251,7 @@ Boolean SecureBasicAuthenticator::authenticate(
     catch(InvalidUser &)
     {
         PEG_METHOD_EXIT();
-        return authenticated;
+        return AuthenticationStatus(authenticated);
     }
     catch(Exception & e)
     {
@@ -263,10 +263,10 @@ Boolean SecureBasicAuthenticator::authenticate(
 
     PEG_METHOD_EXIT();
 
-    return authenticated;
+    return AuthenticationStatus(authenticated);
 }
 
-Boolean SecureBasicAuthenticator::validateUser(
+AuthenticationStatus SecureBasicAuthenticator::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
@@ -293,7 +293,7 @@ Boolean SecureBasicAuthenticator::validateUser(
     }
 
     PEG_METHOD_EXIT();
-    return authenticated;
+    return AuthenticationStatus(authenticated);
 }
 
 //

@@ -289,6 +289,12 @@ private:
         XmlParser& parser,
         const String& messageId,
         Boolean isEmptyImethodresponseTag);
+
+    CIMOpenQueryInstancesResponseMessage*
+        _decodeOpenQueryInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
 // EXP_PULL END
 
     MessageQueue*        _outputQueue;

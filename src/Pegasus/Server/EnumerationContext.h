@@ -217,14 +217,14 @@ public:
 
     /**
        Put the CIMResponseData from the response message into the
-       enumerationContext cache and if isComplete is true, set the
-       enumeration state to providersComplete. This function signals
-       the getCache function conditional variable. This function may also
-       wait if the cache is full.
+       enumerationContext cache and if providersComplete is true,
+       set the enumeration state to providersComplete. This function
+       signals the getCache function conditional variable. This
+       function may also wait if the cache is full.
      */
     void putCache(MessageType type,
                   CIMResponseMessage*& response,
-                  Boolean isComplete);
+                  Boolean providersComplete);
 
     /**
        Get up to the number of objects defined by count from the
@@ -264,12 +264,17 @@ public:
     void setProvidersComplete();
 
     /**
-        Determine if the aggregation can be closed and if so close it.
-        Should be done before it is removed from the table. Closed means
-        providers complete and either we are not going to deliver more.
-        When closed it is considered unusable.
+        Closed the client side of the EnumerationContext. From this
+        point on, any client side requests should be rejected. Note
+        that the providers may still be delivering CIMResponseData
+        to the enumerationContextQueue. The
+        CIMOperationRequestDispatcher uses the closed state to
+        refuse pull/close operations. Once the EnumerationContext is
+        closed, it may be removed from the enumeration context table
+        (normally this happens when closed and providersComplete are
+        set).
     */
-    Boolean setClosed();
+    void setClientClosed();
 
     /**
         Sets the active state. Setting active = true stops the
@@ -303,7 +308,11 @@ public:
     /**
         Increment the count of the number of pull operations executed
         for this context. This method also controls the counting
-        of operations with zero length through the input parameter
+        of operations with zero length through the input parameter.
+        The zero length counter is reset for each call with the
+        input parameter != zero so that this function counts total
+        operations and also counts consecutive maxObjectCount zero
+        length requests.
 
         @param isZeroLength Boolean indicating if this operation is a request
         for zero objects which is used to count consecutive zero length
@@ -311,14 +320,14 @@ public:
         @return true if the count of consecutive zero length pull operations
         exceeds a predefined maximum.
     */
-    Boolean incPullOperationCounter(Boolean isZeroLength);
+    Boolean incAndTestPullCounters(Boolean isZeroLength);
 
     // Exception placed here in case of error. This is set by the operation
     // aggregate with any CIMException recieved from providers.  Note that
     // Only one is allowed.
     CIMException _cimException;
 
-    // remove this entry from the enumerationTable
+    // remove this enumerationContext entry from the enumerationContextTable
     void removeContext();
 
 private:
@@ -359,13 +368,21 @@ private:
     MessageType _pullRequestType;
 
     // status flags.
-    Boolean _closed;
+    // Set true when context closed from client side
+    Boolean _clientClosed;
+    // Set to true when input from providers complete
     Boolean _providersComplete;
+    // set true when response generated and not endOFSequence
     Boolean _active;
+    // Set true when error received from Providers.
     Boolean _error;
     // Set to true if waiting on condition variable.  Cannot remove until
     // this cleared.
     Boolean _waiting;
+
+    // Block simultaneous access to certain functions in the Enumeration
+    // context.
+    Mutex _cacheBlock;
 
     // Object cache for this context.  All pull responses feed their
     // CIMResponseData into this cache using putCache(..) and all
@@ -410,15 +427,16 @@ private:
     void waitProviderLimitCondition(Uint32 limit);
 
     // signalProviderLimitCondition signals the condition variable that
-    // it should test the wait conditions.
+    // it should test the _providerLimitCondition wait conditions.
     void signalProviderLimitCondition();
 
     // Count Of pull operations executed in this context.  Used for statistics
     Uint32 _pullOperationCounter;
 
-    // Counter of consecutive zeroLength requests. Used to limit client
-    // stalling by executing excessive number of zero return pull opreations.
-    Uint32 _zeroRtnPullOperationCounter;
+    // Counter of consecutive requests with maxObjectCount == 0. Used to limit
+    // client stalling by executing excessive number of zero return pull
+    // operations.
+    Uint32 _consecutiveZeroLenMaxObjectRequestCounter;
 
     // Maximum number of objects that can be placed in the response Cache
     // before blocking providers.

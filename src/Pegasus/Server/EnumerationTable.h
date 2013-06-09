@@ -61,9 +61,9 @@ PEGASUS_NAMESPACE_BEGIN
 **  Each context object is represented by the EnumerationContext
 **  class.
 **  This class is expected to be used only with the Operation
-**  Dispatcher. 
-**  This class includes functions to time out inactive enumeration context 
-**  entries in the table 
+**  Dispatcher.
+**  This class includes functions to time out inactive enumeration context
+**  entries in the table
 *****************************************************************************/
 
 class EnumerationContext;
@@ -73,8 +73,8 @@ class PEGASUS_SERVER_LINKAGE EnumerationContextTable
 public:
 
     /**
-       Create a new Enumeration Table defining the defaults for 
-       operation Timeout and response Cache Maximum Size. 
+       Create a new Enumeration Table defining the defaults for
+       operation Timeout and response Cache Maximum Size.
      */
     EnumerationContextTable(Uint32 defaultInteroperationTimeoutValue,
         Uint32 reponseCacheDefaultMaximumSize);
@@ -83,20 +83,20 @@ public:
 
     /**
         Create a new EnumerationContext object and return a pointer to
-        the object. 
+        the object.
         @param nameSpace - Namespace for this sequence.
         @param Uint32 value of operation timeout.
-        @param continueOnError Boolean containing the continueOnError flag for 
-         this context.  (CURRENTLY MUST BE FALSE) 
-        @param pullOpenRequestType - Type for the Pull request message so 
+        @param continueOnError Boolean containing the continueOnError flag for
+         this context.  (CURRENTLY MUST BE FALSE)
+        @param pullOpenRequestType - Type for the Pull request message so
          tests can be made when pull received.  Used to prevent trying
          to pull paths when instances required, etc.
         @param contentType - Content type for the CIMResponseData cache
          container
-        @param enumerationContextName  - Output parameter containing the 
+        @param enumerationContextName  - Output parameter containing the
          string which is the enumerationContext name that is used with
          the find command and as the context in the operations
-        @return EnumerationContext* 
+        @return EnumerationContext*
      */
     EnumerationContext* createContext(
         const CIMNamespaceName& nameSpace,
@@ -113,9 +113,9 @@ public:
     Boolean remove(EnumerationContext* en);
 
     /**
-       Return the number of enumeration context entries in the 
-       enumeration context table 
-       @return Uint32 
+       Return the number of enumeration context entries in the
+       enumeration context table
+       @return Uint32
      */
     Uint32 size();
 
@@ -132,10 +132,10 @@ public:
     void trace();
 
     /**
-       Dispatch the Timer thread if it is not already dispatched.  
+       Dispatch the Timer thread if it is not already dispatched.
 
-       @param interval Uint32 interval defines the interval for this context 
-              in seconds. 
+       @param interval Uint32 interval defines the interval for this context
+              in seconds.
     */
     void dispatchTimerThread(Uint32 interval);
 
@@ -217,7 +217,7 @@ private:
 
 //
 //  inline EnumerationContextTable functions
-// 
+//
 inline Boolean EnumerationContextTable::timerThreadIdle()
 {
     return _nextTimeout == 0;

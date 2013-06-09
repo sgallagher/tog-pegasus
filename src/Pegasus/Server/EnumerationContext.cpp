@@ -126,7 +126,7 @@ EnumerationContext::EnumerationContext(
     _continueOnError(continueOnError_),
     _interOperationTimer(0),
     _pullRequestType(pullRequestType_),
-    _closed(false),
+    _clientClosed(false),
     _providersComplete(false),
     _active(false),
     _error(false),
@@ -136,7 +136,7 @@ EnumerationContext::EnumerationContext(
     _conditionCounter(0),
     _providerLimitConditionMutex(Mutex::NON_RECURSIVE),
     _pullOperationCounter(0),
-    _zeroRtnPullOperationCounter(0),
+    _consecutiveZeroLenMaxObjectRequestCounter(0),
     _cacheHighWaterMark(0)
 {
     _responseCache.valid();             // KS_TEMP
@@ -160,7 +160,7 @@ EnumerationContext::EnumerationContext(const EnumerationContext& x)
     _nameSpace = x._nameSpace;
     _continueOnError = x._continueOnError;
     _active = x._active;
-    _closed = x._closed;
+    _clientClosed = x._clientClosed;
     _error = x._error;
     _waiting = x._waiting;
 }
@@ -282,7 +282,7 @@ Boolean EnumerationContext::isActive()
 
 Boolean EnumerationContext::isClosed()
 {
-    return _closed;
+    return _clientClosed;
 }
 
 Boolean EnumerationContext::isErrorState()
@@ -314,7 +314,7 @@ void EnumerationContext::trace()
         _toCharP(_continueOnError),
         MessageTypeToString(_pullRequestType),
         _toCharP(_providersComplete),
-        _toCharP(_closed),
+        _toCharP(_clientClosed),
         (long unsigned int)
             (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
         _pullOperationCounter,
@@ -359,53 +359,52 @@ void EnumerationContext::removeContext()
 }
 
 /*
-    Insert complete CIMResponseData entities into the cache, and if the
-    cache is full, wait until it the size drops below the full limit.
+    Insert complete CIMResponseData entities into the cache. If the
+    cache is full (at its size limit), wait until it the size drops
+    below the full limit.
     If the operation is closed, we discard the response. If
     this is the last response, remove the enumerationContext
 */
 void EnumerationContext::putCache(MessageType type,
                                   CIMResponseMessage*& response,
-                                  Boolean isComplete)
+                                  Boolean providersComplete)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
     PEGASUS_ASSERT(valid());   // KS_TEMP;
     trace();                   // KS_TEMP
 
-    // Should never enter here with Providers complete set.
-    if (_providersComplete)
-    {
-        cout << "ERROR in Providers Complete "<< __FILE__ << __LINE__ << endl;
-        trace();
-    }
-
+    // Design error if we ever get here with providers already set complete
     PEGASUS_ASSERT(!_providersComplete);
+    PEGASUS_ASSERT(!_waiting);
 
     _waiting = true;
 
     // set providersComplete flag from flag in context.
-    _providersComplete = isComplete;
+    _providersComplete = providersComplete;
 
     CIMResponseData& to = _responseCache;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Enter putCache, response isComplete %s ResponseDataType %u",
-        _toCharP(isComplete), to.getResponseDataContent() ));
+        _toCharP(providersComplete), to.getResponseDataContent() ));
 
     // If an operation has closed the enumerationContext can
-    // ignore any received responses until the isComplete is received and
-    // then remove the Context.
-    if (_closed)
+    // ignore any received responses until the providersComplete is received
+    // and then remove the Context.
+    if (_clientClosed)
     {
-        // if providers are complete, we can remove context
-        /// KS_TODO. Is this correct. Is there any chance of a response
-        /// in process at this point??
-        if (isComplete)
+        // If providers are complete, we can remove context. If providers
+        // are not complete, the providers will continue to deliver
+        // responses but they are discarded here.
+        //// KS_TODO Are we sure that the client closed mechanisms have
+        ///  not already removed the context
+        if (_providersComplete)
         {
-            ///// TODO Confirm this. removeContext();
+            removeContext();
         }
+        delete response;
     }
-    else
+    else  // client not closed at this point
     {
         _insertResponseIntoCache(type, response);
 
@@ -423,15 +422,11 @@ void EnumerationContext::putCache(MessageType type,
         // Signal addition to the CIMResponseData cache. Do this
         // before waiting to be sure any cache size wait is terminated.
         // May lose control at this point to CacheSizeCondition.
+        //
         signalCacheSizeCondition();
 
-        // KS_HOHO_ERROR HERE TODO_TBD - At this point we could lose control
-        // and the entire context be removed before we get control again.
-        // MAJOR ISSUE HERE. Need flag to protect against Removing context.
-        // I thought that was the closed but need to rethink.
-        // Added waiting flag so that we do not remove the context if it is
-        // in waiting mode. But, then we take responsibility for removing
-        // it.  NOTE: This means it cannot be used after the putCache call
+        // Review this for possible conflicts with context removal.
+        // The _waiting is temporary and should not be required.
 
         // Wait for the cache size to drop below the limit requested here
         // before returning to caller. This blocks providers until wait
@@ -439,7 +434,6 @@ void EnumerationContext::putCache(MessageType type,
         if (!_providersComplete)
         {
             waitProviderLimitCondition(_responseCacheMaximumSize);
-            _waiting = false;
         }
         else
         {
@@ -570,6 +564,7 @@ Boolean EnumerationContext::getCacheResponseData(
     // //// TODO Dropped the return variable for now
     rtnCIMResponseData.moveObjects(_responseCache, count);
 ////  Uint32 rtncount = rtnCIMResponseData.moveObjects(_responseCache, count);
+
     // KS_TODO_QUESTION. Not sure this should be at this level.
     rtnCIMResponseData.setPropertyList(_responseCache.getPropertyList());
 
@@ -624,7 +619,7 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
 
     // if following conditions, we know that there are no more in cache
     // so we just return.
-    if (_providersComplete || _closed)
+    if (_providersComplete || _clientClosed)
     {
         PEG_METHOD_EXIT();
         return;
@@ -694,7 +689,7 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 
     Stopwatch waitTimer;
     waitTimer.start();
-    while (!_closed && (responseCacheSize() > limit))
+    while (!_clientClosed && (responseCacheSize() > limit))
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
@@ -704,8 +699,8 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
        "waitproviderLimitCondition exit state %s responseCacheSize %u size %u "
        "closed %s time %lu",
-         _toCharP((!_closed && (responseCacheSize() < limit))),
-         responseCacheSize(), limit, _toCharP(_closed),
+         _toCharP((!_clientClosed && (responseCacheSize() < limit))),
+         responseCacheSize(), limit, _toCharP(_clientClosed),
          (long unsigned int)waitTimer.getElapsedUsec() ));
 
     _providerLimitConditionMutex.unlock();
@@ -726,20 +721,23 @@ void EnumerationContext::signalProviderLimitCondition()
     PEG_METHOD_EXIT();
 }
 
-Boolean EnumerationContext::incPullOperationCounter(Boolean isZeroLength)
+Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP
     _pullOperationCounter++;
 
     if (isZeroLength)
     {
-        _zeroRtnPullOperationCounter++;
+        _consecutiveZeroLenMaxObjectRequestCounter++;
     }
     else
     {
-        _zeroRtnPullOperationCounter = 0;
+        _consecutiveZeroLenMaxObjectRequestCounter = 0;
+        return false;
     }
-    return (_zeroRtnPullOperationCounter > MAX_ZERO_PULL_OPERATIONS);
+
+    return (_consecutiveZeroLenMaxObjectRequestCounter <=
+             MAX_ZERO_PULL_OPERATIONS);
 }
 
 // set providers complete flag and signal the CacheSizeCondition.
@@ -780,27 +778,21 @@ Boolean EnumerationContext::ifEnumerationComplete()
     return false;
 }
 
-Boolean EnumerationContext::setClosed()
+void EnumerationContext::setClientClosed()
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    // return false if already closed
-    if (_closed)
-    {
-        return false;
-    }
-    _closed = true;
+
+    _clientClosed = true;
 
     if (_providersComplete)
     {
-        // Providers are complete, close the context
-        ///// KS_TODO Clean this up.  Do not remove yet.removeContext();
+        removeContext();
     }
     else
     {
         // Signal the limit on provider responses in case it is in wait
         signalProviderLimitCondition();
     }
-    return true;
 }
 
 Boolean EnumerationContext::setActiveState(Boolean state)
@@ -819,7 +811,5 @@ Boolean EnumerationContext::setActiveState(Boolean state)
     }
     return _active;
 }
-
-
 
 PEGASUS_NAMESPACE_END

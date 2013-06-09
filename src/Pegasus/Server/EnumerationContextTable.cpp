@@ -145,15 +145,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
     input parameters that will require this.
 */
 EnumerationContextTable::EnumerationContextTable(
-    Uint32 defaultInteroperationTimeoutValue,
-    Uint32 responseCacheDefaultMaximumSize)
+    Uint32 maxInteroperationTimeoutValue,
+    Uint32 responseCacheMaximumSize)
     :
     _timeoutInterval(0),
     _nextTimeout(0),
     _enumContextCounter(1),
-    _responseCacheDefaultMaximumSize(responseCacheDefaultMaximumSize),
+    _responseCacheMaximumSize(responseCacheMaximumSize),
     _cacheHighWaterMark(0),
-    _pullOperationDefaultTimeout(defaultInteroperationTimeoutValue)
+    _maxOperationTimeout(maxInteroperationTimeoutValue)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::EnumerationContextTable");
@@ -195,11 +195,11 @@ EnumerationContext* EnumerationContextTable::createContext(
     // set the operation timeout to either the default or current
     // value
     Uint32 operationTimeout =
-        (operationTimeoutParam.isNull())? _pullOperationDefaultTimeout
+        (operationTimeoutParam.isNull())? _maxOperationTimeout
                                           :
                                           operationTimeoutParam.getValue();
 
-    // Create the new context, Context name is guid appended by
+    // Create the new context, Context name is
     // monolithically increasing counter. The interoperationTimeout is
     // defined by either the default or input value.
     EnumerationContext* enumCtxt = new EnumerationContext(nameSpace,
@@ -212,10 +212,11 @@ EnumerationContext* EnumerationContextTable::createContext(
     enumCtxt->_enumerationContextTable = this;
 
     // Set the maximum size for the response Cache from the default
-    // value in the table
-    enumCtxt->_responseCacheMaximumSize = _responseCacheDefaultMaximumSize;
+    // value in the table. This is for future where we could adjust the
+    // size dynamically for each operation depending on resource utilization.
+    enumCtxt->_responseCacheMaximumSize = _responseCacheMaximumSize;
 
-    // Create new context name (guid + monolithic increasing counter)
+    // Create new context name
     // KS_TODO - Modify this whole thing to a Uint64 so we are not mapping
     // Strings.  Works since passed as PCDATA
     //
@@ -251,7 +252,8 @@ EnumerationContext* EnumerationContextTable::createContext(
     return enumCtxt;
 }
 
-Boolean EnumerationContextTable::remove(const String& enumerationContextName)
+Boolean EnumerationContextTable::remove(
+    const String& enumerationContextName)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContextTable::remove");
     AutoMutex autoMut(tableLock);
@@ -259,32 +261,35 @@ Boolean EnumerationContextTable::remove(const String& enumerationContextName)
     if (en == 0)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-            "remove ERRORERROR en == 0 enName %s",
+            "remove Context ERRORERROR en == 0 enName %s",
             (const char *)enumerationContextName.getCString()));
         cout << "EnumTable.remove where could not find en" << endl;
         return false;
     }
 
     PEG_METHOD_EXIT();
-    return _remove(en);
+    return _removeContext(en);
 }
 
 // KS_TODO - Clean up fact that we repeat code above and here and have
 // 2 parallel functions for deletion (pointer and name)
-Boolean EnumerationContextTable::remove(EnumerationContext* en)
+Boolean EnumerationContextTable::removeContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::remove");
     AutoMutex autoMut(tableLock);
 
     PEG_METHOD_EXIT();
-    return _remove(en);
+    return _removeContext(en);
 }
 
 // Private remove function with no lock protection. The tableLock must
-// be set before this function is called to protect the table
-Boolean EnumerationContextTable::_remove(EnumerationContext* en)
+// be set before this function is called to protect the table. This simply
+// removes the context from the context table.
+Boolean EnumerationContextTable::_removeContext(
+    EnumerationContext* en, Boolean deleteContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_remove");
+
     PEGASUS_ASSERT(en->valid());            // KS_TEMP
     tableValidate();
 
@@ -292,27 +297,28 @@ Boolean EnumerationContextTable::_remove(EnumerationContext* en)
     // the enumerationContext.  If providers not complete, only
     // completion of provider deliveries can initiate removal of
     // the enumeration context.
-    if (en != 0 && en->_providersComplete && !en->_waiting)
+    if (en != 0 && en->_clientClosed && en->_providersComplete && !en->_waiting)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId= %s",
             (const char *)en->getContextName().getCString() ));
         // Remove from EnumerationContextTable.
-        // KS_TODO_TBD - Should we remove this and depend completely on
-        // the normal flow to clean it up.
 
         if (en->_cacheHighWaterMark > _cacheHighWaterMark)
         {
             _cacheHighWaterMark = en->_cacheHighWaterMark;
         }
 
-        ///////ht.remove(en->getContextName());
+        //// KS_TODO pointer or use name
+        ht.remove(en->getContextName());
 
-        // KS_TODO - Do we need to clear the cache?
+        // KS_TODO - Clear the cache?
 
         // Delete the enumerationContext object
-        // KS_TODO_TEMPORARILY DISABLE ACTUAL DELETE
-        //delete en;
+        if (deleteContext)
+        {
+            delete en;
+        }
 
         // KS_TODO - Diagnostic
         tableValidate();
@@ -325,21 +331,24 @@ Boolean EnumerationContextTable::_remove(EnumerationContext* en)
         if (en == 0)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "_remove ERRORERROR en == 0"));
-        }
+                "_removeContext ERRORERROR en == 0"));
+        }        // KS_TODO_TBD - Should we remove this and depend completely on
+        // the normal flow to clean it up.
         else
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "_remove ERRORERROR %s  _!providersComplete=%s  or waiting=%s",
+                "_removeContext ERRORERROR %s  _!providersComplete=%s"
+                    "  or waiting=%s",
                 (const char *)en->getContextName().getCString(),
                 (const char *)(en->_providersComplete? "true" : "false"),
                 (const char*) (en->_waiting? "true" : "false" )       ));
         }
         cout << "remove ignored. " << (en->_waiting? "true" : "false") << endl;
-        PEG_METHOD_EXIT();
-        return false;
     }
+    PEG_METHOD_EXIT();
+    return false;
 }
+
 Uint32 EnumerationContextTable::size()
 {
     AutoMutex autoMut(tableLock);
@@ -348,7 +357,7 @@ Uint32 EnumerationContextTable::size()
 
 Uint32 EnumerationContextTable::getMinPullDefaultTimeout() const
 {
-    return _pullOperationDefaultTimeout;
+    return _maxOperationTimeout;
 }
 
 // KS_TODO - Clean this one up to one return.
@@ -397,7 +406,8 @@ void EnumerationContextTable::removeExpiredContexts()
 //              cout << "Entry timed out " << en->getContextName()
 //                  << " " << en->_interOperationTimer <<  endl;
                 en->_interOperationTimer = 0;
-                _remove(en);
+                //// KS_TODO this should really just client close it.
+                _removeContext(en);
             }
 //          else
 //          {
@@ -455,10 +465,14 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
         Thread thread(operationContextTimerThread, this, true);
         if (thread.run() != PEGASUS_THREAD_OK)
         {
-            // KS_TODO - Convert this to log error or something but it
-            // is a fatal error.
-            cerr << "Error. Thread Run returned Error "
-                << endl;
+            // KS_TODO add to msg bundle.
+            MessageLoaderParms parms(
+                "Server.EnumerationContextTale.THREAD_ERROR",
+                "Failed to start thread.");
+
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                parms);
             PEGASUS_ASSERT(false);
             PEG_METHOD_EXIT();
             return;

@@ -2073,9 +2073,6 @@ CIMOpenEnumerateInstancePathsResponseMessage*
     Boolean endOfSequence = true;
     String enumerationContext = String::EMPTY;
 
-    //// TODO Boolean gotEndOfSequence = false;
-    //// Boolean gotEnumerationContext = false;
-
     if (XmlReader::getErrorElement(parser, cimException))
     {
         return new CIMOpenEnumerateInstancePathsResponseMessage(
@@ -2351,10 +2348,6 @@ CIMPullInstancesWithPathResponseMessage*
     Boolean endOfSequence = true;
     String enumerationContext = String::EMPTY;
 
-//// KS_TODO  Boolean duplicateParameter = false;
-////  Boolean gotEndOfSequence = false;
-////  Boolean gotEnumerationContext = false;
-
     if (XmlReader::getErrorElement(parser, cimException))
     {
         return new CIMPullInstancesWithPathResponseMessage(
@@ -2455,12 +2448,7 @@ CIMCloseEnumerationResponseMessage*
     XmlEntry entry;
     CIMException cimException;
     Array<CIMObjectPath> instanceNames;
-////  Boolean endOfSequence = true;
     String enumerationContext = String::EMPTY;
-
-//// TODO Boolean duplicateParameter = false;
-////  Boolean gotEndOfSequence = false;
-////  Boolean gotEnumerationContext = false;
 
     if (XmlReader::getErrorElement(parser, cimException))
     {
@@ -2552,6 +2540,63 @@ CIMEnumerationCountResponseMessage*
         cimException,
         QueueIdStack(),
         count);
+}
+
+CIMOpenQueryInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenQueryInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    CIMException cimException;
+    Array<CIMInstance> instances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenQueryInstancesResponseMessage(
+            messageId,
+            cimException,
+            CIMClass(),
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMOpenQueryInstancesResponseMessage(
+            messageId,
+            cimException,
+            CIMClass(),
+            endOfSequence,
+            enumerationContext,
+            QueueIdStack());
+    }
+
+    //// KS_TODO this should be instance without path. We do not have
+    //// function for that in XmlReader so we are not compliant.
+    ///  KS_TODO modify whole OpenQuery operation for instance w/o path
+    //// NOTE that this impacts the pull also I think.
+    _decodeGetInstancesWithPathElement(parser, instances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenQueryInstancesResponseMessage* msg;
+
+    msg = new CIMOpenQueryInstancesResponseMessage(
+        messageId,
+        cimException,
+        CIMClass(),            // Note. KS_TODO not returning queryResultClass
+        endOfSequence,
+        enumerationContext,
+        QueueIdStack());
+
+    msg->getResponseData().setInstances(instances);
+    return msg;
 }
 //EXP_PULL_END
 

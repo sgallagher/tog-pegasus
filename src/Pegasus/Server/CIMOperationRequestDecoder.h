@@ -320,6 +320,12 @@ public:
         XmlParser& parser,
         const String& messageId,
         const CIMNamespaceName& nameSpace);
+
+    CIMOpenQueryInstancesRequestMessage*  decodeOpenQueryInstancesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 // EXP_PULL_END
 
     /** Sets the flag to indicate whether or not the CIMServer is

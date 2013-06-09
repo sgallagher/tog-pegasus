@@ -73,7 +73,7 @@ This command executes single CIM Operations.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
  -pt  pullTimeout. Pull interoperation timeout in seconds. . Default(10)
- -mo  maxPullObjects. Maximum objects in a single Pull . Default(100)
+ -mo  maxObjectCount. Maximum number of objects in a single Pull . Default(100)
  -mr  maxObjectsToReceive. Maximum objects to Receive in a pull sequence. Will Close when this number received.. Default(0)
  -pullDelay  pullDelay. Delay in Seconds between pull Operations. Default zero, no delay.. Default(0)
  --sort  sort. Sort the returned entities for multi-object responses (ex. enumerations, associators, etc.). Default(false)
@@ -173,9 +173,14 @@ im    invokeMethod          Invoke Method for <object> <method>
                              <paramName>{<embeddedClassName> *[<paramName> }
 xq    execQuery             ExecQuery <query-expresssion> [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
-son   Turn On Statistics    Turn on CIM Server Statistics Gathering
-soff  Turn Off Statistics   Turn off CIM Server Statistics Gathering
-?     show command options  Show List of Commands
+son   StatisticsOn          Turn on CIM Server Statistics Gathering
+soff  StatisticsOff         Turn off CIM Server Statistics Gathering
+cci   countInstances        Count all Instances in Namespace and sort by
+                            ClassName.
+                            Warning: Could request large number of instances
+                            from Server
+ct    classTree             Display graphic tree of classes in a namespace
+?     showOptions           Show List of Commands
 pei   EunumerateInstances with Pull Execute EnumerateInstances using the Pull
                             Operations
 pni   EunumerateInstance paths with Pull Execute EnumerateInstances Paths

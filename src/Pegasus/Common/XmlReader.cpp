@@ -3565,7 +3565,7 @@ Boolean XmlReader::getInstanceWithPathElement(
     CIMObjectPath instanceName;
 
     // Get INSTANCENAME elements:
-//EXP_PULL_ISSUE Should we have new getInstancePathElement??? KS_TODO
+//EXP_PULL_Question Should we have new getInstancePathElement??? KS_TODO
     if (!getInstancePathElement(parser, instanceName))
     {
         MessageLoaderParms mlParms(

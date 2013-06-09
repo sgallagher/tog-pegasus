@@ -752,7 +752,6 @@ void CIMClient::closeEnumeration(
     CIMEnumerationContext& enumerationContext)
 {
     return _rep->closeEnumeration(
-        //nameSpace,
         enumerationContext);
 }
 
@@ -761,6 +760,31 @@ Uint64Arg CIMClient::enumerationCount(
 {
     return _rep->enumerationCount(
         enumerationContext);
+}
+
+Array<CIMInstance> CIMClient::OpenQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& filterQuery,
+        const String& filterQueryLanguage,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass,
+        Boolean continueOnError,
+        Uint32 operationTimeout,
+        Uint32 maxObjectCount)
+{
+    return _rep->OpenQueryInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        filterQuery,
+        filterQueryLanguage,
+        queryResultClass,
+        returnQueryResultClass,
+        continueOnError,
+        operationTimeout,
+        maxObjectCount).getInstances();
 }
 // KS_PULL_END
 

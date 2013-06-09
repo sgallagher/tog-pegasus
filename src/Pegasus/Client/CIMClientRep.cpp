@@ -1367,7 +1367,6 @@ void CIMClientRep::closeEnumeration(
 Uint64Arg CIMClientRep::enumerationCount(
     CIMEnumerationContext& enumerationContext)
 {
-
     if (enumerationContext.getContextString().size())
     {
         throw InvalidEnumerationContextException();
@@ -1389,6 +1388,51 @@ Uint64Arg CIMClientRep::enumerationCount(
         AutoPtr<CIMEnumerationCountResponseMessage> destroyer(response);
 
         return response->count ;
+}
+
+CIMResponseData CIMClientRep::OpenQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& filterQuery,
+        const String& filterQueryLanguage,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass,
+        Boolean continueOnError,
+        Uint32 operationTimeout,
+        Uint32 maxObjectCount)
+{
+    // Save requied information in enumerationContext
+    enumerationContext.setNameSpace(nameSpace);
+
+    // Create/send the request message
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenQueryInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            filterQuery,
+            filterQueryLanguage,
+            returnQueryResultClass,
+            continueOnError,
+            operationTimeout,
+            maxObjectCount,
+            QueueIdStack()));
+
+    Message* message =
+        _doRequest(request, CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE);
+
+    // When Response received, get response message, get output parameters
+    // and return data
+    CIMOpenQueryInstancesResponseMessage* response =
+        (CIMOpenQueryInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenQueryInstancesResponseMessage> destroyer(response);
+
+    // set endOfSequence and context return parameters
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
 }
 //EXP_PULL_END
 

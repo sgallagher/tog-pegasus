@@ -304,7 +304,7 @@ public:
         const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
-        );
+    );
 
     virtual CIMResponseData openEnumerateInstancePaths(
         CIMEnumerationContext& enumerationContext,
@@ -316,7 +316,7 @@ public:
         const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
-        );
+    );
 
     virtual CIMResponseData openReferenceInstances(
         CIMEnumerationContext& enumerationContext,
@@ -332,7 +332,7 @@ public:
         const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
-        );
+    );
 
     virtual CIMResponseData openReferenceInstancePaths(
         CIMEnumerationContext& enumerationContext,
@@ -346,7 +346,7 @@ public:
         const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
-        );
+    );
 
     virtual CIMResponseData openAssociatorInstances(
         CIMEnumerationContext& enumerationContext,
@@ -364,7 +364,7 @@ public:
         const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
-        );
+    );
 
     virtual CIMResponseData openAssociatorInstancePaths(
         CIMEnumerationContext& enumerationContext,
@@ -380,27 +380,40 @@ public:
         const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
-        );
+    );
 
     virtual CIMResponseData pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
          Uint32 maxObjectCount
-        );
+    );
 
     virtual CIMResponseData pullInstancePaths(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         Uint32 maxObjectCount
-        );
+    );
 
     virtual void closeEnumeration(
         CIMEnumerationContext& enumerationContext
-        );
+    );
 
     virtual Uint64Arg enumerationCount(
         CIMEnumerationContext& enumerationContext
-        );
+    );
+
+    virtual CIMResponseData OpenQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& filterQuery,
+        const String& filterQueryLanguage,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass = false,
+        Boolean continueOnError = false,
+        Uint32 operationTimeout = NULL,
+        Uint32 maxObjectCount = 0
+    );
  //EXP_PULL_END
 
     void registerClientOpPerformanceDataHandler(

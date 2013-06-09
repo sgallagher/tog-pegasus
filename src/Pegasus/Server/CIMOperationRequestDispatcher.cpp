@@ -53,9 +53,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
-
 PEGASUS_USING_STD;
 
 #define CSTRING(ARG) (const char*) ARG.getCString()
@@ -97,14 +95,14 @@ String _toString(const CIMPropertyList& pl)
 // the completion of one operation of an enumeration sequence and the
 // recipt of another.  The server must maintain the context for at least
 // the time defined in this value.
-#ifdef PEGASUS_PULL_OPERATION_DEFAULT_TIMEOUT
-    Uint32 _pullOperationDefaultTimeout =
-        PEGASUS_PULL_OPERATION_DEFAULT_TIMEOUT;
+#ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
+    Uint32 _pullOperationMaxTimeout =
+        PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
 #else
-    Uint32 _pullOperationDefaultTimeout = 15;
+    Uint32 _pullOperationMaxTimeout = 15;
 #endif
 
-// Sets the default maximum size for the response cache in each
+// Sets the maximum size for the response cache in each
 // enumerationContext.  As responses are returned from providers this is the
 // maximum number that can be placed in the CIMResponseData cache waiting
 // for pull operations to move send them as responses before responses
@@ -115,16 +113,16 @@ String _toString(const CIMPropertyList& pl)
 // and the memory usage of the CIMServer.  Thus, it would be logical to
 // allow caching many more path responses than instance responses because
 // they are probably much smaller.
-// This variableis not externalized to a #define because we are not sure
-// pif that is logical.
+// This variable is not externalized because we are not yet sure
+// if that is logical.
 Uint32 responseCacheDefaultMaximumSize = 1000;
 //
 // Define the table that will contain enumeration contexts for Open, Pull,
 // Close, and countEnumeration operations.  The default interoperation
-// timeout is set as part of creating the table.
+// timeout and max cache size are set as part of creating the table.
 //
 static EnumerationContextTable enumerationContextTable(
-    _pullOperationDefaultTimeout,
+    _pullOperationMaxTimeout,
     responseCacheDefaultMaximumSize);
 
 // Local save for host name. save host name here.  NOTE: Problem if hostname
@@ -147,7 +145,7 @@ static const char* _getServiceName(Uint32 serviceId)
 
 /****************************************************************************
 **
-**  Implementation of OperationAggregate
+**  Implementation of OperationAggregate Class
 **
 ****************************************************************************/
 OperationAggregate::OperationAggregate(
@@ -197,17 +195,6 @@ void OperationAggregate::setTotalIssued(Uint32 i)
     _totalIssued = i;
 }
 
-//// KS_TODO delete these
-//void OperationAggregate::incObjectCount()
-//{
-//    _objectCount++;
-//}
-//
-//void OperationAggregate::decObjectCount()
-//{
-//    _objectCount--;
-//}
-
 /*  Add one response to the responseList and
     return true if the total issued equals the number in the list.
     This return is no longer of any real value since we are dynamically
@@ -223,7 +210,6 @@ Boolean OperationAggregate::appendResponse(CIMResponseMessage* response)
     _responseList.append(response);
 
     Boolean returnValue = (_totalIssued == numberResponses());
-
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "numberResponses == %u append. Rtns %s size before = %u",
@@ -427,22 +413,23 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         }
 
         isComplete = true;
-//      if (!_pullOperation)
-//      {
-            _totalReceivedComplete = 0;
-            _totalReceivedExpected = 0;
-            _totalReceivedErrors = 0;
-            _totalReceivedNotSupported = 0;
-            _totalReceived = 0;
-//      }
+
+        _totalReceivedComplete = 0;
+        _totalReceivedExpected = 0;
+        _totalReceivedErrors = 0;
+        _totalReceivedNotSupported = 0;
+        _totalReceived = 0;
     }
     else if (notSupportedReceived)
     {
         // Clear the NOT_SUPPORTED exception
         // We ignore it unless it's the only response received
+        // KS_TODO check this.  Probably need more complete test for
+        // when we do the NOT_Supported.  This ties in with the
+        // idea that we should not return not supported for enums, etc.
+        // But should just return empty.
         response.cimException = CIMException();
     }
-
 
     response.setComplete(isComplete);
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
@@ -457,9 +444,12 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 //EXP_PULL_BEGIN
 
 /* setPullOperation sets variables in the Operation Aggregate
-    upon the Open... operations for use by subsequent pull
-    operations.
-
+    specific to the pull operations upon the Open... operations for use by
+    subsequent pull operations. This includes:
+    _pullOperation - Flag to indicate that this Operation Aggregate is part
+    of a pull operation.
+    _enumerationContext - Pointer to the Enumeration Context
+    _EnumerationContextName - Name property for this context
 */
 void OperationAggregate::setPullOperation(const void* enContext,
     const String& contextString )
@@ -2409,6 +2399,11 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
                 (CIMEnumerationCountRequestMessage*) opRequest);
             break;
 
+        case CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE:
+            handleOpenQueryInstancesRequest(
+                (CIMOpenQueryInstancesRequestMessage*)opRequest);
+            break;
+
 //KS_PULL_END
 
         default:
@@ -2480,7 +2475,7 @@ void CIMOperationRequestDispatcher::handleEnqueue()
     requests to providers in the operation request processors for these
     functions to a single line.
     */
-////  =======
+
 /****************************************************************************
 **
 **     Request Parameter Test and reject functions
@@ -2784,26 +2779,6 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidMaxObjectCountParam(
     Uint32& rtnValue,
     const Uint32 defaultValue)
 {
-////  if (maxObjectCountParam.isNull())
-////  {
-////      if (requiredParameter)
-////      {
-////          // required and not exist. Exception exit
-////          CIMException x = CIMException(CIM_ERR_INVALID_PARAMETER,
-////              "maxObjectCount parameter required");
-////          _enqueueExceptionResponse(request, x);
-////          return true;
-////      }
-////      else   // not required but NULL. return defaultValue
-////      {
-////          // not required and not exist, use default.
-////          // KS-TODO - Why input default here but use
-////          // _systemMaxPullOperationObjectCount in following test
-////          rtnValue = defaultValue;
-////          return false;
-////      }
-////  }
-////  else     // input parameter not null.
     {
         if (maxObjectCountParam > _systemMaxPullOperationObjectCount)
         {
@@ -3248,6 +3223,7 @@ struct ProviderRequests
     {
         PEG_METHOD_ENTER(TRC_DISPATCHER,
             "CIMOperationRequestDispatcher::issuePullResponse");
+
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "%s request for  "
                 "maxObjectCount = \"%u\" .  "
@@ -3295,34 +3271,53 @@ struct ProviderRequests
         enumerationContext->setActiveState(true);
         response->enumerationContext = request->enumerationContext;
 
-        // We really should do this at the time of the last enqueue
-        // KS_PULL_TODO - Confirm that the NULL should cause
-        // response with nothing in it.
-        // If maxObjectCount = 0, Just respond with empty response
+        // If maxObjectCount = 0, Respond with empty response unless
+        // consecutieve requests with maxObjectCount = 0 exceeds limit.
         if (request->maxObjectCount == 0)
         {
-            // KS_TODO - We set an exception if this returns true indicating
-            // that we have exceeded the max allowable number of consecutive
-            // zero-length pull operations. At that point we would also
-            // terminate the enumeration.
+            // test limit of the maxObjectCount consecutive zero counter
+            // The parameter indicates that this operation has maxObjectCount
+            // zero. Note that this function also increments the count
+            // of pull operations total for the enumeration sequence
+            if (enumerationContext->incAndTestPullCounters(true))
+            {
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "%s Generating 0 object requested response", opSeqName));
 
-////          Boolean pullOverrun =
-            enumerationContext->incPullOperationCounter(true);
+                response->endOfSequence = false;
+                response->cimException = CIMException();
 
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "%s Generating 0 object requested response", opSeqName));
+                // set operation inactive and start interoperation timer
 
-            response->endOfSequence = true;
-            response->cimException = CIMException();
+                enumerationContext->setActiveState(false);
+            }
+            else  // Limit reached, kill the whole pull sequence
+            {
+                // TODO - Confirm that this is the correct exception here
+                // could also be the ABANDONED one
+                //
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "%s Exceeded maxObjectCount consecutive zero limit",
+                           opSeqName));
+                response->endOfSequence = true;
+                response->cimException = CIMException(
+                    CIM_ERR_SERVER_LIMITS_EXCEEDED,
+                    "Maximum consecutive zero maxObjectCount pull requests"
+                        " exceeded");
 
+                enumerationContext->setClientClosed();
+            }
+
+            // Send a zero object or exception response
             dispatcher->_enqueueResponse(request, response.release());
-
-            // set to operation inactive and start interoperation timer
-
-            enumerationContext->setActiveState(false);
-
             PEG_METHOD_EXIT();
             return;
+        }
+        else
+        {
+            // Ignore return from increment here because this is just
+            // resetting the consecutive zero length response counter
+            enumerationContext->incAndTestPullCounters(false);
         }
 
         /*
@@ -3330,9 +3325,6 @@ struct ProviderRequests
             or if errorstate, return error
         */
 
-        // Ignore return from increment here because this is resetting the
-        //  consecutive zero length response counter
-        enumerationContext->incPullOperationCounter(false);
         Uint32 localMaxObjectCount = request->maxObjectCount;
 
         response->endOfSequence = false;
@@ -3365,7 +3357,8 @@ struct ProviderRequests
             opSeqName,
             to.getResponseDataContent(), from.getResponseDataContent()));
 
-        // If error set, send error response.
+        // If error set, send error response, else send the next group of
+        // response objects which is in the from CIMResponseData object
         if (enumerationContext->isErrorState())
         {
             response->cimException = enumerationContext->_cimException;
@@ -3384,13 +3377,16 @@ struct ProviderRequests
           _toCharP(enumerationContext->ifProvidersComplete()),
           enumerationContext->responseCacheSize() ));
 
+        // if provider responses complete and nothing more in Enumeration
+        // context cache, we set the enumeration closed and mark this
+        // response as the endOfSequence.
         if ((response->endOfSequence = enumerationContext->
              ifEnumerationComplete()))
         {
             PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
                 "Close Enumeration");
             // close and delete the EnumerationContext object
-            enumerationContext->setClosed();
+            enumerationContext->setClientClosed();
         }
         else
         {
@@ -5742,7 +5738,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "Close OpenInstancesWithPath Enumeration");
         // delete the EnumerationContext object
-        enumerationContext->setClosed();
+        enumerationContext->setClientClosed();
     }
     else   // set enumerationContext only if not endOfSequence
     {
@@ -6066,7 +6062,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "Close EnumerateNames");
         // delete the EnumerationContext object
-        enumerationContext->setClosed();
+        enumerationContext->setClientClosed();
     }
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
@@ -6451,7 +6447,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "Close References");
         // close the context
-        enumerationContext->setClosed();
+        enumerationContext->setClientClosed();
     }
     else  // set enumerationContext only if not endOfSequence
 
@@ -6817,7 +6813,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "Close ReferencePaths");
         // delete the EnumerationContext object
-        enumerationContext->setClosed();
+        enumerationContext->setClientClosed();
     }
     else  // set enumerationContext only if not endOfSequence
     {
@@ -7228,7 +7224,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "Close AssociatorInstances");
         // delete the EnumerationContext object
-        enumerationContext->setClosed();
+        enumerationContext->setClientClosed();
     }
 
     // fill in host, namespace on all instances on all elements of array
@@ -7585,7 +7581,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "Close AssociatorInstancePaths");
         // delete the EnumerationContext object
-        enumerationContext->setClosed();
+        enumerationContext->setClientClosed();
     }
 
     // fill in host, namespace on all instances on all elements of array
@@ -7604,6 +7600,84 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     }
 
     PEG_METHOD_EXIT();
+}
+
+/**$**************************************************************************
+**
+**    handleOpenQueryInstancesRequest
+**
+*****************************************************************************/
+
+void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
+    CIMOpenQueryInstancesRequestMessage* request)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest");
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "OpenQueryInstances request namespace=%s filter=%s "
+            "filterQueryLanguage=%s "
+            "includeClassOrigin=%s "
+            "returnQueryResultClass=%s "
+            "operationTimeout=%s "
+            "continueOnError=%s "
+            "maxObjectCount=%u ",
+        CSTRING(request->nameSpace.getString()),
+        CSTRING(request->filterQuery),
+        CSTRING(request->filterQueryLanguage),
+        _toCharP(request->returnQueryResultClass),
+        CSTRING(request->operationTimeout.toString()),
+        _toCharP(request->continueOnError),
+        request->maxObjectCount ));
+
+    AutoPtr<CIMExecQueryResponseMessage> response(
+        dynamic_cast<CIMExecQueryResponseMessage*>(
+            request->buildResponse()));
+
+    Boolean exception = false;
+
+#ifdef PEGASUS_DISABLE_EXECQUERY
+    response->cimException =
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+    exception=true;
+#else
+    // KS_TODO this operation currently not supported. It requires extending
+    // The WQL and CQL dispatch support functions to interface with the
+    // pull operations.
+    response->cimException =
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+    exception=true;
+
+////  if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false)
+////  {
+////      if (request->operationContext.contains(
+////              SubscriptionFilterConditionContainer::NAME))
+////      {
+////          SubscriptionFilterConditionContainer sub_cntr =
+////              request->operationContext.get(
+////                  SubscriptionFilterConditionContainer::NAME);
+////          response->cimException = PEGASUS_CIM_EXCEPTION(
+////              CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+////              sub_cntr.getQueryLanguage());
+////      }
+////      else
+////      {
+////          response->cimException = PEGASUS_CIM_EXCEPTION(
+////              CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
+////      }
+////
+////      exception = true;
+////  }
+#endif
+    if (exception)
+    {
+        _enqueueResponse(request, response.release());
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    PEG_METHOD_EXIT();
+    return;
 }
 
 
@@ -7715,7 +7789,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
     }
 
     // Set the Enumeration Closed.
-    en->setClosed();
+    en->setClientClosed();
 
     // need to confirm that the providers are complete and if not
     // to force process when they are complete.
@@ -7848,14 +7922,6 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         to.appendResponseData(from);
         poA->deleteResponse(i);
     }
-    // If pull operation complete host/namespace information. These
-    // operations return instances with path including host, etc.
-////  if (poA->_pullOperation)
-////  {
-////      to.completeHostNameAndNamespace(cimAggregationLocalHost,
-////          poA->_nameSpace);
-////  }
-
 
     if (poA->_requiresHostnameCompletion)
     {

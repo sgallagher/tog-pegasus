@@ -48,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 /************************************************************************
-// 
+//
 //      TimerClass - List entry for List of all Enumeration Contexts for
 //      which the interoperation timer is active. This uses the list class
 //      and inserts entries into the list in order of timeout. Note: There
@@ -96,7 +96,7 @@ PEGASUS_USING_STD;
 //
 //}
 /************************************************************************
-// 
+//
 //      EnumerationContextTable Implementation
 //
 ************************************************************************/
@@ -194,7 +194,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     AutoMutex autoMut(tableLock);
     // set the operation timeout to either the default or current
     // value
-    Uint32 operationTimeout = 
+    Uint32 operationTimeout =
         (operationTimeoutParam.isNull())? _pullOperationDefaultTimeout
                                           :
                                           operationTimeoutParam.getValue();
@@ -220,7 +220,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     // use this once and then just append the counter for the life of
     // the context table. KS_TODO - What issues might there be with
     // a context that is simply monolithicly increasing?? i.e. security.
-    // KS_TODO - Modify this to use Pegasus StringConversion 
+    // KS_TODO - Modify this to use Pegasus StringConversion
     // KS_TODO - Modify this whole thing to a Uint64 so we are not mapping
     // Strings.  Works since passed as PCDATA
     //
@@ -265,8 +265,8 @@ Boolean EnumerationContextTable::remove(const String& enumerationContextName)
         cout << "EnumTable.remove where could not find en" << endl;
         return false;
     }
-   
-    PEG_METHOD_EXIT();  
+
+    PEG_METHOD_EXIT();
     return _remove(en);
 }
 
@@ -277,7 +277,7 @@ Boolean EnumerationContextTable::remove(EnumerationContext* en)
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::remove");
     AutoMutex autoMut(tableLock);
 
-    PEG_METHOD_EXIT();    
+    PEG_METHOD_EXIT();
     return _remove(en);
 }
 
@@ -370,7 +370,7 @@ EnumerationContext* EnumerationContextTable::find(
     }
     // Return not found indicator
     PEG_METHOD_EXIT();
-    return 0;     
+    return 0;
 }
 
 /** Test all table entries and remove the ones timed out.
@@ -490,7 +490,7 @@ void EnumerationContextTable::trace()
 }
 /**
  * validate the magic object for this context
- * 
+ *
  * @return Boolean True if valid object.
  */
 Boolean EnumerationContextTable::valid()

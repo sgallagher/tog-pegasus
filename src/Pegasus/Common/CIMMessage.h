@@ -1151,6 +1151,44 @@ public:
 
     String enumerationContext;
 };
+
+class PEGASUS_COMMON_LINKAGE CIMOpenQueryInstancesRequestMessage
+    : public CIMOperationRequestMessage
+{
+public:
+    CIMOpenQueryInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& filterQuery_,
+        const String& filterQueryLanguage_,
+        Boolean returnQueryResultClass_,
+        Uint32Arg operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY)
+    : CIMOperationRequestMessage(
+        CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
+            authType_, userName_,
+            nameSpace_,CIMName()),
+        filterQuery(filterQuery_),
+        filterQueryLanguage(filterQueryLanguage_),
+        returnQueryResultClass(returnQueryResultClass_),
+        operationTimeout(operationTimeout_),
+        maxObjectCount(maxObjectCount_)
+    {
+    }
+    virtual CIMResponseMessage* buildResponse() const;
+
+    String filterQuery;
+    String filterQueryLanguage;
+    Boolean returnQueryResultClass;
+    Uint32Arg operationTimeout;
+    Boolean continueOnError;
+    Uint32 maxObjectCount;
+
+};
 // EXP_PULL_END
 
 class PEGASUS_COMMON_LINKAGE CIMProcessIndicationRequestMessage
@@ -1986,7 +2024,7 @@ public:
     CIMOpenAssociatorInstancePathsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const Boolean endOfSequence_,
+        Boolean endOfSequence_,
         const String& enumerationContext_,
         const QueueIdStack& queueIds_
         )
@@ -2036,7 +2074,6 @@ public:
         return _responseData;
     }
 
-    /// KS_TODO Should this be private???
     Boolean endOfSequence;
     String enumerationContext;
 private:
@@ -2086,7 +2123,7 @@ public:
     }
 };
 
-
+//// KS_TODO Review position of count Argument.
 class PEGASUS_COMMON_LINKAGE CIMEnumerationCountResponseMessage
     : public CIMResponseMessage
 {
@@ -2101,7 +2138,39 @@ public:
         count(count_)
     {
     }
+
     Uint64Arg count;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenQueryInstancesResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMOpenQueryInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const CIMClass& queryResultClass_,
+        Boolean endOfSequence_,
+        const String& enumerationContext_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        queryResultClass(queryResultClass_),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_),
+        _responseData(CIMResponseData::RESP_INSTANCES)
+    {
+    }
+    CIMResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+
+    CIMClass queryResultClass;
+    Boolean endOfSequence;
+    String enumerationContext;
+private:
+    CIMResponseData _responseData;
 };
 
 //EXP_PULL_END

@@ -1109,6 +1109,11 @@ void CIMOperationRequestDecoder::handleMethodCall(
                              cimMethodName, "EnumerationCount") == 0)
                     request.reset(decodeEnumerationCountRequest(
                         queueId, parser, messageId, nameSpace));
+
+                else if (System::strcasecmp(
+                             cimMethodName, "OpenQueryInstances") == 0)
+                    request.reset(decodeOpenQueryInstancesRequest(
+                        queueId, parser, messageId, nameSpace));
                 // End Of Pull Operations
                 else
                 {
@@ -1896,7 +1901,7 @@ private:
 // The second defines whether a value is required.
 // If true and there is no value, the XmlReader does an exception.
 //
-//// KS_TODO This one not done yet.  Need to sort our required, etc.
+//// KS_TODO NEED REVIEW ON THIS ONE
 class uint32ArgIParam
 {
 public:
@@ -3665,29 +3670,6 @@ CIMOpenReferenceInstancesRequestMessage*
     booleanIParam continueOnError("ContinueOnError");
     uint32IParam maxObjectCount("MaxObjectCount", 0);
     uint32ArgIParam operationTimeout("OperationTimeout");
-// KS_TODO REMOVE FOLLOWING
-//  CIMObjectPath objectName;
-//  CIMName resultClass;
-//  String role;
-//  Boolean includeClassOrigin = false;
-//  CIMPropertyList propertyList;
-//  String filterQueryLanguage = String::EMPTY;
-//  String filterQuery = String::EMPTY;
-//  Uint32Arg operationTimeout = 0;
-//  Boolean continueOnError = false;
-//  Uint32 maxObjectCount = 0;
-//  String enumerationContext = String::EMPTY;
-//
-//  Boolean gotObjectName = false;
-//  Boolean gotIncludeClassOrigin = false;
-//  Boolean gotResultClass = false;
-//  Boolean gotRole = false;
-//  Boolean gotPropertyList = false;
-//  Boolean gotFilterQueryLanguage = false;
-//  Boolean gotFilterQuery = false;
-//  Boolean gotOperationTimeout = false;
-//  Boolean gotContinueOnError = false;
-//  Boolean gotMaxObjectCount = false;
 
     Boolean duplicateParameter = false;
     Boolean emptyTag;
@@ -4348,6 +4330,90 @@ CIMEnumerationCountRequestMessage*
             messageId,
             nameSpace,
             enumerationContext,
+            QueueIdStack(queueId, _returnQueueId)));
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+CIMOpenQueryInstancesRequestMessage*
+    CIMOperationRequestDecoder::decodeOpenQueryInstancesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace)
+{
+    STAT_GETSTARTTIME
+
+    stringIParam filterQueryLanguage("FilterQueryLanguage",true);
+    stringIParam filterQuery("FilterQuery", true);
+
+    booleanIParam returnQueryResultClass("ReturnQueryResultClass");
+    booleanIParam continueOnError("ContinueOnError");
+    // [IN,OPTIONAL] uint32 MaxObjectCount = 0
+    uint32IParam maxObjectCount("MaxObjectCount", 0);
+    // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
+    uint32ArgIParam operationTimeout("OperationTimeout");
+
+    Boolean duplicateParameter = false;
+    Boolean emptyTag;
+
+    for (const char* name;
+         XmlReader::getIParamValueTag(parser, name, emptyTag); )
+    {
+        // [IN,OPTIONAL,NULL] string FilterQueryLanguage = NULL,
+        if(filterQueryLanguage.get(parser, name, emptyTag))
+        {
+            filterQueryLanguage.iParamFound(duplicateParameter);
+        }
+        // [IN,OPTIONAL,NULL] string FilterQuery = NULL,
+        else if(filterQuery.get(parser, name, emptyTag))
+        {
+            filterQuery.iParamFound(duplicateParameter);
+        }
+        else if (returnQueryResultClass.get(parser, name, emptyTag))
+        {
+            returnQueryResultClass.iParamFound(duplicateParameter);
+        }
+        // [IN,OPTIONAL] Boolean ContinueOnError = false,
+        else if (continueOnError.get(parser, name, emptyTag))
+        {
+            continueOnError.iParamFound(duplicateParameter);
+        }
+        // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
+        else if (operationTimeout.get(parser, name, emptyTag))
+        {
+            operationTimeout.iParamFound(duplicateParameter);
+        }
+        // [IN,OPTIONAL] uint32 MaxObjectCount = 0
+        else if (maxObjectCount.get(parser, name, emptyTag))
+        {
+            maxObjectCount.iParamFound(duplicateParameter);
+        }
+        else
+        {
+            _throwCIMExceptionInvalidIParamName(name);
+        }
+
+        // generate exception if endtag error or duplicate attributes
+        _checkMissingEndTagOrDuplicateParamValue(
+            parser, duplicateParameter, emptyTag);
+    }
+
+    _testRequiredParametersExist(filterQuery.got);
+    _testRequiredParametersExist(filterQueryLanguage.got);
+
+    AutoPtr<CIMOpenQueryInstancesRequestMessage> request(
+        new CIMOpenQueryInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            filterQuery.value,
+            filterQueryLanguage.value,
+            returnQueryResultClass.value,
+            operationTimeout.value,
+            continueOnError.value,
+            maxObjectCount.value,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART

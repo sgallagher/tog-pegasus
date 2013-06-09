@@ -973,7 +973,7 @@ public:
     that provides context for subsequent pull operations. This parameter is
     considered opaque to the user.
 
-    @param  EndOfSequence Boolean parameter that the server provides to define
+    @param  endOfSequence Boolean parameter that the server provides to define
     the end of the enumeration. If this parameter is returned <TT>true</TT>,
     the server has determined that the enumeration is complete (has delivered
     all of the requested elements) and has closed the enumerationContext.
@@ -1103,8 +1103,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout  = Uint32Arg(),
         Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0
-        );
+        Uint32 maxObjectCount = 0 );
 
     /**
     The <TT>openenumerateInstancePaths</TT> method opens an enumeration
@@ -1115,7 +1114,7 @@ public:
     @param enumerationContext See enumerationContext parameter for
     openEnumerateInstances.
 
-    @param  EndOfSequence See EndOfSequence parameter for
+    @param  endOfSequence See endOfSequence parameter for
     openEnumerateInstances.
 
     @param nameSpace See nameSpace parameter for openEnumerateInstances.
@@ -1173,8 +1172,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0
-        );
+        Uint32 maxObjectCount = 0 );
 
  /**
     The <TT>openReferenceInstances</TT> method opens an enumeration sequence
@@ -1188,7 +1186,7 @@ public:
     @param enumerationContext See enumerationContext parameter for
     openEnumerateInstances.
 
-    @param  EndOfSequence See EndOfSequence parameter for
+    @param  endOfSequence See endOfSequence parameter for
     openEnumerateInstances.
 
     @param nameSpace See nameSpace parameter for openEnumerateInstances.
@@ -1260,8 +1258,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0
-        );
+        Uint32 maxObjectCount = 0 );
 
  /**
     The <TT>openReferenceInstancePaths</TT> method opens an enumeration
@@ -1274,7 +1271,7 @@ public:
     @param enumerationContext See enumerationContext parameter for
     openEnumerateInstances.
 
-    @param  EndOfSequence See EndOfSequence parameter for
+    @param  endOfSequence See endOfSequence parameter for
     openEnumerateInstances.
 
     @param nameSpace See nameSpace parameter for openEnumerateInstances.
@@ -1340,8 +1337,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0
-        );
+        Uint32 maxObjectCount = 0 );
 
     /**
      * KS_TODO Add Description
@@ -1362,8 +1358,7 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0
-        );
+        Uint32 maxObjectCount = 0 );
 
     /** KS_TODO Add Description
     */
@@ -1380,12 +1375,11 @@ public:
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
         const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0
-        );
+        Uint32 maxObjectCount = 0 );
 
     /**
     The <TT>PullInstancesWithPath</TT> operation retrieves instances for an
-    open enumeration sequence opened by and openEnumerationInstances,
+    open enumeration sequence opened by an openEnumerationInstances,
     openReferences, or openAssociationInstances operation and represented
     by an enumeration context returned by the original open or previous
     <TT>pullInstancesWithPath</TT> operation. The client must not issue a
@@ -1424,7 +1418,7 @@ public:
             <LI>CIM_ERR_INVALID_NAMESPACE
             <LI>CIM_ERR_INVALID_PARAMETER
             <LI>CIM_ERR_INVALID_ENUMERATION_CONTEXT
-            <LI>CIM_ERR)PULL_HAS_BEEN_ABANDONED
+            <LI>CIM_ERR_PULL_HAS_BEEN_ABANDONED
             <LI>CIM_ERR_SERVER_LIMITS_EXCEEDED
             <LI>CIM_ERR_FAILED
         </UL>
@@ -1433,8 +1427,7 @@ public:
     Array<CIMInstance> pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        Uint32 maxObjectCount
-        );
+        Uint32 maxObjectCount );
 
     /**
     <TT>PullInstancePaths</TT> retrieves CIMObjectPaths for an enumeration
@@ -1480,8 +1473,7 @@ public:
     Array<CIMObjectPath> pullInstancePaths(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        Uint32 maxObjectCount
-        );
+        Uint32 maxObjectCount );
 
     /**
     The <TT>closeEnumeration</TT> operation closes an open enumeration
@@ -1527,8 +1519,7 @@ public:
     */
 
     void closeEnumeration(
-        CIMEnumerationContext& enumerationContext
-        );
+        CIMEnumerationContext& enumerationContext );
 
     /**
     The <TT>enumerationCount</TT> operation returns an estimate of
@@ -1538,17 +1529,90 @@ public:
     NOTE: This is an optional operation and may not be implemented. If
     not supported the server will return CIM_NOT_SUPPORTED.
 
-    Not implemented in the Pegasus server today
+    KS_TODO Think this should say only return NULL today Not
+    implemented in the Pegasus server today
 
-    @param enumerationContext TBD
+    @param enumerationContexif not NULL st of the currently open
+                              enumeration sequence
 
-    @return TBD
-
+    @return Uint64Arg containing either an estimate of the the
+            number of objects remaining to be returned for the
+            enumeration sequence defined by the enumerationContext
+            argument or NULL if it cannot return a value
     */
 
     Uint64Arg enumerationCount(
         CIMEnumerationContext& enumerationContext
         );
+
+    /** The <TT>OpenQueryInstances</TT> operation establishes and
+        opens an enumeration context for instances of a CIMClass
+        (including subclasses) in the target namespace. It
+        optionally retrieves a subset of the requested instances.
+
+    @param enumerationContext See enumerationContext parameter for
+        openEnumerateInstances.
+
+    @param  endOfSequence See endOfSequence parameter for
+        openEnumerateInstances.
+
+    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+
+    @param filterQuery String defining a valid query in the
+        query language defined by the <TT>filterQueryLanguage</TT> argument.
+
+    @param filterQueryLanguage String Specifies a Query language for which the
+        <TT>filterQuery</TT> argument is valid.
+
+    @param returnQueryResultClass Boolean that controls whether a class
+        definition is returned in <TT>QueryResultClass</TT>. if false,
+        the queryResultClass is set to CIMClass() (i.e. NULL class object)
+        on return. Otherwise on completion the queryResultClass argument will
+        contain a class definition that defines the properties of each
+        instance of the query result.
+
+    @param continueOnError - See continueOnError parameter for
+        openEnumerateInstances.
+
+    @param maxObjectCount - See maxObjectCount parameter for
+        openEnumerateInstances.
+
+    @return Array<CIMInstance>  If successful, the return contains an array
+        of zero or more instances that satisfy the filterQuery. These
+        instances are available only in the context of the enumeration and
+        do not return an instance path.
+
+        If unsuccessful one of the following set of status codes will be
+        returned:
+        <UL>
+            <LI>CIM_ERR_ACCESS_DENIED
+            <LI>CIM_ERR_SERVER_IS_SHUTTING_DOWN
+            <LI>CIM_ERR_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_NAMESPACE
+            <LI>CIM_ERR_INVALID_OPERATION_TIMEOUT
+            <LI>CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_PARAMETER
+            <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_QUERY
+            <LI>CIM_ERR_QUERY_FEATURE_NOT_SUPPORTED
+            <LI>CIM_ERR_FAILED
+        </UL>
+     */
+    //// KS_TODO - The order of some of the parameters is different than
+    // the open, etc. Should we regularize that for consistency.  See
+    // continue)nError
+    //
+    Array<CIMInstance> OpenQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& filterQuery,
+        const String& filterQueryLanguage,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass = false,
+        Boolean continueOnError = false,
+        Uint32 operationTimeout = NULL,
+        Uint32 maxObjectCount = 0 );
 //KS_PULL_END
 
 private:

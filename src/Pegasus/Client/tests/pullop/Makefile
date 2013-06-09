@@ -90,8 +90,6 @@ poststarttests:
 	make stresse1
 	make stressen1
 
-poststarttests2:
-
 	@$(ECHO)  Associator and Reference tests - get to completion      
 	make SimpleRef
 	make passoc1
@@ -305,18 +303,26 @@ invalidAssocObjectPath:
 ### close
 testenumclose: 
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -o 4 $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
 
 testenumpathsclose: 
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -o 4 $(HOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
+
 pr: pr1 pr2
 #################################
-#### timeout test. Set interoptime to 5 sec and sleep to 10 sec. This
-#### test should timeout after with the first pull.
+#### timeout test. Set interoptime to 2 sec and sleep to 10 sec. This
+#### test should timeout after the first pull.
 testtimeout:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -s 4 -R $(HOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -s 10 -R $(HOSTID)
+
+#################################
+#### timeout test. Set count on maxObjectCount for pull operations to zero
+#### Should get exception after about 1000 pull requests.
+testexceedMaxObjectCountLimit:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 0 -T -R $(HOSTID)
 
 ##################################
 ## CMPI Provider tests

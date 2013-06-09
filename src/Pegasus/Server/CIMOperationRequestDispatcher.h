@@ -463,6 +463,9 @@ public:
 
     void handleEnumerationCount(
         CIMEnumerationCountRequestMessage* request);
+
+    void handleOpenQueryInstancesRequest(
+        CIMOpenQueryInstancesRequestMessage* request);
 // EXP_PULL END
 
     /** Callback from Providers, etc. This callback is used for

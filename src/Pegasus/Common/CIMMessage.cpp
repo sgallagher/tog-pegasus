@@ -700,6 +700,27 @@ CIMResponseMessage* CIMEnumerationCountRequestMessage::buildResponse() const
     response->syncAttributes(this);
     return response.release();
 }
+
+CIMResponseMessage*
+    CIMOpenQueryInstancesRequestMessage::buildResponse() const
+{
+    AutoPtr<CIMOpenQueryInstancesResponseMessage> response(
+        new CIMOpenQueryInstancesResponseMessage(
+            messageId,
+            CIMException(),
+            CIMClass(),     // queryResultClass
+            true,           // endOfSequence
+            String::EMPTY,  // enumerationContext
+            queueIds.copyAndPop()));
+    CIMResponseData & rspData = response->getResponseData();
+    // KS_TODO Probably not required. Wait for complete OpenQuery Implementation
+    rspData.setRequestProperties(
+        false,
+        false,
+        CIMPropertyList());
+    response->syncAttributes(this);
+    return response.release();
+}
 //EXP_PULL_END
 
 CIMResponseMessage*

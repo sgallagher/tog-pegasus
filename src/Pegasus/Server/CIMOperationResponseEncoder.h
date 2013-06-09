@@ -117,7 +117,6 @@ public:
         CIMEnumerateInstancesResponseMessage* response);
 
 //KS_PULL_BEGIN
-//KS_PULL_TODO TBD Rename INSTANCESWITHPATH
     void encodeOpenEnumerateInstancesResponse(
         CIMOpenEnumerateInstancesResponseMessage* response);
 
@@ -147,6 +146,9 @@ public:
 
     void encodeEnumerationCountResponse(
         CIMEnumerationCountResponseMessage* response);
+
+    void encodeOpenQueryInstancesResponse(
+        CIMOpenQueryInstancesResponseMessage* response);
 //KS_PULL_END
 
     void encodeDeleteInstanceResponse(

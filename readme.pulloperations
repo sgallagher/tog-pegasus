@@ -2,33 +2,71 @@
 
 STATUS
 
-<<< This section is being maintained during the review and checkin process
+<<< The TODO section is being maintained during the review and checkin process
 to keep track of problems, errors, notes, etc.  Must be deleted before
 checkin to head of tree. Please feel free to add notes, etc in this
 section as you review/test.>>>>>>
 
-5 June 2013
 
-Missing:
+TODO list:
    1. Binary operation from OOP.  Need to add counter to binary
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
       OOP right now.
-   2. OpenExecQuery - Code not there
+   2. OpenExecQuery - Code is incorrect in that it used InstancesWithPath
+      where the spec is instances with no path.  Need new function to wrap
+      getInstanceElement(withoutPathElement) in XmlReader.  Note that
+      Alternate is to put flag on InstancesWith Path to say no path
+   3. Code for Pull part of OpenQueryInstancesRequest a) should be part of
+      the common CIMOperationRequestDispatcher execCommon code.
+   4. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
+      pull not completed so we feed the responses back to the EnmerationContext
+      queues
    3. Lots of minor TODOs, etc.
-   4. External runtime variables
+   4. External runtime variables. Decide this as part of PEP. The variables
+      exist in CIMOperationRequestDispatcher but not in CIMConfig.  The primary
+      ones to consider are:
+      a. System maxObjectCount.  Setting some maximum size on what a pull
+          client can request (i.e. the maximum size of the maxObjectCount on
+          Open... and pull operations.
+      b. Pull interoperationTimeout (max times between operations). This is
+          the maximum number of seconds on the operationTimeout parameter of the
+          Open operations
+      c. Maximum size of the responseCache before it starts backing up
+          responses to the providers.
    5. Decision on EnumerationContext timeout (separate thread or just
-      checks during other operations)
-   6. Clean up code in Dispatcher
+      checks during other operations). Can we, in fact really keep the 
+      enumeration context table and queue under control without monitoring
+      with a separate thread. We must monitor for:
+      a. Client operation that stop requesting (i.e. inter operation time
+          exceeds operationTimeout). Note that if it simply exceeds the time
+          the next operation does the cleanup.  The issue is those clients that
+          simply stop and do not either close or go to completion.
+      b. We should protect against providers that no not every finish delivering
+          or take to long between deliveries.  This does not exist in Pegasus
+          today
+   6. Clean up code in Dispatcher. The associators code is still real mess
+      and the pull code is in a template.  The Pull code is good now but
+      must be duplicated.  Look at creating new CIMMessage CIMPullResponseMessage
+      so that we can have common code.  Everything is the same except what
+      goes into the CIMResponseData so it is logical to have completely
+      common processing
    7. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
       messages to include count and CIMResponse data to count objects out
       of queue when converting (avoids the second move).  Big issue here
       with binary data since need to extend format to count it.
-   8. Still using templates, etc. in messy code in the Dispatcher.  Cleaning
-      that up now
-What was fixed
+   8. Still using templates, etc. in  code in the Dispatcher. This is for
+      all of the open operations where there is a lot of duplicate code
+      and the pull operations that are 99% duplicate code (in a single template)
+
+Fixed for 9 June CVS update
+   1. Cleaned up code for OpenQueryInstances.  Note that this is incomplete.
+      No support in WQL or CQL Operations
+   2. 
+
+What was fixed for 5 June checkin.
    1. Extended ResponseTest MOF for for both CMPI and C++ subclasses
    2. Fixed issues with pullop.
    3. Fixed temp issue with CIMResponseData size by putting in mutex. That

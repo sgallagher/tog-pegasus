@@ -345,15 +345,25 @@ public:
     virtual CIMResponseData pullInstancePaths(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-        Uint32 MaxObjectCount) = 0;
+        Uint32 MaxObjectCount ) = 0;
 
     virtual void closeEnumeration(
-        CIMEnumerationContext& enumerationContext
-        ) = 0;
+        CIMEnumerationContext& enumerationContext ) = 0;
 
     virtual Uint64Arg enumerationCount(
-        CIMEnumerationContext& enumerationContext
-        ) = 0;
+        CIMEnumerationContext& enumerationContext ) = 0;
+
+    virtual CIMResponseData OpenQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& filterQuery,
+        const String& filterQueryLanguage,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass = false,
+        Boolean continueOnError = false,
+        Uint32 operationTimeout = NULL,
+        Uint32 maxObjectCount = 0 ) = 0;
 // EXP_PULL_END
 
 };

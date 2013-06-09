@@ -154,7 +154,6 @@ enum CIMStatusCode
     /**
        The Pull operation has been abandoned due to execution of a
        concurrent CloseEnumeration operation on the same enumeration
-
     */
     CIM_ERR_PULL_HAS_BEEN_ABANDONED = 23,
     /**

@@ -176,10 +176,9 @@ private:
     void _encodeCloseEnumerationRequest(
         CIMCloseEnumerationRequestMessage* message);
 
-/**
     void _encodeOpenQueryInstancesRequest(
-        CIMOpenQueryInstancesMessage* message);
-*/
+        CIMOpenQueryInstancesRequestMessage* message);
+
     void _encodeEnumerationCountRequest(
         CIMEnumerationCountRequestMessage* message);
  //EXP_PULL_END

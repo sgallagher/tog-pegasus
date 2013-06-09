@@ -639,6 +639,11 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
             encodeEnumerationCountResponse(
                 (CIMEnumerationCountResponseMessage*)message);
             break;
+
+        case CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE:
+            encodeOpenQueryInstancesResponse(
+                (CIMOpenQueryInstancesResponseMessage*)message);
+            break;
 //EXP_PULL_END
         default:
             // Unexpected message type
@@ -939,6 +944,29 @@ void CIMOperationResponseEncoder::encodeEnumerationCountResponse(
         response->count);
 
     sendResponsePull(response, "EnumerationCount", true, &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenQueryInstancesResponse(
+    CIMOpenQueryInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        // Encode response objects with indication that this is pull
+        // operation.
+        // KS_TODO - This implements with path.  We need without path.
+        response->getResponseData().encodeXmlResponse(body, true);
+    }
+
+    // KS_TODO implement the addition of the queryClassResult
+    // Add return elements, endOfSequence and context
+    _appendPullResponseParameters(rtnParamBody,
+        response->endOfSequence, response->enumerationContext);
+
+    sendResponsePull(response, "OpenQueryInstances",
+        true, &rtnParamBody, &body);
 }
 //EXP_PULL_END
 

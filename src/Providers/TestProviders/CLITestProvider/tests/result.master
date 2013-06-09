@@ -2691,3 +2691,62 @@ INPUT ERROR: Value conversion error. 9999999. type uint8
 25. +++++ Test niall operation
 test/cimv2 Total Classes=777, with Instances=0, Instances=0
 25. +++++ Test niall operation
+26. +++++ Test pull Operations
+1  Test_CLITestProviderClass returned.
+1 instances of class Test_CLITestProviderClass returned.
+
+// path= //ubuntu9/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
+
+instance of Test_CLITestProviderClass
+{
+    Id = "Mike";
+    Name = "Bob";
+    requestInputParameters = "role=; resultRole=; associationClass=Test_CLITestProviderLinkClass; "
+        "resultClass=; includeQualifiers=false; includeClassOrigin=false; "
+        "propertyList=NULL";
+    scalBool = TRUE;
+    scalUint8 = 220;
+    scalSint8 = 124;
+    scalUint16 = 100;
+    scalSint16 = 100;
+    scalUint32 = 100;
+    scalSint32 = 100;
+    scalUint64 = 100;
+    scalSint64 = NULL;
+    scalReal32 = 1.0000000000000000e+02;
+    scalReal64 = 1.0000000000000000e+02;
+    scalString = "teststring";
+    scalDateTime = "19991224120000.000000+360";
+    defaultBool = TRUE;
+    defaultUint8 = 4;
+    defaultSint8 = 4;
+    defaultUint16 = 4;
+    defaultSint16 = 4;
+    defaultUint32 = 4;
+    defaultSint32 = 4;
+    defaultUint64 = 4;
+    defaultSint64 = 4;
+    defaultReal32 = NULL;
+    defaultReal64 = NULL;
+    defaultString = "test\"embedded\"quote";
+    defaultDateTime = NULL;
+    arrayBool = {TRUE, FALSE, TRUE};
+    arrayUint8 = {4, 128, 240};
+    arraySint8 = {4, 126, -126};
+    arrayUint16 = {4, 128, 240};
+    arraySint16 = {4, 126, -126};
+    arrayUint32 = {4, 128, 240};
+    arraySint32 = {4, 126, -126};
+    arrayUint64 = {4, 128, 240};
+    arraySint64 = NULL;
+    arrayReal32 = {4.0000000000000000e+00, 1.2800000000000000e+02, 
+        2.4000000000000000e+02};
+    arrayReal64 = {4.0000000000000000e+00, 1.2800000000000000e+02, 
+        2.4000000000000000e+02};
+    arrayString = {"First", "Second", "Third"};
+    arrayDateTime = {"19991224120000.000000+360", "19991224120000.000000+360", 
+        "19991224120000.000000+360"};
+};
+1 pull associator names
+//ChangedHostName/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
+26. +++++ Test pull Operations

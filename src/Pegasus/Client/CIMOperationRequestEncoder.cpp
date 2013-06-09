@@ -286,15 +286,20 @@ void CIMOperationRequestEncoder::handleEnqueue()
                 (CIMPullInstancePathsRequestMessage*)message);
             break;
 
-    case CIM_CLOSE_ENUMERATION_REQUEST_MESSAGE:
-        _encodeCloseEnumerationRequest(
-            (CIMCloseEnumerationRequestMessage*)message);
-        break;
+        case CIM_CLOSE_ENUMERATION_REQUEST_MESSAGE:
+            _encodeCloseEnumerationRequest(
+                (CIMCloseEnumerationRequestMessage*)message);
+            break;
 
-    case CIM_ENUMERATION_COUNT_REQUEST_MESSAGE:
-        _encodeEnumerationCountRequest(
-            (CIMEnumerationCountRequestMessage*)message);
-        break;
+        case CIM_ENUMERATION_COUNT_REQUEST_MESSAGE:
+            _encodeEnumerationCountRequest(
+                (CIMEnumerationCountRequestMessage*)message);
+            break;
+
+        case CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE:
+            _encodeOpenQueryInstancesRequest(
+                (CIMOpenQueryInstancesRequestMessage*)message);
+            break;
 // EXP_PULL_END
 
         default:
@@ -1391,6 +1396,39 @@ void CIMOperationRequestEncoder::_encodeEnumerationCountRequest(
 
     Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerationCount"), message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}
+
+void CIMOperationRequestEncoder::_encodeOpenQueryInstancesRequest(
+    CIMOpenQueryInstancesRequestMessage* message)
+{
+    Buffer params;
+
+    if (message->returnQueryResultClass != true)
+        XmlWriter::appendBooleanIParameter(
+            params, "ReturnQueryResultClass", false);
+
+    //// KS_TODO this treats filter Query and lang as optional
+    //// here they are required. Should that matter here?
+    _encodeOpenCommonParameters(
+        message->continueOnError,
+        message->maxObjectCount,
+        message->operationTimeout,
+        message->filterQueryLanguage,
+        message->filterQuery,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("OpenQueryInstances"),
+        message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
         ((AcceptLanguageListContainer)message->operationContext.get(

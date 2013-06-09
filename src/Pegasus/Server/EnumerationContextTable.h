@@ -76,7 +76,7 @@ public:
        Create a new Enumeration Table defining the defaults for
        operation Timeout and response Cache Maximum Size.
      */
-    EnumerationContextTable(Uint32 defaultInteroperationTimeoutValue,
+    EnumerationContextTable(Uint32 maxInteroperationTimeoutValue,
         Uint32 reponseCacheDefaultMaximumSize);
 
     ~EnumerationContextTable();
@@ -110,7 +110,7 @@ public:
     */
     Boolean remove(const String& enumerationContextName);
 
-    Boolean remove(EnumerationContext* en);
+    Boolean removeContext(EnumerationContext* en);
 
     /**
        Return the number of enumeration context entries in the
@@ -192,7 +192,9 @@ private:
 
     // Private remove.  This is function that actually executes the remove
     // Not protected by mutex.
-    Boolean _remove(EnumerationContext* en);
+    Boolean _removeContext(
+        EnumerationContext* en,
+        Boolean deleteContext = false);
 
     // monolithic increasing counter forms part of context id string
     AtomicInt _enumContextCounter;
@@ -203,14 +205,16 @@ private:
     // the enumerationContextObject. This sets the maximum number of
     // of objects that will be placed in this cache before we start
     // sitting on responses.
-    Uint32 _responseCacheDefaultMaximumSize;
+    Uint32 _responseCacheMaximumSize;
 
     // systemwide highwater mark of number of objects in context cache
     // maintained from max of each context close/removal.
     Uint32 _cacheHighWaterMark;
 
-    // default interoperationTimeout
-    Uint32 _pullOperationDefaultTimeout;
+    // maximum allowed for interoperation timeout.  Any interoperation times
+    // greater than this can cause exception returns and enumeration context
+    // close.
+    Uint32 _maxOperationTimeout;
 
     Magic<0x57D11474> _magic;
 };

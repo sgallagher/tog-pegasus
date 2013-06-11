@@ -60,6 +60,8 @@ PEGASUS_USING_STD;
 static Boolean verbose;
 #define VCOUT if (verbose) cout
 
+#define ENTRY VCOUT << "Enter "
+
 /*
     Simple pattern match. Pattern may include *
 */
@@ -119,12 +121,12 @@ static int _Match(const String& pattern, const String& str)
     return _match(pattern.getCString(), str.getCString());
 }
 
-/* test filterQuery and filterQueryLanguage error responses.
+/* Test filterQuery and filterQueryLanguage error responses.
    Should return CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED CIMException
 */
 void testFilterErrorResponse(CIMClient& client)
 {
-    VCOUT << "testFilterErrorResponse" << endl;
+    ENTRY << "testFilterErrorResponse" << endl;
     CIMNamespaceName nameSpace = "test/TestProvider";
     CIMName className = "TST_Person";
     CIMObjectPath  cimObjectName("TST_Person.name=\"Mike\"");
@@ -355,6 +357,7 @@ void testFilterErrorResponse(CIMClient& client)
 */
 void testEnumContextError(CIMClient& client)
 {
+    ENTRY << "testEnumContextError" << endl;
     try
     {
         Boolean endOfSequence = false;
@@ -1031,13 +1034,15 @@ int main(int argc, char** argv)
     // be a private function to mess with the EnumerationContext. Need
     // to fix this and also clean up the CIMEnumerationContext.h file.
     testCalls tc2(client, "test/TestProvider");
-    tc2.setTestName("Pull with invalid Enumeration Context");
+    tc2.setTestName("est TPull with invalid Enumeration Context");
     tc2._className =  "CMPI_TEST_Person";
     tc2._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
     tc2.openEnumerateInstances();
     tc2.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
     tc2._enumerationContext.clearEnumeration();
     tc2.pullInstancesWithPath();
+
+    // repeat test for EnumerateInstancePaths
     tc2.openEnumerateInstancePaths();
     tc2._enumerationContext.clearEnumeration();
     tc2.pullInstancePaths();
@@ -1045,6 +1050,7 @@ int main(int argc, char** argv)
     tc2.openReferenceInstances();
     tc2._enumerationContext.clearEnumeration();
     tc2.pullInstancesWithPath();
+
     tc2.openReferenceInstancePaths();
     tc2._enumerationContext.clearEnumeration();
     tc2.pullInstancePaths();
@@ -1052,6 +1058,7 @@ int main(int argc, char** argv)
     tc2.openAssociatorInstances();
     tc2._enumerationContext.clearEnumeration();
     tc2.pullInstancesWithPath();
+
     tc2.openAssociatorInstancePaths();
     tc2._enumerationContext.clearEnumeration();
     tc2.pullInstancePaths();
@@ -1067,6 +1074,7 @@ int main(int argc, char** argv)
     tc3.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
     tc3.pullInstancePaths();
 
+    // Test for a complete sequence that works.
     testCalls tcgood(client, "test/TestProvider");
     tcgood.setTestName("Good complete open/pull response");
     tcgood._className =  "CMPI_TEST_Person";

@@ -7,6 +7,37 @@ to keep track of problems, errors, notes, etc.  Must be deleted before
 checkin to head of tree. Please feel free to add notes, etc in this
 section as you review/test.>>>>>>
 
+NOTES On working with task branch.
+
+Merge out
+I just start with new directory and put TaskMakefile above pegasus
+
+make -f TaskMakefile BNAME=PEP317-pullop  ## takes a long time
+
+   checks out current head, merges it into task branch and sets tags
+   NOW check for conflicts, errors, etc.
+   
+   To check this into Task branch
+
+make -f mak/TaskMakefile branch_merge_out_commit BNAME=PEP317-pullop
+
+  or manually commit and finish as follows
+
+cvs commit
+
+make -f mak/TaskMakefile  branch_merge_out_finish BNAME=PEP317-pullop
+## This last step is important since it cleans up temporary tags.
+   
+COMPARE TASKBRANCH WITH HEAD
+
+In a new pegasus work space do same as for merge out.
+
+make -f TaskMakefile BNAME=PEP317-pullop
+
+This produces a result which is all of the head merged into the branch.
+A diff of this is all the new changes to the head of tree.
+
+
 
 TODO list:
    1. Binary operation from OOP.  Need to add counter to binary

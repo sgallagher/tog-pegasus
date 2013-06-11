@@ -1132,7 +1132,7 @@ public:
         const QueueIdStack& queueIds_,
         CIMResponseData::ResponseDataContent rspContent_,
         Boolean isAsyncResponsePending=false);
-    
+
     CIMResponseData& getResponseData()
     {
         return _responseData;
@@ -1434,9 +1434,11 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        String oopAgentName_ = String::EMPTY);
+        String oopAgentName_ = String::EMPTY,
+        CIMInstance subscription_ = CIMInstance());
 
     String oopAgentName;
+    CIMInstance subscription;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationResponseMessage

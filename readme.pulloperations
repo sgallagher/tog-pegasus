@@ -9,34 +9,51 @@ section as you review/test.>>>>>>
 
 NOTES On working with task branch.
 
-Merge out
-I just start with new directory and put TaskMakefile above pegasus
+Merge out Process
 
-make -f TaskMakefile BNAME=PEP317-pullop  ## takes a long time
+   To keep our TASK branch in sync with the current head of tree we need
+   to do a regular merge out.  the TaskMakefile contains the makefile
+   procedures to do this efficiently.  NOTE: Following these procedures is
+   important in that you are merging out new material each time you do
+   the merge out.  If you were just to repeatedly merge out, you would be
+   merging previously merged changes a second time causing a real mess.
 
-   checks out current head, merges it into task branch and sets tags
-   NOW check for conflicts, errors, etc.
+    Start with new directory and put TaskMakefile above pegasus (needed so you
+    have this file for the initial operations.  
+
+      make -f TaskMakefile branch_merge_out BNAME=PEP317-pullop  ## takes a long time
+
+   This checks out current head, merges it into task branch and sets tags
+   for the mergeout.  Note that at the end of this step this work is
+   part of the TASK... branch.
+
+   NOW check for conflicts, errors, etc. that resulted from the merge.
+   Look for conflict flags, compare the results (I use linux merge as a
+   good graphic compare tool) and build and test. When you are satisfied
+   that the merge out is clean, you can commit the results to the TASK...
+   branch
    
-   To check this into Task branch
+   To commit the work to  this into Task branch
 
-make -f mak/TaskMakefile branch_merge_out_commit BNAME=PEP317-pullop
+      make -f mak/TaskMakefile branch_merge_out_commit BNAME=PEP317-pullop
 
   or manually commit and finish as follows
 
-cvs commit
+    cvs commit
+    make -f mak/TaskMakefile  branch_merge_out_finish BNAME=PEP317-pullop
 
-make -f mak/TaskMakefile  branch_merge_out_finish BNAME=PEP317-pullop
-## This last step is important since it cleans up temporary tags.
+## This last step is important since it cleans up temporary tags to prepare
+   you for the next checkout
    
 COMPARE TASKBRANCH WITH HEAD
 
-In a new pegasus work space do same as for merge out.
+In a new pegasus work space do same as above for merge out.
 
 make -f TaskMakefile BNAME=PEP317-pullop
 
 This produces a result which is all of the head merged into the branch.
-A diff of this is all the new changes to the head of tree.
-
+A diff of this is all the new changes to the head of tree that you will
+include into the merge.
 
 
 TODO list:

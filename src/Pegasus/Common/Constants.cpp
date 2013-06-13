@@ -302,6 +302,13 @@ const CIMName PEGASUS_PROPERTYNAME_PERSISTENCETYPE =
     CIMNameCast("PersistenceType");
 
 /**
+    The name of the SubscriptionRemovalTimeInterval property of
+    IndicationService class.
+*/
+const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL =
+    CIMNameCast("SubscriptionRemovalTimeInterval");
+
+/**
     The name of the SNMP Version property for SNMP Mapper Indication Handler
     subclass
  */

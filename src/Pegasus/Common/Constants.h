@@ -787,6 +787,13 @@ PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_NAME;
 
 /**
+    The name of the SubscriptionRemovalTimeInterval property of
+    IndicationService class.
+*/
+PEGASUS_COMMON_LINKAGE extern const
+    CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
+
+/**
     The name of the Creation Class Name property for indication filter and
     indications handler classes
  */

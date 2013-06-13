@@ -266,13 +266,6 @@ PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_FILTERCREATIONENABLED;
 PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION;
 
 /**
-    The name of the SubscriptionRemovalTimeInterval property of
-    IndicationService class.
-*/
-PEGASUS_SERVER_LINKAGE extern const
-    CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
-
-/**
     The name of the DeliveryRetryAttempts property of
     IndicationService class.
 */

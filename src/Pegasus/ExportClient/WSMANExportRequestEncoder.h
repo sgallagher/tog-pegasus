@@ -62,6 +62,8 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE WSMANExportRequestEncoder
         
         /** This method is called when a message is enqueued on this queue. */
         virtual void handleEnqueue();
+       
+        void setDeliveryMode(deliveryMode &deliveryMode);
 
     private:
         
@@ -75,6 +77,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE WSMANExportRequestEncoder
         CString _hostName;
         CString _portNumber;
         AutoPtr<ClientAuthenticator> _authenticator; 
+        deliveryMode _deliveryMode;
         friend class TestRequestEncoder;
 };
 

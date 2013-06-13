@@ -40,6 +40,10 @@
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/ExportClient/Linkage.h>
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+#include <Pegasus/WsmServer/WsmResponse.h>
+#endif
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -135,7 +139,8 @@ public:
         const String& reasonPhrase,
         char*& content,
         ClientExceptionMessage*& exceptionMessage,
-        Boolean& valid);
+        Boolean& valid,
+        Boolean wsmanFlag = false);
 
     /**
         Decodes the Export Response in the HTTP message.
@@ -152,6 +157,14 @@ public:
         Boolean cimReconnect,
         Message*& responseMessage);
 
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+    static void decodeWSMANExportResponse(
+        char* content,
+        Boolean reconnect,
+        Message*& responseMessage,
+        ContentLanguageList & contentLanguages,
+        WsmRequest* request);
+#endif     
 private:
 
     /**
@@ -168,6 +181,7 @@ private:
         XmlParser& parser,
         const String& messageId,
         Boolean isEmptyExpMethodResponseTag);
+
 };
 
 PEGASUS_NAMESPACE_END

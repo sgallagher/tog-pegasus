@@ -4959,6 +4959,15 @@ CIM server listening on HTTPS port {0}."}
         */
         ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_EXPMETHRSP:string {"PGS11408: EXPMETHODRESPONSE name {0} is not recognized."}
 
+        // ==========================================================
+        // Messages for HTTPExportResponseDecoder
+        //  Please use message prefix "PGS11500"
+        // ==========================================================
+        
+        ExportClient.HTTPExportResponseDecoder.MALFORMED_RESPONSE:string {"PGS11500: The HTTP response message is not valid."}
+        ExportClient.HTTPExportResponseDecoder.EMPTY_RESPONSE:string {"PGS11501: Connection closed by CIM Server."}
+        ExportClient.HTTPExportResponseDecoder.MISSING_HEADER:string {"PGS11502: Required SOAP header \"{0}\" was not present."}
+        
 
         // ==========================================================
         // Messages for CIMExportClient
@@ -4972,6 +4981,13 @@ CIM server listening on HTTPS port {0}."}
         ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID:string {"PGS11600: The response message identifier {0} does not match the expected response message identifier {1}."}
 
         ExportClient.CIMExportClient.MISMATCHED_RESPONSE:string {"PGS11601: The response message type does not match the expected response message type."}
+
+        // ==========================================================
+        // Messages for WSMANExportClient
+        //  Please use message prefix "PGS11700"
+        // ==========================================================
+        ExportClient.WSMANExportClient.MISMATCHED_RESPONSE:string {"PGS11700: The response message type does not match the expected response message type."} 
+
 
 
         // ==========================================================

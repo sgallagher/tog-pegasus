@@ -82,6 +82,7 @@
 
 #define PEGASUS_QUEUENAME_WSMANEXPORTCLIENT    "WSMANExportClient"
 #define PEGASUS_QUEUENAME_WSMANEXPORTREQENCODER  "WSMANExportRequestEncoder"
+#define PEGASUS_QUEUENAME_WSMANEXPORTRESPENCODER  "WSMANExportResponseDecoder"
 
 /*
  * ModuleController Module Names

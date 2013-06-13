@@ -95,6 +95,9 @@
 #define WSMAN_DELIVEY_MODE_PUSH \
     "http://schemas.xmlsoap.org/ws/2004/08/eventing/DeliveryModes/Push"
 
+#define WSMAN_DELIVERY_MODE_PUSH_WITH_ACK \
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/PushWithAck"
+
 //
 // Action URIs
 //
@@ -173,6 +176,9 @@
 
 #define WSM_ACTION_SUBSCRIBE_RENEW\
     "http://schemas.xmlsoap.org/ws/2004/08/eventing/Renew"
+
+#define WSM_ACTION_ACK\
+    "http://schemas.xmlsoap.org/wbmem/wsman/1/wsman/Ack"
 
 //
 // WS-Management FaultDetail URI values

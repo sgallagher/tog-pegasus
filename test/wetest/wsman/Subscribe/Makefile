@@ -65,7 +65,9 @@ XMLSCRIPTS = \
     Successful_Unsubscription_allcalsses \
     Successful_unsubscribe_withoutExpiry \
     Unsubscribe_WithOutFilterQuery \
-    invalidFilterNameInBody_Subscription 
+    invalidFilterNameInBody_Subscription \
+    Successful_subscription_pushWithAck \
+    Successful_unsubscribe_pushWithAck
 
 XMLSCRIPTS_STRIPPED_MU = \
 	InvalidMessageID_Subscription01 \

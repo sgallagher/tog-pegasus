@@ -34,6 +34,7 @@
 #include <Pegasus/WsmServer/WsmRequest.h>
 #include <Pegasus/WsmServer/CimToWsmResponseMapper.h>
 #include <Pegasus/ExportClient/WSMANExportClient.h>
+#include <Pegasus/Common/TimeValue.h>
 
 PEGASUS_USING_STD;
 
@@ -41,11 +42,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 WSMANExportClient::WSMANExportClient(
     HTTPConnector* httpConnector,
+    Monitor* monitor,
     Uint32 timeoutMilliseconds)
     :
     ExportClient(PEGASUS_QUEUENAME_WSMANEXPORTCLIENT,
         httpConnector,
-        timeoutMilliseconds)
+        timeoutMilliseconds,
+        monitor)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, 
         "WSMANExportClient::WSMANExportClient()");
@@ -81,6 +84,12 @@ void WSMANExportClient::exportIndication(
             wsmInstance);
 
         request->contentLanguages = contentLanguages;
+        if(_wsmanResponseDecoder != NULL)
+        {
+            _wsmanResponseDecoder->setWsmRequest(request);
+            _wsmanResponseDecoder->setContentLanguages(contentLanguages);
+        }
+
         PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
             "Exporting %s Indication for destination %s:%d%s",
             (const char*)(instanceName.getClassName().getString().
@@ -89,7 +98,14 @@ void WSMANExportClient::exportIndication(
             (const char*)(url.getCString())));
 
 
-        _doRequest(request);
+        AutoPtr<Message> message(_doRequest(request,WS_EXPORT_INDICATION));
+        
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
+            "%s Indication for destination %s:%d%s exported successfully",
+            (const char*)(instanceName.getClassName().getString().
+            getCString()),
+            (const char*)(_connectHost.getCString()), _connectPortNumber,
+            (const char*)(url.getCString())));
     }
     catch (const Exception& e)
     {
@@ -109,8 +125,9 @@ void WSMANExportClient::exportIndication(
     PEG_METHOD_EXIT();
 }
 
-void WSMANExportClient::_doRequest(
-    WsmRequest * request)
+Message* WSMANExportClient::_doRequest(
+    WsmRequest * request,
+    WsmOperationType expectedResponseMessageType)
     
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "WSMANExportClient::_doRequest()");
@@ -130,11 +147,12 @@ void WSMANExportClient::_doRequest(
     //
     indicationRequest->httpMethod = HTTP_METHOD__POST;
 
-    //Current WSMAN eventing part supports only PUSH delivery mode.
-    //So we dont wait for the response here,we only send the 
-    //indication to consumer. 
-    if ( _deliveryMode == Push )
+    //Current WSMAN eventing part supports only PUSH and PUSH_WITH_ACK 
+    // delivery mode.So we will deliver teh indication if the delivery 
+    // mode is one of them. 
+    if (( _deliveryMode == Push ) || (_deliveryMode == PushWithAck))
     {
+        _wsmanRequestEncoder->setDeliveryMode(_deliveryMode);
         _wsmanRequestEncoder->enqueue(indicationRequest.release());
     }
     else
@@ -143,6 +161,89 @@ void WSMANExportClient::_doRequest(
             "Failed to export indication since delivery mode %s"
             " is not supported", (const char*)_deliveryMode));
     }
+    Uint64 startupTime = TimeValue::getCurrentTime().toMilliseconds();
+    Uint64 currentTime = startupTime;
+    Uint64 stopTime = currentTime + _timeoutMilliseconds;
+    while (currentTime < stopTime)
+    {
+        //Wait until the timeout expires or an event occurs:
+        _monitor->run(Uint32(stopTime- currentTime));
+                        
+        // Check to see if incoming queue has a message
+        AutoPtr<WsmResponse> response(dynamic_cast<WsmResponse*>(dequeue()));
+        if (response.get() != 0)
+        {
+            //Shouldn't be any more messages in our queue
+            PEGASUS_ASSERT(getCount() == 0);
+            if(response->getCloseConnect() == true)
+            {
+                _disconnect();
+                response->setCloseConnect(false);
+            }
+            if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
+            {
+                Exception* clientException =
+                    ((ClientExceptionMessage*)response.get())->clientException;
+
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
+                    "Client Exception Message received.");
+                AutoPtr<Exception> d(clientException);
+                CIMClientMalformedHTTPException* malformedHTTPException =
+                    dynamic_cast<CIMClientMalformedHTTPException*>(
+                    clientException);
+                if (malformedHTTPException)
+                {
+                    PEG_METHOD_EXIT();
+                    throw *malformedHTTPException;
+                }
+
+                CIMClientHTTPErrorException* httpErrorException =
+                    dynamic_cast<CIMClientHTTPErrorException*>(
+                    clientException);
+                if (httpErrorException)
+                {
+                    PEG_METHOD_EXIT();
+                    throw *httpErrorException;
+                }
+
+                PEG_METHOD_EXIT();
+                throw *clientException; 
+
+            }
+            else if(response->getOperationType() == expectedResponseMessageType)
+            {
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                    "Received expected indication response message.");
+                PEG_METHOD_EXIT();
+                return response.release();
+            }
+            else if (response->getOperationType() == WSM_FAULT)
+            {
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
+                        "Received indication failure message.");
+                PEG_METHOD_EXIT();
+            }
+            else
+            {
+                MessageLoaderParms mlParms(
+                    "ExportClient.WSMANExportClient.MISMATCHED_RESPONSE",
+                    "Mismatched response message type.");
+                String mlString(MessageLoader::getMessage(mlParms));
+
+                CIMClientResponseException responseException(mlString);
+
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
+                    (const char*)mlString.getCString());
+
+                PEG_METHOD_EXIT();
+                throw responseException;
+
+            } 
+ 
+        }
+        currentTime = TimeValue::getCurrentTime().toMilliseconds();
+
+    }     
     PEG_METHOD_EXIT();
 }
 
@@ -151,4 +252,4 @@ void WSMANExportClient ::setDeliveryMode(deliveryMode &deliveryMode)
     _deliveryMode = deliveryMode;
 }
     
-PEGASUS_NAMESPACE_END      
+PEGASUS_NAMESPACE_END

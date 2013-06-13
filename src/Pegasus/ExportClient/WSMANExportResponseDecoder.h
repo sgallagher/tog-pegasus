@@ -29,60 +29,59 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_WSMANExportClient_h
-#define Pegasus_WSMANExportClient_h
+#ifndef Pegasus_WSMANExportResponseDecoder_h
+#define Pegasus_WSMANExportResponseDecoder_h
 
-#include <Pegasus/ExportClient/ExportClient.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Client/ClientAuthenticator.h>
+#include <Pegasus/ExportClient/HTTPExportResponseDecoder.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 /**
-    This class provides the interface that a CIMOM uses to communicate
-    with a client or listner.
+    The WSMANExportResponseDecoder class receives HTTP messages and decodes them
+    into WSMAN Export Response messages which it places on its output queue.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE WSMANExportClient : public ExportClient
+class PEGASUS_EXPORT_CLIENT_LINKAGE WSMANExportResponseDecoder :
+    public MessageQueue
 {
-public:
+
+   public:
+
+      /** Constructor.
+          @param outputQueue queue to receive decoded HTTP messages.
+          @param encoderQueue queue to receive WSMAN Export Response messages.
+          @param authenticator client authenticator.
+      */
+      WSMANExportResponseDecoder(
+         MessageQueue* outputQueue,
+         MessageQueue* encoderQueue,
+         ClientAuthenticator* authenticator);
+
+      /** Destructor. */
+      ~WSMANExportResponseDecoder();
+
+      void setEncoderQueue(MessageQueue* encoderQueue);
+
+      /** This method is called when a message is enqueued on this queue. */
+      virtual void handleEnqueue();
       
-    /**
-        Constructor for a WSMAN Export Client object.
-    */
-    WSMANExportClient(
-        HTTPConnector* httpConnector,
-        Monitor* _monitor,
-        Uint32 timeoutMilliseconds =
-            PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+      void setContentLanguages(const ContentLanguageList & contentLanguages);
+      void setWsmRequest(WsmRequest* request);
+     
 
-    // Destructor for a WSMAN Export Client object.
-    ~WSMANExportClient();
-    
-     /**
-        Send indication message to the destination where the url input
-        parameter defines the destination.
+   private:
 
-        @param url String defining the destination of the indication to be sent.
-        @param instance CIMInstance is the indication instance which needs to
-        be sent to the destination.
-        @param contentLanguages The language of the indication
-    */
-    void exportIndication(
-        const String& url,
-        const CIMInstance& instance,
-        const ContentLanguageList& contentLanguages = ContentLanguageList(),
-        const String& toPath = "");
+      void _handleHTTPMessage(HTTPMessage* message);
 
-    void setDeliveryMode(deliveryMode &deliveryMode);
-
-private:
-
-    Message* _doRequest(
-        WsmRequest * request,
-        WsmOperationType expectedResponseMessageType);
-
-    deliveryMode _deliveryMode;
+      AutoPtr<MessageQueue> _outputQueue;
+      AutoPtr<MessageQueue> _encoderQueue;
+      AutoPtr<ClientAuthenticator> _authenticator;
+      ContentLanguageList _contentLanguages; 
+      WsmRequest * _request;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_WSMANExportClient_h */
+#endif /* Pegasus_WSMANExportResponseDecoder_h */

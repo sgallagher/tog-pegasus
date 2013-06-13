@@ -69,7 +69,6 @@ private:
         CIMRequestMessage* request,
         MessageType expectedResponseMessageType);
 
-    Monitor* _monitor;
     /**
         The CIMExportClient uses a lazy reconnect algorithm.  A reconnection
         is necessary when the server (listener) sends a Connection: Close

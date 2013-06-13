@@ -579,7 +579,7 @@ void WsmReader::skipElement(XmlEntry& entry)
 
 // checkDuplicateHeader.  It is a duplicate if the isDuplicate parameter
 // is true
-inline void checkDuplicateHeader(
+void WsmReader:: checkDuplicateHeader(
     const char* elementName,
     Boolean isDuplicate)
 {
@@ -1862,7 +1862,8 @@ void WsmReader::_decodeDeliveryField(
     }
     // The only supported delivery mode is PUSH. 
     // If this changes we need to add other delivery modes
-    if(strcmp(value, WSMAN_DELIVEY_MODE_PUSH)!= 0) 
+    if(!((strcmp(value,WSMAN_DELIVEY_MODE_PUSH) == 0) || (
+        strcmp(value,WSMAN_DELIVERY_MODE_PUSH_WITH_ACK) == 0)))
     {
         MessageLoaderParms parms(
             "WsmServer.WsmReader.UNSUPPORTED_DELIVERY_MODE",
@@ -1871,7 +1872,15 @@ void WsmReader::_decodeDeliveryField(
     }
     else
     {
-        deliveryMode mode = Push;
+        deliveryMode mode;
+        if(strcmp(value, WSMAN_DELIVEY_MODE_PUSH) == 0)
+        {
+            mode = Push;
+        } 
+        else
+        {
+            mode = PushWithAck; 
+        }
         char buffer[22];
         Uint32 size;
         delMode = Uint16ToString(buffer, mode, size);
@@ -1916,4 +1925,9 @@ void WsmReader::_decodeDeliveryField(
     _parser.setHideEmptyTags(false); 
     PEG_METHOD_EXIT();
 }
+XmlParser& WsmReader::getParser()
+{
+   return _parser;
+}
+
 PEGASUS_NAMESPACE_END

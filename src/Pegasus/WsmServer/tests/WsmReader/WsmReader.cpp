@@ -1468,6 +1468,33 @@ static void _testSubscribeBody(WsmReader& reader)
     } 
 }
 
+static void _testSubscribeBodyPushWithAck(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    String deliveryMode;
+    String destination;
+    String subExpiration;
+    WsmFilter wsmFilter;
+
+    reader.decodeSubscribeBody(
+        deliveryMode,
+        destination,
+        subExpiration,
+        wsmFilter);
+
+    if (subExpiration != "30000000" ||
+        deliveryMode != "3" ||
+        destination != "http://localhost:80/eventsink" ||
+        wsmFilter.filterDialect != WsmFilter::WQL ||
+        wsmFilter.WQLFilter.query != "SELECT * FROM IndicationStressTestClass")
+    {
+        throw Exception("Invalid subscribe body");
+    }
+}
+
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -1597,6 +1624,19 @@ int main(int argc, char** argv)
                 cout << "Testing wsman subscribe." << endl;
 
             _testSubscribeBody(reader);
+        }
+        /*WS-Subscribe with push_WITH_ACK delivery mode tests*/
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(
+                text,
+                "./subscribe_bodyPushWithAck.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing wsman subscribe with PUSH_WITH_ACK." << endl;
+
+            _testSubscribeBodyPushWithAck(reader);
         }
     }
     catch(Exception& e)

@@ -167,7 +167,7 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
 
     try
     {
-        switch (response->getType())
+        switch (response->getOperationType())
         {
             case WS_TRANSFER_GET:
                 _encodeWxfGetResponse((WxfGetResponse*) response);

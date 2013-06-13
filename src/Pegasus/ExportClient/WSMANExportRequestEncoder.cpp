@@ -93,23 +93,31 @@ void WSMANExportRequestEncoder::_encodeWSMANIndication(
     WsExportIndicationRequest* message, Buffer &out)
 {
     String action = WSM_ACTION_WSMAN_EVENT;
-    /* This should be added when SendwithAck will be supported. */
-    /*  DSP0266_1.1 : This element shall be present if a reply is expected.
-    If the wsa:ReplyTo header is absent, the contents of the wsa:From
-    header may be used to formulate a message to the source. This
-    header may be absent if the message has no meaningful reply.
-    */
-    //String replyTo = "http://"+gethostbyaddr()+":5988" ;
-
+    String hostname = System::getFullyQualifiedHostName();
+    String replyTo = "http://"+hostname+":5988";
     WsmWriter::appendSoapEnvelopeStart(out,message->contentLanguages);
 
     WsmWriter::appendSoapHeaderStart(out);
-    WsmWriter::appendSoapHeader(
-        out,
-        action,
-        message->messageId,
-        "",
-        message->destination);
+    if(_deliveryMode == Push)
+    {
+        WsmWriter::appendSoapHeader(
+            out,
+            action,
+            message->messageId,
+            "",
+            message->destination);
+    }
+    else if(_deliveryMode == PushWithAck)
+    {
+        WsmWriter::appendSoapHeader(
+            out,
+            action,
+            message->messageId,
+            "",
+            message->destination,
+            replyTo,
+            true);
+    }
     WsmWriter::appendSoapHeaderEnd(out);
     WsmWriter::appendSoapBodyStart(out);
     WsmWriter::appendInstanceElement(
@@ -154,6 +162,11 @@ void WSMANExportRequestEncoder::_encodeExportIndicationRequest(
         httpMessage->message.getData());
     _outputQueue->enqueue(httpMessage);
 
+}
+
+void WSMANExportRequestEncoder ::setDeliveryMode(deliveryMode &deliveryMode)
+{
+    _deliveryMode = deliveryMode;
 }
 
 

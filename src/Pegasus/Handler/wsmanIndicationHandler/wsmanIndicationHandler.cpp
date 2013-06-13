@@ -238,7 +238,7 @@ private:
             Monitor monitor;
             HTTPConnector httpConnector(&monitor);
             
-            WSMANExportClient exportclient(&httpConnector);
+            WSMANExportClient exportclient(&httpConnector,&monitor);
             deliveryMode mode = _maptodeliveryModeEnum(delMode); 
             exportclient.setDeliveryMode(mode);            
             Uint32 portNumber = 0;

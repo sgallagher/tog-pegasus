@@ -59,7 +59,8 @@ SOURCES = \
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
 SOURCES += \
 	WSMANExportClient.cpp \
-	WSMANExportRequestEncoder.cpp
+	WSMANExportRequestEncoder.cpp \
+	WSMANExportResponseDecoder.cpp
 endif
    
 

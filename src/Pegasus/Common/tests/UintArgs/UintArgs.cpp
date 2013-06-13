@@ -116,9 +116,9 @@ void testUint32()
     {
         // test setting to max Uint32 value
         Uint32Arg arg;
-        arg.setValue(4294967295);
+        arg.setValue(4294967295UL);
 
-        PEGASUS_TEST_ASSERT(arg.getValue() == 4294967295);
+        PEGASUS_TEST_ASSERT(arg.getValue() == 4294967295UL);
         PEGASUS_TEST_ASSERT(arg.isNull() == false);
 
         VCOUT << arg.toString() << endl;
@@ -207,9 +207,9 @@ void testUint64()
     {
         // test setting to max Uint32 value
         Uint64Arg arg;
-        arg.setValue(18446744073709551615UL);
+        arg.setValue(18446744073709551615ULL);
 
-        PEGASUS_TEST_ASSERT(arg.getValue() == 18446744073709551615UL);
+        PEGASUS_TEST_ASSERT(arg.getValue() == 18446744073709551615ULL);
         PEGASUS_TEST_ASSERT(arg.isNull() == false);
 
         VCOUT << arg.toString() << endl;

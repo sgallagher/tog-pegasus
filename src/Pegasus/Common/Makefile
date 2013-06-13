@@ -130,7 +130,8 @@ SOURCES1 = \
     AsyncQueue.cpp \
     IDFactory.cpp \
     AuditLogger.cpp \
-    Magic.cpp
+    Magic.cpp \
+    UintArgs.cpp
 
 SOURCES2 = \
     Exception.cpp \

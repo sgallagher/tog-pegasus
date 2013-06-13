@@ -26,93 +26,23 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../..
+ROOT = ../../../../..
+
+DIR = Pegasus/Common/tests/UintArgs
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    AuditLogger \
-    async_callback \
-    AtomicInt \
-    AuthenticationInfo \
-    Base64 \
-    Buffer \
-    CIMBuffer \
-    CIMName \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    Executor \
-    FileLock \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    HTTPMessage \
-    InstanceDecl \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageQueue \
-    MessageQueueService \
-    MessageSerializer \
-    Method \
-    ModuleController \
-    Mutex \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Reference \
-    Resolve \
-    Scope \
-    SCMO \
-    SpinLock \
-    Stack \
-    StrToInstName \
-    String \
-    StringConversion \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    Tracer \
-    ValidateClass \
-    Value \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader \
-    List \
-    AsyncQueue \
-    IDFactory \
-    SharedPtr \
-    HostAddress \
-    HostLocator \
-    OrderedSet \
-    XmlWriter \
-    UintArgs
+include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
-endif
+PROGRAM = TestUintArgs
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-	Attribute
-endif
+SOURCES = UintArgs.cpp
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

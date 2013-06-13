@@ -61,6 +61,11 @@ public:
 
     String getAuthResponseHeader();
 
+    static AuthenticationStatus updateExpiredPassword(
+        const String& userName,
+        const String& oldPass,
+        const String& newPass);
+
 private:
 
     String _realm;

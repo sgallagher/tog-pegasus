@@ -78,6 +78,15 @@ public:
         const CIMException& cimException,
         Boolean closeConnect = false);
 
+    void sendUserAccountExpired(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const String& methodName,
+        Boolean closeConnect,
+        Boolean isIMethod);
+
+
     void sendHttpError(
         Uint32 queueId,
         const String& status,
@@ -102,6 +111,9 @@ public:
         const String& authType,
         const String& userName,
         const String& userRole,
+        const String& userPass,
+        Boolean isExpiredPassword,
+        Boolean updateExpiredPassword,
         const String& ipAddress,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
@@ -261,6 +273,18 @@ public:
     void setServerTerminating(Boolean flag);
 
 private:
+
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+    void _updateExpiredPassword(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        Boolean closeConnect,
+        const ContentLanguageList& httpContentLanguages,
+        CIMMessage* request,
+        const String& userName,
+        const String& oldPass);
+#endif
 
     // Do not make _outputQueue an AutoPtr.
     MessageQueue* _outputQueue;

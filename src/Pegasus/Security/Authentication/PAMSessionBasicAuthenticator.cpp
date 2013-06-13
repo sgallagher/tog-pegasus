@@ -77,6 +77,14 @@ AuthenticationStatus PAMSessionBasicAuthenticator::authenticate(
         authInfo);
     
     AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pamRC);
+
+    // in case of an expired password, store user authenticated password
+    if (authStatus.isPasswordExpired())
+    {
+        authInfo->setAuthenticatedPassword(password);
+        authInfo->setAuthenticatedUser(userName);
+        authInfo->setExpiredPassword(true);
+    }
     
     PEG_METHOD_EXIT();
     return authStatus;
@@ -110,5 +118,25 @@ String PAMSessionBasicAuthenticator::getAuthResponseHeader()
     PEG_METHOD_EXIT();
     return responseHeader;
 }
+
+AuthenticationStatus PAMSessionBasicAuthenticator::updateExpiredPassword(
+        const String& userName,
+        const String& oldPass,
+        const String& newPass)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMSessionBasicAuthenticator::updateExpiredPassword()");
+
+    int pamRC = _PAMUpdateExpiredPassword(
+        userName.getCString(),
+        oldPass.getCString(),
+        newPass.getCString());
+
+    AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pamRC);
+    
+    PEG_METHOD_EXIT();
+    return authStatus;
+}
+
 
 PEGASUS_NAMESPACE_END

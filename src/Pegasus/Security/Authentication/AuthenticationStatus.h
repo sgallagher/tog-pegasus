@@ -68,6 +68,12 @@ public:
         return (_code == AUTHSC_SUCCESS);
     }
 
+    bool isPasswordExpired()
+    {
+        return ((_code == AUTHSC_PASSWORD_EXPIRED) ||
+                (_code == AUTHSC_PASSWORD_CHG_REQUIRED));
+    }
+
     bool doChallenge()
     {
         return _doChallenge;

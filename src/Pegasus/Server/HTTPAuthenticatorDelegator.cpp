@@ -1078,11 +1078,29 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     headers, _HTTP_HEADER_AUTHORIZATION,
                     authorization, false))
             {
-               authStatus =
+                authStatus =
                     _authenticationManager->performHttpAuthentication(
                         authorization,
                         httpMessage->authInfo);
 
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+                if (authStatus.isPasswordExpired())
+                {
+                    // if this is CIM-XML and Password Expired treat as success
+                    // expired password state is already stored in
+                    // AuthenticationInfo
+                    const char* cimOperation;
+
+                    if (HTTPMessage::lookupHeader(
+                        headers,
+                        _HTTP_HEADER_CIMOPERATION,
+                        cimOperation,
+                        true))
+                    {
+                        authStatus = AuthenticationStatus(true);
+                    }                    
+                }
+#endif
                 if (!authStatus.isSuccess())
                 {
                     //ATTN: the number of challenges get sent for a

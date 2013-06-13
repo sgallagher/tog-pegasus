@@ -185,6 +185,16 @@ public:
         return _userRole;
     }
 
+    void setExpiredPassword(Boolean status)
+    {
+        _isExpiredPassword = status;
+    }
+
+    Boolean isExpiredPassword() const
+    {
+        return _isExpiredPassword;
+    }
+
 private:
 
     /** Default Copy Constructor and assignment operator  */
@@ -210,6 +220,7 @@ private:
 
     AuthHandle _authHandle;
     String _userRole;
+    Boolean _isExpiredPassword;
 };
 
 PEGASUS_NAMESPACE_END

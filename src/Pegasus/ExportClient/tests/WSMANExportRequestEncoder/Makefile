@@ -34,6 +34,10 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = pegexportclient \
             pegwsmserver \
+            pegwql \
+	    pegquerycommon \
+	    pegrepository \
+	    pegconfig \
             pegclient  \
             pegcommon 
 

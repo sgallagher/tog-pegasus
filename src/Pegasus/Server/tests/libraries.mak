@@ -27,11 +27,14 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 LIBRARIES = \
-    pegcommon \
-    pegrepository \
     pegserver \
     pegprovider \
     pegexportclient \
     pegexportserver \
     pegwql \
-    pegclient
+    pegquerycommon \
+    pegrepository \
+    pegclient \
+    pegconfig \
+    pegcommon
+    

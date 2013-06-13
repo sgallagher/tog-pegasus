@@ -30,5 +30,9 @@ ROOT=../../../../..
 
 LIBRARIES= \
     pegexportclient \
+    pegwql \
+    pegquerycommon \
+    pegrepository \
+    pegconfig \
     pegclient \
     pegcommon

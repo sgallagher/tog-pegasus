@@ -111,17 +111,6 @@ Boolean System::isPrivilegedUser(const String& userName)
 
 #if defined(PEGASUS_ENABLE_USERGROUP_AUTHORIZATION)
 
-
-inline void* peg_realloc(void *oldPtr, size_t newSize)
-{
-    void *newPtr = NULL;
-    if ( (newPtr = ::realloc( oldPtr, newSize) ) == NULL) 
-    {
-        free( oldPtr);
-        throw PEGASUS_STD(bad_alloc)();
-    }
-    return newPtr;
-}
 static void doFreeIfNeeded( const Boolean freeNeeded, char* ptrToFree)
 {
     if (freeNeeded)

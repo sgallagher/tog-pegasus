@@ -36,6 +36,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/Pegasus_inl.h>
 #include "CIMCLICommon.h"
 #include "CIMCLIClient.h"
 #include <cstdarg>
@@ -472,7 +473,7 @@ static char* charVPrintf(const char* format, va_list ap)
         // expected size and negative is error.
         allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
 
-    } while((p = (char*)realloc(p, allocSize)) != NULL);
+    } while((p = (char*)peg_realloc(p, allocSize)) != NULL);
 
     // return error code if realloc failed
     return 0;

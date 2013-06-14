@@ -47,6 +47,7 @@
 #include "StringInline.h"
 #include "Buffer.h"
 #include "SCMOStreamer.h"
+#include "Pegasus_inl.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
 #define CLASS_MAGIC 0xA8D7DE41
@@ -183,12 +184,7 @@ void CIMBuffer::_grow(size_t size)
     if (size > n)
         cap += size;
 
-    _data = (char*)realloc(_data, cap);
-
-    if (!_data)
-    {
-        throw PEGASUS_STD(bad_alloc)();
-    }
+    _data = (char*)peg_realloc(_data, cap);
 
     _end = _data + cap;
     _ptr = _data + m;

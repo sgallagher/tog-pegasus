@@ -179,7 +179,6 @@ Boolean System::getFileSize(const char* path, Uint32& size)
 
     return true;
 }
-
 Boolean System::removeDirectory(const char* path)
 {
     return rmdir(path) == 0;
@@ -940,7 +939,7 @@ Array<String> System::getInterfaceAddrs()
     ifc.ifc_len=bsz;
     do
     {
-        ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, bsz);
+        ifc.ifc_req=(struct ifreq *)peg_realloc(ifc.ifc_req, bsz);
         if (!ifc.ifc_req)
         {
             return ips;
@@ -962,7 +961,7 @@ Array<String> System::getInterfaceAddrs()
         }
     } while (1);
 
-    ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, prevsz);
+    ifc.ifc_req=(struct ifreq *)peg_realloc(ifc.ifc_req, prevsz);
 
     struct sockaddr *sa;
     char *cp, *cplim, buff[PEGASUS_INET6_ADDRSTR_LEN];

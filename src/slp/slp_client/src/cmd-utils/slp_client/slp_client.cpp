@@ -322,7 +322,6 @@ BOOL _slp_check_url_addr(const char *url, int af, void *url_bin_addr)
 /*** effectively reallocates *list -- FREES MEMORY ***/
 static int _slp_get_local_interface(struct slp_if_addr **list, int af)
 {
-    struct slp_if_addr *ifp;
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -348,6 +347,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
     (*list)->af = AF_UNSPEC;
 
 #ifdef PEGASUS_ENABLE_IPV6
+    struct slp_if_addr *ifp;
     if (af == AF_INET6)
     {
         if (!slp_is_ip6_stack_active())

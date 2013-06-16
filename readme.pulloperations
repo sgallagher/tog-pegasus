@@ -47,13 +47,13 @@ Merge out Process
    
 COMPARE TASKBRANCH WITH HEAD
 
-In a new pegasus work space do same as above for merge out.
+    In a new pegasus work space do same as above for merge out.
 
-make -f TaskMakefile BNAME=PEP317-pullop
+    make -f TaskMakefile BNAME=PEP317-pullop
 
-This produces a result which is all of the head merged into the branch.
-A diff of this is all the new changes to the head of tree that you will
-include into the merge.
+    This produces a result which is all of the head merged into the branch.
+    A diff of this is all the new changes to the head of tree that you will
+    include into the merge.
 
 
 TODO list:
@@ -70,7 +70,7 @@ TODO list:
    4. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
       pull not completed so we feed the responses back to the EnmerationContext
       queues
-   3. Lots of minor TODOs, etc.
+   3. Lots of minor TODOs, diagnostics, etc.
    4. External runtime variables. Decide this as part of PEP. The variables
       exist in CIMOperationRequestDispatcher but not in CIMConfig.  The primary
       ones to consider are:
@@ -108,6 +108,15 @@ TODO list:
    8. Still using templates, etc. in  code in the Dispatcher. This is for
       all of the open operations where there is a lot of duplicate code
       and the pull operations that are 99% duplicate code (in a single template)
+   9. NEXT TASK: get the pull operations into a single function by
+      creating a new CIMPullResponse message in CIMMessage.h that contains
+      the pull data.  Then we can use a single function to process all pull
+      operations.
+
+Fixed for 16 June CVS Update
+   1. Cleaned up the enumerationContext and Table release functions and tested
+      to confirm that we do not lose memory in either normal sequences or
+      sequences that close early. Cleaned up pullop and added more tests
 
 Fixed for 9 June CVS update
    1. Cleaned up code for OpenQueryInstances.  Note that this is incomplete.

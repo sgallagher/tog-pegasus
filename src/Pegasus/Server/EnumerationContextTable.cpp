@@ -168,16 +168,29 @@ EnumerationContextTable::~EnumerationContextTable()
     // remove any existing entries
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
+    Uint32 ctr = 0;
     for (HT::Iterator i = ht.start(); i; i++)
     {
         EnumerationContext* enumeration = i.value();
+        //// KS_TODO remove this diagnostic
+        cout << "Found at ~EnumerationContextTable "
+             << enumeration->_enumerationContextName
+             << " started " << (long unsigned int)
+            (TimeValue::getCurrentTime().toMicroseconds()
+               - enumeration->_startTime)/1000
+            << " milliseconds " << endl;
 
         // KS_TODO _ clean up threads before closing the table
 
         delete enumeration;
         ht.remove(i.key());
+        ctr++;
     }
-
+    if (ctr > 0)
+    {
+        cout << "EnumerationContextTable shutdown found "
+             << ctr << " contexts " << endl;
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -252,8 +265,9 @@ EnumerationContext* EnumerationContextTable::createContext(
     return enumCtxt;
 }
 
-Boolean EnumerationContextTable::remove(
-    const String& enumerationContextName)
+void EnumerationContextTable::removeCxt(
+    const String& enumerationContextName,
+    Boolean deleteContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContextTable::remove");
     AutoMutex autoMut(tableLock);
@@ -263,16 +277,16 @@ Boolean EnumerationContextTable::remove(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "remove Context ERRORERROR en == 0 enName %s",
             (const char *)enumerationContextName.getCString()));
-        cout << "EnumTable.remove where could not find en" << endl;
-        return false;
+        cout << "EnumTable.remove where en = 0" << endl;
     }
 
     PEG_METHOD_EXIT();
-    return _removeContext(en);
+    _removeContext(en, deleteContext);
 }
 
 // KS_TODO - Clean up fact that we repeat code above and here and have
 // 2 parallel functions for deletion (pointer and name)
+//// KS_TODO why any return here.  Should be removed.
 Boolean EnumerationContextTable::removeContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::remove");
@@ -285,10 +299,11 @@ Boolean EnumerationContextTable::removeContext(EnumerationContext* en)
 // Private remove function with no lock protection. The tableLock must
 // be set before this function is called to protect the table. This simply
 // removes the context from the context table.
+//// Why return here, should just remove.
 Boolean EnumerationContextTable::_removeContext(
     EnumerationContext* en, Boolean deleteContext)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_remove");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_removeContext");
 
     PEGASUS_ASSERT(en->valid());            // KS_TEMP
     tableValidate();
@@ -343,7 +358,12 @@ Boolean EnumerationContextTable::_removeContext(
                 (const char *)(en->_providersComplete? "true" : "false"),
                 (const char*) (en->_waiting? "true" : "false" )       ));
         }
-        cout << "remove ignored. " << (en->_waiting? "true" : "false") << endl;
+        cout << "remove ignored. "
+            << " waiting " << (en->_waiting? "true" : "false")
+            << " clientClosed " <<(en->_clientClosed? "true" : "false")
+            << " _providersComplete " <<
+                 (en->_providersComplete? "true" : "false")
+            << endl;
     }
     PEG_METHOD_EXIT();
     return false;
@@ -406,7 +426,7 @@ void EnumerationContextTable::removeExpiredContexts()
 //              cout << "Entry timed out " << en->getContextName()
 //                  << " " << en->_interOperationTimer <<  endl;
                 en->_interOperationTimer = 0;
-                //// KS_TODO this should really just client close it.
+                //// KS_TODO this should really just let client close it.
                 _removeContext(en);
             }
 //          else

@@ -108,7 +108,8 @@ public:
 
     /** Find and remove the enumeration context from the table
     */
-    Boolean remove(const String& enumerationContextName);
+    void removeCxt(const String& enumerationContextName,
+                   Boolean deleteContext);
 
     Boolean removeContext(EnumerationContext* en);
 

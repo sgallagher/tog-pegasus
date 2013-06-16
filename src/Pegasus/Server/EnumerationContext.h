@@ -221,8 +221,10 @@ public:
        set the enumeration state to providersComplete. This function
        signals the getCache function conditional variable. This
        function may also wait if the cache is full.
+       @return true if data set into cache, false if enumeration
+               closed.
      */
-    void putCache(MessageType type,
+    Boolean putCache(MessageType type,
                   CIMResponseMessage*& response,
                   Boolean providersComplete);
 
@@ -328,6 +330,8 @@ public:
     CIMException _cimException;
 
     // remove this enumerationContext entry from the enumerationContextTable
+    //// KS_TODO we want to eliminate this completely and use only the
+    //// table remove one
     void removeContext();
 
 private:

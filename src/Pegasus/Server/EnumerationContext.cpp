@@ -348,13 +348,14 @@ EnumerationContext::~EnumerationContext()
     PEG_METHOD_EXIT();
 }
 
+//// KS_TODO this function now redundant. Remove it completely
 void EnumerationContext::removeContext()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::removeContext");
     PEGASUS_ASSERT(valid());   // KS_TEMP;
 
     // KS_TODO - We should be able to go to direct pointer function
-    _enumerationContextTable->remove(_enumerationContextName);
+////    _enumerationContextTable->removeCxt(_enumerationContextName, false);
     PEG_METHOD_EXIT();
 }
 
@@ -364,8 +365,9 @@ void EnumerationContext::removeContext()
     below the full limit.
     If the operation is closed, we discard the response. If
     this is the last response, remove the enumerationContext
+    Return true if putCache worked, false if closed and nothing put
 */
-void EnumerationContext::putCache(MessageType type,
+Boolean EnumerationContext::putCache(MessageType type,
                                   CIMResponseMessage*& response,
                                   Boolean providersComplete)
 {
@@ -377,16 +379,16 @@ void EnumerationContext::putCache(MessageType type,
     PEGASUS_ASSERT(!_providersComplete);
     PEGASUS_ASSERT(!_waiting);
 
+    //// KS_TODO I believe that the _waiting is completely irrelevent. Delete
     _waiting = true;
-
-    // set providersComplete flag from flag in context.
-    _providersComplete = providersComplete;
 
     CIMResponseData& to = _responseCache;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-        "Enter putCache, response isComplete %s ResponseDataType %u",
-        _toCharP(providersComplete), to.getResponseDataContent() ));
+        "Enter putCache, response isComplete %s ResponseDataType %u "
+            "clientClosed %s",
+        _toCharP(providersComplete), to.getResponseDataContent(),
+        _toCharP(providersComplete)));
 
     // If an operation has closed the enumerationContext can
     // ignore any received responses until the providersComplete is received
@@ -398,15 +400,20 @@ void EnumerationContext::putCache(MessageType type,
         // responses but they are discarded here.
         //// KS_TODO Are we sure that the client closed mechanisms have
         ///  not already removed the context
-        if (_providersComplete)
+        if (providersComplete)
         {
-            removeContext();
+            _waiting = false;
+            _providersComplete = providersComplete;
+            return false;
         }
-        delete response;
     }
     else  // client not closed at this point
     {
+        // put the current response into the cache
         _insertResponseIntoCache(type, response);
+
+        // set providersComplete flag from flag in context.
+        _providersComplete = providersComplete;
 
         // test and set the high water mark for this cache.
         if (responseCacheSize() > _cacheHighWaterMark)
@@ -415,8 +422,8 @@ void EnumerationContext::putCache(MessageType type,
         }
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "After putCache responseCacheSize %u. CIMResponseData size %u."
-            " signal CacheSizeConditon",
+            "After putCache insert responseCacheSize %u. CIMResponseData"
+                " size %u. signal CacheSizeConditon",
             responseCacheSize(), to.size() ));
 
         // Signal addition to the CIMResponseData cache. Do this
@@ -433,17 +440,34 @@ void EnumerationContext::putCache(MessageType type,
         // completed.
         if (!_providersComplete)
         {
+             //// KS_TODO remove all these traces
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+                "After putCache providers waitProviderLimitCondition Not "
+                "complete insert responseCacheSize %u. CIMResponseData size %u."
+                " signal CacheSizeConditon responseCacheMaximumSize %u",
+                responseCacheSize(), to.size(), _responseCacheMaximumSize));
+
             waitProviderLimitCondition(_responseCacheMaximumSize);
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+                "After putCache providers wait end ProviderLimitCondition Not "
+                "complete insert responseCacheSize %u. CIMResponseData size %u."
+                " signal CacheSizeConditon responseCacheMaximumSize %u",
+                responseCacheSize(), to.size(), _responseCacheMaximumSize));
         }
         else
         {
             _waiting = false;
-            ////// KS_TODO removeContext();
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+                "After putCache providers NO waitProviderLimitCondition Not "
+                "complete insert responseCacheSize %u. CIMResponseData size %u."
+                " signal CacheSizeConditon responseCacheMaximumSize %u",
+                responseCacheSize(), to.size(), _responseCacheMaximumSize));
         }
     }
     _waiting = false;
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
 // Internal function to actually insert into the cache. This function

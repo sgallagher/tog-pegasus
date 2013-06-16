@@ -1039,10 +1039,14 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             }
 
             // Send to the EnumerationContext cache along with the
-            // isComplete indicator. Note that this may remove the
-            // enumerationContext.
+            // isComplete indicator. Return indicates cache is closed
+            // and providers complete so clean up.
 
-            en->putCache(poA->getRequestType(), response, isComplete);
+            if (!en->putCache(poA->getRequestType(), response, isComplete))
+            {
+                enumerationContextTable.removeCxt(
+                   en->getContextName(), true);
+            }
 
             delete response;
         }
@@ -3380,6 +3384,8 @@ struct ProviderRequests
         // if provider responses complete and nothing more in Enumeration
         // context cache, we set the enumeration closed and mark this
         // response as the endOfSequence.
+        // KS_TODO should not the following all be part of enum context.
+        // Change name since the function actually setsActiveState.
         if ((response->endOfSequence = enumerationContext->
              ifEnumerationComplete()))
         {
@@ -3387,20 +3393,11 @@ struct ProviderRequests
                 "Close Enumeration");
             // close and delete the EnumerationContext object
             enumerationContext->setClientClosed();
-        }
-        else
-        {
-            // set to operation inactive and start interoperation timer
-            enumerationContext->setActiveState(false);
+            enumerationContextTable.removeCxt(
+               enumerationContext->getContextName(), true);
         }
 
         dispatcher->_enqueueResponse(request, response.release());
-
-        if (enumerationContext->isClosed())
-        {
-            enumerationContext->removeContext();
-        }
-
 
         } // end issuePullResponse
     };
@@ -5757,7 +5754,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
 
     if (enumerationContext->isClosed())
     {
-        enumerationContext->removeContext();
+        enumerationContextTable.removeCxt(
+           enumerationContext->getContextName(), true);
     }
 
     PEG_METHOD_EXIT();
@@ -6073,7 +6071,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
 
     if (enumerationContext->isClosed())
     {
-        enumerationContext->removeContext();
+        enumerationContextTable.removeCxt(
+           enumerationContext->getContextName(), true);
     }
 
     PEG_METHOD_EXIT();
@@ -6458,7 +6457,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // fill in host, namespace on all instances on all elements of array
     // if they have been left out. This is required for pull instances
     // because we are returning instanceWithPath which includes host, etc.
-    // KS_TBD _ This may be done as part of the aggregator also
+    // KS_TODO_ This may be done as part of the aggregator also
 
     to.completeHostNameAndNamespace(
         cimAggregationLocalHost, request->nameSpace);
@@ -6467,7 +6466,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     if (enumerationContext->isClosed())
     {
-        enumerationContext->removeContext();
+        enumerationContextTable.removeCxt(
+           enumerationContext->getContextName(), true);
     }
 
     PEG_METHOD_EXIT();
@@ -6832,7 +6832,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     if (enumerationContext->isClosed())
     {
-        enumerationContext->removeContext();
+        enumerationContextTable.removeCxt(
+           enumerationContext->getContextName(), true);
     }
 
     PEG_METHOD_EXIT();
@@ -7239,7 +7240,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
 
     if (enumerationContext->isClosed())
     {
-        enumerationContext->removeContext();
+        enumerationContextTable.removeCxt(
+           enumerationContext->getContextName(), true);
     }
 
     PEG_METHOD_EXIT();
@@ -7596,7 +7598,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 
     if (enumerationContext->isClosed())
     {
-        enumerationContext->removeContext();
+        enumerationContextTable.removeCxt(
+           enumerationContext->getContextName(), true);
     }
 
     PEG_METHOD_EXIT();
@@ -7617,7 +7620,6 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "OpenQueryInstances request namespace=%s filter=%s "
             "filterQueryLanguage=%s "
-            "includeClassOrigin=%s "
             "returnQueryResultClass=%s "
             "operationTimeout=%s "
             "continueOnError=%s "
@@ -7788,23 +7790,25 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         return;
     }
 
-    // Set the Enumeration Closed.
+    // Set the Enumeration Closed. No more requests will be accepted
+    // for this enumerationContext
     en->setClientClosed();
 
-    // need to confirm that the providers are complete and if not
+    // Confirm that the providers are complete and if not
     // to force process when they are complete.
-//  if (en->ifProvidersComplete())
-//  {
-//      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-//         "Close Operation. Providers complete, Close enumeration"));
-//
-//      enumerationContextTable.remove(request->enumerationContext);
-//  }
-//  else
-//  {
-//      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-//         "Close Operation. Providers not complete, Close enumeration"));
-//  }
+    if (en->ifProvidersComplete())
+    {
+        //// KS_TODO get rid of display
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+           "Close Operation. Providers complete, Close enumeration"));
+
+        enumerationContextTable.removeCxt(request->enumerationContext, true);
+    }
+    else
+    {
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+           "Close Operation. Providers not complete, Close enumeration"));
+    }
 
     AutoPtr<CIMCloseEnumerationResponseMessage> response(
         dynamic_cast<CIMCloseEnumerationResponseMessage*>(
@@ -7814,6 +7818,8 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
 
     _enqueueResponse(request, response.release());
 
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+       "Close Operation. Send Response"));
     PEG_METHOD_EXIT();
     return;
 }

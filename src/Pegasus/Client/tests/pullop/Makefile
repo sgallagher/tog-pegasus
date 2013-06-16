@@ -71,16 +71,17 @@ tests:
 
 ## KS_TODO - Redo this list to actually put in the pullop code for each
 ## Will make it more understandable and also can work with options easier.
-poststarttests:
+errortests:
 	make filterParamError
 	make pullClassParamError
 	make continueOnErrorError
 	make invalidAssocObjectPath
 	make maxPullObjectCountError
 
+poststarttests:
 	@$(ECHO)  Enumerate and EnumerateNames tests - get to Completion
-	make testEnumerateInstances
-	make testEnumerateInstanceNames
+	make smallTestEnumerateInstances
+	make smallTestEnumerateInstanceNames
 	make peManagedElement
 	make penManagedElement
 	make pcmpie1
@@ -106,16 +107,22 @@ poststarttests:
 	@$(ECHO)  Test timeout in process of delivery 
 	make testtimeout
 
+	@$(ECHO) Error tests
+	make errortests
+
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
 ## Enumerate a class that is a C++ Provider. Very small enumerate
-testEnumerateInstances:
+## Normally returns about 3 instances
+smallTestEnumerateInstances:
+## Return all with initial request
 	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P Message
 	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
-
-## KS_TODO _ Do this with a much better class that has lots of objects
-## in addition to this class that just has 3 objects
+## Return with probably one pull
+	$(PROGRAM) e -M 1 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -M 1 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P Message
+	$(PROGRAM) e -M 1 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
 
 ## test variations of open max object count and pull max object count
 enumerateMaxObjectSizeVariations:
@@ -137,8 +144,10 @@ enumeratePathsMaxObjectSizeVariations:
 	$(PROGRAM) en -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
 ## enumerate instance names of a class in a C++ provider
-testEnumerateInstanceNames:
+smallTestEnumerateInstanceNames:
 	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C $(HOSTID)
+	$(PROGRAM) en -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
 ## KS_TODO _ move this test up to enumerates
 pcmpie1:
@@ -148,7 +157,7 @@ pcmpie1:
 
 ## KS_TODO move this test up to enumerates
 pcmpien1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
+	$(PROGRAM) en -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 
 ## Simple pull ref and assoc operations.
 SimpleRef:
@@ -258,6 +267,7 @@ stressVariation:
 ## These tests actually return exit 0 because the -R option reverses the
 ## exit codes so the following should actually return positive exits for
 ## make
+##
 pullClassParamError:
 	$(PROGRAM) e -c blah -R $(HOSTID)
 	$(PROGRAM) en -c blah -R $(HOSTID)

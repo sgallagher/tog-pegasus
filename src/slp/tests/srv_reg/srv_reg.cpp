@@ -1,5 +1,4 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
+//%LICENSE//////////////////////////////////////////////////////////////////
 // Licensed to The Open Group (TOG) under one or more contributor license
 // agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
 // this work for additional information regarding copyright ownership.
@@ -196,8 +195,8 @@ int main(int argc, char **argv)
                 slpScope,
                 0xffff))
             {
-                cout << "Registration error." << endl;
-                exit(1);
+                //negative test case
+                cout<<"test case passed ! " << endl;                   
             }
 
             const char url2[] = "service:wbem.ibm://localhost";
@@ -250,6 +249,42 @@ int main(int argc, char **argv)
                 cout << "Registration error." << endl;
                 exit(1);
             }
+             
+#ifdef PEGASUS_ENABLE_IPV6 
+            const char url5[] = "service:wbem.ibm://::1";
+
+            if (verbose)
+            {
+                cout << "Register: " << url3 << endl;
+            }
+
+            if (!slp_agent.srv_register(url5,
+                "(nothing=1),(version=2),(authentication=basic)",
+                registrationType,
+                slpScope,
+                0xffff))
+            {
+                cout << "Registration error." << endl;
+                exit(1);
+            }
+            
+            const char url6[] = "service:wbem.ibm://fe80::250:56ff:fead:5588";
+
+            if (verbose)
+            {
+                cout << "Register: " << url3 << endl;
+            }
+
+            if (!slp_agent.srv_register(url6,
+                "(nothing=1),(version=2),(authentication=basic)",
+                registrationType,
+                slpScope,
+                0xffff))
+            {
+                cout << "Registration error." << endl;
+                exit(1);
+            }
+#endif
         }
         // start the background thread - nothing is actually advertised
         // until this function returns.
@@ -290,7 +325,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    cout << argv[0] << " +++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all slp tests" << endl;
     return 0;
 }
 

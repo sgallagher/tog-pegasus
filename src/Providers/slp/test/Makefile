@@ -26,24 +26,39 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# Recurse the directories defined in DIRS
-# This makefile simply recurses all of the toplevel provider directories
+ROOT = ../../../..
 
-ROOT = ../..
+DIR = Providers/slp/test
 
 include $(ROOT)/mak/config.mak
 
-#Directories to recurse
-DIRS = \
-    ManagedSystem \
-    sample \
-    TestProviders \
-    IndicationConsumer
+PROGRAM = TestSLP
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-    slp \
-    slp/test
+LIBRARIES = \
+    pegslp \
+    pegprovider \
+    pegclient \
+    pegcommon
+
+
+SOURCES = \
+   TestSLP.cpp
+   
+include $(ROOT)/mak/program.mak
+
+ifeq ($(OS_TYPE),windows)
+SYS_LIBS = ole32.lib ws2_32.lib advapi32.lib
 endif
 
-include $(ROOT)/mak/recurse.mak
+poststarttests:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="slp=true"
+ifneq ($(OS_TYPE), windows)
+	sleep 5
+endif
+	$(PROGRAM)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
+
+tests:
+

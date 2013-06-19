@@ -59,12 +59,12 @@ static void _parseFile(const char* fileName, Boolean hideEmptyTags)
     {
         throw CIMException(CIM_ERR_FAILED, "Comment Error");
     }
-    PEGASUS_ASSERT (parser.getLine () == 2);
-    PEGASUS_ASSERT (parser.getStackSize () == 0);
+    PEGASUS_TEST_ASSERT (parser.getLine () == 2);
+    PEGASUS_TEST_ASSERT (parser.getStackSize () == 0);
     // Put the Comment back...
     parser.putBack (entry);
-    PEGASUS_ASSERT (parser.getLine () == 2);
-    PEGASUS_ASSERT (parser.getStackSize () == 0);
+    PEGASUS_TEST_ASSERT (parser.getLine () == 2);
+    PEGASUS_TEST_ASSERT (parser.getStackSize () == 0);
     while (parser.next(entry))
     {
         if (verbose)
@@ -72,7 +72,7 @@ static void _parseFile(const char* fileName, Boolean hideEmptyTags)
             entry.print();
         }
     }
-    PEGASUS_ASSERT (parser.next (entry, true) == false);
+    PEGASUS_TEST_ASSERT (parser.next (entry, true) == false);
 }
 
 #define ASSERT_XML_EXCEPTION(statement)  \
@@ -87,7 +87,7 @@ static void _parseFile(const char* fileName, Boolean hideEmptyTags)
         {                                \
             caughtException = true;      \
         }                                \
-        PEGASUS_ASSERT(caughtException); \
+        PEGASUS_TEST_ASSERT(caughtException); \
     } while(0)
 
 void testNamespaceSupport(Boolean hideEmptyTags)
@@ -134,158 +134,158 @@ void testNamespaceSupport(Boolean hideEmptyTags)
         XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
 
         // <a:tag xmlns:a=\"urn:0\" xmlns:b=\"urn:1\">
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
-        PEGASUS_ASSERT(!strcmp(entry.text, "a:tag"));
-        PEGASUS_ASSERT(entry.nsType == 0);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(0) != 0);
-        PEGASUS_ASSERT(p.getNamespace(1) != 0);
-        PEGASUS_ASSERT(p.getNamespace(2) == 0);
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::START_TAG);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "a:tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 0);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(0) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(1) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(2) == 0);
 
         // <b:tag xmlns=\"urn:2\" ignore=\"false\" a:attr=\"true\">
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
-        PEGASUS_ASSERT(!strcmp(entry.text, "b:tag"));
-        PEGASUS_ASSERT(entry.nsType == 1);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(2) != 0);
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::START_TAG);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "b:tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 1);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(2) != 0);
         attr = entry.findAttribute(0, "attr");
-        PEGASUS_ASSERT(attr != 0);
-        PEGASUS_ASSERT(attr->nsType == 0);
-        PEGASUS_ASSERT(strcmp(attr->name, "a:attr") == 0);
-        PEGASUS_ASSERT(strcmp(attr->localName, "attr") == 0);
-        PEGASUS_ASSERT(strcmp(attr->value, "true") == 0);
-        PEGASUS_ASSERT(entry.findAttribute(1, "attr") == 0);
+        PEGASUS_TEST_ASSERT(attr != 0);
+        PEGASUS_TEST_ASSERT(attr->nsType == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->name, "a:attr") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->localName, "attr") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->value, "true") == 0);
+        PEGASUS_TEST_ASSERT(entry.findAttribute(1, "attr") == 0);
         attr = entry.findAttribute(2, "ignore");
-        PEGASUS_ASSERT(attr != 0);
-        PEGASUS_ASSERT(attr->nsType == 2);
-        PEGASUS_ASSERT(strcmp(attr->name, "ignore") == 0);
-        PEGASUS_ASSERT(strcmp(attr->localName, "ignore") == 0);
-        PEGASUS_ASSERT(strcmp(attr->value, "false") == 0);
+        PEGASUS_TEST_ASSERT(attr != 0);
+        PEGASUS_TEST_ASSERT(attr->nsType == 2);
+        PEGASUS_TEST_ASSERT(strcmp(attr->name, "ignore") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->localName, "ignore") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->value, "false") == 0);
 
         // <tag>
-        PEGASUS_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(p.next(entry));
 
         if (hideEmptyTags)
-            PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::START_TAG);
         else
-            PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
 
-        PEGASUS_ASSERT(!strcmp(entry.text, "tag"));
-        PEGASUS_ASSERT(entry.nsType == 2);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 2);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
 
         if (hideEmptyTags)
         {
             // </tag>
-            PEGASUS_ASSERT(p.next(entry));
-            PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
-            PEGASUS_ASSERT(!strcmp(entry.text, "tag"));
-            PEGASUS_ASSERT(entry.nsType == 2);
-            PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+            PEGASUS_TEST_ASSERT(p.next(entry));
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::END_TAG);
+            PEGASUS_TEST_ASSERT(!strcmp(entry.text, "tag"));
+            PEGASUS_TEST_ASSERT(entry.nsType == 2);
+            PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
         }
 
         // </b:tag>
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
-        PEGASUS_ASSERT(!strcmp(entry.text, "b:tag"));
-        PEGASUS_ASSERT(entry.nsType == 1);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(0) != 0);
-        PEGASUS_ASSERT(p.getNamespace(1) != 0);
-        PEGASUS_ASSERT(p.getNamespace(2) != 0);
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::END_TAG);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "b:tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 1);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(0) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(1) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(2) != 0);
 
         // <tag xmlns=\"urn:0\" xml:lang=\"en-US\">
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
-        PEGASUS_ASSERT(!strcmp(entry.text, "tag"));
-        PEGASUS_ASSERT(entry.nsType == 0);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(0) != 0);
-        PEGASUS_ASSERT(p.getNamespace(1) != 0);
-        PEGASUS_ASSERT(p.getNamespace(2) == 0);
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::START_TAG);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 0);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(0) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(1) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(2) == 0);
         attr = entry.findAttribute("xml:lang");
-        PEGASUS_ASSERT(attr != 0);
-        PEGASUS_ASSERT(attr->nsType == -1);
-        PEGASUS_ASSERT(strcmp(attr->name, "xml:lang") == 0);
-        PEGASUS_ASSERT(strcmp(attr->localName, "lang") == 0);
-        PEGASUS_ASSERT(strcmp(attr->value, "en-US") == 0);
+        PEGASUS_TEST_ASSERT(attr != 0);
+        PEGASUS_TEST_ASSERT(attr->nsType == -1);
+        PEGASUS_TEST_ASSERT(strcmp(attr->name, "xml:lang") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->localName, "lang") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(attr->value, "en-US") == 0);
 
         // Data
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::CONTENT);
-        PEGASUS_ASSERT(!strcmp(entry.text, "Data"));
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::CONTENT);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "Data"));
 
         // </tag>
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
-        PEGASUS_ASSERT(!strcmp(entry.text, "tag"));
-        PEGASUS_ASSERT(entry.nsType == 0);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::END_TAG);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 0);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
 
         // <d:tag xmlns:d=\"urn:x\">
-        PEGASUS_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(p.next(entry));
 
         if (hideEmptyTags)
-            PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::START_TAG);
         else
-            PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
 
-        PEGASUS_ASSERT(!strcmp(entry.text, "d:tag"));
-        PEGASUS_ASSERT(entry.nsType == -2);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(-2) != 0);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "d:tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == -2);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(-2) != 0);
 
         if (hideEmptyTags)
         {
             // </d:tag>
-            PEGASUS_ASSERT(p.next(entry));
-            PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
-            PEGASUS_ASSERT(!strcmp(entry.text, "d:tag"));
-            PEGASUS_ASSERT(entry.nsType == -2);
-            PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-            PEGASUS_ASSERT(p.getNamespace(-2) != 0);
+            PEGASUS_TEST_ASSERT(p.next(entry));
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::END_TAG);
+            PEGASUS_TEST_ASSERT(!strcmp(entry.text, "d:tag"));
+            PEGASUS_TEST_ASSERT(entry.nsType == -2);
+            PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+            PEGASUS_TEST_ASSERT(p.getNamespace(-2) != 0);
         }
 
         // <b:tag xmlns:b=\"urn:1\">
-        PEGASUS_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(p.next(entry));
 
         if (hideEmptyTags)
-            PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::START_TAG);
         else
-            PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
 
-        PEGASUS_ASSERT(!strcmp(entry.text, "b:tag"));
-        PEGASUS_ASSERT(entry.nsType == 1);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(-2) == 0);
-        PEGASUS_ASSERT(p.getNamespace(0) != 0);
-        PEGASUS_ASSERT(p.getNamespace(1) != 0);
-        PEGASUS_ASSERT(p.getNamespace(2) == 0);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "b:tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 1);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(-2) == 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(0) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(1) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(2) == 0);
 
         if (hideEmptyTags)
         {
             // </b:tag xmlns:b=\"urn:1\">
-            PEGASUS_ASSERT(p.next(entry));
-            PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
-            PEGASUS_ASSERT(!strcmp(entry.text, "b:tag"));
-            PEGASUS_ASSERT(entry.nsType == 1);
-            PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-            PEGASUS_ASSERT(p.getNamespace(-2) == 0);
-            PEGASUS_ASSERT(p.getNamespace(0) != 0);
-            PEGASUS_ASSERT(p.getNamespace(1) != 0);
-            PEGASUS_ASSERT(p.getNamespace(2) == 0);
+            PEGASUS_TEST_ASSERT(p.next(entry));
+            PEGASUS_TEST_ASSERT(entry.type == XmlEntry::END_TAG);
+            PEGASUS_TEST_ASSERT(!strcmp(entry.text, "b:tag"));
+            PEGASUS_TEST_ASSERT(entry.nsType == 1);
+            PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+            PEGASUS_TEST_ASSERT(p.getNamespace(-2) == 0);
+            PEGASUS_TEST_ASSERT(p.getNamespace(0) != 0);
+            PEGASUS_TEST_ASSERT(p.getNamespace(1) != 0);
+            PEGASUS_TEST_ASSERT(p.getNamespace(2) == 0);
         }
 
         // </a:tag>
-        PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
-        PEGASUS_ASSERT(!strcmp(entry.text, "a:tag"));
-        PEGASUS_ASSERT(entry.nsType == 0);
-        PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
-        PEGASUS_ASSERT(p.getNamespace(0) != 0);
-        PEGASUS_ASSERT(p.getNamespace(1) != 0);
+        PEGASUS_TEST_ASSERT(p.next(entry));
+        PEGASUS_TEST_ASSERT(entry.type == XmlEntry::END_TAG);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.text, "a:tag"));
+        PEGASUS_TEST_ASSERT(entry.nsType == 0);
+        PEGASUS_TEST_ASSERT(!strcmp(entry.localName, "tag"));
+        PEGASUS_TEST_ASSERT(p.getNamespace(0) != 0);
+        PEGASUS_TEST_ASSERT(p.getNamespace(1) != 0);
     }
 
     // Test undeclared namespace

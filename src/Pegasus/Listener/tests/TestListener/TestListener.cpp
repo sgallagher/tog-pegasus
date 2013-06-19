@@ -197,7 +197,7 @@ int main()
     try
     {
         const char *pegasusHome = getenv("PEGASUS_HOME");
-        PEGASUS_ASSERT(pegasusHome);
+        PEGASUS_TEST_ASSERT(pegasusHome);
 
         int portNumber = 2008;
         CIMListener listener(portNumber);

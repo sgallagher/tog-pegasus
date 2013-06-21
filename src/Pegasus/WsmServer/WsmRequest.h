@@ -87,8 +87,7 @@ public:
           queueId(0),
           requestEpr(false),
           maxEnvelopeSize(0),
-          _type(type),
-          _msgType(msgType)
+          _type(type)
     {
     }
 
@@ -133,7 +132,6 @@ public:
 private:
 
     WsmOperationType _type;
-    MessageType _msgType;
 };
 
 class WxfGetRequest : public WsmRequest

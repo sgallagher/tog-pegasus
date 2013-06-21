@@ -74,9 +74,8 @@ class ProviderAgentRequest
 {
 public:
     ProviderAgentRequest(ProviderAgent* agent_, CIMRequestMessage* request_)
+        :agent(agent_),request(request_)
     {
-        agent = agent_;
-        request = request_;
     }
 
     ProviderAgent* agent;
@@ -204,11 +203,17 @@ void ProviderAgent::run()
                 //
                 CIMStopAllProvidersRequestMessage *stopRequest =
                     new CIMStopAllProvidersRequestMessage("0", QueueIdStack(0));
-                Uint64 shutdownTimeout = 0;
-                StringConversion::stringToUnsignedInteger(
-                    PEGASUS_DEFAULT_SHUTDOWN_TIMEOUT_SECONDS_STRING,
-                    shutdownTimeout);
-                stopRequest->shutdownTimeout= Uint32(shutdownTimeout);
+
+                ConfigManager *cfgManager = ConfigManager::getInstance();
+                const char* shutdnTimestr =
+                    (const char*)cfgManager ->getCurrentValue(
+                         "shutdownTimeout").getCString();
+                Uint64 tmp = 0;
+
+                StringConversion::stringToUnsignedInteger ( shutdnTimestr, tmp);
+                Uint32 shutdownTimeout = Uint32(tmp);
+
+                stopRequest->shutdownTimeout = shutdownTimeout;
                 _processStopAllProvidersRequest(stopRequest);
             }
         }
@@ -216,7 +221,6 @@ void ProviderAgent::run()
         {
             //
             // Stop agent process when no more providers are loaded
-            //
             try
             {
                 if (!_providerManagerRouter.hasActiveProviders() &&
@@ -226,9 +230,14 @@ void ProviderAgent::run()
                         "No active providers.  Exiting.");
                     _terminating = true;
                 }
-                else
+                else //clean up threads may still be busy
                 {
                     _threadPool.cleanupIdleThreads();
+                    if (!_providerManagerRouter.hasActiveProviders() &&
+                              (_threadPool.runningCount() == 0)) 
+                    {
+                        _terminating = true;
+                    }
                 }
             }
             catch (...)
@@ -252,14 +261,12 @@ Boolean ProviderAgent::_readAndProcessRequest()
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
         "ProviderAgent::_readAndProcessRequest");
 
-    CIMRequestMessage* request;
 
     //
     // Read the request from CIM Server
     //
     CIMMessage* cimMessage;
     AnonymousPipe::Status readStatus = _pipeFromServer->readMessage(cimMessage);
-    request = dynamic_cast<CIMRequestMessage*>(cimMessage);
 
     // Read operation was interrupted
     if (readStatus == AnonymousPipe::STATUS_INTERRUPT)
@@ -295,6 +302,9 @@ Boolean ProviderAgent::_readAndProcessRequest()
         PEG_METHOD_EXIT();
         return false;
     }
+
+    CIMRequestMessage* request = 0;
+    request = dynamic_cast<CIMRequestMessage*>(cimMessage);
 
     // The message was not a request message.
     if (request == 0)
@@ -338,6 +348,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
         if (!_providerManagerRouter.hasActiveProviders())
         {
             // No active providers, so do not start an idle unload thread
+            PEG_METHOD_EXIT();
             return false;
         }
 
@@ -932,8 +943,10 @@ void ProviderAgent::_unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_unloadIdleProviders");
     ThreadStatus rtn = PEGASUS_THREAD_OK;
+
     // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
     _unloadIdleProvidersBusy++;
+
     if ((_unloadIdleProvidersBusy.get() == 1) &&
         ((rtn =_threadPool.allocate_and_awaken(
              (void*)this,
@@ -952,6 +965,23 @@ void ProviderAgent::_unloadIdleProviders()
          PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
              "Could not allocate thread to unload idle providers.");
     }
+
+    // Wait for the cleanup thread to finish
+    ConfigManager *cfgManager = ConfigManager::getInstance();
+    const char* shutdnTimestr = (const char*)cfgManager ->getCurrentValue(
+                         "shutdownTimeout").getCString();
+    Uint64 tmp = 0;
+
+    StringConversion::stringToUnsignedInteger ( shutdnTimestr, tmp);
+    Uint32 shutdownTimeout = Uint32(tmp);
+
+    while (_unloadIdleProvidersBusy.get() > 0 && shutdownTimeout > 0 )
+    {
+        Threads::yield();
+        Threads::sleep(1000);
+        shutdownTimeout--;
+    }
+
     PEG_METHOD_EXIT();
 }
 
@@ -992,7 +1022,7 @@ ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
     }
 
     // PEG_METHOD_EXIT();    // Note: This statement could throw an exception
-    return(ThreadReturnType(0));
+    return ThreadReturnType(0);
 }
 
 void ProviderAgent::_terminateSignalHandler(

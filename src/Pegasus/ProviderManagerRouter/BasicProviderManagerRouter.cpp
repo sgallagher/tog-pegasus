@@ -551,7 +551,7 @@ void BasicProviderManagerRouter::idleTimeCleanup()
     Array<ProviderManagerContainer*> pmcs;
     {
         ReadLock tableLock(_providerManagerTableLock);
-        for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+        for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; ++i)
         {
             pmcs.append(_providerManagerTable[i]);
         }
@@ -561,7 +561,7 @@ void BasicProviderManagerRouter::idleTimeCleanup()
     // Unload idle providers in each of the active ProviderManagers
     // _providerManagerTableLock while unloading idle providers
     //
-    for (Uint32 i = 0; i < pmcs.size(); i++)
+    for (Uint32 i = 0; i < pmcs.size(); ++i)
     {
         pmcs[i]->getProviderManager()->unloadIdleProviders();
     }

@@ -151,6 +151,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "ThreadPool::_loop: Failure getting sleep_sem or "
                     "lastActivityTime.");
+            PEGASUS_ASSERT(false);
             pool->_idleThreads.remove(myself);
             pool->_currentThreads--;
             PEG_METHOD_EXIT();
@@ -167,6 +168,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ThreadPool::_loop: failure on sleep_sem->wait().");
+                PEGASUS_ASSERT(false);
                 pool->_idleThreads.remove(myself);
                 pool->_currentThreads--;
                 PEG_METHOD_EXIT();
@@ -196,6 +198,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ThreadPool::_loop: Failure accessing work func, work "
                         "parm, or blocking sem.");
+                PEGASUS_ASSERT(false);
                 pool->_idleThreads.remove(myself);
                 pool->_currentThreads--;
                 PEG_METHOD_EXIT();
@@ -253,6 +256,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ThreadPool::_loop: Adding thread to idle pool failed.");
+                PEGASUS_ASSERT(false);
                 pool->_currentThreads--;
                 PEG_METHOD_EXIT();
                 return (ThreadReturnType) 1;

@@ -76,7 +76,7 @@ public:
 
 private:
 
-    Message* _doRequest(
+   Boolean  _doRequest(
         WsmRequest * request,
         WsmOperationType expectedResponseMessageType);
 

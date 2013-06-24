@@ -90,7 +90,7 @@ void WSMANExportClient::exportIndication(
             _wsmanResponseDecoder->setContentLanguages(contentLanguages);
         }
 
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
+        PEG_TRACE ((TRC_EXPORT_CLIENT, Tracer::LEVEL4,
             "Exporting %s Indication for destination %s:%d%s",
             (const char*)(instanceName.getClassName().getString().
             getCString()),
@@ -98,14 +98,19 @@ void WSMANExportClient::exportIndication(
             (const char*)(url.getCString())));
 
 
-        AutoPtr<Message> message(_doRequest(request,WS_EXPORT_INDICATION));
-        
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-            "%s Indication for destination %s:%d%s exported successfully",
-            (const char*)(instanceName.getClassName().getString().
-            getCString()),
-            (const char*)(_connectHost.getCString()), _connectPortNumber,
-            (const char*)(url.getCString())));
+        Boolean ackReceived = _doRequest(request,WS_EXPORT_INDICATION);
+        //ackReceived flag will be true only if the delivery mode is
+        // PUSH_WITH_ACK and if we get acknowledgement from the listner. 
+        if(ackReceived)
+        {
+            PEG_TRACE ((TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                "%s Indication for destination %s:%d%s exported successfully"
+                "and got acknowledgement from the listner",
+                (const char*)(instanceName.getClassName().getString().
+                getCString()),
+                (const char*)(_connectHost.getCString()), _connectPortNumber,
+                (const char*)(url.getCString())));
+        }
     }
     catch (const Exception& e)
     {
@@ -125,7 +130,7 @@ void WSMANExportClient::exportIndication(
     PEG_METHOD_EXIT();
 }
 
-Message* WSMANExportClient::_doRequest(
+Boolean WSMANExportClient::_doRequest(
     WsmRequest * request,
     WsmOperationType expectedResponseMessageType)
     
@@ -148,7 +153,7 @@ Message* WSMANExportClient::_doRequest(
     indicationRequest->httpMethod = HTTP_METHOD__POST;
 
     //Current WSMAN eventing part supports only PUSH and PUSH_WITH_ACK 
-    // delivery mode.So we will deliver teh indication if the delivery 
+    // delivery mode.So we will deliver the indication if the delivery 
     // mode is one of them. 
     if (( _deliveryMode == Push ) || (_deliveryMode == PushWithAck))
     {
@@ -215,13 +220,14 @@ Message* WSMANExportClient::_doRequest(
                 PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
                     "Received expected indication response message.");
                 PEG_METHOD_EXIT();
-                return response.release();
+                return true;
             }
             else if (response->getOperationType() == WSM_FAULT)
             {
                 PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
                         "Received indication failure message.");
                 PEG_METHOD_EXIT();
+                return false;
             }
             else
             {
@@ -242,9 +248,9 @@ Message* WSMANExportClient::_doRequest(
  
         }
         currentTime = TimeValue::getCurrentTime().toMilliseconds();
-
-    }     
+    }
     PEG_METHOD_EXIT();
+    return false;
 }
 
 void WSMANExportClient ::setDeliveryMode(deliveryMode &deliveryMode)

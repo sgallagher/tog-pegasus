@@ -48,10 +48,10 @@ ExportClient::ExportClient(
     Monitor* monitor)
     :MessageQueue(queueId),
     _httpConnector(httpConnector),
+    _monitor(monitor),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
-    _httpConnection(0),
-    _monitor(monitor)
+    _httpConnection(0)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT,
        "ExportClient::ExportClient()");

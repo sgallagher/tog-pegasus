@@ -34,6 +34,9 @@
 #ifndef Pegasus_inl_h 
 # define Pegasus_inl_h
 
+// For bad alloc
+#include<new>
+
 /* 
  * This file is intended to hold small convnient inline functions.
  * Please do not include big functions here.  

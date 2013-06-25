@@ -81,9 +81,9 @@ The way to use the Pegasus::slp_service_agent class is as follows:
     (CIM_InteropSchemaNamespace=/root/PG_Interop)\n"
 
 // after this number of seconds, unregister and terminate.
-    Uint32 testTimer = 300;
+    Uint32 testTimer = 30;
 static Boolean verbose;
-
+#define VCOUT if (verbose) cout
 // static construct/destruct of our service agent object
 
 slp_service_agent slp_agent;
@@ -163,7 +163,6 @@ int main(int argc, char **argv)
         }
         else
         {
-
             const char url1[] =
                 "service:serviceid:98432A98-B879E8FF-80342A89-43280B89C";
             if (verbose)
@@ -173,10 +172,14 @@ int main(int argc, char **argv)
                     << LONG_ATTRIBUTE_STRING
                     << " registration type= " << registrationType << endl;
             }
-            slp_agent.test_registration(url1,
+            Uint32 testRegReturn = slp_agent.test_registration(url1,
                 LONG_ATTRIBUTE_STRING,
                 registrationType,
                 slpScope);
+
+            VCOUT << "return code from slp_agent.test_registration = "
+                 << testRegReturn << endl;
+            PEGASUS_TEST_ASSERT(testRegReturn == 0);
 
             // register 4 services.
 
@@ -196,7 +199,7 @@ int main(int argc, char **argv)
                 0xffff))
             {
                 //negative test case
-                cout<<"test case passed ! " << endl;                   
+                cout<<"Negative test case passed ! " << endl;
             }
 
             const char url2[] = "service:wbem.ibm://localhost";
@@ -249,13 +252,13 @@ int main(int argc, char **argv)
                 cout << "Registration error." << endl;
                 exit(1);
             }
-             
-#ifdef PEGASUS_ENABLE_IPV6 
+
+#ifdef PEGASUS_ENABLE_IPV6
             const char url5[] = "service:wbem.ibm://::1";
 
             if (verbose)
             {
-                cout << "Register: " << url3 << endl;
+                cout << "Register IPV6: " << url5 << endl;
             }
 
             if (!slp_agent.srv_register(url5,
@@ -267,12 +270,12 @@ int main(int argc, char **argv)
                 cout << "Registration error." << endl;
                 exit(1);
             }
-            
+
             const char url6[] = "service:wbem.ibm://fe80::250:56ff:fead:5588";
 
             if (verbose)
             {
-                cout << "Register: " << url3 << endl;
+                cout << "Register IPV6: " << url6 << endl;
             }
 
             if (!slp_agent.srv_register(url6,
@@ -286,13 +289,14 @@ int main(int argc, char **argv)
             }
 #endif
         }
+
         // start the background thread - nothing is actually advertised
         // until this function returns.
 
         if (verbose)
         {
             cout << "Start Listener and listen for " << testTimer
-                << " seconds.";
+                << " seconds." << endl;
         }
 
         slp_agent.start_listener();

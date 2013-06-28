@@ -5737,6 +5737,13 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.ProviderAgent.ProviderAgent.PROVIDERS_FAILED_TO_CLEANUP:string {"PGS14006: Providers in the agent \"{0}\" have failed to cleanup within \"{1}\" seconds during the shutdown. Provider agent terminated forcibly."}
 
+        /**
+        * @note  PGS14007
+        *    Substitution {0} is the provider agent name.
+        *    Substitution {1} is the shutdown timeout in seconds
+        */
+        ProviderManager.ProviderAgent.ProviderAgent.PROVIDERS_FAILED_TO_UNLOAD:string {"PGS14007: Provider agent \"{0}\" failed to unload and exit within \"{1}\" seconds during idle cleanup. It will be exited in the next idle clean up."}
+
         // ==========================================================
         // Messages for Common.Monitor
         //  Please use message prefix "PGS14200"

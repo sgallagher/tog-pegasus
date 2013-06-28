@@ -140,6 +140,21 @@ ProviderAgent::~ProviderAgent()
     PEG_METHOD_EXIT();
 }
 
+//get the shutdown timeout value
+static Uint32 getShutdownTimeout()
+{
+    ConfigManager *cfgManager = ConfigManager::getInstance();
+    String shutdnTimestr = cfgManager ->getCurrentValue( "shutdownTimeout");
+
+    Uint64 shutdownTimeout = 0;
+
+    StringConversion::decimalStringToUint64(
+            shutdnTimestr.getCString(), shutdownTimeout);
+
+    return (Uint32) shutdownTimeout;
+}
+
+
 void ProviderAgent::run()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::run");
@@ -204,16 +219,7 @@ void ProviderAgent::run()
                 CIMStopAllProvidersRequestMessage *stopRequest =
                     new CIMStopAllProvidersRequestMessage("0", QueueIdStack(0));
 
-                ConfigManager *cfgManager = ConfigManager::getInstance();
-                const char* shutdnTimestr =
-                    (const char*)cfgManager ->getCurrentValue(
-                         "shutdownTimeout").getCString();
-                Uint64 tmp = 0;
-
-                StringConversion::stringToUnsignedInteger ( shutdnTimestr, tmp);
-                Uint32 shutdownTimeout = Uint32(tmp);
-
-                stopRequest->shutdownTimeout = shutdownTimeout;
+                stopRequest->shutdownTimeout = getShutdownTimeout();
                 _processStopAllProvidersRequest(stopRequest);
             }
         }
@@ -260,7 +266,6 @@ Boolean ProviderAgent::_readAndProcessRequest()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
         "ProviderAgent::_readAndProcessRequest");
-
 
     //
     // Read the request from CIM Server
@@ -352,16 +357,20 @@ Boolean ProviderAgent::_readAndProcessRequest()
             return false;
         }
 
-        try
+        if(!_unloadIdleProviders())
         {
-            _unloadIdleProviders();
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
+                "unloading can not be completed now.");
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoaderParms(
+                    "ProviderManager.ProviderAgent.ProviderAgent."
+                    "PROVIDERS_FAILED_TO_UNLOAD",
+                    "Provider agent \"{0}\" failed to unload and exit within"
+                    "\"{1}\" seconds during idle cleanup."
+                    " It will be exited in the next idle clean up.",
+                    _agentId, getShutdownTimeout() ));
         }
-        catch (...)
-        {
-            // Ignore exceptions from idle provider unloading
-            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
-                "Ignoring exception from _unloadIdleProviders()");
-        }
+
         PEG_METHOD_EXIT();
         return false;
     }
@@ -910,50 +919,58 @@ void ProviderAgent::_responseChunkCallback(
     PEG_METHOD_EXIT();
 }
 
-void ProviderAgent::_unloadIdleProviders()
+
+Boolean ProviderAgent::_unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_unloadIdleProviders");
-    ThreadStatus rtn = PEGASUS_THREAD_OK;
-
-    // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
-    _unloadIdleProvidersBusy++;
-
-    if ((_unloadIdleProvidersBusy.get() == 1) &&
-        ((rtn =_threadPool.allocate_and_awaken(
-             (void*)this,
-             ProviderAgent::_unloadIdleProvidersHandler)) == PEGASUS_THREAD_OK))
+    try
     {
-        // _unloadIdleProvidersBusy is decremented in
-        // _unloadIdleProvidersHandler
+        ThreadStatus rtn = PEGASUS_THREAD_OK;
+
+        //Ensure that only one _unloadIdleProvidersHandler thread runs at a time
+        _unloadIdleProvidersBusy++;
+
+        if ((_unloadIdleProvidersBusy.get() == 1) &&
+                ((rtn =_threadPool.allocate_and_awaken(
+                    (void*)this,
+                    ProviderAgent::_unloadIdleProvidersHandler))
+                 == PEGASUS_THREAD_OK))
+        {
+            // _unloadIdleProvidersBusy is decremented in
+            // _unloadIdleProvidersHandler
+        }
+        else
+        {
+            // If we fail to allocate a thread, don't retry now.
+            _unloadIdleProvidersBusy--;
+        }
+        if (rtn != PEGASUS_THREAD_OK)
+        {
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
+                    "Could not allocate thread to unload idle providers.");
+        }
+
+        // Wait for the cleanup thread to finish
+        Uint32 shutdownTimeout = getShutdownTimeout();
+        while (_unloadIdleProvidersBusy.get() > 0 && shutdownTimeout > 0 )
+        {
+            Threads::yield();
+            Threads::sleep(1000);
+            shutdownTimeout--;
+        }
     }
-    else
+    catch ( ...)
     {
-        // If we fail to allocate a thread, don't retry now.
-        _unloadIdleProvidersBusy--;
-    }
-    if (rtn != PEGASUS_THREAD_OK)
-    {
-         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
-             "Could not allocate thread to unload idle providers.");
-    }
+         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
+             "Unexpected exception during unload idle providers.");
+         
+         PEG_METHOD_EXIT();
+         return false;
 
-    // Wait for the cleanup thread to finish
-    ConfigManager *cfgManager = ConfigManager::getInstance();
-    const char* shutdnTimestr = (const char*)cfgManager ->getCurrentValue(
-                         "shutdownTimeout").getCString();
-    Uint64 tmp = 0;
-
-    StringConversion::stringToUnsignedInteger ( shutdnTimestr, tmp);
-    Uint32 shutdownTimeout = Uint32(tmp);
-
-    while (_unloadIdleProvidersBusy.get() > 0 && shutdownTimeout > 0 )
-    {
-        Threads::yield();
-        Threads::sleep(1000);
-        shutdownTimeout--;
     }
 
     PEG_METHOD_EXIT();
+    return _unloadIdleProvidersBusy.get() == 0;
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL

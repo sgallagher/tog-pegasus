@@ -39,6 +39,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Call the appropriate handleQueryRequest handler for the defined
+// query language type or return false if the language type not supported.
 Boolean QuerySupportRouter::routeHandleExecQueryRequest(
     CIMOperationRequestDispatcher* opThis,
     CIMExecQueryRequestMessage* msg)
@@ -49,37 +51,36 @@ Boolean QuerySupportRouter::routeHandleExecQueryRequest(
     else if(msg->queryLanguage == "DMTF:CQL")
         ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
 #endif
-    else return false;
+    else
+    {
+        return false;
+    }
 
     return true;
 }
 
-void QuerySupportRouter::routeHandleExecQueryResponseAggregation(
-    CIMOperationRequestDispatcher* opThis,
-    OperationAggregate* poA)
-{
-    if (poA->_queryLanguage=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->
-            handleQueryResponseAggregation(poA);
-#ifdef PEGASUS_ENABLE_CQL
-    else if(poA->_queryLanguage == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->
-            handleQueryResponseAggregation(poA);
-#endif
-}
-
-void QuerySupportRouter::routeApplyQueryToEnumeration(
-    CIMOperationRequestDispatcher* opThis,
-    CIMResponseMessage* msg,
-    QueryExpressionRep* query)
+// Get pointer to the correct function.  Note that since
+// the queryLanguage has already been tested in
+// routeHandleExecQueryRequest the assert should be unreachable.
+applyQueryFunctionPtr QuerySupportRouter::getFunctPtr(
+   CIMOperationRequestDispatcher* opThis,
+   QueryExpressionRep* query)
 {
     if (query->getQueryLanguage()=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->
-            applyQueryToEnumeration(msg,query);
+    {
+        return &((WQLOperationRequestDispatcher*)opThis)->
+            applyQueryToEnumeration;
+    }
 #ifdef PEGASUS_ENABLE_CQL
     else if(query->getQueryLanguage() == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->
-            applyQueryToEnumeration(msg,query);
+    {
+        return &((CQLOperationRequestDispatcher*)opThis)->
+            applyQueryToEnumeration;
+    }
+    else
+    {
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+    }
 #endif
 }
 

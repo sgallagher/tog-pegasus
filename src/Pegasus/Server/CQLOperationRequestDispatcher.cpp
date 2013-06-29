@@ -54,7 +54,6 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
 
     for (int i = a.size() - 1; i >= 0; i--)
     {
-
         try
         {
             if (qs->evaluate(a[i]))
@@ -74,114 +73,6 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
             a.remove(i);
         }
     }
-    PEG_METHOD_EXIT();
-}
-
-void CQLOperationRequestDispatcher::handleQueryResponseAggregation(
-    OperationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CQLOperationRequestDispatcher::handleQueryResponseAggregation");
-    Uint32 numberResponses = poA->numberResponses();
-
-    if (numberResponses == 0)
-        return;
-
-    CIMResponseMessage* response = poA->getResponse(0);
-    CIMExecQueryResponseMessage* toResponse = 0;
-    Uint32 startIndex = 0;
-    Uint32 endIndex = numberResponses - 1;
-    Boolean manyResponses = true;
-    if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
-    {
-        // Create an ExecQuery response from an EnumerateInstances request
-        CIMOperationRequestMessage* request = poA->getRequest();
-        AutoPtr<CIMExecQueryResponseMessage> query(
-            new CIMExecQueryResponseMessage(
-                request->messageId,
-                CIMException(),
-                request->queueIds.copyAndPop()));
-        query->syncAttributes(request);
-        toResponse = query.release();
-    }
-    else
-    {
-        toResponse = (CIMExecQueryResponseMessage*) response;
-        manyResponses = false;
-    }
-
-    // Work backward and delete each response off the end of the array
-    for (Uint32 i = endIndex; i >= startIndex; i--)
-    {
-        if (manyResponses)
-        {
-            response = poA->getResponse(i);
-        }
-        if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
-        {
-            // convert enumerate instances responses to exec query responses
-            applyQueryToEnumeration(response, poA->_query);
-            CIMEnumerateInstancesResponseMessage* fromResponse =
-                (CIMEnumerateInstancesResponseMessage*) response;
-            CIMClass cimClass;
-
-            Boolean clsRead=false;
-            Array<CIMInstance>& a =
-                fromResponse->getResponseData().getInstances();
-            for (Uint32 j = 0, m = a.size();
-                j < m; j++)
-            {
-                CIMObject co=CIMObject(a[j]);
-                CIMObjectPath op=co.getPath();
-                const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
-                if (kbs.size() == 0)
-                {     // no path set why ?
-                    if (clsRead == false)
-                    {
-                        cimClass = _repository->getClass(
-                            poA->_nameSpace, op.getClassName(),
-                            false,true,false, CIMPropertyList());
-                        clsRead=true;
-                    }
-                    op = a[j].buildPath(cimClass);
-                }
-                op.setNameSpace(poA->_nameSpace);
-                op.setHost(System::getHostName());
-                co.setPath(op);
-                if (manyResponses)
-                    toResponse->getResponseData().appendObject(co);
-            }
-        }
-        else
-        {
-            CIMExecQueryResponseMessage* fromResponse =
-                (CIMExecQueryResponseMessage*) response;
-
-            CIMResponseData & from = fromResponse->getResponseData();
-            from.completeHostNameAndNamespace(
-                System::getHostName(),
-                poA->_nameSpace);
-
-            if (manyResponses)
-            {
-                toResponse->getResponseData().appendResponseData(from);
-            }
-        }
-        if (manyResponses)
-        {
-            poA->deleteResponse(i);
-        }
-
-        if (i == 0)
-            break;
-    } // for all responses in response list
-
-    // if we started with an enumerateInstances repsonse, then add it to overall
-    if ((startIndex == 0) && manyResponses)
-    {
-        poA->appendResponse(toResponse);
-    }
-
     PEG_METHOD_EXIT();
 }
 
@@ -247,7 +138,6 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         }
     }
 
-    //// KS_TODO CAN we call standard exception function to build and enqueue
     if (exception)
     {
         CIMResponseMessage* response = request->buildResponse();
@@ -376,7 +266,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
                 getQueueId(),
                 String(),
                 new CIMExecQueryRequestMessage(*request),
-                    poA, response);
+                poA, response);
         }
     } // if isDefaultInstanceProvider
     else
@@ -395,7 +285,9 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
         // this class is NOT registered to a provider - skip
         if (!providerInfo.hasProvider)
+        {
             continue;
+        }
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Routing ExecQuery request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
@@ -459,7 +351,6 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
                 requestCopy.release(), poA);
         }
     } // for all classes and derived classes
-
 
     PEG_METHOD_EXIT();
 }

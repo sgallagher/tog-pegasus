@@ -4495,12 +4495,142 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     PEG_METHOD_EXIT();
 }
 
+
+// Aggregator for execQuery Response Aggregation.
+// Aggregates responses into a single response and maps the responses back
+// to ExecQuery responses.
 void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
     OperationAggregate* poA)
 {
-    QuerySupportRouter::routeHandleExecQueryResponseAggregation(this, poA);
-}
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::handleExecQueryResponseAggregation");
 
+    Uint32 numberResponses = poA->numberResponses();
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "CIMOperationRequestDispatcher::ExecQuery Response - "
+            "Name Space: %s  Class name: %s Response Count: %u",
+        CSTRING(poA->_nameSpace.getString()),
+        CSTRING(poA->_className.getString()),
+        numberResponses));
+
+    if (numberResponses != 0)
+    {
+        CIMResponseMessage* response = poA->getResponse(0);
+        CIMExecQueryResponseMessage* toResponse = 0;
+        Uint32 startIndex = 0;
+        Uint32 endIndex = numberResponses - 1;
+        Boolean manyResponses = true;
+
+        // Define pointer to the applyQueryToEnumeration function appropriate
+        // for the query language defined.
+        // NOTE: typedef applyQueryToEnumerationPtr is defined in
+        // QuerySupportRouter.
+        applyQueryFunctionPtr applyQueryToEnumeration =  NULL;
+        applyQueryToEnumeration =
+            QuerySupportRouter::getFunctPtr(this, poA->_query);
+
+        if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
+        {
+            // Create an ExecQuery response from an EnumerateInstances request
+            CIMOperationRequestMessage* request = poA->getRequest();
+            AutoPtr<CIMExecQueryResponseMessage> query(
+                new CIMExecQueryResponseMessage(
+                    request->messageId,
+                    CIMException(),
+                    request->queueIds.copyAndPop()));
+            query->syncAttributes(request);
+            toResponse = query.release();
+        }
+        else
+        {
+            toResponse = (CIMExecQueryResponseMessage*) response;
+            manyResponses = false;
+        }
+
+        // Work backward and delete each response off the end of the array
+        for (Uint32 i = endIndex; i >= startIndex; i--)
+        {
+            if (manyResponses)
+            {
+                response = poA->getResponse(i);
+            }
+
+            if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
+            {
+                // convert enumerate instances response to exec query response
+                // This is an indirect call to the appropriate function in
+                // the WQL..., CQL, ... etc Class
+                applyQueryToEnumeration(response, poA->_query);
+                CIMEnumerateInstancesResponseMessage* fromResponse =
+                    (CIMEnumerateInstancesResponseMessage*) response;
+                CIMClass cimClass;
+
+                Boolean clsRead=false;
+                Array<CIMInstance>& a =
+                    fromResponse->getResponseData().getInstances();
+
+                for (Uint32 j = 0, m = a.size(); j < m; j++)
+                {
+                    CIMObject co=CIMObject(a[j]);
+                    CIMObjectPath op=co.getPath();
+                    const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
+
+                    if (kbs.size() == 0)
+                    {     // no path set why ?
+                        if (clsRead == false)
+                        {
+                            cimClass = _repository->getClass(
+                                poA->_nameSpace, op.getClassName(),
+                                false,true,false, CIMPropertyList());
+                            clsRead=true;
+                        }
+                        op = a[j].buildPath(cimClass);
+                    }
+                    op.setNameSpace(poA->_nameSpace);
+                    op.setHost(System::getHostName());
+                    co.setPath(op);
+                    if (manyResponses)
+                    {
+                        toResponse->getResponseData().appendObject(co);
+                    }
+                }
+            }
+            else
+            {
+                CIMExecQueryResponseMessage* fromResponse =
+                    (CIMExecQueryResponseMessage*) response;
+
+                CIMResponseData & from = fromResponse->getResponseData();
+                from.completeHostNameAndNamespace(
+                    System::getHostName(),
+                    poA->_nameSpace);
+
+                if (manyResponses)
+                {
+                    toResponse->getResponseData().appendResponseData(from);
+                }
+            }
+            if (manyResponses)
+            {
+                poA->deleteResponse(i);
+            }
+
+            if (i == 0)
+            {
+                break;
+            }
+        } // for all responses in response list
+
+        // If we started with an enumerateInstances repsonse, then add it
+        // to overall
+        if ((startIndex == 0) && manyResponses)
+        {
+            poA->appendResponse(toResponse);
+        }
+    }
+    PEG_METHOD_EXIT();
+}
 /*******End of the functions for aggregation***************************/
 
 /**

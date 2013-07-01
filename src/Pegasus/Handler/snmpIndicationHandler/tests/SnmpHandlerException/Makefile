@@ -30,6 +30,10 @@ ROOT = ../../../../../..
 DIR = Pegasus/Handler/snmpIndicationHandler/tests/SnmpHandlerException
 include $(ROOT)/mak/config.mak
 
+ifneq ($(PEGASUS_USE_NET_SNMP), true)
+   $(error PEGASUS_USE_NET_SNMP option is not set)
+endif
+
 LIBRARIES = \
     pegconfig \
     pegrepository \
@@ -52,10 +56,10 @@ SOURCES = TestSnmpHandlerException.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP), true)
 	@$(PROGRAM)
 else
-	@ $(ECHO) +++++ PEGASUS_USE_NET_SNMP is not set, test can not be run
+	@ $(ECHO) +++++ PEGASUS_USE_NET_SNMP is not set to true, test can not be run
 endif
 
 poststarttests:

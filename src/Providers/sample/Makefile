@@ -43,12 +43,12 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	CMPI
 endif
 
-ifdef PEGASUS_USE_EMANATE
+ifeq ($(PEGASUS_USE_EMANATE), true)
     TEST_DIRS += \
 	SNMPIndicationProvider
 endif
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP), true)
     TEST_DIRS += \
 	SNMPIndicationProvider
 endif

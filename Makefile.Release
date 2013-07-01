@@ -143,7 +143,7 @@ PEGASUS_LIBRARIES += \
    libInteropProvider
 endif
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
    PEGASUS_LIBRARIES += \
       libsnmpIndicationHandler
 endif
@@ -176,7 +176,7 @@ ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
        libJMPIProviderManager
 endif
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
 PEGASUS_LIBRARY_LINKS += \
    libsnmpIndicationHandler
 endif
@@ -814,7 +814,7 @@ _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-buildRequires.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
 	@$(ECHO-E) "BuildRequires:      net-snmp-devel" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 endif
@@ -825,7 +825,7 @@ endif
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-requires.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
 	@$(ECHO-E) "Requires:           net-snmp" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 endif

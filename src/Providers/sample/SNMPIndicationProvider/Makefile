@@ -30,6 +30,12 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
+ifneq ($(PEGASUS_USE_NET_SNMP), true)
+   ifneq ($(PEGASUS_USE_EMANATE), true)
+      $(error PEGASUS SNMP option is not set to true)
+   endif
+endif
+
 DIR = Providers/sample/SNMPIndicationProvider
 
 LIBRARY = nsatrap
@@ -38,7 +44,7 @@ LIBRARIES = \
     pegprovider \
     pegclient \
     pegcommon
-	
+
 SOURCES = \
 	SNMPIndicationProviderMain.cpp \
 	SNMPIndicationProvider.cpp

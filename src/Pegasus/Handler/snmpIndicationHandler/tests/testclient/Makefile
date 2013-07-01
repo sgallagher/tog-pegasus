@@ -37,7 +37,7 @@ LIBRARIES = \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP), true)
         ifdef PEGASUS_NET_SNMP_LIB_DIR
             EXTRA_LIBRARIES += -L$(PEGASUS_NET_SNMP_LIB_DIR)
         endif
@@ -66,10 +66,10 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP), true)
 	$(MAKE) wql_4_2
 else
-	 @ $(ECHO) +++++ PEGASUS_USE_NET_SNMP is not set, test can not be run
+	 @ $(ECHO) +++++ PEGASUS_USE_NET_SNMP is not set to true, test can not be run
 endif
 
 wql_4_2:

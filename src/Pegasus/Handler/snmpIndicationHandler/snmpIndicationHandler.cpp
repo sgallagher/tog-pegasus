@@ -43,8 +43,6 @@
 # include "snmpDeliverTrap_emanate.h"
 #elif defined (PEGASUS_USE_NET_SNMP)
 # include "snmpDeliverTrap_netsnmp.h"
-#else
-# include "snmpDeliverTrap_stub.h"
 #endif
 
 #include <Pegasus/Common/MessageLoader.h>
@@ -62,8 +60,6 @@ snmpIndicationHandler::snmpIndicationHandler()
     _snmpTrapSender = new snmpDeliverTrap_emanate();
 #elif defined (PEGASUS_USE_NET_SNMP)
     _snmpTrapSender = new snmpDeliverTrap_netsnmp();
-#else
-    _snmpTrapSender = new snmpDeliverTrap_stub();
 #endif
 
     PEG_METHOD_EXIT();

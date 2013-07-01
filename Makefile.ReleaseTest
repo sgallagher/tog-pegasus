@@ -103,7 +103,7 @@ PEGASUS_TEST_PROVIDERS = \
    libIndicationStressTestConsumer \
    libIndicationStressTestProvider
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
    PEGASUS_TEST_PROVIDERS += \
       libIndicationTestProvider
 endif
@@ -114,7 +114,7 @@ POSTSTARTTEST_FILES = \
    TestPegClientInvokeMethod2 \
    TestIndicationStressTest
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
    POSTSTARTTEST_FILES += \
       TestSnmpHandler
 endif
@@ -127,7 +127,7 @@ POSTSTARTTEST_CMDS = \
    $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@run@@100@@1 \
    $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@cleanup
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP),true)
    POSTSTARTTEST_CMDS += \
    $(PEGASUS_TEST_DIR)/bin/TestSnmpHandler@@setup@@WQL \
    $(PEGASUS_TEST_DIR)/bin/TestSnmpHandler@@run@@4@@2 \

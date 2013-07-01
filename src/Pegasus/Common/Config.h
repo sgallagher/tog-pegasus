@@ -102,6 +102,8 @@
 # include <Pegasus/Common/Platform_LINUX_X86_64_CLANG.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_CLANG)
 # include <Pegasus/Common/Platform_LINUX_IX86_CLANG.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_SH4_GNU)
+# include <Pegasus/Common/Platform_LINUX_SH4_GNU.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

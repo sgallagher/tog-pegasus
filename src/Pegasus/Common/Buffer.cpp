@@ -87,7 +87,7 @@ static inline BufferRep* _allocate(Uint32 cap, Uint32 minCap)
 static inline BufferRep* _reallocate(BufferRep* rep, Uint32 cap)
 {
     // Allocate an extra byte for null-termination performed by getData().
-    rep = (BufferRep*)peg_realloc(rep, sizeof(BufferRep) + cap + 1);
+    rep = (BufferRep*)peg_inln_realloc(rep, sizeof(BufferRep) + cap + 1);
 
     rep->cap = cap;
     return rep;

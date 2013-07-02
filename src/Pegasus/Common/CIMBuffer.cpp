@@ -184,7 +184,7 @@ void CIMBuffer::_grow(size_t size)
     if (size > n)
         cap += size;
 
-    _data = (char*)peg_realloc(_data, cap);
+    _data = (char*)peg_inln_realloc(_data, cap);
 
     _end = _data + cap;
     _ptr = _data + m;

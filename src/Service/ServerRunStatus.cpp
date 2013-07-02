@@ -388,7 +388,7 @@ static struct procsinfo* _getProcessData(int& cnt)
             cnt += rtncnt;
             if (rtncnt >= count)
             {
-                proctable=(struct procsinfo *) peg_realloc(
+                proctable = (struct procsinfo *)peg_inln_realloc(
                     (void*)proctable, (size_t) (PROCSIZE*(cnt+count)));
                 if (!proctable)
                 {

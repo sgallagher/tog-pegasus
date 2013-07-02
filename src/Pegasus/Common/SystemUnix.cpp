@@ -169,7 +169,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             isDynamicMemory = true; 
             grpbuflen *= 2;
             
-            grpBuffer = (char*)peg_realloc( grpBuffer, grpbuflen);
+            grpBuffer = (char*)peg_inln_realloc( grpBuffer, grpbuflen);
         }
 
         if (errCode != 0 )

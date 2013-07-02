@@ -40,6 +40,10 @@
 /* 
  * This file is intended to hold small convnient inline functions.
  * Please do not include big functions here.  
+ *
+ * To identify itself as inline function coming from this file, Please
+ * name the function name starting with peg_inln_*. For example
+ * peg_inln_realloc
  */
 
 
@@ -50,7 +54,7 @@
  * It frees old pointer which hold the allocated memory and hence 
  * prevent leak and throws bad_alloc exception.
 */
-inline void* peg_realloc(void *oldPtr, size_t newSize)
+inline void* peg_inln_realloc(void *oldPtr, size_t newSize)
 {
     void *newPtr = NULL;
     if ( (newPtr = ::realloc( oldPtr, newSize) ) == NULL) 

@@ -939,7 +939,7 @@ Array<String> System::getInterfaceAddrs()
     ifc.ifc_len=bsz;
     do
     {
-        ifc.ifc_req=(struct ifreq *)peg_realloc(ifc.ifc_req, bsz);
+        ifc.ifc_req=(struct ifreq *)peg_inln_realloc(ifc.ifc_req, bsz);
         if (!ifc.ifc_req)
         {
             return ips;
@@ -961,7 +961,7 @@ Array<String> System::getInterfaceAddrs()
         }
     } while (1);
 
-    ifc.ifc_req=(struct ifreq *)peg_realloc(ifc.ifc_req, prevsz);
+    ifc.ifc_req=(struct ifreq *)peg_inln_realloc(ifc.ifc_req, prevsz);
 
     struct sockaddr *sa;
     char *cp, *cplim, buff[PEGASUS_INET6_ADDRSTR_LEN];

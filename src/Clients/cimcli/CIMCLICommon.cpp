@@ -473,7 +473,7 @@ static char* charVPrintf(const char* format, va_list ap)
         // expected size and negative is error.
         allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
 
-    } while((p = (char*)peg_realloc(p, allocSize)) != NULL);
+    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
 
     // return error code if realloc failed
     return 0;

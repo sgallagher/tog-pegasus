@@ -62,6 +62,7 @@ void ShutdownProvider::invokeMethod(
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownProvider::invokeMethod()");
 
     // Check to see if the method name is correct
+    // Only shutdown is supported
     if (!methodName.equal(METHOD_NAME_SHUTDOWN))
     {
         PEG_METHOD_EXIT();
@@ -86,10 +87,10 @@ void ShutdownProvider::invokeMethod(
     // Only privileged user can execute this operation
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-        PEG_METHOD_EXIT();
         MessageLoaderParms parms(
             "ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER",
             "Must be a privileged user to execute this CIM operation.");
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
     }
 #endif

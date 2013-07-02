@@ -140,7 +140,7 @@ void ShutdownService::shutdown(
 
         PEG_TRACE_CSTRING(
             TRC_SHUTDOWN,
-            Tracer::LEVEL3,
+            Tracer::LEVEL4,
             "ShutdownService::shutdown - No longer accepting new client "
                 "connection requests.");
 
@@ -157,7 +157,7 @@ void ShutdownService::shutdown(
         //
         _cimserver->shutdown();
 
-        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL4,
             "ShutdownService::shutdown - CIMServer instructed to shut down.");
     }
     catch (Exception& e)

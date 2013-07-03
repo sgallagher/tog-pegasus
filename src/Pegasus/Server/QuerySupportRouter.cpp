@@ -62,11 +62,12 @@ Boolean QuerySupportRouter::routeHandleExecQueryRequest(
 // Get pointer to the correct function.  Note that since
 // the queryLanguage has already been tested in
 // routeHandleExecQueryRequest the assert should be unreachable.
+
 applyQueryFunctionPtr QuerySupportRouter::getFunctPtr(
    CIMOperationRequestDispatcher* opThis,
    QueryExpressionRep* query)
 {
-    if (query->getQueryLanguage()=="WQL")
+    if (query->getQueryLanguage() == "WQL")
     {
         return &((WQLOperationRequestDispatcher*)opThis)->
             applyQueryToEnumeration;
@@ -77,11 +78,11 @@ applyQueryFunctionPtr QuerySupportRouter::getFunctPtr(
         return &((CQLOperationRequestDispatcher*)opThis)->
             applyQueryToEnumeration;
     }
+#endif
     else
     {
         PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
-#endif
 }
 
 PEGASUS_NAMESPACE_END

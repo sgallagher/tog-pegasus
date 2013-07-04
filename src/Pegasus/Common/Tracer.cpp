@@ -1098,14 +1098,69 @@ void Tracer::traceCIMException(
 
 #endif /* !PEGASUS_REMOVE_TRACE */
 
-void Tracer::setMaxTraceFileSize(Uint32 maxTraceFileSizeBytes) 
+//set the trace file size only when the tracing is on a file
+void Tracer::setMaxTraceFileSize(const String &size) 
 {  
-    _getInstance()->_traceHandler->setMaxTraceFileSize(maxTraceFileSizeBytes);
+    Tracer *inst = _getInstance();
+    if ( inst->getTraceFacility() == TRACE_FACILITY_FILE )
+    {
+        Uint32 traceFileSizeKBytes = 0;
+        tracePropertyToUint32(size, traceFileSizeKBytes);
+
+        //Safe to typecast here as we know that handler is of type file
+        TraceFileHandler *hdlr = (TraceFileHandler*) (inst->_traceHandler);
+
+        hdlr->setMaxTraceFileSize(traceFileSizeKBytes*1024);
+
+    }
 } 
 
-void Tracer::setMaxTraceFileNumber(Uint32 maxTraceFileNumber)
+//set the trace file number for rolling only when the tracing is on a file
+void Tracer::setMaxTraceFileNumber(const String &maxTraceFileNumber)
 {
-    _getInstance()->_traceHandler->setMaxTraceFileNumber(maxTraceFileNumber);
+    Tracer *inst = _getInstance();
+
+    if ( inst->getTraceFacility() == TRACE_FACILITY_FILE )
+    {
+        Uint32 numberOfTraceFiles = 0;
+        tracePropertyToUint32(maxTraceFileNumber, numberOfTraceFiles);
+
+        //Safe to typecast here as we know that handler is of type file
+        TraceFileHandler *hdlr = (TraceFileHandler*) (inst->_traceHandler);
+
+        hdlr->setMaxTraceFileNumber(numberOfTraceFiles);
+     }
+}
+
+//
+// Converts the quantifiable trace  proprties string into a Uint32 value.
+// It returns false and the bufferSize is set to 0 if the string was not valid.
+//
+Boolean Tracer::tracePropertyToUint32(
+    const String& traceProperty, Uint32& valueInUint32 )
+{
+    Boolean retCode = false;
+    Uint64 uInt64BufferSize;
+
+    valueInUint32 = 0;
+    CString stringBufferSize = traceProperty.getCString();
+
+
+    retCode = StringConversion::decimalStringToUint64(stringBufferSize,
+                                                      uInt64BufferSize);
+
+    if (retCode )
+    {
+        retCode = StringConversion::checkUintBounds(uInt64BufferSize,
+                                                    CIMTYPE_UINT32);
+    }
+
+    if (retCode )
+    {
+        valueInUint32 = (Uint32)uInt64BufferSize;
+    }
+
+    return retCode;
 }
 
 

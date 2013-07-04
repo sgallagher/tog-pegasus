@@ -111,8 +111,7 @@ static struct ConfigPropertyRow properties[] =
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
-static const char TRACE_POSSIBLE_VALUE [] =
-    "Possible Values: ";
+static const char TRACE_POSSIBLE_VALUE [] = "Possible Values: ";
 
 //
 // Checks if the trace level is valid
@@ -127,36 +126,6 @@ Boolean TracePropertyOwner::isLevelValid(const String& traceLevel) const
             traceLevel == "4" || traceLevel == "5");
 }
 
-//
-// Converts the trace memory buffer size string into a Uint32 value.
-// It returns false and the bufferSize is set to 0 if the string was not valid.
-//
-Boolean TracePropertyOwner::toUint32TraceMemoryBufferSize(
-    const String& traceBufferSize, Uint32& bufferSize ) const
-{
-    Boolean retCode = false;
-    Uint64 uInt64BufferSize;
-
-    bufferSize = 0;
-    CString stringBufferSize = traceBufferSize.getCString();
-
-
-    retCode = StringConversion::decimalStringToUint64(stringBufferSize,
-                                                      uInt64BufferSize);
-
-    if (retCode )
-    {
-        retCode = StringConversion::checkUintBounds(uInt64BufferSize,
-                                                    CIMTYPE_UINT32);
-    }
-
-    if (retCode )
-    {
-        bufferSize = (Uint32)uInt64BufferSize;
-    }
-
-    return retCode;
-}
 
 //
 // Get the appropriate trace level
@@ -288,7 +257,7 @@ void TracePropertyOwner::initialize()
             PEGASUS_ASSERT(_traceMemoryBufferKbytes->defaultValue.size()!= 0);
 
             Uint32 bufferSize;
-            toUint32TraceMemoryBufferSize(
+            Tracer::tracePropertyToUint32(
                 _traceMemoryBufferKbytes->defaultValue, bufferSize );
             Tracer::setTraceMemoryBufferSize(bufferSize);
 
@@ -319,13 +288,10 @@ void TracePropertyOwner::initialize()
             _traceFileSizeKBytes->externallyVisible =
                    properties[i].externallyVisible;
 
-            PEGASUS_ASSERT(_traceFileSizeKBytes->defaultValue.size()!= 0);
+            String value = _traceFileSizeKBytes->defaultValue;
+            PEGASUS_ASSERT(value.size());
 
-            Uint32 traceFileSize;
-            toUint32TraceMemoryBufferSize(
-                   _traceFileSizeKBytes->currentValue,
-                                                     traceFileSize);
-            Tracer::setMaxTraceFileSize(traceFileSize *1024);
+            Tracer::setMaxTraceFileSize(value);
         }
         else if (String::equalNoCase(
                           properties[i].propertyName, "numberOfTraceFiles"))
@@ -340,11 +306,7 @@ void TracePropertyOwner::initialize()
 
             PEGASUS_ASSERT(_numberOfTraceFiles->defaultValue.size()!= 0);
 
-            Uint32 traceFileNumber;
-            toUint32TraceMemoryBufferSize(
-                    _numberOfTraceFiles->currentValue,
-                                          traceFileNumber);
-            Tracer::setMaxTraceFileNumber(traceFileNumber);
+            Tracer::setMaxTraceFileNumber(_numberOfTraceFiles->currentValue);
 
         }
     }
@@ -506,7 +468,12 @@ void TracePropertyOwner::initCurrentValue(
     else if (String::equal(_traceFacility->propertyName, name))
     {
         _traceFacility->currentValue = value;
+        //set trace facility
         Tracer::setTraceFacility(value);
+
+        //should take effect only when the tracing is on "File"
+        Tracer::setMaxTraceFileSize(_traceFileSizeKBytes->currentValue);
+        Tracer::setMaxTraceFileNumber(value);
     }
     else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
     {
@@ -514,37 +481,19 @@ void TracePropertyOwner::initCurrentValue(
 
         _traceMemoryBufferKbytes->currentValue = value;
 
-        toUint32TraceMemoryBufferSize( value, bufferSize );
+        Tracer::tracePropertyToUint32( value, bufferSize );
         Tracer::setTraceMemoryBufferSize(bufferSize);
     }
     else if (String::equalNoCase(_traceFileSizeKBytes->propertyName,name))
     {
-        Boolean status = false;
-        Uint32 traceFileSizeKBytes=0;
-
-        status = toUint32TraceMemoryBufferSize(
-                      value, traceFileSizeKBytes);
-
-        if(!status)
-           throw InvalidPropertyValue(name, value);
-
         _traceFileSizeKBytes->currentValue = value;
-        Tracer::setMaxTraceFileSize(traceFileSizeKBytes*1024);
+        Tracer::setMaxTraceFileSize(value);
 
     }
     else if (String::equalNoCase(_numberOfTraceFiles->propertyName,name))
     {
-         Boolean status = false;
-         Uint32 numberOfTraceFiles=0;
-
-         status = toUint32TraceMemoryBufferSize(
-                    value, numberOfTraceFiles);
-
-         if(!status)
-             throw InvalidPropertyValue(name, value);
-
          _numberOfTraceFiles->currentValue = value;
-         Tracer::setMaxTraceFileNumber(numberOfTraceFiles);
+         Tracer::setMaxTraceFileNumber(value);
     }
     else
     {
@@ -668,7 +617,8 @@ Boolean TracePropertyOwner::isValid(
         //
         // Ckeck if the trace memeory buffer size is valid
         //
-        retCode = toUint32TraceMemoryBufferSize(value ,size);
+        retCode = Tracer::tracePropertyToUint32(value ,size);
+
         if (!retCode || (size > PEGASUS_TRC_BUFFER_MAX_SIZE_KB) ||
                         (size < PEGASUS_TRC_BUFFER_MIN_SIZE_KB))
         {
@@ -678,16 +628,14 @@ Boolean TracePropertyOwner::isValid(
     }
     else if (String::equalNoCase(_traceFileSizeKBytes->propertyName,name))
     {
-        Boolean status = false;
-        Uint32 traceFileSizeKBytes=0;
-        const Uint32 minimumFileSizeKBytes=10240;
-        const Uint32 maximumFileSizeKBytes=2097152;
+        Uint32 traceFileSizeKBytes = 0;
+        const Uint32 minimumFileSizeKBytes = 10240;
+        const Uint32 maximumFileSizeKBytes = 2097152;
 
-        status = toUint32TraceMemoryBufferSize(
-                      value, traceFileSizeKBytes);
-
-        if(!status)
+        if ( Tracer::tracePropertyToUint32( value, traceFileSizeKBytes))
+        {
            throw InvalidPropertyValue(name, value);
+        }
 
          /* checking File size greater than 10MB
             and less than 2GB */
@@ -701,16 +649,14 @@ Boolean TracePropertyOwner::isValid(
     }
     else if (String::equalNoCase(_numberOfTraceFiles->propertyName,name))
     {
-         Boolean status = false;
-         Uint32 numberOfTraceFiles=0;
-         const Uint32 minimumNumberOfTraceFiles=3;
-         const Uint32 maximumNumberOfTraceFiles=20;
+         Uint32 numberOfTraceFiles = 0;
+         const Uint32 minimumNumberOfTraceFiles = 3;
+         const Uint32 maximumNumberOfTraceFiles = 20;
 
-         status = toUint32TraceMemoryBufferSize(
-                    value, numberOfTraceFiles);
-
-         if(!status)
+         if ( Tracer::tracePropertyToUint32( value, numberOfTraceFiles))
+         {
              throw InvalidPropertyValue(name, value);
+         }
 
          /* checking number of files greater 3
                  and less than 20 */

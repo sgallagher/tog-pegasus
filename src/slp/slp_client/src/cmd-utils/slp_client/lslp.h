@@ -80,11 +80,11 @@ extern "C" {
   /*---------------------------------------------------------------------**
   ** structures used with these macros MUST have the following elements: **
   ** struct type-name {                                                  **
-  ** struct type-name *next;                                          **
-  ** struct type-name *prev;                                          **
-  ** BOOL isHead;                                                     **
-  **      int count;                                                     **
-  ** }                                                                **
+  **    struct type-name *next;                                          **
+  **    struct type-name *prev;                                          **
+  **    BOOL isHead;                                                     **
+  **    int count;                                                       **
+  ** }                                                                   **
   **---------------------------------------------------------------------*/
 
   /*  is node x the head of the list? */
@@ -96,9 +96,11 @@ extern "C" {
 #define _LSLP_IS_EMPTY(h) \
     ((((h)->next == (h)) && ((h)->prev == (h)) ) ? TRUE : FALSE)
 
-  /* where n is the new node, insert it immediately after node x */
-  /* x can be the head of the list                               */
-  /* void _LSLP_INSERT(new, after);                              */
+  /* where n is the new node, insert it immediately after node x 
+  * x can be the head of the list                               
+  * void _LSLP_INSERT(new, after);
+  */
+
 #define _LSLP_INSERT(n, x)   \
     {(n)->prev = (x); \
     (n)->next = (x)->next; \
@@ -148,12 +150,15 @@ extern "C" {
     (((x)->next == (h) && (h)->prev == (x)) ? TRUE : FALSE)
 
   /* void _LSLP_LINK_HEAD(dest, src); */
+  // src is no more the head
 #define _LSLP_LINK_HEAD(d, s) \
-    {(d)->next = (s)->next; \
-    (d)->prev = (s)->prev; \
-    (s)->next->prev = (d); \
-    (s)->prev->next = (d); \
-        (s)->prev = (s)->next = (s) ; }
+    { \
+        (d)->next = (s)->next; \
+        (d)->prev = (s)->prev; \
+        (s)->next->prev = (d); \
+        (s)->prev->next = (d); \
+        (s)->prev = (s)->next = (s) ; \
+    }
 
   /************* bit-set macros *********************************/
   /* how many dwords do we need to allocate to hold b bits ? */

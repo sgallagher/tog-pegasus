@@ -502,7 +502,7 @@ endif
 	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
 	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_CLIENT_TRUSTSTORE)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
 	@$(ECHO-E) "PEGASUS_FLAVOR=$(PEGASUS_FLAVOR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc | $(TAIL) -n+29 >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
 endif
 
 setpermissions_PegasusSystemFiles: FORCE

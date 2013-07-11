@@ -85,11 +85,11 @@ void ShutdownProvider::invokeMethod(
 
 #ifndef PEGASUS_ZOS_SECURITY
     // Only privileged user can execute this operation
-    if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
+    if ( userName.size() && !System::isPrivilegedUser(userName))
     {
         MessageLoaderParms parms(
             "ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER",
-            "Must be a privileged user to execute this CIM operation.");
+            "Superuser authority is required to run this CIM operation.");
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
     }

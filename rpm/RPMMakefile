@@ -76,11 +76,14 @@ endif
 ifeq ($(IDISTRO),RedHatEnterpriseServer)
     DISTRO:=REDHAT
     export PEGASUS_DISTRO_SUFFIX:= \
-        $(if $(filter $(RELEASE),4.92 4.93 5 5.1 5.2 5.3),el5,$(if $(filter $(RELEASE),6 6.0),el6,xxx))
+        $(if $(filter $(RELEASE),4.92 4.93 5 5.1 5.2 5.3),el5,$(if $(filter $(RELEASE),6 6.0),el6,$(if $(filter $(RELEASE),7 7.0),el7,xxx))
 else
     ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
         DISTRO:=REDHAT
-        ifeq ($(findstring 6, $(RELEASE)),6)
+        ifeq ($(findstring 7, $(RELEASE)),7)
+           export PEGASUS_DISTRO_SUFFIX=rhel7
+        else
+           ifeq ($(findstring 6, $(RELEASE)),6)
            export PEGASUS_DISTRO_SUFFIX=rhel6
         else
             ifeq ($(findstring 5, $(RELEASE)),5)
@@ -96,6 +99,7 @@ else
             endif
         endif
             endif
+        endif
         endif
     else
         ifeq ($(findstring SUSE,$(IDISTRO)),SUSE)

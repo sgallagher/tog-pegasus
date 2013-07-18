@@ -72,7 +72,7 @@
 
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
 
-# define PEGASUS_PRODUCT_STATUS  "Development"
+# define PEGASUS_PRODUCT_STATUS  ""
 # define PEGASUS_PRODUCT_VERSION "2.13.0"
 
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"

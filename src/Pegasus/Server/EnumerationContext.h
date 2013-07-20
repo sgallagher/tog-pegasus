@@ -122,8 +122,8 @@ private:
     the next timeout.  If zero,there is no timeout in process
     magicNumber - Diagnostic to be sure that the structure
     is valid.
-    active - If true, an operation is active on this context
-    and any pull or close operation request will be refused.
+    processing - If true, a request operation is active on this context.
+    Any pull or close operation request will be refused.
 */
 
 class EnumerationContextTable;
@@ -204,10 +204,10 @@ public:
      */
     Boolean isValidPullRequestType(MessageType type);
 
-    /** Test this context to determine if it is active (i.e an
-        operation is in process.
+    /** Test context to determine if it is active (i.e an operation
+        is in process in the CIMOperationRequestDispatcher.
     */
-    Boolean isActive();
+    Boolean isProcessing();
 
     Uint32 getCurrentObjectCount(Uint32Arg& x);
 
@@ -230,21 +230,27 @@ public:
 
     /**
        Get up to the number of objects defined by count from the
-       CIMResponseData cache in the enumerationContext.  This function
-       waits for a number of possible events as defined below and
-       returns only when one of these events is true.
+       CIMResponseData cache in the enumerationContext into the rtn 
+       CIMResponseData object. This function waits for a number of 
+       possible events as defined below and returns only when one of 
+       these events is true. 
+       This function also executes a ProviderLimitCondition signal 
+       before returning to tell the ProviderLimit condition variable 
+       that the size of the cache may have changed. 
 
        REMEMBER: This function gives up control while waiting.
 
        Wait events:
-           a. the number of objects to match or exceed count
-           b. the _providersComplete flag to be set.
+           a. Number of objects in cache matches or exceeds count
+           b. _providersComplete flag to be set.
            c. Future - The errorState to be set KS_TODO
        @param - count - Uint32 count of max number of objects to return
-       @param rtn CIMResponseData containing the objects returned
+       @param rtnCIMResponseData CIMResponseData containing the 
+                                 objects returned
        @return Returns true unless if the  errorState has been set.
      */
-    Boolean getCacheResponseData(Uint32 count, CIMResponseData& rtn);
+    Boolean getCacheResponseData(Uint32 count,
+        CIMResponseData& rtnCIMResponseData);
 
     /**
         Return reference to the CIMResponseData in the Enumeration Context
@@ -279,15 +285,14 @@ public:
     void setClientClosed();
 
     /**
-        Sets the active state. Setting active = true stops the
-        timer.  Otherwise the interoperation timer is started
-        @param state Boolean defines whether to set active or inactive.
-        active means request being processed.
+        Sets the active state. Setting processing = true stops the
+        timer. Otherwise the interoperation timer is started
+        @param state Boolean defines whether to set processing or
+        !processing. Processing means request being processed.
         @return - NOT USED TODAY
-        KS_TODO - It would be clearer if we called this the processing
-        state.
+
      */
-    Boolean setActiveState(Boolean state);
+    Boolean setProcessingState(Boolean state);
 
     /**
         Test if the provider processing is complete.
@@ -376,8 +381,9 @@ private:
     Boolean _clientClosed;
     // Set to true when input from providers complete
     Boolean _providersComplete;
-    // set true when response generated and not endOFSequence
-    Boolean _active;
+    // set true when CIMServer is processing a request within the
+    // enumeration context
+    Boolean _processing;
     // Set true when error received from Providers.
     Boolean _error;
     // Set to true if waiting on condition variable.  Cannot remove until

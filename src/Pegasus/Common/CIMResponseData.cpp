@@ -172,6 +172,7 @@ Array<SCMOInstance>& CIMResponseData::getSCMO()
 // set an array of SCMOInstances into the response data object
 void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 {
+    //// AutoMutex autoMut(testLock);
     TRACELINE;
     PSVALID;
     _scmoInstances=x;
@@ -189,6 +190,8 @@ Array<Uint8>& CIMResponseData::getBinary()
 
 bool CIMResponseData::setBinary(CIMBuffer& in)
 {
+    //// AutoMutex autoMut(testLock);
+
     TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setBinary");
 
@@ -208,6 +211,8 @@ bool CIMResponseData::setBinary(CIMBuffer& in)
 
 bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 {
+    //// AutoMutex autoMut(testLock);
+
     TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setRemainingBinaryData");
 
@@ -223,6 +228,7 @@ bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 
 bool CIMResponseData::setXml(CIMBuffer& in)
 {
+    //// AutoMutex autoMut(testLock);
     TRACELINE;
     PSVALID;
     switch (_dataType)
@@ -378,6 +384,9 @@ bool CIMResponseData::setXml(CIMBuffer& in)
 // that the from object is not used during the move.
 Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 {
+    //// AutoMutex autoMut(testLock);
+
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::moveObjects");
     TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::move(%u)", count));
@@ -392,8 +401,6 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
     PEGASUS_DEBUG_ASSERT(_dataType == from._dataType);
     Uint32 rtnSize = 0;
     Uint32 toMove = count;
-//  printf("count to move = %u encoding %u from.size %u to.size %u\n",
-//          count, from._encoding, from._size, _size);
 
     if (RESP_ENC_XML == (from._encoding & RESP_ENC_XML))
     {
@@ -437,7 +444,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
                 }
                 break;
 
-            // The above should probably be folded into the following.
+            // KS-TODO The above should probably be folded into the following.
             // Need something like an assert if there is ever more than
             // one instance in _instanceData for type RESP_INSTANCE
             case RESP_INSTANCES:
@@ -536,9 +543,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
         PEG_TRACE((TRC_XML, Tracer::LEVEL1,
             "Size calc error _size %u rtnSWize = %u", _size, rtnSize));
     }
-
-    //PEGASUS_ASSERT(rtnSize == _size);
-
+    PEG_METHOD_EXIT();
     return rtnSize;
 }
 
@@ -626,7 +631,7 @@ Uint32 CIMResponseData::size()
         PSVALID;
         TEMPLOG;
     }
-    // Test of actual count against _size variable.
+    // Test of actual count against _size variable. KS_TODO diagnostic
     if (rtnSize != _size)
     {
         TEMPLOG;
@@ -635,13 +640,11 @@ Uint32 CIMResponseData::size()
         "CIMResponseData::size ERROR. debug size mismatch."
             "Computed = %u. variable = %u",rtnSize, _size ));
         // KS_TEMP
-        cout << "Size err rtnsize=" << rtnSize << " _size=" << _size
-             << " diff=" << (_size - rtnSize) << endl;
+        cout << "Size err Computed(rtnsize)=" << rtnSize << " _size=" << _size
+             << " diff=" << (rtnSize - _size) << endl;
         TEMPLOG;
     }
     PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));
-
-    //PEGASUS_TEST_ASSERT(rtnSize == _size);
 #endif
     PEG_METHOD_EXIT();
     return _size;
@@ -653,6 +656,8 @@ Uint32 CIMResponseData::size()
 // target array
 void CIMResponseData::appendResponseData(const CIMResponseData & x)
 {
+
+    //// AutoMutex autoMut(testLock);
     TRACELINE;
     // Confirm that the CIMResponseData type matches the type
     // of the data being appended

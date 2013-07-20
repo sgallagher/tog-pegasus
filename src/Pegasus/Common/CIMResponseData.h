@@ -128,7 +128,6 @@ public:
         _magic(x._magic)
     {
         TRACELINE;
-        /////PEGASUS_ASSERT(x.valid());     // KS_TEMP
         PEGASUS_ASSERT(valid());            // KS_TEMP
         size();
     }
@@ -145,7 +144,7 @@ public:
         _propertyList(CIMPropertyList())
     {
         TRACELINE;
-        size();   //// TODOD remove temp
+        size();   //// TODO remove temp
     }
 
     /**
@@ -201,6 +200,7 @@ public:
 
     void setInstanceNames(const Array<CIMObjectPath>& x)
     {
+       ////  AutoMutex autoMut(testLock);
         TRACELINE;
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
@@ -212,6 +212,7 @@ public:
 
     void setInstance(const CIMInstance& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PSVALID;
         _instances.clear();
@@ -238,6 +239,7 @@ public:
 
     void setInstances(const Array<CIMInstance>& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PSVALID;
         _instances=x;
@@ -248,6 +250,7 @@ public:
 
     void appendInstance(const CIMInstance& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PEGASUS_ASSERT(valid());
         _instances.append(x);
@@ -257,6 +260,7 @@ public:
 
     void appendInstances(const Array<CIMInstance>& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PEGASUS_ASSERT(valid());
         _instances.appendArray(x);
@@ -268,6 +272,7 @@ public:
     Array<CIMObject>& getObjects();
     void setObjects(const Array<CIMObject>& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PEGASUS_ASSERT(valid());
         _objects=x;
@@ -276,6 +281,7 @@ public:
     }
     void appendObject(const CIMObject& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PEGASUS_ASSERT(valid());
         _objects.append(x);
@@ -291,6 +297,7 @@ public:
 
     void appendSCMO(const Array<SCMOInstance>& x)
     {
+        //// AutoMutex autoMut(testLock);
         TRACELINE;
         PEGASUS_ASSERT(valid());
         _scmoInstances.appendArray(x);

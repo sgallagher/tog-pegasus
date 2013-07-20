@@ -128,7 +128,7 @@ EnumerationContext::EnumerationContext(
     _pullRequestType(pullRequestType_),
     _clientClosed(false),
     _providersComplete(false),
-    _active(false),
+    _processing(false),
     _error(false),
     _waiting(false),
     _responseCache(contentType),
@@ -159,7 +159,7 @@ EnumerationContext::EnumerationContext(const EnumerationContext& x)
     _providersComplete = x._providersComplete;
     _nameSpace = x._nameSpace;
     _continueOnError = x._continueOnError;
-    _active = x._active;
+    _processing = x._processing;
     _clientClosed = x._clientClosed;
     _error = x._error;
     _waiting = x._waiting;
@@ -174,7 +174,7 @@ void EnumerationContext::setRequestProperties(
     _responseCache.setRequestProperties(
         false, includeClassOrigin, propertyList);
 
-    // KS_TODO_DELETE_THIS
+    // KS_TODO_DELETE_THIS DIAGNOSTIC
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
       "EnumerationContext setPropertyList=%s",
       (const char*)_responseCache.getPropertyList().toString().getCString() ));
@@ -275,9 +275,9 @@ Boolean EnumerationContext::isTimedOut()
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
     return isTimedOut(currentTime);
 }
-Boolean EnumerationContext::isActive()
+Boolean EnumerationContext::isProcessing()
 {
-    return _active;
+    return _processing;
 }
 
 Boolean EnumerationContext::isClosed()
@@ -560,7 +560,7 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
 /*
     Move the number of objects defined by count from the CIMResponseData
     cache for this EnumerationContext to theCIMResponseData object
-     defined by the input parameter.
+    defined by the input parameter.
     The wait function is called before removing items from the cache and
     only completes when a. there are sufficient objects, b. the providers
     have completed, c. an error has occurred.
@@ -604,11 +604,6 @@ Boolean EnumerationContext::getCacheResponseData(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
       "EnumerationContext::getCacheResponseData moveObjects=%s",
       (const char*)_responseCache.getPropertyList().toString().getCString() ));
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-      "EnumerationContext::getCacheResponseData moveObjects=%s",
-      (const char*)
-               rtnCIMResponseData.getPropertyList().toString().getCString() ));
 
     // Signal the ProviderLimitCondition that the cache size may
     // have changed.
@@ -796,7 +791,7 @@ Boolean EnumerationContext::ifEnumerationComplete()
     }
     else
     {
-        setActiveState(false);
+        setProcessingState(false);
     }
 
     return false;
@@ -819,13 +814,13 @@ void EnumerationContext::setClientClosed()
     }
 }
 
-Boolean EnumerationContext::setActiveState(Boolean state)
+Boolean EnumerationContext::setProcessingState(Boolean state)
 {
     // KS_TODO - Clean this one up.  What we should really do is
     // error if new active same as old active
-    // Active means processing operation.
-    _active = state;
-    if (_active)
+    // processing means processing request operation.
+    _processing = state;
+    if (_processing)
     {
         stopTimer();
     }
@@ -833,7 +828,7 @@ Boolean EnumerationContext::setActiveState(Boolean state)
     {
         startTimer();
     }
-    return _active;
+    return _processing;
 }
 
 PEGASUS_NAMESPACE_END

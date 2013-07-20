@@ -2456,30 +2456,6 @@ void CIMOperationRequestDispatcher::handleEnqueue()
     PEG_METHOD_EXIT();
 }
 
-//// TODO <<<<<<< CIMOperationRequestDispatcher.cpp Move this elsewhere
-/*****************************************************************************
-**
-**      Request Processing Helper Methods
-**
-*****************************************************************************/
-/*
-    Helper struct/methods to issue operations requests to groups of Providers
-    defined by a ProviderInfoList. This struct issues requests of the type
-    defined by input to the providers defined in the providerInfoList.
-
-    There are separate functions for issuing:
-        issueEnumRequests - enumerate operations (enumerate and enumerateNames)
-        issueAssocRequests - association operations (includes references
-            and associations and their corresponding name operations).
-
-    This struct eliminates the repeated code for issuing requests in the
-    handle***Request functions for those input operation requests that issue
-    provider operation requests to multiple providers based on a
-    ProviderInfoList. It reduces the previously repeated code for issuing
-    requests to providers in the operation request processors for these
-    functions to a single line.
-    */
-
 /****************************************************************************
 **
 **     Request Parameter Test and reject functions
@@ -2914,34 +2890,46 @@ Boolean CIMOperationRequestDispatcher::_rejectIfContextTimedOut(
     return false;
 }
 
-Boolean CIMOperationRequestDispatcher::_rejectIfEnumerationContextActive(
-    CIMOperationRequestMessage* request, Boolean active)
+Boolean CIMOperationRequestDispatcher::_rejectIfEnumerationContextProcessing(
+    CIMOperationRequestMessage* request, Boolean processing)
 {
-    if (active)
+    if (processing)
     {
         CIMResponseMessage* response = request->buildResponse();
-
+//// KS_TODO think this may be wrong error message.
         CIMException x = PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_PULL_CANNOT_BE_ABANDONED, String::EMPTY);
         response->cimException = x;
 
         _enqueueResponse(request, response);
     }
-    return active;
+    return processing;
 }
 
-/****************************************************************************
+/*****************************************************************************
 **
-** CIMOperationDispatcher request handlers.  There is a handler for each
-** operation request type. These handlers process the requsts including:
-**     - Validation of parameters (may generate error responses)
-**     - Passage to the correct processor (service, control providers,
-**       providers, repository) depending on message type)
-**     - Generation of responses for those handlers that are synchronous.
+**      Request Processing Helper Methods
 **
-****************************************************************************/
+*****************************************************************************/
 /*
-    This struct not part of CIMOperationRequestDispatcher class because it
+    Helper struct/methods to issue operations requests to groups of Providers
+    defined by a ProviderInfoList. This struct issues requests of the type
+    defined by input to the providers defined in the providerInfoList.
+
+    There are separate functions for issuing:
+        issueEnumRequests - enumerate operations (enumerate and enumerateNames)
+        issueAssocRequests - association operations (includes references
+            and associations and their corresponding name operations).
+
+    This struct eliminates the repeated code for issuing requests in the
+    handle***Request functions for those input operation requests that issue
+    provider operation requests to multiple providers based on a
+    ProviderInfoList. It reduces the previously repeated code for issuing
+    requests to providers in the operation request processors for these
+    functions to a single line.
+*/
+
+/*  This struct not part of CIMOperationRequestDispatcher class because it
     includes template methods.
 */
 struct ProviderRequests
@@ -3264,15 +3252,15 @@ struct ProviderRequests
             return;
         }
         // reject if an operation is already active on this enumeration context
-        if (dispatcher->_rejectIfEnumerationContextActive(request,
-            enumerationContext->isActive()))
+        if (dispatcher->_rejectIfEnumerationContextProcessing(request,
+            enumerationContext->isProcessing()))
         {
             PEG_METHOD_EXIT();
             return;
         }
 
         // Set active and stop interOperation timer
-        enumerationContext->setActiveState(true);
+        enumerationContext->setProcessingState(true);
         response->enumerationContext = request->enumerationContext;
 
         // If maxObjectCount = 0, Respond with empty response unless
@@ -3293,7 +3281,7 @@ struct ProviderRequests
 
                 // set operation inactive and start interoperation timer
 
-                enumerationContext->setActiveState(false);
+                enumerationContext->setProcessingState(false);
             }
             else  // Limit reached, kill the whole pull sequence
             {
@@ -3331,8 +3319,8 @@ struct ProviderRequests
 
         Uint32 localMaxObjectCount = request->maxObjectCount;
 
+// KS_TODO why must we set this to false. Should be the default.
         response->endOfSequence = false;
-        response->cimException = CIMException();
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s getting from cache. isComplete: %s cacheSize: %u error: %s",
@@ -3340,26 +3328,6 @@ struct ProviderRequests
             _toCharP(enumerationContext->ifProvidersComplete()),
             enumerationContext->responseCacheSize(),
             _toCharP(enumerationContext->isErrorState())  ));
-
-        CIMResponseData & to = response->getResponseData();
-
-        to.setDataType((enumerationContext->getCIMResponseDataType()));
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-          "%s getCacheResponsedata. max objects %u",
-          opSeqName,localMaxObjectCount ));
-
-        // Set type per the to datatype
-        CIMResponseData from(enumerationContext->getCIMResponseDataType());
-
-////      Boolean rtn = enumerationContext->getCacheResponseData(
-////          localMaxObjectCount, from);
-        enumerationContext->getCacheResponseData(localMaxObjectCount, from);
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "%s AppendResponseData. to type %u from type %u",
-            opSeqName,
-            to.getResponseDataContent(), from.getResponseDataContent()));
 
         // If error set, send error response, else send the next group of
         // response objects which is in the from CIMResponseData object
@@ -3369,17 +3337,31 @@ struct ProviderRequests
         }
         else
         {
-            to.appendResponseData(from);
+            CIMResponseData & to = response->getResponseData();
+
+            to.setDataType((enumerationContext->getCIMResponseDataType()));
+
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+              "%s getCacheResponsedata. max objects %u",
+              opSeqName,localMaxObjectCount ));
+
+            CIMResponseData fromCache(
+               enumerationContext->getCIMResponseDataType());
+
+            enumerationContext->getCacheResponseData(localMaxObjectCount,
+                                                     fromCache);
+
+            to.appendResponseData(fromCache);
         }
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-          "%s Send Pull response to type %u from type %u "
-              "endOfSequence %s providersComplete %s cacheSize %u",
-          opSeqName,
-          to.getResponseDataContent(), from.getResponseDataContent(),
-          _toCharP(response->endOfSequence),
-          _toCharP(enumerationContext->ifProvidersComplete()),
-          enumerationContext->responseCacheSize() ));
+////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////        "%s Send Pull response to type %u from type %u "
+////            "endOfSequence %s providersComplete %s cacheSize %u",
+////        opSeqName,
+////        to.getResponseDataContent(), from.getResponseDataContent(),
+////        _toCharP(response->endOfSequence),
+////        _toCharP(enumerationContext->ifProvidersComplete()),
+////        enumerationContext->responseCacheSize() ));
 
         // if provider responses complete and nothing more in Enumeration
         // context cache, we set the enumeration closed and mark this
@@ -3401,6 +3383,17 @@ struct ProviderRequests
 
         } // end issuePullResponse
     };
+
+/****************************************************************************
+**
+** CIMOperationDispatcher request handlers.  There is a handler for each
+** operation request type. These handlers process the requsts including:
+**     - Validation of parameters (may generate error responses)
+**     - Passage to the correct processor (service, control providers,
+**       providers, repository) depending on message type)
+**     - Generation of responses for those handlers that are synchronous.
+**
+****************************************************************************/
 
 /**$*******************************************************
     handleGetClassRequest
@@ -5685,30 +5678,12 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             poA);
     }
 
-    openResponse->cimException = CIMException();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-               "Cache size after repository put %u maxObjectCount %u",
-               enumerationContext->responseCacheSize(),
-               operationMaxObjectCount ));
-
-    // Create a temporary response data with correct type.
-   CIMResponseData fromCache(CIMResponseData::RESP_INSTANCES);
-
-    // get response data from the cache up to maxObjectCount and return
-    // it in a new CIMResponseData object. This function waits for
-    // sufficient objects in cache or providers complete
-    //CIMResponseData &
-////  Boolean rtn =
-    enumerationContext->getCacheResponseData(
-                                operationMaxObjectCount,
-                                fromCache);
-
     // if we had an error, put the exception into the response
-    // Don't deliver any objects if error state
+    // Don't deliver any objects if error state. Else deliver next
+    // set of objects
+    //
     // KS_TODO - Why are we using two responseData items. Why not directly
     // give the one from openResponse to enumerate???????
-    CIMResponseData & to = openResponse->getResponseData();
 
     if (enumerationContext->isErrorState())
     {
@@ -5716,16 +5691,38 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     }
     else
     {
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                   "Cache size after repository put %u maxObjectCount %u",
+                   enumerationContext->responseCacheSize(),
+                   operationMaxObjectCount ));
+
+        CIMResponseData & to = openResponse->getResponseData();
+        // Create a temporary response data with correct type.
+        CIMResponseData fromCache(CIMResponseData::RESP_INSTANCES);
+
+        // get response data from the cache up to maxObjectCount and return
+        // it in a new CIMResponseData object. This function waits for
+        // sufficient objects in cache or providers complete
+        enumerationContext->getCacheResponseData(
+                                    operationMaxObjectCount,
+                                    fromCache);
         to.appendResponseData(fromCache);
+        // fill in host, namespace on all instances on all elements of array
+        // if they have been left out. This is required for pull instances
+        // because we are returning named instances.
+        // KS_TODO _ This may be done as part of the aggregator also
+
+        to.completeHostNameAndNamespace(cimAggregationLocalHost,
+                                        request->nameSpace);
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-      "OpenInstancesWithPath Send Open response to type %u"
-          " from type %u eos %s providersComplete %s cacheSize %u",
-      to.getResponseDataContent(), fromCache.getResponseDataContent(),
-               _toCharP(openResponse->endOfSequence),
-               _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->responseCacheSize() ));
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////    "OpenInstancesWithPath Send Open response to type %u"
+////        " from type %u eos %s providersComplete %s cacheSize %u",
+////    to.getResponseDataContent(), fromCache.getResponseDataContent(),
+////             _toCharP(openResponse->endOfSequence),
+////             _toCharP(enumerationContext->ifProvidersComplete()),
+////             enumerationContext->responseCacheSize() ));
 
     // tests for providers complete and cache empty. and sets response
     // endOfSequence
@@ -5742,13 +5739,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         openResponse->enumerationContext = enContextIdStr;
     }
 
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required for pull instances
-    // because we are returning named instances.
-    // KS_TODO _ This may be done as part of the aggregator also
 
-    to.completeHostNameAndNamespace(cimAggregationLocalHost,
-                                    request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
 
@@ -6028,29 +6019,29 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
 
     // Get cache data and issue open response
 
-    openResponse->cimException = CIMException();
 
-    CIMResponseData & to = openResponse->getResponseData();
-
-    // Create a Response data based on what is in the cache now.
-    // Create a temporary response data with correct type.
-    // KS_TODO - Should be able to allocate this object in the
-    // getCacheResponseData function.
-    CIMResponseData from(CIMResponseData::RESP_INSTNAMES);
-
-    // get response data from the cache up to maxObjectCount and return
-    // it in a new CIMResponseData object.
-    //CIMResponseData &
-////  Boolean rtn =
-    enumerationContext->getCacheResponseData(
-                                operationMaxObjectCount,
-                                from);
     if (enumerationContext->isErrorState())
     {
         openResponse->cimException = enumerationContext->_cimException;
     }
     else
     {
+        CIMResponseData & to = openResponse->getResponseData();
+
+        // Create a Response data based on what is in the cache now.
+        // Create a temporary response data with correct type.
+        // KS_TODO - Should be able to allocate this object in the
+        // getCacheResponseData function.
+        CIMResponseData from(CIMResponseData::RESP_INSTNAMES);
+
+        // get response data from the cache up to maxObjectCount and return
+        // it in a new CIMResponseData object.
+        //CIMResponseData &
+    ////  Boolean rtn =
+        enumerationContext->getCacheResponseData(
+                                operationMaxObjectCount,
+                                from);
+
         to.appendResponseData(from);
     }
 
@@ -6390,7 +6381,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // Complete and enqueue open response.
     //
 
-    openResponse->cimException = CIMException();
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "OpenReferenceInstances Cache size after repository put %u"
@@ -6398,25 +6388,11 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         enumerationContext->responseCacheSize(),
         operationMaxObjectCount ));
 
-    // Create a Response data based on what is in the cache now.
-    // Create a temporary response data with correct type.
-
-    CIMResponseData fromCache(enumerationContext->getCIMResponseDataType());
 
     // get response data from the cache up to maxObjectCount and return
     // it in a new CIMResponseData object. This function waits for
     // sufficient objects in cache or providers complete
-    //CIMResponseData &
-////  Boolean rtn =
-    enumerationContext->getCacheResponseData(
-                                operationMaxObjectCount,
-                                fromCache);
 
-    CIMResponseData & to = openResponse->getResponseData();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-      "OpenReferences AppendResponseData. to type %u from type %u",
-      to.getResponseDataContent(), fromCache.getResponseDataContent()));
 
     // if we had an error, put the exception into the response
     // KS-TODO - Should we return any objects if state is error.  Probably
@@ -6427,16 +6403,34 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     }
     else
     {
+        // Create a Response data based on what is in the cache now.
+
+        CIMResponseData fromCache(enumerationContext->getCIMResponseDataType());
+        CIMResponseData & to = openResponse->getResponseData();
+        enumerationContext->getCacheResponseData(
+                                    operationMaxObjectCount,
+                                    fromCache);
         to.appendResponseData(fromCache);
+
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+          "OpenReferences AppendResponseData. to type %u from type %u",
+          to.getResponseDataContent(), fromCache.getResponseDataContent()));
+        // fill in host, namespace on all instances on all elements of array
+        // if they have been left out. This is required for pull instances
+        // because we are returning instanceWithPath which includes host, etc.
+        // KS_TODO_ This may be done as part of the aggregator also
+
+        to.completeHostNameAndNamespace(
+            cimAggregationLocalHost, request->nameSpace);
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-      "OpenReferenceInstancesWithPath Send Pull response to type %u"
-          " from type %u eos %s providersComplete %s cacheSize %u",
-      to.getResponseDataContent(), fromCache.getResponseDataContent(),
-               _toCharP(openResponse->endOfSequence),
-               _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->responseCacheSize() ));
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////    "OpenReferenceInstancesWithPath Send Pull response to type %u"
+////        " from type %u eos %s providersComplete %s cacheSize %u",
+////    to.getResponseDataContent(), fromCache.getResponseDataContent(),
+////             _toCharP(openResponse->endOfSequence),
+////             _toCharP(enumerationContext->ifProvidersComplete()),
+////             enumerationContext->responseCacheSize() ));
 
     // Do check here after we have processed the results of the get.
     // At this point we are current with the provider response status
@@ -6454,13 +6448,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         openResponse->enumerationContext = enContextIdStr;
     }
 
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required for pull instances
-    // because we are returning instanceWithPath which includes host, etc.
-    // KS_TODO_ This may be done as part of the aggregator also
 
-    to.completeHostNameAndNamespace(
-        cimAggregationLocalHost, request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
 
@@ -6765,27 +6753,10 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     //// KS_TODO openResponse->enumerationContext = enContextIdStr;
 
-    openResponse->cimException = CIMException();
-
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                "Cache size after repository put %u maxObjectCount %u",
                enumerationContext->responseCacheSize(),
                operationMaxObjectCount ));
-
-    // Create a Response data based on what is in the cache now.
-    // Create a temporary response data with correct type.
-
-    CIMResponseData from(CIMResponseData::RESP_OBJECTPATHS);
-
-    // get response data from the cache up to maxObjectCount and return
-    // it in a new CIMResponseData object. This function waits for
-    // sufficient objects in cache or providers complete
-////  TODO should we be using the return Boolean rtn =
-    enumerationContext->getCacheResponseData(
-                                operationMaxObjectCount,
-                                from);
-
-    CIMResponseData & to = openResponse->getResponseData();
 
     // if we had an error, put the exception into the response
     // KS-TODO - Should we return any objects if state is error.  Probably
@@ -6796,18 +6767,38 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     }
     else
     {
-        to.appendResponseData(from);
+        // Create a Response data based on what is in the cache now.
+        // Create a temporary response data with correct type.
+
+        CIMResponseData from(CIMResponseData::RESP_OBJECTPATHS);
+
+        // get response data from the cache up to maxObjectCount and return
+        // it in a new CIMResponseData object. This function waits for
+        // sufficient objects in cache or providers complete
+        enumerationContext->getCacheResponseData(
+                                    operationMaxObjectCount,
+                                    from);
+
+        CIMResponseData & to = openResponse->getResponseData();
+            to.appendResponseData(from);
+
+        // fill in host, namespace on all instances on all elements of array
+        // if they have been left out. This is required for pull instances
+        // because we are returning named instances.
+        // KS_TBD _ This may be done as part of the aggregator also
+
+        to.completeHostNameAndNamespace(cimAggregationLocalHost,
+                                        request->nameSpace);
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+          "PullInstancePaths Send Pull response to type %u"
+              " from type %u eos %s providersComplete %s cacheSize %u",
+          to.getResponseDataContent(), from.getResponseDataContent(),
+                   _toCharP(openResponse->endOfSequence),
+                   _toCharP(enumerationContext->ifProvidersComplete()),
+                   enumerationContext->responseCacheSize() ));
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-      "PullInstancePaths Send Pull response to type %u"
-          " from type %u eos %s providersComplete %s cacheSize %u",
-      to.getResponseDataContent(), from.getResponseDataContent(),
-               _toCharP(openResponse->endOfSequence),
-               _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->responseCacheSize() ));
-
-   if ((openResponse->endOfSequence =
+    if ((openResponse->endOfSequence =
         enumerationContext->ifEnumerationComplete()))
     {
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
@@ -6819,14 +6810,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     {
         openResponse->enumerationContext = enContextIdStr;
     }
-
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required for pull instances
-    // because we are returning named instances.
-    // KS_TBD _ This may be done as part of the aggregator also
-
-    to.completeHostNameAndNamespace(
-        cimAggregationLocalHost, request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
 
@@ -7167,33 +7150,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         enumerationContext->setProvidersComplete();
     }
 
-    openResponse->cimException = CIMException();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-               "OpenAssociatorInstances Cache size after repository put %u"
-               " maxObjectCount %u",
-               enumerationContext->responseCacheSize(),
-               operationMaxObjectCount ));
-
-    // Create a Response data based on what is in the cache now.
-    // Create a temporary response data with correct type.
-
-    CIMResponseData from(enumerationContext->getCIMResponseDataType());
-
-    // get response data from the cache up to maxObjectCount and return
-    // it in a new CIMResponseData object. This function waits for
-    // sufficient objects in cache or providers complete
-
-////  Boolean rtn =
-    enumerationContext->getCacheResponseData(
-                                operationMaxObjectCount, from);
-
-    CIMResponseData & to = openResponse->getResponseData();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-      "OpenAssociatorInstances AppendResponseData. to type %u from type %u",
-      to.getResponseDataContent(), from.getResponseDataContent()));
-
     // if we had an error, put the exception into the response
     // KS-TODO - Should we return any objects if state is error.  Probably
     // not.
@@ -7203,16 +7159,49 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     }
     else
     {
-        to.appendResponseData(from);
+////      openResponse->cimException = CIMException();
+
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                   "OpenAssociatorInstances Cache size after repository put %u"
+                   " maxObjectCount %u",
+                   enumerationContext->responseCacheSize(),
+                   operationMaxObjectCount ));
+
+        // Create a Response data based on what is in the cache now.
+        // Create a temporary response data with correct type.
+
+        CIMResponseData fromCache(enumerationContext->getCIMResponseDataType());
+
+        // get response data from the cache up to maxObjectCount and return
+        // it in a new CIMResponseData object. This function waits for
+        // sufficient objects in cache or providers complete
+
+        enumerationContext->getCacheResponseData(
+                                    operationMaxObjectCount, fromCache);
+
+        CIMResponseData & to = openResponse->getResponseData();
+
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+          "OpenAssociatorInstances AppendResponseData. to type %u from type %u",
+          to.getResponseDataContent(), fromCache.getResponseDataContent()));
+
+        to.appendResponseData(fromCache);
+        // fill in host, namespace on all instances on all elements of array
+        // if they have been left out. This is required for pull instances
+        // because we are returning named instances.
+        // KS_TBD _ This may be done as part of the aggregator also
+
+        to.completeHostNameAndNamespace(
+            cimAggregationLocalHost, request->nameSpace);
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-      "OpenAssociatorInstances Send Pull response to type %u"
-          " from type %u eos %s providersComplete %s cacheSize %u",
-      to.getResponseDataContent(), from.getResponseDataContent(),
-               _toCharP(openResponse->endOfSequence),
-               _toCharP(enumerationContext->ifProvidersComplete()),
-               enumerationContext->responseCacheSize() ));
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////    "OpenAssociatorInstances Send Pull response to type %u"
+////        " from type %u eos %s providersComplete %s cacheSize %u",
+////    to.getResponseDataContent(), from.getResponseDataContent(),
+////             _toCharP(openResponse->endOfSequence),
+////             _toCharP(enumerationContext->ifProvidersComplete()),
+////             enumerationContext->responseCacheSize() ));
 
     // If the providers are complete close the enumeration. Else
     // prepare for the next operation by setting the inactive state
@@ -7227,14 +7216,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         // delete the EnumerationContext object
         enumerationContext->setClientClosed();
     }
-
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required for pull instances
-    // because we are returning named instances.
-    // KS_TBD _ This may be done as part of the aggregator also
-
-    to.completeHostNameAndNamespace(
-        cimAggregationLocalHost, request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
 
@@ -7535,28 +7516,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         openResponse->endOfSequence = false;
     }
 
-    openResponse->cimException = CIMException();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-               "Cache size after repository put %u maxObjectCount %u",
-               enumerationContext->responseCacheSize(),
-               operationMaxObjectCount ));
-
-    // Create a Response data based on what is in the cache now.
-    // Create a temporary response data with correct type.
-
-    CIMResponseData from(CIMResponseData::RESP_OBJECTPATHS);
-
-    // get response data from the cache up to maxObjectCount and return
-    // it in a new CIMResponseData object. This function waits for
-    // sufficient objects in cache or providers complete
-////  Boolean rtn =
-    enumerationContext->getCacheResponseData(
-                                operationMaxObjectCount,
-                                from);
-
-    CIMResponseData & to = openResponse->getResponseData();
-
     // if we had an error, put the exception into the response
     // KS-TODO - Should we return any objects if state is error.  Probably
     // not.
@@ -7566,6 +7525,27 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     }
     else
     {
+////      openResponse->cimException = CIMException();
+
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                   "Cache size after repository put %u maxObjectCount %u",
+                   enumerationContext->responseCacheSize(),
+                   operationMaxObjectCount ));
+
+        // Create a Response data based on what is in the cache now.
+        // Create a temporary response data with correct type.
+
+        CIMResponseData from(CIMResponseData::RESP_OBJECTPATHS);
+
+        // get response data from the cache up to maxObjectCount and return
+        // it in a new CIMResponseData object. This function waits for
+        // sufficient objects in cache or providers complete
+        enumerationContext->getCacheResponseData(
+                                    operationMaxObjectCount,
+                                    from);
+
+        CIMResponseData & to = openResponse->getResponseData();
+
         to.appendResponseData(from);
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
@@ -7575,9 +7555,16 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
                    _toCharP(openResponse->endOfSequence),
                    _toCharP(enumerationContext->ifProvidersComplete()),
                    enumerationContext->responseCacheSize() ));
+        // fill in host, namespace on all instances on all elements of array
+        // if they have been left out. This is required for pull instances
+        // because we are returning named instances.
+        // KS_TBD _ This may be done as part of the aggregator also
+
+        to.completeHostNameAndNamespace(cimAggregationLocalHost,
+            request->nameSpace);
     }
 
-   if ((openResponse->endOfSequence =
+    if ((openResponse->endOfSequence =
         enumerationContext->ifEnumerationComplete()))
     {
         PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
@@ -7585,14 +7572,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         // delete the EnumerationContext object
         enumerationContext->setClientClosed();
     }
-
-    // fill in host, namespace on all instances on all elements of array
-    // if they have been left out. This is required for pull instances
-    // because we are returning named instances.
-    // KS_TBD _ This may be done as part of the aggregator also
-
-    to.completeHostNameAndNamespace(cimAggregationLocalHost,
-        request->nameSpace);
 
     _enqueueResponse(request, openResponse.release());
 
@@ -7784,7 +7763,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
     // The specification allows as an option concurrent close (close
     // while pull request active) but we do not for now.  Complicates the
     // code to much for right now.
-    if (_rejectIfEnumerationContextActive(request, en->isActive()))
+    if (_rejectIfEnumerationContextProcessing(request, en->isProcessing()))
     {
         PEG_METHOD_EXIT();
         return;

@@ -661,9 +661,9 @@ protected:
     Boolean _rejectInvalidPullRequest(CIMOperationRequestMessage* request,
         Boolean valid);
 
-    Boolean _rejectIfEnumerationContextActive(
+    Boolean _rejectIfEnumerationContextProcessing(
         CIMOperationRequestMessage* request,
-        Boolean active);
+        Boolean processing);
 
     // Request Error Response Functions - The following functions test for
     // particular operations parameters, etc. and if the tests fail

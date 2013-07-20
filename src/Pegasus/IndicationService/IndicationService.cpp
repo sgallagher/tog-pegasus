@@ -287,7 +287,7 @@ void IndicationService::_buildInternalControlProvidersRegistration()
     // ProvRegistrationProvider
     ControlProvIndReg regProvider;
 
-    regProvider.className = 
+    regProvider.className =
         PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT;
 
    regProvider.providerModule =
@@ -324,7 +324,7 @@ void IndicationService::_buildInternalControlProvidersRegistration()
         CIMKeyBinding::STRING);
     keys.append(kb1);
 
-    CIMObjectPath pmPath = 
+    CIMObjectPath pmPath =
         CIMObjectPath(
             String(),
             CIMNamespaceName(),
@@ -338,7 +338,7 @@ void IndicationService::_buildInternalControlProvidersRegistration()
         CIMKeyBinding::STRING);
     keys.append(kb2);
 
-    CIMObjectPath providerPath = 
+    CIMObjectPath providerPath =
         CIMObjectPath(
             String(),
             CIMNamespaceName(),
@@ -419,6 +419,13 @@ void IndicationService::handleEnqueue(Message* message)
 
     stopWatch.start();
 #endif
+
+    if (message->getType() == CIM_PROCESS_INDICATION_RESPONSE_MESSAGE)
+    {
+        _handleProcessIndicationResponse(message);
+        return;
+    }
+
     CIMRequestMessage* cimRequest = dynamic_cast<CIMRequestMessage *>(message);
     PEGASUS_ASSERT(cimRequest);
 
@@ -723,7 +730,7 @@ void IndicationService::_setSystemNameInHandlerFilterReference(
     reference.remove(reference.size()-1);
 
     Uint32 quotePos=reference.reverseFind(quote);
-    
+
     reference.remove(quotePos+1);
     reference.append(sysname);
     reference.append(quote);
@@ -756,13 +763,13 @@ void IndicationService::_setSubscriptionSystemName(
         PEGASUS_PROPERTYNAME_FILTER,
         filterValue,
         CIMKeyBinding::REFERENCE));
-    
+
     newKeys.append(CIMKeyBinding(
         PEGASUS_PROPERTYNAME_HANDLER,
         handlerValue,
         CIMKeyBinding::REFERENCE));
 
-    objPath.setKeyBindings(newKeys);    
+    objPath.setKeyBindings(newKeys);
 }
 
 void IndicationService::_setSystemName(
@@ -2216,7 +2223,7 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         {
             if(String::compare(creator,userName) != 0)
             {
-                // only the creator of the handler has access to 
+                // only the creator of the handler has access to
                 // the handler deata.
                 MessageLoaderParms parms(
                 "IndicationService.IndicationService."
@@ -2418,7 +2425,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             {
                 if(String::compare(creator,userName) != 0)
                 {
-                    // only the creator of the handler has access to 
+                    // only the creator of the handler has access to
                     // the handler deata.
                     continue;
                 }
@@ -3120,6 +3127,94 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
     PEG_METHOD_EXIT();
 }
 
+void IndicationService::_handleProcessIndicationResponse(Message* message)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_handleProcessIndicationResponse");
+
+    CIMProcessIndicationResponseMessage* response = dynamic_cast<
+        CIMProcessIndicationResponseMessage*> (message);
+    PEGASUS_ASSERT(response != 0);
+
+    CIMInstance instance = response->subscription;
+    try
+    {
+
+        if (!_subscriptionRepository->reconcileFatalError(instance))
+        {
+            delete message;
+            PEG_METHOD_EXIT();
+            return;
+        }
+
+        String creator = instance.getProperty (instance.findProperty
+            (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+
+        AcceptLanguageList acceptLangs;
+        Uint32 propIndex = instance.findProperty
+            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+        if (propIndex != PEG_NOT_FOUND)
+        {
+            String acceptLangsString;
+            instance.getProperty(propIndex).getValue().get(acceptLangsString);
+            if (acceptLangsString.size())
+            {
+                acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                    acceptLangsString);
+            }
+        }
+        ContentLanguageList contentLangs;
+        propIndex = instance.findProperty(
+           PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+
+        if (propIndex != PEG_NOT_FOUND)
+        {
+            String contentLangsString;
+            instance.getProperty(propIndex).getValue().get(contentLangsString);
+            if (contentLangsString.size())
+            {
+                contentLangs = LanguageParser::parseContentLanguageHeader(
+                    contentLangsString);
+            }
+        }
+        Array<NamespaceClassList> indicationSubclasses;
+        Array<ProviderClassList> indicationProviders;
+        indicationProviders = _getDeleteParams(instance, indicationSubclasses);
+        PEGASUS_ASSERT(indicationProviders.size() > 0);
+
+        _subscriptionTable->removeSubscription(
+            instance,
+            indicationSubclasses,
+            indicationProviders);
+
+        _sendWaitDeleteRequests (
+            indicationProviders,
+            instance,
+            acceptLangs,
+            contentLangs,
+            creator);
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        _sendSubscriptionNotActiveMessagetoHandlerService(instance.getPath());
+#endif
+    }
+    catch(const Exception &e)
+    {
+        PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to reconcile the subscription's"
+                " OnFatalErrorPolicy %s",
+            (const char *) e.getMessage ().getCString()));
+    }
+    catch(...)
+    {
+        PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Unknown exception caught trying to reconcile the subscription's"
+                " OnFatalErrorPolicy"));
+    }
+    delete message;
+    PEG_METHOD_EXIT();
+}
+
+
 // l10n TODO - might need to globalize another flow and another consumer
 // interface (ie. mdd's) if we can't agree on one export flow and consumer
 // interface (see PEP67)
@@ -3152,7 +3247,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     Array<SubscriptionKey> matchedSubscriptionsKeys;
 
     CIMInstance indication = request->indicationInstance;
-    
+
     QueueIdStack qids = request->queueIds.copyAndPop();
 
     AutoPtr<DeliveryStatusAggregator, ExpectedResponseCountSetDone>
@@ -3813,7 +3908,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         (tableValue.providers[providerIndex].classList[0].
                             classList[0].equal(className)))
                     {
-                        
+
                         if (tableValue.providers[providerIndex].
                            classList[0].nameSpace ==
                                 formerSubscriptions[i].nameSpace)
@@ -4736,7 +4831,7 @@ Boolean IndicationService::_canCreate (
                 CIMTYPE_STRING,
                 true);
         }
-        else //Handler 
+        else //Handler
         {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
             // Name is an optional property for Handler. If Name key property
@@ -4757,9 +4852,9 @@ Boolean IndicationService::_canCreate (
             instance,
             PEGASUS_PROPERTYNAME_CREATIONCLASSNAME,
             instance.getClassName().getString());
-        
+
         _setOrAddSystemNameInHandlerFilter(instance,String::EMPTY);
-        
+
         _initOrValidateStringProperty(
             instance,
             _PROPERTY_SYSTEMCREATIONCLASSNAME,
@@ -4991,7 +5086,7 @@ Boolean IndicationService::_canCreate (
                     CIMTYPE_STRING,
                     false);
             }
-            
+
             // WSMAN Indication Handler properties are checked below
             if (instance.getClassName().equal
                 (PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
@@ -5730,9 +5825,9 @@ Boolean IndicationService::_canModify (
 #ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
         (currentUser != creator))
-#else     
+#else
         !String::equalNoCase(currentUser, creator))
-#endif   
+#endif
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION_L(
@@ -5741,7 +5836,7 @@ Boolean IndicationService::_canModify (
                             _MSG_NOT_CREATOR_KEY,
                             _MSG_NOT_CREATOR,
                             currentUser,
-                            creator));   
+                            creator));
     }
 
     PEG_METHOD_EXIT ();
@@ -5799,9 +5894,9 @@ Boolean IndicationService::_canDelete (
 #ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
         (currentUser != creator))
-#else     
+#else
         !String::equalNoCase(currentUser, creator))
-#endif 
+#endif
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION_L(
@@ -5810,7 +5905,7 @@ Boolean IndicationService::_canDelete (
                             _MSG_NOT_CREATOR_KEY,
                             _MSG_NOT_CREATOR,
                             currentUser,
-                            creator));  
+                            creator));
     }
 
     //
@@ -6436,7 +6531,7 @@ Array<ProviderClassList> IndicationService::_getIndicationProviders (
 
     CIMPropertyList requiredPropertyList;
 
-    
+
     //
     //  For each indication subclass, get providers
     //
@@ -7177,7 +7272,7 @@ void IndicationService::_getCreateParams(
             _subscriptionRepository->getIndicationSubclasses(
                 sourceNameSpaces[i],
                 indicationClassName);
-        
+
         NamespaceClassList namespaceClassList;
         namespaceClassList.nameSpace = sourceNameSpaces[i];
         namespaceClassList.classList = indSubclasses;
@@ -7401,7 +7496,7 @@ Array<ProviderClassList> IndicationService::
             prcl.classList.clear();
             prcl.classList.append(nscl);
             indProviders.append(prcl);
-            
+
         }
     }
     return indProviders;
@@ -7599,7 +7694,7 @@ void IndicationService::_sendAsyncCreateRequests(
                     op,
                     serviceId,
                     request.get()));
-        }        
+        }
         else
         {
            serviceId = _moduleController;
@@ -8484,7 +8579,7 @@ void IndicationService::_handleCreateResponseAggregation(
                     operationAggregate->getOrigRequest()->buildResponse());
             PEGASUS_ASSERT(response != 0);
             response->cimException = cimException;
-            
+
             // put correct SystemName in place
             _setSubscriptionSystemName(
                 instanceRef,

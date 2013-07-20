@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Network.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Pegasus_inl.h>
 #include <sys/stat.h>
 
 

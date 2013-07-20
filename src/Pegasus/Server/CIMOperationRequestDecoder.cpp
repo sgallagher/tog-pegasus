@@ -45,6 +45,14 @@
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/BinaryCodec.h>
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/General/CIMError.h>
+
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+#include <Pegasus/Security/Authentication/PAMSessionBasicAuthenticator.h>
+#include <Pegasus/Security/Authentication/AuthenticationStatus.h>
+#endif
+
 
 PEGASUS_USING_STD;
 
@@ -118,6 +126,139 @@ void _throwCIMExceptionInvalidIParamName(const String& param = String::EMPTY)
     _throwCIMExceptionCIMErrNotSupported(param);
 }
 
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+void CIMOperationRequestDecoder::_updateExpiredPassword(
+    Uint32 queueId,
+    HttpMethod httpMethod,
+    const String& messageId,
+    Boolean closeConnect,
+    const ContentLanguageList& httpContentLanguages,
+    CIMMessage * request,
+    const String& userName,
+    const String& oldPass)
+{
+    static CIMName meth = CIMName("UpdateExpiredPassword");
+    static CIMName clName = CIMName("PG_Account");
+
+
+    // this has to be an invokeMethod and
+    if (CIM_INVOKE_METHOD_REQUEST_MESSAGE != request->getType())
+    {
+        sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "invalid header",
+            "Header \'Pragma: UpdateExpiredPassword\' not valid for this "
+                "CIMMethod.",
+            closeConnect);
+
+        return;
+    }
+
+    CIMInvokeMethodRequestMessage* msg =
+        dynamic_cast<CIMInvokeMethodRequestMessage*>(request);
+
+    // class PG_Account
+    // method UpdateExpiredPassword
+    // InterOp namespace
+    if ((!clName.equal(msg->className)) ||
+        (!(meth.equal(msg->methodName))) ||
+        (!msg->nameSpace.equal(PEGASUS_NAMESPACENAME_INTEROP.getString())))
+    {
+        // not of interest for us, chicken out
+        sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "invalid header",
+            "Header \'Pragma: UpdateExpiredPassword\' not valid for this "
+                "class, method or namespace.",
+            closeConnect);
+        return;
+    }
+
+    String newPass;
+    Boolean found = false;
+
+    try
+    {
+        // Get new password from request - String-type Parameter UserPassword
+        Array<CIMParamValue> inParm = msg->inParameters;
+        for (Uint32 i=0; i < inParm.size(); i++)
+        {
+            CIMParamValue x = inParm[i];
+            if (String::equalNoCase(x.getParameterName(),"UserPassword"))
+            {
+                CIMValue passValue = x.getValue();
+                passValue.get(newPass);
+                found = true;
+                break;
+            }
+        }
+    } catch(Exception &e)
+    {
+        // already know it is an invokeMethod, see checks above
+        sendMethodError(
+            queueId,
+            httpMethod,
+            messageId,
+            meth.getString(),
+            PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, e.getMessage()),
+            closeConnect);
+        return;
+    }
+    if (!found)
+    {
+        sendMethodError(
+            queueId,
+            httpMethod,
+            messageId,
+            meth.getString(),
+            PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, "Missing Parameter UserPassword"),
+            closeConnect);
+        return;
+    }
+    // Call password update function from PAMSession.h
+    AuthenticationStatus authStat =
+        PAMSessionBasicAuthenticator::updateExpiredPassword(
+            userName,
+            oldPass,
+            newPass);
+
+    if (authStat.isSuccess())
+    {
+        // Send success message
+        Buffer message;
+        Buffer emptyBody;
+
+        message = XmlWriter::formatSimpleMethodRspMessage(
+            meth,
+            messageId,
+            httpMethod,
+            httpContentLanguages,
+            emptyBody,
+            0,
+            true,
+            true);
+
+        sendResponse(queueId, message,closeConnect);
+    }
+    else
+    {
+        sendHttpError(
+            queueId,
+            authStat.getHttpStatus(),
+            String::EMPTY,
+            authStat.getErrorDetail(),
+            closeConnect);
+    }
+}
+#endif
+
+
+
+
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     MessageQueue* outputQueue,
     Uint32 returnQueueId)
@@ -179,6 +320,46 @@ void CIMOperationRequestDecoder::sendMethodError(
         messageId,
         httpMethod,
         cimException);
+
+    sendResponse(queueId, message,closeConnect);
+}
+
+void CIMOperationRequestDecoder::sendUserAccountExpired(
+    Uint32 queueId,
+    HttpMethod httpMethod,
+    const String& messageId,
+    const String& methodName,
+    Boolean closeConnect,
+    Boolean isIMethod)
+{
+    Buffer message;
+
+    CIMError errorInst;
+    errorInst.setErrorType(CIMError::ERROR_TYPE_OTHER);
+    errorInst.setOtherErrorType("Expired Password");
+    errorInst.setProbableCause(CIMError::PROBABLE_CAUSE_AUTHENTICATION_FAILURE);
+
+    CIMException myExc(
+        CIM_ERR_ACCESS_DENIED,
+        "User Account Expired",
+        errorInst.getInstance());
+
+    if (isIMethod)
+    {
+        message = XmlWriter::formatSimpleIMethodErrorRspMessage(
+            methodName,
+            messageId,
+            httpMethod,
+            myExc);
+    }
+    else
+    {
+        message = XmlWriter::formatSimpleMethodErrorRspMessage(
+            methodName,
+            messageId,
+            httpMethod,
+            myExc);
+    }
 
     sendResponse(queueId, message,closeConnect);
 }
@@ -263,9 +444,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     Uint32 queueId = httpMessage->queueId;
 
-    // Save userName and authType:
+    // Save userName, userRole, userPass and authType:
 
     String userName;
+    String userRole;
+    String userPass;
+    Boolean isExpiredPassword = false;
+    Boolean updateExpiredPassword;
     String authType;
     Boolean closeConnect = httpMessage->getCloseConnect();
 
@@ -278,6 +463,12 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     userName = httpMessage->authInfo->getAuthenticatedUser();
     authType = httpMessage->authInfo->getAuthType();
+    userRole = httpMessage->authInfo->getUserRole();
+    userPass = httpMessage->authInfo->getAuthenticatedPassword();
+
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+    isExpiredPassword = httpMessage->authInfo->isExpiredPassword();
+#endif
 
     // Parse the HTTP message:
 
@@ -411,6 +602,16 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     {
         // Mandated by the Specification for CIM Operations over HTTP
         cimProtocolVersion = "1.0";
+    }
+
+    // Validate if Pragma: UpdateExpiredPassword is set
+    updateExpiredPassword = false;
+
+    String pragmaValue;
+    if(HTTPMessage::lookupHeader(headers,"Pragma",pragmaValue))
+    {
+        updateExpiredPassword =
+            (PEG_NOT_FOUND != pragmaValue.find("UpdateExpiredPassword"));
     }
 
     String cimMethod;
@@ -599,6 +800,10 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         cimObject,
         authType,
         userName,
+        userRole,
+        userPass,
+        isExpiredPassword,
+        updateExpiredPassword,
         httpMessage->ipAddress,
         httpMessage->acceptLanguages,
         httpMessage->contentLanguages,
@@ -619,6 +824,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
     const String& cimObjectInHeader,
     const String& authType,
     const String& userName,
+    const String& userRole,
+    const String& userPass,
+    Boolean isExpiredPassword,
+    Boolean updateExpiredPassword,
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
@@ -665,6 +874,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
     //
 
     AutoPtr<CIMOperationRequestMessage> request;
+    String messageId;
+    Boolean isIMethodCall = true;
 
     if (binaryRequest)
     {
@@ -689,7 +900,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
     {
         XmlParser parser(content);
         XmlEntry entry;
-        String messageId;
         const char* cimMethodName = "";
 
         //
@@ -822,6 +1032,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
         if (XmlReader::getIMethodCallStartTag(parser, cimMethodName))
         {
+            isIMethodCall = true;
             // The Specification for CIM Operations over HTTP reads:
             //     3.3.6. CIMMethod
             //
@@ -1169,6 +1380,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
         else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
         {
             CIMObjectPath reference;
+            isIMethodCall = false;
 
             // The Specification for CIM Operations over HTTP reads:
             //     3.3.6. CIMMethod
@@ -1531,6 +1743,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
     if (cimmsg != NULL)
     {
         cimmsg->operationContext.insert(IdentityContainer(userName));
+        cimmsg->operationContext.insert(UserRoleContainer(userRole));
         cimmsg->operationContext.set(
             AcceptLanguageListContainer(httpAcceptLanguages));
         cimmsg->operationContext.set(
@@ -1541,6 +1754,46 @@ void CIMOperationRequestDecoder::handleMethodCall(
         ;    // l10n TODO - error back to client here
     }
 // l10n end
+
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+
+    // Whatever happens on the authentication, we need to check for
+    // a change of an expired password
+    // Since the definition for password updates is not completely
+    // defined in DMTF yet, keep this feature PAM_SESSION only
+    // This also only works with CIM-XML right now.
+    if (isExpiredPassword)
+    {
+        // only try password update if req. Pragma is set
+        if (updateExpiredPassword)
+        {
+            // update expired password
+            // fct. _updateExpiredPassword returns false
+            //        if the request was NOT for PG_Account etc.
+            _updateExpiredPassword(
+                queueId,
+                httpMethod,
+                messageId,
+                closeConnect,
+                httpContentLanguages,
+                cimmsg,
+                userName,
+                userPass);
+        }
+        else
+        {
+            sendUserAccountExpired(
+                queueId,
+                httpMethod,
+                messageId,
+                cimMethodInHeader,
+                closeConnect,
+                isIMethodCall);
+        }
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
 
     request->setCloseConnect(closeConnect);
     _outputQueue->enqueue(request.release());

@@ -37,6 +37,7 @@
 # include <openssl/err.h>
 # include <openssl/ssl.h>
 # include <openssl/rand.h>
+# include <openssl/tls1.h>
 #else
 # define SSL_CTX void
 #endif // end of PEGASUS_HAS_SSL
@@ -754,7 +755,17 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     //
     // set overall SSL Context flags
     //
-
+    // For OpenSSLversion >1.0.0 use SSL_OP_NO_COMPRESSION to disable the 
+    // compression For TLS 1.2 version, compression does not suffer from 
+    // CRIME attack so don.t disable compression For other OpenSSL versions 
+    // zero out the compression methods.
+#ifdef SSL_OP_NO_COMPRESSION 
+#ifndef TLS1_2_VERSION
+    SSL_CTX_set_options(sslContext, SSL_OP_NO_COMPRESSION); 
+#endif
+#elif OPENSSL_VERSION_NUMBER >= 0x00908000L 
+    sk_SSL_COMP_zero(SSL_COMP_get_compression_methods());
+#endif    
     SSL_CTX_set_quiet_shutdown(sslContext, 1);
     SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_mode(sslContext, SSL_MODE_ENABLE_PARTIAL_WRITE);

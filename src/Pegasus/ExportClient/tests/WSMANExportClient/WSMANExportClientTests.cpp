@@ -46,7 +46,7 @@ static void TestExceptionHandling()
 {
     Monitor monitor;
     HTTPConnector httpConnector(&monitor);
-    WSMANExportClient client(&httpConnector);
+    WSMANExportClient client(&httpConnector,&monitor);
 
     CIMInstance indication(CIMName("My_IndicationClass"));
     indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
@@ -75,7 +75,7 @@ static void TestTimeout()
 {
     Monitor monitor;
     HTTPConnector httpConnector(&monitor);
-    WSMANExportClient client(&httpConnector);
+    WSMANExportClient client(&httpConnector,&monitor);
     const int TIMEOUT_MILLISECONDS =
         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS * 2;
 
@@ -105,11 +105,11 @@ static void TestTimeout()
 static void testConnect()
 {
     //
-    //  Create CIMExportClient
+    //  Create WSMANExportClient
     //
     Monitor monitor;
     HTTPConnector httpConnector(&monitor);
-    WSMANExportClient client(&httpConnector);
+    WSMANExportClient client(&httpConnector,&monitor);
 
     //
     //  Look up port number
@@ -150,11 +150,11 @@ static void testConnect()
 static void testSSLConnect()
 {
     //
-    //  Create CIMExportClient
+    //  Create WSMANExportClient
     //
     Monitor monitor;
     HTTPConnector httpConnector(&monitor);
-    WSMANExportClient client(&httpConnector);
+    WSMANExportClient client(&httpConnector,&monitor);
 
     //
     //  Create SSLContext

@@ -153,6 +153,7 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
+    const String& errorDetail,
     const String& authResponse,
     Boolean closeConnect)
 {
@@ -164,7 +165,10 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     //
 
     Buffer message;
-    XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
+    XmlWriter::appendUnauthorizedResponseHeader(
+        message,
+        errorDetail,
+        authResponse);
 
     _sendResponse(queueId, message,closeConnect);
 
@@ -434,8 +438,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         ConfigManager::parseBooleanValue(configManager->getCurrentValue(
             _CONFIG_PARAM_ENABLEAUTHENTICATION));
 
-    Boolean isRequestAuthenticated =
-        httpMessage->authInfo->isConnectionAuthenticated();
+    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
+    if (httpMessage->authInfo->isConnectionAuthenticated())
+    {
+        authStatus = AuthenticationStatus(AUTHSC_SUCCESS);
+    }
+        
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     CIMKerberosSecurityAssociation* sa = NULL;
@@ -466,10 +474,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             !HTTPMessage::lookupHeader(
                  headers, "Authorization", authstr, false))
         {
-            isRequestAuthenticated = true;
+            authStatus = AuthenticationStatus(AUTHSC_SUCCESS);
         }
 #endif
-        if (isRequestAuthenticated)
+        if (authStatus.isSuccess())
         {
             if (httpMessage->authInfo->getAuthType()==
                     AuthenticationInfoRep::AUTH_TYPE_SSL)
@@ -725,9 +733,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     return;
                 }
 
-                if (!_authenticationManager->validateUserForHttpAuth(
+                authStatus =
+                    _authenticationManager->validateUserForHttpAuth(
                         certUserName,
-                        httpMessage->authInfo))
+                        httpMessage->authInfo);
+
+                if (!authStatus.isSuccess())
                 {
                     PEG_AUDIT_LOG(logCertificateBasedUserValidation(
                         certUserName,
@@ -742,6 +753,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         "User '$0' registered to this certificate is not a "
                             "valid user.",
                         certUserName);
+
                     _sendHttpError(
                         queueId,
                         HTTP_STATUS_UNAUTHORIZED,
@@ -993,14 +1005,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     //
                     // Do pegasus/local authentication
                     //
-                    isRequestAuthenticated =
+                    authStatus =
                         _authenticationManager->performPegasusAuthentication(
                             authorization,
                             httpMessage->authInfo);
 
-                    if (!isRequestAuthenticated)
+                    if (!authStatus.isSuccess())
                     {
-                        String authChallenge;
                         String authResp;
 
                         authResp = _authenticationManager->
@@ -1008,9 +1019,25 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                 authorization,
                                 httpMessage->authInfo);
 
-                        if (!String::equal(authResp, String::EMPTY))
+                        if (authResp.size() > 0)
                         {
-                            _sendChallenge(queueId, authResp,closeConnect);
+                            if (authStatus.doChallenge())
+                            {
+                                _sendChallenge(
+                                    queueId,
+                                    authStatus.getErrorDetail(),
+                                    authResp,
+                                    closeConnect);
+                            }
+                            else
+                            {
+                                _sendHttpError(
+                                    queueId,
+                                    authStatus.getHttpStatus(),
+                                    String::EMPTY,
+                                    authStatus.getErrorDetail(),
+                                    closeConnect);
+                            }
                         }
                         else
                         {
@@ -1051,12 +1078,30 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     headers, _HTTP_HEADER_AUTHORIZATION,
                     authorization, false))
             {
-                isRequestAuthenticated =
+                authStatus =
                     _authenticationManager->performHttpAuthentication(
                         authorization,
                         httpMessage->authInfo);
 
-                if (!isRequestAuthenticated)
+#ifdef PEGASUS_PAM_SESSION_SECURITY
+                if (authStatus.isPasswordExpired())
+                {
+                    // if this is CIM-XML and Password Expired treat as success
+                    // expired password state is already stored in
+                    // AuthenticationInfo
+                    const char* cimOperation;
+
+                    if (HTTPMessage::lookupHeader(
+                        headers,
+                        _HTTP_HEADER_CIMOPERATION,
+                        cimOperation,
+                        true))
+                    {
+                        authStatus = AuthenticationStatus(true);
+                    }                    
+                }
+#endif
+                if (!authStatus.isSuccess())
                 {
                     //ATTN: the number of challenges get sent for a
                     //      request on a connection can be pre-set.
@@ -1074,9 +1119,25 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     String authResp =
                         _authenticationManager->getHttpAuthResponseHeader();
 #endif
-                    if (!String::equal(authResp, String::EMPTY))
+                    if (authResp.size() > 0)
                     {
-                        _sendChallenge(queueId, authResp, closeConnect);
+                        if (authStatus.doChallenge())
+                        {
+                            _sendChallenge(
+                                queueId,
+                                authStatus.getErrorDetail(),
+                                authResp,
+                                closeConnect);
+                        }
+                        else
+                        {
+                            _sendHttpError(
+                                queueId,
+                                authStatus.getHttpStatus(),
+                                String::EMPTY,
+                                authStatus.getErrorDetail(),
+                                closeConnect);
+                        }
                     }
                     else
                     {
@@ -1168,7 +1229,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     }
 #endif
 
-    if (isRequestAuthenticated || !enableAuthentication)
+    if (authStatus.isSuccess() || !enableAuthentication)
     {
         // Final bastion to ensure the remote privileged user access
         // check is done as it should be
@@ -1360,9 +1421,25 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             _authenticationManager->getHttpAuthResponseHeader();
 #endif
 
-        if (!String::equal(authResp, String::EMPTY))
+        if (authResp.size() > 0)
         {
-            _sendChallenge(queueId, authResp,closeConnect);
+            if (authStatus.doChallenge())
+            {
+                _sendChallenge(
+                    queueId,
+                    authStatus.getErrorDetail(),
+                    authResp,
+                    closeConnect);
+            }
+            else
+            {
+                _sendHttpError(
+                    queueId,
+                    authStatus.getHttpStatus(),
+                    String::EMPTY,
+                    authStatus.getErrorDetail(),
+                    closeConnect);
+            }
         }
         else
         {

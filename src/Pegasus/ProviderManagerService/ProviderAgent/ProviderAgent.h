@@ -135,7 +135,12 @@ private:
     static void _responseChunkCallback(
         CIMRequestMessage* request, CIMResponseMessage* response);
 
-    void _unloadIdleProviders();
+    /*
+     *Tries to unload idle providers giving a timeout of value shutdown timeout
+     * return true if unloaded successfuly
+     */
+    Boolean _unloadIdleProviders();
+
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
 

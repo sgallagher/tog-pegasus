@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include "DestinationQueue.h"
@@ -42,9 +43,13 @@ PEGASUS_NAMESPACE_BEGIN
 // Initialize with default values.
 Uint16 DestinationQueue::_maxDeliveryRetryAttempts = 3;
 Uint64 DestinationQueue::_minDeliveryRetryIntervalUsec = 20 * 1000000;
+Uint64 DestinationQueue::_minSubscriptionRemovalTimeIntervalUsec
+    = 2592000 * 1000000ULL; // Default 30 days, Refer DSP1054.
 Uint64 DestinationQueue::_sequenceIdentifierLifetimeUsec = 600 * 1000000;
+
 String DestinationQueue::_indicationServiceName = "PG:IndicationService";
 String DestinationQueue::_objectManagerName = "Pegasus";
+Uint32 DestinationQueue::_indicationServiceQid;
 
 DestinationQueue::IndDiscardedReasonMsgs
     DestinationQueue::indDiscardedReasonMsgs[] = {
@@ -137,6 +142,16 @@ void DestinationQueue::_initIndicationServiceProperties()
        // See DSP 1054 ver 1.1.0 Sec 7.10
     _sequenceIdentifierLifetimeUsec = _maxDeliveryRetryAttempts *
         _minDeliveryRetryIntervalUsec * 10;
+
+    Uint32 subRemoveIntervalValue;
+    instance.getProperty(
+        instance.findProperty(
+            _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL)).getValue().
+                get(subRemoveIntervalValue);
+
+    _minSubscriptionRemovalTimeIntervalUsec =
+        subRemoveIntervalValue * 1000000ULL;
+
     PEG_METHOD_EXIT();
 }
 
@@ -172,6 +187,8 @@ DestinationQueue::DestinationQueue(
                     "Initializaing the Destination Queue");
                 _initIndicationServiceProperties();
                 _initObjectManagerProperties();
+                _indicationServiceQid = MessageQueueService::find_service_qid(
+                  PEGASUS_QUEUENAME_INDICATIONSERVICE);
             }
             catch(const Exception &e)
             {
@@ -228,10 +245,11 @@ DestinationQueue::DestinationQueue(
     _retryAttemptsExceededIndications = 0;
     _subscriptionDeleteDroppedIndications = 0;
     _calcMaxQueueSize = true;
-    _lastSuccessfulDeliveryTimeUsec = 0;
     _maxIndicationDeliveryQueueSize = 2400;
 
-    _queueCreationTimeUsec = System::getCurrentTimeUsec();
+    _lastSuccessfulDeliveryTimeUsec =
+        _queueCreationTimeUsec = System::getCurrentTimeUsec();
+
     PEG_METHOD_EXIT();
 }
 
@@ -337,7 +355,7 @@ void DestinationQueue::_logDiscardedIndication(
                 indDiscardedReasonMsgs[reasonCode].msg,
                 (const char*)_getSequenceContext(indication).getCString(),
                 _getSequenceNumber(indication)));
-            
+
     }
 }
 
@@ -453,6 +471,23 @@ void DestinationQueue::updateDeliveryRetryFailure(
     PEGASUS_ASSERT(_lastDeliveryRetryStatus == PENDING);
     _lastDeliveryRetryStatus = FAIL;
     info->deliveryRetryAttemptsMade++;
+
+    // If the last successful delivery time is greater than or equal to
+    // SubscriptionRemovalTimeInterval, send message to indication service
+    // to reconcile OnFatalErrorPolicy
+    if (System::getCurrentTimeUsec() - _lastSuccessfulDeliveryTimeUsec >=
+        _minSubscriptionRemovalTimeIntervalUsec)
+    {
+        CIMProcessIndicationResponseMessage *response =
+            new CIMProcessIndicationResponseMessage(
+                XmlWriter::getNextMessageId(),
+                CIMException(CIM_ERR_FAILED),
+                QueueIdStack(_indicationServiceQid),
+                String(),
+                info->subscription);
+        response->dest = _indicationServiceQid;
+        MessageQueueService::SendForget(response);
+    }
 
     // Check for DeliveryRetryAttempts by adding the original delivery attempt.
     if (info->deliveryRetryAttemptsMade >= _maxDeliveryRetryAttempts + 1)
@@ -720,7 +755,12 @@ void DestinationQueue::getInfo(QueueInfo &qinfo)
     qinfo.retryAttemptsExceededIndications = _retryAttemptsExceededIndications;
     qinfo.subscriptionDisableDroppedIndications =
         _subscriptionDeleteDroppedIndications;
-    qinfo.lastSuccessfulDeliveryTimeUsec = _lastSuccessfulDeliveryTimeUsec;
+    /* If the last successful delivery time is equals to the queue creation
+     * time, indication delivery for this destination was never successful
+     */
+    qinfo.lastSuccessfulDeliveryTimeUsec =
+      _lastSuccessfulDeliveryTimeUsec == _queueCreationTimeUsec ? 0 :
+          _lastSuccessfulDeliveryTimeUsec;
 }
 
 PEGASUS_NAMESPACE_END

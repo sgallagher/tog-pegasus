@@ -309,7 +309,7 @@ void ConfigSettingProvider::_modifyInstance(
         Boolean currentValueModified = false;
         Boolean plannedValueModified = false;
 
-        for (Uint32 i=0; i<propertyList.size(); i++)
+        for (Uint32 i = 0; i < propertyList.size(); ++i)
         {
             CIMName propertyName = propertyList[i];
             if (propertyName.equal (CURRENT_VALUE))

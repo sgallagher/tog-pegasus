@@ -53,6 +53,7 @@ ifeq ($(OS),HPUX)
 endif
 
 SOURCES = \
+    AuthenticationStatus.cpp \
     LocalAuthFile.cpp \
     SecureLocalAuthenticator.cpp \
     LocalAuthenticationHandler.cpp \

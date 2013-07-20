@@ -242,15 +242,15 @@ public:
     */
     static Boolean setTraceMemoryBufferSize(Uint32 bufferSize);
 
-    /** Set the Max trace File Size
+    /** Set the Max trace File Size and used for the File tracing
         @param maxLogFileSizeBytes size of cimserver.trc
     */
-    static void setMaxTraceFileSize (Uint32 maxLogFileSizeBytes);
+    static void setMaxTraceFileSize (const String &size);
 
     /** Set the Max trace File number
         @param maxLogFileNumber number of cimserver.trc in trace folder
     */
-    static void setMaxTraceFileNumber(Uint32 maxLogFileNumber);
+    static void setMaxTraceFileNumber(const String &numberOfFiles);
 
     /** Flushes the trace buffer to traceFilePath. This method will only
         have an effect when traceFacility=Memory.
@@ -335,6 +335,16 @@ public:
         return ((traceLevel & _traceLevelMask) &&
                 (_traceComponentMask & ((Uint64)1 << traceComponent)));
     }
+
+    //
+    //Converts a given string representation of a trace property into Uint32.
+    //If the string reperesantation is not valid, the returnd bufferSize is 0.
+    //@param  traceProperty     The trace property value as string
+    //@param  valueInUint32     Returns the value as Uint32.
+    //@return Boolean           True if specified size is a
+    //                          valid string representaion of a Uint32.
+    static Boolean tracePropertyToUint32( const String& traceProperty,
+              Uint32& valueInUint32 );
 
 private:
 
@@ -536,6 +546,8 @@ inline void Tracer::flushTrace()
     // empty function
     return;
 }
+
+
 
 #endif /* PEGASUS_REMOVE_TRACE */
 

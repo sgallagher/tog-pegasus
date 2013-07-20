@@ -175,6 +175,25 @@ public:
         return _authHandle;
     }
 
+    void setUserRole(const String& userRole)
+    {
+        _userRole = userRole;
+    }
+
+    String getUserRole()
+    {
+        return _userRole;
+    }
+
+    void setExpiredPassword(Boolean status)
+    {
+        _isExpiredPassword = status;
+    }
+
+    Boolean isExpiredPassword() const
+    {
+        return _isExpiredPassword;
+    }
 
 private:
 
@@ -200,6 +219,8 @@ private:
     Array<SSLCertificateInfo*> _clientCertificate;
 
     AuthHandle _authHandle;
+    String _userRole;
+    Boolean _isExpiredPassword;
 };
 
 PEGASUS_NAMESPACE_END

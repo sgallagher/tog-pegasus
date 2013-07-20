@@ -328,7 +328,7 @@ static void testGetInstanceElement3(const char* testDataFile)
     {
         CIMValue value;
         XmlReader::getValueElement(parser2, CIMTYPE_CHAR16, value);
-        PEGASUS_ASSERT(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     catch(const XmlSemanticError&)
     {

@@ -957,6 +957,29 @@ void Test10(void)
     }
 }
 
+void Test11(void)
+{
+    if(verbose)
+    {
+        cout << "Test11()" << endl;
+    }
+
+    OperationContext context;
+
+    String userRole("GodLikeEntity");
+
+    context.insert(UserRoleContainer(userRole));
+
+    UserRoleContainer container = context.get(UserRoleContainer::NAME);
+
+    if(userRole != container.getUserRole())
+    {
+        cout << "----- Locale Container failed" << endl;
+
+        throw 0;
+    }
+}
+
 int main(int, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -973,6 +996,7 @@ int main(int, char** argv)
         Test8();
         Test9();
         Test10();
+        Test11();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }

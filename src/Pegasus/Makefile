@@ -208,12 +208,12 @@ DIRS += \
     msg/CLI \
     msg/Listener
 
-ifdef PEGASUS_USE_EMANATE
+ifeq ($(PEGASUS_USE_EMANATE), true)
     DIRS += \
         Handler/snmpIndicationHandler
 endif
 
-ifdef PEGASUS_USE_NET_SNMP
+ifeq ($(PEGASUS_USE_NET_SNMP), true)
     DIRS += \
         Handler/snmpIndicationHandler
 endif
@@ -224,16 +224,18 @@ TEST_DIRS += \
     Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/FileURIHandler/tests
 
-ifdef PEGASUS_USE_EMANATE
+ifeq ($(PEGASUS_USE_EMANATE), true)
     TEST_DIRS += \
         Handler/snmpIndicationHandler/tests/testclient \
         Handler/snmpIndicationHandler/tests/SnmpHandlerException
 endif
 
-ifdef PEGASUS_USE_NET_SNMP
+
+ifeq ($(PEGASUS_USE_NET_SNMP), true)
     TEST_DIRS += \
         Handler/snmpIndicationHandler/tests/testclient \
         Handler/snmpIndicationHandler/tests/SnmpHandlerException
 endif
+
 
 include $(ROOT)/mak/recurse.mak

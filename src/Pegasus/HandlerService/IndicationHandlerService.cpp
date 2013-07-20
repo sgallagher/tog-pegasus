@@ -252,7 +252,7 @@ void IndicationHandlerService::handleEnqueue(Message* message)
         }
 
         default:
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             break;
     }
 }
@@ -293,6 +293,7 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
         (const char*)(handler.getClassName().getString().getCString()),
         (const char*)(handler.getProperty(handler.findProperty(
         PEGASUS_PROPERTYNAME_NAME)).getValue().toString().getCString())));
+
     Uint32 pos = PEG_NOT_FOUND;
 
     if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
@@ -389,6 +390,7 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
                     reinterpret_cast<CIMExportIndicationResponseMessage *>(
                         (static_cast<AsyncLegacyOperationResult *>(
                             asyncReply.get()))->get_result()));
+
                 cimException = exportResponse->cimException;
 
                 this->return_op(op.release());

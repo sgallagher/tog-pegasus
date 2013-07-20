@@ -32,6 +32,7 @@
 #include <cstring>
 #include "Buffer.h"
 #include "Pegasus/Common/InternalException.h"
+#include "Pegasus/Common/Pegasus_inl.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -86,12 +87,8 @@ static inline BufferRep* _allocate(Uint32 cap, Uint32 minCap)
 static inline BufferRep* _reallocate(BufferRep* rep, Uint32 cap)
 {
     // Allocate an extra byte for null-termination performed by getData().
-    rep = (BufferRep*)realloc(rep, sizeof(BufferRep) + cap + 1);
+    rep = (BufferRep*)peg_inln_realloc(rep, sizeof(BufferRep) + cap + 1);
 
-    if (!rep)
-    {
-        throw PEGASUS_STD(bad_alloc)();
-    }
     rep->cap = cap;
     return rep;
 }

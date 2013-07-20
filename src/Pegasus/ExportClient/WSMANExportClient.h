@@ -50,6 +50,7 @@ public:
     */
     WSMANExportClient(
         HTTPConnector* httpConnector,
+        Monitor* _monitor,
         Uint32 timeoutMilliseconds =
             PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
@@ -75,8 +76,9 @@ public:
 
 private:
 
-    void _doRequest(
-        WsmRequest * request);
+   Boolean  _doRequest(
+        WsmRequest * request,
+        WsmOperationType expectedResponseMessageType);
 
     deliveryMode _deliveryMode;
 };

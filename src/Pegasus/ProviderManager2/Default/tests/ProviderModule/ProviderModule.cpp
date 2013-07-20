@@ -78,12 +78,12 @@ void testGoodProvider()
         getLibraryFileName(GOOD_PROVIDER_LIBRARY_NAME));
 
     CIMProvider* provider = module.load(GOOD_PROVIDER_NAME);
-    PEGASUS_ASSERT(provider != 0);
+    PEGASUS_TEST_ASSERT(provider != 0);
     provider->terminate();
     module.unloadModule();
 
     provider = module.load(GOOD_PROVIDER_NAME);
-    PEGASUS_ASSERT(provider != 0);
+    PEGASUS_TEST_ASSERT(provider != 0);
 
     // Load incorrect provider name while another provider is loaded
     {
@@ -107,7 +107,7 @@ void testGoodProvider()
 
     // Load the same provider a second time
     CIMProvider* provider1 = module.load(GOOD_PROVIDER_NAME);
-    PEGASUS_ASSERT(provider1 != 0);
+    PEGASUS_TEST_ASSERT(provider1 != 0);
 
     provider->terminate();
     module.unloadModule();

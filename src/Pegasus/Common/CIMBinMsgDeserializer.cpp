@@ -743,6 +743,21 @@ Boolean CIMBinMsgDeserializer::_getOperationContext(
         operationContext.insert(CachedClassDefinitionContainer(cc));
     }
 
+    // [UserRoleContainer]
+
+    if (!in.getPresent(present))
+        return false;
+
+    if (present)
+    {
+        String userRole;
+
+        if (!in.getString(userRole))
+            return false;
+
+        operationContext.insert(UserRoleContainer(userRole));
+    }
+
     return true;
 }
 

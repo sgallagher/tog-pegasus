@@ -291,6 +291,9 @@ servertests: servertestsclean servertestssetup serversuite
 
 serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Server/tests -f Makefile commandtests
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/slp/tests/srv_reg/ -f Makefile tests
+endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository

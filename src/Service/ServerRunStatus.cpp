@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Pegasus_inl.h>
 #include <Service/PidFile.h>
 #include <Service/ServerRunStatus.h>
 
@@ -387,7 +388,7 @@ static struct procsinfo* _getProcessData(int& cnt)
             cnt += rtncnt;
             if (rtncnt >= count)
             {
-                proctable=(struct procsinfo *) realloc(
+                proctable = (struct procsinfo *)peg_inln_realloc(
                     (void*)proctable, (size_t) (PROCSIZE*(cnt+count)));
                 if (!proctable)
                 {

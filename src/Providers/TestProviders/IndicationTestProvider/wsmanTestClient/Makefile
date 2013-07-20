@@ -59,5 +59,14 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
 	@ grep -e "<wsa:Action>http://schemas.dmtf.org/wbem/wsman/1/wsman/Event</wsa:Action>" log >/dev/null
 	@ $(RM) log
 	@ $(ECHO) "+++++ WSMAN Indication Delivery test passed successfully"
+	@ wbemexec Subscription_PushWithAck.xml >/dev/null
+	@ wseventsink >log&
+	@ $(PROGRAM)
+	@ sleep 2
+	@ wbemexec Unsubscribe_PushWithAck.xml >/dev/null
+	@ killall wseventsink
+	@ grep -e "<wsa:Action>http://schemas.xmlsoap.org/wbmem/wsman/1/wsman/Ack</wsa:Action>" log >/dev/null
+	@ $(RM) log
+	@ $(ECHO) "+++++ WSMAN Indication Delivery with PUSH_WITH_ACK delivery mode got the acknowledgement"
 endif
 endif

@@ -44,9 +44,11 @@ PEGASUS_NAMESPACE_BEGIN
 ExportClient::ExportClient(
     const char* queueId,
     HTTPConnector* httpConnector,
-    Uint32 timeoutMilliseconds)
+    Uint32 timeoutMilliseconds,
+    Monitor* monitor)
     :MessageQueue(queueId),
     _httpConnector(httpConnector),
+    _monitor(monitor),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _httpConnection(0)
@@ -57,13 +59,16 @@ ExportClient::ExportClient(
      if((strcmp(queueId,PEGASUS_QUEUENAME_WSMANEXPORTCLIENT))== 0)
      {
          isWSMANExportIndication = true;
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
          _wsmanRequestEncoder=0;
+         _wsmanResponseDecoder=0;
+#endif
      }
      else if ((strcmp(queueId,PEGASUS_QUEUENAME_EXPORTCLIENT)) == 0)
      {
          isWSMANExportIndication = false;
          _cimRequestEncoder=0;
-         _responseDecoder=0;
+         _cimResponseDecoder=0;
          _doReconnect=false;
      }
  
@@ -86,7 +91,7 @@ void ExportClient::_connect()
     {
         // Create response decoder:
 
-        _responseDecoder = new CIMExportResponseDecoder(
+        _cimResponseDecoder = new CIMExportResponseDecoder(
             this,
             _cimRequestEncoder,
             &_authenticator);
@@ -99,13 +104,13 @@ void ExportClient::_connect()
                 _connectPortNumber,
                 _connectSSLContext.get(),
                 _timeoutMilliseconds,
-                _responseDecoder);
+                _cimResponseDecoder);
         }
         catch (...)
         {
             // Some possible exceptions are CannotCreateSocketException,
             // CannotConnectException, and InvalidLocatorException
-            delete _responseDecoder;
+            delete _cimResponseDecoder;
             PEG_METHOD_EXIT();
             throw;
         }
@@ -113,12 +118,33 @@ void ExportClient::_connect()
     }
     else
     {
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+        // Create response decoder:
+        _wsmanResponseDecoder =  new WSMANExportResponseDecoder(
+            this,
+            _wsmanRequestEncoder,
+            &_authenticator);
+        
+        // Attempt to establish a connection:
+        try
+        {
+           
+            _httpConnection = _httpConnector->connect(_connectHost,
+                _connectPortNumber,
+                _connectSSLContext.get(),
+                _timeoutMilliseconds,
+                _wsmanResponseDecoder);
+        }
+        catch(...)
+        {
+            // Some possible exceptions are CannotCreateSocketException,
+            // CannotConnectException, and InvalidLocatorException
+            delete _wsmanResponseDecoder;
+            PEG_METHOD_EXIT();
+            throw;
 
-        _httpConnection = _httpConnector->connect(_connectHost,
-            _connectPortNumber,
-            _connectSSLContext.get(),
-            _timeoutMilliseconds,
-            NULL);
+        }
+#endif
     }
 
     String connectHost = _connectHost;
@@ -148,6 +174,7 @@ void ExportClient::_connect()
             _connectHost,
             portStr,
             &_authenticator);
+        _wsmanResponseDecoder->setEncoderQueue(_wsmanRequestEncoder); 
     }
     else
 #endif
@@ -156,7 +183,7 @@ void ExportClient::_connect()
             _httpConnection,
             connectHost,
             &_authenticator);
-        _responseDecoder->setEncoderQueue(_cimRequestEncoder);
+        _cimResponseDecoder->setEncoderQueue(_cimRequestEncoder);
         _doReconnect = false;
     } 
 
@@ -176,16 +203,21 @@ void ExportClient::_disconnect()
         // destroy response decoder
         if(!isWSMANExportIndication)
         {
-            delete _responseDecoder;
-            _responseDecoder = 0;
+            delete _cimResponseDecoder;
+            _cimResponseDecoder = 0;
    
             delete _cimRequestEncoder;
             _cimRequestEncoder = 0;  
         }
         else
         {
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
             delete _wsmanRequestEncoder;
-            _cimRequestEncoder = 0;
+            _wsmanRequestEncoder = 0;
+
+            delete _wsmanResponseDecoder;
+            _wsmanResponseDecoder = 0;
+#endif
         }
         //
         // Close the connection

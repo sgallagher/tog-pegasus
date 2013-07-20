@@ -766,7 +766,24 @@ void CIMServer::runForever()
         {
             PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
                 "CIMServer::runForever - signal received.  Shutting down.");
-            ShutdownService::getInstance(this)->shutdown(true, 10, false);
+
+            //same statement as that of getShutdownTimeout
+            //TODO: DL consolidate in one place
+            ConfigManager *cfgManager = ConfigManager::getInstance();
+            String shutdnTimestr = cfgManager ->getCurrentValue(
+                "shutdownTimeout");
+
+            Uint64 shutdownTimeout = 0;
+
+            StringConversion::decimalStringToUint64(
+                    shutdnTimestr.getCString(), shutdownTimeout);
+
+            ShutdownService::getInstance(this)->shutdown(
+                true,
+                (Uint32)shutdownTimeout,
+                false);
+
+
             // Set to false must be after call to shutdown.  See
             // stopClientConnection.
             handleShutdownSignal = false;

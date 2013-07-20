@@ -370,7 +370,7 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "value  'All' forces listening at all interfaces. A comma seperated\n"
         "list(without spaces) forces listening at specific interfaces. For\n"
         "example: 'listenAddress=All' or 'listenAddress=121.12.33.112', or\n"
-        "'listenAddress=121.33.21.26,127.0.0.1, fe80::fe62:9346%eth0'"}
+        "'listenAddress=121.33.21.26,127.0.0.1,fe80::fe62:9346%eth0'"}
 };
 
 Uint32 configPropertyDescriptionListSize =

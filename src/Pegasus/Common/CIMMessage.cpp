@@ -1912,10 +1912,12 @@ CIMProcessIndicationResponseMessage::CIMProcessIndicationResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        String oopAgentName_ )
+        String oopAgentName_,
+        CIMInstance subscription_)
 : CIMResponseMessage(CIM_PROCESS_INDICATION_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
-    oopAgentName(oopAgentName_)
+    oopAgentName(oopAgentName_),
+    subscription(subscription_)
 {
 }
 

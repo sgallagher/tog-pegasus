@@ -59,21 +59,9 @@ PEGASUS_NAMESPACE_BEGIN
 typedef struct PAMDataStruct
 {
     const char* password;
+    const char* newpassword;
 }
 PAMData;
-
-
-static void _freePAMMessage(int numMsg, struct pam_response** rsp)
-{
-    // rsp is initialized to zero's, can call free() since it does check for
-    // Null Pointer and a failed malloc does not change pointer value
-    for (int i = 0; i < numMsg; i++)
-    {
-        free(rsp[i]->resp);
-    }
-    free(rsp);
-}
-
 
 /*
 **==============================================================================
@@ -84,6 +72,22 @@ static void _freePAMMessage(int numMsg, struct pam_response** rsp)
 **
 **==============================================================================
 */
+
+static void _freePAMMessage(int numMsg, struct pam_response** rsp)
+{
+    // rsp is initialized to zero's, can call free() since it does check for
+    // Null Pointer and a failed malloc does not change pointer value
+    for (int i = 0; i < numMsg; i++)
+    {
+        if (rsp[i]->resp != NULL)
+        {
+            memset(rsp[i]->resp, 0, PAM_MAX_MSG_SIZE);
+            free(rsp[i]->resp);
+        }
+    }
+    free(*rsp);
+    *rsp = NULL;
+}
 
 static int PAMAuthenticateCallback(
     int num_msg,
@@ -138,6 +142,75 @@ static int PAMAuthenticateCallback(
     return PAM_SUCCESS;
 }
 
+/*
+**==============================================================================
+**
+** PAMUpdateExpiredPasswordCallback()
+**
+**     Callback used by _PAMUpdateExpiredPassword().
+**
+**==============================================================================
+*/
+
+static int PAMUpdateExpiredPasswordCallback(
+    int num_msg,
+#if defined(PEGASUS_OS_LINUX)
+    const struct pam_message** msg,
+#else
+    struct pam_message** msg,
+#endif
+    struct pam_response** resp,
+    void* appdata_ptr)
+{
+    PAMData* data = (PAMData*)appdata_ptr;
+    int i;
+
+    if (num_msg > 0)
+    {
+        *resp = (struct pam_response*)calloc(
+            num_msg, sizeof(struct pam_response));
+
+        if (*resp == NULL)
+            return PAM_BUF_ERR;
+    }
+    else
+    {
+        return PAM_CONV_ERR;
+    }
+
+    for (i = 0; i < num_msg; i++)
+    {
+        switch (msg[i]->msg_style)
+        {
+            case PAM_PROMPT_ECHO_OFF:
+            {
+                resp[i]->resp = (char*)malloc(PAM_MAX_MSG_SIZE);
+                if (resp[i]->resp == NULL)
+                {
+                    _freePAMMessage(num_msg, resp);
+                    return PAM_BUF_ERR;
+                }
+                if (i > 0)
+                {
+                    strncpy(resp[i]->resp, data->newpassword, PAM_MAX_MSG_SIZE);
+                }
+                else
+                {
+                    strncpy(resp[0]->resp, data->password, PAM_MAX_MSG_SIZE);
+                }
+                resp[i]->resp_retcode = 0;
+                break;
+            }
+
+            default:
+            {
+                _freePAMMessage(num_msg, resp);
+                return PAM_CONV_ERR;
+            }
+        }
+    }
+    return PAM_SUCCESS;
+}
 
 /*
 **==============================================================================
@@ -271,6 +344,14 @@ static int _PAMAuthenticate(
     int pam_rc;
     PAMData data;
 
+    /* commented out statement in place to allow triggering a Http 500 Error */
+    /* intentionally for testing purposes */
+    // return PAM_SERVICE_ERR;
+
+    // commented out statement in place to allow triggering a Password Expired
+    // intentionally for testing purposes
+    // return PAM_CRED_EXPIRED;
+
     pam_rc = _preparePAM(true, &handle, &data, username, password, authInfo);
     if (pam_rc != PAM_SUCCESS)
     {
@@ -283,6 +364,16 @@ static int _PAMAuthenticate(
         _logPAMError(handle, "pam_authenticate", pam_rc);
         pam_end(handle, 0);
         return pam_rc;
+    }
+
+    // uncomment the following line for testing purposes
+    // pam_putenv(handle, "CMPIRole=UserTestRole4711");
+
+    String userRole;
+    const char* role = pam_getenv(handle, "CMPIRole");
+    if (NULL != role)
+    {
+        userRole.assign(role);
     }
 
     pam_rc = pam_acct_mgmt(handle, 0);
@@ -299,6 +390,7 @@ static int _PAMAuthenticate(
     AuthHandle myAuth;
     myAuth.hdl = handle;
     authInfo->setAuthHandle(myAuth);
+    authInfo->setUserRole(userRole);
 
     return pam_rc;
 }
@@ -339,6 +431,62 @@ static int _PAMValidateUser(
 
     return pam_rc;
 }
+
+/*
+**==============================================================================
+**
+** _PAMUpdateExpiredPassword()
+**
+**     Update the password for user: *username*
+**
+**==============================================================================
+*/
+
+static int _PAMUpdateExpiredPassword(
+    const char* username,
+    const char* oldpass,
+    const char* newpass)
+{
+    pam_handle_t* handle;
+    PAMData data;
+    struct pam_conv pconv;
+    int pam_rc;
+
+    pconv.conv = PAMUpdateExpiredPasswordCallback;
+    data.password = oldpass;
+    data.newpassword = newpass;
+
+    pconv.appdata_ptr = &data;
+
+    pam_rc = pam_start(PAM_CONFIG_FILE,username,&pconv,&handle);
+
+    if (pam_rc != PAM_SUCCESS)
+    {
+        _logPAMError(0, "pam_start", pam_rc);
+        return pam_rc;
+    }
+    
+    pam_rc = pam_authenticate(handle, 0);
+
+    if (!(pam_rc == AUTHSC_PASSWORD_EXPIRED) ||
+         (pam_rc == AUTHSC_PASSWORD_CHG_REQUIRED))
+    {
+        _logPAMError(handle, "pam_authenticate", pam_rc);
+        pam_end(handle, 0);
+        return pam_rc;
+    }
+
+    pam_rc = pam_chauthtok(handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+    if (pam_rc != PAM_SUCCESS)
+    {
+        _logPAMError(handle, "pam_chauthtok", pam_rc);
+    }
+
+    pam_end(handle, 0);
+
+    return pam_rc;
+}
+
 
 PEGASUS_NAMESPACE_END
 

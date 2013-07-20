@@ -480,6 +480,21 @@ void CMPIProviderManager::_setupCMPIContexts(
             "CMPIRRemoteInfo",(CMPIValue*)(const char*)(*remoteInfo),
             CMPI_chars);
     }
+
+    // add User Role from OperationContext to CMPIRole
+
+    if (context->contains(UserRoleContainer::NAME))
+    {
+        const UserRoleContainer container=context->get(UserRoleContainer::NAME);
+
+        CString userRole = container.getUserRole().getCString();
+
+        eCtx->ft->addEntry(
+            eCtx,
+            CMPIRole,
+            (CMPIValue*)(const char*) userRole,
+            CMPI_chars);
+    }
 }
 
 /*

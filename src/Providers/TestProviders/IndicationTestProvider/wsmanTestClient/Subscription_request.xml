@@ -3,7 +3,7 @@
     <s:Header>
         <wsa:Action s:mustUnderstand="true">http://schemas.xmlsoap.org/ws/2004/08/eventing/Subscribe</wsa:Action>
         <wsa:To s:mustUnderstand="true">http://localhost:5988/wsman</wsa:To>
-        <wsman:ResourceURI s:mustUnderstand="true">http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/Test_IndicationProviderClass</wsman:ResourceURI>
+        <wsman:ResourceURI s:mustUnderstand="true">http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/IndicationStressTestClass</wsman:ResourceURI>
         <wsa:MessageID s:mustUnderstand="true">uuid:c0939d02-b355-1355-8002-591af26e3000</wsa:MessageID>
         <wsa:ReplyTo>
             <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</wsa:Address>
@@ -20,7 +20,7 @@
                 </wse:NotifyTo>
             </wse:Delivery>
             <wse:Expires>PT600.000000S</wse:Expires>
-            <wsman:Filter Dialect="http://schemas.dmtf.org/wbem/wsman/1/WQL">SELECT * FROM Test_IndicationProviderClass</wsman:Filter>
+            <wsman:Filter Dialect="http://schemas.dmtf.org/wbem/wsman/1/WQL">SELECT * FROM IndicationStressTestClass</wsman:Filter>
         </wse:Subscribe>
     </s:Body>
 </s:Envelope>

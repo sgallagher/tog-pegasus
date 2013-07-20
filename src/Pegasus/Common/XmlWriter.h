@@ -260,6 +260,7 @@ public:
 
     static void appendUnauthorizedResponseHeader(
         Buffer& out,
+        const String& errorDetail,
         const String& content);
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION

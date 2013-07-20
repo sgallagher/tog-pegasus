@@ -241,13 +241,6 @@ const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION =
     CIMNameCast("SubscriptionRemovalAction");
 
 /**
-    The name of the SubscriptionRemovalTimeInterval property of
-    IndicationService class.
-*/
-const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL =
-    CIMNameCast("SubscriptionRemovalTimeInterval");
-
-/**
     The name of the DeliveryRetryAttempts property of
     IndicationService class.
 */

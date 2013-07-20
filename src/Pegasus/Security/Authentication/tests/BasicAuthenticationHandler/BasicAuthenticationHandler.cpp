@@ -116,6 +116,8 @@ void testAuthenticationFailure_1()
 {
     String authHeader;
     Boolean authenticated;
+    // initialize with success to ensure failure is detected
+    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -129,7 +131,8 @@ void testAuthenticationFailure_1()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
+    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     if (verbose)
     {
@@ -149,6 +152,8 @@ void testAuthenticationFailure_2()
 {
     String authHeader;
     Boolean authenticated;
+    // initialize with success to ensure failure is detected
+    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -163,7 +168,8 @@ void testAuthenticationFailure_2()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
+    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     if (verbose)
     {
@@ -183,6 +189,8 @@ void testAuthenticationFailure_3()
 {
     String authHeader;
     Boolean authenticated;
+    // initialize with success to ensure failure is detected
+    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -194,7 +202,8 @@ void testAuthenticationFailure_3()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
+    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     if (verbose)
     {
@@ -214,6 +223,8 @@ void testAuthenticationFailure_4()
 {
     String authHeader;
     Boolean authenticated;
+    // initialize with success to ensure failure is detected
+    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -225,7 +236,8 @@ void testAuthenticationFailure_4()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
+    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     if (verbose)
     {
@@ -245,6 +257,8 @@ void testAuthenticationFailure_4()
 void testAuthenticationSuccess()
 {
     String authHeader;
+    // initialize with success to ensure failure is detected
+    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -258,7 +272,8 @@ void testAuthenticationSuccess()
 
     Boolean authenticated;
 
-    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
+    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
+    authenticated = authStatus.isSuccess();
 
     if (verbose)
     {

@@ -285,16 +285,20 @@ void CLITestProvider::invokeMethod(
                     if(String::equalNoCase(paramName,"InParam1"))
                     {
                         outParamName = "OutParam1";
-                        PEGASUS_ASSERT(paramVal.getType() == CIMTYPE_REFERENCE
+                        PEGASUS_TEST_ASSERT(
+                            paramVal.getType() == CIMTYPE_REFERENCE
                             && !paramVal.isArray());
+
                         param.setParameterName(outParamName);
                         handler.deliverParamValue(param);
                     }
                     else if(String::equalNoCase(paramName,"InParam2"))
                     {
                         outParamName = "OutParam2";
-                        PEGASUS_ASSERT(paramVal.getType() == CIMTYPE_REFERENCE
+                        PEGASUS_TEST_ASSERT(
+                            paramVal.getType() == CIMTYPE_REFERENCE
                             && paramVal.isArray());
+
                         param.setParameterName(outParamName);
                         handler.deliverParamValue(param);
                     }

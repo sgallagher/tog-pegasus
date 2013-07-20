@@ -76,7 +76,7 @@ BasicAuthenticationHandler::~BasicAuthenticationHandler()
     PEG_METHOD_EXIT();
 }
 
-Boolean BasicAuthenticationHandler::authenticate(
+AuthenticationStatus BasicAuthenticationHandler::authenticate(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
@@ -109,11 +109,10 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     Uint32 pos = decodedStr.find(':');
 
-    Boolean authenticated = false;
     if (pos == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
-        return authenticated;
+        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
     }
 
     String userName = decodedStr.subString(0, pos);
@@ -130,7 +129,7 @@ Boolean BasicAuthenticationHandler::authenticate(
                 BASIC_AUTHENTICATION_FAILED, userName,
                 authInfo->getIpAddress()));
         PEG_METHOD_EXIT();
-        return false;
+        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
     }
 
     // PASE APIs require user profile to be uppercase
@@ -150,11 +149,11 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(userName))
     {
-        return false;
+        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
     }
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    authenticated=
+    AuthenticationStatus authStatus=
         _basicAuthenticator->authenticate(
             userName,
             password,
@@ -164,9 +163,9 @@ Boolean BasicAuthenticationHandler::authenticate(
     PEG_AUDIT_LOG(logBasicAuthentication(
         userName,
         authInfo->getIpAddress(),
-        authenticated));
+        authStatus.isSuccess()));
 
-    if (authenticated)
+    if (authStatus.isSuccess())
     {
         authInfo->setAuthenticatedUser(userName);
     }
@@ -185,10 +184,10 @@ Boolean BasicAuthenticationHandler::authenticate(
 #endif
 
     PEG_METHOD_EXIT();
-    return authenticated;
+    return authStatus;
 }
 
-Boolean BasicAuthenticationHandler::validateUser(
+AuthenticationStatus BasicAuthenticationHandler::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {

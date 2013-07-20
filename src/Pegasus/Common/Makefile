@@ -130,7 +130,8 @@ SOURCES1 = \
     AsyncQueue.cpp \
     IDFactory.cpp \
     AuditLogger.cpp \
-    Magic.cpp
+    Magic.cpp \
+    UintArgs.cpp
 
 SOURCES2 = \
     Exception.cpp \
@@ -186,7 +187,6 @@ SOURCES2 = \
     Constants.cpp \
     HostAddress.cpp \
     HostLocator.cpp \
-	NumericArg.cpp \
     BinaryCodec.cpp \
     CIMBuffer.cpp \
     CIMInternalXmlEncoder.cpp \

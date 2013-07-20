@@ -80,7 +80,7 @@ ShutdownPropertyOwner::ShutdownPropertyOwner()
 */
 void ShutdownPropertyOwner::initialize()
 {
-    for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
+    for (Uint32 i = 0; i < NUM_PROPERTIES; ++i)
     {
         //
         // Initialize the properties with default values
@@ -227,14 +227,7 @@ Boolean ShutdownPropertyOwner::isValid(
     {
         // Check if the timeout value is greater than the minimum allowed
         //
-        if ( timeoutValue >= MIN_SHUTDOWN_TIMEOUT )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return  timeoutValue >= MIN_SHUTDOWN_TIMEOUT;
     }
     else
     {

@@ -82,17 +82,6 @@ public:
     {
         _wsmanOperationMessageQueueId = wsmanOperationMessageQueueId;
     }
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    void setWebQueueId(Uint32 webOperationMessageQueueId)
-    {
-        _webOperationMessageQueueId = webOperationMessageQueueId;
-    }
-#endif
-
-    void setRsQueueId(Uint32 rsOperationMessageQueueId)
-    {
-        _rsOperationMessageQueueId = rsOperationMessageQueueId;
-    }
 
 private:
 
@@ -124,10 +113,6 @@ private:
     Uint32 _cimOperationMessageQueueId;
     Uint32 _cimExportMessageQueueId;
     Uint32 _wsmanOperationMessageQueueId;
-    Uint32 _rsOperationMessageQueueId;
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    Uint32 _webOperationMessageQueueId;
-#endif
 
     AutoPtr<AuthenticationManager> _authenticationManager;
 

@@ -254,10 +254,12 @@ private:
     static Uint16 _maxDeliveryRetryAttempts;
     static Uint64 _minDeliveryRetryIntervalUsec;
     static Uint64 _sequenceIdentifierLifetimeUsec;
+    static Uint64 _minSubscriptionRemovalTimeIntervalUsec;
     static Uint64 _serverStartupTimeUsec;
     static Boolean _initialized;
     static String _indicationServiceName;
     static String _objectManagerName;
+    static Uint32    _indicationServiceQid;
 
     struct IndDiscardedReasonMsgs
     {

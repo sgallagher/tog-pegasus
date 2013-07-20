@@ -345,6 +345,11 @@ OperationContext ProviderMessageHandler::_createProviderOperationContext(
     providerContext.insert(context.get(AcceptLanguageListContainer::NAME));
     providerContext.insert(context.get(ContentLanguageListContainer::NAME));
 
+    if (context.contains(UserRoleContainer::NAME))
+    {
+        providerContext.insert(context.get(UserRoleContainer::NAME));
+    }
+
     return providerContext;
 }
 

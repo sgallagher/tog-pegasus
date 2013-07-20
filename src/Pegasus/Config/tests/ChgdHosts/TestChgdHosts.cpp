@@ -76,7 +76,17 @@ void testFilterSystemName(
     {
         cout << "SystemName returned is: " << sysName.getValue() << endl;
     }
-    PEGASUS_TEST_ASSERT(String("hugo.bert") == sysName.getValue());
+    
+    Boolean result = String("hugo.bert") == sysName.getValue();
+
+    if(!result)
+    {
+       cout << "Test failed, Make sure that cimserver is started " \
+               "with \"hostname=hugo fullyQualifiedHostName=hugo.bert\"" \
+               << endl;
+    }
+
+    PEGASUS_TEST_ASSERT(result);
 }
 
 /* SystemName property in ObjectManager instance should be set to 
@@ -109,7 +119,9 @@ void testObjectManagerSystemName(
    Check that hostname is hugo as hostname config property was set to that
    value at CIM Server startup for this test case
  */
-void testAssociationsHostName(
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+
+void testAssociationsHostNameCMPI(
     CIMClient & client)
 {
     Array<CIMObjectPath> objPaths = client.enumerateInstanceNames(
@@ -130,7 +142,28 @@ void testAssociationsHostName(
     PEGASUS_TEST_ASSERT(String::equal(pathHN,"hugo"));
 }
 
+#endif //PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 
+void testAssociationsHostName(
+    CIMClient & client)
+{
+    Array<CIMObjectPath> objPaths = client.enumerateInstanceNames(
+        CIMNamespaceName("test/TestProvider"),
+        CIMName("TST_Person"));
+
+    PEGASUS_TEST_ASSERT(objPaths.size() > 0);
+
+    Array<CIMObject> objects = client.associators(
+        CIMNamespaceName("test/TestProvider"),
+        objPaths[0]);
+
+    PEGASUS_TEST_ASSERT(objects.size() > 0);
+
+    CIMObjectPath path = objects[0].getPath();    
+    String pathHN = path.getHost();
+
+    PEGASUS_TEST_ASSERT(String::equal(pathHN,"hugo"));
+}
 
 int main(int, char** argv)
 {
@@ -145,6 +178,11 @@ int main(int, char** argv)
         testFilterSystemName(client);
 #ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
         testObjectManagerSystemName(client);
+#endif 
+
+
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+        testAssociationsHostNameCMPI(client);
 #endif 
         testAssociationsHostName(client);
 

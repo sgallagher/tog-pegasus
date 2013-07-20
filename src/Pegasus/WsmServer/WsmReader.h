@@ -184,6 +184,12 @@ public:
         String& notifyTo,
         String& subExpiration,
         WsmFilter & wsmFilter);
+ 
+    void checkDuplicateHeader(
+        const char* elementName,
+        Boolean isDuplicate);
+
+    XmlParser& getParser();
 private:
 
     XmlParser _parser;

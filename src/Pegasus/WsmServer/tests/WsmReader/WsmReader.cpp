@@ -1188,20 +1188,20 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
         reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements, wsmFilter);
 
-        PEGASUS_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
+        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
                        WsmFilter::ASSOCIATED_INSTANCES);
 
-        PEGASUS_ASSERT(
+        PEGASUS_TEST_ASSERT(
             wsmFilter.AssocFilter.object.getNamespace() == "interop");
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.assocClassName == CIMName());
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocClassName == CIMName());
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.role == "parent");
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "parent");
 
-        PEGASUS_ASSERT(
+        PEGASUS_TEST_ASSERT(
            wsmFilter.AssocFilter.resultClassName.equal("CIM_SystemPackaging"));
     }
 
@@ -1218,18 +1218,18 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
         reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements, wsmFilter);
 
-        PEGASUS_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
+        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
                        WsmFilter::ASSOCIATION_INSTANCES);
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.resultRole == "child" );
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "child" );
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.role == "parent");
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "parent");
 
-        PEGASUS_ASSERT(
+        PEGASUS_TEST_ASSERT(
             wsmFilter.AssocFilter.assocClassName.equal("CIM_SomeClass"));
-        PEGASUS_ASSERT(
+        PEGASUS_TEST_ASSERT(
             wsmFilter.AssocFilter.resultClassName.equal("CIM_SystemPackaging"));
     }
 
@@ -1246,20 +1246,20 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
         reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements, wsmFilter);
 
-        PEGASUS_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
+        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
                        WsmFilter::ASSOCIATION_INSTANCES);
 
         // Confirm that each of the Role parameter is an empty string.
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.role == "" );
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "" );
 
-        PEGASUS_ASSERT(
+        PEGASUS_TEST_ASSERT(
             wsmFilter.AssocFilter.assocClassName.equal("CIM_SomeClass"));
-        PEGASUS_ASSERT(
+        PEGASUS_TEST_ASSERT(
             wsmFilter.AssocFilter.resultClassName.equal("CIM_SystemPackaging"));
     }
     // No 4. Invalid namespace on Association type property
@@ -1278,7 +1278,7 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
         }
         catch (WsmFault& fault)
         {
-            PEGASUS_ASSERT(
+            PEGASUS_TEST_ASSERT(
                 fault.getSubcode() == "wsen:CannotProcessFilter");
             // move forward to end of Enumerate for next test
             while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
@@ -1308,7 +1308,7 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
             while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                strcmp(entry.localName, "Enumerate") != 0));
         }
-        PEGASUS_ASSERT(exception);
+        PEGASUS_TEST_ASSERT(exception);
     }
 
     // No 6. Default for all optional properties
@@ -1323,18 +1323,18 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
         reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements, wsmFilter);
 
-        PEGASUS_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
+        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
 
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
                        WsmFilter::ASSOCIATION_INSTANCES);
 
         // Confirm that each of the Role parameters is an empty string.
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.role == "" );
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "" );
 
         // confirm that the class parameters are Null values
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.assocClassName.isNull());
-        PEGASUS_ASSERT(wsmFilter.AssocFilter.resultClassName.isNull());
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocClassName.isNull());
+        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultClassName.isNull());
     }
     // No 7. Filter with Duplicate Filter elements
     {
@@ -1352,7 +1352,7 @@ static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
         }
         catch (WsmFault& fault)
         {
-            PEGASUS_ASSERT(
+            PEGASUS_TEST_ASSERT(
                 fault.getSubcode() == "wsa:InvalidMessageInformationHeader");
             // move forward to end of Enumerate for next test
             while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
@@ -1467,6 +1467,33 @@ static void _testSubscribeBody(WsmReader& reader)
         throw Exception("Invalid subscribe body");
     } 
 }
+
+static void _testSubscribeBodyPushWithAck(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    String deliveryMode;
+    String destination;
+    String subExpiration;
+    WsmFilter wsmFilter;
+
+    reader.decodeSubscribeBody(
+        deliveryMode,
+        destination,
+        subExpiration,
+        wsmFilter);
+
+    if (subExpiration != "30000000" ||
+        deliveryMode != "3" ||
+        destination != "http://localhost:80/eventsink" ||
+        wsmFilter.filterDialect != WsmFilter::WQL ||
+        wsmFilter.WQLFilter.query != "SELECT * FROM IndicationStressTestClass")
+    {
+        throw Exception("Invalid subscribe body");
+    }
+}
+
 
 int main(int argc, char** argv)
 {
@@ -1597,6 +1624,19 @@ int main(int argc, char** argv)
                 cout << "Testing wsman subscribe." << endl;
 
             _testSubscribeBody(reader);
+        }
+        /*WS-Subscribe with push_WITH_ACK delivery mode tests*/
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(
+                text,
+                "./subscribe_bodyPushWithAck.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing wsman subscribe with PUSH_WITH_ACK." << endl;
+
+            _testSubscribeBodyPushWithAck(reader);
         }
     }
     catch(Exception& e)

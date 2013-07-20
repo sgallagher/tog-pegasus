@@ -82,6 +82,7 @@
 
 #define PEGASUS_QUEUENAME_WSMANEXPORTCLIENT    "WSMANExportClient"
 #define PEGASUS_QUEUENAME_WSMANEXPORTREQENCODER  "WSMANExportRequestEncoder"
+#define PEGASUS_QUEUENAME_WSMANEXPORTRESPENCODER  "WSMANExportResponseDecoder"
 
 /*
  * ModuleController Module Names
@@ -784,6 +785,13 @@ PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE;
     classes
  */
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_NAME;
+
+/**
+    The name of the SubscriptionRemovalTimeInterval property of
+    IndicationService class.
+*/
+PEGASUS_COMMON_LINKAGE extern const
+    CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
 
 /**
     The name of the Creation Class Name property for indication filter and

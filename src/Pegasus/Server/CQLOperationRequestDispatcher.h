@@ -56,10 +56,7 @@ public:
     void handleQueryRequest(
         CIMExecQueryRequestMessage* request);
 
-    void handleQueryResponseAggregation(
-        OperationAggregate* poA);
-
-    void applyQueryToEnumeration(
+    static void applyQueryToEnumeration(
         CIMResponseMessage* msg,
         QueryExpressionRep* query);
 };

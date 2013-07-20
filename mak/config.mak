@@ -682,22 +682,27 @@ ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
 endif
 
 # Controls snmp indication handler to use NET-SNMP to deliver trap
-ifdef PEGASUS_USE_NET_SNMP
-    DEFINES += -DPEGASUS_USE_NET_SNMP
+ifdef PEGASUS_USE_NET_SNMP   
+   ifeq ($(PEGASUS_USE_NET_SNMP),true)
+      DEFINES += -DPEGASUS_USE_NET_SNMP
+   else
+      ifneq ($(PEGASUS_USE_NET_SNMP),false)
+         $(error PEGASUS_USE_NET_SNMP ($(PEGASUS_USE_NET_SNMP)) invalid, must be true or false)
+      endif
+   endif
 endif
-
 # Controls snmp indication handler to use NET-SNMP V3 features. 
 ifndef PEGASUS_ENABLE_NET_SNMPV3
-    ifdef PEGASUS_USE_NET_SNMP
-        PEGASUS_ENABLE_NET_SNMPV3=true
+    ifeq ($(PEGASUS_USE_NET_SNMP),true)
+       PEGASUS_ENABLE_NET_SNMPV3=true
     else
         PEGASUS_ENABLE_NET_SNMPV3=false
     endif
 endif
 
 ifeq ($(PEGASUS_ENABLE_NET_SNMPV3),true)
-    ifndef PEGASUS_USE_NET_SNMP
-        $(error PEGASUS_USE_NET_SNMP should be set when PEGASUS_ENABLE_NET_SNMPV3 is true)
+    ifneq ($(PEGASUS_USE_NET_SNMP),true)
+        $(error PEGASUS_USE_NET_SNMP should be set to true when PEGASUS_ENABLE_NET_SNMPV3 is true)
     endif
     DEFINES += -DPEGASUS_ENABLE_NET_SNMPV3
 else

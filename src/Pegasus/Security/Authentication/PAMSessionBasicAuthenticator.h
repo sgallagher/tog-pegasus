@@ -50,16 +50,21 @@ public:
 
     ~PAMSessionBasicAuthenticator();
 
-    Boolean authenticate(
+    AuthenticationStatus authenticate(
         const String& userName,
         const String& password,
         AuthenticationInfo* authInfo);
 
-    Boolean validateUser(
+    AuthenticationStatus validateUser(
         const String& userName,
         AuthenticationInfo* authInfo);
 
     String getAuthResponseHeader();
+
+    static AuthenticationStatus updateExpiredPassword(
+        const String& userName,
+        const String& oldPass,
+        const String& newPass);
 
 private:
 

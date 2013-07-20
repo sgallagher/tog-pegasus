@@ -67,12 +67,14 @@ endif
 
 ifeq ($(OS),linux)
    PACKAGED_PLATFORM_FILES = \
+      LINUX_AARCH64_GNU \
       LINUX_IA64_GNU \
       LINUX_IX86_GNU \
       LINUX_IX86_CLANG \
       LINUX_PPC64_GNU \
       LINUX_PPC_GNU \
       LINUX_PPC_E500_GNU \
+      LINUX_SH4_GNU \
       LINUX_X86_64_GNU \
       LINUX_X86_64_CLANG \
       LINUX_ZSERIES64_GNU \
@@ -436,6 +438,13 @@ createSDKEnvVarFile:
 createConfigFile_setPegasusPlatform:
 ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
   ifeq ($(OS),linux)
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),aarch64)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_AARCH64_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+
 	@$(ECHO-E) "   ifeq (\044(shell uname -i),ia64)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_IA64_GNU" \
@@ -515,6 +524,13 @@ endif
 createConfigFile_setPlatformArchitecture:
 ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
   ifeq ($(OS),linux)
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_AARCH64_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+
 	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_IA64_GNU)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib" \

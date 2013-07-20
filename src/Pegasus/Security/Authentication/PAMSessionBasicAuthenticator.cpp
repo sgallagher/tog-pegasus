@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include "PAMSessionBasicAuthenticator.h"
 #include "PAMSession.h"
+#include "pam_rcToAuthStatus.h"
 
 PEGASUS_USING_STD;
 
@@ -61,7 +62,7 @@ PAMSessionBasicAuthenticator::~PAMSessionBasicAuthenticator()
     PEG_METHOD_EXIT();
 }
 
-Boolean PAMSessionBasicAuthenticator::authenticate(
+AuthenticationStatus PAMSessionBasicAuthenticator::authenticate(
     const String& userName,
     const String& password,
     AuthenticationInfo* authInfo)
@@ -70,36 +71,37 @@ Boolean PAMSessionBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMSessionBasicAuthenticator::authenticate()");
 
-    if (PAM_SUCCESS != _PAMAuthenticate(
+    int pamRC = _PAMAuthenticate(
         userName.getCString(),
         password.getCString(),
-        authInfo))
+        authInfo);
+    
+    AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pamRC);
+
+    // in case of an expired password, store user authenticated password
+    if (authStatus.isPasswordExpired())
     {
-        PEG_METHOD_EXIT();
-        return false;
+        authInfo->setAuthenticatedPassword(password);
+        authInfo->setAuthenticatedUser(userName);
+        authInfo->setExpiredPassword(true);
     }
     
     PEG_METHOD_EXIT();
-    return true;
+    return authStatus;
 }
 
-Boolean PAMSessionBasicAuthenticator::validateUser(
+AuthenticationStatus PAMSessionBasicAuthenticator::validateUser(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMSessionBasicAuthenticator::validateUser()");
 
-    if (PAM_SUCCESS != _PAMValidateUser(
-        userName.getCString(),
-        authInfo))
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
+    int pamRC = _PAMValidateUser(userName.getCString(), authInfo);
+    AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pamRC);
+    
     PEG_METHOD_EXIT();
-    return true;
+    return authStatus;
 }
 
 
@@ -116,5 +118,25 @@ String PAMSessionBasicAuthenticator::getAuthResponseHeader()
     PEG_METHOD_EXIT();
     return responseHeader;
 }
+
+AuthenticationStatus PAMSessionBasicAuthenticator::updateExpiredPassword(
+        const String& userName,
+        const String& oldPass,
+        const String& newPass)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMSessionBasicAuthenticator::updateExpiredPassword()");
+
+    int pamRC = _PAMUpdateExpiredPassword(
+        userName.getCString(),
+        oldPass.getCString(),
+        newPass.getCString());
+
+    AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pamRC);
+    
+    PEG_METHOD_EXIT();
+    return authStatus;
+}
+
 
 PEGASUS_NAMESPACE_END

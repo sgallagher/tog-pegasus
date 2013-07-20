@@ -602,6 +602,21 @@ void CIMBinMsgSerializer::_serializeOperationContext(
     }
     else
         out.putPresent(false);
+    
+    // [UserRoleContainer]
+
+    if (operationContext.contains(UserRoleContainer::NAME))
+    {
+        out.putPresent(true);
+
+        const UserRoleContainer container =
+            operationContext.get(UserRoleContainer::NAME);
+
+        out.putString(container.getUserRole());
+    }
+    else
+        out.putPresent(false);
+
 }
 
 void CIMBinMsgSerializer::_serializeContentLanguageList(

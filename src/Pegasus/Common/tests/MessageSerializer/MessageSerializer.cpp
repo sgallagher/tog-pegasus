@@ -480,6 +480,26 @@ void validateOperationContext(
     catch(const Exception&)
     {
     }
+    
+    try
+    {
+        const UserRoleContainer inContainer =
+            inOperationContext.get(UserRoleContainer::NAME);
+        try
+        {
+            const UserRoleContainer outContainer =
+                outOperationContext.get(UserRoleContainer::NAME);
+            PEGASUS_TEST_ASSERT(
+                inContainer.getUserRole() == outContainer.getUserRole());
+        }
+        catch(const Exception&)
+        {
+            PEGASUS_TEST_ASSERT(0);
+        }
+    }
+    catch(const Exception&)
+    {
+    }
 }
 
 //
@@ -2733,6 +2753,7 @@ void testMessageSerialization()
     ContentLanguageList cll2;
     oc2.insert(ContentLanguageListContainer(cll2));
     oc2.insert(LocaleContainer(""));
+    oc2.insert(UserRoleContainer(""));
     OperationContext oc3;
     oc3.insert(SubscriptionFilterConditionContainer(ql2, qs3));
     OperationContext oc4;
@@ -2753,6 +2774,7 @@ void testMessageSerialization()
     oc4.insert(ContentLanguageListContainer(cll4));
     oc4.insert(SnmpTrapOidContainer("1.43.213.53.23.52.1"));
     oc4.insert(LocaleContainer("here"));
+    oc4.insert(UserRoleContainer("NoRoleUser"));
 
     testEmptyMessage();
 

@@ -585,7 +585,9 @@ void WsmWriter::appendSoapHeader(
     const String& action,
     const String& messageId,
     const String& relatesTo,
-    const String& toAddress)
+    const String& toAddress,
+    const String& replyTo,
+    const Boolean& ackRequired)
 {
     // Add <wsa:To> entry
     appendStartTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("To"));
@@ -615,6 +617,21 @@ void WsmWriter::appendSoapHeader(
         appendTagValue(
             out, WsmNamespaces::WS_ADDRESSING, STRLIT("RelatesTo"), relatesTo);
     }
+    if(replyTo.size())
+    {
+        appendStartTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("ReplyTo"));
+        appendTagValue(
+            out,
+            WsmNamespaces::WS_ADDRESSING,
+            STRLIT("Address"),
+            replyTo);
+        appendEndTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("ReplyTo"));
+    }
+    if(ackRequired)
+    {
+        appendTagValue(out, WsmNamespaces::WS_MAN, STRLIT("AckRequested"), "");
+    }
+
 }
 
 void WsmWriter::appendInvokeOutputElement(

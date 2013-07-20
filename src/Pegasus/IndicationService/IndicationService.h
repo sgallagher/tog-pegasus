@@ -129,7 +129,7 @@ public:
         property does not exist on instance, adds it.
         Should be used for instances of classes Filter, Handler only
         Does not change the objectPath of the instance !!!
-     
+
         @param   instance              instance to set property on
         @param   sysname               system name to set
      */
@@ -141,10 +141,10 @@ public:
     /**
         Sets key binding with name SystemName to string if existant. Should be
         used with Handler and Filter object paths only
-     
+
         @param   objPath              object path to change keybinding on
         @param   sysname              system name to set
-     */        
+     */
     static void _setSystemNameInHandlerFilter(
         CIMObjectPath& objPath,
         const String& sysname);
@@ -152,25 +152,25 @@ public:
     /**
         Replace the value of SystemName in a String created from a Handler or
         Filter reference
-      */    
+      */
     static void _setSystemNameInHandlerFilterReference(
         String& reference,
         const String& sysname);
-    
+
     /**
         Sets key binding with name SystemName in the two keybinding references
         Filter and Handler of a Subscription object path
-     
+
         @param   objPath              object path to change SystemNames on
         @param   sysname              system name to set
-     */        
+     */
     static void _setSubscriptionSystemName(
         CIMObjectPath& objPath,
         const String& sysname);
 
     /** Replaces value in all occurences of SystemName key with String sysname
         used for Handler, Filter and Subscription object paths
-     
+
         @param   objPath              object path to change SystemNames on
         @param   sysname              system name to set
      */
@@ -178,9 +178,9 @@ public:
 
     /** Replaces value in all occurences of SystemName key and SystemName
         property with String sysname
-        
-        Used for Handler, Filter and Subscription object paths        
-     
+
+        Used for Handler, Filter and Subscription object paths
+
         @param   instance             instance to change
         @param   sysname              system name to set
      */
@@ -221,6 +221,7 @@ private:
     void _handleDeleteInstanceRequest(const Message * message);
 
     void _handleProcessIndicationRequest(Message* message);
+    void _handleProcessIndicationResponse(Message* message);
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 
@@ -872,7 +873,7 @@ private:
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     /**
         Deletes filter and handler of the specified subscription
-       
+
         @param   subscription instance
      */
      void _deleteFilterHandler(
@@ -1572,7 +1573,7 @@ private:
         Arrays of valid and supported property values
 
         Notes:
-        
+
         Supported Values
         SubscriptionState: Enabled, Disabled
         RepeatNotificationPolicy: Unknown, Other, None, Suppress, Delay

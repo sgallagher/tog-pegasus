@@ -82,7 +82,8 @@ void TestRequestEncoder::testWSMANReqEncoder()
             connectHost,
             portStr,
             &authenticator));
-
+    deliveryMode mode = Push; 
+    requestEncoder.get()->setDeliveryMode(mode);
     Buffer copyBuf, masterBuf;
     const char* master="<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://www.w3.org/"
         "2003/05/soap-envelope\" xmlns:SOAP-ENC=\"http://www.w3.org/2003/05/"

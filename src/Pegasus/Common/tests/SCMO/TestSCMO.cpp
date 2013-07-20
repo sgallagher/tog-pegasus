@@ -1688,14 +1688,14 @@ void SCMOInstanceKeyBindingsTest()
             returnKeyBindType,
             &returnKeyBindValue);
 
-        PEGASUS_ASSERT(rc==SCMO_OK);
+        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
         rc = SCMO_TESTClass2_Inst.setKeyBinding(
             returnName,
             returnKeyBindType,
             returnKeyBindValue);
 
-        PEGASUS_ASSERT(rc==SCMO_OK);
+        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
         if (returnKeyBindType == CIMTYPE_STRING)
         {

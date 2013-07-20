@@ -584,6 +584,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 
     agent->_should_listen = 1;
 
+    lslpMsg msg_list;
     while (agent->_should_listen.get())
     {
         Uint32 now, msec;
@@ -598,7 +599,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 #ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
             SLPHandle slp_handle = 0;
             SLPError slpErr = SLP_OK;
-            SLPError callbackErr=SLP_OK;
+            SLPError callbackErr = SLP_OK;
             if ((slpErr = SLPOpen(slp_lang, SLP_FALSE, &slp_handle))
                 == SLP_OK)
             {
@@ -674,7 +675,6 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         {
         }
 #else
-        lslpMsg msg_list;
          agent->_rep->service_listener(agent->_rep, 0, &msg_list);
         _LSLP_SLEEP(1);
         if (agent->_update_reg_count.get() && agent->_should_listen.get())
@@ -685,6 +685,24 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         }
 #endif
     }
+
+#ifndef PEGASUS_SLP_REG_TIMEOUT
+    //Reaching here means listening is stopped,
+    //Free the memories used by thread
+    //
+    //Free the replies
+    lslpMsg *temp;
+    while(! _LSLP_IS_EMPTY( &msg_list))
+    {
+        temp = msg_list.next;
+        _LSLP_UNLINK(temp);
+
+        //safe to do free here as the lslpMsg is dynamically destructed
+        free(temp);
+    }
+#endif
+
+
 #endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
     return ThreadReturnType(0);
 }

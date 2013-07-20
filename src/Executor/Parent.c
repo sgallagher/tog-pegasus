@@ -58,6 +58,9 @@
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
+#else
+/* PAM_SUCCESS is defined to 0 by PAM */
+#define PAM_SUCCESS 0
 #endif
 
 /*
@@ -631,13 +634,24 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-        if (PAMAuthenticate(request.username, request.password) != 0)
+        status = PAMAuthenticate(request.username, request.password);
+
+        if (status == PAM_SUCCESS)
         {
-            status = -1;
-            break;
+            Log(LL_TRACE,
+                "Basic authentication through PAM: "
+                    "username = %s, successful.",
+                request.username);
         }
-
-
+        else
+        {
+            Log(LL_TRACE,
+                "Basic authentication through PAM: "
+                    "username = %s, failed with PAM return code= %d.",
+                request.username,
+                status);
+        }
+        
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         {
@@ -665,13 +679,13 @@ static void HandleAuthenticatePasswordRequest(int sock)
             }
         }
 
+        Log(LL_TRACE, "Basic authentication attempt: username = %s, "
+            "successful = %s",
+            request.username, status == PAM_SUCCESS ? "TRUE" : "FALSE" );
+
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
     }
     while (0);
-
-    Log(LL_TRACE, "Basic authentication attempt: username = %s, "
-        "successful = %s",
-        request.username, status == 0 ? "TRUE" : "FALSE" );
 
     /* Send response message. */
 
@@ -711,8 +725,7 @@ static void HandleValidateUserRequest(int sock)
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-    if (PAMValidateUser(request.username) != 0)
-        status = -1;
+    status = PAMValidateUser(request.username);
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 

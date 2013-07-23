@@ -125,7 +125,6 @@ else
   # appeared in the 3.0 series of compilers.
   #
   ifeq ($(COMPILER), gnu)
-   FLAGS += -s
    ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
      EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
    endif

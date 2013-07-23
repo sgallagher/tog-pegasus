@@ -46,7 +46,15 @@ include $(ROOT)/mak/config.mak
 
 export BISON_SIMPLE := bison.simple
 
-all: y_attr.c l_attr.c y_url.c l_url.c y_filter.c l_filter.c
+#############################################################
+# do make -f Makefile.grammar when both yacc and lex files 
+# are modified which invokes y_grammar and l_grammar 
+#############################################################
+all: y_grammar l_grammar
+
+y_grammar: y_attr.c y_url.c y_filter.c
+
+l_grammar: l_attr.c l_url.c l_filter.c
 
 ##############################################################
 # 1. bison -oy_attr.c -pattr -v -d attr.y

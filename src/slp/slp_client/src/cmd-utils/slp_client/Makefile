@@ -63,8 +63,14 @@ endif
 
 include $(ROOT)/mak/library.mak
 
-## make the lex and yac grammar.  Note that this compiles the
-## lex and yacc files.  However you should never need to use it unless
+## Help on make usage of lex and yac grammar.
+##
+## make -f Makefile.grammar -- when both lex and yacc files are modified
+## make -f Makefile.grammar y_grammar -- when only yacc files are modified
+## make -f Makefile.grammar l_grammar -- when only lex files are modified
+##
+## Note that this compiles the lex or yacc files.
+## However you should never need to use it unless
 ## you have modified these files.  Also, the generated files are committed
 ## to the CVS so that any updates to the generated files must be committed 
 ## also.

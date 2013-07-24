@@ -333,7 +333,7 @@ int main(int argc, char** argv)
     }
     else if( !strcmp( argv[1], "test"))
     {
-        bool gotException=false;
+        bool gotException = false;
         try
         {
             // test bad File Listener handler
@@ -345,7 +345,7 @@ int main(int argc, char** argv)
            cout << "++++Testing File can not be opened+++++\n"
                 << e.getMessage() << ": Test passed\n";
 
-           gotException=true;
+           gotException = true;
         }
         catch(...)
         {

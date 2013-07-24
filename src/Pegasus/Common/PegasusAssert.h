@@ -91,15 +91,15 @@
 # define PEGASUS_DEBUG_ASSERT(COND)
 #endif
 
-#define PEGASUS_TEST_ASSERT(COND)                                         \
-    do                                                                    \
-    {                                                                     \
-        if (!(COND))                                                      \
-        {                                                                 \
-            printf("PEGASUS_TEST_ASSERT failed in file %s at line %d\n",  \
-                __FILE__, __LINE__);                                      \
-            abort();                                                      \
-        }                                                                 \
+#define PEGASUS_TEST_ASSERT(COND)                                              \
+    do                                                                         \
+    {                                                                          \
+        if (!(COND))                                                           \
+        {                                                                      \
+            printf("PEGASUS_TEST_ASSERT: Assertion `%s` in %s:%d failed \n",   \
+                #COND,__FILE__, __LINE__);                                     \
+            abort();                                                           \
+        }                                                                      \
     } while (0)
 
 # endif /* PEGASUS_OS_ZOS */

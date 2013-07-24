@@ -206,9 +206,9 @@ int main(int argc, char** argv)
         cerr << "Error: " << e.getMessage() << endl;
         cerr << argv[0] << "+++++ Failed ++" << endl;
 
-        return(1);
+        return 1;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
-    return(0);
+    return 0;
 }

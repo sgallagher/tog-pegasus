@@ -82,17 +82,17 @@ int main()
         {
             cc->connect (host, port, *sslContext, "", "");
             //
-            // Do a generic call. We have to do this call to test whether or 
-            // not we get 401'ed.
+            //Unreachable when server is started with correct versions
+            //Otherwise it informs that server is not started properly
             //
-            PEGASUS_TEST_ASSERT(0);
+            PEGASUS_TEST_ASSERT( 0 &&
+                "cimserver not started with sslCipherSuite=HIGH");
 
-            cc->disconnect();
         }
     }
     catch(Exception &e)
     {
-        cout << "SSLCipherTest:  "<< e.getMessage() << endl;
+        cout << "SSLCipherTest Expected exception:  "<< e.getMessage() << endl;
         cout << "Test passed. Connecting with cipher list as " << cipherSuite
             << " failed " << endl;
     }

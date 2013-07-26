@@ -81,7 +81,9 @@ applyQueryFunctionPtr QuerySupportRouter::getFunctPtr(
 #endif
     else
     {
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+        //Unreachable, but the statments make c-advice 
+        //happy
+        return NULL;
     }
 }
 

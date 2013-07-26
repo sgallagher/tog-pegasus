@@ -4561,12 +4561,19 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                 // convert enumerate instances response to exec query response
                 // This is an indirect call to the appropriate function in
                 // the WQL..., CQL, ... etc Class
-                applyQueryToEnumeration(response, poA->_query);
+                //
+                // NULL ness check is done as getFunctPtr may reurn NULL in case
+                // of when querry language is not CQL, WQL
+                if ( applyQueryToEnumeration)
+                {
+                    applyQueryToEnumeration(response, poA->_query);
+                }
+
                 CIMEnumerateInstancesResponseMessage* fromResponse =
                     (CIMEnumerateInstancesResponseMessage*) response;
                 CIMClass cimClass;
 
-                Boolean clsRead=false;
+                Boolean clsRead = false;
                 Array<CIMInstance>& a =
                     fromResponse->getResponseData().getInstances();
 

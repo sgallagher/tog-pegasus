@@ -421,7 +421,7 @@ String LocalAuthFile::_generateRandomTokenString()
     //
     // generate a random token
     //
-    char randnum[] = { '0' + (random() % 10), '0' + (random() % 10), '\0' };
+    char randnum[] = {char('0'+(random() % 10)),char('0'+(random() % 10)),'\0'};
     long randomNum = atol(randnum);
 
     sprintf (token,"%ld%u", randomNum, seconds + milliseconds );

@@ -84,7 +84,10 @@ PEGASUS_USING_STD;
 #define MAX_CONNECTIONS 100 
 #define CONN_TIMEOUT 3
 #define EXPECTED_INSTANCENAMES 2
-#define CIMSERVER_CLEANUP_TIME 600
+//
+//idle time clean up is currently hardcoded at 300 sec, 
+//so making it just little more than 300 sec
+#define CIMSERVER_CLEANUP_TIME 305
 
 static char * verbose = 0;
 static CIMException expectedNICIMException(CIM_ERR_FAILED);
@@ -432,7 +435,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNIonFaultyProvider(void *parm)
 void TestCimserverAvailability()
 {
 #ifndef PEGASUS_OS_TYPE_WINDOWS
-   //runn a test on a test instance provider
+   //run a test on a test instance provider
     bool resultWellbehavedProvider = TestWellbehavedInstanceProvider();
     PEGASUS_TEST_ASSERT(resultWellbehavedProvider);    
 

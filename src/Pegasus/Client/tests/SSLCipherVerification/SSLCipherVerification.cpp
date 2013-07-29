@@ -86,7 +86,7 @@ int main()
             //Otherwise it informs that server is not started properly
             //
             PEGASUS_TEST_ASSERT( 0 &&
-                "cimserver not started with sslCipherSuite=HIGH");
+                (bool)"cimserver not started with sslCipherSuite=HIGH");
 
         }
     }

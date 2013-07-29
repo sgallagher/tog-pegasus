@@ -91,6 +91,10 @@
 # define PEGASUS_DEBUG_ASSERT(COND)
 #endif
 
+//print the condition string with PEGASUS_TEST_ASSERT failure so that user will 
+//know the failure scenario also and the usage example is mentioned below , 
+//if some one want to mention the failure reason.
+//PEGASUS_TEST_ASSERT( 0 && (bool)"failure reason");
 #define PEGASUS_TEST_ASSERT(COND)                                              \
     do                                                                         \
     {                                                                          \

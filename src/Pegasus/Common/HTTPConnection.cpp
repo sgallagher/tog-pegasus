@@ -2217,12 +2217,12 @@ void HTTPConnection::_handleReadEvent()
             // The first bytes of a connection to the server have to contain
             // a valid HTTP Method.
             if ((strncmp(buf, "POST", 4) != 0) &&
-                            (strncmp(buf, "PUT", 3) != 0) &&
-                            (strncmp(buf, "OPTIONS", 7) != 0) &&
-                            (strncmp(buf, "DELETE", 6) != 0) &&
+                            (strncmp(buffer, "PUT", 3) != 0) &&
+                            (strncmp(buffer, "OPTIONS", 7) != 0) &&
+                            (strncmp(buffer, "DELETE", 6) != 0) &&
 #if defined(PEGASUS_ENABLE_PROTOCOL_WEB)
-                            (strncmp(buf, "GET", 3) != 0) &&
-                            (strncmp(buf, "HEAD", 4) != 0) &&
+                            (strncmp(buffer, "GET", 3) != 0) &&
+                            (strncmp(buffer, "HEAD", 4) != 0) &&
 #endif
                 (strncmp(buf, "M-POST", 6) != 0))
             {

@@ -55,5 +55,10 @@
     {"enableAuditLog", "false", IS_DYNAMIC, IS_VISIBLE},
 #endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE}
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    ,{"webRoot", "/var/wbem/www", IS_STATIC, IS_VISIBLE},
+    {"indexFile", "cimr.html", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "/var/wbem/www/mimeType.txt", IS_STATIC, IS_VISIBLE}
+#endif
 
 #endif /* Pegasus_DefaultPropertyTablezOS_h */

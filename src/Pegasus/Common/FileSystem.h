@@ -346,6 +346,18 @@ public:
         const String& paths,
         const String& filename);
 
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    /**
+       Returns the absolute filename for the given one.
+
+       @param filename filename to resolve absolute path of
+       @return the full absolute pathname to the found filename or an empty
+       string on failure.
+    */
+    static String getAbsoluteFileName(
+        const String& filename);
+#endif
+
     /**
         Convert a library name to its corresponding file name by adding the
         appropriate prefix and suffix.

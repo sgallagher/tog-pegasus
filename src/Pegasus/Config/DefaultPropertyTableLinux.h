@@ -40,15 +40,15 @@
     {"enableHttpConnection", "false", IS_STATIC, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, IS_HIDDEN},
-# ifdef PEGASUS_ENABLE_SLP
+#ifdef PEGASUS_ENABLE_SLP
     {"slp", "false", IS_STATIC, IS_VISIBLE},
-# endif
+#endif
     {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
-# ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     {"enableIndicationService", "true", IS_DYNAMIC, IS_VISIBLE},
-# else
+#else
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
-# endif
+#endif
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
 # else
@@ -58,21 +58,27 @@
     {"enableAuditLog", "false", IS_DYNAMIC, IS_VISIBLE},
 # endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE},
-#else // Non Release build
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    {"webRoot", "/opt/tog-pegasus/www", IS_STATIC, IS_VISIBLE},
+    {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt",
+                    IS_STATIC, IS_VISIBLE},//TODO verify
+#endif
+#else
     {"httpPort", "", IS_STATIC, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, IS_VISIBLE},
-# ifdef PEGASUS_ENABLE_SLP
+#ifdef PEGASUS_ENABLE_SLP
     {"slp", "false", IS_STATIC, IS_VISIBLE},
-# endif
+#endif
     {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
-# ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     {"enableIndicationService", "true", IS_DYNAMIC, IS_VISIBLE},
-# else
+#else
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
-# endif
+#endif
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
 # else
@@ -83,5 +89,9 @@
 # endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE},
 #endif
-
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB //TODO how to get the PEGASUS_HOME ?
+    {"webRoot", "/opt/tog-pegasus/www", IS_STATIC, IS_VISIBLE},
+    {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt", IS_STATIC, IS_VISIBLE},
+#endif
 #endif /* Pegasus_DefaultPropertyTableLinux_h */

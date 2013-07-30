@@ -31,9 +31,11 @@
 
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/XmlGenerator.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Constants.h>
 #include <cstdio>
 #include <iostream>
@@ -56,15 +58,13 @@ static int _compare(const void* p1, const void* p2)
     return String::compareNoCase(prop1->getString(), prop2->getString());
 }
 
-RsURI::RsURI()
-{
-}
-
 RsURI::RsURI(const String& uri) :
     _classNamePos(PEG_NOT_FOUND)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::RsURI()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+            "RsURI::RsURI()");
 
+    // TODO where to get this from?
     _authority = String::EMPTY;
 
     // Parse a path-absolute URI as given by
@@ -72,6 +72,7 @@ RsURI::RsURI(const String& uri) :
 
     Uint32 prevSegment = 7; // assume the URI starts with "/cimrs/"
     Uint32 nextSegment;
+    Uint32 lastSegment;
 
     while ((nextSegment = uri.find(prevSegment, '/')) != PEG_NOT_FOUND)
     {
@@ -81,7 +82,6 @@ RsURI::RsURI(const String& uri) :
     }
 
     // Add last segment to path
-    Uint32 lastSegment;
     if ((lastSegment = uri.size() - prevSegment) > 0)
     {
         String last = uri.subString(prevSegment, lastSegment);
@@ -102,26 +102,29 @@ RsURI::RsURI(const String& uri) :
     }
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "Query String: [%s]",
-        (const char*)_queryString.getCString()));
+            "Query String: [%s]",
+            (const char*)_queryString.getCString()));
 
 #ifdef PEGASUS_DEBUG
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "RsURI uri: [%s]",
-        (const char*)uri.getCString()));
-
-    for (Uint32 x = 0; x < _path.size(); x++)
+                "RsURI uri: [%s]",
+                (const char*)uri.getCString()));
+    for (Uint32 x=0; x < _path.size(); x++)
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI path segment [%d]: [%s]",
-            x,
-            (const char*)_path[x].getCString()));
+                    "RsURI path segment [%d]: [%s]",
+                    x,
+                    (const char*)_path[x].getCString()));
     }
 #endif
 
     _uri = uri;
 
     PEG_METHOD_EXIT();
+}
+
+RsURI::RsURI()
+{
 }
 
 RsURI::~RsURI()
@@ -138,12 +141,15 @@ String& RsURI::getString()
 
 String RsURI::getNamespaceName(Boolean encoded)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::getNamespaceName()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::getNamespaceName()");
 
     // namespace value is the second segment in path
     // e.g. /cimrs/root%2Fcimv2/
 
-    if (_namespaceName.isNull() && _path.size() > 0)
+    Uint32 pathSize = _path.size();
+
+    if (_namespaceName.isNull() && pathSize > 0)
     {
         _namespaceEncodedName = _path[0];
         _namespaceName = XmlReader::decodeURICharacters(_path[0]);
@@ -152,7 +158,7 @@ String RsURI::getNamespaceName(Boolean encoded)
     return (encoded)? _namespaceEncodedName : _namespaceName.getString();
 }
 
-
+// ToDo: Implement for class operations
 Boolean RsURI::hasClassesPath()
 {
     if (_namespaceName.isNull())
@@ -163,6 +169,7 @@ Boolean RsURI::hasClassesPath()
 
 }
 
+// ToDo: Implement for class operations
 Boolean RsURI::hasClassPath()
 {
     if (_className.isNull())
@@ -175,17 +182,18 @@ Boolean RsURI::hasClassPath()
 
 CIMName RsURI::getClassName()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::getClassName()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::getClassName()");
 
     // class name is always the third segment in path
     // e.g. /cimrs/root%2Fcimv2/ACME_RegisteredProfile
 
-    const Uint32 pathSize = _path.size();
+    Uint32 pathSize = _path.size();
 
-    if (_className.isNull() && pathSize > 1 && CIMName::legal(_path[1]))
+    if (_className.isNull() && pathSize > 1 &&
+            CIMName::legal(_path[1]))
     {
         _className = CIMName(_path[1]);
-
         // if the class name is enum, then this is not the class name.
         // in such cases the class name is in the query string
         if(String::compare(_path[1], "enum") == 0)
@@ -201,13 +209,10 @@ CIMName RsURI::getClassName()
             classPos += 6; // properties= <- start behind =
             Uint32 nextParamPos = _queryString.find(classPos, '&');
             if(nextParamPos == PEG_NOT_FOUND)
-            {
                 nextParamPos = _queryString.size();
-            }
 
-            _className = _queryString.subString(
-                classPos,
-                nextParamPos - classPos);
+            _className = _queryString.subString(classPos,
+                                                nextParamPos - classPos);
         }
     }
     PEG_METHOD_EXIT();
@@ -216,14 +221,16 @@ CIMName RsURI::getClassName()
 
 Boolean RsURI::hasEnum()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::hasEnum()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::hasEnum()");
 
     // enum is as shown
     // e.g. /cimrs/root%2Fcimv2/enum?class=ACME_RegisteredProfile
 
+    Uint32 pathSize = _path.size();
     Boolean res = false;
 
-    if (_path.size() > 1)
+    if (pathSize > 1) // ToDo: Should be check for exactly 2 ??
     {
         res = (String::compareNoCase(_path[1], "enum") == 0);
     }
@@ -233,14 +240,16 @@ Boolean RsURI::hasEnum()
 
 Boolean RsURI::hasCreate()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::hasCreate()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::hasCreate()");
 
     // enum is as shown
     // e.g. /cimrs/root%2Fcimv2/create?class=ACME_RegisteredProfile
 
+    Uint32 pathSize = _path.size();
     Boolean res = false;
 
-    if (_path.size() > 1)
+    if (pathSize > 1) // ToDo: Should be check for exactly 2 ??
     {
         res = (String::compareNoCase(_path[1], "create") == 0);
     }
@@ -250,6 +259,8 @@ Boolean RsURI::hasCreate()
 
 Boolean RsURI::hasInstancePath()
 {
+    Boolean res = false;
+    // ToDo. How are multiple keys handled?
     // /cimrs/root%2Fcimv2/ACME_RegisteredProfile/key
 
     // see if we can get the classname first
@@ -259,10 +270,9 @@ Boolean RsURI::hasInstancePath()
     }
 
     // if got a class name, then see if there are keys specified?
-    Boolean res = false;
     if(!_className.isNull())
     {
-        if(_path.size() > 2)
+        if(_path.size() > 2) // ToDo: Should this be exactly 3 ??
             res = true;
     }
 
@@ -284,7 +294,10 @@ Boolean RsURI::hasAssociationPath()
 {
     // if there is an expand or refer and these is a single dot in the value,
     // then true;
-    return(_checkQuerystring() &&
+    // ToDo: For now we support only a single hop for associators.
+    return(_queryString.size() > 0 &&
+           ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
+            (_queryString.find("refer=") != PEG_NOT_FOUND)) &&
             _navHopCount() == 1);
 }
 
@@ -292,7 +305,10 @@ Boolean RsURI::hasReferencesPath()
 {
     // if there is an expand or refer and these is NO dot in the value,
     // then true;
-    return(_checkQuerystring() &&
+    // ToDo: For now we support only a single hop for references.
+    return(_queryString.size() > 0 &&
+           ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
+            (_queryString.find("refer=") != PEG_NOT_FOUND)) &&
             _navHopCount() == 0);
 }
 
@@ -304,7 +320,9 @@ Uint32 RsURI::_navHopCount()
     // <instancepath>?expand=<associationclass>.<ResultRole>.<>.<>
     // <instancepath>?refer=<associationclass>.<ResultRole>.<>.<>
 
-    if(_checkQuerystring())
+    if(_queryString.size() > 0 &&
+           (((startPos = _queryString.find("expand=")) != PEG_NOT_FOUND) ||
+            ((startPos = _queryString.find("refer=")) != PEG_NOT_FOUND)))
     {
         // check to see if there is exactly one .
         //in the value of expand or refer
@@ -327,11 +345,9 @@ String RsURI::getNavString()
 {
     // test expand first
     String paramValue = _findStringParameter("expand");
-
+    String assocClass;
     if(paramValue.size() == 0)
-    {
         paramValue = _findStringParameter("refer");
-    }
 
     return paramValue;
 }
@@ -344,9 +360,11 @@ Boolean RsURI::hasMethodPath()
 
 CIMName RsURI::getMethodName()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::getMethodName()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::getMethodName()");
 
-    if (_methodName.isNull() && _path.size() > 3 && CIMName::legal(_path[3]))
+    if (_methodName.isNull() && _path.size() > 3 &&
+        CIMName::legal(_path[3]))
     {
         _methodName = CIMName(_path[3]);
     }
@@ -355,7 +373,7 @@ CIMName RsURI::getMethodName()
     return _methodName;
 }
 
-
+// ToDo
 CIMObjectPath RsURI::getAssociationPath(const CIMClass& cimClass)
 {
     if (!hasAssociationPath())
@@ -414,13 +432,11 @@ CIMName RsURI::getAssociationClassName()
 {
     // test expand first
     String paramValue = _findStringParameter("expand");
+    String assocClass;
     if(paramValue.size() == 0)
-    {
         paramValue = _findStringParameter("refer");
-    }
 
     Uint32 endPos = paramValue.find(0, '.');
-    String assocClass;
     if(endPos != PEG_NOT_FOUND)
     {
         assocClass = paramValue.subString(0, endPos);
@@ -446,23 +462,20 @@ String RsURI::getAssociatedRoleName()
     String paramValue = _findStringParameter("expand");
     String assocedRole;
     if(paramValue.size() == 0)
-    {
         paramValue = _findStringParameter("refer");
-    }
 
     Uint32 endPos = paramValue.find(0, '.');
     if(endPos != PEG_NOT_FOUND)
     {
         assocedRole = paramValue.subString(endPos+1,
-                          paramValue.size() - endPos - 1);
+                                 paramValue.size() - endPos - 1);
     }
     return assocedRole;
 
 }
 
-String RsURI::getParamValues(
-    CIMConstMethod& method,
-    Array<CIMParamValue>& inParms)
+String RsURI::getParamValues(CIMConstMethod& method,
+                             Array<CIMParamValue>& inParms)
 {
     PEG_METHOD_ENTER(TRC_RSSERVER,"getParamValues");
 
@@ -501,13 +514,13 @@ String RsURI::getParamValues(
         }
 
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::getParamValues() Name: [%s], Value: [%s]",
-            (const char*)pName.getString().getCString(),
-            (const char*)pValue.getCString()));
+                "RsURI::getParamValues() Name: [%s], Value: [%s]",
+                (const char*)pName.getString().getCString(),
+                (const char*)pValue.getCString()));
     }
 
 
-    for (Uint32 x = 0; x < pNames.size(); x++)
+    for (Uint32 x=0; x<pNames.size(); x++)
     {
         Uint32 index = method.findParameter(pNames[x]);
         CIMConstParameter p = method.getParameter(index);
@@ -524,7 +537,8 @@ String RsURI::getParamValues(
 
 CIMPropertyList RsURI::getPropertyList()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::getPropertyList()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+           "RsURI::getPropertyList()");
 
     if (_queryString.size() == 0)
     {
@@ -549,24 +563,25 @@ CIMPropertyList RsURI::getPropertyList()
             paramsPos, nextParamPos - paramsPos));
 
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::getPropertyList() added Property [%s] (%d-%d)",
-            (const char*)_queryString.subString(
-                paramsPos, nextParamPos - paramsPos).getCString(),
-                paramsPos, nextParamPos));
+                "RsURI::getPropertyList() added Property [%s] (%d-%d)",
+                (const char*)_queryString.subString(
+                    paramsPos, nextParamPos - paramsPos).getCString(),
+                    paramsPos, nextParamPos));
 
         paramsPos = nextParamPos + 1;
     }
 
-    if (_queryString.size() > paramsPos && _queryString[paramsPos] != '&')
+    if (_queryString.size() > paramsPos &&
+        _queryString[paramsPos] != '&')
     {
         properties.append(_queryString.subString(
             paramsPos, _queryString.size() - paramsPos));
 
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::getPropertyList() added last Property [%s] (%d-%d)",
-            (const char*)_queryString.subString(
-                paramsPos, _queryString.size() - paramsPos).getCString(),
-            paramsPos, _queryString.size() - paramsPos));
+                "RsURI::getPropertyList() added last Property [%s] (%d-%d)",
+                (const char*)_queryString.subString(
+                    paramsPos, _queryString.size() - paramsPos).getCString(),
+                    paramsPos, _queryString.size() - paramsPos));
     }
 
     PEG_METHOD_EXIT();
@@ -575,7 +590,8 @@ CIMPropertyList RsURI::getPropertyList()
 
 CIMObjectPath RsURI::_getInstancePath(const CIMClass& cimClass, Uint32 refPos)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::getInstancePath()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::getInstancePath()");
 
     if (!hasInstancePath())
     {
@@ -586,7 +602,7 @@ CIMObjectPath RsURI::_getInstancePath(const CIMClass& cimClass, Uint32 refPos)
     String unDecoded(_path[2]);
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "RsURI::getInstanceName() decoded URI characters"));
+            "RsURI::getInstanceName() decoded URI characters"));
 
     CIMObjectPath objPath;
     Array<CIMKeyBinding> keyBindings;
@@ -596,15 +612,15 @@ CIMObjectPath RsURI::_getInstancePath(const CIMClass& cimClass, Uint32 refPos)
     Uint32 prev = 0;
     Uint32 next;
 
+    // TODO CIMObjectPath has _Sort(Array) but that is defined locally
     qsort((void*)keyNames.getData(), keyNames.size(),
         sizeof(CIMName), _compare);
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "RsURI::getInstanceName() keyNames.size = %d",
-        keyNames.size()));
+            "RsURI::getInstanceName() keyNames.size = %d",
+            keyNames.size()));
 
     if (unDecoded.find(0, ';'))
-    {
 
         for (Uint32 pos = 0; pos < keyNames.size(); pos++)
         {
@@ -640,7 +656,7 @@ CIMObjectPath RsURI::_getInstancePath(const CIMClass& cimClass, Uint32 refPos)
 
             prev = next + 1;
         }
-    }
+
     objPath.set(
         String(),
         CIMNamespaceName(),
@@ -651,10 +667,8 @@ CIMObjectPath RsURI::_getInstancePath(const CIMClass& cimClass, Uint32 refPos)
     return objPath;
 }
 
-void RsURI::_appendKeybinding(
-    Array<CIMKeyBinding>& keyBindings,
-    const CIMClass& cimClass,
-    CIMName& keyName, String value, Uint32 refPos)
+void RsURI::_appendKeybinding(Array<CIMKeyBinding>& keyBindings,
+    const CIMClass& cimClass, CIMName& keyName, String value, Uint32 refPos)
 {
     Uint32 propertyPos = cimClass.findProperty(keyName);
     if (propertyPos == PEG_NOT_FOUND)
@@ -669,6 +683,7 @@ void RsURI::_appendKeybinding(
 
     if (property.getType() == CIMTYPE_REFERENCE)
     {
+        // TODO refactor!
         Uint32 refValPos = value.find(';');
         String refVal;
         if (refValPos == PEG_NOT_FOUND)
@@ -683,9 +698,8 @@ void RsURI::_appendKeybinding(
         }
 
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::_appendKeybinding() reference: [%s]",
-            (const char*)refVal.getCString()));
-
+                "RsURI::_appendKeybinding() reference: [%s]",
+                (const char*)refVal.getCString()));
         RsURI refUri(refVal);
 
         CIMClass refClass = _repository->getClass(
@@ -694,31 +708,33 @@ void RsURI::_appendKeybinding(
             false /*localOnly*/);
 
         CIMObjectPath refPath = refUri.getInstancePath(refClass);
-
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::_appendKeybinding() refPath: %s",
-            (const char*)refPath.toString().getCString()));
+                "RsURI::_appendKeybinding() refPath: %s",
+                (const char*)refPath.toString().getCString()));
 
-        CIMKeyBinding newKeyBinding( key, refPath);
+        CIMKeyBinding newKeyBinding(
+            key, refPath);
         keyBindings.append(newKeyBinding);
     }
     else
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::_appendKeybinding() Key [%s] Value [%s] Type [%s]",
-            (const char*)key.getString().getCString(),
-            (const char*)value.getCString(),
-            cimTypeToString(property.getType())));
+                "RsURI::_appendKeybinding() Key [%s] Value [%s] Type [%s]",
+                (const char*)key.getString().getCString(),
+                (const char*)value.getCString(),
+                cimTypeToString(property.getType())));
 
-        CIMKeyBinding newKeyBinding( key, value);
+        CIMKeyBinding newKeyBinding(
+            key, value);
         keyBindings.append(newKeyBinding);
     }
+
+
 }
 
 
-Buffer RsURI::fromObjectPath(
-    const CIMObjectPath& objPath,
-    Boolean useAbsoluteUri)
+Buffer RsURI::fromObjectPath(const CIMObjectPath& objPath,
+                             Boolean useAbsoluteUri)
 {
     Buffer uri(2048);
 
@@ -747,6 +763,7 @@ Buffer RsURI::fromObjectPath(
         }
         else
         {
+            // TODO has to be a cleaner way?
             uri << RsURI::_defaultNamespaceEncoded; 
         }
 
@@ -762,9 +779,9 @@ Buffer RsURI::fromObjectPath(
         CIMKeyBinding::Type type = keyBindings[i].getType();
 
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsURI::fromObjectPath() Key Value [%s] Type [%d]",
-            (const char*)keyBindings[i].getValue().getCString(),
-            type));
+                "RsURI::fromObjectPath() Key Value [%s] Type [%d]",
+                (const char*)keyBindings[i].getValue().getCString(),
+                type));
 
         if (type == CIMKeyBinding::STRING)
         {
@@ -775,9 +792,7 @@ Buffer RsURI::fromObjectPath(
 
             uri << XmlGenerator::encodeURICharacters(buf.getData());
             if (i < n - 1)
-            {
                 uri.append('+');
-            }
         }
         else if (type == CIMKeyBinding::REFERENCE)
         {
@@ -789,15 +804,14 @@ Buffer RsURI::fromObjectPath(
             }
 
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                "RsURI::fromObjectPath() associationId = %d, "
+                    "RsURI::fromObjectPath() associationId = %d, "
                     "namespace %s / %s / %s",
-                useAbsoluteUri,
-                (const char*)ref.getNameSpace().getString().getCString(),
-                (const char*)objPath.getNameSpace().
-                getString().getCString(),
-                (const char*)RsURI::_defaultNamespace.
-                getString().getCString()));
-
+                    useAbsoluteUri,
+                    (const char*)ref.getNameSpace().getString().getCString(),
+                    (const char*)objPath.getNameSpace().
+                                         getString().getCString(),
+                    (const char*)RsURI::_defaultNamespace.
+                                         getString().getCString()));
             refBuf = RsURI::fromObjectPath(ref, true);
 
             if (useAbsoluteUri)
@@ -810,17 +824,13 @@ Buffer RsURI::fromObjectPath(
             }
 
             if (i < n - 1)
-            {
                 uri.append('+');
-            }
         }
         else
         {
             uri << keyBindings[i].getValue();
             if (i < n - 1)
-            {
                 uri.append('+');
-            }
         }
 
 
@@ -865,11 +875,14 @@ CIMName RsURI::_findNameParameter(const String& key)
 
 String RsURI::_findStringParameter(const String& key)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::_findStringParameter()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsURI::_findStringParameter(const String& key)");
 
     if (_queryString.size() == 0)
     {
-        PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4, "Query string empty passed"));
+        PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
+                "RsURI::_findNameParameter(String &s) "
+                "Query string empty"));
 
         PEG_METHOD_EXIT();
         return String();
@@ -879,7 +892,8 @@ String RsURI::_findStringParameter(const String& key)
     if (nameStartPos == PEG_NOT_FOUND)
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "Query component not found"));
+               "RsURI::_findNameParameter(String &s) "
+               "Query component not found"));
 
         PEG_METHOD_EXIT();
         return String();
@@ -893,10 +907,10 @@ String RsURI::_findStringParameter(const String& key)
     }
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "RsURI::_findNameParameter(String &s) Name: [%s], Value: [%s]",
-        (const char*)key.getCString(),
-        (const char*)_queryString.subString(nameStartPos,
-            nameEndPos).getCString()));
+            "RsURI::_findNameParameter(String &s) Name: [%s], Value: [%s]",
+            (const char*)key.getCString(),
+            (const char*)_queryString.subString(nameStartPos,
+             nameEndPos).getCString()));
 
     PEG_METHOD_EXIT();
     return _queryString.subString(nameStartPos, nameEndPos);

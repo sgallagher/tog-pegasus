@@ -32,9 +32,13 @@
 #ifndef Pegasus_WebProcessor_h
 #define Pegasus_WebProcessor_h
 
-#include <Pegasus/WebServer/Linkage.h>
 #include <Pegasus/WebServer/WebConfig.h>
 #include <Pegasus/WebServer/WebRequest.h>
+#include <Pegasus/WebServer/Linkage.h>
+
+// Dummy value; HTTP responses are always
+// unique to their request based on client socket
+#define WEB_MESSAGE_ID "1234"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -49,20 +53,6 @@ class PEGASUS_WEBSERVER_LINKAGE WebProcessor
 {
 
 public:
-
-    /**
-     * Constructor.
-     *
-     * @param webServer
-     *             Generated responses will be passed to it.
-     */
-    WebProcessor(WebServer* const webServer);
-
-    /**
-     * Destructor.
-     */
-    ~WebProcessor();
-
 
 
     /**
@@ -92,12 +82,24 @@ public:
 
 
     /**
+     * Constructor.
+     *
+     * @param webServer
+     *             Generated responses will be passed to it.
+     */
+    WebProcessor(WebServer* const webServer);
+
+    /**
+     * Destructor.
+     */
+    ~WebProcessor();
+
+    /**
      * Processes the request and generates the corresponding answer.
      *
      * @param webRequest
      *             Request to process.
      */
-
     void handleWebRequest(WebRequest* webRequest);
 
     /**
@@ -206,7 +208,6 @@ private:
      * Returns current date.
      *
      * @return current date.
-     * TODO: Deleisha check if getCurrentTimeASSCI does the same thing
      */
     char* _getCurrentDate();
 

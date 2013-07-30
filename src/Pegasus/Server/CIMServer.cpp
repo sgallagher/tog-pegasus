@@ -61,10 +61,7 @@
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Config/ConfigManager.h>
-#ifndef PEGASUS_PAM_AUTHENTICATION
-# include <Pegasus/Security/UserManager/UserManager.h>
-# include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-#endif
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
@@ -88,6 +85,7 @@
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/\
 ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/\
@@ -322,10 +320,7 @@ void CIMServer::_init()
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
-#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager::getInstance(_repository);
-#endif
-
 
     // -- Create a SCMOClass Cache and set call back for the repository
 
@@ -368,7 +363,6 @@ void CIMServer::_init()
         configProvider,
         controlProviderReceiveMessageCallback);
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
     // Create the User/Authorization control provider
     ProviderMessageHandler* userAuthProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "UserAuthProvider",
@@ -378,7 +372,6 @@ void CIMServer::_init()
         PEGASUS_MODULENAME_USERAUTHPROVIDER,
         userAuthProvider,
         controlProviderReceiveMessageCallback);
-#endif
 
     // Create the Provider Registration control provider
     ProviderMessageHandler* provRegProvider = new ProviderMessageHandler(
@@ -523,8 +516,6 @@ void CIMServer::_init()
     _rsProcessor = new RsProcessor(
         cimOperationProcessorQueue,
         _repository);
-    _httpAuthenticatorDelegator->setRsQueueId(
-        _rsProcessor->getRsRequestDecoderQueueId());
 
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB
     _webServer = new WebServer();
@@ -716,9 +707,7 @@ CIMServer::~CIMServer ()
 
     // Destroy the singleton services
     SCMOClassCache::destroy();
-#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager::destroy();
-#endif
     ShutdownService::destroy();
 
     PEG_METHOD_EXIT ();
@@ -975,8 +964,6 @@ SSLContext* CIMServer::_getSSLContext()
     static const String PROPERTY_NAME__HTTP_ENABLED =
         "enableHttpConnection";
     static const String PROPERTY_NAME__SSL_CIPHER_SUITE = "sslCipherSuite";
-    static const String PROPERTY_NAME__SSL_COMPATIBILITY = 
-        "sslBackwardCompatibility";
 
     String verifyClient;
     String trustStore;
@@ -1156,9 +1143,6 @@ SSLContext* CIMServer::_getSSLContext()
     PEG_TRACE((TRC_SERVER, Tracer::LEVEL4, "Cipher suite is %s",
         (const char*)cipherSuite.getCString()));
 
-    Boolean sslCompatibility = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue(
-        PROPERTY_NAME__SSL_COMPATIBILITY));
     //
     // Create the SSLContext defined by the configuration properties
     //
@@ -1169,7 +1153,7 @@ SSLContext* CIMServer::_getSSLContext()
 
         _sslContextMgr->createSSLContext(
             trustStore, certPath, keyPath, crlStore, false, randFile,
-            cipherSuite,sslCompatibility);
+            cipherSuite);
     }
     else if (String::equal(verifyClient, "optional"))
     {
@@ -1178,7 +1162,7 @@ SSLContext* CIMServer::_getSSLContext()
 
         _sslContextMgr->createSSLContext(
             trustStore, certPath, keyPath, crlStore, true, randFile,
-            cipherSuite,sslCompatibility);
+            cipherSuite);
     }
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
@@ -1188,7 +1172,7 @@ SSLContext* CIMServer::_getSSLContext()
 
         _sslContextMgr->createSSLContext(
             String::EMPTY, certPath, keyPath, crlStore, false, randFile,
-            cipherSuite,sslCompatibility);
+            cipherSuite);
     }
     sslContext = _sslContextMgr->getSSLContext();
 

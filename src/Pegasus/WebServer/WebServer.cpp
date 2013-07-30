@@ -35,6 +35,8 @@
 #include <Pegasus/Common/Tracer.h>
 
 #include <Pegasus/WebServer/WebServer.h>
+#include <Pegasus/WebServer/WebProcessor.h>
+#include <Pegasus/WebServer/WebRequest.h>
 
 
 PEGASUS_USING_STD;
@@ -65,22 +67,17 @@ void WebServer::handleEnqueue()
 {
     PEG_METHOD_ENTER(TRC_WEBSERVER,
         "WebServer::handleEnqueue()");
-
     Message* message = dequeue();
     handleEnqueue(message);
-
     PEG_METHOD_EXIT();
 }
 
 void WebServer::handleEnqueue(Message* message)
 {
-    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebServer::handleEnqueue()");
-
-    if ( !message )
-    {
-        PEG_METHOD_EXIT();
+    PEG_METHOD_ENTER(TRC_WEBSERVER,
+            "WebServer::handleEnqueue(Message* message)");
+    if (!message)
         return;
-    }
 
     switch (message->getType())
     {
@@ -88,9 +85,9 @@ void WebServer::handleEnqueue(Message* message)
             handleHTTPMessage((HTTPMessage*)message);
             break;
 
-        //Handles only the HTTP_MESSAGE, So this is unrechable
         default:
-            PEGASUS_UNREACHABLE( PEGASUS_ASSERT(0);)
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -100,8 +97,8 @@ void WebServer::handleEnqueue(Message* message)
 
 void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 {
-    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebServer::handleHTTPMessage()");
-
+    PEG_METHOD_ENTER(TRC_WEBSERVER,
+                "WebServer::handleHTTPMessage(HTTPMessage* httpMessage)");
     if (!httpMessage)
     {
         PEG_METHOD_EXIT();
@@ -120,14 +117,12 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
     const char* acceptMimeTypesHeader;
     Boolean acceptMimeTypesHeaderFound = HTTPMessage::lookupHeader(
             headers, "Accept", acceptMimeTypesHeader, false);
-
     //ex.: 'Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7'
     const char* charSetHeader;
     Boolean charSetHeaderFound = HTTPMessage::lookupHeader(
         headers, "Accept-Charset", charSetHeader, false);
 
     //ex.: 'Accept-Encoding: gzip,deflate'
-    //Not supported yet
     const char* encHeader = NULL;
     Boolean encHeaderFound = HTTPMessage::lookupHeader(
         headers, "Accept-Encoding", encHeader, false);
@@ -143,7 +138,7 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
             "WebServer::handleHTTPMessage(HTTPMessage* httpMessage) - QueueID"
-            " %d: methodName [%s], requestUri [%s], httpVersion [%s],"
+            " %d: methodName [%s], requestUri [%s], httpVersion [%s], "
             "mimeTypes [%s], charSets [%s], encoding [%s]",
             httpMessage->queueId,
             (const char*)methodName.getCString(),
@@ -182,12 +177,10 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 
     webRequest->requestURI = String(requestUri);
     webRequest->httpVersion = httpVersion;
-
     // Save userName and authType:
     webRequest->userName = httpMessage->authInfo->getAuthenticatedUser();
     webRequest->authType = httpMessage->authInfo->getAuthType();
     webRequest->ipAddress = httpMessage->ipAddress;
-    
     //for ex.: 'Accept-Language: de-de,de;q=0.8,en-us;q=0.5,en;q=0.3'
     webRequest->acceptLanguages = httpMessage->acceptLanguages;
 
@@ -204,7 +197,8 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 void WebServer::handleResponse(HTTPMessage* response)
 {
 
-    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebServer::handleResponse()");
+    PEG_METHOD_ENTER(TRC_WEBSERVER,
+            "WebServer::handleResponse(HTTPMessage* response)");
 
     Uint32 queueId = response->queueId;
     MessageQueue* queue = MessageQueue::lookup(queueId);

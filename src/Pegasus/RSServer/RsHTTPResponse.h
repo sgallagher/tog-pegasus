@@ -43,7 +43,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_RSSERVER_LINKAGE RsHTTPResponse
+class RsHTTPResponse
 {
 public:
     RsHTTPResponse();

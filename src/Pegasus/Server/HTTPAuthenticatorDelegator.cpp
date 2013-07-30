@@ -31,6 +31,9 @@
 
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -1016,7 +1019,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String authorization;
 
             //
-            // do Local/Pegasus authentication
+            // do Local/Pegasus authenticatio
             //
             if (HTTPMessage::lookupHeader(headers,
                     _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false))

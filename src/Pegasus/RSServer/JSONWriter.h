@@ -32,7 +32,6 @@
 #ifndef Pegasus_JSONWriter_h
 #define Pegasus_JSONWriter_h
 
-#include <Pegasus/RSServer/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/CIMNameCast.h>
@@ -43,7 +42,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_RSSERVER_LINKAGE JSONWriter
+class JSONWriter
 {
 public:
     JSONWriter(Buffer& buf);
@@ -123,11 +122,10 @@ private:
 
     void _loadPropertyNames(const CIMConstInstance&);
     void _deletePropertyNames();
-    void _appendMethods(
-        const CIMClass &cimClass,
-        Buffer instanceUri,
-        const CIMConstInstance& cimInstance,
-        Boolean useAbsoluteUri);
+    void _appendMethods(const CIMClass &cimClass,
+                        Buffer instanceUri,
+                        const CIMConstInstance& cimInstance,
+                        Boolean useAbsoluteUri);
 };
 
 PEGASUS_NAMESPACE_END

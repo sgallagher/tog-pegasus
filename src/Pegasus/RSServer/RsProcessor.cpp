@@ -99,11 +99,10 @@ void RsProcessor::handleEnqueue(Message* message)
     PEG_METHOD_EXIT();
 }
 
-Uint32 findEndBlock(
-    String& contentStr,
-    Uint32 startPos,
-    Char16 delemStart,
-    Char16 delemEnd)
+Uint32 findEndBlock(String& contentStr,
+                    Uint32 startPos,
+                    Char16 delemStart,
+                    Char16 delemEnd)
 {
     Uint32 retPos = PEG_NOT_FOUND;
     Uint32 indent = 1;
@@ -523,6 +522,7 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         PEG_METHOD_EXIT();
         return String();
     }
+    // ToDo: Better way to parse the content??
     String contentStr(content, contentSize); 
 
     // Sample content:
@@ -980,8 +980,8 @@ void RsProcessor::handleRequest(RsHTTPRequest* request)
                     QueueIdStack(request->queueId)));
 
                 response->setContentType(STRLIT_ARGS(CIM_RS_CONTENT_TYPE));
-                break;
 
+                break;
             case RS_REFERENCE_GET:
                 cimClass = _repository->getClass(
                     namespaceName,
@@ -1225,17 +1225,18 @@ void RsProcessor::handleResponse(CIMResponseMessage* cimResponse)
     AutoPtr<CIMResponseMessage> cimResponseDestroyer(cimResponse);
     Uint32 queueId = cimResponse->queueIds.top();
     MessageQueue* queue = MessageQueue::lookup(queueId);
+    RsHTTPRequest* request;
+    RsHTTPResponse* response;
     CIMException& cimException = cimResponse->cimException;
     Boolean httpCloseConnect = cimResponse->getCloseConnect();
     Boolean complete = cimResponse->isComplete();
 
-    RsHTTPRequest* request;
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-       true, _requestTable.lookup(queueId, request));
-    RsHTTPResponse *response = request->response;
+    Boolean conversationSaved = _requestTable.lookup(queueId, request);
+    PEGASUS_ASSERT(conversationSaved);
 
-    try
-    {
+    response = request->response;
+
+    try {
         if (cimException.getCode() != CIM_ERR_SUCCESS)
         {
             throw cimException;
@@ -1305,8 +1306,9 @@ void RsProcessor::handleResponse(CIMResponseMessage* cimResponse)
             httpMessage->setComplete(complete);
             //httpMessage->setIndex(cimResponse->getIndex());
             httpMessage->setIndex(0);
-            PEGASUS_FCT_EXECUTE_AND_ASSERT(true, _requestTable.remove(queueId));
 
+            Boolean removed = _requestTable.remove(queueId);
+            PEGASUS_ASSERT(removed);
             delete request;
 
             queue->enqueue(httpMessage.release());
@@ -1384,8 +1386,8 @@ Uint32 RsProcessor::getRsRequestDecoderQueueId()
 {
     PEG_METHOD_ENTER(TRC_RSSERVER,
         "RsProcessor::getRsRequestDecoderQueueId()");
-    PEG_METHOD_EXIT();
     return _rsRequestDecoder.getQueueId();
+    PEG_METHOD_EXIT();
 }
 
 

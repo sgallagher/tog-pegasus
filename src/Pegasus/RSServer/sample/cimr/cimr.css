@@ -1,0 +1,73 @@
+/**********************************dojox.layout.dnd************************************/
+/* item-specific settings */
+
+
+.dojoDndItemBefore              {border-top:    3px solid red;}
+.dojoDndItemAfter               {border-bottom: 3px solid red;}
+
+.dojoDndMove .dojoDndAvatarHeader {margin-bottom: 0;}
+/* avatar-specific settings */
+.dojoDndAvatarHeader    {display:none;}
+
+.dndDropIndicator               {border: 1px dashed #FF6600;cursor: default;}
+
+html, body { height: 100%; width: 100%; margin: 0; padding: 0; }
+body { background: #666; }
+pre { background: transparent; border: 0; }
+h2, h3, h4, h5, h6 { margin-bottom: 3px; }
+p, h2, h3, h4, h5, h6 { margin-top: 3px; }
+
+.dojoxScrollPane ol, li {
+        list-style-type: none;
+        padding: 0;
+        padding-left: 5px;
+        padding-right: 5px;
+}
+.dojoxScrollPane li:after {
+        clear: both;
+}
+.dojoxScrollPane .key {
+
+        font-weight: bold;
+        width: 200px;
+}
+.dojoxScrollPane .value {
+        float: right;
+}
+.even { background: #eee; }
+
+.controlNode { float: right; }
+
+.gridContainer .dojoxGrid { clear: left; height: 200px; }
+
+.componentContainer {
+        background: white url(../dijit/themes/tundra/images/accordionItemActive.gif) repeat-x scroll left bottom !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        border: 2px solid #eee;
+        margin-bottom: 3px;
+}
+
+
+.componentContainer h1 {
+        margin-top: 0; padding: 0;
+        margin-bottom: 5px;
+}
+.componentContainer img {
+        float: left;
+        margin: 3px;
+        margin-right: 8px;
+}
+
+#dashboard .gridContainerTable  {
+        border: 3px solid #ddd;
+        background: #eee;
+}
+
+.searchBar .dijitTextBox {
+        padding: 0.1em 0.2em 0.2em;
+}
+
+.dojoDndItemOver {
+        -moz-box-shadow: black 2px 2px 5px 0px;
+}

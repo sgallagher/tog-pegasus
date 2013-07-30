@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-
+// TODO inherit from HTTPMessage
 RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage) :
     _hasType(false),
     _rangeHeaderLoaded(false),
@@ -66,15 +66,16 @@ RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage) :
         startLine, methodName, requestUri, httpVersion);
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage)- Queue %d: "
+            "RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage)- Queue %d: "
             "methodName [%s], requestUri [%s], httpVersion [%s]",
-        httpMessage->queueId,
-        (const char*)methodName.getCString(),
-        (const char*)requestUri.getCString(),
-        (const char*)httpVersion.getCString()));
+            httpMessage->queueId,
+            (const char*)methodName.getCString(),
+            (const char*)requestUri.getCString(),
+            (const char*)httpVersion.getCString()));
 
-
+    // TODO provide a getUri that lazy-loads the uri
     _uri = RsURI(requestUri);
+    // TODO better place for this?
     if (!RsURI::hasDefaultNamespace())
     {
         RsURI::setDefaultNamespace(_uri.getNamespaceName());
@@ -150,16 +151,22 @@ RsOperationType RsHTTPRequest::getType()
     }
     else if (_uri.hasClassPath())
     {
-        _type = RS_CLASS_MEMBER_GET;
+        _type = RS_CLASS_MEMBER_GET; // ToDo
     }
     else if (_uri.hasClassesPath())
     {
-        _type = RS_CLASS_COLLECTION_GET;
+        _type = RS_CLASS_COLLECTION_GET; // ToDo
     }
     else
+    // TODO implement namespace resources
+    // For now, just pretend it's a GetClass and let error handling
+    // take care when it's not
     {
         _type = RS_CLASS_COLLECTION_GET;
     }
+
+
+
 
     _hasType = true;
     PEG_METHOD_EXIT();
@@ -171,16 +178,17 @@ RsOperationType RsHTTPRequest::getType()
 // Range = "Range" ":" ranges-specifier
 Boolean RsHTTPRequest::hasRange()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsHTTPRequest::hasRange()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsHTTPRequest::hasRange()");
 
     if (!_rangeHeaderLoaded)
     {
         _loadRangeHeader();
     }
 
-    PEG_METHOD_EXIT();
     return (_first != PEG_NOT_FOUND && _last != PEG_NOT_FOUND);
 
+    PEG_METHOD_EXIT();
 }
 
 Uint32 RsHTTPRequest::getRangeStart()
@@ -206,13 +214,14 @@ Uint32 RsHTTPRequest::getRangeEnd()
 
 void RsHTTPRequest::_loadRangeHeader()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsHTTPRequest::_loadRangeHeader()");
-
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsHTTPRequest::_loadRangeHeader()");
     Boolean found = false;
     for (Uint32 i = 0; i < _headers.size(); i++)
     {
         if (!strcmp("Range", _headers[i].first.getData()))
         {
+            // TODO validation
             // ranges-specifier = "items" "=" item-first "-" item-last
             String range = String(_headers[i].second.getData());
             Uint32 len = range.size();
@@ -220,22 +229,23 @@ void RsHTTPRequest::_loadRangeHeader()
 
             if (delimPos != PEG_NOT_FOUND)
             {
-                _first = atoi((const char*)range.subString(
-                            6, delimPos).getCString());
-
-                _last = atoi((const char*)range.subString(
-                            delimPos + 1, len - delimPos + 1).getCString());
+                _first = atoi((const char*)range.subString(6,
+                    delimPos).getCString());
+                _last = atoi((const char*)range.subString(delimPos + 1,
+                    len - delimPos + 1).getCString());
 
                 found = true;
 
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                    "RsHTTPRequest::_loadRangeHeader() found in header %d, "
-                    "first: %d, second: %d",
-                    i, _first, _last));
+                        "RsHTTPRequest::_loadRangeHeader() found in header %d, "
+                        "first: %d, second: %d",
+                        i, _first, _last));
             }
+            // TODO else throw Range not satisfiable
 
             break;
-        } // if
+        }
+
     }
 
     _rangeHeaderLoaded = true;

@@ -41,6 +41,7 @@
 #include <cstdio>
 
 #include "JSONWriter.h"
+#include "RsURI.h"
 
 PEGASUS_USING_STD;
 
@@ -299,13 +300,12 @@ void JSONWriter::append(CIMInvokeMethodResponseMessage* methodResult,
     _append(String("parameters"));
     _buffer.append(':');
     _buffer.append('{');
-    for (Uint32 x = 0; x < outParms.size(); ++x)
+    for (Uint32 x=0; x<outParms.size();x++)
     {
         _append(outParms[x].getParameterName());
         _buffer.append(':');
         _append(outParms[x].getValue(), repository, requestUri);
-
-        if( x + 1 < outParms.size())
+        if (x+1<outParms.size())
         {
             _buffer.append(',');
         }
@@ -321,7 +321,7 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
                         CIMRepository* repository,
                         RsURI& requestUri)
 {
-
+    // TODO refactor with CIMEnumerateInstancesResponseMessage
     PEG_METHOD_ENTER(TRC_RSSERVER,
             "JSONWriter::append(CIMAssociatorsResponseMessage*"
             "enumResult, Uint32 firstInstance, Uint32 lastInstance)");
@@ -329,11 +329,13 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
     Uint32 numInstances = referencesResult->
                             getResponseData().getObjects().size();
 
+    // TODO why is append called at all when numInstances 0?
     if (numInstances == 0)
     {
         return;
     }
 
+    // TODO support ranges
     Uint32 firstInstance = 0;
     Uint32 lastInstance = numInstances;
 
@@ -342,6 +344,7 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
             "firstInstance = %d, lastInstance = %d, numInstances = %d",
             _numObjectsEnumerated, firstInstance, lastInstance, numInstances));
 
+    // TODO cleanup
     if (_numObjectsEnumerated == 0)
     {
         _buffer.append('{'); // start the response
@@ -363,6 +366,7 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
         _append(requestUri.getClassName().getString());
 
         // the key properties
+        // ToDo: We need to get these from a get instance call???
         _buffer.append(STRLIT_ARGS(",\"properties\":{"));
         _buffer.append('}'); // end properties
 
@@ -410,17 +414,20 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
                         CIMRepository* repository,
                         RsURI& requestUri)
 {
+    // TODO refactor with CIMEnumerateInstancesResponseMessage
     PEG_METHOD_ENTER(TRC_RSSERVER,
             "JSONWriter::append(CIMAssociatorsResponseMessage*"
             "enumResult, Uint32 firstInstance, Uint32 lastInstance)");
 
     Uint32 numInstances = enumResult->getResponseData().getObjects().size();
 
+    // TODO why is append called at all when numInstances 0?
     if (numInstances == 0)
     {
         return;
     }
 
+    // TODO support ranges
     Uint32 firstInstance = 0;
     Uint32 lastInstance = numInstances;
 
@@ -429,6 +436,7 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
             "firstInstance = %d, lastInstance = %d, numInstances = %d",
             _numObjectsEnumerated, firstInstance, lastInstance, numInstances));
 
+    // TODO cleanup
     if (_numObjectsEnumerated == 0)
     {
         _buffer.append('{'); // start the response
@@ -450,6 +458,7 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
         _append(requestUri.getClassName().getString());
 
         // the key properties
+        // ToDo: We need to get these from a get instance call???
         _buffer.append(STRLIT_ARGS(",\"properties\":{"));
         _buffer.append('}'); // end properties
 
@@ -492,6 +501,12 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
     PEG_METHOD_EXIT();
 }
 
+
+//void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult)
+//{
+//    append(enumResult, PEG_NOT_FOUND, PEG_NOT_FOUND, NULL);
+//}
+
 void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
     Uint32 firstInstance, Uint32 lastInstance, CIMRepository* repository,
     RsURI& requestUri)
@@ -513,15 +528,12 @@ void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
     // make sure that they are contained in one array
     Uint32 bufferSize = _buffer.size();
     if (_numObjectsEnumerated == 0 &&
+        // ToDo: How do we perform the following check?
         // bufferSize > 2 && _buffer.get(bufferSize-2) == '[' &&
         _buffer.get(bufferSize-2) == ']' &&
         _buffer.get(bufferSize-1) == '}')
     {
-        _buffer.remove(_buffer.size()-1);
-        if (bufferSize > 2 && _buffer.get(bufferSize-3) == '[')
-        {
-            _buffer.remove(_buffer.size()-1);
-        }
+        _buffer.remove(bufferSize-1);
     }
     else if (_numObjectsEnumerated == 0)
     {
@@ -689,9 +701,9 @@ void JSONWriter::append(CIMException& e, String& httpMethod, RsURI& reqURI)
 
     _buffer.append(STRLIT_ARGS("{"));
 
-    _buffer.append(STRLIT_ARGS("\"kind\": \"errorresponse\",\"self\":\""));
+    _buffer.append(STRLIT_ARGS("\"kind\": \"errorresponse\",\"self\":"));
     _buffer.append(reqURI.getString().getCString(), reqURI.getString().size());
-    _buffer.append(STRLIT_ARGS("\","));
+    _buffer.append(',');
     _buffer.append(STRLIT_ARGS("\"httpmethod\":"));
     _append(httpMethod);
     _buffer.append(',');
@@ -707,7 +719,7 @@ void JSONWriter::append(CIMException& e, String& httpMethod, RsURI& reqURI)
     _buffer.append(STRLIT_ARGS("\""));
     _buffer.append(',');
 
-
+    // ToDo: Verify with an error
     _buffer.append(STRLIT_ARGS("\"errors\":["));
     for(Uint32 i = 0; i < e.getErrorCount(); i++)
     {
@@ -734,6 +746,7 @@ void JSONWriter::_append(Array<CIMObject>& objArray,
                          CIMRepository* repository,
                          RsURI& requestUri)
 {
+    // TODO refactor with append(Enumerate)
     for (Uint32 i = 0, n = objArray.size(); i < n; ++i)
     {
         const CIMObject& cimObj = objArray[i];
@@ -933,6 +946,8 @@ void JSONWriter::_append(const CIMConstInstance& cimInstance,
 
 void JSONWriter::_append(const CIMConstProperty& property)
 {
+    // TODO reference, rep
+
     _append(property.getName().getString());
 
     _buffer.append(STRLIT_ARGS(":{\"type\":\""));
@@ -1335,6 +1350,7 @@ void JSONWriter::_append(const CIMValue& value, CIMRepository* repository,
                     "JSONWriter::appendValue()- Object"));
                 CIMObject v;
                 value.get(v);
+                // TODO CIMTYPE_OBJECT
                 _append("CIMTYPE_OBJECT is TODO!");
                 break;
             }
@@ -1449,6 +1465,7 @@ void JSONWriter::_append(Uint64 v)
 void JSONWriter::_append(Real32 v)
 {
     char buffer[128];
+    // TODO JSONs view on floats
     // %.7e gives '[-]m.ddddddde+/-xx', which seems compatible with the format
     // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
     // (4 byte IEEE floating point)
@@ -1471,6 +1488,7 @@ void JSONWriter::_append(Real64 v)
 
 void JSONWriter::_append(const CIMDateTime& v)
 {
+    // TODO convert to ISO 8601
     // see w3.org/TR/NOTE-datetime
     // and ECMAScript 3.1 spec draft
     String s = v.toString();
@@ -1480,6 +1498,7 @@ void JSONWriter::_append(const CIMDateTime& v)
 void JSONWriter::_append(const CIMObjectPath& v)
 {
     Buffer uri = RsURI::fromObjectPath(v, true);
+    // TODO create _append(const char*) method
     _append(String(uri.getData()));
 }
 
@@ -1522,6 +1541,7 @@ void JSONWriter::_append(Buffer& out, const String& str)
                 out.append(c);
             }
         }
+        // TODO UTF support
         /*
         else
         {

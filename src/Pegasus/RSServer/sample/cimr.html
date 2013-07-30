@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>cimr</title>
+
+    <style type="text/css">
+
+        @import url("dojo/resources/dojo.css");
+        @import url("dijit/themes/tundra/tundra.css");
+        @import url("dojox/layout/resources/ExpandoPane.css");
+        @import url("dojox/layout/resources/GridContainer.css");
+        @import url("dojox/layout/resources/ScrollPane.css");
+        @import url("dojox/grid/resources/Grid.css");
+        @import url("dojox/grid/resources/tundraGrid.css");
+        @import url("dojox/form/resources/BusyButton.css");
+        @import url("cimr/cimr.css");
+
+    #loader {
+            padding:0;
+            margin:0;
+            position:absolute;
+            top:0; left:0;
+            width:100%; height:100%;
+            background:#ededed;
+            z-index:999;
+            vertical-align:middle;
+        }
+
+        #loaderInner {
+            padding:5px;
+            position:relative;
+            left:0;
+            top:0;
+            width:175px;
+            background:black;
+            color:white;
+        }
+    </style>
+    <script type="text/javascript" src="dojo/dojo.js" djConfig="isDebug: false, parseOnLoad: true" ></script>
+
+    <script type="text/javascript">
+        dojo.require("dijit.layout.ContentPane");
+        dojo.require("dijit.layout.BorderContainer");
+        dojo.require("dojox.layout.ExpandoPane");
+        dojo.require("dijit.layout.AccordionContainer");
+        dojo.require("dijit.layout.TabContainer");
+        dojo.require("dojox.layout.GridContainer");
+        dojo.require("dojox.grid.DataGrid");
+        dojo.require("dijit.form.TextBox");
+        dojo.require("dijit.form.Button");
+        dojo.require("dijit.Dialog");
+
+        dojo.require("cimr.SystemContainer");
+        dojo.require("cimr.Component");
+        dojo.require("cimr.Dashboard");
+
+        var systemsContainer;
+        var dashboard;
+        var latestSystem;
+        var processes;
+
+
+        var components = [
+            { type_string: "KeyVal", type: cimr.Keyval },
+            { type_string: "TimeChart", type: cimr.TimeChart }
+        ];
+
+        var addComponent = function() {
+            console.debug("foo");
+        }
+
+
+
+        var addSystem = function() {
+            try{
+                latestSystem = new cimr.SystemContainer({
+                    host: dojo.byId("hostAddBox").value
+                }, document.createElement('div'));
+                systems.addChild(latestSystem);
+                latestSystem.source.startup();
+                latestSystem.addComponents([
+                    { name: "Processes", desc: "Lists processes running on ", type: cimr.Processes,
+                      uri: "/cimrs/namespaces/root/cimv2/classes/PG_UnixProcess/instances" },
+                    { name: "Base", desc: "System base data for ", type: cimr.KeyVal,
+                      uri: "/cimrs/namespaces/root/cimv2/classes/PG_OperatingSystem/instances" },
+                    { name: "Memory", desc: "Graphs for ", type: cimr.TimeChart,
+                      theme: "dojox.charting.themes.PurpleRain", fields: [ "FreePhysicalMemory" ],
+                      uri: "/cimrs/namespaces/root/cimv2/classes/PG_OperatingSystem/instances" }
+                ]);
+
+
+            } catch(err) {
+                console.debug(err)
+            }
+        }
+
+        var loadSystems = function() {
+            systems = dijit.byId("systemsContainer");
+            dojo.connect(dojo.byId("hostAddButton"), "onclick", addSystem);
+        }
+
+        var hideLoader = function() {
+            setTimeout(function hideLoader(){
+                var loader = dojo.byId('loader');
+                dojo.fadeOut({ node: loader, duration:500,
+                    onEnd: function(){
+                        loader.style.display = "none";
+                    }
+                }).play();
+            }, 4000);
+        }
+
+        dojo.addOnLoad(loadSystems);
+        dojo.addOnLoad(hideLoader);
+
+    </script>
+</head>
+<body class="tundra">
+<div id="loader"><div id="loaderInner">Loading cimr ... </div></div>
+<div dojoType="dijit.layout.BorderContainer" style="width: 100%; height: 100%;" gutters="false">
+
+    <div id="titlePane" dojoType="dijit.layout.ContentPane" region="top">
+        <h1 style="margin: 5px; padding: 0; font-size: 36pt; color: white">cimr</h1>
+    </div>
+
+
+    <div dojoType="dojox.layout.ExpandoPane" splitter="true" duration="1250" region="left" title="Systems" id="leftPane" splitter="false" style="min-width: 290px" >
+        <div dojoType="dijit.layout.BorderContainer" attachParent="true">
+            <div dojoType="dijit.layout.ContentPane" region="top">
+                <div class="searchBar">
+                    <img src="cimr/images/host.png" style="float:left; margin-right: 5px" />
+                    <input id="hostAddBox" type="text" dojoType="dijit.form.TextBox" name="hostAddBox" value="localhost" style="width: 130px" />
+                    <button id="hostAddButton" dojoType="dijit.form.Button">Add Host</button>
+                </div>
+            </div>
+            <div dojoType="dijit.layout.AccordionContainer" id="systemsContainer" attachParent="true" region="center">
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="mainPane" dojoType="dijit.layout.TabContainer" region="center" tabStrip="true">
+
+        <div dojoType="cimr.Dashboard" title="Dashboard" id="dashboard"
+              nbZones="2" opacity="0.7" allowAutoScroll="true" hasResizableColumns="false"
+              withHandles="true" acceptTypes="dijit.layout.ContentPane, component">
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
+

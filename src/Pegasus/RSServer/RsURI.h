@@ -32,27 +32,20 @@
 #ifndef Pegasus_RsURI_h
 #define Pegasus_RsURI_h
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMParamValue.h>
-#include <Pegasus/RSServer/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*
- *RsURI class represnts the the request URI in the CIM-RS request
- *
-*/
-
-class PEGASUS_RSSERVER_LINKAGE RsURI
+class RsURI
 {
 public:
     RsURI();
     RsURI(const String&);
     virtual ~RsURI();
 
-
+    // TODO subclass
     String getNamespaceName(Boolean encoded = false);
     CIMName getClassName();
 
@@ -65,12 +58,12 @@ public:
     Boolean hasMethodPath();
     Boolean hasEnum();
     Boolean hasCreate();
-
+    // TODO refactor into Request
     CIMObjectPath getAssociationPath(const CIMClass&);
     CIMObjectPath getReferencePath(const CIMClass& cimClass);
     CIMObjectPath getMethodPath(const CIMClass& cimClass);
 
-
+    // TODO refactor into request
     void setRepository(CIMRepository*);
     CIMObjectPath getInstancePath(const CIMClass&);
     CIMName getMethodName();
@@ -118,13 +111,6 @@ private:
     CIMName _findNameParameter(const String&);
     String _findStringParameter(const String&);
     Uint32 _navHopCount();
-
-    inline Boolean _checkQuerystring()
-    {
-        return (_queryString.size() > 0 &&
-               ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
-               (_queryString.find("refer=") != PEG_NOT_FOUND)));
-    }
 };
 
 PEGASUS_NAMESPACE_END

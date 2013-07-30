@@ -29,12 +29,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Webconfig_h
-#define Pegasus_Webconfig_h
+#ifndef WEBCONFIG_H_
+#define WEBCONFIG_H_
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/WebServer/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -46,47 +45,18 @@ PEGASUS_NAMESPACE_BEGIN
  * Contains properties required by the WebProcessor class in order to serve
  * any files.
  */
-class PEGASUS_WEBSERVER_LINKAGE WebConfig
+class WebConfig
 {
 
 public:
-
-
-
-    /**
-       Initializes the config with defaults which will be overriden by
-       the current config values and mime-types file.
-     */
-    WebConfig();
-
-    /**
-       Destructor
-     */
-    ~WebConfig();
-
-    /**
-     */
-    String getWebRoot() const;
-
-    /**
-     */
-    String getIndexFile() const;
 
     /*
      * MimeType mapping, for ex. '.js => text/javascript'
      */
     typedef HashTable<String, String,
-                EqualFunc<String>,
-                HashFunc<String> > MimeTypes;
-    /**
-     */
-    MimeTypes getMimeTypes() const;
+                        EqualFunc<String>,
+                        HashFunc<String> > MimeTypes;
 
-    /**
-     */
-    void reload();
-
-    
     /*
      * Property-key for the webRoot stored in the current config.
      */
@@ -103,6 +73,39 @@ public:
      */
     static const String PROPERTY_MIMETYPES_FILE;
 
+
+    /**
+       Initializes the config with defaults which will be overriden by
+       the current config values and mime-types file.
+     */
+    WebConfig();
+
+    /**
+       Destructor
+     */
+    ~WebConfig();
+
+
+    /**
+
+     */
+    String getWebRoot();
+
+    /**
+
+     */
+    String getIndexFile();
+
+    /**
+
+     */
+    MimeTypes getMimeTypes();
+
+    /**
+
+     */
+    void reload();
+
 private:
 
     /**
@@ -112,19 +115,18 @@ private:
 
     /**
        Name of index-file, will be served when requesting resource '/'
-       by default it is index.html at _webRoot dir
      */
     String _indexFile;
-    /**
-
-     */
-    MimeTypes _mimeTypes;
-
 
     /**
        Locale encoding of files, for ex. 'ISO-5889-1' or 'UTF-8'
      */
     String _localFileEnc;
+
+    /**
+
+     */
+    MimeTypes _mimeTypes;
 
     /**
        Loads mimetypes from file.
@@ -142,4 +144,4 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-#endif /* Pegasus_Webconfig_h */
+#endif /* WEBCONFIG_H_ */

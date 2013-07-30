@@ -29,6 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <cctype>
 #include <cstdio>
@@ -49,7 +50,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 RsRequestDecoder::RsRequestDecoder(RsProcessor* rsProcessor)
-    : MessageQueueService("RsRequestDecoder"),
+: MessageQueueService("RsRequestDecoder"),
     _rsProcessor(rsProcessor)
 {
 }
@@ -58,14 +59,14 @@ RsRequestDecoder::~RsRequestDecoder()
 {
 }
 
+
+
 void RsRequestDecoder::handleEnqueue(Message* message)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,"RsOperationRequestDecoder::handleEnqueue()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsOperationRequestDecoder::handleEnqueue(Message* message)");
     if (!message)
-    {
-        PEG_METHOD_EXIT();
         return;
-    }
 
     switch (message->getType())
     {
@@ -75,7 +76,7 @@ void RsRequestDecoder::handleEnqueue(Message* message)
 
     default:
         // Unexpected message type
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+        PEGASUS_ASSERT(0);
         break;
     }
 
@@ -86,7 +87,8 @@ void RsRequestDecoder::handleEnqueue(Message* message)
 
 void RsRequestDecoder::handleEnqueue()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,"RsOperationRequestDecoder::handleEnqueue()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsOperationRequestDecoder::handleEnqueue()");
     Message* message = dequeue();
     if (message)
     {

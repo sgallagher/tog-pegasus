@@ -43,10 +43,11 @@ LIBRARIES = \
 	pegrepository \
 	pegprovider \
 	pegexportserver \
-	pegpmrouter \
+    pegpmrouter \
 	pegpmservice \
 	pegprovidermanager \
 	pegconfig \
+	peguser \
 	pegauthentication \
 	peghandlerservice \
 	pegindicationservice \
@@ -56,16 +57,13 @@ LIBRARIES = \
 	pegprm \
 	DefaultProviderManager \
 	ConfigSettingProvider \
+	UserAuthProvider \
 	ProviderRegistrationProvider\
 	NamespaceProvider \
-	peggeneral \
+    peggeneral \
 	pegcommon \
-	cimrsserver
+    cimrsserver
 
-ifndef PEGASUS_PAM_AUTHENTICATION
-    LIBRARIES += peguser \
-		 UserAuthProvider
-endif
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 LIBRARIES += \

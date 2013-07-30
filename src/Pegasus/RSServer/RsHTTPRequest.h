@@ -32,7 +32,6 @@
 #ifndef Pegasus_RsHTTPRequest_h
 #define Pegasus_RsHTTPRequest_h
 
-#include <Pegasus/RSServer/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
@@ -59,10 +58,11 @@ enum RsOperationType
 };
 
 
-class PEGASUS_RSSERVER_LINKAGE RsHTTPRequest
+class RsHTTPRequest
 {
 public:
 
+    // TODO make RsHTTPRequest inherit from HTTPMessage?
     RsHTTPRequest(HTTPMessage*);
     virtual ~RsHTTPRequest();
 

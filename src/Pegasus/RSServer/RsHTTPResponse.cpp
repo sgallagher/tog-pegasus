@@ -57,40 +57,39 @@ RsHTTPResponse::RsHTTPResponse():
 RsHTTPResponse::~RsHTTPResponse()
 {
     if (_hasWriter)
-    {
         delete _writer;
-    }
 }
 
 void RsHTTPResponse::setStatus(const char* status, Uint32 length)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER, "RsHTTPResponse::setStatus()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,
+        "RsHTTPResponse::setStatus(const char* status)");
     if (_message.size() > 0)
-    {
         _message.clear();
-    }
 
     _message.append(STRLIT_ARGS("HTTP/1.1 "));
     _message.append(status, length);
     _message.append(STRLIT_ARGS("\r\n"));
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-        "RsHTTPResponse::setStatus() Status Line: [%s]",
-        _message.getData()));
+            "RsHTTPResponse::setStatus() Status Line: [%s]",
+            _message.getData()));
 
     // Date is MUST per rfc 2616
     // for format see section 3.3.3.1 / rfc 1123, e.g.
     // Sun, 06 Nov 1994 08:49:37 GMT
+    // TODO own method/class?
     time_t currentTime;
     struct tm* gmtTime;
     char timeValue[30];
     time(&currentTime);
     gmtTime = gmtime(&currentTime);
-    strftime(timeValue,30,"%a, %d %b %Y %H:%M:%S GMT",gmtTime);
+    strftime(timeValue,30,"%a, %d %b %Y %H:%M:%S GMT",gmtTime); // TODO locale?
     _message.append(STRLIT_ARGS("Date: "));
     _message.append(timeValue, 29);
 
-    _message.append(STRLIT_ARGS("\r\n" "Content-Length: "));
+    _message.append(STRLIT_ARGS("\r\n"
+            "Content-Length: "));
     _contentLengthPos = _message.size();
     _message.append(STRLIT_ARGS("\r\n"));
 
@@ -101,6 +100,7 @@ void RsHTTPResponse::setStatus(const char* status, Uint32 length)
 
 void RsHTTPResponse::setRange(Uint32 start, Uint32 end, Uint32 total)
 {
+    // TODO make sure status is set
     char startc[22];
     Uint32 startSize;
     char endc[22];
@@ -124,6 +124,7 @@ void RsHTTPResponse::setRange(Uint32 start, Uint32 end, Uint32 total)
     _message.insert(_headerLength, contentRange.getData(),
         contentRange.size());
 
+    // TODO refactor into _appendHeader
     PEGASUS_ASSERT(_headerLength > 0);
     _headerLength += contentRange.size();
 }
@@ -155,12 +156,13 @@ JSONWriter* RsHTTPResponse::getJSONWriter()
 
 HTTPMessage* RsHTTPResponse::getHTTPMessage()
 {
+    // TODO make sure this is callable multiple times
     char scratch[22];
     Uint32 contentLengthSize = 0;
 
-    const char* contentLength = Uint32ToString( scratch,
-            _message.size() - (_headerLength + 2),
-            contentLengthSize);
+    const char* contentLength = Uint32ToString(scratch,
+        _message.size() - (_headerLength + 2),
+        contentLengthSize);
 
     // Carve in body length
     _message.insert(_contentLengthPos, contentLength, contentLengthSize);

@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
  * Container for the request values of interest for the WebProcessor.
  */
-class PEGASUS_WEBSERVER_LINKAGE WebRequest
+class WebRequest
 {
 
 public:
@@ -49,12 +49,13 @@ public:
      * Constructor.
      *
      * @param queueId
-     *      Request's queueId required for generation of the response
+     *             Request's queueId required for generation of the response
      *             for a successful delivery back to the requester.
      */
     WebRequest(Uint32 queueId)
-        :_queueId(queueId)
+                    :_queueId(queueId)
     {
+
     }
 
 
@@ -65,7 +66,7 @@ public:
     {
     }
 
-    Uint32 getQueueId() const
+    Uint32 getQueueId()
     {
         return _queueId;
     }

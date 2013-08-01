@@ -39,6 +39,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Buffer.h>
+#include <Pegasus/RSServer/Linkage.h>
 
 #include "RsURI.h"
 #include "RsHTTPResponse.h"
@@ -58,7 +59,7 @@ enum RsOperationType
 };
 
 
-class RsHTTPRequest
+class PEGASUS_RSSERVER_LINKAGE RsHTTPRequest
 {
 public:
 

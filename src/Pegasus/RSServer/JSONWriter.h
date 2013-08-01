@@ -32,6 +32,7 @@
 #ifndef Pegasus_JSONWriter_h
 #define Pegasus_JSONWriter_h
 
+#include <Pegasus/RSServer/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/CIMNameCast.h>
@@ -42,7 +43,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class JSONWriter
+class PEGASUS_RSSERVER_LINKAGE JSONWriter
 {
 public:
     JSONWriter(Buffer& buf);

@@ -34,11 +34,12 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/RSServer/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-class RsURI
+class PEGASUS_RSSERVER_LINKAGE RsURI
 {
 public:
     RsURI();

@@ -58,8 +58,6 @@ WebConfig::~WebConfig()
 {
 }
 
-
-
 String WebConfig::getWebRoot()
 {
     return _webRoot;

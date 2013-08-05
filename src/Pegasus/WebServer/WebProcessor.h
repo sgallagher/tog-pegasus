@@ -54,6 +54,20 @@ class PEGASUS_WEBSERVER_LINKAGE WebProcessor
 
 public:
 
+    /**
+     * Constructor.
+     *
+     * @param webServer
+     *             Generated responses will be passed to it.
+     */
+    WebProcessor(WebServer* const webServer);
+
+    /**
+     * Destructor.
+     */
+    ~WebProcessor();
+
+
 
     /**
      * Default size for initialization.of the response message-buffer.
@@ -82,24 +96,12 @@ public:
 
 
     /**
-     * Constructor.
-     *
-     * @param webServer
-     *             Generated responses will be passed to it.
-     */
-    WebProcessor(WebServer* const webServer);
-
-    /**
-     * Destructor.
-     */
-    ~WebProcessor();
-
-    /**
      * Processes the request and generates the corresponding answer.
      *
      * @param webRequest
      *             Request to process.
      */
+
     void handleWebRequest(WebRequest* webRequest);
 
     /**

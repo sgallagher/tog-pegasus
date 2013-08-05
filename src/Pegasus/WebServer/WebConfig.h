@@ -29,11 +29,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef WEBCONFIG_H_
-#define WEBCONFIG_H_
+#ifndef Pegasus_Webconfig_h
+#define Pegasus_Webconfig_h
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/WebServer/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -45,10 +46,22 @@ PEGASUS_NAMESPACE_BEGIN
  * Contains properties required by the WebProcessor class in order to serve
  * any files.
  */
-class WebConfig
+class PEGASUS_WEBSERVER_LINKAGE WebConfig
 {
 
 public:
+
+    /**
+       Initializes the config with defaults which will be overriden by
+       the current config values and mime-types file.
+     */
+    WebConfig();
+
+    /**
+       Destructor
+     */
+    ~WebConfig();
+
 
     /*
      * MimeType mapping, for ex. '.js => text/javascript'
@@ -72,18 +85,6 @@ public:
      * config.
      */
     static const String PROPERTY_MIMETYPES_FILE;
-
-
-    /**
-       Initializes the config with defaults which will be overriden by
-       the current config values and mime-types file.
-     */
-    WebConfig();
-
-    /**
-       Destructor
-     */
-    ~WebConfig();
 
 
     /**
@@ -144,4 +145,4 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-#endif /* WEBCONFIG_H_ */
+#endif /* Pegasus_Webconfig_h */

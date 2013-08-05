@@ -67,8 +67,10 @@ void WebServer::handleEnqueue()
 {
     PEG_METHOD_ENTER(TRC_WEBSERVER,
         "WebServer::handleEnqueue()");
+
     Message* message = dequeue();
     handleEnqueue(message);
+
     PEG_METHOD_EXIT();
 }
 
@@ -76,8 +78,11 @@ void WebServer::handleEnqueue(Message* message)
 {
     PEG_METHOD_ENTER(TRC_WEBSERVER,
             "WebServer::handleEnqueue(Message* message)");
-    if (!message)
+
+    if ( !message )
+    {
         return;
+    }
 
     switch (message->getType())
     {
@@ -87,7 +92,7 @@ void WebServer::handleEnqueue(Message* message)
 
         default:
             // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE( PEGASUS_ASSERT(0);)
             break;
     }
 
@@ -99,6 +104,7 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 {
     PEG_METHOD_ENTER(TRC_WEBSERVER,
                 "WebServer::handleHTTPMessage(HTTPMessage* httpMessage)");
+
     if (!httpMessage)
     {
         PEG_METHOD_EXIT();
@@ -117,6 +123,7 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
     const char* acceptMimeTypesHeader;
     Boolean acceptMimeTypesHeaderFound = HTTPMessage::lookupHeader(
             headers, "Accept", acceptMimeTypesHeader, false);
+
     //ex.: 'Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7'
     const char* charSetHeader;
     Boolean charSetHeaderFound = HTTPMessage::lookupHeader(

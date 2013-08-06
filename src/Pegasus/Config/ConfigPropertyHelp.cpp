@@ -370,7 +370,13 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "value  'All' forces listening at all interfaces. A comma seperated\n"
         "list(without spaces) forces listening at specific interfaces. For\n"
         "example: 'listenAddress=All' or 'listenAddress=121.12.33.112', or\n"
-        "'listenAddress=121.33.21.26,127.0.0.1,fe80::fe62:9346%eth0'"}
+        "'listenAddress=121.33.21.26,127.0.0.1,fe80::fe62:9346%eth0'"},
+
+   {"sslBackwardCompatibility",
+        "If 'true', OpenPegasus support SSLv3 and TLSv1 protocol.If 'false',\n"
+        "OpenPegasus support only TLS1.2 protocol for openssl 1.0.1+"}  
+        
+
 };
 
 Uint32 configPropertyDescriptionListSize =
@@ -378,4 +384,5 @@ Uint32 configPropertyDescriptionListSize =
         sizeof(configPropertyDescriptionList[0]);
 
 PEGASUS_NAMESPACE_END
+
 

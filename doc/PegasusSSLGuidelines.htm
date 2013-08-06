@@ -326,6 +326,12 @@ quotes since it can contain special characters like .+, !, -. The
 cipher lists can be found at <a
  href="http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT">http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT</a>
 </p>
+<p><b>sslBackwardCompatibility</b><br>
+This setting specifies whether the ssl supports SSLv3 and versions of TLS 
+lesser than 1.2. Ideally for security Compilance purposes it is by default
+set to false.
+</p>
+
 <h4>Configuration Limitations</h4>
 The following are configuration limitations:
 <ul>

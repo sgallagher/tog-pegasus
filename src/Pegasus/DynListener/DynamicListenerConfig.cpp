@@ -65,6 +65,10 @@ static struct OptionRow optionsTable[] =
 
 {"sslCipherSuite", "DEFAULT", false, Option::STRING, 0, 0,
  "sslCipherSuite", "ssl cipher value for authentication"},
+
+{"sslBackwardCompatibility","false", false, Option::BOOLEAN, 0, 0,
+ "sslBackwardCompatibility","ssl Compatiblity value to support "
+ "invoking compatible api's of earlier protocols"},
 #endif
 {"consumerDir", "", false, Option::STRING, 0, 0,
  "consumerDir", "path to the consumer libraries"},

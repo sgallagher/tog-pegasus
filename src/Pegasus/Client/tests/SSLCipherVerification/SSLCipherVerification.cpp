@@ -49,34 +49,22 @@ const CIMNamespaceName NAMESPACE = CIMNamespaceName("root/cimv2");
  *
  */
 
-int main()
-{
-    String host;
-
 #ifdef PEGASUS_HAS_SSL
-    host = System::getHostName();
-    Uint32 port = System::lookupPort(
-        WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
 
-    String cipherSuite;
+void _SslCipherTest(String &host , Uint32 &port, String &randPath)
+{
+
+
     String trustStorePath;
     String certPath;
     String keyPath;
-
-    String randPath;
-# ifdef PEGASUS_SSL_RANDOMFILE
-    const char* pegasusHome = getenv("PEGASUS_HOME");
-    randPath = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-# endif
-
+    String cipherSuite = "LOW";
     AutoPtr<CIMClient> cc(new CIMClient);
-    cipherSuite = "LOW";
 
     try
     {
-        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
-            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite)); 
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath,
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite));
 
         if (sslContext.get())
         {
@@ -98,11 +86,10 @@ int main()
     }
 
     cipherSuite = "HIGH";
-
     try
     {
 
-        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath,
             certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite));
         if (sslContext.get())
         {
@@ -125,6 +112,161 @@ int main()
 
     cout << "Test passed. Connected with cipher suite as " << cipherSuite
         << endl;
+
+
+}
+
+
+void _SslCipherAndPrtocolTest(String &host , Uint32 &port, String &randPath)
+{
+
+    String trustStorePath;
+    String certPath;
+    String keyPath;
+    String cipherSuite = "LOW";
+    Boolean sslCompatibility = false;
+    AutoPtr<CIMClient> cc(new CIMClient);
+
+    try
+    {
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite,
+            sslCompatibility)); 
+
+        if (sslContext.get())
+        {
+            cc->connect (host, port, *sslContext, "", "");
+           //
+            //Unreachable when server is started with correct versions
+            //Otherwise it informs that server is not started properly
+            //
+            PEGASUS_TEST_ASSERT( 0 &&
+                (bool)"cimserver not started with sslCipherSuite=HIGH");
+        }
+    }
+    catch(Exception &e)
+    {
+        cout << "SSLCipherTest Expected exception:  "<< e.getMessage() << endl;
+        cout << "Test passed. Connecting with cipher list " << cipherSuite
+            << " and protocol TLS1.2 failed " << endl;
+    }
+
+    cipherSuite = "LOW";
+    sslCompatibility = true;
+    try
+    {
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath,
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite,
+            sslCompatibility));
+
+        if (sslContext.get())
+        {
+            cc->connect (host, port, *sslContext, "", "");
+            //
+            //Unreachable when server is started with correct versions
+            //Otherwise it informs that server is not started properly
+            //
+            PEGASUS_TEST_ASSERT( 0 &&
+               (bool)"cimserver not started with sslCipherSuite=HIGH");
+        }
+    }
+    catch(Exception &e)
+    {
+        cout << "SSLCipherTest Expected exception:  "<< e.getMessage() << endl;
+        cout << "Test passed. Connecting with cipher list " << cipherSuite
+            << " and protocol  SSLv3 and TLSv1 failed " << endl;
+    }
+
+
+
+
+    cipherSuite = "HIGH";
+    sslCompatibility = false;
+
+    try
+    {
+
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite,
+            sslCompatibility));
+        if (sslContext.get())
+        {
+            cc->connect (host, port, *sslContext, "", "");
+            //
+            // Do a generic call. We have to do this call to test whether or
+            // not we get 401'ed.
+            //
+            CIMClass cimClass = cc->getClass(CIMNamespaceName("root/cimv2"),
+                CIMName ("CIM_ManagedElement"), true, false, false,
+                CIMPropertyList());
+            cc->disconnect();
+        }
+    }
+    catch(Exception &e)
+    {
+        cerr << "SSLCipherTest Error: "<< e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(0);
+    }
+
+    cout << "Test passed. Connecting with cipher list " << cipherSuite
+        << " and TLS1.2" << endl;
+
+    cipherSuite = "HIGH";
+    sslCompatibility = true;
+
+    try
+    {
+
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath,
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite,
+            sslCompatibility));
+        if (sslContext.get())
+        {
+            cc->connect (host, port, *sslContext, "", "");
+            //
+            // Do a generic call. We have to do this call to test whether or
+            // not we get 401'ed.
+            //
+            CIMClass cimClass = cc->getClass(CIMNamespaceName("root/cimv2"),
+                CIMName ("CIM_ManagedElement"), true, false, false,
+                CIMPropertyList());
+            cc->disconnect();
+        }
+    }
+    catch(Exception &e)
+    {
+        cerr << "SSLCipherTest Error: "<< e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(0);
+    }
+
+    cout << "Test passed. Connecting with cipher list " << cipherSuite 
+        << " and protocol SSLv3 and TLSv1" << endl;
+
+
+
+}
+
+#endif
+
+int main()
+{
+    String host;
+
+#ifdef PEGASUS_HAS_SSL
+    host = System::getHostName();
+    Uint32 port = System::lookupPort(
+        WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+
+    String randPath;
+# ifdef PEGASUS_SSL_RANDOMFILE
+    const char* pegasusHome = getenv("PEGASUS_HOME");
+    randPath = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+# endif
+
+    _SslCipherTest(host , port,  randPath);
+    _SslCipherAndPrtocolTest( host ,  port,  randPath);
+
     cout << "+++++ passed all tests" << endl;
 
     return 0;

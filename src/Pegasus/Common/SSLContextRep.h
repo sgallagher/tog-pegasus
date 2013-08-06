@@ -244,7 +244,8 @@ public:
         const String& crlPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY,
-        const String& cipherSuite = String::EMPTY);
+        const String& cipherSuite = String::EMPTY,
+        const Boolean& sslCompatibility = false);
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
@@ -301,6 +302,7 @@ private:
     String _crlPath;
     String _randomFile;
     String _cipherSuite;
+    Boolean _sslCompatibility;
     SSL_CTX * _sslContext;
 
     Boolean _verifyPeer;

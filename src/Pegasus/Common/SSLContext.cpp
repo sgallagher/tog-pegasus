@@ -524,7 +524,8 @@ SSLContextRep::SSLContextRep(
     const String& crlPath,
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile,
-    const String& cipherSuite)
+    const String& cipherSuite,
+    const Boolean& sslCompatibility)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -534,7 +535,7 @@ SSLContextRep::SSLContextRep(
     _crlPath = crlPath;
     _certificateVerifyFunction = verifyCert;
     _cipherSuite = cipherSuite;
-
+    _sslCompatibility = sslCompatibility;
     //
     // If a truststore and/or peer verification function is specified,
     // enable peer verification
@@ -560,7 +561,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
     _cipherSuite = sslContextRep._cipherSuite;
-
+    _sslCompatibility = sslContextRep._sslCompatibility;
     _sslContext = _makeSSLContext();
 
     PEG_METHOD_EXIT();
@@ -705,12 +706,29 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
 
     SSL_CTX * sslContext = 0;
+    const SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
+    int options = SSL_OP_ALL;
+
 
     //
     // create SSL Context Area
     //
+   
+    if ( _sslCompatibility == false )
+    {
 
-    if (!(sslContext = SSL_CTX_new(SSLv23_method())))
+#ifdef TLS1_2_VERSION
+        // Enable only TLSv1.2 and disable all other protocol (SSL v2, SSL v3,
+        // TLS v1.0, TLSv1.1)
+        sslProtocolMethod = TLSv1_2_method();
+        options = SSL_OP_NO_TLSv1|SSL_OP_NO_TLSv1_1;
+#ifndef OPENSSL_NO_SSL3
+       options |= SSL_OP_NO_SSLv3;
+#endif  
+#endif
+    }
+
+    if (!(sslContext = SSL_CTX_new(sslProtocolMethod)))
     {
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
@@ -776,7 +794,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     SSL_CTX_set_mode (sslContext, SSL_MODE_RELEASE_BUFFERS);
 #endif
 
-    int options = SSL_OP_ALL;
 #ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
     options |= SSL_OP_NO_SSLv2;
 #endif
@@ -1286,7 +1303,8 @@ SSLContext::SSLContext(
         String::EMPTY,
         verifyCert,
         randomFile,
-        String::EMPTY);
+        String::EMPTY,
+        false);
 }
 
 SSLContext::SSLContext(
@@ -1344,6 +1362,30 @@ SSLContext::SSLContext(
     _rep = new SSLContextRep(
         trustStore, certPath, keyPath, crlPath, verifyCert, randomFile, 
         cipherSuite);
+}
+
+SSLContext::SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        const String& crlPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile,
+        const String& cipherSuite,
+        const Boolean& sslCompatibility)
+{
+#ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    if (crlPath.size() > 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
+            "SSL CRL verification is not enabled.");
+        throw Exception(parms);
+    }
+#endif
+    _rep = new SSLContextRep(
+        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile,
+        cipherSuite,sslCompatibility);
 }
 #endif
 

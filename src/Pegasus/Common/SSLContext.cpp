@@ -706,7 +706,18 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
 
     SSL_CTX * sslContext = 0;
+
+    // OPENSSL_VERSION_NUMBER is defined as  0xnnnnnnnnnL
+    // MMNNFFPPS: major minor fix patch status 
+    // The change  'const' SSL_METHOD 
+    // was introduced in version  1.0.0
+    
+#if (OPENSSL_VERSION_NUMBER < 0x10000000L)
+    SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
+#else
     const SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
+#endif
+
     int options = SSL_OP_ALL;
 
 

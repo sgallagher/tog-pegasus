@@ -1232,7 +1232,8 @@ SSLContextRep::SSLContextRep(
     const String&,
     SSLCertificateVerifyFunction*,
     const String&,
-    const String&)
+    const String&,
+    const Boolean&)
 {
 }
 

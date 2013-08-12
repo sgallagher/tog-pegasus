@@ -173,10 +173,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-
-    if (_rejectNoProvidersOrRepository(request,
-                                       providerInfos.providerCount,
-                                       className))
+    if (_rejectNoProvidersOrRepository(request, providerInfos, className))
     {
         PEG_METHOD_EXIT();
         return;
@@ -184,110 +181,50 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
     // We have instances for Providers and possibly repository.
     // Set up an aggregate object and save a copy of the original request.
+    // NOTE: OperationAggregate released only when operation complete
 
     OperationAggregate* poA= new OperationAggregate(
         new CIMExecQueryRequestMessage(*request),
-            request->getType(),
-            request->messageId,
-            request->queueIds.top(),
-            className, CIMNamespaceName(),
-            qx.release(),
-            "DMTF:CQL");
+        className,
+        request->nameSpace,
+        providerInfos.providerCount,
+        false, false,
+        qx.release(),
+        "DMTF:CQL");
 
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
-    poA->_nameSpace=request->nameSpace;
-    if (_repository->isDefaultInstanceProvider())
+
+    // Build enum request for call to repository
+    AutoPtr<CIMEnumerateInstancesRequestMessage> repRequest(
+        new CIMEnumerateInstancesRequestMessage(
+            request->messageId,
+            request->nameSpace,
+            CIMName(),
+            false,false,false,
+            CIMPropertyList(),
+            request->queueIds,
+            request->authType,
+            request->userName));
+
+    // Gather the repository responses and send as one response
+    // with many instances
+    //
+    if (_enumerateFromRepository(repRequest.release(), poA, providerInfos))
     {
-        // Loop through providerInfos, forwarding requests to repository
-        for (Uint32 i = 0; i < numClasses; i++)
-        {
-            ProviderInfo& providerInfo = providerInfos[i];
+        CIMResponseMessage* response = poA->removeResponse(0);
 
-            // this class is registered to a provider - skip
-            if (providerInfo.hasProvider)
-            {
-                continue;
-            }
-
-            // If this class does not have a provider
-
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Routing ExecQuery request for class %s to the "
-                    "repository.  Class # %u of %u",
-                CSTRING(providerInfo.className.getString()),
-                (i + 1),
-                numClasses ));
-
-            // Create an EnumerateInstances response from an ExecQuery request
-            AutoPtr<CIMEnumerateInstancesResponseMessage> response(
-                new CIMEnumerateInstancesResponseMessage(
-                    request->messageId,
-                    CIMException(),
-                    request->queueIds.copyAndPop()));
-            response->syncAttributes(request);
-
-            try
-            {
-                // Enumerate instances only for this class
-                response->getResponseData().setInstances(
-                    _repository->enumerateInstancesForClass(
-                        request->nameSpace,
-                        providerInfo.className));
-            }
-            catch (CIMException& e)
-            {
-                response->cimException = e;
-            }
-            catch (Exception& e)
-            {
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_FAILED, e.getMessage());
-            }
-            catch (...)
-            {
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_FAILED, String::EMPTY);
-            }
-
-            poA->appendResponse(response.release());
-        } // for all classes and derived classes
-
-        Uint32 numberResponses = poA->numberResponses();
-        Uint32 totalIssued = providerInfos.providerCount
-            + (numberResponses > 0 ? 1 : 0);
-        poA->setTotalIssued(totalIssued);
-
-        if (numberResponses > 0)
-        {
-            handleOperationResponseAggregation(poA,false,false);
-            CIMResponseMessage* response = poA->removeResponse(0);
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
-                new CIMExecQueryRequestMessage(*request),
-                poA, response);
-        }
+        _forwardResponseForAggregation(
+            new CIMExecQueryRequestMessage(*request),
+            poA,
+            response);
     } // if isDefaultInstanceProvider
-    else
-    {
-        // Set the number of expected responses in the OperationAggregate
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "providerCount:%u",(unsigned int)providerInfos.providerCount));
-        poA->setTotalIssued(providerInfos.providerCount);
-    }
 
     // Loop through providerInfos, forwarding requests to providers
-    for (Uint32 i = 0; i < numClasses; i++)
+    while (providerInfos.hasMore(true))
     {
-        // If this class has a provider
-        ProviderInfo& providerInfo = providerInfos[i];
+        ProviderInfo& providerInfo = providerInfos.getNext();
 
-        // this class is NOT registered to a provider - skip
-        if (!providerInfo.hasProvider)
-        {
-            continue;
-        }
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Routing ExecQuery request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
@@ -295,7 +232,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
             CSTRING(providerInfo.className.getString()),
             lookup(providerInfo.serviceId)->getQueueName(),
             CSTRING(providerInfo.controlProviderName),
-            (i + 1),
+            providerInfos.getIndex(),
             numClasses ));
 
         ProviderIdContainer* providerIdContainer =
@@ -323,7 +260,9 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
             context = &enumReq->operationContext;
 
             if (providerIdContainer)
+            {
                 context->insert(*providerIdContainer);
+            }
 
             context->insert(identityContainer);
 

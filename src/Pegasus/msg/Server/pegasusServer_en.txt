@@ -2863,7 +2863,11 @@ en:table {
         */
         Server.CIMOperationRequestDispatcher.HANDLE_ENQUEUE:string {"PGS05603: The function {0} cannot handle the CIM request type {1}."}
 
-
+        /**
+        * @note  PGS05604:
+        *    Substitution {0} is the request class
+        */
+        Server.CIMOperationRequestDispatcher.REQUEST_CLASS_NOT_SUPPORTED:string {"PGS05604: No provider or Repository defined for class {1}."}
         // ==========================================================
         // Messages for ProviderMessageFacade
         //  Please use message prefix "PGS05800"

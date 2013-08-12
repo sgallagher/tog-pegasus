@@ -2491,10 +2491,11 @@ void InteropTest::testObjectManagerClass()
             {
                 try
                 {
-                Array <CIMObjectPath> paths = _client.enumerateInstanceNames(
-                        namespaceList[i],
-                        CIM_OBJECTMANAGER_CLASSNAME);
-                PEGASUS_TEST_ASSERT(paths.size() == 0);
+                    Array <CIMObjectPath> paths =
+                        _client.enumerateInstanceNames(
+                            namespaceList[i],
+                            CIM_OBJECTMANAGER_CLASSNAME);
+                    PEGASUS_TEST_ASSERT(paths.size() == 0);
                 }
                 // Catch block for this enum test.  We test class not exist.
                 catch(CIMException& e)
@@ -2502,9 +2503,9 @@ void InteropTest::testObjectManagerClass()
                     if ((e.getCode() != CIM_ERR_INVALID_CLASS) &&
                             (e.getCode() != CIM_ERR_NOT_SUPPORTED))
                     {
-                        cout << " CIMException " << e.getMessage()
+                        cout << "Unexpected CIMException " << e.getMessage()
                             << "namespace " << namespaceList[i].getString()
-                            << "EnumerateInstances of CIMObjectManager "
+                            << " EnumerateInstances of CIMObjectManager "
                             << endl;
                         errFound = true;
                     }
@@ -2513,15 +2514,18 @@ void InteropTest::testObjectManagerClass()
                 {
                     errFound= true;
                     cout <<
-                        "Exception in look for cimobject manager"
-                        " in strange places "
+                        "Unexpected Exception in look for cimobject manager "
+                            "in Namespace "
+                        << namespaceList[i].getString() << ". " 
                         << e.getMessage() << endl;
                 }
                 catch(...)
                 {
                     errFound = true;
-                    cout << "Exception in look for cimobject manager "
-                        "in strange places" << endl;
+                    cout << "Unexpected Exception in look for cimobject"
+                            " manager in namespace "
+                        << namespaceList[i].getString()
+                        << endl;
                 }
             }
         }

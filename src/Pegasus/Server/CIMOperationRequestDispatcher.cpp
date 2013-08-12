@@ -68,31 +68,32 @@ static const char* _getServiceName(Uint32 serviceId)
 ****************************************************************************/
 OperationAggregate::OperationAggregate(
     CIMOperationRequestMessage* request,
-    MessageType msgRequestType,
-    String messageId,
-    Uint32 dest,
     CIMName className,
     CIMNamespaceName nameSpace,
+    Uint32 totalIssued,
+    Boolean requiresHostnameCompletion,
+    Boolean hasPropList,
     QueryExpressionRep* query,
     String queryLanguage)
-    : _messageId(messageId),
-      _msgRequestType(msgRequestType),
-      _dest(dest),
-      _nameSpace(nameSpace),
+    : _messageId(request->messageId),
+      _msgRequestType(request->getType()),
+      _dest(request->queueIds.top()),
       _className(className),
+      _nameSpace(nameSpace),
+      _requiresHostnameCompletion(requiresHostnameCompletion),
+      _hasPropList(hasPropList),
       _query(query),
       _queryLanguage(queryLanguage),
       _request(request),
-      _totalIssued(0), _totalReceived(0), _totalReceivedComplete(0),
+      _totalIssued(totalIssued),
+      _totalReceived(0), _totalReceivedComplete(0),
       _totalReceivedExpected(0), _totalReceivedErrors(0),
-      _totalReceivedNotSupported(0),
-      _magicNumber(0xc685255e)        // set to constant for use by valid()
+      _totalReceivedNotSupported(0)
 {
 }
 
 OperationAggregate::~OperationAggregate()
 {
-    _magicNumber = 0;
     delete _request;
     delete _query;
 }
@@ -100,12 +101,7 @@ OperationAggregate::~OperationAggregate()
 Boolean OperationAggregate::valid() const
 {
     // test if valid OperationAggregate object.
-    return (_magicNumber == 0xc685255e) ? true : false;
-}
-
-void OperationAggregate::setTotalIssued(Uint32 i)
-{
-    _totalIssued = i;
+    return _magic;
 }
 
 Boolean OperationAggregate::appendResponse(CIMResponseMessage* response)
@@ -120,11 +116,6 @@ Uint32 OperationAggregate::numberResponses() const
 {
     //// AutoMutex autoMut(_appendResponseMutex);
     return _responseList.size();
-}
-
-CIMOperationRequestMessage* OperationAggregate::getRequest()
-{
-    return _request;
 }
 
 CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
@@ -149,11 +140,6 @@ void OperationAggregate::deleteResponse(const Uint32&pos)
     _responseList.remove(pos);
 }
 
-MessageType OperationAggregate::getRequestType() const
-{
-    return _msgRequestType;
-}
-
 // There are many response pieces (chunks) from potentially many
 // threads funneling through this function in random order. This isolates a
 // single response (by locking) from a given thread and "resequences" the
@@ -161,7 +147,7 @@ MessageType OperationAggregate::getRequestType() const
 // response to come through here be sequenced (or indexed) as 0 and the last
 // response from the last thread be marked as "isComplete"
 
-// NOTE: for now this assumes no chunks can come AFTER a "isComplete" message
+// NOTE: Assumes no chunks can come AFTER a "isComplete" message
 // of the LAST thread.
 
 void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
@@ -262,6 +248,31 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
     response.setComplete(isComplete);
 }
+/*************************************************************************
+**
+** Implementation of ProviderInfoList Class.
+** NOTE: Much of this class implemented in the header file
+**
+***************************************************************************/
+Boolean ProviderInfoList::hasMore(Boolean isProvider)
+    {
+        ConstArrayIterator<ProviderInfo> iterator(_array);
+        while (_index < iterator.size())
+        {
+            if (iterator[_index].hasProvider == isProvider)
+            {
+                return true;
+            }
+            else
+            {
+                _index++;
+            }
+        }
+        // Reset index when complete. This is so the hasMore can be used
+        // multiple times to cycle through the list.
+        _index = 0;
+        return false;
+    }
 /*************************************************************************
 **
 ** Implementation of CIMOperationRequestDispatcher Class
@@ -667,14 +678,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         if (type != CIM_EXEC_QUERY_REQUEST_MESSAGE)
         {
             // Hostname completion required for the four assoc-like operations
-            //
-            handleOperationResponseAggregation(
-                poA,
-                ((CIM_ASSOCIATORS_REQUEST_MESSAGE == type) |
-                 (CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE == type) |
-                 (CIM_REFERENCES_REQUEST_MESSAGE == type) |
-                 (CIM_REFERENCE_NAMES_REQUEST_MESSAGE == type)),
-                (type == CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE));
+            handleOperationResponseAggregation(poA);
         }
         else
         {
@@ -694,8 +698,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
 
         response->setComplete(isComplete);
 
-        Uint32 dest = poA->_dest;
-        response->dest = dest;
+        response->dest = poA->_dest;
         poA->resequenceResponse(*response);
 
         // now get the completion status of the response after it has been
@@ -708,7 +711,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         // (i.e multiple responses from one request). Certain known ones
         // cannot handle it. Most notably, the internal client.
 
-        MessageQueue* q = lookup(dest);
+        MessageQueue* q = lookup(poA->_dest);
         const char* name = q ? q->getQueueName() : 0;
         Boolean isDestinationQueueAsync = !(name &&
             (strcmp(name, PEGASUS_QUEUENAME_INTERNALCLIENT) == 0 ||
@@ -732,20 +735,26 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             response->setIndex(0);
         }
 
+        // Log if this is the last of the aggregated response
         if (isComplete)
         {
             _logOperation(poA->getRequest(), response);
         }
 
-        // send it syncronously so that multiple responses will show up in the
+        // Send it syncronously so that multiple responses will show up in the
         // receiving queue according to the order that we have set the response
         // index. If this was a single complete response, we could in theory
         // send it async (i.e SendForget), however, there is no need to make a
         // condition point based off this.
 
         if (q)
+        {
             q->enqueue(response);
-        else throw UninitializedObjectException();
+        }
+        else
+        {
+            throw UninitializedObjectException();
+        }
     }
     catch (...)
     {
@@ -929,9 +938,10 @@ static String _showPropertyList(const CIMPropertyList& pl)
    Each ProviderInfo instance defines whether a provider exists and the
    information on the provider so that the operation can be forwarded to the
    provider.
-   @exception - Throws one exception if the className is in error.  Note that
-   this should NEVER occur since the className should have already been
-   validated in the operation validation code.
+   @exception - Throws exception if the className is in error or the request
+   is to broad.  The className exception should NEVER occur since
+   the className should have already been validated in the operation
+   validation code.
 */
 
 ProviderInfoList CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
@@ -946,13 +956,12 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     Array<CIMName> classNames = _getSubClassNames(nameSpace, className);
 
     // Loop for all classNames found
-    for (Uint32 i = 0, n = classNames.size(); i < n; i++)
+    ConstArrayIterator<CIMName> iterator(classNames);
+    for (Uint32 i = 0, n = iterator.size(); i < n; i++)
     {
         // Lookup any instance providers and add to send list
         ProviderInfo providerInfo =
-            _lookupInstanceProvider(
-                nameSpace,
-                classNames[i]);
+            _lookupInstanceProvider(nameSpace, iterator[i]);
 
         if (providerInfo.hasProvider)
         {
@@ -968,15 +977,19 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
 
         // Always add providerInfo to be sure we include classes without
         // providers. This does not increment provider count
-        providerList.append(providerInfo);
+        providerList.appendClass(providerInfo);
    }
 
     // Reject if the request is too broad
     _rejectEnumerateTooBroad(
         nameSpace, className, providerList.providerCount);
 
-   PEG_METHOD_EXIT();
+   // Diagnostic to display list of classes returned. Enable the following
+   // line to see what this function returns.
+   // providerList.trace(nameSpace, className);
 
+
+   PEG_METHOD_EXIT();
    return providerList;
 }
 
@@ -1282,6 +1295,7 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
     }
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "providerCount = %u.", providerInfoList.providerCount));
+
     PEG_METHOD_EXIT();
     return providerInfoList;
 }
@@ -1659,7 +1673,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     }
 
     // If ControlProviderName empty, forward to service.
-    if (0 == controlProviderName.size())
+    if (controlProviderName.size() == 0)
     {
         // constructor of object is putting itself into a linked list
         // DO NOT remove the new operator
@@ -1776,8 +1790,8 @@ void CIMOperationRequestDispatcher::_forwardRequestToProvider(
 
 /*
     Enqueue an Exception response
-    This is a helper function that creates a response message
-    with the defined exception and queues it.
+    Helper functions that create a response message with the defined
+    exception and queues it.
 */
 void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
    CIMOperationRequestMessage* request,
@@ -1807,7 +1821,8 @@ void CIMOperationRequestDispatcher::_enqueueExceptionResponse(
 }
 
 /*
-   Enqueue the response provided with the call
+   Enqueue the response provided with the call to destination defined
+   by request.
    Logs this operation, assures resquest and response
    attributes are syncd, gets queue from request,
    gets queue name from request,
@@ -1837,6 +1852,8 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
     _logOperation(request, response);
 
+    // Internal client does not have async capabilities, call enqueue()
+    // for handling legacy messages directly.
     MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
     PEGASUS_ASSERT(queue != 0);
 
@@ -2074,13 +2091,13 @@ Boolean CIMOperationRequestDispatcher::_rejectAssociationTraversalDisabled(
 {
     if (_enableAssociationTraversal)
     {
-        // return enabled
+        // return when AssociationTraversal is enabled
         return false;
     }
     else
     {
-        _enqueueExceptionResponse(request,
-            CIM_ERR_NOT_SUPPORTED, opName);
+        //// KS_TODO add explicit international message
+        _enqueueExceptionResponse(request,CIM_ERR_NOT_SUPPORTED, opName);
         return true;
     }
 }
@@ -2163,14 +2180,21 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
 }
 
 Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
-    CIMOperationRequestMessage* request, Uint32 providerCount,
+    CIMOperationRequestMessage* request,
+    const ProviderInfoList& providerInfos,
     const CIMName& className)
 {
-    if ((providerCount == 0) &&
+    if ((providerInfos.providerCount == 0) &&
         !(_repository->isDefaultInstanceProvider()))
     {
-        _enqueueExceptionResponse(request,
-            CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+        CIMException cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
+                "Server.CIMOperationRequestDispatcher."
+                    "REQUEST_CLASS_NOT_SUPPORTED",
+                "No provider or repository defined for class $0.",
+                className.getString()));
+
+        _enqueueExceptionResponse(request, cimException);
         return true;
     }
     else   // We have either providers or a repository
@@ -2801,27 +2825,27 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     //
     CIMConstClass cimClass;
     if (_rejectInvalidClassParameter(request,request->nameSpace,
-            request->className,
+        request->className,
         cimClass))
-        {
-            PEG_METHOD_EXIT();
-            return;
-        }
+    {
+        PEG_METHOD_EXIT();
+        return;
+    }
 
     // Set the propertylist to be forwarded in accord with the propertyList
     // parameter. The property list forwarded to providers
     // is constructed from properties in the top level class  when
     // !deepInheritance && propertyList.isNull() to assure
-    // that providers will return only the properties of the requested classpr
+    // that providers will return only the properties of the requested class.
     // NOTE - The request class pl should really be null.  Subclasses should
     // get the propertyList. But we do not have a record today of the
     // original class in the providerInfo list so everybody gets the
     // list.
 
-        if (!request->deepInheritance && request->propertyList.isNull())
-        {
-            _buildPropertyListFromClass(cimClass, request->propertyList);
-        }
+    if (!request->deepInheritance && request->propertyList.isNull())
+    {
+        _buildPropertyListFromClass(cimClass, request->propertyList);
+    }
 
     //
     // Get names of descendent classes and their providers
@@ -2833,175 +2857,65 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
 
-    if (_rejectNoProvidersOrRepository(request, providerInfos.providerCount,
-                                       request->className))
+    if (_rejectNoProvidersOrRepository(request, providerInfos,
+        request->className))
     {
         PEG_METHOD_EXIT();
         return;
     }
 
+    //
     // Set up an aggregate object with a copy of the original request.
+    // NOTE: OperationAggregate released only when operation complete.
+    // requiresHostnameCompletion false, hasPropList true
+    //
     OperationAggregate* poA= new OperationAggregate(
         new CIMEnumerateInstancesRequestMessage(*request),
-        request->getType(),
-        request->messageId,
-        request->queueIds.top(),
-        request->className);
-
-    Uint32 numClasses = providerInfos.size();
+        request->className,
+        request->nameSpace,
+        providerInfos.providerCount,
+        false, true);
 
     // Gather the repository responses and send as one response
     // with many instances
-    if (_repository->isDefaultInstanceProvider())
+    //
+    if (_enumerateFromRepository(request, poA, providerInfos))
     {
-        // Loop through providerInfos, forwarding requests to repository
-        for (Uint32 i = 0; i < numClasses; i++)
-        {
-            ProviderInfo& providerInfo = providerInfos[i];
+        CIMResponseMessage* response = poA->removeResponse(0);
 
-            // this class is registered to a provider - skip
-            if (providerInfo.hasProvider)
-            {
-                continue;
-            }
-
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Routing EnumerateInstances request for class %s to the "
-                    "repository.  Class # %u of %u",
-                CSTRING(providerInfo.className.getString()),
-                (i + 1),
-                numClasses ));
-
-            AutoPtr<CIMEnumerateInstancesResponseMessage> response(
-                dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
-                    request->buildResponse()));
-
-            try
-            {
-                // Enumerate instances only for this class
-                response->getResponseData().setInstances(
-                    _repository->enumerateInstancesForClass(
-                        request->nameSpace,
-                        providerInfo.className,
-                        request->includeQualifiers,
-                        request->includeClassOrigin,
-                        request->propertyList));
-            }
-            catch (const CIMException& exception)
-            {
-                response->cimException = exception;
-            }
-            catch (const Exception& exception)
-            {
-                response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                    exception.getMessage());
-            }
-            catch (...)
-            {
-                response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                    String::EMPTY);
-            }
-
-            poA->appendResponse(response.release());
-        } // for all classes in ProviderInfoList
-
-        Uint32 numberResponses = poA->numberResponses();
-        Uint32 totalIssued = providerInfos.providerCount
-            + (numberResponses > 0 ? 1 : 0);
-        poA->setTotalIssued(totalIssued);
-
-        if (numberResponses > 0)
-        {
-            handleOperationResponseAggregation(poA,false,true);
-
-            CIMResponseMessage* response = poA->removeResponse(0);
-
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
-                new CIMEnumerateInstancesRequestMessage(*request),
-                poA,
-                response);
-        }
-    } // if isDefaultInstanceProvider
-    else
-    {
-        // Set the number of expected responses in the OperationAggregate
-        poA->setTotalIssued(providerInfos.providerCount);
+        _forwardResponseForAggregation(
+            new CIMEnumerateInstancesRequestMessage(*request),
+            poA, response);
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "Forward requests to a subset of %u classes.", numClasses));
-
     // Loop through providerInfos, forwarding requests to providers
-    for (Uint32 i = 0; i < numClasses; i++)
+    while (providerInfos.hasMore(true))
     {
-        ProviderInfo& providerInfo = providerInfos[i];
+        ProviderInfo& providerInfo = providerInfos.getNext();
 
-        // this class is NOT registered to a provider - skip
-        if (providerInfo.hasProvider)
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "Routing EnumerateInstances request for class %s to "
+                "service \"%s\" for control provider \"%s\".  "
+                "Class # %u of %u",
+            CSTRING(providerInfo.className.getString()),
+            _getServiceName(providerInfo.serviceId),
+            CSTRING(providerInfo.controlProviderName),
+            providerInfos.getIndex(),
+            providerInfos.size() ));
+
+        CIMEnumerateInstancesRequestMessage* requestCopy =
+            new CIMEnumerateInstancesRequestMessage(*request);
+
+        // set this className into the new request
+        requestCopy->className = providerInfo.className;
+
+        // Forward to provider. If fails return empty response
+        if (!_forwardEnumerationToProvider(providerInfo, poA, requestCopy))
         {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Routing EnumerateInstances request for class %s to "
-                    "service \"%s\" for control provider \"%s\".  "
-                    "Class # %u of %u",
-                CSTRING(providerInfo.className.getString()),
-                _getServiceName(providerInfo.serviceId),
-                CSTRING(providerInfo.controlProviderName),
-                i + 1,
-                numClasses ));
-
-            CIMEnumerateInstancesRequestMessage* requestCopy =
-                new CIMEnumerateInstancesRequestMessage(*request);
-
-            requestCopy->className = providerInfo.className;
-
-            // Get the class to confirm it exists and for
-            // normalization if required.
-            CIMException checkClassException;
-
-            CIMConstClass cimClass = _getClass(
-                request->nameSpace,
-                providerInfo.className,
-                checkClassException);
-
-            if (checkClassException.getCode() != CIM_ERR_SUCCESS)
-            {
-                CIMResponseMessage* response = request->buildResponse();
-
-                _forwardRequestForAggregation(
-                    getQueueId(),
-                    String(),
-                    new CIMEnumerateInstancesRequestMessage(*request),
-                    poA,
-                    response);
-            }
-            else
-            {
-                if (providerInfo.providerIdContainer.get() != 0)
-                {
-                    requestCopy->operationContext.insert(
-                        *(providerInfo.providerIdContainer.get()));
-                }
-
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-                if (providerInfo.hasProviderNormalization)
-                {
-                    requestCopy->operationContext.insert(
-                        CachedClassDefinitionContainer(cimClass));
-                }
-#endif
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,"PropertyList = %s",
-                    CSTRING(_showPropertyList(requestCopy->propertyList)) ));
-
-                _forwardRequestForAggregation(
-                    providerInfo.serviceId,
-                    providerInfo.controlProviderName,
-                    requestCopy,
-                    poA);
-            }
+            CIMResponseMessage* response = requestCopy->buildResponse();
+            _forwardResponseForAggregation(requestCopy,  poA, response);
         }
-    } // for all classes and dervied classes
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -3040,16 +2954,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
     //
-    // Validate the class name
+    // Validate the class name in the request
     //
-    // Validate the class in the request
     CIMConstClass cimClass;
     if (_rejectInvalidClassParameter(request,request->nameSpace,
         request->className, cimClass))
     {
             PEG_METHOD_EXIT();
             return;
-        }
+    }
 
     //
     // Get names of descendent classes and list of providers
@@ -3061,9 +2974,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
 
-    if (_rejectNoProvidersOrRepository(request,
-                                       providerInfos.providerCount,
-                                       request->className))
+    if (_rejectNoProvidersOrRepository(request, providerInfos,
+        request->className))
     {
         PEG_METHOD_EXIT();
         return;
@@ -3071,159 +2983,51 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
     // We have instances for Providers and possibly repository.
     // Set up an aggregate object and save a copy of the original request.
+    // NOTE: OperationAggregate released only when operation complete
+    //
     OperationAggregate* poA= new OperationAggregate(
         new CIMEnumerateInstanceNamesRequestMessage(*request),
-        request->getType(),
-        request->messageId,
-        request->queueIds.top(),
-        request->className);
+        request->className,
+        request->nameSpace,
+        providerInfos.providerCount,
+        false);
 
-    Uint32 numClasses = providerInfos.size();
-
-    if (_repository->isDefaultInstanceProvider())
+    if (_enumerateFromRepository(request, poA, providerInfos))
     {
-        // Loop through providerInfos, forwarding requests to repository
-        for (Uint32 i = 0; i < numClasses; i++)
-        {
-            ProviderInfo& providerInfo = providerInfos[i];
+        CIMResponseMessage* response = poA->removeResponse(0);
 
-            // this class is registered to a provider - skip
-            if (providerInfo.hasProvider)
-            {
-                continue;
-            }
-
-            // If this class does not have a provider
-
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Routing EnumerateInstanceNames request for class %s to the "
-                    "repository.  Class # %u of %u",
-                CSTRING(providerInfo.className.getString()),
-                i + 1,
-                numClasses ));
-
-            AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
-                dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
-                    request->buildResponse()));
-
-            try
-            {
-                // Enumerate instances names only for this class
-                const Array<CIMObjectPath>& cops =
-                    _repository->enumerateInstanceNamesForClass(
-                        request->nameSpace,
-                        providerInfo.className);
-                response->getResponseData().setInstanceNames(cops);
-            }
-            catch (const CIMException& exception)
-            {
-                response->cimException = exception;
-            }
-            catch (const Exception& exception)
-            {
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_FAILED, exception.getMessage());
-            }
-            catch (...)
-            {
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_FAILED, String::EMPTY);
-            }
-
-            poA->appendResponse(response.release());
-        } // for all classes and derived classes
-
-        Uint32 numberResponses = poA->numberResponses();
-        Uint32 totalIssued = providerInfos.providerCount
-            + (numberResponses > 0 ? 1 : 0);
-        poA->setTotalIssued(totalIssued);
-
-        if (numberResponses > 0)
-        {
-            handleOperationResponseAggregation(poA,false,false);
-
-            CIMResponseMessage* response = poA->removeResponse(0);
-
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
-                new CIMEnumerateInstanceNamesRequestMessage(*request),
-                poA,
-                response);
-        }
-    } // if isDefaultInstanceProvider
-    else
-    {
-        // Set the number of expected responses in the OperationAggregate
-        poA->setTotalIssued(providerInfos.providerCount);
+        _forwardResponseForAggregation(
+            new CIMEnumerateInstanceNamesRequestMessage(*request),
+            poA,
+            response);
     }
 
     // Loop through providerInfos, forwarding requests to providers
-    for (Uint32 i = 0; i < numClasses; i++)
+    while (providerInfos.hasMore(true))
     {
-        ProviderInfo& providerInfo = providerInfos[i];
+        ProviderInfo& providerInfo = providerInfos.getNext();
 
-        // this class is NOT registered to a provider - skip
-        if (providerInfo.hasProvider)
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "Routing EnumerateInstanceNames request for class %s to "
+                "service \"%s\" for control provider \"%s\".  "
+                "Class # %u of %u",
+            CSTRING(providerInfo.className.getString()),
+            _getServiceName(providerInfo.serviceId),
+            CSTRING(providerInfo.controlProviderName),
+            providerInfos.getIndex(),
+            providerInfos.size() ));
+
+        CIMEnumerateInstanceNamesRequestMessage* requestCopy =
+            new CIMEnumerateInstanceNamesRequestMessage(*request);
+
+        requestCopy->className = providerInfo.className;
+
+        // Forward to provider. If fails return empty response
+        // The only failure reason is if class cannot be found
+        if (!_forwardEnumerationToProvider(providerInfo, poA, requestCopy))
         {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Routing EnumerateInstanceNames request for class %s to "
-                    "service \"%s\" for control provider \"%s\".  "
-                    "Class # %u of %u",
-                CSTRING(providerInfo.className.getString()),
-                _getServiceName(providerInfo.serviceId),
-                CSTRING(providerInfo.controlProviderName),
-                i + 1,
-                numClasses ));
-
-            CIMEnumerateInstanceNamesRequestMessage* requestCopy =
-                new CIMEnumerateInstanceNamesRequestMessage(*request);
-
-            requestCopy->className = providerInfo.className;
-
-            CIMException checkClassException;
-
-            CIMConstClass cimClass = _getClass(
-                request->nameSpace,
-                providerInfo.className,
-                checkClassException);
-
-            // The following is not correct. Need better way to terminate.
-            // This builds an error response message in the middle of the
-            // normal response but lets rest of operation continue.
-            if (checkClassException.getCode() != CIM_ERR_SUCCESS)
-            {
-                CIMResponseMessage* response = request->buildResponse();
-
-                _forwardRequestForAggregation(
-                    getQueueId(),
-                    String(),
-                    new CIMEnumerateInstanceNamesRequestMessage(*request),
-                    poA,
-                    response);
-            }
-
-            else
-            {
-                if (providerInfo.providerIdContainer.get() != 0)
-                {
-                    requestCopy->operationContext.insert(
-                        *(providerInfo.providerIdContainer.get()));
-                }
-
-    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-                if (providerInfo.hasProviderNormalization)
-                {
-                    requestCopy->operationContext.insert(
-                        CachedClassDefinitionContainer(cimClass));
-                }
-    #endif
-                _forwardRequestForAggregation(
-                    providerInfo.serviceId,
-                    providerInfo.controlProviderName,
-                    requestCopy,
-                    poA);
-            }
+            CIMResponseMessage* response = requestCopy->buildResponse();
+            _forwardResponseForAggregation(requestCopy, poA, response);
         }
     } // for all classes and derived classes
 
@@ -3246,8 +3050,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         return;
     }
 
-    // Validate role parameters syntax
-
+    // Validate role and resultrole parameters
     if (_rejectInvalidRoleParameter(request, request->role, "role"))
     {
         PEG_METHOD_EXIT();
@@ -3266,7 +3069,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         PEG_METHOD_EXIT();
         return;
     }
-
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociators - "
@@ -3309,18 +3111,30 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
         _enqueueResponse(request, response.release());
     }
-    else
+
+    else    // This is an instance request operation
     {
         //
-        // Determine list of classes and providers for this request
+        // For Instance requests, get results from providers and the repository
+        // Determine list of providers for this request. Note that
+        // providerCount may not be the same as the size of the returned
+        // array because not all Class will have providers.
         //
-        ProviderInfoList providerInfos =
-           _lookupAllAssociationProviders(
-                request->nameSpace,
-                request->objectName,
-                request->assocClass,
-                String::EMPTY);
+        ProviderInfoList providerInfos = _lookupAllAssociationProviders(
+            request->nameSpace,
+            request->objectName,
+            request->assocClass,
+            String::EMPTY);
 
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
+
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
         //
         // Get the instances from the repository, as necessary
         //
@@ -3353,86 +3167,59 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     response->getResponseData().getObjects().size()));
         }
 
-        if (providerInfos.providerCount == 0)
+        // No providers and nothing from repository. Return empty
+        if ((providerInfos.providerCount == 0) && (response.get() == 0))
         {
-            //
-            // We have no providers to call.  Just return what we have.
-            //
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                "Associators, Returns nothing for %s",
+                CSTRING(request->className.getString()) ));
 
-            if (!response.get())
-            {
-                // No provider is registered and the repository isn't the
-                // default.  Return CIM_ERR_NOT_SUPPORTED.
-
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for %s",
-                    CSTRING(request->className.getString()) ));
-
-                response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
-                    request->buildResponse()));
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED,
-                    String::EMPTY);
-            }
+            response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
+                request->buildResponse()));
 
             _enqueueResponse(request, response.release());
             PEG_METHOD_EXIT();
             return;
         }
 
-        //
-        // Set up an aggregate object and save the original request message
-        //
-
-        OperationAggregate* poA = new OperationAggregate(
+        OperationAggregate *poA = new OperationAggregate(
             new CIMAssociatorsRequestMessage(*request),
-            request->getType(),
-            request->messageId,
-            request->queueIds.top(),
             request->objectName.getClassName(),
-            request->nameSpace);
+            request->nameSpace,
+            providerInfos.providerCount,
+            true);
 
         // Include the repository response in the aggregation, if applicable
-        if (response.get())
+        if (response.get() != 0)
         {
-            poA->setTotalIssued(providerInfos.providerCount+1);
-            // send the repository's results
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
+            poA->incTotalIssued();
+            _forwardResponseForAggregation(
                 new CIMAssociatorsRequestMessage(*request),
-                poA,
-                response.release());
+                poA, response.release());
         }
-        else
+        while (providerInfos.hasMore(true))
         {
-            poA->setTotalIssued(providerInfos.providerCount);
-        }
+            ProviderInfo& providerInfo = providerInfos.getNext();
 
-        for (Uint32 i = 0; i < providerInfos.size(); i++)
-        {
-            if (providerInfos[i].hasProvider)
+            CIMAssociatorsRequestMessage* requestCopy =
+                new CIMAssociatorsRequestMessage(*request);
+
+            // Insert the association class name to limit the provider
+            // to this class.
+            requestCopy->assocClass = providerInfo.className;
+
+            if (providerInfo.providerIdContainer.get() != 0)
             {
-                CIMAssociatorsRequestMessage* requestCopy =
-                    new CIMAssociatorsRequestMessage(*request);
-                // Insert the association class name to limit the provider
-                // to this class.
-                requestCopy->assocClass = providerInfos[i].className;
-
-                if (providerInfos[i].providerIdContainer.get() != 0)
-                {
-                    requestCopy->operationContext.insert(
-                        *(providerInfos[i].providerIdContainer.get()));
-                }
-
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class %s",
-                    CSTRING(providerInfos[i].className.getString()) ));
-
-                _forwardRequestForAggregation(providerInfos[i].serviceId,
-                    providerInfos[i].controlProviderName, requestCopy, poA);
-                // Note: poA must not be referenced after last "forwardRequest"
+                requestCopy->operationContext.insert(
+                    *(providerInfo.providerIdContainer.get()));
             }
+
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Forwarding to provider for class %s",
+                CSTRING(providerInfo.className.getString()) ));
+
+            _forwardRequestForAggregation(providerInfo, requestCopy, poA);
+            // Note: poA must not be referenced after last "forwardRequest
         }
     }  // End of instance processing
 
@@ -3517,16 +3304,23 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         // For Instance requests, get results from providers and the repository
         // Determine list of providers for this request
         //
-
         ProviderInfoList providerInfos = _lookupAllAssociationProviders(
-                request->nameSpace,
-                request->objectName,
-                request->assocClass,
+            request->nameSpace,
+            request->objectName,
+            request->assocClass,
             String::EMPTY);
-        //
-        // Get the instances from the repository, as necessary
-        //
 
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
+
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
+
+        // Get frp, repository if it exists.
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
         AutoPtr<CIMAssociatorNamesResponseMessage> response;
@@ -3551,85 +3345,64 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 objectNames.size()));
         }
 
-        if (providerInfos.providerCount == 0)
+        if ((providerInfos.providerCount == 0) && (response.get() == 0))
         {
-            //
-            // We have no providers to call.  Just return what we have.
-            //
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                "AssociatorNames, Returns nothing for %s",
+                CSTRING(request->className.getString()) ));
 
-            if (!response.get())
-            {
-                // No provider is registered and the repository isn't the
-                // default.  Return CIM_ERR_NOT_SUPPORTED.
-
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for %s",
-                    CSTRING(request->className.getString())));
-
-                response.reset(
-                    dynamic_cast<CIMAssociatorNamesResponseMessage*>(
-                        request->buildResponse()));
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED,
-                    String::EMPTY);
-            }
+            response.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+                request->buildResponse()));
 
             _enqueueResponse(request, response.release());
             PEG_METHOD_EXIT();
             return;
         }
-
         //
         // Set up an aggregate object and save the original request message
+        // NOTE: OperationAggregate released only when operation complete
         //
 
         OperationAggregate* poA = new OperationAggregate(
             new CIMAssociatorNamesRequestMessage(*request),
-            request->getType(),
-            request->messageId,
-            request->queueIds.top(),
             request->objectName.getClassName(),
-            request->nameSpace);
+            request->nameSpace,
+            providerInfos.providerCount,
+            true);
 
         // Include the repository response in the aggregation, if applicable
         if (response.get() != 0)
         {
-            poA->setTotalIssued(providerInfos.providerCount+1);
-            // send the repository's results
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
+            poA->incTotalIssued();
+            _forwardResponseForAggregation(
                 new CIMAssociatorNamesRequestMessage(*request),
-                poA,
-                response.release());
-        }
-        else
-        {
-            poA->setTotalIssued(providerInfos.providerCount);
+                poA, response.release());
         }
 
-        for (Uint32 i = 0; i < providerInfos.size(); i++)
+        while (providerInfos.hasMore(true))
         {
-            if (providerInfos[i].hasProvider)
+            cout <<"assocNames found response4 " << poA->_totalIssued << endl;
+            ProviderInfo& providerInfo = providerInfos.getNext();
+
+            CIMAssociatorNamesRequestMessage* requestCopy =
+                new CIMAssociatorNamesRequestMessage(*request);
+
+            // Insert the association class name to limit the provider
+            // to this class.
+            requestCopy->assocClass = providerInfo.className;
+
+            if (providerInfo.providerIdContainer.get() != 0)
             {
-                CIMAssociatorNamesRequestMessage* requestCopy =
-                    new CIMAssociatorNamesRequestMessage(*request);
-                // Insert the association class name to limit the provider
-                // to this class.
-                requestCopy->assocClass = providerInfos[i].className;
-
-                if (providerInfos[i].providerIdContainer.get() != 0)
-                    requestCopy->operationContext.insert(
-                        *(providerInfos[i].providerIdContainer.get()));
-
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class %s",
-                    CSTRING(providerInfos[i].className.getString())));
-
-                _forwardRequestForAggregation(providerInfos[i].serviceId,
-                    providerInfos[i].controlProviderName, requestCopy, poA);
-                // Note: poA must not be referenced after last "forwardRequest"
+                requestCopy->operationContext.insert(
+                    *(providerInfo.providerIdContainer.get()));
             }
+
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Forwarding to provider for class %s",
+                CSTRING(providerInfo.className.getString())));
+
+            _forwardRequestForAggregation(providerInfo, requestCopy, poA);
+            // Note: poA must not be referenced after last "forwardRequest"
         }
     }  // End of instance processing
 
@@ -3717,10 +3490,17 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 request->resultClass,
                 String::EMPTY);
 
-        //
-        // Get the instances from the repository, as necessary
-        //
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
 
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
+        //
+        // Get the instances from the repository, as necessary.
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
         AutoPtr<CIMReferencesResponseMessage> response;
@@ -3744,30 +3524,17 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 "References repository access: class = %s, count = %u.",
                     CSTRING(request->objectName.toString()),
                     cimObjects.size()));
+
         }
 
-        if (providerInfos.providerCount == 0)
+        if ((providerInfos.providerCount == 0) && (response.get() == 0))
         {
-            //
-            // We have no providers to call.  Just return what we have.
-            //
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                "References Returns Nothing for %s",
+                CSTRING(request->className.getString()) ));
 
-            if (!response.get())
-            {
-                // No provider is registered and the repository isn't the
-                // default.  Return CIM_ERR_NOT_SUPPORTED.
-
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for %s",
-                    CSTRING(request->className.getString()) ));
-
-                response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
-                    request->buildResponse()));
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED,
-                    String::EMPTY);
-            }
-
+            response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
+            request->buildResponse()));
             _enqueueResponse(request, response.release());
             PEG_METHOD_EXIT();
             return;
@@ -3775,55 +3542,45 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         //
         // Set up an aggregate object and save the original request message
+        // NOTE: OperationAggregate released only when operation complete
         //
-
         OperationAggregate* poA = new OperationAggregate(
             new CIMReferencesRequestMessage(*request),
-            request->getType(),
-            request->messageId,
-            request->queueIds.top(),
             request->objectName.getClassName(),
-            request->nameSpace);
+            request->nameSpace,
+            providerInfos.providerCount,
+            true);
 
         // Include the repository response in the aggregation, if applicable
         if (response.get() != 0)
         {
-            poA->setTotalIssued(providerInfos.providerCount+1);
-            // send the repository's results
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
+            poA->incTotalIssued();
+            _forwardResponseForAggregation(
                 new CIMReferencesRequestMessage(*request),
-                poA,
-                response.release());
-        }
-        else
-        {
-            poA->setTotalIssued(providerInfos.providerCount);
+                poA, response.release());
         }
 
-        for (Uint32 i = 0; i < providerInfos.size(); i++)
+        while (providerInfos.hasMore(true))
         {
-            if (providerInfos[i].hasProvider)
-            {
-                CIMReferencesRequestMessage* requestCopy =
-                    new CIMReferencesRequestMessage(*request);
-                // Insert the association class name to limit the provider
-                // to this class.
-                requestCopy->resultClass = providerInfos[i].className;
+            ProviderInfo& providerInfo = providerInfos.getNext();
 
-                if (providerInfos[i].providerIdContainer.get() != 0)
-                    requestCopy->operationContext.insert(
-                        *(providerInfos[i].providerIdContainer.get()));
+            CIMReferencesRequestMessage* requestCopy =
+                new CIMReferencesRequestMessage(*request);
+            // Insert the association class name to limit the provider
+            // to this class.
+            requestCopy->resultClass = providerInfo.className;
 
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class %s",
-                    CSTRING(providerInfos[i].className.getString()) ));
+            if (providerInfo.providerIdContainer.get() != 0)
+                requestCopy->operationContext.insert(
+                    *(providerInfo.providerIdContainer.get()));
 
-                _forwardRequestForAggregation(providerInfos[i].serviceId,
-                    providerInfos[i].controlProviderName, requestCopy, poA);
-                // Note: poA must not be referenced after last "forwardRequest"
-            }
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Forwarding to provider for class %s",
+                CSTRING(providerInfo.className.getString()) ));
+
+            _forwardRequestForAggregation(providerInfo.serviceId,
+                providerInfo.controlProviderName, requestCopy, poA);
+            // Note: poA must not be referenced after last "forwardRequest"
         }
     }  // End of instance processing
 
@@ -3900,17 +3657,23 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         // Determine list of providers for this request
         //
         ProviderInfoList providerInfos = _lookupAllAssociationProviders(
-                request->nameSpace,
-                request->objectName,
-                request->resultClass,
+            request->nameSpace,
+            request->objectName,
+            request->resultClass,
             String::EMPTY);
 
-        //
-        // Get the instances from the repository, as necessary
-        //
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
 
-        // Hold the repository results in a response message.
-        // If not using the repository, this pointer is null.
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
+
+        // Get  objectNames from repository if repository
+        // is default provider.
         AutoPtr<CIMReferenceNamesResponseMessage> response;
 
         if (_repository->isDefaultInstanceProvider())
@@ -3923,6 +3686,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 request->objectName,
                 request->resultClass,
                 request->role);
+
             response->getResponseData().setInstanceNames(objectNames);
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -3930,84 +3694,57 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 CSTRING(request->objectName.toString()),
                 objectNames.size()));
         }
-
-        if (providerInfos.providerCount == 0)
+        if ((providerInfos.providerCount == 0) &&  (response.get() == 0))
         {
-            //
-            // We have no providers to call.  Just return what we have.
-            //
-
-            if (!response.get())
-            {
-                // No provider is registered and the repository isn't the
-                // default.  Return CIM_ERR_NOT_SUPPORTED.
-
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for %s",
-                    CSTRING(request->className.getString()) ));
-
-                response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
-                    request->buildResponse()));
-                response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED,
-                    String::EMPTY);
-            }
-
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                "Referencenamess Returns Nothing for %s",
+                CSTRING(request->className.getString()) ));
             _enqueueResponse(request, response.release());
             PEG_METHOD_EXIT();
             return;
         }
-
         //
         // Set up an aggregate object and save the original request message
+        // NOTE: OperationAggregate released only when operation complete
         //
 
         OperationAggregate* poA = new OperationAggregate(
             new CIMReferenceNamesRequestMessage(*request),
-            request->getType(),
-            request->messageId,
-            request->queueIds.top(),
             request->objectName.getClassName(),
-            request->nameSpace);
+            request->nameSpace,
+            providerInfos.providerCount,
+            true);
 
         // Include the repository response in the aggregation, if applicable
         if (response.get() != 0)
         {
-            poA->setTotalIssued(providerInfos.providerCount+1);
-            _forwardRequestForAggregation(
-                getQueueId(),
-                String(),
+            poA->incTotalIssued();
+            _forwardResponseForAggregation(
                 new CIMReferenceNamesRequestMessage(*request),
                 poA,
                 response.release());
         }
-        else
+
+        while (providerInfos.hasMore(true))
         {
-            poA->setTotalIssued(providerInfos.providerCount);
-        }
+            ProviderInfo& providerInfo = providerInfos.getNext();
+            CIMReferenceNamesRequestMessage* requestCopy =
+                new CIMReferenceNamesRequestMessage(*request);
+            // Insert the association class name to limit the provider
+            // to this class.
+            requestCopy->resultClass = providerInfo.className;
 
-        for (Uint32 i = 0; i < providerInfos.size(); i++)
-        {
-            if (providerInfos[i].hasProvider)
-            {
-                CIMReferenceNamesRequestMessage* requestCopy =
-                    new CIMReferenceNamesRequestMessage(*request);
-                // Insert the association class name to limit the provider
-                // to this class.
-                requestCopy->resultClass = providerInfos[i].className;
+            if (providerInfo.providerIdContainer.get() != 0)
+                requestCopy->operationContext.insert(
+                    *(providerInfo.providerIdContainer.get()));
 
-                if (providerInfos[i].providerIdContainer.get() != 0)
-                    requestCopy->operationContext.insert(
-                        *(providerInfos[i].providerIdContainer.get()));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Forwarding to provider for class %s",
+                CSTRING(providerInfo.className.getString())));
 
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class %s",
-                    CSTRING(providerInfos[i].className.getString())));
-
-                _forwardRequestForAggregation(providerInfos[i].serviceId,
-                    providerInfos[i].controlProviderName, requestCopy, poA);
-                // Note: poA must not be referenced after last "forwardRequest"
-            }
+            _forwardRequestForAggregation(providerInfo.serviceId,
+                providerInfo.controlProviderName, requestCopy, poA);
+            // Note: poA must not be referenced after last "forwardRequest"
         }
     }  // End of instance processing
 
@@ -4445,18 +4182,14 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 
 void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
-    OperationAggregate* poA,
-    bool requiresHostnameCompletion,
-    bool hasPropList)
+    OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::"
             "handleOperationResponseAggregation");
     CIMResponseDataMessage* toResponse =
         (CIMResponseDataMessage*) poA->getResponse(0);
-    PEG_TRACE((
-        TRC_DISPATCHER,
-        Tracer::LEVEL3,
+    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher Response - "
             "Namespace: %s  Class name: %s Response Count: %u",
         CSTRING(poA->_nameSpace.getString()),
@@ -4468,7 +4201,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     // Re-add the property list as stored from request after deepInheritance fix
     // since on OOP on the response message the property list gets lost
     // This is only done for EnumerateInstances type requests
-    if (hasPropList)
+    if (poA->_hasPropList)
     {
         CIMEnumerateInstancesRequestMessage* request =
             (CIMEnumerateInstancesRequestMessage*)poA->getRequest();
@@ -4476,6 +4209,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     }
 
     // Work backward and delete each response off the end of the array
+    // and append it to the new responseData
     for (Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
         CIMResponseDataMessage* fromResponse =
@@ -4485,7 +4219,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         poA->deleteResponse(i);
     }
 
-    if (requiresHostnameCompletion)
+    if (poA->_requiresHostnameCompletion)
     {
         // fill in host, namespace on all instances on all elements of array
         // if they have been left out. This is required because XML reader
@@ -5062,7 +4796,6 @@ CIMConstClass CIMOperationRequestDispatcher::_getClass(
     return cimClass;
 }
 
-
 template <class ObjectClass>
 void removePropagatedAndOriginAttributes(ObjectClass& newObject)
 {
@@ -5080,6 +4813,161 @@ void removePropagatedAndOriginAttributes(ObjectClass& newObject)
             --i;
         }
     }
+}
+
+//Issue  enumerateInstance...ForClass calls to the repository for each class
+// that doesn ot have a provider and put the returned responses into the
+// ResponseData.
+// Handles exceptions from the repository inserting them as CIMException
+// into the response.
+// This is common code for all Enumerates to the repository because they
+// all use the same pattern, doing a enumerate...ForClass loop to get
+// the instances/paths for each class that does not have a provider.
+//
+// TODO: Do we really need the exceptions here?  Actually, review to see
+// if we really need the enumerate for classes itself and could not just
+// use enumerateInstances Since there should NEVER be anything for both
+// provider and repository.
+//
+// Returns a single response in the OperationAggregate object with the
+// counters properly set up.
+// This function throws an exception of there is an exception from the
+// repository.
+//
+
+Boolean CIMOperationRequestDispatcher::_enumerateFromRepository(
+    CIMOperationRequestMessage* request,
+    OperationAggregate* poA,
+    ProviderInfoList& providerInfos)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_enumerateFromRepository");
+    Boolean responsesExist = false;
+    // Create AutoPtr to force delete if exception
+    AutoPtr<OperationAggregate> lPoA(poA);
+
+    if (_repository->isDefaultInstanceProvider())
+    {
+        // Loop through providerInfos, forwarding requests to repository
+        while (providerInfos.hasMore(false))
+        {
+            ProviderInfo& providerInfo = providerInfos.getNext();
+            // If this class is not registered for provider, get instances
+            // from repository
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Routing  request for class %s to the "
+                    "repository.  Class # %u of %u",
+               CSTRING(providerInfo.className.getString()),
+               (providerInfos.getIndex()), providerInfos.size() ));
+
+            switch (request->getType())
+            {
+                case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+                {
+                    const CIMEnumerateInstancesRequestMessage* req =
+                        reinterpret_cast<const
+                            CIMEnumerateInstancesRequestMessage*>(request);
+                    // create response from request
+                    AutoPtr<CIMEnumerateInstancesResponseMessage> response(
+                        dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
+                            req->buildResponse()));
+
+                    // Enumerate instances only for this class
+                    response->getResponseData().setInstances(
+                        _repository->enumerateInstancesForClass(
+                            req->nameSpace,
+                            providerInfo.className,
+                            req->includeQualifiers,
+                            req->includeClassOrigin,
+                            req->propertyList));
+
+                    poA->appendResponse(response.release());
+                    break;
+                }
+                case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+                {
+                    const CIMEnumerateInstanceNamesRequestMessage* req =
+                        reinterpret_cast<const
+                            CIMEnumerateInstanceNamesRequestMessage*>(request);
+                    // create response from request
+                    AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
+                        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
+                            req->buildResponse()));
+
+                    // Enumerate instances only for this class
+                    response->getResponseData().setInstanceNames(
+                        _repository->enumerateInstanceNamesForClass(
+                            req->nameSpace,
+                            providerInfo.className));
+
+                    poA->appendResponse(response.release());
+                    break;
+                }
+
+                default:
+                {
+                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0));
+                }
+            } // switch statement
+        }  // while loop
+
+        // Set the local number of expected responses counter
+        responsesExist = (poA->numberResponses() != 0);
+
+        if (responsesExist)
+        {
+            // Aggregate the responses into a single response object
+            handleOperationResponseAggregation(poA);
+            poA->incTotalIssued();
+        }
+    }
+
+    // release poA and exit with flag indicating responses exist or not
+    lPoA.release();
+    PEG_METHOD_EXIT();
+    return responsesExist;
+}
+
+// Forward request to provider unless class does not exist
+// If class does not exist, return false
+Boolean CIMOperationRequestDispatcher::_forwardEnumerationToProvider(
+    ProviderInfo &providerInfo,
+    OperationAggregate* poA,
+    CIMOperationRequestMessage* request)
+{
+    CIMException checkClassException;
+
+    CIMConstClass cimClass = _getClass(
+        poA->_nameSpace,
+        providerInfo.className,
+        checkClassException);
+
+    // The following is not clean. Need better way to terminate.
+    // This builds an error response message in the middle of the
+    // normal response but lets rest of operation continue.
+    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+    {
+        return false;
+    }
+
+    else
+    {
+        if (providerInfo.providerIdContainer.get() != 0)
+        {
+            request->operationContext.insert(
+                *(providerInfo.providerIdContainer.get()));
+        }
+
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        if (providerInfo.hasProviderNormalization)
+        {
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(cimClass));
+        }
+#endif
+        _forwardRequestForAggregation(providerInfo, request, poA);
+    }
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

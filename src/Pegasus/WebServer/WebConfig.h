@@ -90,17 +90,17 @@ public:
     /**
 
      */
-    String getWebRoot();
+    String getWebRoot() const;
 
     /**
 
      */
-    String getIndexFile();
+    String getIndexFile() const;
 
     /**
 
      */
-    MimeTypes getMimeTypes();
+    MimeTypes getMimeTypes() const;
 
     /**
 

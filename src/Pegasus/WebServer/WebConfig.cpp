@@ -58,17 +58,17 @@ WebConfig::~WebConfig()
 {
 }
 
-String WebConfig::getWebRoot()
+String WebConfig::getWebRoot() const
 {
     return _webRoot;
 }
 
-String WebConfig::getIndexFile()
+String WebConfig::getIndexFile() const
 {
     return _indexFile;
 }
 
-WebConfig::MimeTypes WebConfig::getMimeTypes()
+WebConfig::MimeTypes WebConfig::getMimeTypes() const
 {
     return _mimeTypes;
 }
@@ -89,7 +89,7 @@ void WebConfig::_loadConfig()
     String mimeTypesFile = _configManager->getCurrentValue(
                                              PROPERTY_MIMETYPES_FILE);
 
-    PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL3,
+    PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
             "WebConfig::_loadConfig() - "
                 "ConfigManager returned\nwebRoot='%s',\nindexFile='%s',\n"
                 "mimeTypesFile='%s'",

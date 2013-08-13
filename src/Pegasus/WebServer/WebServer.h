@@ -57,8 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
  * response. The response will be received by method handleResponse and send
  * via the HTTPConnection to the requester.
  */
-class PEGASUS_WEBSERVER_LINKAGE WebServer :
-    public MessageQueue
+class PEGASUS_WEBSERVER_LINKAGE WebServer : public MessageQueue
 {
 public:
 

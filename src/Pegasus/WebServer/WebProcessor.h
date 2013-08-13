@@ -38,7 +38,7 @@
 
 // Dummy value; HTTP responses are always
 // unique to their request based on client socket
-#define WEB_MESSAGE_ID "1234"
+//#define WEB_MESSAGE_ID "1234"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -210,6 +210,7 @@ private:
      * Returns current date.
      *
      * @return current date.
+     * TODO: Deleisha check if getCurrentTimeASSCI does the same thing
      */
     char* _getCurrentDate();
 

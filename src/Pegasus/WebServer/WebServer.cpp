@@ -145,7 +145,7 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
             "WebServer::handleHTTPMessage(HTTPMessage* httpMessage) - QueueID"
-            " %d: methodName [%s], requestUri [%s], httpVersion [%s], "
+            " %d: methodName [%s], requestUri [%s], httpVersion [%s],"
             "mimeTypes [%s], charSets [%s], encoding [%s]",
             httpMessage->queueId,
             (const char*)methodName.getCString(),
@@ -184,10 +184,12 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 
     webRequest->requestURI = String(requestUri);
     webRequest->httpVersion = httpVersion;
+
     // Save userName and authType:
     webRequest->userName = httpMessage->authInfo->getAuthenticatedUser();
     webRequest->authType = httpMessage->authInfo->getAuthType();
     webRequest->ipAddress = httpMessage->ipAddress;
+    
     //for ex.: 'Accept-Language: de-de,de;q=0.8,en-us;q=0.5,en;q=0.3'
     webRequest->acceptLanguages = httpMessage->acceptLanguages;
 

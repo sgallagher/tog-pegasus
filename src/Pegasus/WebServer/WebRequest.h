@@ -55,7 +55,6 @@ public:
     WebRequest(Uint32 queueId)
                     :_queueId(queueId)
     {
-
     }
 
 

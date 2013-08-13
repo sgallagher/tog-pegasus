@@ -125,7 +125,7 @@ void WebProcessor::handleWebRequest(WebRequest* request)
         PEG_METHOD_EXIT();
         return;
     }
-    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL3,"WebServer::handleWebRequest"
+    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL4,"WebServer::handleWebRequest"
                 "(WebRequest* webRequest) - httpMethod='%s'",
                 (const char*)method->getCString()));
 

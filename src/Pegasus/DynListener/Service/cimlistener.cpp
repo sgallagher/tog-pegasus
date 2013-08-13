@@ -216,6 +216,10 @@ static const char OPTION_SHUTDOWN    = 's';
 
 static const char OPTION_NO_DAEMON [] = "--nodaemon";
 
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
+
 static const char OPTION_DEBUGOUTPUT = 'X';
 
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";

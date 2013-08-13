@@ -273,7 +273,6 @@ Boolean ProviderInfoList::hasMore(Boolean isProvider)
         _index = 0;
         return false;
     }
-
 /*************************************************************************
 **
 ** Implementation of CIMOperationRequestDispatcher Class
@@ -630,7 +629,8 @@ void CIMOperationRequestDispatcher::_logOperation(
 #endif
 }
 
-/*  Send the given response synchronously using the given aggregation object.
+/*
+    send the given response synchronously using the given aggregation object.
     return whether the sent message was complete or not. The parameters are
     pointer references because they can be come invalid from external deletes
     if the message is complete after queueing. They can be zeroed in this
@@ -641,7 +641,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     CIMResponseMessage*& response)
 {
     // Obtain the _enqueueResponseMutex mutex for this chunked request.
-    // This mutex serializes chunked responses from all incoming
+    // This mutex is used to serialize chunked responses from all incoming
     // provider threads. It is imperative that the sequencing done by the
     // resequenceResponse() method and the writing of the chunked response
     // to the connection socket (done as a synchronous enqueue at the end
@@ -666,7 +666,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         // queues these functions are called for their jobs other than
         // aggregating.
 
-        // Operations which run through here include:
+        // Operations which run through here are:
         // CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE
         // CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE
         // CIM_ASSOCIATORS_REQUEST_MESSAGE
@@ -735,7 +735,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             response->setIndex(0);
         }
 
-        // Log only if this is the last of the aggregated response
+        // Log if this is the last of the aggregated response
         if (isComplete)
         {
             _logOperation(poA->getRequest(), response);
@@ -880,6 +880,44 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
 
     PEG_METHOD_EXIT();
     return subClassNames;
+}
+
+///////////////////////////////////////////////////////////////////////////
+//  PropertyList management functions
+//////////////////////////////////////////////////////////////////////////
+
+/* _showPropertyList is local support for displaying the propertylist
+   For display only. Generates String with property list names
+   or "empty" or "NULL" if that is the case.
+   @param pl CIMPropertyList to convert
+   @return String containing the list of properties comma separated
+   or the keywords NULL or EMPTY.
+ */
+static String _showPropertyList(const CIMPropertyList& pl)
+{
+    String returnString;
+
+    if (pl.isNull())
+    {
+        returnString = "NULL";
+    }
+    else if (pl.size() == 0)
+    {
+        returnString = "EMPTY";
+    }
+    else
+    {
+        for (Uint32 i = 0; i < pl.size(); i++)
+        {
+            if (i > 0)
+            {
+                returnString.append(", ");
+            }
+            returnString.append(pl[i].getString());
+        }
+    }
+
+    return returnString;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1205,7 +1243,7 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
     // associations pointing back to the target class.
 
     // ATTN: KS 20030515. After we test and complete the move to using this
-    // option, go back and change the call to avoid the double
+    // option, lets go back and change the call to avoid the double
     // conversion to and from CIM Object path.
 
     Array<CIMObjectPath> objPaths;
@@ -1249,7 +1287,6 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
         if (_lookupAssociationProvider(nameSpace, cn, pi))
         {
             providerInfoList.appendProvider(pi);
-
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Association append: class = %s to list. count = %u",
                 CSTRING(objPaths[i].getClassName().getString()),
@@ -1257,7 +1294,7 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
         }
     }
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-        "Association providerCount = %u.", providerInfoList.providerCount));
+        "providerCount = %u.", providerInfoList.providerCount));
 
     PEG_METHOD_EXIT();
     return providerInfoList;
@@ -2028,9 +2065,7 @@ void CIMOperationRequestDispatcher::handleEnqueue()
     Message* request = dequeue();
 
     if (request)
-    {
         handleEnqueue(request);
-    }
 
     PEG_METHOD_EXIT();
 }
@@ -2067,6 +2102,7 @@ Boolean CIMOperationRequestDispatcher::_rejectAssociationTraversalDisabled(
     }
 }
 
+
 /* Test the roleParameter to determine if it exists and is a valid CIMName.
    Generate error if it exists and is not a valid CIMName.
    @return true if invalid and false if valid
@@ -2085,6 +2121,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidRoleParameter(
     }
     return false;
 }
+
 
 // _rejectEnumerateTooBroad.  Checks providerCount against parameter. Generates
 // exception of providerCount to large.
@@ -2113,25 +2150,17 @@ void CIMOperationRequestDispatcher::_rejectEnumerateTooBroad(
     }
 }
 
-/*
-    Test the validity of the class name parameter and get the corresponding
-    class. Returns the class if found.  If not found, returns with return
-    code false.
-    @param request. NOTE: This depends on the namespace and class in
-        the CIMOperationRequestMessage request.
-    @param cimClass CIMConstClass containing the requested class if the
-    class exists.
-    @return false if class found or true if class not found
-*/
 Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
     CIMOperationRequestMessage* request,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     CIMConstClass& targetClass)
 {
     CIMException checkClassException;
 
     targetClass = _getClass(
-        request->nameSpace,
-        request->className,
+        nameSpace,
+        className,
         checkClassException);
 
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
@@ -2140,8 +2169,8 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
             "CIMOperationRequestDispatcher - "
                 "CIM class exist exception has occurred.  Namespace: %s  "
                 "Class Name: %s  Exception message: \"%s\"",
-            CSTRING(request->nameSpace.getString()),
-            CSTRING(request->className.getString()),
+            CSTRING(nameSpace.getString()),
+            CSTRING(className.getString()),
             CSTRING(checkClassException.getMessage())));
 
         _enqueueExceptionResponse(request,checkClassException);
@@ -2152,7 +2181,8 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
 
 Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
     CIMOperationRequestMessage* request,
-    const ProviderInfoList& providerInfos)
+    const ProviderInfoList& providerInfos,
+    const CIMName& className)
 {
     if ((providerInfos.providerCount == 0) &&
         !(_repository->isDefaultInstanceProvider()))
@@ -2162,7 +2192,7 @@ Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
                 "Server.CIMOperationRequestDispatcher."
                     "REQUEST_CLASS_NOT_SUPPORTED",
                 "No provider or repository defined for class $0.",
-                request->className.getString()));
+                className.getString()));
 
         _enqueueExceptionResponse(request, cimException);
         return true;
@@ -2276,7 +2306,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
     // Validate the class in the request. Returns class if not rejected
     CIMConstClass cimClass;
-    if (_rejectInvalidClassParameter(request, cimClass))
+    if (_rejectInvalidClassParameter(request,request->nameSpace,
+        request->className, cimClass))
     {
         PEG_METHOD_EXIT();
         return;
@@ -2793,7 +2824,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // be used later in the operation.
     //
     CIMConstClass cimClass;
-    if (_rejectInvalidClassParameter(request,cimClass))
+    if (_rejectInvalidClassParameter(request,request->nameSpace,
+        request->className,
+        cimClass))
     {
         PEG_METHOD_EXIT();
         return;
@@ -2815,9 +2848,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     }
 
     //
-    // Get names of descendent classes and list of providers
-    // For Enumerate Operations; the list of providers is used for both
-    // repository and provider requests.
+    // Get names of descendent classes and their providers
     //
     ProviderInfoList providerInfos = _lookupAllInstanceProviders(
         request->nameSpace,
@@ -2826,7 +2857,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
 
-    if (_rejectNoProvidersOrRepository(request, providerInfos))
+    if (_rejectNoProvidersOrRepository(request, providerInfos,
+        request->className))
     {
         PEG_METHOD_EXIT();
         return;
@@ -2842,8 +2874,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         request->className,
         request->nameSpace,
         providerInfos.providerCount,
-        false,          // completeHostAndNamespace = false
-        true);          // has propertyList = true
+        false, true);
 
     // Gather the repository responses and send as one response
     // with many instances
@@ -2926,7 +2957,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     // Validate the class name in the request
     //
     CIMConstClass cimClass;
-    if (_rejectInvalidClassParameter(request, cimClass))
+    if (_rejectInvalidClassParameter(request,request->nameSpace,
+        request->className, cimClass))
     {
             PEG_METHOD_EXIT();
             return;
@@ -2942,7 +2974,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
 
-    if (_rejectNoProvidersOrRepository(request, providerInfos))
+    if (_rejectNoProvidersOrRepository(request, providerInfos,
+        request->className))
     {
         PEG_METHOD_EXIT();
         return;
@@ -2957,7 +2990,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         request->className,
         request->nameSpace,
         providerInfos.providerCount,
-        false);   // completeHostAndNamespace = false, and no property list
+        false);
 
     if (_enumerateFromRepository(request, poA, providerInfos))
     {
@@ -3011,12 +3044,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleAssociatorsRequest");
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::handleAssociators - "
-            "Namespace: %s  Class name: %s",
-        CSTRING(request->nameSpace.getString()),
-        CSTRING(request->objectName.toString())));
-
     if (_rejectAssociationTraversalDisabled(request, "Associators"))
     {
         PEG_METHOD_EXIT();
@@ -3042,6 +3069,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         PEG_METHOD_EXIT();
         return;
     }
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+        "CIMOperationRequestDispatcher::handleAssociators - "
+            "Namespace: %s  Class name: %s",
+        CSTRING(request->nameSpace.getString()),
+        CSTRING(request->objectName.toString())));
 
     // The entity that creates the CIMMessage determines if this is a class
     // or instance operation.
@@ -3079,8 +3112,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         _enqueueResponse(request, response.release());
     }
 
-    // This is an instance request
-    else
+    else    // This is an instance request operation
     {
         //
         // For Instance requests, get results from providers and the repository
@@ -3097,7 +3129,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
-        if (_rejectNoProvidersOrRepository(request, providerInfos))
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
         {
             PEG_METHOD_EXIT();
             return;
@@ -3203,12 +3236,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
 
-    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::handleAssociatorNames - "
-            "Namespace: %s  Class name: %s",
-        CSTRING(request->nameSpace.getString()),
-        CSTRING(request->objectName.toString())));
-
     if (_rejectAssociationTraversalDisabled(request,"AssociatorNames"))
     {
         PEG_METHOD_EXIT();
@@ -3236,7 +3263,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         return;
     }
 
-    // If Class request, get class data from repository
+    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
+        "CIMOperationRequestDispatcher::handleAssociatorNames - "
+            "Namespace: %s  Class name: %s",
+        CSTRING(request->nameSpace.getString()),
+        CSTRING(request->objectName.toString())));
+
     if (request->isClassRequest)
     {
         //
@@ -3266,7 +3298,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         _enqueueResponse(request, response.release());
     }
-    // Else this is an Instance request
     else
     {
         //
@@ -3282,13 +3313,14 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
-        if (_rejectNoProvidersOrRepository(request, providerInfos))
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
         {
             PEG_METHOD_EXIT();
             return;
         }
 
-        // Get from repository if it exists.
+        // Get frp, repository if it exists.
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
         AutoPtr<CIMAssociatorNamesResponseMessage> response;
@@ -3349,6 +3381,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         while (providerInfos.hasMore(true))
         {
+            cout <<"assocNames found response4 " << poA->_totalIssued << endl;
             ProviderInfo& providerInfo = providerInfos.getNext();
 
             CIMAssociatorNamesRequestMessage* requestCopy =
@@ -3386,12 +3419,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleReferencesRequest");
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::handleReferences - "
-            "Namespace: %s  Class name: %s",
-        CSTRING(request->nameSpace.getString()),
-        CSTRING(request->objectName.toString())));
-
     if (_rejectAssociationTraversalDisabled(request,"References"))
     {
         PEG_METHOD_EXIT();
@@ -3418,7 +3445,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    // If true, this is a class Request
     if (request->isClassRequest)
     {
         //
@@ -3449,12 +3475,13 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         _enqueueResponse(request, response.release());
     }
-
-    // Else Instance Request
     else
     {
         //
         // For Instance requests, get results from providers and the repository
+        //
+
+        //
         // Determine list of Classes and providers for this request
         //
         ProviderInfoList providerInfos = _lookupAllAssociationProviders(
@@ -3466,7 +3493,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
-        if (_rejectNoProvidersOrRepository(request, providerInfos))
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
         {
             PEG_METHOD_EXIT();
             return;
@@ -3475,7 +3503,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         // Get the instances from the repository, as necessary.
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
-        //
         AutoPtr<CIMReferencesResponseMessage> response;
 
         if (_repository->isDefaultInstanceProvider())
@@ -3570,12 +3597,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleReferenceNamesRequest");
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher::handleReferenceNames - "
-            "Namespace: %s  Class name: %s",
-        CSTRING(request->nameSpace.getString()),
-        CSTRING(request->objectName.toString())));
-
     if (_rejectAssociationTraversalDisabled(request,"ReferenceNames"))
     {
         PEG_METHOD_EXIT();
@@ -3595,6 +3616,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         PEG_METHOD_EXIT();
         return;
     }
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+        "CIMOperationRequestDispatcher::handleReferenceNames - "
+            "Namespace: %s  Class name: %s",
+        CSTRING(request->nameSpace.getString()),
+        CSTRING(request->objectName.toString())));
 
     if (request->isClassRequest)
     {
@@ -3623,8 +3650,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         _enqueueResponse(request, response.release());
     }
-
-    //  else Instance operation
     else
     {
         //
@@ -3640,7 +3665,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
-        if (_rejectNoProvidersOrRepository(request, providerInfos))
+        if (_rejectNoProvidersOrRepository(request, providerInfos,
+            request->className))
         {
             PEG_METHOD_EXIT();
             return;
@@ -4161,7 +4187,6 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::"
             "handleOperationResponseAggregation");
-
     CIMResponseDataMessage* toResponse =
         (CIMResponseDataMessage*) poA->getResponse(0);
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
@@ -4271,7 +4296,7 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                 // This is an indirect call to the appropriate function in
                 // the WQL..., CQL, ... etc Class
                 //
-                // NULLness check is done as getFunctPtr may reurn NULL in case
+                // NULL ness check is done as getFunctPtr may reurn NULL in case
                 // of when querry language is not CQL, WQL
                 if ( applyQueryToEnumeration)
                 {

@@ -964,6 +964,8 @@ SSLContext* CIMServer::_getSSLContext()
     static const String PROPERTY_NAME__HTTP_ENABLED =
         "enableHttpConnection";
     static const String PROPERTY_NAME__SSL_CIPHER_SUITE = "sslCipherSuite";
+    static const String PROPERTY_NAME__SSL_COMPATIBILITY = 
+        "sslBackwardCompatibility";
 
     String verifyClient;
     String trustStore;
@@ -1143,6 +1145,9 @@ SSLContext* CIMServer::_getSSLContext()
     PEG_TRACE((TRC_SERVER, Tracer::LEVEL4, "Cipher suite is %s",
         (const char*)cipherSuite.getCString()));
 
+    Boolean sslCompatibility = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue(
+        PROPERTY_NAME__SSL_COMPATIBILITY));
     //
     // Create the SSLContext defined by the configuration properties
     //
@@ -1153,7 +1158,7 @@ SSLContext* CIMServer::_getSSLContext()
 
         _sslContextMgr->createSSLContext(
             trustStore, certPath, keyPath, crlStore, false, randFile,
-            cipherSuite);
+            cipherSuite,sslCompatibility);
     }
     else if (String::equal(verifyClient, "optional"))
     {
@@ -1162,7 +1167,7 @@ SSLContext* CIMServer::_getSSLContext()
 
         _sslContextMgr->createSSLContext(
             trustStore, certPath, keyPath, crlStore, true, randFile,
-            cipherSuite);
+            cipherSuite,sslCompatibility);
     }
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
@@ -1172,7 +1177,7 @@ SSLContext* CIMServer::_getSSLContext()
 
         _sslContextMgr->createSSLContext(
             String::EMPTY, certPath, keyPath, crlStore, false, randFile,
-            cipherSuite);
+            cipherSuite,sslCompatibility);
     }
     sslContext = _sslContextMgr->getSSLContext();
 

@@ -526,9 +526,6 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
         @param cipherSuite cipher list
-        @param sslCompatibility  a false value of sslCompatibility 
-        will support only TLS1.2 and true will support SSLv3 and TLSv1 
-
 
         NOTE:
         For platforms that support /dev/random(urandom), the /dev/random
@@ -550,9 +547,35 @@ public:
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile,
-        const String& cipherSuite,
-        const Boolean & sslCompatibility = false);
+        const String& cipherSuite);
 
+    /** Constructor for an SSLContext object. This constructor is intended
+        to be used by the CIMServer or CIMClient.
+        @param trustStore file path of the trust store.
+        @param certPath  file path of the server certificate.
+        @param keyPath  file path of the private key.
+        @param crlPath file path of the certificate revocation list.
+        @param verifyCert  function pointer to a certificate verification
+        call back function.  A null pointer indicates that no callback is
+        requested for certificate verification.
+        @param randomFile  file path of a random file that may be used as a seed
+        for random number generation by OpenSSL.
+        @param cipherSuite cipher list
+        @param sslCompatibility  a false value of sslCompatibility 
+        will support only TLS1.2 and true will support SSLv3 and TLSv1 
+
+        @exception SSLException indicates failure to create an SSL context.
+    */
+
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        const String& crlPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile,
+        const String& cipherSuite,
+        const Boolean& sslCompatibility);
 
 #endif
 

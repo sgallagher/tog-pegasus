@@ -130,7 +130,7 @@ class          { return(TOK_CLASS); }
        (but note; cimmof.y does not use yyleng!)
 
        an impl. req't: strings are returned to parser
-       without enclosing "s.
+       with enclosing "s.
     */
 
 \"             { BEGIN(myStr); strbuf_p = strbuf;

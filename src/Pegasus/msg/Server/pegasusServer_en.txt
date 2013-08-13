@@ -1332,8 +1332,8 @@ en:table {
         Config.ConfigPropertyHelp.DESCRIPTION_maxIndicationDeliveryRetryAttempts:string {"If set to a positive integer, value defines the number of times\n"
             "indication service will try to deliver an indication to a\n"
             "particular listener destination. This does not effect the original\n"
-            "delivery attempt. A value of 0 disables reliable indications, and\n"
-            "cimserver will deliver the indication once."}
+            "delivery attempt. If set to 0, cimserver will only try to\n"
+            "deliver the indication once."}
 
         Config.ConfigPropertyHelp.DESCRIPTION_minIndicationDeliveryRetryInterval:string {"If set to a positive integer, defines the minimal time interval in\n"
             "seconds indication service waits before retrying delivery of\n"

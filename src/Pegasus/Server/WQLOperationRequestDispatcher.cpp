@@ -45,11 +45,8 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     WQLSelectStatement* qs = ((WQLQueryExpressionRep*)query)->_stmt;
 
-    // get instances from the response data converting them to
-    // C++ instance format for the evaluator
     Array<CIMInstance>& a = enr->getResponseData().getInstances();
 
-    // Remove any instances from this array that do not match
     for (int i = a.size() - 1; i >= 0; i--)
     {
         WQLInstancePropertySource ips(a[i]);
@@ -161,7 +158,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
 
-    if (_rejectNoProvidersOrRepository(request,providerInfos))
+    if (_rejectNoProvidersOrRepository(request,providerInfos,className))
     {
         PEG_METHOD_EXIT();
         return;

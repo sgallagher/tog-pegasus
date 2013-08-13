@@ -317,11 +317,10 @@ recovery of the provider and the ultimate goal SHALL be to fix the faulty provid
 .PP
 .B maxIndicationDeliveryRetryAttempts
 .IP
-.BR Description: "If set to a positive integer, value defines the number of times
-indication service will enable the reliableIndication feature and try
-to deliver an indication to a particular listener destination.This does not
-effect the original delivery attempt. A value of 0 disables reliable indication
-feature completely, and cimserver will deliver the indication once.
+.BR Description: "If set to a positive integer, this value defines the number of times
+that the indication service will try to deliver an indication to a particular listener
+destination. This does not effect the original delivery attempt, thus if set to 0, cimserver
+will only try to deliver the indication once.
 .IP
 This value is used to set the CIM_IndicationService.DeliveryRetryAttempts property. See
 CIM_IndicationService.DeliveryRetryAttempts property for more details.
@@ -476,42 +475,6 @@ purposes it is by default set to false.
 .PD 0
 .IP
 .BR "Default Value: " false
-.IP
-.BR Dynamic: \0No
-.PD
-.PP
-
-.B webRoot
-.IP
-.BR Description: "Points to a location where the static web pages to be served
-by the pegasus webserver are stored. 
-.PD 0
-.IP
-.BR "Default Value: " /var/tog-pegasus/www
-.IP
-.BR Dynamic: \0No
-.PD
-.PP
-
-.B indexFile
-.IP
-.BR Description: "Specifies the name of index file used by pegasus webserver, default to index.html,
-This file should be available at the webRoot path.
-.PD 0
-.IP
-.BR "Default Value: " index.html
-.IP
-.BR Dynamic: \0No
-.PD
-.PP
-
-.B mimeTypesFile 
-.IP
-.BR Description: " Refers to the file which holds the mime types being served
-by the pegasus webserver.
-.PD 0
-.IP
-.BR "Default Value: "/var/tog-pegasus/www/mimeTypes.txt 
 .IP
 .BR Dynamic: \0No
 .PD

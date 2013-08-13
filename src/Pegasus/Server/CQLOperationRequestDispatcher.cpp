@@ -50,11 +50,8 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     CQLSelectStatement* qs = ((CQLQueryExpressionRep*)query)->_stmt;
 
-    // Get instances in the response data, converting all of them
-    // to C++ Instance format for the evaluator
     Array<CIMInstance>& a = enr->getResponseData().getInstances();
 
-    // Remove any instances from this array that do not match
     for (int i = a.size() - 1; i >= 0; i--)
     {
         try
@@ -176,7 +173,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-    if (_rejectNoProvidersOrRepository(request, providerInfos))
+    if (_rejectNoProvidersOrRepository(request, providerInfos, className))
     {
         PEG_METHOD_EXIT();
         return;

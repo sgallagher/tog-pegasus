@@ -705,6 +705,8 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
 
+    SSL_CTX * sslContext = 0;
+
     // OPENSSL_VERSION_NUMBER is defined as  0xnnnnnnnnnL
     // MMNNFFPPS: major minor fix patch status 
     // The change  'const' SSL_METHOD 
@@ -737,7 +739,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 #endif
     }
 
-    SSL_CTX *sslContext = NULL;
     if (!(sslContext = SSL_CTX_new(sslProtocolMethod)))
     {
         PEG_METHOD_EXIT();
@@ -751,7 +752,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40)))
     {
         SSL_CTX_free(sslContext);
-        sslContext = NULL;
 
         MessageLoaderParms parms(
             "Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
@@ -765,7 +765,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         if (!(SSL_CTX_set_cipher_list(sslContext, _cipherSuite.getCString())))
         {
             SSL_CTX_free(sslContext);
-            sslContext = NULL;
 
             PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Cipher Suite could not be specified");
@@ -882,8 +881,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
                     "Could not load certificates in to trust store.");
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -920,8 +917,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     MessageLoaderParms parms(
                         "Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
                         "Could not load certificates in to trust store.");
-                    SSL_CTX_free(sslContext);
-                    sslContext = NULL;
                     PEG_METHOD_EXIT();
                     throw SSLException(parms);
                 }
@@ -947,8 +942,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         _crlStore.reset(X509_STORE_new());
         if (_crlStore.get() == NULL)
         {
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw PEGASUS_STD(bad_alloc)();
         }
@@ -968,8 +961,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
                 _crlStore.reset();
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -993,8 +984,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
                 _crlStore.reset();
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1033,9 +1022,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 "Common.SSLContext.COULD_NOT_ACCESS_SERVER_CERTIFICATE",
                 "Could not access server certificate in $0.",
                 (const char*)_certPath.getCString());
-
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1060,8 +1046,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
                     "Could not get private key.");
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1087,8 +1071,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             MessageLoaderParms parms(
                 "Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
                 "Could not get private key.");
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1371,6 +1353,29 @@ SSLContext::SSLContext(
 }
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+SSLContext::SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        const String& crlPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile,
+        const String& cipherSuite)
+{
+#ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    if (crlPath.size() > 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
+            "SSL CRL verification is not enabled.");
+        throw Exception(parms);
+    }
+#endif
+    _rep = new SSLContextRep(
+        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile, 
+        cipherSuite);
+}
+
 SSLContext::SSLContext(
         const String& trustStore,
         const String& certPath,

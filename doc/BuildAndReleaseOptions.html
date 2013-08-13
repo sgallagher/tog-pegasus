@@ -877,20 +877,6 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      releases. Also note the known limitations specified in PEP 311.<br>
 </ul>
 
-<h5>PEGASUS_ENABLE_PROTOCOL_WEB</h5>
-<ul>
-  <b>Description:&nbsp;</b>Enable pegasus to act as webserver capable
-     of serving webpages by comsuming the JSON output from CIM-RS.<br>
-  <b>Default Value:&nbsp;</b>true<br>
-  <b>Recommended Value (Development Build):&nbsp;</b>true<br>
-  <b>Recommended Value (Release Build):&nbsp;</b>true<br>
-  <b>Required:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b> When authentication is disabled, Anybody can
-  modify the pegasus cimserver. Please enable authentication when using
-  webadmin to prevent unauthorized access. <br>
-</ul>
-
-
 <h5>PEGASUS_ENABLE_REMOTE_CMPI</h5>
 <ul>
   <b>Description:&nbsp;</b>If set, a version of OpenPegasus that
@@ -2011,10 +1997,6 @@ configuration properties.</p>
       <tr align="center">
         <td align="left" height="14" width="1">$MESSAGEDIR</td>
       </tr>
-      <tr align="center">
-        <td align="left" height="14" width="1">$WEBCONFDIR</td>
-      </tr>
-
       </tbody></table>
 </ul>
 
@@ -2766,13 +2748,11 @@ configuration properties.</p>
 
 <h5>maxIndicationDeliveryRetryAttempts</h5>
 <ul>
-  <b>Description:&nbsp;</b> If set to a positive integer, value defines the number
-         of times indication service will enable the reliableIndication feature and try
-         to deliver an indication to a particular listener destination.
-         This does not effect the original delivery attempt. A value of disables
-         reliable indication feature completely, and cimserver will deliver the
-         indication once.This is in accord with DTMF Specification 1054,
-         Indication Profile, version 1.2.1.<br>
+  <b>Description:&nbsp;</b> If set to a positive integer, this value
+     defines the number of times that the indication service will
+     try to deliver an indication to a particular listener destination.
+     This does not effect the original delivery attempt, thus if set to 0,
+     cimserver will only try to deliver the indication once.<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>3<br>
   <b>Recommended Default Value (Release Build):&nbsp;</b>3<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
@@ -3438,53 +3418,6 @@ configuration properties.</p>
   <b>Considerations:</b>Minimum accepted value is 3,Maximum accepted value is 20. &nbsp;<br>
   <b>Source Configuration File:</b>&nbsp; Pegsus/Config/TracePropertyOwner.cpp<p>&nbsp;</p>
 </ul>
-
-<h5>webRoot</h5>
-<ul>
-  <b>Description:&nbsp;</b> Points to a location where the static web pages to
-  be served by the pegasus webserver are stored.<br>
-  <b>Default Value:&nbsp;</b>www<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>www<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>$WEBCONFDIR/www<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
-  <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> When not fixed and hidden, it can be modified to
-  point to a location having spurious pages. Please consider fixing this value. &nbsp;<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
-<h5>indexFile</h5>
-<ul>
-  <b>Description:&nbsp;</b> Specifies the name of index file used by pegasus webserver,
-  default to index.html. This file should be available at the webRoot path.<br>
-  <b>Default Value:&nbsp;</b>index.html<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>index.html<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>index.html<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
-  <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> &nbsp; Hide it and fixed in release build to prevent
-  using any file as index file<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
-<h5>mimeTypesFile</h5>
-<ul>
-  <b>Description:&nbsp;</b> Refers to the file which holds the mime types being
-  served by the pegasus webserver.<br>
-  <b>Default Value:&nbsp;</b>www/mimeTypes.txt<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>www/mimeTypes.txt<br>
-  <b>Recommended Default Value (Release
-      Build):&nbsp;</b>$WEBCONFDIR/www/mimeTypes.txt<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
-  <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b>&nbsp;Fix and make it read only when to prevent
-  modification in deployment<br>
-  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
-</ul>
-
 
 <h3>Configuration Constants</h3>
 

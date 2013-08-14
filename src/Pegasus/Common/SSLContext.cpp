@@ -1360,29 +1360,6 @@ SSLContext::SSLContext(
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile,
-        const String& cipherSuite)
-{
-#ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    if (crlPath.size() > 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
-            "SSL CRL verification is not enabled.");
-        throw Exception(parms);
-    }
-#endif
-    _rep = new SSLContextRep(
-        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile, 
-        cipherSuite);
-}
-
-SSLContext::SSLContext(
-        const String& trustStore,
-        const String& certPath,
-        const String& keyPath,
-        const String& crlPath,
-        SSLCertificateVerifyFunction* verifyCert,
-        const String& randomFile,
         const String& cipherSuite,
         const Boolean& sslCompatibility)
 {

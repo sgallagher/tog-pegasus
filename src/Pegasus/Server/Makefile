@@ -42,8 +42,8 @@ LIBRARY = pegserver
 LIBRARIES = \
 	pegrepository \
 	pegprovider \
-	pegexportserver \
-    pegpmrouter \
+	pegexportserver \    
+	pegpmrouter \
 	pegpmservice \
 	pegprovidermanager \
 	pegconfig \
@@ -60,9 +60,9 @@ LIBRARIES = \
 	UserAuthProvider \
 	ProviderRegistrationProvider\
 	NamespaceProvider \
-    peggeneral \
+	peggeneral \
 	pegcommon \
-    cimrsserver
+	cimrsserver
 
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)

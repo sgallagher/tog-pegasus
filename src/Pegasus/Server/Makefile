@@ -42,7 +42,7 @@ LIBRARY = pegserver
 LIBRARIES = \
 	pegrepository \
 	pegprovider \
-	pegexportserver \    
+	pegexportserver \
 	pegpmrouter \
 	pegpmservice \
 	pegprovidermanager \

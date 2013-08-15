@@ -82,7 +82,7 @@
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB
     {"webRoot", "", IS_STATIC, IS_VISIBLE},
     {"indexFile", "", IS_STATIC, IS_VISIBLE},
-    {"mimeTypesFile", "", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "", IS_STATIC, IS_VISIBLE}
 #endif
 #endif
 #endif /* Pegasus_DefaultPropertyTable_h */

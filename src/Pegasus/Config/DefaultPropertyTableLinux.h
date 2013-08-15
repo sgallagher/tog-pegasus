@@ -92,6 +92,6 @@
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB //TODO how to get the PEGASUS_HOME ?
     {"webRoot", "/opt/tog-pegasus/www", IS_STATIC, IS_VISIBLE},
     {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
-    {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt", IS_STATIC, IS_VISIBLE}
 #endif
 #endif /* Pegasus_DefaultPropertyTableLinux_h */

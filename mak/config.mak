@@ -1494,7 +1494,7 @@ endif
 ##
 ##==============================================================================
 ifndef PEGASUS_ENABLE_PROTOCOL_WEB
-  PEGASUS_ENABLE_PROTOCOL_WEB = true
+  PEGASUS_ENABLE_PROTOCOL_WEB = false
 endif
 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)

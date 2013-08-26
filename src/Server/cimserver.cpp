@@ -978,17 +978,18 @@ int CIMServerProcess::cimserver_run(
 
     // Start up the CIM Server
 
+#if defined(PEGASUS_OS_TYPE_UNIX)
+    //
+    // Lock the CIMSERVER_LOCK_FILE during CIM Server start-up to prevent
+    // concurrent writes to this file by multiple cimserver processes
+    // starting at the same time.
+    //
+    CString startupLockFileName = ConfigManager::getHomedPath(
+       PEGASUS_CIMSERVER_START_LOCK_FILE).getCString();
+
     try
     {
-#if defined(PEGASUS_OS_TYPE_UNIX)
-        //
-        // Lock the CIMSERVER_LOCK_FILE during CIM Server start-up to prevent
-        // concurrent writes to this file by multiple cimserver processes
-        // starting at the same time.
-        //
-        CString startupLockFileName = ConfigManager::getHomedPath(
-            PEGASUS_CIMSERVER_START_LOCK_FILE).getCString();
-
+    
         // Make sure the start-up lock file exists
         FILE* startupLockFile;
         if ((startupLockFile = fopen(startupLockFileName, "w")) != 0)
@@ -997,6 +998,9 @@ int CIMServerProcess::cimserver_run(
         }
 
         AutoFileLock fileLock(startupLockFileName);
+#else
+    try
+    {
 #endif
 
 #if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
@@ -1338,10 +1342,18 @@ int CIMServerProcess::cimserver_run(
             parms);
         cerr << MessageLoader::getMessage(parms) << endl;
 
+    //delete the start up lock file
+#if defined(PEGASUS_OS_TYPE_UNIX)
+    System::removeFile(startupLockFileName);
+#endif
         deleteCIMServer();
         return 1;
     }
 
+    //delete the start up lock file
+#if defined(PEGASUS_OS_TYPE_UNIX)
+    System::removeFile(startupLockFileName);
+#endif
     deleteCIMServer();
     return 0;
 }

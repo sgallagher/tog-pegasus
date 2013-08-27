@@ -238,6 +238,10 @@ static const char OPTION_HOME        = 'D';
 
 static const char OPTION_SHUTDOWN    = 's';
 
+static const char LONG_HELP[]        = "help";
+
+static const char LONG_VERSION[]     = "version";
+
 static const char OPTION_DEBUGOUTPUT = 'X';
 
 /** GetOptions function - This function defines the Options Table

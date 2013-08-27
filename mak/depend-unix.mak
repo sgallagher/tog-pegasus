@@ -62,7 +62,7 @@ depend: $(OBJ_DIR)/target $(ERROR)
 endif
 else
   depend: $(OBJ_DIR)/target $(ERROR)
-       $(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
+	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
   
 endif
 else

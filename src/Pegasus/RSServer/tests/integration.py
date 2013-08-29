@@ -4,12 +4,12 @@ import urllib2
 
 class TestPegRSInstanceCollectionRetrieval(unittest.TestCase):
     def setUp(self):
-        self.uri = "http://localhost:5988/cimrs/namespaces/test/TestProvider/classes/cmpiPerf_TestClassB/instances/"
+        self.uri = "http://localhost:5988/cimrs/test/TestProvider/cmpiPerf_TestClassB/"
         self.response = urllib2.urlopen(self.uri)
 
     def testShouldHaveCimCollectionHeaders(self):
         self.assertEqual(200, self.response.code, "Should yield a HTTP status code of 200 OK")
-        self.assertEqual("application/vnd.cim.collection+json", self.response.headers["Content-type"])
+        self.assertEqual("application/json", self.response.headers["Content-type"])
 
     def testEntityShouldBeArray(self):
         data = self.response.read()
@@ -34,12 +34,12 @@ class TestPegRSInstanceCollectionRetrieval(unittest.TestCase):
 
 class TestPegRSInstanceRetrieval(unittest.TestCase):
     def setUp(self):
-        self.uri = "http://localhost:5988/cimrs/namespaces/test/TestProvider/classes/cmpiPerf_TestClassB/instances/1"
+        self.uri = "http://localhost:5988/cimrs/test/TestProvider/cmpiPerf_TestClassB/1"
         self.response = urllib2.urlopen(self.uri)
 
     def testShouldHaveCimInstanceHeader(self):
         self.assertEqual(200, self.response.code, "Should yield a HTTP status code of 200 OK")
-        self.assertEqual("application/vnd.cim.instance+json", self.response.headers["Content-type"])
+        self.assertEqual("application/json", self.response.headers["Content-type"])
 
     def testEntityShouldBeObject(self):
         data = self.response.read()
@@ -63,12 +63,12 @@ class TestPegRSInstanceRetrieval(unittest.TestCase):
 
 class TestPegRSClassRetrieval(unittest.TestCase):
     def setUp(self):
-        self.uri = "http://localhost:5988/cimrs/namespaces/test/TestProvider/classes/cmpiPerf_TestClassB?IncludeQualifiers=true"
+        self.uri = "http://localhost:5988/cimrs/test/TestProvider/cmpiPerf_TestClassB?IncludeQualifiers=true"
         self.response = urllib2.urlopen(self.uri)
 
     def testEntityShouldHaveCimClassHeader(self):
         self.assertEqual(200, self.response.code, "Should yield a HTTP status code of 200 OK")
-        self.assertEqual("application/vnd.cim.class+json", self.response.headers["Content-type"])
+        self.assertEqual("application/json", self.response.headers["Content-type"])
 
     def testEntityShouldBeObject(self):
         data = self.response.read()

@@ -33,7 +33,7 @@
 // ==================================================================
 // WBEMSLPTemplate
 // ==================================================================
-[ Version ("2.0.0"), Description (
+[ Version ("2.0.1"), Description (
     "Defines the attributes in a Pegasus SLP template. The SLP template is "
     "based on the DMTF WBEM SLP Template. Each property in this class "
     "represents one object in the template registration. Note that today "
@@ -52,7 +52,8 @@ class PG_WBEMSLPTemplate {
    "by the instances and should reflect the template version used")]
    string template_version="1.0";
    
-   string template_description="This template describes the attributes used for advertising CIM Servers.";
+   string template_description="This template describes the attributes used "
+     " for advertising CIM Servers.";
 
    [ Description ("The template-url-syntax MUST be the WBEM URI Mapping of "
     "the location of one service access point offered by the WBEM Server " 
@@ -78,56 +79,61 @@ class PG_WBEMSLPTemplate {
 
    // string service_location_tcp;
    
-   [Description ("The communication mechanism (protocol) used by the CIM Object Manager for "
-    "this service-location-tcp defined in this advertisement. This information " 
-    "MUST be the CIM_ObjectManagerCommunicationMechanism.CommunicationMechanism. " 
+   [Description ("The communication mechanism (protocol) used by the CIM "
+    "Object Manager for the service-location-tcp defined in this advertisement. " 
+    "This information MUST be the "
+    "CIM_ObjectManagerCommunicationMechanism.CommunicationMechanism. " 
     "property value.")]
    string CommunicationMechanism;
 
-   [Description ("The other communication mechanism defined for the CIM Server in the case "
-    "the \"Other\" value is set in the CommunicationMechanism string. "
-    "This attribute MUST be the CIM_ObjectManagerCommunicationMechanism.OtherCommunicationMechanism "
-    "property value. This attribute is optional because it is only required if the "
-    "\"other\" value is set in CommunicationMechansim. The value returned is "
-    "a free-form string." )]
+   [Description ("The other communication mechanism defined for the CIM Server "
+    " in the casehe \"Other\" value is set in the CommunicationMechanism "
+    "string. This attribute MUST be the "
+    " CIM_ObjectManagerCommunicationMechanism.OtherCommunicationMechanism "
+    "property value. This attribute is optional because it is only required if "
+    "the \"other\" value is set in CommunicationMechansim. The value returned "
+    "is a free-form string." )]
    string OtherCommunicationMechanismDescription;
    
-   [Description ("Namespace within the target WBEM Server where the CIM Interop Schema can be "
-    "accessed. Multiple namespaces may be provided. Each namespace provided "
-    "MUST contain the same information." )]
+   [Description ("Namespace within the target WBEM Server where the CIM "
+    "Interop Schema can be accessed. Multiple namespaces may be provided. "
+    "Each namespace provided MUST contain the same information." )]
    string InteropSchemaNamespace;
    
    [Description ("The version of the protocol. It MUST be the "
     "CIM_ObjectManagerCommunicationMechanism.Version property value.")]
    string ProtocolVersion;
    
-   [Description ("ProfilesSupported defines the CIM Operation profiles supported by the "
-    "CIM Object Manager. This attribute MUST be the "
+   [Description ("ProfilesSupported defines the CIM Operation profiles "
+    "supported by the CIM Object Manager. This attribute MUST be the "
     "CIM_ObjectManagerCommunicationMechansim.FunctionalProfilesSupported "
     "property value.")]
-   string FunctionaProfilesSupported;
+   string FunctionalProfilesSupported;
    
-   [Description ("Other profile description if the \"other\" value is set in the ProfilesSupported "
-    "attribute. This attribute is optional because it is returned only if the \"other\" "
-    "value is set in the ProfilesSupported attribute. If provided it MUST "
-    "be equal to the CIM_ObjectManagerCommunicationMechanism.FunctionalProfileDescriptions "
+   [Description ("Other profile description if the \"other\" value is set in "
+    "the ProfilesSupported attribute. This attribute is optional because it "
+    "is returned only if the \"other\" value is set in the ProfilesSupported "
+    "attribute. If provided it MUST be equal to the "
+    "CIM_ObjectManagerCommunicationMechanism.FunctionalProfileDescriptions "
     "property value.")]
    string FunctionalProfileDescriptions;
    
-   [Description ("Defines whether the CIM Object Manager supports batch operations. "
-    "This attribute MUST be the CIM_ObjectManagerCommunicationMechanism.MultipleOperationsSupported.")]
+   [Description ("Defines whether the CIM Object Manager supports batch "
+    "operations. This attribute MUST be the "
+    "CIM_ObjectManagerCommunicationMechanism.MultipleOperationsSupported.")]
    boolean MultipleOperationsSupported;
    
-   [Description ("Defines the authentication mechanism supported by the CIM Object Manager. "
-    "This attributed MUST be the "
-    "CIM_ObjectManagerCommunicationMechanism.AuthenticationMechanismsSupported property value.")]
+   [Description ("Defines the authentication mechanism supported by the CIM "
+    "Object Manager. This attributed MUST be the "
+    "CIM_ObjectManagerCommunicationMechanism.AuthenticationMechanismsSupported "
+    "property value.")]
    string AuthenticationMechanismsSupported;
    
-   [Description ("Defines other Authentication mechanisms supported by the CIM Object Manager "
-    "in the case where the \"Other\" value is set in any of the "
-    "AuthenticationMechanismSupported attribute values. If provided, this attribute MUST be the "
-    "CIM_ObjectManagerCommunicationMechanism.AuthenticationMechansimDescriptions "
-    "property value.")]
+   [Description ("Defines other Authentication mechanisms supported by the "
+    "CIM Object Manager in the case where the \"Other\" value is set in any "
+    "of the AuthenticationMechanismSupported attribute values. If provided, "
+    "this attribute MUST be the CIM_ObjectManagerCommunicationMechanism. "
+    "AuthenticationMechansimDescriptions property value.")]
    string OtherAuthenticationDescription;
    
    [Description ("Namespace(s) supported on the CIM Object Manager. "
@@ -138,8 +144,8 @@ class PG_WBEMSLPTemplate {
     "the namespace names MUST not be translated into other languages." )]
    string Namespace;
    
-   [Description ("This attributes is optional but if used, the values MUST be the "
-    "CIM_Namespace.Classinfo property value. "
+   [Description ("This attributes is optional but if used, the values MUST be "
+    "the CIM_Namespace.Classinfo property value. "
     "The values represent the classinfo (CIM Schema version, etc.) for "
     "the namespaces defined in the corresponding namespace listed in the "
     "Namespace attribute. Each entry in this attribute MUST correspond "
@@ -155,33 +161,33 @@ class PG_WBEMSLPTemplate {
    string RegisteredProfilesSupported;
    
    [ Description ("String representing the complete registered template. "
-       "This string is primarily a diagnostic to see what the produced template "
-       "looks like.")]
+       "This string is primarily a diagnostic to see what the produced "
+       "template looks like.")]
    string RegisteredTemplate;
    
    [Description ("Time that this entry was registered with the SA") ]
    datetime registeredTime;
    
-   [Description ("Method Initiate the registration process based on the CIMServer "
-   "characteristics."), 
+   [Description ("Method Initiate the registration process based on the "
+   "CIMServer characteristics."), 
        ValueMap { "0", "1", "2", "3", "4", "5", "6" "..", "32768..65535" }, 
-       Values { "Success", "Not Supported", "Already Registered", "Unspecified Error",
-          "Timeout", "Failed", "Invalid Parameter", "Reserved",
-          "Vendor Specific" } ]
+       Values { "Success", "Not Supported", "Already Registered",
+       "Unspecified Error", "Timeout", "Failed", "Invalid Parameter",
+       "Reserved", "Vendor Specific" } ]
    Uint32 register();
    
    [ Description ("Method to remove any existing SLP registrations."), 
        ValueMap { "0", "1", "2", "3", "4", "5", "6", "..", "32768..65535" }, 
-       Values { "Success", "Not Supported", "Nothing Registered", "Unspecified Error",
-          "Timeout", "Failed", "Invalid Parameter", "Reserved",
-          "Vendor Specific" } ]
+       Values { "Success", "Not Supported", "Nothing Registered",
+       "Unspecified Error", "Timeout", "Failed", "Invalid Parameter",
+       "Reserved", "Vendor Specific" } ]
    Uint32 unregister();
    
    [ Description ("Method to force an update to any existing registrations."), 
        ValueMap { "0", "1", "2", "3", "4", "5", "6", "..", "32768..65535" }, 
-       Values { "Success", "Not Supported", "Nothing Registered", "Unspecified Error",
-          "Timeout", "Failed", "Invalid Parameter", "Reserved",
-          "Vendor Specific" } ]
+       Values { "Success", "Not Supported", "Nothing Registered",
+       "Unspecified Error", "Timeout", "Failed", "Invalid Parameter",
+       "Reserved", "Vendor Specific" } ]
    Uint32 update();
    
 };

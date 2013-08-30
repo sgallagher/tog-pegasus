@@ -32,12 +32,18 @@
 #ifndef Pegasus_RsURI_h
 #define Pegasus_RsURI_h
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/RSServer/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
+
+/*
+ *RsURI class represnts the the request URI in the CIM-RS request
+ *
+*/
 
 class PEGASUS_RSSERVER_LINKAGE RsURI
 {

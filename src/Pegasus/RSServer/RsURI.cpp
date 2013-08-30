@@ -31,11 +31,9 @@
 
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/XmlGenerator.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Constants.h>
 #include <cstdio>
 #include <iostream>
@@ -72,7 +70,6 @@ RsURI::RsURI(const String& uri) :
 
     Uint32 prevSegment = 7; // assume the URI starts with "/cimrs/"
     Uint32 nextSegment;
-    Uint32 lastSegment;
 
     while ((nextSegment = uri.find(prevSegment, '/')) != PEG_NOT_FOUND)
     {
@@ -82,6 +79,7 @@ RsURI::RsURI(const String& uri) :
     }
 
     // Add last segment to path
+    Uint32 lastSegment;
     if ((lastSegment = uri.size() - prevSegment) > 0)
     {
         String last = uri.subString(prevSegment, lastSegment);

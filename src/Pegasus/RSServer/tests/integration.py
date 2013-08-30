@@ -34,7 +34,7 @@ import urllib2
 
 class TestPegRSInstanceCollectionRetrieval(unittest.TestCase):
     def setUp(self):
-        self.uri = "http://localhost:5988/cimrs/test/TestProvider/cmpiPerf_TestClassB/"
+        self.uri = "http://localhost:5988/cimrs/test%2FTestProvider/cmpiPerf_TestClassB/"
         self.response = urllib2.urlopen(self.uri)
 
     def testShouldHaveCimCollectionHeaders(self):
@@ -64,7 +64,7 @@ class TestPegRSInstanceCollectionRetrieval(unittest.TestCase):
 
 class TestPegRSInstanceRetrieval(unittest.TestCase):
     def setUp(self):
-        self.uri = "http://localhost:5988/cimrs/test/TestProvider/cmpiPerf_TestClassB/1"
+        self.uri = "http://localhost:5988/cimrs/test%2FTestProvider/cmpiPerf_TestClassB/1"
         self.response = urllib2.urlopen(self.uri)
 
     def testShouldHaveCimInstanceHeader(self):
@@ -93,7 +93,7 @@ class TestPegRSInstanceRetrieval(unittest.TestCase):
 
 class TestPegRSClassRetrieval(unittest.TestCase):
     def setUp(self):
-        self.uri = "http://localhost:5988/cimrs/test/TestProvider/cmpiPerf_TestClassB?IncludeQualifiers=true"
+        self.uri = "http://localhost:5988/cimrs/test%2FTestProvider/cmpiPerf_TestClassB?IncludeQualifiers=true"
         self.response = urllib2.urlopen(self.uri)
 
     def testEntityShouldHaveCimClassHeader(self):

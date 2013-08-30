@@ -516,6 +516,8 @@ void CIMServer::_init()
     _rsProcessor = new RsProcessor(
         cimOperationProcessorQueue,
         _repository);
+    _httpAuthenticatorDelegator->setRsQueueId(
+        _rsProcessor->getRsRequestDecoderQueueId());
 
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB
     _webServer = new WebServer();

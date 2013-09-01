@@ -452,7 +452,7 @@ String FileSystem::getAbsoluteFileName(
 String FileSystem::getAbsoluteFileName(
     const String& filename)
 {
-    char resolvedName[512];
+    char resolvedName[PATH_MAX+1];
     /*
      * ReturnValue:
      *    1) Upon successful completion, realpath() shall return a pointer to

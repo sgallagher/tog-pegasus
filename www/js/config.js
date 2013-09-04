@@ -96,8 +96,9 @@ function reloadTable(table)
         {
             table.deleteRow(i);
         }
-   //default case, change it to redraw another table
-   genericRequest('root%2FPG_Internal/enum?class=PG_ConfigSetting', writeContent, true);         
+    enableApplyButton();
+    //default case, change it to redraw another table
+    genericRequestGet('root%2FPG_Internal/enum?class=PG_ConfigSetting', writeContent, true);         
     
 }
 
@@ -110,7 +111,7 @@ function reloadTable(table)
  */
 function replContDiv(urlAdd)
 {
-     try {
+    try {
         var req = new XMLHttpRequest();
     } catch(e) {
         alert('No support for XMLHTTPRequests');
@@ -129,7 +130,7 @@ function replContDiv(urlAdd)
                 document.getElementById("content").innerHTML = req.responseText;
 				if (urlAdd == "config.html")
 				{
-					genericRequest(geyConfigURL, writeContent, false);
+					genericRequestGet(geyConfigURL, writeContent, false);
 				}
             //dump(req.responseText);
             } else {
@@ -147,7 +148,7 @@ function replContDiv(urlAdd)
 
 
 
-function genericRequest(urlAdd, funcToCall, synchronous){
+function genericRequestGet(urlAdd, funcToCall, synchronous){
     /*
 	 * based on api example from: 
 	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
@@ -206,7 +207,8 @@ function genericRequestPost(requestURL, requestContent,funcToCall, synchronous){
     
     var async = synchronous;
     req.open('POST', url, async);
-  
+    req.setRequestHeader('Content-Type', 'application/json');
+    
     // add progress listener (differs from version to version...)
     req.onreadystatechange = function () {
         // state complete is of interest, only
@@ -224,8 +226,7 @@ function genericRequestPost(requestURL, requestContent,funcToCall, synchronous){
     };
 
     // send request
-   // req.send();
-    req.send(requestContent);
+    req.send(JSON.stringify(requestContent));
         
 }
 
@@ -241,20 +242,18 @@ function showEditOverlay(element) {
     propertyName = propertyName.replace("edit_","");  
     var title = document.getElementById("settings_title");
     title.innerHTML="Setting being changed: <b>" + propertyName + "</b>";	
-// get the type of the property
-        var typeOfProperty = document.getElementById("row_"+propertyName).cells[4].innerHTML;
-        var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
-       
-        
-        //if cell contains "red" (= graphics red_circle) grey out the checkbox
-        if (dynamic.indexOf("red") != -1)
-            {
-                document.change_setting.checkbox_current.disabled = true;
-            }
-        else
-            {
-                document.change_setting.checkbox_current.disabled = false;
-            }
+    // get the type of the property
+    var typeOfProperty = document.getElementById("row_"+propertyName).cells[4].innerHTML;
+    var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
+    //if cell contains "red" (= graphics red_circle) grey out the checkbox
+    if (dynamic.indexOf("red") != -1)
+    {
+        document.change_setting.checkbox_current.disabled = true;
+    }
+    else
+    {
+        document.change_setting.checkbox_current.disabled = false;
+    }
 	// show dropdown menu instead of text field if value is boolean
 	if (typeOfProperty == "false" || typeOfProperty == "true") 
 	{
@@ -262,8 +261,8 @@ function showEditOverlay(element) {
 	} 
 	else 
 	{
-                //get the current value from the table
-                var currentValue = document.getElementById("row_"+propertyName).cells[1].textContent;
+        //get the current value from the table
+        var currentValue = document.getElementById("row_"+propertyName).cells[1].textContent;
 		document.getElementById("input_area").innerHTML = "<input id='input_field' name='input_value' type='text' style='width:90%' onkeypress='enableApplyButton()' value='"+currentValue+"'>";   
     }
     el = document.getElementById("overlay");
@@ -272,9 +271,9 @@ function showEditOverlay(element) {
     //select content
     var inputField = document.getElementById("input_field");
     if (inputField != null)
-        {
-            inputField.select();            
-        } 
+    {
+        inputField.select();            
+    } 
 }
 
 /**
@@ -289,18 +288,17 @@ function showResetOverlay(element) {
     propertyName = propertyName.replace("reset_","");  
     var title = document.getElementById("reset_title");
     title.innerHTML="Setting being resetted: <b>" + propertyName + "</b>";	
-
-        var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
-        
-        //if cell contains "red" (= graphics red_circle) grey out the checkbox
-        if (dynamic.indexOf("red") != -1)
-            {
-                document.reset_setting.checkbox_current_reset.disabled = true;
-            }
-        else
-            {
-                document.reset_setting.checkbox_current_reset.disabled = false;
-            }
+    var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
+    
+    //if cell contains "red" (= graphics red_circle) grey out the checkbox
+    if (dynamic.indexOf("red") != -1)
+    {
+        document.reset_setting.checkbox_current_reset.disabled = true;
+    }
+    else
+    {
+        document.reset_setting.checkbox_current_reset.disabled = false;
+    }
     el = document.getElementById("overlay_reset");
     el.style.visibility = "visible";
 }
@@ -312,7 +310,8 @@ function hide_overlay(element, overlayID) {
     el = document.getElementById(overlayID);
     el.style.visibility = "hidden";
     currentElement = null;
-//    remove possible text content of any status bars
+    
+    //remove possible text content of any status bars
     document.getElementById("settings_errorbar").textContent = "";
     document.getElementById("reset_errorbar").textContent = "";
  
@@ -324,13 +323,13 @@ function hide_overlay(element, overlayID) {
 function processFormData(valueCurrent, valuePlanned, valueToSet){
     //disable apply button
     document.change_setting.apply.disabled = true;
-//    check if both checkboxes are unchecked and tell the user to check at least one
+    //check if both checkboxes are unchecked and tell the user to check at least one
     if (!valueCurrent.checked && !valuePlanned.checked)
-        {
-             var temp = document.getElementById("settings_errorbar");
-             temp.innerHTML = "<FONT COLOR='#DE320B'> check at least one checkbox </FONT>";
-             return;
-        }
+    {
+         var temp = document.getElementById("settings_errorbar");
+         temp.innerHTML = "<FONT COLOR='#DE320B'> check at least one checkbox </FONT>";
+         return;
+     }
     
     var propertyValue = valueToSet.value;
     
@@ -341,22 +340,21 @@ function processFormData(valueCurrent, valuePlanned, valueToSet){
     
     //Create the request content for Post 
     var requestContent=
-    	{
+        {
     		"kind": " methodrequest",
     		"self": requestURL,
     		"method": "UpdatePropertyValue",
-    		"parameters": {
-    	     "PropertyValue":propertyValue,
-    	     "resetvalue":false,
-    	     "setcurrentvalue":valueCurrent.checked,
-    	     "setPlannedValue":valuePlanned.checked
-    		}
+    		"parameters":
+    		    {
+    	         "PropertyValue":propertyValue,
+    	         "resetvalue":false,
+    	         "setcurrentvalue":valueCurrent.checked,
+    	         "setPlannedValue":valuePlanned.checked
+    		    }
     	}
-    
+    	
     genericRequestPost(requestURL,requestContent, processRequestResult, true);
-//    hide_overlay(null);
-
-    
+    //hide_overlay(null);  
     
 }
 
@@ -365,9 +363,24 @@ function processFormData(valueCurrent, valuePlanned, valueToSet){
  */
 function processReset(valueCurrent, valuePlanned){
     var ref = refArray[currentElement.id.replace("reset_","")];
-    var methodURL = ref + "/method/updatepropertyvalue/?resetvalue=true?setcurrentvalue="+valueCurrent.checked+"?setPlannedValue="+valuePlanned.checked;
-    genericRequestPost(updateConfigURL+methodURL, processRequestResult, true);
-//    hide_overlay(null);
+    var methodURL = ref + "/UpdatePropertyValue";
+    var requestURL=updateConfigURL+methodURL;
+    
+    var requestContent=
+	{
+		"kind": " methodrequest",
+		"self": requestURL,
+		"method": "UpdatePropertyValue",
+		"parameters": 
+		{
+	        "resetvalue":true,
+	        "setcurrentvalue":valueCurrent.checked,
+	        "setPlannedValue":valuePlanned.checked
+		}
+	}
+    
+    genericRequestPost(requestURL,requestContent, processRequestResult, true);
+    //hide_overlay(null);
 
     
     
@@ -375,6 +388,7 @@ function processReset(valueCurrent, valuePlanned){
 
 function processRequestResult(response){
     //show info on correct error bar depending on currentElement
+	
     var barToShow;
     if (currentElement.id.indexOf("edit") != -1)
         {
@@ -390,9 +404,9 @@ function processRequestResult(response){
         }
     var result = JSON.parse(response);
     //for positive responses the property 'ReturnValue' is contained, but double check that here.
-    if ('ReturnValue' in result)
+    if ('returnvalue' in result)
         {
-            if (result.ReturnValue == true)
+            if (result.returnvalue == true)
                 {
                     var temp = document.getElementById(barToShow);
                     temp.title = "";

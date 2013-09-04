@@ -452,7 +452,16 @@ String FileSystem::getAbsoluteFileName(
 String FileSystem::getAbsoluteFileName(
     const String& filename)
 {
+#ifdef PEGASUS_OS_LINUX
     char resolvedName[PATH_MAX+1];
+#endif
+#ifdef PEGASUS_OS_ZOS
+    char resolvedName[_POSIX_PATH_MAX+1];
+#endif
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    char resolvedName[MAX_PATH+1];
+#endif
+
     /*
      * ReturnValue:
      *    1) Upon successful completion, realpath() shall return a pointer to

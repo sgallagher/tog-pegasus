@@ -1,32 +1,7 @@
-/*!LICENSE
- *
- * Licensed to The Open Group (TOG) under one or more contributor license
- * agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
- * this work for additional information regarding copyright ownership.
- * Each contributor licenses this file to you under the OpenPegasus Open
- * Source License; you may not use this file except in compliance with the
- * License.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- */
 
+//base url which is identical for all requests
+baseURL = "http://"+window.location.hostname+":"+window.location.port+"/cimrs/";
+host = "http://"+window.location.hostname+":"+window.location.port+"/";
 getConfigURL = "root%2FPG_Internal/enum?class=PG_ConfigSetting";
 updateConfigURL="root%2FPG_Internal/PG_ConfigSetting/";
 currentElement = null;
@@ -93,12 +68,12 @@ function writeContent(data) {
     var instanceList=processList.instances;
     var i=0;
     for (i=0; i < instanceList.length; i++) {
-        insertConfigRow(decodeURIComponent(instanceList[i].properties.PropertyName),
-        		        decodeURIComponent(instanceList[i].properties.CurrentValue),
-        		        decodeURIComponent(instanceList[i].properties.DefaultValue),
-        		        decodeURIComponent(instanceList[i].properties.PlannedValue),
+        insertConfigRow(instanceList[i].properties.PropertyName,
+        		        instanceList[i].properties.CurrentValue,
+        		        instanceList[i].properties.DefaultValue,
+        		        instanceList[i].properties.PlannedValue,
         		        instanceList[i].properties.DynamicProperty,
-        		        decodeURIComponent(instanceList[i].properties.PropertyName));
+        		        instanceList[i].properties.PropertyName);
     }
     //change background color for every second row to improve readability
     var t_rows = document.getElementById('configTable').rows;
@@ -121,9 +96,8 @@ function reloadTable(table)
         {
             table.deleteRow(i);
         }
-    enableApplyButton();
-    //default case, change it to redraw another table
-    genericRequestGet('root%2FPG_Internal/enum?class=PG_ConfigSetting', writeContent, true);         
+   //default case, change it to redraw another table
+   genericRequest('root%2FPG_Internal/enum?class=PG_ConfigSetting', writeContent, true);         
     
 }
 
@@ -136,7 +110,7 @@ function reloadTable(table)
  */
 function replContDiv(urlAdd)
 {
-    try {
+     try {
         var req = new XMLHttpRequest();
     } catch(e) {
         alert('No support for XMLHTTPRequests');
@@ -155,7 +129,7 @@ function replContDiv(urlAdd)
                 document.getElementById("content").innerHTML = req.responseText;
 				if (urlAdd == "config.html")
 				{
-					genericRequestGet(geyConfigURL, writeContent, false);
+					genericRequest(geyConfigURL, writeContent, false);
 				}
             //dump(req.responseText);
             } else {
@@ -173,6 +147,87 @@ function replContDiv(urlAdd)
 
 
 
+function genericRequest(urlAdd, funcToCall, synchronous){
+    /*
+	 * based on api example from: 
+	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
+	 */
+        
+        
+    if (funcToCall == "writeContent")
+        funcToCall = writeContent;
+    
+    try {
+        var req = new XMLHttpRequest();
+    } catch(e) {
+        alert('No support for XMLHTTPRequests');
+        return;
+    }
+    var url = baseURL + urlAdd;
+    
+    var async = synchronous;
+    req.open('GET', url, async);
+
+    // add progress listener (differs from version to version...)
+    req.onreadystatechange = function () {
+        // state complete is of interest, only
+        if (req.readyState == 4) {
+            if (req.status == 200) {
+                //call of the passed function (as parameter)
+                funcToCall(req.responseText);
+            //dump(req.responseText);
+            } else {
+                //if return code is another than 200 process error
+                processRequestError(req.responseText);
+                
+            }
+        }
+    };
+
+    // send request
+    req.send();
+        
+}
+
+
+function genericRequestPost(requestURL, requestContent,funcToCall, synchronous){
+    /*
+	 * based on api example from: 
+	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
+	 */
+ 
+    try {
+        var req = new XMLHttpRequest();
+    } catch(e) {
+        alert('No support for XMLHTTPRequests');
+        return;
+    }
+    var url = baseURL + requestURL;
+    
+    var async = synchronous;
+    req.open('POST', url, async);
+  
+    // add progress listener (differs from version to version...)
+    req.onreadystatechange = function () {
+        // state complete is of interest, only
+        if (req.readyState == 4) {
+            if (req.status == 200) {
+                //call of the passed function (as parameter)
+                funcToCall(req.responseText);
+            //dump(req.responseText);
+            } else {
+                //if return code is another than 200 process error
+                processRequestError(req.responseText);
+                
+            }
+        }
+    };
+
+    // send request
+   // req.send();
+    req.send(requestContent);
+        
+}
 
 /**
 *Function to show an overlay for editing config settings
@@ -186,18 +241,20 @@ function showEditOverlay(element) {
     propertyName = propertyName.replace("edit_","");  
     var title = document.getElementById("settings_title");
     title.innerHTML="Setting being changed: <b>" + propertyName + "</b>";	
-    // get the type of the property
-    var typeOfProperty = document.getElementById("row_"+propertyName).cells[4].innerHTML;
-    var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
-    //if cell contains "red" (= graphics red_circle) grey out the checkbox
-    if (dynamic.indexOf("red") != -1)
-    {
-        document.change_setting.checkbox_current.disabled = true;
-    }
-    else
-    {
-        document.change_setting.checkbox_current.disabled = false;
-    }
+// get the type of the property
+        var typeOfProperty = document.getElementById("row_"+propertyName).cells[4].innerHTML;
+        var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
+       
+        
+        //if cell contains "red" (= graphics red_circle) grey out the checkbox
+        if (dynamic.indexOf("red") != -1)
+            {
+                document.change_setting.checkbox_current.disabled = true;
+            }
+        else
+            {
+                document.change_setting.checkbox_current.disabled = false;
+            }
 	// show dropdown menu instead of text field if value is boolean
 	if (typeOfProperty == "false" || typeOfProperty == "true") 
 	{
@@ -205,8 +262,8 @@ function showEditOverlay(element) {
 	} 
 	else 
 	{
-        //get the current value from the table
-        var currentValue = document.getElementById("row_"+propertyName).cells[1].textContent;
+                //get the current value from the table
+                var currentValue = document.getElementById("row_"+propertyName).cells[1].textContent;
 		document.getElementById("input_area").innerHTML = "<input id='input_field' name='input_value' type='text' style='width:90%' onkeypress='enableApplyButton()' value='"+currentValue+"'>";   
     }
     el = document.getElementById("overlay");
@@ -215,9 +272,9 @@ function showEditOverlay(element) {
     //select content
     var inputField = document.getElementById("input_field");
     if (inputField != null)
-    {
-        inputField.select();            
-    } 
+        {
+            inputField.select();            
+        } 
 }
 
 /**
@@ -232,17 +289,18 @@ function showResetOverlay(element) {
     propertyName = propertyName.replace("reset_","");  
     var title = document.getElementById("reset_title");
     title.innerHTML="Setting being resetted: <b>" + propertyName + "</b>";	
-    var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
-    
-    //if cell contains "red" (= graphics red_circle) grey out the checkbox
-    if (dynamic.indexOf("red") != -1)
-    {
-        document.reset_setting.checkbox_current_reset.disabled = true;
-    }
-    else
-    {
-        document.reset_setting.checkbox_current_reset.disabled = false;
-    }
+
+        var dynamic = document.getElementById("row_"+propertyName).cells[2].innerHTML;
+        
+        //if cell contains "red" (= graphics red_circle) grey out the checkbox
+        if (dynamic.indexOf("red") != -1)
+            {
+                document.reset_setting.checkbox_current_reset.disabled = true;
+            }
+        else
+            {
+                document.reset_setting.checkbox_current_reset.disabled = false;
+            }
     el = document.getElementById("overlay_reset");
     el.style.visibility = "visible";
 }
@@ -254,8 +312,7 @@ function hide_overlay(element, overlayID) {
     el = document.getElementById(overlayID);
     el.style.visibility = "hidden";
     currentElement = null;
-    
-    //remove possible text content of any status bars
+//    remove possible text content of any status bars
     document.getElementById("settings_errorbar").textContent = "";
     document.getElementById("reset_errorbar").textContent = "";
  
@@ -267,13 +324,13 @@ function hide_overlay(element, overlayID) {
 function processFormData(valueCurrent, valuePlanned, valueToSet){
     //disable apply button
     document.change_setting.apply.disabled = true;
-    //check if both checkboxes are unchecked and tell the user to check at least one
+//    check if both checkboxes are unchecked and tell the user to check at least one
     if (!valueCurrent.checked && !valuePlanned.checked)
-    {
-         var temp = document.getElementById("settings_errorbar");
-         temp.innerHTML = "<FONT COLOR='#DE320B'> check at least one checkbox </FONT>";
-         return;
-     }
+        {
+             var temp = document.getElementById("settings_errorbar");
+             temp.innerHTML = "<FONT COLOR='#DE320B'> check at least one checkbox </FONT>";
+             return;
+        }
     
     var propertyValue = valueToSet.value;
     
@@ -284,21 +341,22 @@ function processFormData(valueCurrent, valuePlanned, valueToSet){
     
     //Create the request content for Post 
     var requestContent=
-        {
+    	{
     		"kind": " methodrequest",
     		"self": requestURL,
     		"method": "UpdatePropertyValue",
-    		"parameters":
-    		    {
-    	         "PropertyValue":propertyValue,
-    	         "resetvalue":false,
-    	         "setcurrentvalue":valueCurrent.checked,
-    	         "setPlannedValue":valuePlanned.checked
-    		    }
+    		"parameters": {
+    	     "PropertyValue":propertyValue,
+    	     "resetvalue":false,
+    	     "setcurrentvalue":valueCurrent.checked,
+    	     "setPlannedValue":valuePlanned.checked
+    		}
     	}
-    	
+    
     genericRequestPost(requestURL,requestContent, processRequestResult, true);
-    //hide_overlay(null);  
+//    hide_overlay(null);
+
+    
     
 }
 
@@ -307,24 +365,9 @@ function processFormData(valueCurrent, valuePlanned, valueToSet){
  */
 function processReset(valueCurrent, valuePlanned){
     var ref = refArray[currentElement.id.replace("reset_","")];
-    var methodURL = ref + "/UpdatePropertyValue";
-    var requestURL=updateConfigURL+methodURL;
-    
-    var requestContent=
-	{
-		"kind": " methodrequest",
-		"self": requestURL,
-		"method": "UpdatePropertyValue",
-		"parameters": 
-		{
-	        "resetvalue":true,
-	        "setcurrentvalue":valueCurrent.checked,
-	        "setPlannedValue":valuePlanned.checked
-		}
-	}
-    
-    genericRequestPost(requestURL,requestContent, processRequestResult, true);
-    //hide_overlay(null);
+    var methodURL = ref + "/method/updatepropertyvalue/?resetvalue=true?setcurrentvalue="+valueCurrent.checked+"?setPlannedValue="+valuePlanned.checked;
+    genericRequestPost(updateConfigURL+methodURL, processRequestResult, true);
+//    hide_overlay(null);
 
     
     
@@ -332,7 +375,6 @@ function processReset(valueCurrent, valuePlanned){
 
 function processRequestResult(response){
     //show info on correct error bar depending on currentElement
-	
     var barToShow;
     if (currentElement.id.indexOf("edit") != -1)
         {
@@ -348,9 +390,9 @@ function processRequestResult(response){
         }
     var result = JSON.parse(response);
     //for positive responses the property 'ReturnValue' is contained, but double check that here.
-    if ('returnvalue' in result)
+    if ('ReturnValue' in result)
         {
-            if (result.returnvalue == true)
+            if (result.ReturnValue == true)
                 {
                     var temp = document.getElementById(barToShow);
                     temp.title = "";

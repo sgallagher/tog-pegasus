@@ -5,20 +5,20 @@
   <title>OpenPegasus Web Config Interface</title>
 
   
-  <script type="text/javascript" src="js/common.js"></script>  
+  
   <script type="text/javascript" src="js/config.js"></script>
   <script type="text/javascript" src="js/json2.js"></script>
   
   <link rel="stylesheet" href="css/style.css" type="text/css">
 
-</head><body id="body" onload="genericRequestGet('root%2FPG_Internal/enum?class=PG_ConfigSetting', 'writeContent', false);">
+</head><body id="body" onload="genericRequest('root%2FPG_Internal/enum?class=PG_ConfigSetting', 'writeContent', false);">
 <div id="header">
 <table id="header_table" border="1" cellpadding="2" cellspacing="2">
   <tbody>
     <tr>
       <td style="border-style: none; vertical-align: top; width: 309px;"><img style="width: 100px; height: 100px; margin-bottom: auto;" alt="PegasusIcon" src="images/pegicon2.gif" align="left" hspace="5" vspace="0"></td>
       <td style="border-style: none; vertical-align: top; width: 701px;">OpenPegasus
-webadmin interface</td>
+webconfig interface</td>
     </tr>
   </tbody>
 </table>
@@ -40,7 +40,7 @@ webadmin interface</td>
 <table id="configTable" cellpadding="5" border="2">
   <tbody>
     <tr>
-      <th style="font-weight: bold;" title="the name of the property">Parameter Name</th>
+      <th style="font-weight: bold;" title="the name of the property">Name</th>
       <th style="font-weight: bold;" title="the currently set value">Current</th>
       <th style="font-weight: bold;" title="setting can be changed without restart [true/false]">Dynamic</th>
       <th style="font-weight: bold;" title="value to be set after restart">Planned</th>
@@ -84,7 +84,7 @@ webadmin interface</td>
 </div>
 </div>
 
-<div id="footer">The OpenGroup OpenPegasus <br>
+<div id="footer">The OpenGroup OpenPegasus 2013<br>
 </div>
 
 </body></html>

@@ -99,10 +99,11 @@ void RsProcessor::handleEnqueue(Message* message)
     PEG_METHOD_EXIT();
 }
 
-Uint32 findEndBlock(String& contentStr,
-                    Uint32 startPos,
-                    Char16 delemStart,
-                    Char16 delemEnd)
+Uint32 findEndBlock(
+        String& contentStr,
+        Uint32 startPos,
+        Char16 delemStart,
+        Char16 delemEnd)
 {
     Uint32 retPos = PEG_NOT_FOUND;
     Uint32 indent = 1;
@@ -145,8 +146,8 @@ String findPropValue(String contentStr, String property)
     if(startPos == PEG_NOT_FOUND)
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                "RsProcessor::findPropValue() Failed "
-                "to find class name : separator"));
+            "RsProcessor::findPropValue() Failed "
+            "to find class name : separator"));
         return String();
     }
 
@@ -168,9 +169,10 @@ String findPropValue(String contentStr, String property)
     return contentStr.subString(startPos+1, endPos-startPos-1);
 }
 
-CIMInstance getEmbeddedInstance(String contentStr,
-                                CIMRepository* repository,
-                                RsURI& reqUri)
+CIMInstance getEmbeddedInstance(
+    String contentStr,
+    CIMRepository* repository,
+    RsURI& reqUri)
 {
     // parse instance
     //{
@@ -192,11 +194,11 @@ CIMInstance getEmbeddedInstance(String contentStr,
     CIMName className(classNameStr);
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsProcessor::getEmbeddedInstance() class name: %s",
-             (const char *)(className.getString().getCString())));
+        "RsProcessor::getEmbeddedInstance() "
+        "class name: %s", (const char *)(className.getString().getCString())));
 
-    CIMClass embeddedInstClass = repository->getClass(reqUri.getNamespaceName(),
-                                                      className, false);
+    CIMClass embeddedInstClass = repository->getClass(
+        reqUri.getNamespaceName(), className, false);
 
     CIMInstance result(className); // the resulting CIMInstance
 
@@ -208,8 +210,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
     if(startPos == PEG_NOT_FOUND)
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                    "RsProcessor::getEmbeddedInstance() "
-                    "Failed to find properties"));
+            "RsProcessor::getEmbeddedInstance() "
+            "Failed to find properties"));
         return CIMInstance();
     }
 
@@ -219,8 +221,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
     if(endPos == PEG_NOT_FOUND)
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                    "RsProcessor::getEmbeddedInstance() "
-                    "Failed to find end of properties"));
+            "RsProcessor::getEmbeddedIns""tance() "
+            "Failed to find end of properties"));
         return CIMInstance();
     }
     Uint32 nextPos = contentStr.find(currentPos, ':');
@@ -231,8 +233,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
         if(propStart == PEG_NOT_FOUND)
         {
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance() "
-                        "Failed to find start of property name"));
+                "RsProcessor::getEmbeddedInstance() "
+                "Failed to find start of property name"));
             return CIMInstance();
         }
         propStart++;
@@ -240,8 +242,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
         if(propEnd == PEG_NOT_FOUND)
         {
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance() "
-                        "Failed to find end of property name"));
+                "RsProcessor::getEmbeddedInstance() "
+                "Failed to find end of property name"));
             return CIMInstance();
         }
         CIMName pName(contentStr.subString(propStart, propEnd - propStart));
@@ -251,8 +253,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
         if(currentPos == PEG_NOT_FOUND)
         {
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance() "
-                        "Failed to find property value : separator"));
+                "RsProcessor::getEmbeddedInstance() Failed to find property"
+                " value : separator"));
             return CIMInstance();
         }
         Uint32 startBlkPos = contentStr.find(currentPos,'{');
@@ -279,19 +281,19 @@ CIMInstance getEmbeddedInstance(String contentStr,
         {
             // there is an embedded block of {  } in the value
             // find end of this open brace
-            Uint32 endBlkPos = findEndBlock(contentStr,
-                                            startBlkPos+1, '{', '}');
+            Uint32 endBlkPos =
+                findEndBlock(contentStr, startBlkPos+1, '{', '}');
             if(endBlkPos == PEG_NOT_FOUND)
             {
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance() "
-                        "Failed to read embedded property value."
-                        "End of blk not found."));
+                    "RsProcessor::getEmbeddedInstance() Failed to read "
+                    "embedded property value. End of blk not found."));
                 return CIMInstance();
             }
             isEmbeddedValue = true;
-            embeddedValue = contentStr.subString(startBlkPos,
-                                                 endBlkPos-startBlkPos+1);
+
+            embeddedValue = 
+                contentStr.subString(startBlkPos, endBlkPos-startBlkPos+1);
             currentPos = endBlkPos+1;
             nextPos = contentStr.find(currentPos,',');
         }
@@ -299,20 +301,20 @@ CIMInstance getEmbeddedInstance(String contentStr,
         {
             // there is an array block of [ ] in the value
             // find end of this open ]
-            Uint32 endArrayPos = findEndBlock(contentStr,
-                                              startArrayPos+1, '[', ']');
+            Uint32 endArrayPos =
+                findEndBlock(contentStr, startArrayPos+1, '[', ']');
             if(endArrayPos == PEG_NOT_FOUND)
             {
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance()"
-                        " Failed to read array property value."
-                        " End of blk not found."));
+                    "RsProcessor::getEmbeddedInstance() Failed to read array "
+                    "property value. End of blk not found."));
                 return CIMInstance();
             }
             isArrayValue = true;
             // Copy the contents of the array and drop [ ]
-            arrayValue = contentStr.subString(startArrayPos + 1,
-                                              endArrayPos-startArrayPos - 1);
+            arrayValue = contentStr.subString(
+                startArrayPos + 1, endArrayPos-startArrayPos - 1);
+
             currentPos = endArrayPos+1;
             nextPos = contentStr.find(currentPos,',');
         }
@@ -323,22 +325,21 @@ CIMInstance getEmbeddedInstance(String contentStr,
 
         if(isEmbeddedValue)
         {
-            CIMInstance embInst = getEmbeddedInstance(embeddedValue,
-                                                      repository, reqUri);
+            CIMInstance embInst =
+                getEmbeddedInstance(embeddedValue, repository, reqUri);
             CIMValue pVal(embInst);
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                    "RsProcessor::getEmbeddedInstance() Name:"
-                    " [%s], Value: [%s]",
-                    (const char*)pName.getString().getCString(),
-                    (const char*)pVal.toString().getCString()));
+                "RsProcessor::getEmbeddedInstance() Name: [%s], Value: [%s]",
+                (const char*)pName.getString().getCString(),
+                (const char*)pVal.toString().getCString()));
             CIMProperty prop(pName, pVal);
             result.addProperty(prop);
         }
         else if(isArrayValue)
         {
-            CIMConstProperty p =
-                    embeddedInstClass.getProperty(
-                                      embeddedInstClass.findProperty(pName));
+            CIMConstProperty p = embeddedInstClass.getProperty(
+                embeddedInstClass.findProperty(pName));
+
             CIMType pType = p.getType();
 
             // there is an array with [] in the value
@@ -346,9 +347,13 @@ CIMInstance getEmbeddedInstance(String contentStr,
 
             // see if there are embedded instances in the array:
             Boolean isEmbeddedArray = false;
-            if(pType == CIMTYPE_STRING &&
-               p.findQualifier(CIMName("EmbeddedInstance")) != PEG_NOT_FOUND)
+            if((pType == CIMTYPE_STRING &&
+                p.findQualifier(CIMName("EmbeddedInstance"))
+                   != PEG_NOT_FOUND) ||
+                pType == CIMTYPE_INSTANCE)
+            {
                 isEmbeddedArray = true;
+            }
 
             // split all array elements into an Array<const char *>
             Array<const char *> elements;
@@ -365,20 +370,19 @@ CIMInstance getEmbeddedInstance(String contentStr,
                     if(valStartPos == PEG_NOT_FOUND)
                         break; // we have reached the end
 
-                    valEndPos = findEndBlock(arrayValue, valStartPos+1,
-                                             '{', '}');
+                    valEndPos =
+                        findEndBlock(arrayValue, valStartPos+1, '{', '}');
                     currPos = valEndPos + 1;
                     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                           "RsProcessor::getEmbeddedInstance() EmbInst: [%s]",
-                            (const char*)arrayValue.subString(valStartPos,
-                              valEndPos-valStartPos+1).getCString()));
+                        "RsProcessor::getEmbeddedInstance() EmbInst: [%s]",
+                        (const char*)arrayValue.subString(valStartPos, 
+                            valEndPos-valStartPos+1).getCString()));
+
                     // get the embedded instance
-                    CIMInstance embInst =
-                            getEmbeddedInstance(arrayValue.subString(
-                                                    valStartPos,
-                                                    valEndPos-valStartPos+1),
-                                                repository,
-                                                reqUri);
+                    CIMInstance embInst = getEmbeddedInstance(
+                        arrayValue.subString(valStartPos,
+                            valEndPos-valStartPos+1),
+                        repository, reqUri);
                     embInsts.append(embInst);
                 }
                 else
@@ -393,42 +397,67 @@ CIMInstance getEmbeddedInstance(String contentStr,
                     // set currPos to after the ,
                     currPos = arrayValue.find(valEndPos, ',');
                     if(currPos != PEG_NOT_FOUND)
+                    {
                         currPos++;
+                    }
 
                     // Process this value further:
                     // 1. Remove leading and trailing whitespaces
                     // 2. If it is a string, remove double quotes
 
                     while(arrayValue[valStartPos] == ' ' ||
-                            arrayValue[valStartPos] == '\t' ||
-                            arrayValue[valStartPos] == '\r' ||
-                            arrayValue[valStartPos] == '\n' ||
-                            arrayValue[valStartPos] == '"')
+                          arrayValue[valStartPos] == '\t' ||
+                          arrayValue[valStartPos] == '\r' ||
+                          arrayValue[valStartPos] == '\n' ||
+                          arrayValue[valStartPos] == '"')
+                    {
                         valStartPos++;
+                    }
+                    
 
                     while(arrayValue[valEndPos] == ' ' ||
-                            arrayValue[valEndPos] == '\t' ||
-                            arrayValue[valEndPos] == '\r' ||
-                            arrayValue[valEndPos] == '\n' ||
-                            arrayValue[valEndPos] == '"')
+                          arrayValue[valEndPos] == '\t' ||
+                          arrayValue[valEndPos] == '\r' ||
+                          arrayValue[valEndPos] == '\n' ||
+                          arrayValue[valEndPos] == '"')
+                    {
                         valEndPos--;
+                    }
 
-                    String strVal = arrayValue.subString(valStartPos,
-                                                   valEndPos-valStartPos+1);
+                    String strVal;
+                    if(valEndPos < valStartPos)
+                    {
+                        // it is an empty property
+                        strVal = String("");
+                    }
+                    else
+                    {
+                        strVal = arrayValue.subString(
+                            valStartPos, valEndPos-valStartPos+1);
+                    }
                     elementStrings.append(strVal);
-                    const char* charPtr = strdup(strVal.getCString());
+                    const char* charPtr = NULL;
+                    if(pType == CIMTYPE_STRING)
+                    {
+                        // URI decode the string
+                        charPtr = strdup( XmlReader::decodeURICharacters(
+                                       strVal).getCString());
+                    }
+                    else
+                    {
+                        charPtr = strdup(strVal.getCString());
+                    }
                     elements.append(charPtr);
                     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                            "RsProcessor::getEmbeddedInstance()"
-                            " array element [%d]: [%s]",
-                            elementStrings.size(),
-                            (const char*)strVal.getCString()));
+                        "RsProcessor::getEmbeddedInstance() array element"
+                        " [%d]: [%s]", elementStrings.size(),
+                        (const char*)strVal.getCString()));
                 }
             }
             if(!isEmbeddedArray)
             {
-                CIMValue pVal = XmlReader::stringArrayToValue(0,
-                                           elements, pType);
+                CIMValue pVal =
+                    XmlReader::stringArrayToValue(0, elements, pType);
 
                 // free elements
                 for (Uint32 k=0; k<elements.size(); k++)
@@ -436,9 +465,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
                     free((void*)elements[k]);
                 }
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance() "
-                        "array element: [%s]",
-                        (const char*)pVal.toString().getCString()));
+                    "RsProcessor::getEmbeddedInstance() array element: [%s]",
+                    (const char*)pVal.toString().getCString()));
 
                 CIMProperty prop(pName, pVal);
                 result.addProperty(prop);
@@ -447,9 +475,8 @@ CIMInstance getEmbeddedInstance(String contentStr,
             {
                 CIMValue pVal(embInsts);
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getEmbeddedInstance() "
-                        "array element: [%s]",
-                        (const char*)pVal.toString().getCString()));
+                    "RsProcessor::getEmbeddedInstance() array element: [%s]",
+                    (const char*)pVal.toString().getCString()));
                 CIMProperty prop(pName, pVal);
                 result.addProperty(prop);
             }
@@ -463,35 +490,47 @@ CIMInstance getEmbeddedInstance(String contentStr,
             // 2. If it is a string, remove double quotes
             // 3. ??
             const char * content = (const char *)(contentStr.getCString());
-            while(content[currentPos] == ' ' ||
-                    content[currentPos] == '\t' ||
-                    content[currentPos] == '\r' ||
-                    content[currentPos] == '\n' ||
-                    content[currentPos] == '"')
+            while(content[currentPos] == ' ' || content[currentPos] == '\t' ||
+                  content[currentPos] == '\r' || content[currentPos] == '\n' ||
+                  content[currentPos] == '"')
+            {
                 currentPos++;
+            }
 
             Uint32 newPos = nextPos - 1;
-            while(content[newPos] == ' ' ||
-                    content[newPos] == '\t' ||
-                    content[newPos] == '\r' || 
-                    content[newPos] == '\n' ||
+            while(content[newPos] == ' ' || content[newPos] == '\t' ||
+                    content[newPos] == '\r' || content[newPos] == '\n' ||
                     content[newPos] == '"')
                 newPos--;
 
-            String pValue(contentStr.subString(currentPos,
-                                               newPos-currentPos+1));
+            String pValue;
+            if(newPos < currentPos)
+            {
+                // it is an empty property
+                pValue = String("");
+            }
+            else
+            {
+                pValue = contentStr.subString(currentPos, newPos-currentPos+1);
+            }
             cout << "Value = "<<pValue<<endl;
 
-            CIMType pType = embeddedInstClass.getProperty(embeddedInstClass.
-                                               findProperty(pName)).getType();
-            CIMValue pVal = XmlReader::stringToValue(0,
-                                                     pValue.getCString(),
-                                                     pType);
+            CIMType pType = embeddedInstClass.getProperty(
+                embeddedInstClass.findProperty(pName)).getType();
+            if(pType == CIMTYPE_STRING)
+            {
+                // URI decode the string
+                String tmpStr = XmlReader::decodeURICharacters(pValue);
+                pValue = tmpStr;
+            }
+            CIMValue pVal = XmlReader::stringToValue(
+                0, pValue.getCString(), pType);
+
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                    "RsProcessor::getEmbeddedInstance() "
-                    "Name: [%s], Value: [%s]",
-                    (const char*)pName.getString().getCString(),
-                    (const char*)pVal.toString().getCString()));
+                "RsProcessor::getEmbeddedInstance() Name: [%s], Value: [%s]",
+                (const char*)pName.getString().getCString(),
+                (const char*)pVal.toString().getCString()));
+
             CIMProperty prop(pName, pVal);
             result.addProperty(prop);
         }
@@ -523,7 +562,7 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         return String();
     }
     // ToDo: Better way to parse the content??
-    String contentStr(content, contentSize); 
+    String contentStr(content, contentSize);
 
     // Sample content:
     // {
@@ -558,8 +597,7 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
     if(endPos == PEG_NOT_FOUND)
     {
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                    "RsProcessor::getParamValues() "
-                    "Failed to find end of properties"));
+            "RsProcessor::getParamValues() Failed to find end of properties"));
         return String();
     }
     Uint32 nextPos = contentStr.find(currentPos, ':');
@@ -570,8 +608,8 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         if(propStart == PEG_NOT_FOUND)
         {
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() "
-                        "Failed to find start of property name"));
+                "RsProcessor::getParamValues() Failed to find start "
+                "of property name"));
             return String();
         }
         propStart++;
@@ -579,8 +617,8 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         if(propEnd == PEG_NOT_FOUND)
         {
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() "
-                        "Failed to find end of property name"));
+                "RsProcessor::getParamValues() Failed to find end "
+                "of property name"));
             return String();
         }
         CIMName pName(contentStr.subString(propStart, propEnd - propStart));
@@ -590,8 +628,8 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         if(currentPos == PEG_NOT_FOUND)
         {
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() "
-                        "Failed to find property value : separator"));
+                "RsProcessor::getParamValues() Failed to find "
+                "property value : separator"));
             return String();
         }
         Uint32 startBlkPos = contentStr.find(currentPos,'{');
@@ -618,18 +656,19 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         {
             // there is an embedded block of {  } in the value
             // find end of this open brace
-            Uint32 endBlkPos = findEndBlock(contentStr, startBlkPos+1,
-                                            '{', '}');
+            Uint32 endBlkPos =
+                findEndBlock(contentStr, startBlkPos+1, '{', '}');
             if(endBlkPos == PEG_NOT_FOUND)
             {
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() Failed to read "
-                        "embedded property value. End of blk not found."));
+                    "RsProcessor::getParamValues() Failed to read embedded"
+                    " property value. End of blk not found."));
                 return String();
             }
             isEmbeddedValue = true;
-            embeddedValue = contentStr.subString(startBlkPos,
-                                                 endBlkPos-startBlkPos+1);
+            embeddedValue =
+                contentStr.subString(startBlkPos, endBlkPos-startBlkPos+1);
+
             currentPos = endBlkPos+1;
             nextPos = contentStr.find(currentPos,',');
         }
@@ -637,19 +676,21 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         {
             // there is an array block of [ ] in the value
             // find end of this open ]
-            Uint32 endArrayPos = findEndBlock(contentStr, startArrayPos+1,
-                                              '[', ']');
+            Uint32 endArrayPos = findEndBlock(
+                contentStr, startArrayPos+1, '[', ']');
+
             if(endArrayPos == PEG_NOT_FOUND)
             {
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() Failed to read "
-                        "array property value. End of blk not found."));
+                    "RsProcessor::getParamValues() Failed to read array "
+                    "property value. End of blk not found."));
                 return String();
             }
             isArrayValue = true;
             // Copy the contents of the array and drop [ ]
-            arrayValue = contentStr.subString(startArrayPos + 1,
-                                            endArrayPos-startArrayPos - 1);
+            arrayValue = contentStr.subString(
+                startArrayPos + 1, endArrayPos-startArrayPos - 1);
+
             currentPos = endArrayPos+1;
             nextPos = contentStr.find(currentPos,',');
         }
@@ -687,23 +728,31 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
             // 2. If it is a string, remove double quotes
             // 3. ??
 
-            while(content[currentPos] == ' ' ||
-                    content[currentPos] == '\t' ||
-                    content[currentPos] == '\r' ||
-                    content[currentPos] == '\n' ||
-                    content[currentPos] == '"')
-                currentPos++;
+            while(content[currentPos] == ' ' || content[currentPos] == '\t' ||
+                  content[currentPos] == '\r' || content[currentPos] == '\n' ||
+                  content[currentPos] == '"')
+            {
+                --currentPos;
+            }
 
             Uint32 newPos = nextPos - 1;
-            while(content[newPos] == ' ' ||
-                    content[newPos] == '\t' ||
-                    content[newPos] == '\r' ||
-                    content[newPos] == '\n' ||
-                    content[newPos] == '"')
-                newPos--;
+            while(content[newPos] == ' ' || content[newPos] == '\t' ||
+                     content[newPos] == '\r' || content[newPos] == '\n' ||
+                         content[newPos] == '"')
+            {
+                --newPos;
+            }
 
-            String pValue(contentStr.subString(currentPos,
-                                               newPos-currentPos+1));
+            String pValue;
+            if(newPos < currentPos)
+            {
+                // it is an empty property
+                pValue = String("");
+            }
+            else
+            {
+                pValue = contentStr.subString(currentPos, newPos-currentPos+1);
+            }
             cout << "Value = "<<pValue<<endl;
 
             pValues.append(pValue);
@@ -752,20 +801,19 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
                     if(valStartPos == PEG_NOT_FOUND)
                         break; // we have reached the end
 
-                    valEndPos = findEndBlock(pValues[x], valStartPos+1,
-                                             '{', '}');
+                    valEndPos =
+                        findEndBlock(pValues[x], valStartPos+1, '{', '}');
+
                     currentPos = valEndPos + 1;
                     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                            "RsProcessor::getParamValues() EmbInst: [%s]",
-                            (const char*)pValues[x].subString(valStartPos,
-                                      valEndPos-valStartPos+1).getCString()));
+                        "RsProcessor::getParamValues() EmbInst: [%s]",
+                        (const char*)pValues[x].subString(
+                           valStartPos, valEndPos-valStartPos+1).getCString()));
                     // get the embedded instance
-                    CIMInstance embInst =
-                            getEmbeddedInstance(pValues[x].subString(
-                                                 valStartPos, 
-                                                 valEndPos-valStartPos+1),
-                                                repository,
-                                                reqUri);
+                    CIMInstance embInst = getEmbeddedInstance(
+                        pValues[x].subString(valStartPos,
+                            valEndPos-valStartPos+1), repository, reqUri);
+
                     embInsts.append(embInst);
                 }
                 else
@@ -786,35 +834,50 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
                     // 1. Remove leading and trailing whitespaces
                     // 2. If it is a string, remove double quotes
 
-                    while(pValues[x][valStartPos] == ' ' ||
-                            pValues[x][valStartPos] == '\t' ||
-                            pValues[x][valStartPos] == '\r' ||
-                            pValues[x][valStartPos] == '\n' ||
-                            pValues[x][valStartPos] == '"')
+                    while( pValues[x][valStartPos] == ' ' ||
+                           pValues[x][valStartPos] == '\t' ||
+                           pValues[x][valStartPos] == '\r' ||
+                           pValues[x][valStartPos] == '\n' ||
+                           pValues[x][valStartPos] == '"')
+                    {
                         valStartPos++;
+                    }
 
-                    while(pValues[x][valEndPos] == ' ' || 
-                            pValues[x][valEndPos] == '\t' ||
-                            pValues[x][valEndPos] == '\r' ||
-                            pValues[x][valEndPos] == '\n' ||
+                    while( pValues[x][valEndPos] == ' ' ||
+                           pValues[x][valEndPos] == '\t' ||
+                           pValues[x][valEndPos] == '\r' ||
+                           pValues[x][valEndPos] == '\n' ||
                             pValues[x][valEndPos] == '"')
+                    {
                         valEndPos--;
+                    }
 
-                    String strVal = pValues[x].subString(valStartPos,
-                                      valEndPos-valStartPos+1);
+                    String strVal = pValues[x].subString(
+                        valStartPos, valEndPos-valStartPos+1);
+
                     elementStrings.append(strVal);
-                    const char* charPtr = strdup(strVal.getCString());
+                    const char* charPtr = NULL;
+                    if(pType == CIMTYPE_STRING)
+                    {
+                        // URI decode the string
+                        charPtr = strdup(
+                           XmlReader::decodeURICharacters(strVal).getCString());
+                    }
+                    else
+                    {
+                        charPtr = strdup(strVal.getCString());
+                    }
                     elements.append(charPtr);
                     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                            "RsProcessor::getParamValues() array element"
-                                "[%d]: [%s]", elementStrings.size(),
-                            (const char*)strVal.getCString()));
+                        "RsProcessor::getParamValues() array element "
+                        "[%d]: [%s]", elementStrings.size(),
+                        (const char*)strVal.getCString()));
                 }
             }
             if(!isEmbeddedArray)
             {
-                CIMValue pVal = XmlReader::stringArrayToValue(0,
-                                                elements, pType);
+                CIMValue pVal =
+                    XmlReader::stringArrayToValue( 0, elements, pType);
 
                 // free elements
                 for (Uint32 k=0; k<elements.size(); k++)
@@ -822,10 +885,8 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
                     free((void*)elements[k]);
                 }
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() array element "
-                          "[%d]: [%s]",
-                        x,
-                        (const char*)pVal.toString().getCString()));
+                    "RsProcessor::getParamValues() array element [%d]: [%s]", x,
+                    (const char*)pVal.toString().getCString()));
 
                 inParms.append(CIMParamValue(pNames[x].getString(), pVal));
             }
@@ -833,10 +894,9 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
             {
                 CIMValue pVal(embInsts);
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::getParamValues() array element "
-                          "[%d]: [%s]",
-                        x,
-                        (const char*)pVal.toString().getCString()));
+                    "RsProcessor::getParamValues() array element [%d]: [%s]", x,
+                    (const char*)pVal.toString().getCString()));
+
                 inParms.append(CIMParamValue(pNames[x].getString(),pVal));
             }
         }
@@ -846,15 +906,27 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         {
 
             // this is an embedded instance. process it here
-            CIMInstance embInst = getEmbeddedInstance(pValues[x],
-                                                      repository, reqUri);
+            CIMInstance embInst = getEmbeddedInstance(
+                pValues[x], repository, reqUri);
+
             CIMValue pVal(embInst);
             inParms.append(CIMParamValue(pNames[x].getString(),pVal));
         }
         else
         {
-            CIMValue pVal = XmlReader::stringToValue(0,
-                                       pValues[x].getCString(),pType);
+            if(pType == CIMTYPE_STRING)
+            {
+                // URI decode the string
+                String tmpStr = XmlReader::decodeURICharacters(pValues[x]);
+                pValues[x] = tmpStr;
+            }
+            CIMValue pVal = XmlReader::stringToValue(
+                    0, pValues[x].getCString(), pType);
+
+            PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
+                    "RsProcessor::getParamValues() Adding param: [%s]:[%s]",
+                    (const char*)pNames[x].getString().getCString(),
+                    (const char*)pVal.toString().getCString()));
             inParms.append(CIMParamValue(pNames[x].getString(),pVal));
         }
     }
@@ -1039,13 +1111,13 @@ void RsProcessor::handleRequest(RsHTTPRequest* request)
                 break;
             case RS_INSTANCE_COLLECTION_GET:
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsProcessor::handleRequest() GET Instance collection"
-                        " - namespace [%s], className [%s]; Parameters: "
-                        "DeepInheritance: %d, Properties: %d",
-                        (const char*)namespaceName.getString().getCString(),
-                        (const char*)className.getString().getCString(),
-                        uri.hasDeepInheritance(),
-                        uri.getPropertyList().size()));
+                    "RsProcessor::handleRequest() GET Instance collection - "
+                    "namespace [%s], className [%s]; Parameters: "
+                    "DeepInheritance: %d, Properties: %d",
+                    (const char*)namespaceName.getString().getCString(),
+                    (const char*)className.getString().getCString(),
+                    uri.hasDeepInheritance(),
+                    uri.getPropertyList().size()));
 
                 cimRequest.reset(new CIMEnumerateInstancesRequestMessage(
                     CIMRS_MESSAGE_ID,
@@ -1386,9 +1458,10 @@ Uint32 RsProcessor::getRsRequestDecoderQueueId()
 {
     PEG_METHOD_ENTER(TRC_RSSERVER,
         "RsProcessor::getRsRequestDecoderQueueId()");
-    return _rsRequestDecoder.getQueueId();
     PEG_METHOD_EXIT();
+    return _rsRequestDecoder.getQueueId();
 }
 
 
 PEGASUS_NAMESPACE_END
+

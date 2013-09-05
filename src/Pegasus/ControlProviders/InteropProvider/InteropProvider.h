@@ -213,6 +213,15 @@ private:
         const CIMName& className,
         Boolean includeQualifiers,
         CIMClass& returnedClass);
+    /*
+     * CIM communication mechanism instance building starts with this function
+     * and completed by buildCIMXMLCommunicationMechanismInstance
+     */
+    void _buildCommInstSkeleton(
+        const Boolean isHttpsEnabled,
+        const Array<String> &ips,
+        const CIMClass &commMechClass,
+        Array<CIMInstance> &instances );
 
     CIMInstance buildCIMXMLCommunicationMechanismInstance(
         const String& namespaceType,

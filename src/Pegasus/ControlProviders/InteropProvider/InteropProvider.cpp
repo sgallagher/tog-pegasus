@@ -1002,7 +1002,7 @@ CIMInstance InteropProvider::buildInstanceSkeleton(
       CIMClass& returnedClass)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::_buildInstanceSkeleton()");
+        "InteropProvider::buildInstanceSkeleton()");
     // get class with lo = false, qualifier = true classorig = true
     returnedClass = repository->getClass(nameSpace,
         className, false, true, true);

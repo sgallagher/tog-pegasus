@@ -458,9 +458,7 @@ String FileSystem::getAbsoluteFileName(
 #ifdef PEGASUS_OS_ZOS
     char resolvedName[_POSIX_PATH_MAX+1];
 #endif
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    char resolvedName[MAX_PATH+1];
-#endif
+//for other platform,please add here.
 
     /*
      * ReturnValue:

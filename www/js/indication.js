@@ -48,11 +48,11 @@ function writeContent(data) {
 
     var i=0;
     for (i=0; i < indicationList.length; i++) {
-        insertindicationRow(indicationList[i].SubscriptionInfo,
-                          indicationList[i].Handler,
-                          indicationList[i].Filter,
-                          indicationList[i].SubscriptionState,
-                          indicationList[i].$ref);
+        insertindicationRow(decodeURIComponent(indicationList[i].SubscriptionInfo),
+        		decodeURIComponent(indicationList[i].Handler),
+        		decodeURIComponent(indicationList[i].Filter),
+        		decodeURIComponent(indicationList[i].SubscriptionState),
+        		decodeURIComponent(indicationList[i].$ref));
     }
     //change background color for every second row to improve readability
     var t_rows = document.getElementById('indicationTable').rows;
@@ -77,48 +77,8 @@ function reloadTable(table)
             table.deleteRow(i);
         }
    //default case, change it to redraw another table
-   genericRequest('root%2FPG_InterOp/enum?class=cim_indicationsubscription', writeContent, true);         
+   genericRequest('root%2FPG_InterOp/enum?class=CIM_IndicationSubscription', writeContent, true);         
     
 }
 
-function genericRequest(urlAdd, funcToCall, synchronous){
-    /*
-	 * based on api example from: 
-	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
-	 */
-        
-        
-    if (funcToCall == "writeContent")
-        funcToCall = writeContent;
-    
-    try {
-        var req = new XMLHttpRequest();
-    } catch(e) {
-        alert('No support for XMLHTTPRequests');
-        return;
-    }
-    var url = baseURL + urlAdd;
-    
-    var async = synchronous;
-    req.open('GET', url, async);
 
-    // add progress listener (differs from version to version...)
-    req.onreadystatechange = function () {
-        // state complete is of interest, only
-        if (req.readyState == 4) {
-            if (req.status == 200) {
-                //call of the passed function (as parameter)
-                funcToCall(req.responseText);
-            //dump(req.responseText);
-            } else {
-                //if return code is another than 200 process error
-                processRequestError(req.responseText);
-                
-            }
-        }
-    };
-
-    // send request
-    req.send();
-        
-}

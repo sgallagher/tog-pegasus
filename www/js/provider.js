@@ -52,19 +52,19 @@ function writeContent(data) {
     var providerList=responseArray.instances;
     var i=0;
     for (i=0; i < providerList.length; i++) {
-        insertProviderRow(providerList[i].properties.Name,
-                          providerList[i].properties.Location,
-                          providerList[i].properties.Vendor,
-                          providerList[i].properties.Version,
-                          providerList[i].properties.InterfaceType,
-                          providerList[i].properties.OperationalStatus);
+        insertProviderRow(decodeURIComponent(providerList[i].properties.Name),
+        		          decodeURIComponent(providerList[i].properties.Location),
+        		          decodeURIComponent(providerList[i].properties.Vendor),
+        		          decodeURIComponent(providerList[i].properties.Version),
+        		          decodeURIComponent(providerList[i].properties.InterfaceType),
+        		          decodeURIComponent(providerList[i].properties.OperationalStatus));
     }
     //change background color for every second row to improve readability
     var t_rows = document.getElementById('providerTable').rows;
     var x;
     for (x=0; x < t_rows.length; x+=2) {
         document.getElementById('providerTable').rows[x].style.background = "#EEEEEE";
-        document.getElementById('providerTable').rows[x+1].style.background = "#E0E0E0";		
+        //document.getElementById('providerTable').rows[x+1].style.background = "#E0E0E0";		
     }
 	
 	
@@ -86,44 +86,4 @@ function reloadTable(table)
     
 }
 
-function genericRequest(urlAdd, funcToCall, synchronous){
-    /*
-	 * based on api example from: 
-	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
-	 */
-        
-        
-    if (funcToCall == "writeContent")
-        funcToCall = writeContent;
-    
-    try {
-        var req = new XMLHttpRequest();
-    } catch(e) {
-        alert('No support for XMLHTTPRequests');
-        return;
-    }
-    var url = baseURL + urlAdd;
-    
-    var async = synchronous;
-    req.open('GET', url, async);
 
-    // add progress listener (differs from version to version...)
-    req.onreadystatechange = function () {
-        // state complete is of interest, only
-        if (req.readyState == 4) {
-            if (req.status == 200) {
-                //call of the passed function (as parameter)
-                funcToCall(req.responseText);
-            //dump(req.responseText);
-            } else {
-                //if return code is another than 200 process error
-                processRequestError(req.responseText);
-                
-            }
-        }
-    };
-
-    // send request
-    req.send();
-        
-}

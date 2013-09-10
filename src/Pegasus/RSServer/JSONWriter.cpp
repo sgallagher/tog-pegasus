@@ -283,8 +283,7 @@ void JSONWriter::append(CIMInvokeMethodResponseMessage* methodResult,
     _buffer.append(':');
     _buffer.append('"');
     _buffer.append(requestUri.getString().getCString(),
-        requestUri.getString().size());
-
+                    requestUri.getString().size());
     _buffer.append('"');
     _buffer.append(',');
 
@@ -327,8 +326,8 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
             "JSONWriter::append(CIMAssociatorsResponseMessage*"
             "enumResult, Uint32 firstInstance, Uint32 lastInstance)");
 
-    Uint32 numInstances =
-        referencesResult->getResponseData().getObjects().size();
+    Uint32 numInstances = referencesResult->
+                            getResponseData().getObjects().size();
 
     // TODO why is append called at all when numInstances 0?
     if (numInstances == 0)
@@ -378,8 +377,8 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
         // assoc nav name here
         _append(requestUri.getNavString());
 
-        _buffer.append(STRLIT_ARGS(
-            ": {\"kind\":\"instancecollection\",\"instances\":"));
+        _buffer.append(STRLIT_ARGS(": {\"kind\":\"instancecollection\","
+                          "\"instances\":"));
 
         _buffer.append('[');
     }
@@ -470,9 +469,8 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
         // assoc nav name here
         _append(requestUri.getNavString());
 
-        _buffer.append(STRLIT_ARGS(
-            ": {\"kind\":\"instancecollection\",\"instances\":"));
-
+        _buffer.append(STRLIT_ARGS(": {\"kind\":\"instancecollection\","
+                           "\"instances\":"));
         _buffer.append('[');
     }
     else if (_buffer.size() > 0 &&
@@ -529,7 +527,7 @@ void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
     // If instances are available through more than one provider
     // make sure that they are contained in one array
     Uint32 bufferSize = _buffer.size();
-    if (_numObjectsEnumerated > 0 &&
+    if (_numObjectsEnumerated == 0 &&
         // ToDo: How do we perform the following check?
         // bufferSize > 2 && _buffer.get(bufferSize-2) == '[' &&
         _buffer.get(bufferSize-2) == ']' &&
@@ -540,11 +538,10 @@ void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
     else if (_numObjectsEnumerated == 0)
     {
         /// this is the start of the array
-        _buffer.append(STRLIT_ARGS(
-            "{\"kind\":\"instancecollection\",\"self\":\""));
-        _buffer.append(
-            requestUri.getString().getCString(), requestUri.getString().size());
-
+        _buffer.append(STRLIT_ARGS("{\"kind\":\"instancecollection\","
+                                  "\"self\":\""));
+        _buffer.append(requestUri.getString().getCString(),
+                                  requestUri.getString().size());
         _buffer.append(STRLIT_ARGS("\",\"class\":"));
         _append(requestUri.getClassName().getString());
         _buffer.append(STRLIT_ARGS(",\"instances\":["));
@@ -704,9 +701,8 @@ void JSONWriter::append(CIMException& e, String& httpMethod, RsURI& reqURI)
 
     _buffer.append(STRLIT_ARGS("{"));
 
-    _buffer.append(STRLIT_ARGS("\"kind\": \"errorresponse\",\"self\":\""));
+    _buffer.append(STRLIT_ARGS("\"kind\": \"errorresponse\",\"self\":"));
     _buffer.append(reqURI.getString().getCString(), reqURI.getString().size());
-    _buffer.append('"');
     _buffer.append(',');
     _buffer.append(STRLIT_ARGS("\"httpmethod\":"));
     _append(httpMethod);
@@ -739,8 +735,8 @@ void JSONWriter::append(CIMException& e, String& httpMethod, RsURI& reqURI)
 
 void JSONWriter::append(Exception& e, String& httpMethod, RsURI& reqURI)
 {
-    CIMException cimException(
-        CIM_ERR_FAILED, cimStatusCodeToString(CIM_ERR_FAILED));
+    CIMException cimException(CIM_ERR_FAILED,
+                              cimStatusCodeToString(CIM_ERR_FAILED));
     append(cimException, httpMethod, reqURI);
 }
 
@@ -804,9 +800,8 @@ void JSONWriter::_append(const CIMConstClass& cimClass)
     _buffer.append('}');
 }
 
-void JSONWriter::_appendMethods(
-    const CIMClass &cimClass, Buffer instanceUri,
-    const CIMConstInstance& cimInstance, Boolean useAbsoluteUri)
+void JSONWriter::_appendMethods(const CIMClass &cimClass, Buffer instanceUri,
+                  const CIMConstInstance& cimInstance, Boolean useAbsoluteUri)
 {
     // now provide paths to all methods
     _buffer.append(STRLIT_ARGS(",\"methods\":{"));
@@ -817,14 +812,10 @@ void JSONWriter::_appendMethods(
         {
             CIMObjectPath objPath;
             // for embedded instances we might not get a good object path
-            if (cimInstance.getPath().getKeyBindings().size() == 0)
-            {
-                objPath = cimInstance.buildPath( cimInstance.getClassName());
-            }
-            else
-            {
-                objPath = cimInstance.getPath();
-            }
+            if (cimInstance.getPath().getKeyBindings().size() == 0) 
+                  objPath = cimInstance.buildPath(
+                    cimInstance.getClassName());
+            else objPath = cimInstance.getPath();
             instanceUri = RsURI::fromObjectPath(objPath, useAbsoluteUri);
         }
 
@@ -836,9 +827,9 @@ void JSONWriter::_appendMethods(
             _buffer.append('"');
             _buffer.append(instanceUri.getData(), instanceUri.size());
             _buffer.append('/');
-            _buffer.append(
-                cimClass.getMethod(i).getName().getString().getCString(),
-                cimClass.getMethod(i).getName().getString().size());
+            _buffer.append(cimClass.getMethod(i).getName().
+                                    getString().getCString(),
+                           cimClass.getMethod(i).getName().getString().size());
             _buffer.append('"');
             // append a , if this is not the last method
             if (i != cimClass.getMethodCount() - 1) _buffer.append(',');
@@ -847,7 +838,7 @@ void JSONWriter::_appendMethods(
     else
     {
         PEG_TRACE(
-            (TRC_RSSERVER, Tracer::LEVEL4,
+                (TRC_RSSERVER, Tracer::LEVEL4,
                  "JSONWriter::append instance could not get to class def."
                  " Leaving method list empty."));
     }
@@ -880,10 +871,10 @@ void JSONWriter::_append(const CIMConstInstance& cimInstance,
                     "JSONWriter::_append() CIMException thrown: %s / %s",
                     (const char*)e.getMessage().getCString(),
                     cimStatusCodeToString( e.getCode() )));
-
             // No repository so log a message and leave the methods empty.
             PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                "JSONWriter::_append could not find class definition."));
+                    "JSONWriter::append instance"
+                    " could not find class definition."));
             throw;
         }
     }
@@ -911,7 +902,7 @@ void JSONWriter::_append(const CIMConstInstance& cimInstance,
 
         PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
                 "JSONWriter::append object path:%s",
-                (const char*)(objPath.toString().getCString())));
+                 (const char*)(objPath.toString().getCString())));
 
         instanceUri = RsURI::fromObjectPath(objPath, useAbsoluteUri);
         _buffer.append(instanceUri.getData(), instanceUri.size());
@@ -1518,9 +1509,8 @@ void JSONWriter::_append(const String& str, Boolean uriEncoded)
         // we need to print an un-encoded version of the string
         _buffer.append('"');
         String uriEncodedStr = XmlGenerator::encodeURICharacters(str);
-        _buffer.append(
-            (const char *)uriEncodedStr.getCString(), uriEncodedStr.size());
-
+        _buffer.append((const char *)uriEncodedStr.getCString(),
+                        uriEncodedStr.size());
         _buffer.append('"');
     }
     else
@@ -1610,4 +1600,3 @@ void JSONWriter::_deletePropertyNames()
 
 
 PEGASUS_NAMESPACE_END
-

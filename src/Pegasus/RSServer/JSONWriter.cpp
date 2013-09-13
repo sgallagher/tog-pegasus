@@ -41,7 +41,6 @@
 #include <cstdio>
 
 #include "JSONWriter.h"
-#include "RsURI.h"
 
 PEGASUS_USING_STD;
 
@@ -300,12 +299,13 @@ void JSONWriter::append(CIMInvokeMethodResponseMessage* methodResult,
     _append(String("parameters"));
     _buffer.append(':');
     _buffer.append('{');
-    for (Uint32 x=0; x<outParms.size();x++)
+    for (Uint32 x = 0; x < outParms.size(); ++x)
     {
         _append(outParms[x].getParameterName());
         _buffer.append(':');
         _append(outParms[x].getValue(), repository, requestUri);
-        if (x+1<outParms.size())
+
+        if( x+1 < outParms.size())
         {
             _buffer.append(',');
         }

@@ -63,15 +63,22 @@ the provider.
 instances array.
 
 6. Invoke method: Includes several methods as follows:
-   -InOutParamTest - Returns input parameters to the caller
-   -setProviderParameters - Single method to allow setting parameters that
-   would be used to modify the provider capabilities for testing.
-   Parameters:
+   -InOutParamTest - Returns all input parameters on the method to the caller
+    With return value of zero.
+   -setProviderParameters - Single method to allow setting provider attributes
+    parameters that modify the provider capabilities for testing.
+    Parameters:
       substituteHostName - String parameter that provides an alternate name
       to be used as host name on all responses that include host name.
+   -debugMode - method that enables or disables debug mode for
+    the provider.  If the boolean parameter newState is set, the provider
+    provider internal debug flag is set to that state. The return code
+    
    -resetProviderParameters - resets all parameters set by the
-   -reset - resets the provider parameters and clears the cache restoring
-    the provider to it original initialized state.
+      set the provider parameters and clears the cache restoring
+      the provider to it original initialized state. This does not change
+      the debug mode.
+   -ReferenceParamTest - Generates a specific set of Out Parameters
 
 The Test_CLITestProviderLinkClassProvides a means to test the reference and
 associator operations.  Note that the instances do not really represent
@@ -114,6 +121,7 @@ Pegasus timeout of providers for unload, they will be discarded.
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMQualifierNames.h>
+#include <Pegasus/Common/Print.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -568,8 +576,10 @@ void CLITestProvider::enumerateInstances(
 {
     if (_debugMode)
     {
-        cout << "Enter EnumerateInstances "
-             << ref.toString() << endl;
+        cout << "Enter EnumerateInstances " << ref.toString()
+             << " includeQualifiers= " << (includeQualifiers? "true":"false")
+             << " includeClassOrigin= " << (includeClassOrigin? "true":"false")
+             << " propertyList= " << propertyList.toString() << endl;
     }
     initializeProvider(ref.getNameSpace());
 
@@ -586,6 +596,7 @@ void CLITestProvider::enumerateInstances(
     _addParam(text, "includeQualifiers", _toString(includeQualifiers));
     _addParam(text, "includeClassOrigin", _toString(includeClassOrigin));
 
+    // Loop through cache for all instances with defined className
     for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         if (reqClassName == _instances[i].getClassName())
@@ -740,6 +751,8 @@ void CLITestProvider::modifyInstance(
             << " includeQualifiers = "
             << (includeQualifiers? "true" : "false")
             << " property List = " << _toString(propertyList) << endl;
+        // This only displays instance in Pegasus debug mode.
+        PrintInstance(cout, instanceObject);
     }
 
     initializeProvider(instanceReference.getNameSpace());
@@ -878,13 +891,17 @@ static Boolean isKey(const CIMConstProperty& p)
     Uint32 index = p.findQualifier(CIMQualifierNames::KEY);
 
     if (index == PEG_NOT_FOUND)
+    {
         return false;
+    }
 
     Boolean flag;
     const CIMValue& value = p.getQualifier(index).getValue();
 
     if (value.getType() != CIMTYPE_BOOLEAN)
+    {
         return false;
+    }
 
     value.get(flag);
     return flag;
@@ -900,6 +917,8 @@ void CLITestProvider::createInstance(
     {
         cout << "Enter createInstance "
              << instanceReference.toString() << endl;
+        // Only displays instance in Pegasus debug build
+        PrintInstance(cout, instanceObject);
     }
     initializeProvider(instanceReference.getNameSpace());
 

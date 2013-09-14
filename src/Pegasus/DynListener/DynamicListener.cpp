@@ -44,6 +44,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/General/SSLContextManager.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
@@ -87,7 +88,8 @@ public:
         Boolean enableConsumerUnload,
         Uint32 consumerIdleTimeout,
         Uint32 shutdownTimeout,
-        const String & sslCipherSuite="DEFAULT");
+        const String & sslCipherSuite="DEFAULT",
+        const Boolean& sslCompatibility = false);
 
     ~DynamicListenerRep();
 
@@ -167,7 +169,8 @@ DynamicListenerRep::DynamicListenerRep(
     Boolean enableConsumerUnload,          
     Uint32 consumerIdleTimeout,            
     Uint32 shutdownTimeout,
-    const String & sslCipherSuite) :
+    const String & sslCipherSuite,
+    const Boolean& sslCompatibility) :
         _port(portNumber),
         _sslContext(0),
         _sslContextObjectLock(0),
@@ -179,6 +182,7 @@ DynamicListenerRep::DynamicListenerRep(
     if (useSSL)
     {
         _sslContextMgr = new SSLContextManager();
+
         _sslContextMgr->createSSLContext(
             String(),
             certPath,
@@ -186,7 +190,8 @@ DynamicListenerRep::DynamicListenerRep(
             String(),
             true,
             String(),
-            sslCipherSuite);
+            sslCipherSuite,
+            sslCompatibility);
         _sslContext = _sslContextMgr->getSSLContext();
         _sslContextObjectLock = _sslContextMgr->getSSLContextObjectLock();
     }
@@ -337,7 +342,9 @@ DynamicListener::DynamicListener(
     Boolean enableConsumerUnload,
     Uint32 consumerIdleTimeout,
     Uint32 shutdownTimeout,
-    const String & sslCipherSuite)     //ONLY IF PEGASUS_HAS_SSL
+    const String & sslCipherSuite,
+    const Boolean& sslCompatibility)
+        //ONLY IF PEGASUS_HAS_SSL
 {
 
     _rep = new DynamicListenerRep(
@@ -350,7 +357,8 @@ DynamicListener::DynamicListener(
         enableConsumerUnload,
         consumerIdleTimeout,
         shutdownTimeout,
-        sslCipherSuite);
+        sslCipherSuite,
+        sslCompatibility);
 }
 
 DynamicListener::DynamicListener(

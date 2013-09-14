@@ -81,9 +81,8 @@ public:
 
     ~EnumerationContextTable();
 
-    /**
-        Create a new EnumerationContext object and return a pointer to
-        the object.
+    /** Create a new EnumerationContext object and return a pointer
+        to the object.
         @param nameSpace - Namespace for this sequence.
         @param Uint32 value of operation timeout.
         @param continueOnError Boolean containing the continueOnError flag for
@@ -93,9 +92,6 @@ public:
          to pull paths when instances required, etc.
         @param contentType - Content type for the CIMResponseData cache
          container
-        @param enumerationContextName  - Output parameter containing the
-         string which is the enumerationContext name that is used with
-         the find command and as the context in the operations
         @return EnumerationContext*
      */
     EnumerationContext* createContext(
@@ -103,76 +99,84 @@ public:
         Uint32Arg&  operationTimeOutParam,
         Boolean continueOnError,
         MessageType pullRequestType,
-        CIMResponseData::ResponseDataContent contentType,
-        String& enumerationContextName);
+        CIMResponseData::ResponseDataContent contentType);
 
     /** Find and remove the enumeration context from the table
     */
     void removeCxt(const String& enumerationContextName,
                    Boolean deleteContext);
 
+    /** Remove the enumerationContext entry from the
+        EnumerationContext table if the state is closed and
+        providers complete.
+        @param enumerationContextName context to remove
+
+        @return Boolean returns true if the context was successfully
+        removed.
+     */
     Boolean removeContext(EnumerationContext* en);
 
-    /**
-       Return the number of enumeration context entries in the
+    /** Return the number of enumeration context entries in the
        enumeration context table
        @return Uint32
-     */
+    */
     Uint32 size();
 
-    /**
-       Remove any contexts that have expired inteoperation timers
+    /** Remove any contexts that have expired inteoperation timers
     */
     void removeExpiredContexts();
 
     EnumerationContext* find(const String& enumerationContextName);
 
-    /**
-       Diagnostic to output info on all entries in table to trace log
+    /** Diagnostic to output info on all entries in table to trace log
     */
     void trace();
 
-    /**
-       Dispatch the Timer thread if it is not already dispatched.
+    /** Dispatch the Timer thread if it is not already dispatched.
 
        @param interval Uint32 interval defines the interval for this context
               in seconds.
     */
     void dispatchTimerThread(Uint32 interval);
 
+    /** Get the default value of the Pull minimum timeout.
+        @return Uint32 the minimum default pull timeout value.
+        TODO define units.
+     */
     Uint32 getMinPullDefaultTimeout() const;
 
-    /**
-       Return true if the Timer Thread is idle (i.e. not running)
-     */
-    Boolean timerThreadIdle();
+    /** Return true if the Timer Thread is idle (i.e. not running)
+    */
+    Boolean timerThreadIdle() const;
 
-    /**
-       Set the Timer Thread Idle (i.e. Not running)
+    /** Set the Timer Thread Idle (i.e. Not running)
     */
     void setTimerThreadIdle();
 
-    /**
-     * Update table timeout timer to next timeout
-     */
+    /** Update table timeout timer to next timeout
+    */
     void updateNextTimeout();
 
     // KS_TODO think some of these are overkill
-    Uint32 timoutInterval();
+    Uint32 timoutInterval() const;
 
-    // Test if the timeout thread next timeout has passed.
+    /** TODO
+        @return Boolean
+     */
     Boolean isTimedOut() const;
 
     // diagnostic tests magic number in context to see if valid
-    // Diagnostic tool
+    // This is a Diagnostic tool and is enabled only when PEGASUS_DEBUG
+    // set
     Boolean valid();
 
-    // KS_TEMP TODO This diagnostic should be removed
+    // KS_TEMP TODO This diagnostic should be removed. It  validates
+    // every entry in the table.
     void tableValidate();
 
 protected:
 
-    // timers for timer thread in seconds
+    // Timers for timer thread in seconds
     // Current minimum timeout time for active pull sequences
     Uint32 _timeoutInterval;
 
@@ -223,7 +227,7 @@ private:
 //
 //  inline EnumerationContextTable functions
 //
-inline Boolean EnumerationContextTable::timerThreadIdle()
+inline Boolean EnumerationContextTable::timerThreadIdle() const
 {
     return _nextTimeout == 0;
 }
@@ -238,9 +242,14 @@ inline void EnumerationContextTable::updateNextTimeout()
     _nextTimeout += _timeoutInterval;
 }
 
-inline Uint32 EnumerationContextTable::timoutInterval()
+inline Uint32 EnumerationContextTable::timoutInterval() const
 {
     return _timeoutInterval;
+}
+
+inline Uint32 EnumerationContextTable::getMinPullDefaultTimeout() const
+{
+    return _maxOperationTimeout;
 }
 
 PEGASUS_NAMESPACE_END

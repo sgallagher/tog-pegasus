@@ -644,6 +644,7 @@ int CIMListenerProcess::cimserver_run(
     String sslKeyFilePath;
     String sslCertificateFilePath;
     String sslCipherSuite;
+    Boolean sslCompatibility;
     String consumerDir;
     String consumerConfigDir;
     Boolean enableConsumerUnload;
@@ -663,7 +664,8 @@ int CIMListenerProcess::cimserver_run(
     if(!configManager->lookupValue("sslCipherSuite",sslCipherSuite))
     {
         throw InvalidPropertyValue("sslCipherSuite",sslCipherSuite);
-    } 
+    }
+    sslCompatibility = configManager->isTrue("sslBackwardCompatibility");
     configManager->lookupValue("consumerDir", consumerDir);
     configManager->lookupValue("consumerConfigDir", consumerConfigDir);
     enableConsumerUnload = configManager->isTrue("enableConsumerUnload");
@@ -816,7 +818,8 @@ MessageLoader::_useProcessLocale = false;
                 enableConsumerUnload,
                 consumerIdleTimeout,
                 shutdownTimeout,
-                sslCipherSuite);
+                sslCipherSuite,
+                sslCompatibility);
         }
         else
 #endif
@@ -850,6 +853,7 @@ MessageLoader::_useProcessLocale = false;
                 (const char*)sslCertificateFilePath.getCString());
         printf("\tsslCipherSuite %s\n",
             (const char*)sslCipherSuite.getCString());
+        printf("\tsslBackwardCompatibility %d\n",sslCompatibility);
         printf("\tconsumerDir %s\n", (const char*)consumerDir.getCString());
         printf("\tconsumerConfigDir %s\n",
                 (const char*)consumerConfigDir.getCString());

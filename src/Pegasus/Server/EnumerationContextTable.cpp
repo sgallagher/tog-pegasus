@@ -140,8 +140,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 }
 #endif
 
-/*
-    Create the Enumeration table and set the maximum/minimum values for
+/*  Create the Enumeration table and set the maximum/minimum values for
     input parameters that will require this.
 */
 EnumerationContextTable::EnumerationContextTable(
@@ -155,10 +154,6 @@ EnumerationContextTable::EnumerationContextTable(
     _cacheHighWaterMark(0),
     _maxOperationTimeout(maxInteroperationTimeoutValue)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContextTable::EnumerationContextTable");
-
-    PEG_METHOD_EXIT();
 }
 
 /* remove all contexts and delete them. Only used on system shutdown.
@@ -168,6 +163,8 @@ EnumerationContextTable::~EnumerationContextTable()
     // remove any existing entries
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
+    //// KS TODO delete this
+    cout << "Start ~EnumerationContextTable(). size " << size() << endl;
     Uint32 ctr = 0;
     for (HT::Iterator i = ht.start(); i; i++)
     {
@@ -176,9 +173,16 @@ EnumerationContextTable::~EnumerationContextTable()
         cout << "Found at ~EnumerationContextTable "
              << enumeration->_enumerationContextName
              << " started " << (long unsigned int)
-            (TimeValue::getCurrentTime().toMicroseconds()
+            (TimeValue::getCurrentTime().toMilliseconds()
                - enumeration->_startTime)/1000
-            << " milliseconds " << endl;
+            << " milliseconds before." << endl;
+
+        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
+            "EnumerationTable Close. Entry Found "
+                " name %s, started %llu milliseconds before,",
+             (const char *)enumeration->getName().getCString(),
+             ((TimeValue::getCurrentTime().toMilliseconds()
+               - enumeration->_startTime)/1000) ));
 
         // KS_TODO _ clean up threads before closing the table
 
@@ -191,6 +195,8 @@ EnumerationContextTable::~EnumerationContextTable()
         cout << "EnumerationContextTable shutdown found "
              << ctr << " contexts " << endl;
     }
+
+    cout << "End ~EnumerationContextTable() " << endl;
     PEG_METHOD_EXIT();
 }
 
@@ -199,8 +205,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     Uint32Arg&  operationTimeoutParam,
     Boolean continueOnError,
     MessageType pullRequestType,
-    CIMResponseData::ResponseDataContent contentType,
-    String& enumerationContextName)
+    CIMResponseData::ResponseDataContent contentType)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::createContext");
 
@@ -212,17 +217,16 @@ EnumerationContext* EnumerationContextTable::createContext(
                                           :
                                           operationTimeoutParam.getValue();
 
-    // Create the new context, Context name is
-    // monolithically increasing counter. The interoperationTimeout is
-    // defined by either the default or input value.
+    // Create new context, Context name is monolithically increasing counter.
+    // The interoperationTimeout is defined by either default or input value.
     EnumerationContext* enumCtxt = new EnumerationContext(nameSpace,
         operationTimeout,
         continueOnError,
         pullRequestType,
         contentType);
 
-    // set the pointer to the enumeration table into the context
-    enumCtxt->_enumerationContextTable = this;
+////  // set the pointer to the enumeration table into the context
+////  enumCtxt->_enumerationContextTable = this;
 
     // Set the maximum size for the response Cache from the default
     // value in the table. This is for future where we could adjust the
@@ -236,19 +240,18 @@ EnumerationContext* EnumerationContextTable::createContext(
     _enumContextCounter++;
     Uint32 size;
     char t[22];
-    const char* x = Uint32ToString(t,_enumContextCounter.get(),size);
+    const char* cxtName = Uint32ToString(t,_enumContextCounter.get(),size);
 
     // Put the name into the context and return value
     // KS_TODO We should not be duplicating the name.
-    enumCtxt->_enumerationContextName = x;
-    enumerationContextName = x;
+    enumCtxt->_enumerationContextName = cxtName;
 
     // insert new context into the table
-    if(!ht.insert(enumerationContextName, enumCtxt))
+    if(!ht.insert(cxtName, enumCtxt))
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "Error Creating Enumeration Context %s. System Failed",
-            (const char*)enumerationContextName.getCString() ));
+            cxtName ));
         enumCtxt = 0;
         PEGASUS_ASSERT(false);
     }
@@ -259,9 +262,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     }
 #endif
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "CreateContext ContextId= %s",
-               (const char*)enumerationContextName.getCString()));
-    enumCtxt->trace();    // KS_TEMP
+        "CreateContext ContextId= %s", cxtName));
     return enumCtxt;
 }
 
@@ -277,6 +278,7 @@ void EnumerationContextTable::removeCxt(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "remove Context ERRORERROR en == 0 enName %s",
             (const char *)enumerationContextName.getCString()));
+
         cout << "EnumTable.remove where en = 0" << endl;
     }
 
@@ -299,7 +301,7 @@ Boolean EnumerationContextTable::removeContext(EnumerationContext* en)
 // Private remove function with no lock protection. The tableLock must
 // be set before this function is called to protect the table. This simply
 // removes the context from the context table.
-//// Why return here, should just remove.
+//// TODO Why return here, should just remove.
 Boolean EnumerationContextTable::_removeContext(
     EnumerationContext* en, Boolean deleteContext)
 {
@@ -312,11 +314,13 @@ Boolean EnumerationContextTable::_removeContext(
     // the enumerationContext.  If providers not complete, only
     // completion of provider deliveries can initiate removal of
     // the enumeration context.
+    //// TODO this is clearly incomplete.  Does not really account
+    ///  for when client closed but not providers complete.
     if (en != 0 && en->_clientClosed && en->_providersComplete && !en->_waiting)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId= %s",
-            (const char *)en->getContextName().getCString() ));
+            (const char *)en->getName().getCString() ));
         // Remove from EnumerationContextTable.
 
         if (en->_cacheHighWaterMark > _cacheHighWaterMark)
@@ -325,7 +329,7 @@ Boolean EnumerationContextTable::_removeContext(
         }
 
         //// KS_TODO pointer or use name
-        ht.remove(en->getContextName());
+        ht.remove(en->getName());
 
         // KS_TODO - Clear the cache?
 
@@ -354,7 +358,7 @@ Boolean EnumerationContextTable::_removeContext(
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
                 "_removeContext ERRORERROR %s  _!providersComplete=%s"
                     "  or waiting=%s",
-                (const char *)en->getContextName().getCString(),
+                (const char *)en->getName().getCString(),
                 (const char *)(en->_providersComplete? "true" : "false"),
                 (const char*) (en->_waiting? "true" : "false" )       ));
         }
@@ -375,11 +379,6 @@ Uint32 EnumerationContextTable::size()
     return(ht.size());
 }
 
-Uint32 EnumerationContextTable::getMinPullDefaultTimeout() const
-{
-    return _maxOperationTimeout;
-}
-
 // KS_TODO - Clean this one up to one return.
 // If context name found, return pointer to that context.  Otherwise
 // return 0
@@ -390,11 +389,11 @@ EnumerationContext* EnumerationContextTable::find(
 
     AutoMutex autoMut(tableLock);
 
-    EnumerationContext* x;
-    if(ht.lookup(enumerationContextName, x))
+    EnumerationContext* en;
+    if(ht.lookup(enumerationContextName, en))
     {
         PEG_METHOD_EXIT();
-        return x;
+        return en;
     }
     // Return not found indicator
     PEG_METHOD_EXIT();

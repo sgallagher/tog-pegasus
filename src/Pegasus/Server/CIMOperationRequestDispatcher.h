@@ -41,6 +41,7 @@
 #include <Pegasus/Common/QueryExpressionRep.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/NumericArg.h>
+#include <Pegasus/Common/ArrayIterator.h>
 #include <Pegasus/Common/Magic.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
@@ -52,6 +53,7 @@
 #include <Pegasus/Server/reg_table.h>
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 //
 // Convience Macro to simplify conversion of String to const char*
 //
@@ -176,40 +178,156 @@ private:
     counts the number of providers in the list not the number of objects
     in the list.  Classes without providers may also exist in the list.
 */
-class PEGASUS_SERVER_LINKAGE ProviderInfoListStruct
+class PEGASUS_SERVER_LINKAGE ProviderInfoList
 {
 public:
-    Array<ProviderInfo> array;
+    ProviderInfoList()
+    : providerCount(0), _index(0)
+    {
+    }
+    ~ProviderInfoList()
+    {
+    }
+    /** Get size of list. Note This may not match count of providers
+    */
+    Uint32 size();
+
+    /** Append a class to the list.  This function does NOT
+        increment the providerCount. This allows classes that do not
+        have providers to be added to the list to be processed by
+        the dispatcher.
+        @param ProviderInfo defining the class to be appended
+     */
+    void appendClass(ProviderInfo& x);
+
+    /** append a new Provider to the list.  Note that this function
+        increments the ProviderCount.  This count may be different
+        than the count of items in the array
+        @param x ProviderInfo to append to the list
+     */
+    void appendProvider(ProviderInfo& x);
+
+    /**  Test to determine if there are more entries in the providerInfoList.
+        The getNext() function should be used in conjunction with this to
+        get the next entry from the list. When the instance of the class
+        is initialized it sets a pointer to the start of the list.  Each
+        hasMore() finds the next providerInfo that matches the isProvider
+        criteria. When the last entry is processed, it sets the pointer back
+        to the start of the list so it can be used again without a formal
+        reset function.
+        @param isProvider Boolean true if next is request for
+        providers or false if it is for classes that do not have a
+        provider.
+        @return true if more, false if finished
+
+        <p><b>Example:</b>
+
+        while (providerInfo.hasMore(x, true)) // loop to return all providers
+        or
+        while (providerInfo.hasMore(x, false)) // loop to returns classes w/o
+            providers
+    */
+    Boolean hasMore(Boolean isProvider);
+
+    /** Get the current providerInfo item in the  ProviderInfoList
+        array. This function must follow the hasMore() function that
+        determines if there are more entries in the array.
+        while (providerInfoList.hasMore(true))
+        {
+            providerInfo pI = providerInfoList.getNext()
+            ....
+        }
+        @exception generates IndexOutOfBound exception if the
+        request is made after haveMore returns false or possibly
+        without executing the hasMore function.
+    */
+    ProviderInfo& getNext();
+
+    /** get the index for the current entry in the providerInfoList.
+        Use this after getNext() to retrieve an index. Used only as
+        a counter for displays today.
+        @return Uint32
+     */
+    Uint32 getIndex();
+
+// The following are purely debug functionality and are normally not
+// compiled.  To compile them for testing of the results of the
+// lookup providers functionality enable the following define.
+#define PROVIDER_INFO_DISPLAY
+#ifdef PROVIDER_INFO_DISPLAY
+    void trace(const CIMNamespaceName& nameSpace, const CIMName& className,
+               Boolean assoc = false, const CIMName& assocClass = CIMName());
+
+    // display the classname and hasprovider info
+    void display();
+
+#endif
+
+    // Count of providers found. This may differ from size if classes were
+    // found that do not have providers.
     Uint32 providerCount;
 
-    ProviderInfoListStruct()
-    : providerCount(0)
-    {
-    }
-    // get size of list
-    Uint32 size()
-    {
-        return array.size();
-    }
-    // append to the list
-    void append(ProviderInfo& x)
-    {
-        array.append(x);
-    }
-    void appendProvider(ProviderInfo& x)
-    {
-        array.append(x);
-        providerCount++;
-    }
-    // get item from list
-    ProviderInfo& operator[](Uint32 index)
-    {
-        return array[index];
-    }
-
+private:
+    Array<ProviderInfo> _array;
+    Uint32 _index;
 };
-typedef  ProviderInfoListStruct ProviderInfoList;
 
+// inline methods for ProviderInfoList
+inline Uint32 ProviderInfoList::size()
+{
+    return _array.size();
+}
+
+inline void ProviderInfoList::appendClass(ProviderInfo& x)
+{
+    _array.append(x);
+}
+
+inline void ProviderInfoList::appendProvider(ProviderInfo& x)
+{
+    _array.append(x);
+    providerCount++;
+}
+
+inline ProviderInfo& ProviderInfoList::getNext()
+{
+    return _array[_index++];
+}
+inline Uint32 ProviderInfoList::getIndex()
+{
+    return _index - 1;
+}
+
+#ifdef PROVIDER_INFO_DISPLAY
+inline void ProviderInfoList::trace(const CIMNamespaceName& nameSpace,
+    const CIMName& className, Boolean assoc, const CIMName& assocClass)
+{
+    String display;
+    for (Uint32 i = 0; i < size() ; i++)
+    {
+        display.append(_array[i].className.getString());
+        display.append(_array[i].hasProvider? "+ ":"- ");
+    }
+    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
+        "providerList namespace %s className %s %s%s"
+            "  count %u provider count %u %s",
+        (const char *)nameSpace.getString().getCString(),
+        (const char *)className.getString().getCString(),
+        (assoc? "assoc:" : ""),
+        (assoc? (const char *)assocClass.getString().getCString() : ""),
+        size(), providerCount,
+        (const char *)display.getCString()));
+}
+inline void ProviderInfoList::display()
+    {
+        for (Uint32 i = 0 ; i < _array.size() ; i++)
+        {
+            ProviderInfo& pi = _array[i];
+            cout << i << " " <<  pi.className.getString() << " "
+                 << (pi.hasProvider? "true" : "false") << endl;
+        }
+    }
+#endif
 /******************************************************************************
 **
 **  OperationAggregate Class
@@ -218,33 +336,41 @@ typedef  ProviderInfoListStruct ProviderInfoList;
 /* Class to manage the aggregation of data required by post processors. This
     class is private to the dispatcher. An instance is created by the operation
     dispatcher to aggregate request and response information and used by the
-    post processor to aggregate responses together.
+    post processor to aggregate responses together. It is not released until
+    the request is complete.
+    Includes all data from the request used by the dispatcher aggregator
+    functions.
 */
 class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
     friend class CIMOperationRequestDispatcher;
 public:
-    /** Operation Aggregate constructor.  Builds an aggregate
+    /** Operation Aggregate constructor.  Builds an aggregate object
         object.
-        @param request
-        @param msgRequestType
-        @param messageId
-        @param dest
-        @param className
-        @param nameSpace
-        @param requiresHostnameCompletion
-        @param hasPropList
-        @param query (Optional)
-        @param queryLanguage (Optional)
+        @param request - CIMOprationRequestMessage containing copy
+                       of the original request
+        @param className Cimname Classname for the request
+        @param nameSpace CIMNamespace Namespace defined for the
+                         request
+        @param totalIssued Uint32 Sets number of responses expected
+        @param requiresHostnameCompletion Boolean flag for
+                                          aggregator to execute host
+                                          name completion
+        @param hasPropList - tells aggregator to move propertylist
+                           back to responses.  Required because
+                           issue getting responses back from OOP
+                           with propertylist entact. (Optional
+                           Default = false)
+        @param query QueryExpressionRep* The query Statement. Used
+        only by CQL & WQL OperationRequestDispatchers (Optional)
+        @param String queryLanguage (Optional)
     */
     OperationAggregate(CIMOperationRequestMessage* request,
-        MessageType msgRequestType,
-        String messageId,
-        Uint32 dest,
         CIMName className,
         CIMNamespaceName nameSpace,
+        Uint32 totalIssued,
         Boolean requiresHostnameCompletion,
-        Boolean hasPropList,
+        Boolean hasPropList = false,
         QueryExpressionRep* query = 0,
         String queryLanguage = String::EMPTY);
 
@@ -255,9 +381,10 @@ public:
 
     Boolean valid() const;
 
-    // Sets the total Operation Requests issued parameter.
+    // Increment the total Operation Requests issued parameter by 1
+    void incTotalIssued();
 
-    void setTotalIssued(Uint32 i);
+    Uint32 getTotalIssued();
 
     // Append a new entry to the response list.  Return value indicates
     // whether this response is the last one expected
@@ -292,7 +419,7 @@ public:
      * @param contextString String representing the operation
      *      Context defined for this sequence
      */
-    void setPullOperation(const void* enContext, const String& contextString);
+    void setPullOperation(const void* enContext);
 
     String _messageId;
     MessageType _msgRequestType;
@@ -307,13 +434,11 @@ public:
     Array<String> propertyList;
     QueryExpressionRep* _query;
     String _queryLanguage;
-///    Uint64 _objectCount;
     Boolean _pullOperation;
     Boolean _enumerationFinished;
     Boolean _closeReceived;
     // KS_PULL extensions KS_TODO - Do not need to maintain both name & ptr
     void* _enumerationContext;
-    String _enumerationContextName;
 
 private:
     /** Hidden (unimplemented) copy and assignment constructors */
@@ -335,18 +460,37 @@ private:
     Magic<0xC531B144> _magic;
 };
 
+inline Uint32 OperationAggregate::getTotalIssued()
+{
+    return _totalIssued;
+}
+
+inline void OperationAggregate::incTotalIssued()
+{
+    _totalIssued++;
+}
+
+inline CIMOperationRequestMessage* OperationAggregate::getRequest()
+{
+    return _request;
+}
+
+inline MessageType OperationAggregate::getRequestType() const
+{
+    return _msgRequestType;
+}
+
 /******************************************************************************
 **
 **  CIMOperationRequestDispatcher Class
 **
 ******************************************************************************/
+
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
-    //// KS_TODO Should these be removed.  They are in head cvs now
-    friend class QuerySupportRouter;
-    friend class ProviderRequests;
 
+    friend struct ProviderRequests;
 public:
 
     typedef MessageQueueService Base;
@@ -482,6 +626,7 @@ public:
         AsyncOpNode*,
         MessageQueue*,
         void* userParam);
+    //// TODO it appears that the userParam is not in head of tree 5 Sept 2013
 
     /** Callback from providers etc. for operations that do not
         aggregate response. This callback pointer used by
@@ -551,6 +696,30 @@ protected:
         const CIMName& methodName,
         ProviderIdContainer** providerIdContainer);
 
+    /*Forward the response defined for aggregation processing
+      and queue for output.  Note this function is called
+      when a response that should be processed through the
+      aggregator already exists.
+    */
+    void _forwardResponseForAggregation(
+        CIMOperationRequestMessage* request,
+        OperationAggregate* poA,
+        CIMResponseMessage* response);
+
+    /*
+        Forward a request for aggregation.  This is the path used
+        to forward aggregationoperation requests to providers,
+        control providers, and services
+    */
+    void _forwardRequestForAggregation(
+        const ProviderInfo& providerInfo,
+        CIMOperationRequestMessage* request,
+        OperationAggregate* poA);
+
+    /*  Commmon aggregating function used by both _forwardResponseForAggregation
+        and _forwardRequestForAggregation above.
+
+    */
     void _forwardRequestForAggregation(
         Uint32 serviceId,
         const String& controlProviderName,
@@ -569,7 +738,6 @@ protected:
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
         CIMOperationRequestMessage* requestCopy);
-
 
     void _getProviderName(
           const OperationContext& context,
@@ -643,11 +811,6 @@ protected:
         Uint32& value,
         const Uint32 defaultValue);
 
-    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
-        const CIMName& className,
-        const CIMNamespaceName& nameSpace,
-        CIMConstClass& cimClass);
-
     Boolean _rejectInvalidOperationTimeout(CIMOperationRequestMessage* request,
         const Uint32Arg& operationTimeout);
 
@@ -684,27 +847,48 @@ protected:
         CIMOperationRequestMessage* request,
         const CIMObjectPath& path);
 
+    /**Tests for existence of the class defined in the request and
+       if successful return true with the class in the targetClass
+       argument. Note that exceptions are caught in this method.
+
+        @param request CIMOperationRequestMessage containing
+                       Request. Note that this depends on class name
+                       and namespace being in this message
+        @param targetClass CIMClass class to be returned if request
+                           successful
+
+        @return Boolean true if class in request->className found
+                for request->nameSpace. False if not found.
+     */
+
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
+        CIMConstClass& targetClass);
+    /**Equivalent to _rejectInvalidClassParameter above except that
+       it included objecName parameter
+
+        @param request
+        @param nameSpace
+        @param objectName
+
+        @return Boolean
+     */
     Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName);
 
-    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        CIMConstClass& targetClass);
     /**
         Reject if no providers or repository for this class
     */
     Boolean _rejectNoProvidersOrRepository(CIMOperationRequestMessage* request,
-        Uint32 providerCount, const CIMName& className);
+        const ProviderInfoList&);
 
     /**
         Checks whether the number of providers required to complete an
         operation is greater than the maximum allowed.
         @param nameSpace The target namespace of the operation.
         @param className The name of the class specified in the request.
-        @param providerCount The number of providers required to complete the
-            operation.
+        @param providerInfoList Contains count of the number of
+            providers required to complete the operation.
         @exception CIMException if the providerCount is greater than the
             maximum allowed.
     */
@@ -746,22 +930,21 @@ protected:
         Uint32 providerCount, const CIMName& className);
 
 
+    Boolean _forwardEnumerationToProvider(
+        ProviderInfo &providerInfo,
+        OperationAggregate* poA,
+        CIMOperationRequestMessage* request);
+
     //// KS TODO KS_TBD -- Should this one still be here???
     void enumerateInstancesFromRepository(
         CIMEnumerateInstancesResponseMessage *response,
         OperationAggregate* poA,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        CIMOperationRequestMessage* request);
 
     CIMRepository* _repository;
 
     ProviderRegistrationManager* _providerRegistrationManager;
 
-    // TODO Determine if association requests are allowed. If false, all
-    // association and reference requests will be refused.
     //
     // Enable particular Operations or services
     //
@@ -789,8 +972,6 @@ protected:
     // KS_TBD - Think this one can go away.
     Uint32 _systemMaxOperationTimeout;
 
-    static Uint64 cimOperationAggregationSN;
-
     Uint32 _providerManagerServiceId;
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Array<String> _excludeModulesFromNormalization;
@@ -799,9 +980,13 @@ protected:
     // meta dispatcher integration
     virtual void _handle_async_request(AsyncRequest* req);
 
+    Boolean _enumerateFromRepository(
+        CIMOperationRequestMessage* request,
+        OperationAggregate* poA,
+        ProviderInfoList& providerInfos);
+
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
-
 
     Boolean _lookupAssociationProvider(
         const CIMNamespaceName& nameSpace,
@@ -818,9 +1003,45 @@ private:
         const CIMName& className,
         ProviderInfo& providerInfo);
 
+    Boolean _getAssocFromRepository(
+        CIMOperationRequestMessage* request,
+        OperationAggregate* poA,
+        ProviderInfoList& providerInfos,
+        CIMResponseMessage* response);
+
     // Pointer to internal RoutingTable for Control Providers and Services
     DynamicRoutingTable *_routing_table;
 };
+
+// Forward response to Common Request Aggregator.  This is simply
+// a syntatic simplification.
+inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
+    CIMOperationRequestMessage* request,
+    OperationAggregate* poA,
+    CIMResponseMessage* response)
+{
+    _forwardRequestForAggregation(
+        getQueueId(),
+        String(),
+        request,
+        poA,
+        response);
+}
+
+/*
+    For request for aggregation with poA as parameter.
+*/
+inline void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
+    const ProviderInfo& providerInfo,
+    CIMOperationRequestMessage* request,
+    OperationAggregate* poA)
+{
+    _forwardRequestForAggregation(
+        providerInfo.serviceId,
+        providerInfo.controlProviderName,
+        request,
+        poA);
+}
 
 PEGASUS_NAMESPACE_END
 

@@ -142,11 +142,12 @@ public:
     ~EnumerationContext();
 
     /**
-       Get the name of this enumeration context. The id is the key to
-       access the enumeration table.
+       Get the name of this enumeration context. The Name is the key
+       to access the enumeration table and also the context
+       definition in Request and Response Operations.
        @return Context name String.
      */
-    String& getContextName();
+    String& getName();
 
     /**
        Get the Type of the CIMResponseData object in the enumeration
@@ -185,7 +186,7 @@ public:
 
     // diagnostic tests magic number in context to see if valid
     // Diagnostic tool only.
-    Boolean valid();
+    Boolean valid() const;
 
     Boolean isClosed();
 
@@ -202,7 +203,7 @@ public:
         @return Returns true if type match is correct. Returns false
         if not
      */
-    Boolean isValidPullRequestType(MessageType type);
+    Boolean isValidPullRequestType(MessageType type) const;
 
     /** Test context to determine if it is active (i.e an operation
         is in process in the CIMOperationRequestDispatcher.
@@ -230,27 +231,25 @@ public:
 
     /**
        Get up to the number of objects defined by count from the
-       CIMResponseData cache in the enumerationContext into the rtn 
-       CIMResponseData object. This function waits for a number of 
-       possible events as defined below and returns only when one of 
-       these events is true. 
-       This function also executes a ProviderLimitCondition signal 
-       before returning to tell the ProviderLimit condition variable 
-       that the size of the cache may have changed. 
+       CIMResponseData cache in the enumerationContext into the rtn
+       CIMResponseData object. This function waits for a number of
+       possible events as defined below and returns only when one of
+       these events is true.
+       This function also executes a ProviderLimitCondition signal
+       before returning to tell the ProviderLimit condition variable
+       that the size of the cache may have changed.
 
-       REMEMBER: This function gives up control while waiting.
+       NOTE: This function gives up control while waiting.
 
        Wait events:
            a. Number of objects in cache matches or exceeds count
            b. _providersComplete flag to be set.
            c. Future - The errorState to be set KS_TODO
-       @param - count - Uint32 count of max number of objects to return
-       @param rtnCIMResponseData CIMResponseData containing the 
+       @param count Uint32 count of max number of objects to return
+       @param rtnData CIMResponseData containing the
                                  objects returned
-       @return Returns true unless if the  errorState has been set.
      */
-    Boolean getCacheResponseData(Uint32 count,
-        CIMResponseData& rtnCIMResponseData);
+    void getCache(Uint32 count, CIMResponseData& rtnData);
 
     /**
         Return reference to the CIMResponseData in the Enumeration Context
@@ -298,16 +297,16 @@ public:
         Test if the provider processing is complete.
         @return true if provider processing is complete.
      */
-    Boolean ifProvidersComplete();
+    Boolean ifProvidersComplete() const ;
 
     /**
-        Test the enumeration for completeness.  Complete is when
-        providers are complete and there is nothing in the cache.
-        This test does not consider error state.
-        If not complete, the timer is started.
-        @param Boolean true if the enumeration is complete.
+        Called by the Dispatcher Client operation when the
+        processing of a Request is complete, this function
+        determines and sets the next state for the operation,
+        either back to wait for the next operation or complete.
+        @return Boolean true if the enumeration is complete.
     */
-    Boolean ifEnumerationComplete();
+    Boolean setNextEnumerationState();
 
     // copy constructor
     EnumerationContext(const EnumerationContext& x);
@@ -343,15 +342,6 @@ private:
 
     friend class EnumerationContextTable;
 
-    /**
-       Private function to add new response to CIMResponseData
-       in the EnumerationContext cache
-       @param Message type
-       @param response CIMResponseMessage to be inserted
-    */
-    void _insertResponseIntoCache(MessageType type,
-        CIMResponseMessage*& response);
-
     // Name of this EnumerationContext. Used to find the context by
     // pull and close operations.
     String _enumerationContextName;
@@ -379,13 +369,17 @@ private:
     // status flags.
     // Set true when context closed from client side
     Boolean _clientClosed;
+
     // Set to true when input from providers complete
     Boolean _providersComplete;
+
     // set true when CIMServer is processing a request within the
     // enumeration context
     Boolean _processing;
+
     // Set true when error received from Providers.
     Boolean _error;
+
     // Set to true if waiting on condition variable.  Cannot remove until
     // this cleared.
     Boolean _waiting;
@@ -456,15 +450,15 @@ private:
     // Max number of objects in the cache.
     Uint32 _cacheHighWaterMark;
 
-    // Pointer to enumeration table.
-    EnumerationContextTable* _enumerationContextTable;
+////  // Pointer to enumeration table.
+////  EnumerationContextTable* _enumerationContextTable;
 
     Magic<0x57D11474> _magic;
 };
 
 // Inline functions
 
-inline String& EnumerationContext::getContextName()
+inline String& EnumerationContext::getName()
 {
     return _enumerationContextName;
 }
@@ -478,6 +472,36 @@ inline CIMResponseData::ResponseDataContent
 inline CIMResponseData& EnumerationContext::getResponseData()
 {
     return _responseCache;
+}
+
+inline Boolean EnumerationContext::isProcessing()
+{
+    return _processing;
+}
+
+inline Boolean EnumerationContext::isClosed()
+{
+    return _clientClosed;
+}
+
+inline Boolean EnumerationContext::isErrorState()
+{
+    return _error;
+}
+
+/*
+    Test the current pull message against the type set on the create
+    context. they must match
+*/
+inline Boolean EnumerationContext::isValidPullRequestType(
+   MessageType type) const
+{
+    return(type == _pullRequestType);
+}
+
+inline Boolean EnumerationContext::ifProvidersComplete() const
+{
+    return _providersComplete;
 }
 
 PEGASUS_NAMESPACE_END

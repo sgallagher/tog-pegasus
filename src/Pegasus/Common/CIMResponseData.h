@@ -349,7 +349,7 @@ public:
     void encodeXmlResponse(Buffer& out, Boolean isPull);
 
     // diagnostic tests magic number in context to see if valid object
-    Boolean valid();
+    Boolean valid() const;
 
     // official Xml format(CIM over Http) used to communicate to clients
     void encodeXmlResponse(Buffer& out);

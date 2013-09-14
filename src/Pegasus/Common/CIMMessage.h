@@ -1866,6 +1866,20 @@ class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesResponseMessage
     : public CIMResponseMessage
 {
 public:
+    // Constructor with default endOfSequence and enumeration context
+    CIMOpenEnumerateInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_
+        )
+    : CIMResponseMessage(CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        endOfSequence(false),
+        enumerationContext(String::EMPTY),
+        _responseData(CIMResponseData::RESP_INSTANCES)
+    {
+    }
+    // Constructor with endOfSequence and enumeration context
     CIMOpenEnumerateInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
@@ -1880,6 +1894,7 @@ public:
         _responseData(CIMResponseData::RESP_INSTANCES)
     {
     }
+
 
     CIMResponseData& getResponseData()
     {
@@ -1897,6 +1912,21 @@ class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancePathsResponseMessage
     : public CIMResponseMessage
 {
 public:
+    // Constructor with default endOfSequence and enumeration context
+    CIMOpenEnumerateInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_
+        )
+    : CIMResponseMessage(CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        endOfSequence(false),
+        enumerationContext(String::EMPTY),
+        _responseData(CIMResponseData::RESP_INSTNAMES)
+    {
+    }
+
+    // Constructor withendOfSequence and enumeration context
     CIMOpenEnumerateInstancePathsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
@@ -1932,6 +1962,20 @@ public:
     CIMOpenReferenceInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
+        const QueueIdStack& queueIds_
+        )
+    : CIMResponseMessage(CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        endOfSequence(false),
+        enumerationContext(String::EMPTY),
+        _responseData(CIMResponseData::RESP_OBJECTS)
+    {
+    }
+
+    // Constructor with endOfSequence and enumeration context
+    CIMOpenReferenceInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
         const Boolean endOfSequence_,
         const String& enumerationContext_,
         const QueueIdStack& queueIds_
@@ -1959,6 +2003,20 @@ class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancePathsResponseMessage
     : public CIMResponseMessage
 {
 public:
+    CIMOpenReferenceInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_
+        )
+    : CIMResponseMessage(CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        endOfSequence(false),
+        enumerationContext(String::EMPTY),
+        _responseData(CIMResponseData::RESP_OBJECTPATHS)
+    {
+    }
+
+    // Constructor with endOfSequence and enumeration context supplied
     CIMOpenReferenceInstancePathsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
@@ -1993,6 +2051,20 @@ public:
     CIMOpenAssociatorInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
+        const QueueIdStack& queueIds_
+        )
+    : CIMResponseMessage(CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        endOfSequence(false),
+        enumerationContext(String::EMPTY),
+        _responseData(CIMResponseData::RESP_OBJECTS)
+    {
+    }
+
+    // Constructor with endOfSequence and enumeration context supplied
+    CIMOpenAssociatorInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
         const Boolean endOfSequence_,
         const String& enumerationContext_,
         const QueueIdStack& queueIds_
@@ -2004,7 +2076,6 @@ public:
         _responseData(CIMResponseData::RESP_OBJECTS)
     {
     }
-
     CIMResponseData& getResponseData()
     {
         return _responseData;
@@ -2021,10 +2092,25 @@ class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancePathsResponseMessage
     : public CIMResponseMessage
 {
 public:
+    // Constructor with defautl endOfSequence and enumerationContext
     CIMOpenAssociatorInstancePathsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        Boolean endOfSequence_,
+        const QueueIdStack& queueIds_
+        )
+    : CIMResponseMessage(CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        endOfSequence(false),
+        enumerationContext(String::EMPTY),
+        _responseData(CIMResponseData::RESP_OBJECTPATHS)
+    {
+    }
+
+    // Constructor with endOfSequence and enumeration context are supplied
+    CIMOpenAssociatorInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const Boolean endOfSequence_,
         const String& enumerationContext_,
         const QueueIdStack& queueIds_
         )
@@ -2035,7 +2121,6 @@ public:
         _responseData(CIMResponseData::RESP_OBJECTPATHS)
     {
     }
-
     CIMResponseData& getResponseData()
     {
         return _responseData;

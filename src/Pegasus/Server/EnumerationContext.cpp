@@ -210,7 +210,7 @@ void EnumerationContext::startTimer()
         (long unsigned int)_interOperationTimer,
         _operationTimeoutSec,
         (long signed int)(_interOperationTimer - currentTime),
-        (const char*)getContextName().getCString()));
+        (const char*)getName().getCString()));
 
     PEG_METHOD_EXIT();
 }
@@ -275,20 +275,7 @@ Boolean EnumerationContext::isTimedOut()
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
     return isTimedOut(currentTime);
 }
-Boolean EnumerationContext::isProcessing()
-{
-    return _processing;
-}
 
-Boolean EnumerationContext::isClosed()
-{
-    return _clientClosed;
-}
-
-Boolean EnumerationContext::isErrorState()
-{
-    return _error;
-}
 Boolean EnumerationContext::setErrorState(CIMException x)
 {
     _error = true;
@@ -326,19 +313,10 @@ void EnumerationContext::trace()
  *
  * @return Boolean True if valid object.
  */
-Boolean EnumerationContext::valid()
+Boolean EnumerationContext::valid() const
 {
     _responseCache.valid(); // KS_TEMP TODO DELETE
     return _magic;
-}
-
-/*
-    Test the current pull message against the type set on the create
-    context. they must match
-*/
-Boolean EnumerationContext::isValidPullRequestType(MessageType type)
-{
-    return(type == _pullRequestType);
 }
 
 EnumerationContext::~EnumerationContext()
@@ -368,8 +346,8 @@ void EnumerationContext::removeContext()
     Return true if putCache worked, false if closed and nothing put
 */
 Boolean EnumerationContext::putCache(MessageType type,
-                                  CIMResponseMessage*& response,
-                                  Boolean providersComplete)
+    CIMResponseMessage*& response,
+    Boolean providersComplete)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
     PEGASUS_ASSERT(valid());   // KS_TEMP;
@@ -382,13 +360,20 @@ Boolean EnumerationContext::putCache(MessageType type,
     //// KS_TODO I believe that the _waiting is completely irrelevent. Delete
     _waiting = true;
 
+    // KS_TODO all this probably diagnostic
     CIMResponseData& to = _responseCache;
+    CIMResponseDataMessage* localResponse =
+        dynamic_cast<CIMResponseDataMessage*>(response);
+
+    CIMResponseData & from = localResponse->getResponseData();
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Enter putCache, response isComplete %s ResponseDataType %u "
+            " cache size= %u put size= %u "
             "clientClosed %s",
         _toCharP(providersComplete), to.getResponseDataContent(),
-        _toCharP(providersComplete)));
+        to.size(), from.size(),
+        _toCharP(_clientClosed)));
 
     // If an operation has closed the enumerationContext can
     // ignore any received responses until the providersComplete is received
@@ -409,8 +394,11 @@ Boolean EnumerationContext::putCache(MessageType type,
     }
     else  // client not closed at this point
     {
-        // put the current response into the cache
-        _insertResponseIntoCache(type, response);
+        // put the current response into the cache. Lock cache for this
+        // operation
+
+        _responseCacheMutex.lock();;
+        to.appendResponseData(from);
 
         // set providersComplete flag from flag in context.
         _providersComplete = providersComplete;
@@ -420,6 +408,7 @@ Boolean EnumerationContext::putCache(MessageType type,
         {
             _cacheHighWaterMark = responseCacheSize();
         }
+        _responseCacheMutex.unlock();
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "After putCache insert responseCacheSize %u. CIMResponseData"
@@ -470,87 +459,6 @@ Boolean EnumerationContext::putCache(MessageType type,
     return true;
 }
 
-// Internal function to actually insert into the cache. This function
-// operates with the cache locked.
-// Note that the Type is the Request Type, not the response Type
-void EnumerationContext::_insertResponseIntoCache(MessageType type,
-                                  CIMResponseMessage*& response)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::_insertResponseIntoCache");
-
-    CIMResponseData& to = _responseCache;
-
-    AutoMutex autoMut(_responseCacheMutex);
-
-    // Append the new Response to the CIMResponseData in the cache
-    switch(type)
-    {
-        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE :
-        {
-            CIMEnumerateInstancesResponseMessage* rsp =
-                (CIMEnumerateInstancesResponseMessage*)response;
-            CIMResponseData & from = rsp->getResponseData();
-            to.appendResponseData(from);
-            break;
-        }
-
-        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE :
-        {
-            CIMEnumerateInstanceNamesResponseMessage* rsp =
-                (CIMEnumerateInstanceNamesResponseMessage*)response;
-            CIMResponseData & from = rsp->getResponseData();
-            to.appendResponseData(from);
-            break;
-        }
-
-        case CIM_REFERENCES_REQUEST_MESSAGE :
-        {
-            CIMReferencesResponseMessage* rsp =
-                (CIMReferencesResponseMessage*)response;
-            CIMResponseData & from = rsp->getResponseData();
-            to.appendResponseData(from);
-            break;
-        }
-
-        case CIM_REFERENCE_NAMES_REQUEST_MESSAGE :
-        {
-            CIMReferenceNamesResponseMessage* rsp =
-                (CIMReferenceNamesResponseMessage*)response;
-            CIMResponseData & from = rsp->getResponseData();
-            to.appendResponseData(from);
-            break;
-        }
-
-        case CIM_ASSOCIATORS_REQUEST_MESSAGE :
-        {
-            CIMAssociatorsResponseMessage* rsp =
-                (CIMAssociatorsResponseMessage*)response;
-            CIMResponseData & from = rsp->getResponseData();
-            to.appendResponseData(from);
-            break;
-        }
-
-        case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE :
-        {
-            CIMAssociatorNamesResponseMessage* rsp =
-                (CIMAssociatorNamesResponseMessage*)response;
-            CIMResponseData & from = rsp->getResponseData();
-            to.appendResponseData(from);
-            break;
-        }
-
-        default:
-            static const char failMsg[] =
-                "Invalid response type to pull: ";
-            PEG_TRACE(( TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "%s %u", failMsg,  type));
-            PEGASUS_ASSERT(0);
-            break;
-    } // end switch
-
-    PEG_METHOD_EXIT();
-}
 
 /*****************************************************************************
 **
@@ -564,11 +472,10 @@ void EnumerationContext::_insertResponseIntoCache(MessageType type,
     The wait function is called before removing items from the cache and
     only completes when a. there are sufficient objects, b. the providers
     have completed, c. an error has occurred.
-    // KS_TODO - The error return has not been implemented. Do we need it??
 */
-Boolean EnumerationContext::getCacheResponseData(
+void EnumerationContext::getCache(
     Uint32 count,
-    CIMResponseData& rtnCIMResponseData)
+    CIMResponseData& rtnData)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::getCacheResponseData");
@@ -585,41 +492,28 @@ Boolean EnumerationContext::getCacheResponseData(
 
     // move the defined number of objects from the cache to the
     // return object.
-    // //// TODO Dropped the return variable for now
-    rtnCIMResponseData.moveObjects(_responseCache, count);
-////  Uint32 rtncount = rtnCIMResponseData.moveObjects(_responseCache, count);
+    rtnData.moveObjects(_responseCache, count);
 
     // KS_TODO_QUESTION. Not sure this should be at this level.
-    rtnCIMResponseData.setPropertyList(_responseCache.getPropertyList());
-
-    // KS_TODO_DELETE_DIAGNOSTIC
-    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-        "getCacheResponsedata after moveObjects \nfrom PropertyList=%s\n"
-        "to   PropertyList=%s",
-        (const char *)_responseCache.getPropertyList().toString().getCString(),
-        (const char *)
-               rtnCIMResponseData.getPropertyList().toString().getCString() ));
+    rtnData.setPropertyList(_responseCache.getPropertyList());
 
     // KS_TODO_DIAG_DELETETHIS
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-      "EnumerationContext::getCacheResponseData moveObjects=%s",
-      (const char*)_responseCache.getPropertyList().toString().getCString() ));
+      "EnumerationContext::getCacheResponseData moveObjects expected=%u"
+          " actual %u",
+      count, rtnData.size()));
 
     // Signal the ProviderLimitCondition that the cache size may
     // have changed.
     signalProviderLimitCondition();
 
+    PEGASUS_ASSERT(valid());   // KS_TEMP;
     PEG_METHOD_EXIT();
-    return true;
 }
 
 Uint32 EnumerationContext::responseCacheSize()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::responseCacheSize");
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    PEGASUS_ASSERT(_responseCache.valid());   // KS_TEMP
-    PEG_METHOD_EXIT();
     return _responseCache.size();
 }
 
@@ -675,6 +569,7 @@ void EnumerationContext::signalCacheSizeCondition()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::signalCacheSizeCondition");
+
     PEGASUS_ASSERT(valid());   // KS_TEMP
 
     AutoMutex autoMut(_cacheTestCondMutex);
@@ -729,7 +624,7 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 void EnumerationContext::signalProviderLimitCondition()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::signalProviderLimitCondition()");
+        "EnumerationContext::signalProviderLimitCondition");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
 
@@ -742,6 +637,8 @@ void EnumerationContext::signalProviderLimitCondition()
 
 Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContext::incAndTestPullCounters");
     PEGASUS_ASSERT(valid());   // KS_TEMP
     _pullOperationCounter++;
 
@@ -764,7 +661,7 @@ Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
 void EnumerationContext::setProvidersComplete()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::setProvidersComplete()");
+        "EnumerationContext::setProvidersComplete");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
 
@@ -776,17 +673,23 @@ void EnumerationContext::setProvidersComplete()
     PEG_METHOD_EXIT();
 }
 
+// End of Request operation processing. Set the next enumeration state.
+// If providers Complete and  cache = 0. We can now close the enumeration.
+// If no more from providers and no more in cache, we set the client closed
+//
+// TODO Is the responseCacheSize sufficient or could something be stuck between
+// providers complete, etc.
+// Returns true if there is no more to process.  Else sets false.
 
-Boolean EnumerationContext::ifProvidersComplete()
+Boolean EnumerationContext::setNextEnumerationState()
 {
-    return _providersComplete;
-}
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContext::setNextEnumerationState");
 
-Boolean EnumerationContext::ifEnumerationComplete()
-{
     PEGASUS_ASSERT(valid());   // KS_TEMP
     if (ifProvidersComplete() && (responseCacheSize() == 0))
     {
+        setClientClosed();
         return true;
     }
     else
@@ -799,15 +702,14 @@ Boolean EnumerationContext::ifEnumerationComplete()
 
 void EnumerationContext::setClientClosed()
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContext::setClientClosed");
+
     PEGASUS_ASSERT(valid());   // KS_TEMP
 
     _clientClosed = true;
 
-    if (_providersComplete)
-    {
-        removeContext();
-    }
-    else
+    if (!_providersComplete)
     {
         // Signal the limit on provider responses in case it is in wait
         signalProviderLimitCondition();
@@ -816,9 +718,12 @@ void EnumerationContext::setClientClosed()
 
 Boolean EnumerationContext::setProcessingState(Boolean state)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContext::setProcessingState");
     // KS_TODO - Clean this one up.  What we should really do is
     // error if new active same as old active
     // processing means processing request operation.
+//// Does not make it through open    PEGASUS_ASSERT(state != _processing);
     _processing = state;
     if (_processing)
     {

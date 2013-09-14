@@ -526,6 +526,9 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
         @param cipherSuite cipher list
+        @param sslCompatibility  a false value of sslCompatibility 
+        will support only TLS1.2 and true will support SSLv3 and TLSv1 
+
 
         NOTE:
         For platforms that support /dev/random(urandom), the /dev/random
@@ -547,7 +550,10 @@ public:
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile,
-        const String& cipherSuite);
+        const String& cipherSuite,
+        const Boolean & sslCompatibility = false);
+
+
 #endif
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES

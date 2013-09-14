@@ -3188,6 +3188,24 @@ configuration properties.</p>
      Pegasus/Config/SecurityPropertyOwner.cpp
 </ul>
 
+<h5>sslBackwardCompatibility</h5>
+<ul>
+  <b>Description:&nbsp;</b> If set to true, OpenPegasus support
+     SSLv3 and TLSv1 protocol.If set to false OpenPegasus support
+     only TLS1.2 protocol for openssl 1.0.1+ <br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>
+     false<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>
+     false<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b> For a more detailed look at SSL options
+     and their ramifications, please see the SSL guidelines.<br>
+  <b>Source Configuration File:&nbsp;</b>
+     Pegasus/Config/SecurityPropertyOwner.cpp
+</ul>
+
 <h5>sslClientVerificationMode</h5>
 <ul>
   <b>Description:&nbsp;</b>Describes the desired level of support

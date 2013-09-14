@@ -92,9 +92,14 @@ SSLContextManager::~SSLContextManager()
 // and CIMServer::_getExportSSLContext() methods.
 //
 void SSLContextManager::createSSLContext(
-    const String& trustStore, const String& certPath, const String& keyPath,
-    const String& crlStore, Boolean callback, const String& randFile,
-    const String& cipherSuite)
+    const String& trustStore,
+    const String& certPath,
+    const String& keyPath,
+    const String& crlStore,
+    Boolean callback, 
+    const String& randFile,
+    const String& cipherSuite,
+    const Boolean& sslCompatibility)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::createSSLContext()");
 
@@ -111,17 +116,17 @@ void SSLContextManager::createSSLContext(
             _sslContext = new SSLContext(trustStore, certPath,
                 keyPath, crlStore,
                 (SSLCertificateVerifyFunction*)verifyClientOptionalCallback,
-                randFile, cipherSuite);
+                randFile, cipherSuite,sslCompatibility);
         }
         else if ( trustStore != String::EMPTY )
         {
             _sslContext = new SSLContext(trustStore, certPath,
-                keyPath, crlStore, 0, randFile, cipherSuite);
+                keyPath, crlStore, 0, randFile, cipherSuite,sslCompatibility);
         }
         else
         {
             _sslContext = new SSLContext(String::EMPTY, certPath,
-                keyPath, crlStore, 0, randFile, cipherSuite);
+                keyPath, crlStore, 0, randFile, cipherSuite,sslCompatibility);
         }
     }
 

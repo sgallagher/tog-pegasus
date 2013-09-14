@@ -246,8 +246,15 @@ pempty:
 ## Included list of properties to return to make this test valid.
 ## CIMCLi is called before each test to set the response size and number
 ## of responses requested
+## Note that calling the invoke method before starting each test forces
+## the provider to be loaded which eliminates startup differences.
 stresse1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
+	    -P Pattern -P s1 -P Id -P SequenceNumber \
+	    -T -v 3 $(HOSTID)
+stresse2:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)

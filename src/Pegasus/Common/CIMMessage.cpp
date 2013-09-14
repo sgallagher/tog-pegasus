@@ -558,8 +558,6 @@ CIMResponseMessage*
         new CIMOpenEnumerateInstancesResponseMessage(
             messageId,
             CIMException(),
-            true,              // endOfSequence
-            String::EMPTY,     // enumerationContext
             queueIds.copyAndPop()));
     CIMResponseData & rspData = response->getResponseData();
     rspData.setRequestProperties(
@@ -577,8 +575,6 @@ CIMResponseMessage*
         new CIMOpenEnumerateInstancePathsResponseMessage(
             messageId,
             CIMException(),
-            true,
-            String::EMPTY,    // enumerationContext
             queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
@@ -591,8 +587,6 @@ CIMResponseMessage*
         new CIMOpenReferenceInstancesResponseMessage(
             messageId,
             CIMException(),
-            true,              // endOfSequence
-            String::EMPTY,     // enumerationContext
             queueIds.copyAndPop()));
     CIMResponseData & rspData = response->getResponseData();
     rspData.setRequestProperties(
@@ -610,8 +604,6 @@ CIMResponseMessage*
         new CIMOpenReferenceInstancePathsResponseMessage(
             messageId,
             CIMException(),
-            true,
-            String::EMPTY,    // enumerationContext
             queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
@@ -624,8 +616,6 @@ CIMResponseMessage*
         new CIMOpenAssociatorInstancesResponseMessage(
             messageId,
             CIMException(),
-            true,              // endOfSequence
-            enumerationContext,
             queueIds.copyAndPop()));
     CIMResponseData & rspData = response->getResponseData();
     rspData.setRequestProperties(
@@ -643,8 +633,6 @@ CIMResponseMessage*
         new CIMOpenAssociatorInstancePathsResponseMessage(
             messageId,
             CIMException(),
-            true,
-            enumerationContext,
             queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
@@ -657,7 +645,7 @@ CIMResponseMessage*
         new CIMPullInstancesWithPathResponseMessage(
             messageId,
             CIMException(),
-            true,
+            false,
             enumerationContext,
             queueIds.copyAndPop()));
     response->syncAttributes(this);
@@ -670,7 +658,7 @@ CIMResponseMessage* CIMPullInstancePathsRequestMessage::buildResponse() const
         new CIMPullInstancePathsResponseMessage(
             messageId,
             CIMException(),
-            true,   //KS_PULL_TEMP Fix this for continue on error
+            false,
             enumerationContext,
             queueIds.copyAndPop()));
     response->syncAttributes(this);

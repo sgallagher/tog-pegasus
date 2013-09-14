@@ -93,30 +93,43 @@ TODO list:
       b. We should protect against providers that no not every finish delivering
           or take to long between deliveries.  This does not exist in Pegasus
           today
-   6. Clean up code in Dispatcher. The associators code is still real mess
-      and the pull code is in a template.  The Pull code is good now but
-      must be duplicated.  Look at creating new CIMMessage CIMPullResponseMessage
-      so that we can have common code.  Everything is the same except what
-      goes into the CIMResponseData so it is logical to have completely
-      common processing
+   6. Clean up code in Dispatcher. Want to at least reduce the code for the
+      Open Operations to a set of templates so we know that the code is the
+      same for all operations.  Right now the existing operations enum, assoc,
+      etc. are all in templates but not the open operations.  Note that the
+      pull is a single template for both pullInstances and pullInstancePaths.
+      However, we might be able to reduce this to a single function by adding
+      a new level to CIMMessage.h (CommonPullResponse)
    7. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
       messages to include count and CIMResponse data to count objects out
       of queue when converting (avoids the second move).  Big issue here
       with binary data since need to extend format to count it.
-   8. Still using templates, etc. in  code in the Dispatcher. This is for
-      all of the open operations where there is a lot of duplicate code
-      and the pull operations that are 99% duplicate code (in a single template)
-   9. NEXT TASK: get the pull operations into a single function by
-      creating a new CIMPullResponse message in CIMMessage.h that contains
-      the pull data.  Then we can use a single function to process all pull
-      operations.
+   8. NEXT TASKS: 
+      a. get the pull operations rather than a template into a single
+      function by creating a new CIMPullResponse message in CIMMessage.h that
+      contains the pull data.  Then we can use a single function to process all
+      pull operations.
+      b. test the timeout thread
+      c. New Mergout to bring up to to date again.
+      d. Fix known problem with the interop provider.
+
+14 September 2013 CVS update
+Merged out up to 25 August.  Cleaned up all operations and standardized code.
+At this point the non pull operations code is in a set of templates but the
+pull is not yet.
+Fixed a significant number of problems so that it appears that the operations
+except for OpenExecQuery run stably, at least with the pullop test program.
+Note that there is a problem in that the Interop control provider is not
+returning its singleton wbemserver object for some reason.  Causes a test
+failure
 
 Fixed for 16 June CVS Update
    1. Cleaned up the enumerationContext and Table release functions and tested
       to confirm that we do not lose memory in either normal sequences or
       sequences that close early. Cleaned up pullop and added more tests
+Taged Before: PREAUG25UPDATE and after POSTAUG25UPDATE
 
 Fixed for 9 June CVS update
    1. Cleaned up code for OpenQueryInstances.  Note that this is incomplete.

@@ -1974,7 +1974,7 @@ void CIMResponseData::_resolveCIMToSCMO()
  *
  * @return Boolean True if valid object.
  */
-Boolean CIMResponseData::valid()
+Boolean CIMResponseData::valid() const
 {
     return _magic;
 }

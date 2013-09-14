@@ -1803,7 +1803,7 @@ void XmlWriter::appendMethodCallHeader(
     bool binaryRequest,
     bool binaryResponse)
 {
-    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+    char nn[] = { char('0' + (rand() % 10)), char('0' + (rand() % 10)),'\0'};
 
     // ATTN: KS 20020926 - Temporary change to issue only POST. This may
     // be changed in the DMTF CIM Operations standard in the future.
@@ -1959,7 +1959,7 @@ void XmlWriter::appendMethodResponseHeader(
      }
      if (httpMethod == HTTP_METHOD_M_POST)
      {
-         char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+         char nn[] = {char('0'+(rand() % 10)),char('0' + (rand() % 10)),'\0'};
 
          out << STRLIT("Ext:\r\n"
                        "Cache-Control: no-cache\r\n"
@@ -3122,7 +3122,7 @@ void XmlWriter::appendEMethodRequestHeader(
     const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
-    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+    char nn[] = { char('0' + (rand() % 10)), char('0' + (rand() % 10)), '\0' };
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
@@ -3194,7 +3194,7 @@ void XmlWriter::appendEMethodResponseHeader(
     const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
-    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+    char nn[] = { char('0' + (rand() % 10)), char('0' + (rand() % 10)), '\0' };
 
     out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n"
                   "Content-Type: application/xml; charset=utf-8\r\n");

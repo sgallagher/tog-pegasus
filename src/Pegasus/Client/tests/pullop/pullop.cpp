@@ -241,6 +241,7 @@ bool continueOnError_opt = false;
 bool reverseExitCode_opt = false;
 bool deepInheritance_opt = true;
 bool requestClassOrigin_opt = false;
+bool errorsAsWarnings_opt = false;
 
 // Actual property list to be used. This should be null unless a property
 // list is provided.
@@ -333,6 +334,7 @@ OPTIONS:\n\
                      Zero(0) Not allowed since has no meaning. One(1) means\n\
                      execute only open operation. This is not the same\n\
                      as the MAXOBJECTS parameters.\n\
+    -W               Boolean. Treat Errors in Compare as warnings.\n\
 \n";
 
 /*
@@ -1039,7 +1041,15 @@ Boolean compareInstances(const String& s1, const String s2,
                                         inst1[i], inst2[i], true, verbose);
         if (!localRtn)
         {
-            rtn = false;
+            errors++;
+            if (errorsAsWarnings_opt)
+            {
+                rtn = true;
+            }
+            else
+            {
+                rtn = false; 
+            }
         }
     }
     VCOUT4 << "compareInstances " << (rtn? "OK" : "Failed") << endl;
@@ -1081,7 +1091,14 @@ Boolean compareInstances(const String& s1, const String s2,
         if (!localRtn)
         {
             errors++;
-            rtn = false;
+            if (errorsAsWarnings_opt)
+            {
+                rtn = true;
+            }
+            else
+            {
+                rtn = false; 
+            }
         }
     }
     VCOUT4 << "compareInstances " << (rtn? "OK" : "Failed") << endl;
@@ -1091,19 +1108,32 @@ Boolean compareInstances(const String& s1, const String s2,
 // Compare instances between two arrays and display any differences.
 // return false if differences exist.
 // KS-TODO - See other detailed compare above.  Should have only one
-Boolean compareObjectPaths(const String& s1, const String s2,
-                      Array<CIMObjectPath>& p1,
-                      Array<CIMObjectPath>& p2, bool ignoreHost = true)
+Boolean compareObjectPaths(
+    const String& s1,
+    const String s2,
+    Array<CIMObjectPath>& p1,
+    Array<CIMObjectPath>& p2,
+    bool ignoreHost = true)
 {
     Boolean rtn = true;
     if (p1.size() != p2.size())
     {
         VCOUT1 << s1 << " ERROR: count mismatch of ObjectPaths "
-            << "Pull sequence " <<  p1.size()
-            << " " << s2 <<" " << p2.size()
+            << s2 << ". Pull sequence rtnd " <<  p1.size()
+            << " " << ". Old Operation rtnd " << p2.size()
             << endl;
         errors++;
-        rtn = false;
+        for (Uint32 i = 0; i < p1.size(); i++)
+        {
+            cout << "Pull " << i << " " << p1[i].toString() << endl;
+        }
+        cout << endl;
+        for (Uint32 i = 0; i < p2.size(); i++)
+        {
+            cout << "Orig " << i << " " << p2[i].toString() << endl;
+        }
+
+        rtn = false; 
     }
 
     // Should we sort here???
@@ -1117,7 +1147,14 @@ Boolean compareObjectPaths(const String& s1, const String s2,
     }
 
     VCOUT4 << "compare paths " << (rtn? "OK" : "Failed") << endl;
-    return rtn;
+    if (errorsAsWarnings_opt)
+    {
+        if (!rtn)
+        {
+            rtn = true;
+        }
+    }
+    return rtn; 
 }
 
 void displayRtnSizes(const char * op, Uint32Arg& maxObjectCount,
@@ -1228,16 +1265,16 @@ bool pullInstancesWithPath(CIMClient& client,
     if (!endOfSequence)
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
-             << openOpName << ". Received count " << resultArray.size()
-             << "endOfSequence=" << _toCharP(endOfSequence) << endl;
+             << openOpName << ". Received count= " << resultArray.size()
+             << " endOfSequence=" << _toCharP(endOfSequence) << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
         timer.stop();
     }
     else
     {
-        VCOUT4 << "Total Instances count=" << resultArray.size()
-          << "endOfSequence=" << _toCharP(endOfSequence)<< endl;
+        VCOUT4 << "Total Instances count= " << resultArray.size()
+          << " endOfSequence= " << _toCharP(endOfSequence)<< endl;
         if (verbose)
         {
             displayInstances(resultArray);
@@ -1264,10 +1301,10 @@ Boolean validateInstancePath(Array<CIMInstance> instances)
         const Array<CIMKeyBinding> kb = p.getKeyBindings();
         if (kb.size() == 0)
         {
-            VCOUT2  << "Error: no Keys " << p.toString()
+            VCOUT2  << "Warning: no Keys in path " << p.toString()
                 << endl;
-            errors++;
-            rtn = false;
+            warnings++;
+            rtn = true;
         }
     }
     return rtn;
@@ -1372,7 +1409,9 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                              pulledInstances, enumeratedInstances);
         }
         if (!validateInstancePath(pulledInstances))
+        {
             VCOUT1 << "Error in path return of PullInstancesWithPath" << endl;
+        }
 
         displayTimeDiff(pullTime, enumTime, elapsedPullTime);
     }
@@ -2283,6 +2322,12 @@ int main(int argc, char** argv)
             case 'R':           // set flag to reverse exit code
             {
                 reverseExitCode_opt = true;
+                break;
+
+            }
+            case 'W':           // Tread Errors as Warnings
+            {
+                errorsAsWarnings_opt = !errorsAsWarnings_opt;
                 break;
 
             }

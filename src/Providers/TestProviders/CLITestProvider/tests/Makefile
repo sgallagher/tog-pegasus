@@ -1295,6 +1295,9 @@ clean:
 	-@$(RM) $(NSRESULTFILE)
 
 ##################### Local targets useful for manual testing ############
+## enumerate instances of the test class
+ei:
+	cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass
 
 ## enumerate instances of the test class
 ni:
@@ -1308,6 +1311,7 @@ giall:
 di:
 	cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass
 
+## Interactive get of instance of the testclass
 gi:
 	cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass -v
 
@@ -1316,18 +1320,24 @@ gc:
 	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderClass
 	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass
 
+## Invoke Method to set the ProviderParameters and substitute host name
+## in the CLITestProviderClass
 im:
 	cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
 		setProviderParameters \
 		substituteHostName=tempHostName
 
+## Reset the Provider parameters in the test class to build defaults
 rm:
 	cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
 		resetProviderParameters
 
 a:
-	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+	cimcli a Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
 	 --setRtnHostNames "blah" -v
 
+r:
+	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+	 --setRtnHostNames "blah" -v
 # END_OF_FILE
 

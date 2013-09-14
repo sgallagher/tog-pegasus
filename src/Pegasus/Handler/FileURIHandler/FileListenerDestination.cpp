@@ -94,7 +94,7 @@ void FileListenerDestination::handleIndication(
         _recordIndicationToFile(
             (const char*)filePath.getCString(), indicationText);
     }
-    catch(const Exception&e)
+    catch(const Exception &e)
     {
         PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "Exception: %s",
                     (const char*)e.getMessage().getCString()));
@@ -106,7 +106,6 @@ void FileListenerDestination::handleIndication(
     {
         PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
                 "Failed to write indication to local file.");
-
         PEG_METHOD_EXIT();
         throw; 
     }

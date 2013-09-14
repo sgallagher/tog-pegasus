@@ -496,7 +496,7 @@ void WsmWriter::appendHTTPResponseHeader(
     }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+        char nn[] = { char('0'+(rand() % 10)), char('0'+(rand() % 10)),'\0' };
 
         out << STRLIT("Ext:\r\n");
         out << STRLIT("Cache-Control: no-cache\r\n");

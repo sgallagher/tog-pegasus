@@ -7044,10 +7044,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenAssociatorInstances 7. ProviderCount = %u",
-        providerInfos.providerCount));
-
     //
     // Set up an aggregate object and save the original request message
     //

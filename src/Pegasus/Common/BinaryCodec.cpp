@@ -399,7 +399,7 @@ static void _encodeEnumerateInstancesResponseBody(
     {
         // [PROPERTY-LIST]
         out.putPropertyList(data.getPropertyList());
-    }    
+    }
     data.encodeBinaryResponse(out);
 }
 
@@ -417,7 +417,7 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstances, which 
+    // a call to CIMResponseData::getInstances, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -494,7 +494,7 @@ _decodeEnumerateInstanceNamesResponse(
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstanceNames, which 
+    // a call to CIMResponseData::getInstanceNames, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -609,7 +609,7 @@ static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstances, which 
+    // a call to CIMResponseData::getInstances, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -1126,7 +1126,7 @@ static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getObjects, which 
+    // a call to CIMResponseData::getObjects, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -1273,7 +1273,7 @@ static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstanceNames, which 
+    // a call to CIMResponseData::getInstanceNames, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -1551,7 +1551,7 @@ static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstanceNames, which 
+    // a call to CIMResponseData::getInstanceNames, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -3123,7 +3123,7 @@ static void _encodeOpenEnumerateInstancesRequest(
     buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
-    buf.putString(msg->filterQuery);  
+    buf.putString(msg->filterQuery);
 }
 
 static CIMOpenEnumerateInstancesRequestMessage*
@@ -3230,23 +3230,27 @@ static CIMOpenEnumerateInstancesResponseMessage*
 
     Boolean endOfSequence;
     if (!in.getBoolean(endOfSequence))
+    {
         return 0;
+    }
 
     String enumerationContext;
     if (!in.getString(enumerationContext))
+    {
         return 0;
+    }
 
     CIMOpenEnumerateInstancesResponseMessage* msg =
         new CIMOpenEnumerateInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstances, which 
+    // a call to CIMResponseData::getInstances, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -3292,7 +3296,7 @@ static void _encodeOpenEnumerateInstancePathsRequest(
     buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
-    buf.putString(msg->filterQuery);  
+    buf.putString(msg->filterQuery);
 }
 
 static CIMOpenEnumerateInstancePathsRequestMessage*
@@ -3385,24 +3389,27 @@ static CIMOpenEnumerateInstancePathsResponseMessage*
 
     Boolean endOfSequence;
     if (!in.getBoolean(endOfSequence))
+    {
         return 0;
+    }
 
     String enumerationContext;
     if (!in.getString(enumerationContext))
     {
         return 0;
     }
-    CIMOpenEnumerateInstancePathsResponseMessage* msg = 
+
+    CIMOpenEnumerateInstancePathsResponseMessage* msg =
         new CIMOpenEnumerateInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstanceNames, which 
+    // a call to CIMResponseData::getInstanceNames, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -3459,7 +3466,7 @@ static void _encodeOpenReferenceInstancesRequest(
     buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
-    buf.putString(msg->filterQuery);  
+    buf.putString(msg->filterQuery);
 }
 
 static CIMOpenReferenceInstancesRequestMessage*
@@ -3583,16 +3590,16 @@ static CIMOpenReferenceInstancesResponseMessage*
         return 0;
 
     CIMOpenReferenceInstancesResponseMessage* msg =
-        new CIMOpenReferenceInstancesResponseMessage(      
+        new CIMOpenReferenceInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstances, which 
+    // a call to CIMResponseData::getInstances, which
     // resolves the binary data is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -3642,7 +3649,7 @@ static void _encodeOpenReferenceInstancePathsRequest(
     buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
-    buf.putString(msg->filterQuery);  
+    buf.putString(msg->filterQuery);
 }
 
 static CIMOpenReferenceInstancePathsRequestMessage*
@@ -3759,9 +3766,9 @@ static CIMOpenReferenceInstancePathsResponseMessage*
         new CIMOpenReferenceInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data right here, we delegate this
     // to a later point in time when the data is actually retrieved through
@@ -3829,7 +3836,7 @@ static void _encodeOpenAssociatorInstancesRequest(
     buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
-    buf.putString(msg->filterQuery);  
+    buf.putString(msg->filterQuery);
 }
 
 static CIMOpenAssociatorInstancesRequestMessage*
@@ -3972,9 +3979,9 @@ static CIMOpenAssociatorInstancesResponseMessage*
         new CIMOpenAssociatorInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext );
 
     // Instead of resolving the binary data right here, we delegate this
     // to a later point in time when the data is actually retrieved through
@@ -4036,7 +4043,7 @@ static void _encodeOpenAssociatorInstancePathsRequest(
     buf.putUint32(msg->maxObjectCount);
     buf.putUint32Arg(msg->operationTimeout);
     buf.putString(msg->filterQueryLanguage);
-    buf.putString(msg->filterQuery);  
+    buf.putString(msg->filterQuery);
 }
 
 static CIMOpenAssociatorInstancePathsRequestMessage*
@@ -4093,12 +4100,15 @@ static CIMOpenAssociatorInstancePathsRequestMessage*
     Uint32 maxObjectCount;
     if (!in.getUint32(maxObjectCount))
        return 0;
+
     Uint32Arg operationTimeout;
     if (!in.getUint32Arg(operationTimeout))
         return 0;
+
     String filterQueryLanguage;
     if (!in.getString(filterQueryLanguage))
         return 0;
+
     String filterQuery;
     if (!in.getString(filterQuery))
         return 0;
@@ -4155,19 +4165,23 @@ static CIMOpenAssociatorInstancePathsResponseMessage*
 
     Boolean endOfSequence;
     if (!in.getBoolean(endOfSequence))
+    {
         return 0;
+    }
 
     String enumerationContext;
     if (!in.getString(enumerationContext))
+    {
         return 0;
+    }
 
     CIMOpenAssociatorInstancePathsResponseMessage* msg =
         new CIMOpenAssociatorInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data right here, we delegate this
     // to a later point in time when the data is actually retrieved through
@@ -4230,7 +4244,9 @@ static CIMPullInstancesWithPathRequestMessage*
 
     CIMNamespaceName nameSpace;
     if (!in.getNamespaceName(nameSpace))
+    {
         return 0;
+    }
 
     // [EnumerationContext]
     String enumerationContext;
@@ -4242,7 +4258,9 @@ static CIMPullInstancesWithPathRequestMessage*
     // [MACTCOUNT]
     Uint32 maxObjectCount;
     if (!in.getUint32(maxObjectCount))
+    {
        return 0;
+    }
 
     AutoPtr<CIMPullInstancesWithPathRequestMessage> request(
         new CIMPullInstancesWithPathRequestMessage(
@@ -4289,19 +4307,23 @@ static CIMPullInstancesWithPathResponseMessage*
 
     Boolean endOfSequence;
     if (!in.getBoolean(endOfSequence))
+    {
         return 0;
+    }
 
     String enumerationContext;
     if (!in.getString(enumerationContext))
+    {
         return 0;
+    }
 
     CIMPullInstancesWithPathResponseMessage* msg =
         new CIMPullInstancesWithPathResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data right here, we delegate this
     // to a later point in time when the data is actually retrieved through
@@ -4363,7 +4385,9 @@ static CIMPullInstancePathsRequestMessage*
 
     CIMNamespaceName nameSpace;
     if (!in.getNamespaceName(nameSpace))
+    {
         return 0;
+    }
 
     // [EnumerationContext]
     String enumerationContext;
@@ -4423,19 +4447,23 @@ static CIMPullInstancePathsResponseMessage*
 
     Boolean endOfSequence;
     if (!in.getBoolean(endOfSequence))
+    {
         return 0;
+    }
 
     String enumerationContext;
     if (!in.getString(enumerationContext))
+    {
         return 0;
+    }
 
     CIMPullInstancePathsResponseMessage* msg =
         new CIMPullInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data right here, we delegate this
     // to a later point in time when the data is actually retrieved through
@@ -4785,14 +4813,14 @@ static CIMOpenQueryInstancesResponseMessage*
         new CIMOpenQueryInstancesResponseMessage(
             messageId,
             cimException,
-            CIMClass(), 
+            CIMClass(),
             endOfSequence,
             enumerationContext,
             QueueIdStack());
 
     // Instead of resolving the binary data here, delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to CIMResponseData::getInstances, which 
+    // a call to CIMResponseData::getInstances, which
     // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
@@ -5206,12 +5234,12 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     // EXP_PULL TODO - TBD Review this.
     // If there are any parameters include them here.
     // Assumes that it is prebuilt with all components
-    // 
+    //
     if (rtnParams.size() != 0)
     {
         out << rtnParams;
     }
-    // 
+    //
     // //EXP_PULL_END
 
     return out;
@@ -5503,7 +5531,7 @@ bool BinaryCodec::encodeRequest(
         out.append('\0');
     }
     // Need fix-up Content-length value...
-    char * contentLengthValueStart = 
+    char * contentLengthValueStart =
         (char*) strstr(out.getData(), "content-length");
     contentLengthValueStart += sizeof("content-length: ")-1;
     // using sprintf to stay equal to the macro OUTPUT_CONTENTLENGTH definition

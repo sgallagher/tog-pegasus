@@ -645,9 +645,9 @@ CIMResponseMessage*
         new CIMPullInstancesWithPathResponseMessage(
             messageId,
             CIMException(),
+            queueIds.copyAndPop(),
             false,
-            enumerationContext,
-            queueIds.copyAndPop()));
+            enumerationContext));
     response->syncAttributes(this);
     return response.release();
 }
@@ -658,9 +658,9 @@ CIMResponseMessage* CIMPullInstancePathsRequestMessage::buildResponse() const
         new CIMPullInstancePathsResponseMessage(
             messageId,
             CIMException(),
+            queueIds.copyAndPop(),
             false,
-            enumerationContext,
-            queueIds.copyAndPop()));
+            enumerationContext));
     response->syncAttributes(this);
     return response.release();
 }
@@ -2098,5 +2098,164 @@ CIMNotifyListenerNotActiveResponseMessage::
         messageId_, cimException_, queueIds_)
 {
 }
+
+// EXP_PULL_BEGIN
+CIMOpenEnumerateInstancesResponseMessage::
+    CIMOpenEnumerateInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCES),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMOpenEnumerateInstancePathsResponseMessage::
+    CIMOpenEnumerateInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTNAMES),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMOpenReferenceInstancesResponseMessage::
+    CIMOpenReferenceInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMOpenReferenceInstancePathsResponseMessage::
+    CIMOpenReferenceInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMOpenAssociatorInstancesResponseMessage::
+    CIMOpenAssociatorInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTS),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMOpenAssociatorInstancePathsResponseMessage::
+    CIMOpenAssociatorInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ ,
+        const String& enumerationContext_
+        )
+    :CIMResponseDataMessage(CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+CIMPullInstancesWithPathResponseMessage::
+    CIMPullInstancesWithPathResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMPullInstancePathsResponseMessage::
+    CIMPullInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_)
+    : CIMResponseDataMessage(CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMCloseEnumerationResponseMessage::
+    CIMCloseEnumerationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_CLOSE_ENUMERATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
+
+CIMOpenQueryInstancesResponseMessage::
+    CIMOpenQueryInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const CIMClass& queryResultClass_,
+        Boolean endOfSequence_,
+        const String& enumerationContext_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseDataMessage(CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES),
+        queryResultClass(queryResultClass_),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMEnumerationCountResponseMessage::
+    CIMEnumerationCountResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Uint64Arg& count_ )
+    : CIMResponseMessage(CIM_ENUMERATION_COUNT_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        count(count_)
+    {
+    }
+
+//EXP_PULL_END
 
 PEGASUS_NAMESPACE_END

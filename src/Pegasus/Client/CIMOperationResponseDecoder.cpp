@@ -2026,9 +2026,9 @@ CIMOpenEnumerateInstancesResponseMessage*
         return new CIMOpenEnumerateInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2037,9 +2037,9 @@ CIMOpenEnumerateInstancesResponseMessage*
         return new CIMOpenEnumerateInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     _decodeGetInstancesWithPathElement(parser, namedInstances);
@@ -2052,9 +2052,9 @@ CIMOpenEnumerateInstancesResponseMessage*
     msg = new CIMOpenEnumerateInstancesResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstances(namedInstances);
     return msg;
@@ -2078,9 +2078,9 @@ CIMOpenEnumerateInstancePathsResponseMessage*
         return new CIMOpenEnumerateInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2089,9 +2089,9 @@ CIMOpenEnumerateInstancePathsResponseMessage*
         return new CIMOpenEnumerateInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     _decodeInstancePathElements(parser, instancePaths);
@@ -2104,9 +2104,9 @@ CIMOpenEnumerateInstancePathsResponseMessage*
     msg = new CIMOpenEnumerateInstancePathsResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstanceNames(instancePaths);
     return msg;
@@ -2131,9 +2131,9 @@ CIMOpenReferenceInstancesResponseMessage*
         return new CIMOpenReferenceInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // KS_TODO EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2142,9 +2142,9 @@ CIMOpenReferenceInstancesResponseMessage*
         return new CIMOpenReferenceInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     _decodeGetInstancesWithPathElement(parser, namedInstances);
@@ -2157,9 +2157,9 @@ CIMOpenReferenceInstancesResponseMessage*
     msg = new CIMOpenReferenceInstancesResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     // set response data type to Instances.  The default for this
     // message is OBJECTS since that is what we use in the server.
@@ -2186,9 +2186,9 @@ CIMOpenReferenceInstancePathsResponseMessage*
         return new CIMOpenReferenceInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // KS_TODO EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2197,9 +2197,9 @@ CIMOpenReferenceInstancePathsResponseMessage*
         return new CIMOpenReferenceInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     _decodeInstancePathElements(parser, instancePaths);
@@ -2212,9 +2212,9 @@ CIMOpenReferenceInstancePathsResponseMessage*
     msg = new CIMOpenReferenceInstancePathsResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstanceNames(instancePaths);
 
@@ -2238,9 +2238,9 @@ CIMOpenAssociatorInstancesResponseMessage*
         return new CIMOpenAssociatorInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // KS_TODO EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2249,9 +2249,9 @@ CIMOpenAssociatorInstancesResponseMessage*
         return new CIMOpenAssociatorInstancesResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     _decodeGetInstancesWithPathElement(parser, namedInstances);
@@ -2264,9 +2264,10 @@ CIMOpenAssociatorInstancesResponseMessage*
     msg = new CIMOpenAssociatorInstancesResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
+
     msg->getResponseData().setDataType(CIMResponseData::RESP_INSTANCES);
     msg->getResponseData().setInstances(namedInstances);
 
@@ -2290,9 +2291,9 @@ CIMOpenAssociatorInstancePathsResponseMessage*
         return new CIMOpenAssociatorInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2301,9 +2302,9 @@ CIMOpenAssociatorInstancePathsResponseMessage*
         return new CIMOpenAssociatorInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -2327,9 +2328,9 @@ CIMOpenAssociatorInstancePathsResponseMessage*
     msg = new CIMOpenAssociatorInstancePathsResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstanceNames(instancePaths);
 
@@ -2353,9 +2354,9 @@ CIMPullInstancesWithPathResponseMessage*
         return new CIMPullInstancesWithPathResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2364,9 +2365,9 @@ CIMPullInstancesWithPathResponseMessage*
         return new CIMPullInstancesWithPathResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     _decodeGetInstancesWithPathElement(parser, namedInstances);
 
@@ -2377,9 +2378,9 @@ CIMPullInstancesWithPathResponseMessage*
     msg = new CIMPullInstancesWithPathResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstances(namedInstances);
     return msg;
@@ -2406,9 +2407,9 @@ CIMPullInstancePathsResponseMessage*
         return new CIMPullInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
     // KS_TODO EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
@@ -2417,9 +2418,9 @@ CIMPullInstancePathsResponseMessage*
         return new CIMPullInstancePathsResponseMessage(
             messageId,
             cimException,
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     _decodeInstancePathElements(parser, instancePaths);
@@ -2431,9 +2432,9 @@ CIMPullInstancePathsResponseMessage*
     msg = new CIMPullInstancePathsResponseMessage(
         messageId,
         cimException,
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstanceNames(instancePaths);
     return msg;

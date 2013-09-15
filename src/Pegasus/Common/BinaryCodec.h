@@ -50,9 +50,9 @@ class PEGASUS_COMMON_LINKAGE BinaryCodec
 public:
 
 #if defined(PEGASUS_DEBUG)
-    /** 
+    /**
         Peform hex dump of the given data. This is a diagnostic
-        tool compiled only in debug mode. 
+        tool compiled only in debug mode.
     */
     static void hexDump(const void* data, size_t size);
 #endif /* defined(PEGASUS_DEBUG) */
@@ -81,7 +81,7 @@ public:
     CIMResponseMessage* decodeResponse(
         const Buffer& in);
     /**
-       Decode an input CIMBuffer containing a serialized message stream 
+       Decode an input CIMBuffer containing a serialized message stream
        into a singe CIMResponseMessage.
     */
     static CIMResponseMessage* decodeResponse(

@@ -91,7 +91,7 @@ poststarttests:
 	make stresse1
 	make stressen1
 
-	@$(ECHO)  Associator and Reference tests - get to completion      
+	@$(ECHO)  Associator and Reference tests - get to completion
 	make SimpleRef
 	make passoc1
 	make passoc2
@@ -100,15 +100,15 @@ poststarttests:
 	make pcmpian1
 	make pcmpia1
 
-	@$(ECHO)  Test close in process of delivery  
+	@$(ECHO)  Test close in process of delivery
 	make testenumclose
 	make testenumpathsclose
-
-	@$(ECHO)  Test timeout in process of delivery 
-	make testtimeout
-
-	@$(ECHO) Error tests
-	make errortests
+##
+##       @$(ECHO)  Test timeout in process of delivery
+##       make testtimeout
+##
+##       @$(ECHO) Error tests. Tests simple parameter errors.
+##       make errortests
 
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
@@ -253,6 +253,8 @@ stresse1:
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
+
+## test with object size 1000 and 100,000 returned objects
 stresse2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
@@ -260,7 +262,7 @@ stresse2:
 	    -T -v 3 $(HOSTID)
 
 stressen1:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=5000 ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -T -v 3 $(HOSTID)
 
 stressVariation:
@@ -297,7 +299,8 @@ filterParamError:
 	$(PROGRAM) an Test_Person -f abc -R $(HOSTID)
 	$(PROGRAM) an Test_Person -l WQL -R $(HOSTID)
 
-# test continueOnError Parameter.  Should return error in all cases
+## test continueOnError Parameter.  Should return error in all cases since 
+## continueOnError not supported
 continueOnErrorError:
 	$(PROGRAM) e Test_Person  -R -x $(HOSTID)
 	$(PROGRAM) en Test_Person  -R -x $(HOSTID)
@@ -319,19 +322,20 @@ invalidAssocObjectPath:
 ### responses. Then call pullop to get small set of objects and then
 ### close
 testenumclose: 
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
 
 testenumpathsclose: 
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=1000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
 
 pr: pr1 pr2
+
 #################################
 #### timeout test. Set interoptime to 2 sec and sleep to 10 sec. This
 #### test should timeout after the first pull.
 testtimeout:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=100 ResponseCount=1000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -s 10 -R $(HOSTID)
 
 #################################

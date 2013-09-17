@@ -75,6 +75,7 @@ public:
     /**
        Create a new Enumeration Table defining the defaults for
        operation Timeout and response Cache Maximum Size.
+       @param  maxInteroperationTimeoutValue Uint32 time in
      */
     EnumerationContextTable(Uint32 maxInteroperationTimeoutValue,
         Uint32 reponseCacheDefaultMaximumSize);
@@ -82,13 +83,17 @@ public:
     ~EnumerationContextTable();
 
     /** Create a new EnumerationContext object and return a pointer
-        to the object.
+        to the object. This includes information
+        required to process the pull and close operations for the enumeration
+        sequence controlled by this context. The context instance will remain
+        active for the life of the enumeration sequence.
         @param nameSpace - Namespace for this sequence.
-        @param Uint32 value of operation timeout.
+        @param operationTimeOutParam Uint32Arg value of operation
+        timeout in seconds.
         @param continueOnError Boolean containing the continueOnError flag for
          this context.  (CURRENTLY MUST BE FALSE)
         @param pullOpenRequestType - Type for the Pull request message so
-         tests can be made when pull received.  Used to prevent trying
+         tests can be made when pull received.  Prevents trying
          to pull paths when instances required, etc.
         @param contentType - Content type for the CIMResponseData cache
          container
@@ -102,19 +107,19 @@ public:
         CIMResponseData::ResponseDataContent contentType);
 
     /** Find and remove the enumeration context from the table
+     *  TODO - Want to remove this function completely.
     */
     void removeCxt(const String& enumerationContextName,
                    Boolean deleteContext);
 
     /** Remove the enumerationContext entry from the
-        EnumerationContext table if the state is closed and
+        EnumerationContext table and delete the entry. This function
+        should only be called when the client is closed and
         providers complete.
-        @param enumerationContextName context to remove
 
-        @return Boolean returns true if the context was successfully
-        removed.
+        @param enumerationContextName context to remove
      */
-    Boolean removeContext(EnumerationContext* en);
+    void removeContext(EnumerationContext* en);
 
     /** Return the number of enumeration context entries in the
        enumeration context table
@@ -216,9 +221,9 @@ private:
     // maintained from max of each context close/removal.
     Uint32 _cacheHighWaterMark;
 
-    // maximum allowed for interoperation timeout.  Any interoperation times
-    // greater than this can cause exception returns and enumeration context
-    // close.
+    // maximum time interval allowed for interoperation timeout in seconds.
+    // Any interoperation times greater than this can cause exception returns
+    // and enumeration context close.
     Uint32 _maxOperationTimeout;
 
     Magic<0x57D11474> _magic;

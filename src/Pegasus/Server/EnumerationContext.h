@@ -331,12 +331,10 @@ public:
     // Exception placed here in case of error. This is set by the operation
     // aggregate with any CIMException recieved from providers.  Note that
     // Only one is allowed.
+    // KS_TODO should we consider possibility of multiple errors. NO for
+    // now until we get continueOnError or really get way to return multiple
+    // errors.
     CIMException _cimException;
-
-    // remove this enumerationContext entry from the enumerationContextTable
-    //// KS_TODO we want to eliminate this completely and use only the
-    //// table remove one
-    void removeContext();
 
 private:
 
@@ -502,6 +500,12 @@ inline Boolean EnumerationContext::isValidPullRequestType(
 inline Boolean EnumerationContext::ifProvidersComplete() const
 {
     return _providersComplete;
+}
+
+inline Uint32 EnumerationContext::responseCacheSize()
+{
+    PEGASUS_ASSERT(valid());   // KS_TEMP
+    return _responseCache.size();
 }
 
 PEGASUS_NAMESPACE_END

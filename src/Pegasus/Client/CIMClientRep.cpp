@@ -1394,8 +1394,8 @@ CIMResponseData CIMClientRep::OpenQueryInstances(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         const CIMNamespaceName& nameSpace,
-        const String& filterQuery,
         const String& filterQueryLanguage,
+        const String& filterQuery,
         CIMClass& queryResultClass,
         Boolean returnQueryResultClass,
         Boolean continueOnError,
@@ -1410,8 +1410,8 @@ CIMResponseData CIMClientRep::OpenQueryInstances(
         new CIMOpenQueryInstancesRequestMessage(
             String::EMPTY,                  // messageId_ param
             nameSpace,
-            filterQuery,
             filterQueryLanguage,
+            filterQuery,
             returnQueryResultClass,
             continueOnError,
             operationTimeout,

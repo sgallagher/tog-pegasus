@@ -1558,11 +1558,11 @@ public:
 
     @param nameSpace See nameSpace parameter for openEnumerateInstances.
 
-    @param filterQuery String defining a valid query in the
-        query language defined by the <TT>filterQueryLanguage</TT> argument.
-
     @param filterQueryLanguage String Specifies a Query language for which the
         <TT>filterQuery</TT> argument is valid.
+
+    @param filterQuery String defining a valid query in the
+        query language defined by the <TT>filterQueryLanguage</TT> argument.
 
     @param returnQueryResultClass Boolean that controls whether a class
         definition is returned in <TT>QueryResultClass</TT>. if false,
@@ -1606,8 +1606,8 @@ public:
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         const CIMNamespaceName& nameSpace,
-        const String& filterQuery,
         const String& filterQueryLanguage,
+        const String& filterQuery,
         CIMClass& queryResultClass,
         Boolean returnQueryResultClass = false,
         Boolean continueOnError = false,

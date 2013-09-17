@@ -43,13 +43,20 @@ PEGASUS_NAMESPACE_BEGIN
 // query language type or return false if the language type not supported.
 Boolean QuerySupportRouter::routeHandleExecQueryRequest(
     CIMOperationRequestDispatcher* opThis,
-    CIMExecQueryRequestMessage* msg)
+    CIMExecQueryRequestMessage* msg,
+    void* enumerationContext)
 {
     if (msg->queryLanguage=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+    {
+        ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg,
+             enumerationContext);
+    }
 #ifdef PEGASUS_ENABLE_CQL
     else if(msg->queryLanguage == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+    {
+        ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg,
+            enumerationContext);
+    }
 #endif
     else
     {

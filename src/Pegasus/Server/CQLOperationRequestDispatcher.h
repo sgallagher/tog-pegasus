@@ -54,7 +54,8 @@ public:
     virtual ~CQLOperationRequestDispatcher() {}
 
     void handleQueryRequest(
-        CIMExecQueryRequestMessage* request);
+        CIMExecQueryRequestMessage* request,
+        void* enumerationContext = NULL);
 
     static void applyQueryToEnumeration(
         CIMResponseMessage* msg,

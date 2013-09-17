@@ -73,7 +73,8 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
 }
 
 void WQLOperationRequestDispatcher::handleQueryRequest(
-    CIMExecQueryRequestMessage* request)
+    CIMExecQueryRequestMessage* request,
+    void* enumerationContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "WQLOperationRequestDispatcher::handleQueryRequest");
@@ -177,6 +178,10 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         qx.release(),
         "WQL");
 
+    if (enumerationContext != NULL)
+    {
+        poA->setPullOperation((void *)enumerationContext);
+    }
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
 

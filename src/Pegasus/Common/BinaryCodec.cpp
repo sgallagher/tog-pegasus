@@ -4700,8 +4700,8 @@ static void _encodeOpenQueryInstancesRequest(
     buf.putNamespaceName(msg->nameSpace);
 
     // [filterQuery and filterQueryLanguage]
-    buf.putString(msg->filterQuery);
-    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->query);
+    buf.putString(msg->queryLanguage);
 
     // [returnQueryResultClass]
     buf.putBoolean(msg->returnQueryResultClass);

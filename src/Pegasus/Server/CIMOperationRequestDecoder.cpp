@@ -4661,8 +4661,8 @@ CIMOpenQueryInstancesRequestMessage*
         new CIMOpenQueryInstancesRequestMessage(
             messageId,
             nameSpace,
-            filterQuery.value,
             filterQueryLanguage.value,
+            filterQuery.value,
             returnQueryResultClass.value,
             operationTimeout.value,
             continueOnError.value,

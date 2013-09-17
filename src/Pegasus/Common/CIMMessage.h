@@ -1159,8 +1159,8 @@ public:
     CIMOpenQueryInstancesRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
-        const String& filterQuery_,
-        const String& filterQueryLanguage_,
+        const String& queryLanguage_,
+        const String& query_,
         Boolean returnQueryResultClass_,
         Uint32Arg operationTimeout_,
         Boolean continueOnError_,
@@ -1172,17 +1172,16 @@ public:
         CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
             authType_, userName_,
             nameSpace_,CIMName()),
-        filterQuery(filterQuery_),
-        filterQueryLanguage(filterQueryLanguage_),
+        queryLanguage(queryLanguage_),
+        query(query_),
         returnQueryResultClass(returnQueryResultClass_),
         operationTimeout(operationTimeout_),
         maxObjectCount(maxObjectCount_)
     {
     }
     virtual CIMResponseMessage* buildResponse() const;
-
-    String filterQuery;
-    String filterQueryLanguage;
+    String queryLanguage;
+    String query;
     Boolean returnQueryResultClass;
     Uint32Arg operationTimeout;
     Boolean continueOnError;
@@ -2006,7 +2005,6 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
         const Uint64Arg& count_ );
-
 
     Uint64Arg count;
 };

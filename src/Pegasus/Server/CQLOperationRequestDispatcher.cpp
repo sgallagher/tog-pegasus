@@ -34,6 +34,7 @@
 #include <Pegasus/Common/QueryExpressionRep.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
+#include <Pegasus/Server/EnumerationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -77,7 +78,8 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
 }
 
 void CQLOperationRequestDispatcher::handleQueryRequest(
-    CIMExecQueryRequestMessage* request)
+    CIMExecQueryRequestMessage* request,
+    void * enumerationContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CQLOperationRequestDispatcher::handleQueryRequest");
@@ -191,6 +193,12 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         false, false,
         qx.release(),
         "DMTF:CQL");
+
+    if (enumerationContext != NULL)
+    {
+        poA->setPullOperation((void *)enumerationContext);
+    }
+
 
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();

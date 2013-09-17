@@ -97,7 +97,7 @@ PEGASUS_USING_STD;
 //}
 /************************************************************************
 //
-//      EnumerationContextTable Implementation
+//      EnumerationContextTable Class Implementation
 //
 ************************************************************************/
 // Thread execution function for timerThread(). This thread executes
@@ -156,7 +156,7 @@ EnumerationContextTable::EnumerationContextTable(
 {
 }
 
-/* remove all contexts and delete them. Only used on system shutdown.
+/* Remove all contexts and delete them. Only used on system shutdown.
 */
 EnumerationContextTable::~EnumerationContextTable()
 {
@@ -200,6 +200,12 @@ EnumerationContextTable::~EnumerationContextTable()
     PEG_METHOD_EXIT();
 }
 
+/*
+    Create a new context entry and return it. This includes information
+    required to process the pull and close operations for the enumeration
+    sequence controlled by this context. The context instance will remain
+    active for the life of the enumeration sequence.
+*/
 EnumerationContext* EnumerationContextTable::createContext(
     const CIMNamespaceName& nameSpace,
     Uint32Arg&  operationTimeoutParam,
@@ -213,9 +219,10 @@ EnumerationContext* EnumerationContextTable::createContext(
     // set the operation timeout to either the default or current
     // value
     Uint32 operationTimeout =
-        (operationTimeoutParam.isNull())? _maxOperationTimeout
-                                          :
-                                          operationTimeoutParam.getValue();
+        (operationTimeoutParam.isNull())?
+            _maxOperationTimeout
+            :
+            operationTimeoutParam.getValue();
 
     // Create new context, Context name is monolithically increasing counter.
     // The interoperationTimeout is defined by either default or input value.
@@ -224,9 +231,6 @@ EnumerationContext* EnumerationContextTable::createContext(
         continueOnError,
         pullRequestType,
         contentType);
-
-////  // set the pointer to the enumeration table into the context
-////  enumCtxt->_enumerationContextTable = this;
 
     // Set the maximum size for the response Cache from the default
     // value in the table. This is for future where we could adjust the
@@ -266,6 +270,10 @@ EnumerationContext* EnumerationContextTable::createContext(
     return enumCtxt;
 }
 
+/*
+    Check for valid and in table. Remove from table if in the table
+    Delete if the delete = true;
+*/
 void EnumerationContextTable::removeCxt(
     const String& enumerationContextName,
     Boolean deleteContext)
@@ -273,6 +281,7 @@ void EnumerationContextTable::removeCxt(
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContextTable::remove");
     AutoMutex autoMut(tableLock);
     EnumerationContext* en = find(enumerationContextName);
+
     if (en == 0)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
@@ -280,28 +289,28 @@ void EnumerationContextTable::removeCxt(
             (const char *)enumerationContextName.getCString()));
 
         cout << "EnumTable.remove where en = 0" << endl;
+        PEG_METHOD_EXIT();
+        return;
     }
-
-    PEG_METHOD_EXIT();
     _removeContext(en, deleteContext);
 }
 
 // KS_TODO - Clean up fact that we repeat code above and here and have
 // 2 parallel functions for deletion (pointer and name)
 //// KS_TODO why any return here.  Should be removed.
-Boolean EnumerationContextTable::removeContext(EnumerationContext* en)
+void EnumerationContextTable::removeContext(EnumerationContext* en)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::remove");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::removeContext");
+    PEGASUS_ASSERT(valid());
     AutoMutex autoMut(tableLock);
 
     PEG_METHOD_EXIT();
-    return _removeContext(en);
+    _removeContext(en, true);
 }
 
 // Private remove function with no lock protection. The tableLock must
 // be set before this function is called to protect the table. This simply
 // removes the context from the context table.
-//// TODO Why return here, should just remove.
 Boolean EnumerationContextTable::_removeContext(
     EnumerationContext* en, Boolean deleteContext)
 {
@@ -310,28 +319,37 @@ Boolean EnumerationContextTable::_removeContext(
     PEGASUS_ASSERT(en->valid());            // KS_TEMP
     tableValidate();
 
-    // If it is valid and providers are complete, we can delete
+    // If it is valid and providers are complete, remove
     // the enumerationContext.  If providers not complete, only
     // completion of provider deliveries can initiate removal of
     // the enumeration context.
-    //// TODO this is clearly incomplete.  Does not really account
-    ///  for when client closed but not providers complete.
-    if (en != 0 && en->_clientClosed && en->_providersComplete && !en->_waiting)
+    // This function assumes that the sequence is really complete and
+    // provider returns complete.  If that is not true, it just generates
+    // an error and returns.
+    if (en->_clientClosed && en->_providersComplete && !en->_waiting)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId= %s",
             (const char *)en->getName().getCString() ));
-        // Remove from EnumerationContextTable.
 
+        // test/set the highwater mark for the table
         if (en->_cacheHighWaterMark > _cacheHighWaterMark)
         {
             _cacheHighWaterMark = en->_cacheHighWaterMark;
         }
 
-        //// KS_TODO pointer or use name
+        // Remove from EnumerationContextTable.
         ht.remove(en->getName());
 
-        // KS_TODO - Clear the cache?
+        // KS_TODO - Should we clear the cache? Right now, just display
+        if (en->responseCacheSize() != 0)
+        {
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+                "ERROR. Cache != 0EnumerationContext Remove. ContextId= %s "
+                " size = %u",
+                (const char *)en->getName().getCString(),
+                en->responseCacheSize() ));
+        }
 
         // Delete the enumerationContext object
         if (deleteContext)
@@ -339,7 +357,7 @@ Boolean EnumerationContextTable::_removeContext(
             delete en;
         }
 
-        // KS_TODO - Diagnostic
+        // KS_TODO - Diagnostic Temporary
         tableValidate();
 
         PEG_METHOD_EXIT();
@@ -347,21 +365,16 @@ Boolean EnumerationContextTable::_removeContext(
     }
     else
     {
-        if (en == 0)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "_removeContext ERRORERROR en == 0"));
-        }        // KS_TODO_TBD - Should we remove this and depend completely on
-        // the normal flow to clean it up.
-        else
-        {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "_removeContext ERRORERROR %s  _!providersComplete=%s"
-                    "  or waiting=%s",
+                "_removeContext ERRORERROR %s  _providersComplete=%s"
+                    "  or waiting=%s or clientClosed=%s",
                 (const char *)en->getName().getCString(),
                 (const char *)(en->_providersComplete? "true" : "false"),
-                (const char*) (en->_waiting? "true" : "false" )       ));
+                (const char*) (en->_waiting? "true" : "false" ),
+                (const char*) (en->_waiting? "true" : "false" )  ));
         }
+        //// KS_TODO remove this.  Test Diagnostic only.
         cout << "remove ignored. "
             << " waiting " << (en->_waiting? "true" : "false")
             << " clientClosed " <<(en->_clientClosed? "true" : "false")
@@ -379,7 +392,6 @@ Uint32 EnumerationContextTable::size()
     return(ht.size());
 }
 
-// KS_TODO - Clean this one up to one return.
 // If context name found, return pointer to that context.  Otherwise
 // return 0
 EnumerationContext* EnumerationContextTable::find(
@@ -459,6 +471,8 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "EnumerationContextTable::dispatchTimerThread");
 
+    PEGASUS_ASSERT(valid());   // KS_TEMP
+
     AutoMutex autoMut(tableLock);
     if (timerThreadIdle())
     {
@@ -479,7 +493,6 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
         // This thread runs until the timer is cleared or there are
         // no more contexts.
 
-        PEGASUS_ASSERT(valid());   // KS_TEMP
 
         Thread thread(operationContextTimerThread, this, true);
         if (thread.run() != PEGASUS_THREAD_OK)
@@ -523,7 +536,7 @@ void EnumerationContextTable::trace()
 /**
  * validate the magic object for this context
  *
- * @return Boolean True if valid object.
+ * @return Boolean True if valid Enumeration table.
  */
 Boolean EnumerationContextTable::valid()
 {

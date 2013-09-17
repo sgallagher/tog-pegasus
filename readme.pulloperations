@@ -111,9 +111,23 @@ TODO list:
       function by creating a new CIMPullResponse message in CIMMessage.h that
       contains the pull data.  Then we can use a single function to process all
       pull operations.
-      b. test the timeout thread
+      b. test the enumeration timeout thread
       c. New Mergout to bring up to to date again.
       d. Fix known problem with the interop provider.
+
+17 September 2013 CVS update (Actually two different updates over 3 days)
+1. Clean up some issues in CIMMessage.h and CIMMessage.cpp
+2. Extend OpenExecQuery to WQL and CQL processors but return not complete
+3. Remove memory leak in EnumerationContext and EnumerationContextTable
+   handling.
+4. Created template functions for much of the pull operations.
+5. Reversed order of queryLanguage and query (and changed names to match
+   execQuery) in client and server.  Note that these are the execQuery
+   WQL and CQL filters and NOT FQL filters.
+6. Some code cleanup in dispatcher
+7. Today, passes all tests in pullop but issue in alltests. For some reason
+   not finding CIMObjectManager instance. Also, leaves enumeration contexts
+   if client terminates since cleanup thread not operating.
 
 14 September 2013 CVS update
 Merged out up to 25 August.  Cleaned up all operations and standardized code.

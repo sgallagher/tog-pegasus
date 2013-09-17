@@ -1048,7 +1048,7 @@ Boolean compareInstances(const String& s1, const String s2,
             }
             else
             {
-                rtn = false; 
+                rtn = false;
             }
         }
     }
@@ -1097,7 +1097,7 @@ Boolean compareInstances(const String& s1, const String s2,
             }
             else
             {
-                rtn = false; 
+                rtn = false;
             }
         }
     }
@@ -1133,7 +1133,7 @@ Boolean compareObjectPaths(
             cout << "Orig " << i << " " << p2[i].toString() << endl;
         }
 
-        rtn = false; 
+        rtn = false;
     }
 
     // Should we sort here???
@@ -1154,7 +1154,7 @@ Boolean compareObjectPaths(
             rtn = true;
         }
     }
-    return rtn; 
+    return rtn;
 }
 
 void displayRtnSizes(const char * op, Uint32Arg& maxObjectCount,
@@ -1217,8 +1217,9 @@ bool pullInstancePaths(CIMClient& client,
     if (!endOfSequence)
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
-             << openOpName << ". Received count " << resultArray.size()
-             << "endOfSequence=" << _toCharP(endOfSequence) << endl;
+             << openOpName << ". Total Received count " << resultArray.size()
+             << " endOfSequence before close=" << _toCharP(endOfSequence)
+             << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
         timer.stop();
@@ -1265,8 +1266,9 @@ bool pullInstancesWithPath(CIMClient& client,
     if (!endOfSequence)
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
-             << openOpName << ". Received count= " << resultArray.size()
-             << " endOfSequence=" << _toCharP(endOfSequence) << endl;
+             << openOpName << ". Total Received count " << resultArray.size()
+             << " endOfSequence before close=" << _toCharP(endOfSequence)
+             << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
         timer.stop();

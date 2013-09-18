@@ -701,9 +701,9 @@ void JSONWriter::append(CIMException& e, String& httpMethod, RsURI& reqURI)
 
     _buffer.append(STRLIT_ARGS("{"));
 
-    _buffer.append(STRLIT_ARGS("\"kind\": \"errorresponse\",\"self\":"));
+    _buffer.append(STRLIT_ARGS("\"kind\": \"errorresponse\",\"self\":\""));
     _buffer.append(reqURI.getString().getCString(), reqURI.getString().size());
-    _buffer.append(',');
+    _buffer.append(STRLIT_ARGS("\","));
     _buffer.append(STRLIT_ARGS("\"httpmethod\":"));
     _append(httpMethod);
     _buffer.append(',');

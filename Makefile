@@ -105,6 +105,8 @@ usage: FORCE
 	$(USAGE)"testusage2          - TestMakefile usage2"
 	$(USAGE)"stresstests         - Runs the default stresstests"
 	$(USAGE)
+	$(USAGE)"webadmin            - build/config webadmin" 
+	$(USAGE)
 	$(USAGE)"--------------------"
 	$(USAGE)"Quick start:"
 	$(USAGE)"  After checkout of new tree:"
@@ -290,9 +292,6 @@ buildclientlibs: FORCE
 #
 setupdevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB), true)
-	-$(MAKE) -f Makefile.webAdmin setupwebadmin
-endif
 	@$(ECHO) "PEGASUS Development Server Runtime Environment configured "
 
 cleandevserver: FORCE
@@ -359,4 +358,8 @@ endif
 rootbundle:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
 
+webadmin: FORCE
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB), true)
+	$(MAKE) -f Makefile.webadmin copy_webadmin_directory
+endif	
 # DO NOT DELETE

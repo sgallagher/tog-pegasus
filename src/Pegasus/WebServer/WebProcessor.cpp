@@ -478,7 +478,7 @@ Uint32 WebProcessor::_getFileNameForURI(String& requestURI, String& absPath)
      */
     String webRoot = _webConfig.getWebRoot();
     String fullPath = (webRoot + fileName);
-    String resolvedPath = FileSystem::getAbsoluteFileName(fullPath);
+    String resolvedPath = FileSystem::getAbsoluteFileName(webRoot,fileName);
 
     if (FileSystem::isDirectory((const String&)resolvedPath))
     {// it is not allowed to access directories, error 403

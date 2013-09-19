@@ -1856,15 +1856,11 @@ void XmlWriter::appendMethodCallHeader(
     // This should be removed when stable. This should only be turned off in
     // a debugging/testing environment.
 
-////    static const char *clientTransferEncodingOff =
-////        getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+    static const char *clientTransferEncodingOff =
+        getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
 
-    // EXP_PULL_TEMP DELETE
-    // KS_TODO - Remove this. Temp to insure no chunking during testing
-    //  if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+    if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
 #endif
-
-    // EXP_PULL TEMP DELETE out << STRLIT("TE: chunked, trailers\r\n");
 
     if (!binaryResponse)
     {

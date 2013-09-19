@@ -47,6 +47,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Magic.h>
 #include <Pegasus/Common/Condition.h>
+#include <Pegasus/General/Stopwatch.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -284,8 +285,9 @@ public:
     void setClientClosed();
 
     /**
-        Sets the active state. Setting processing = true stops the
-        timer. Otherwise the interoperation timer is started
+        Sets the active state (i.e. Request being processed).
+        Setting processing = true stops the interOperation timer.
+        Otherwise the interoperation timer is started
         @param state Boolean defines whether to set processing or
         !processing. Processing means request being processed.
         @return - NOT USED TODAY
@@ -355,10 +357,10 @@ private:
     // ContinueOnError request flag.Set by open...
     Boolean _continueOnError;
 
-    // Timeout absolute time value for interoperation timeout.  If 0 indicates
-    // timer not active.
+    // Timeout absolute time value in seconds for interoperation timeout.
+    // 0 indicates  timer not active. Contains timeout time for
+    // this sequence in microseconds.
     Uint64 _interOperationTimer;
-    //enumerationState _enumerationState;
 
     // Request Type for pull operations for this pull sequence.
     // Set by open and all pulls must match this type.
@@ -380,7 +382,10 @@ private:
 
     // Set to true if waiting on condition variable.  Cannot remove until
     // this cleared.
-    Boolean _waiting;
+    Boolean _waitingCacheSizeCondition;
+    Boolean _waitingProviderLimitCondition;
+    Stopwatch _waitingCacheSizeConditionTime;
+    Stopwatch _waitingProviderLimitConditionTime;
 
     // Block simultaneous access to certain functions in the Enumeration
     // context.

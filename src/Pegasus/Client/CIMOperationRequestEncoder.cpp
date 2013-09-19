@@ -1422,8 +1422,8 @@ void CIMOperationRequestEncoder::_encodeOpenQueryInstancesRequest(
         message->continueOnError,
         message->maxObjectCount,
         message->operationTimeout,
-        message->filterQueryLanguage,
-        message->filterQuery,
+        message->queryLanguage,
+        message->query,
         params);
 
     Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,

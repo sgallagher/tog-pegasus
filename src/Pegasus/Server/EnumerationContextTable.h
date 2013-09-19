@@ -181,11 +181,12 @@ public:
 
 protected:
 
-    // Timers for timer thread in seconds
+    // Timers for timer thread in milliseconds
     // Current minimum timeout time for active pull sequences
     Uint32 _timeoutInterval;
 
     // next time the test for timed out pull sequences will be activated.
+    // Absolute time in milliseconds
     // KS_TODO - This is incorrect since it will be the minimum for all
     // time.  How can we keep minimum for the active ones?
     Uint64 _nextTimeout;

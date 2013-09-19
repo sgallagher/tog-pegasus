@@ -105,9 +105,11 @@ PEGASUS_USING_STD;
 // for close if timed out.  This is required for those cases where a
 // pull sequence is terminated without either completing or closing the
 // sequence.
+#define PEGASUS_USE_PULL_TIMEOUT_THREAD
 #ifdef PEGASUS_USE_PULL_TIMEOUT_THREAD
 ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 {
+    cout << "Start operationContextTimerThread " << endl;
     Thread *my_handle = (Thread *)parm;
     EnumerationContextTable* et =
         (EnumerationContextTable *)my_handle->get_parm();
@@ -119,11 +121,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
     // KS_TODO - The choice of existence of contexts as the loop controller
     // means that we will look through many inactive contexts to find any
     // that are both active and timed out (much search for a very unusual
-    // condition). This algorithm probably not optimum.
+    // condition). This algorithm not optimum.
     while (et->size() != 0)
     {
-        Uint32 counter = 0;
-        // Short timeout loop to be sure we can shutdown this thread.
+        // Test to determine if we are ready for next loop.
         while (!et->isTimedOut())
         {
             Threads::sleep(loopInterval);
@@ -132,7 +133,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
         et->removeExpiredContexts();
         et->updateNextTimeout();
     }
-
+    cout << "End operationContextTimerThread " << endl;
     // reset the timeout value to indicate that the thread is quiting
     et->setTimerThreadIdle();
 
@@ -326,7 +327,9 @@ Boolean EnumerationContextTable::_removeContext(
     // This function assumes that the sequence is really complete and
     // provider returns complete.  If that is not true, it just generates
     // an error and returns.
-    if (en->_clientClosed && en->_providersComplete && !en->_waiting)
+    if (en->_clientClosed && en->_providersComplete
+        && !en->_waitingCacheSizeCondition &&
+         !en->_waitingProviderLimitCondition)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId= %s",
@@ -337,7 +340,8 @@ Boolean EnumerationContextTable::_removeContext(
         {
             _cacheHighWaterMark = en->_cacheHighWaterMark;
         }
-
+        // KS_TODO diagnostic trace of enumerateContext internal info
+        en->trace();
         // Remove from EnumerationContextTable.
         ht.remove(en->getName());
 
@@ -365,18 +369,22 @@ Boolean EnumerationContextTable::_removeContext(
     }
     else
     {
-        {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "_removeContext ERRORERROR %s  _providersComplete=%s"
-                    "  or waiting=%s or clientClosed=%s",
-                (const char *)en->getName().getCString(),
-                (const char *)(en->_providersComplete? "true" : "false"),
-                (const char*) (en->_waiting? "true" : "false" ),
-                (const char*) (en->_waiting? "true" : "false" )  ));
-        }
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP TODO
+            "_removeContext ERRORERROR %s  _providersComplete=%s"
+                " _waitingCacheSizeCondition=%s "
+                " _waitingCacheSizeCondition=%s clientClosed=%s",
+            (const char *)en->getName().getCString(),
+            (const char *)(en->_providersComplete? "true" : "false"),
+            (const char*)(en->_waitingCacheSizeCondition? "true" : "false" ),
+            (const char*)(en->_waitingProviderLimitCondition? "true" :"false" ),
+             (const char *)(en->_clientClosed? "true" : "false")
+                     ));
         //// KS_TODO remove this.  Test Diagnostic only.
         cout << "remove ignored. "
-            << " waiting " << (en->_waiting? "true" : "false")
+            << " _waitingCacheSizeCondition "
+            << (en->_waitingCacheSizeCondition? "true" : "false")
+            << " _waitingProviderLimitCondition "
+            << (en->_waitingProviderLimitCondition? "true" : "false")
             << " clientClosed " <<(en->_clientClosed? "true" : "false")
             << " _providersComplete " <<
                  (en->_providersComplete? "true" : "false")
@@ -420,7 +428,9 @@ void EnumerationContextTable::removeExpiredContexts()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::removeExpiredContexts");
 
+    // Lock the table so no operations can be accepted during this process
     AutoMutex autoMut(tableLock);
+
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
 
     // Search enumeration table for entries timed out
@@ -436,9 +446,15 @@ void EnumerationContextTable::removeExpiredContexts()
             {
 //              cout << "Entry timed out " << en->getContextName()
 //                  << " " << en->_interOperationTimer <<  endl;
+/////       KS_TODO could a client operation sneak in here???
+/////       KS_TODO what about provider operation completion and the remove.
                 en->_interOperationTimer = 0;
-                //// KS_TODO this should really just let client close it.
-                _removeContext(en);
+                //// KS_TODO this could really just let client close it.
+                en->setClientClosed();
+                if (en->ifProvidersComplete())
+                {
+                    _removeContext(en, true);
+                }
             }
 //          else
 //          {
@@ -493,7 +509,6 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
         // This thread runs until the timer is cleared or there are
         // no more contexts.
 
-
         Thread thread(operationContextTimerThread, this, true);
         if (thread.run() != PEGASUS_THREAD_OK)
         {
@@ -514,6 +529,10 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
     PEG_METHOD_EXIT();
 }
 
+/*
+    Test if the next defined timeout for the context monitory is less
+    than the current time.
+*/
 Boolean EnumerationContextTable::isTimedOut() const
 {
     return (_nextTimeout < TimeValue::getCurrentTime().toMilliseconds() );

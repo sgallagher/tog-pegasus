@@ -223,7 +223,7 @@ Uint32 OperationAggregate::numberResponses()
     AutoMutex autoMut(_appendResponseMutex);
     Uint32 size = _responseList.size();
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses == %u read", size ));
+        "numberResponses = %u read", size ));
     return size;
 
     //// TODO AutoMutex autoMut(_appendResponseMutex);
@@ -237,7 +237,7 @@ CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
     CIMResponseMessage* tmp = _responseList[pos];
     //// TODO remove
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses == %u get # %u", _responseList.size(),
+        "numberResponses = %u get # %u", _responseList.size(),
                 pos ));
 
     return tmp;
@@ -252,7 +252,7 @@ CIMResponseMessage* OperationAggregate::removeResponse(const Uint32& pos)
     _responseList.remove(pos);
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses == %u remove # %u size before %u",
+        "numberResponses = %u remove # %u size before %u",
         _responseList.size(),
         pos, tmpsize));
     return tmp;

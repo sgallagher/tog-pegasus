@@ -1983,6 +1983,7 @@ void decode_attr_rply(struct slp_client *client)
             {
                 printf("Memory allocation failed in file %s at Line number"
                     " %d\n", __FILE__, __LINE__);
+                free(reply);
                 exit(1);
             }
             memcpy(reply->msg.attrRep.attrList,
@@ -2309,6 +2310,7 @@ void decode_srvrply(struct slp_client *client)
             {
                 printf("Memory allocation failed in file %s at Line "
                     "number %d\n", __FILE__, __LINE__);
+                free(reply);
                 exit(1);
             }
             if (NULL != xtptr)
@@ -2318,6 +2320,7 @@ void decode_srvrply(struct slp_client *client)
                 {
                     printf("Memory allocation failed in file %s at Line "
                         "number %d\n", __FILE__, __LINE__);
+                    free(reply);
                     exit(1);
                 }
             }
@@ -2369,6 +2372,7 @@ void decode_srvrply(struct slp_client *client)
                         {
                             printf("Memory allocation failed in file %s at "
                                 "Line number %d\n", __FILE__, __LINE__);
+                            free(reply);
                             exit(1);
                         }
                         memcpy(url_buf, xtptr + 7, url_len);

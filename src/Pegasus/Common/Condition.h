@@ -84,7 +84,7 @@ struct ConditionRep
 //==============================================================================
 
 /**
- * This class defines the concept of a condition variable based on the 
+ * This class defines a condition variable based on the 
  * Pthreads model that allows signaling between threads for more complex 
  * conditions than semaphores.
  * The general pattern for a condition variable is: 

@@ -930,7 +930,14 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
                 for (Uint32 i = 0 ; i < pListString.size(); i++)
                 {
-                    pList.append(CIMName(pListString[i]));
+                    try
+                    {
+                        pList.append(CIMName(pListString[i]));
+                    }
+                    catch (InvalidNameException& e)
+                    {
+                        throw OMInvalidOptionValue("propertyList", properties);
+                    }
                 }
                 opts.propertyList.set(pList);
             }

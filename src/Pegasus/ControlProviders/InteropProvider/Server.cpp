@@ -312,6 +312,55 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
     return instance;
 }
 
+//isHttpsEnabled signifies if the instance to be built is for https
+void InteropProvider::_buildCommInstSkeleton(
+    const Boolean isHttpsEnabled,
+    const Array<String> &ips,
+    const CIMClass &commMechClass,
+    Array<CIMInstance> &instances )
+{
+    // Build the CommunicationMechanism instance
+    Uint32 namespaceAccessProtocol = 2;
+    String namespaceType = "http";
+    String port = httpPort;
+    if( isHttpsEnabled)
+    {
+        namespaceType = "https";
+        namespaceAccessProtocol = 3;
+        port  = httpsPort;
+    }
+    CIMInstance instance;
+    for (Uint32 i = 0; i < ips.size() ; ++i)
+    {
+        String addr = ips[i];
+        HostAddress tmp;
+        tmp.setHostAddress(addr);
+        if(tmp.getAddressType() == HostAddress::AT_IPV6)
+        {
+            addr = "[" + addr + "]";
+        }
+        addr.append(":");
+        addr.append(port);
+
+        instance  = buildCIMXMLCommunicationMechanismInstance(
+                namespaceType,
+                namespaceAccessProtocol,
+                addr,
+                commMechClass);
+        instances.append(instance);
+    }
+    // If System::getInterfaceAddrs() fails add ip4 addr here.
+    if (!ips.size())
+    {
+        instance  = buildCIMXMLCommunicationMechanismInstance(
+                namespaceType,
+                namespaceAccessProtocol,
+                getHostAddress(hostName, namespaceAccessProtocol, port),
+                commMechClass);
+        instances.append(instance);
+    }
+}
+
 //
 // Retrieves all of the instances of CIMXMLCommunicationMechanism for the
 // CIMOM.
@@ -330,8 +379,6 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         "listenAddress");
 
     Array<CIMInstance> instances;
-    Uint32 namespaceAccessProtocol;
-    String namespaceType;
 
     CIMClass commMechClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -366,76 +413,13 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
     if (enableHttpConnection)
     {
         // Build the CommunicationMechanism instance for the HTTP protocol
-        namespaceAccessProtocol = 2;
-        namespaceType = "http";
-        CIMInstance instance;
-        for (Uint32 i = 0; i < ips.size() ; ++i)
-        {
-            String addr = ips[i];
-            HostAddress tmp;
-            tmp.setHostAddress(addr);
-            if(tmp.getAddressType() == HostAddress::AT_IPV6)
-            {
-                addr = "[" + addr + "]";
-            }
-            addr.append(":");
-            addr.append(httpPort);
-
-            instance  =
-                buildCIMXMLCommunicationMechanismInstance(
-                    namespaceType,
-                    namespaceAccessProtocol,
-                    addr,
-                    commMechClass);
-            instances.append(instance);
-        }
-        // If System::getInterfaceAddrs() fails add ip4 addr here.
-        if (!ips.size())
-        {
-            instance  = buildCIMXMLCommunicationMechanismInstance(
-                namespaceType,
-                namespaceAccessProtocol,
-                getHostAddress(hostName, namespaceAccessProtocol, httpPort),
-                commMechClass);
-            instances.append(instance);
-        }
+        _buildCommInstSkeleton( false, ips, commMechClass, instances);
     }
 
     if (enableHttpsConnection)
     {
         // Build the CommunicationMechanism instance for the HTTPS protocol
-        namespaceAccessProtocol = 3;
-        namespaceType = "https";
-        CIMInstance instance;
-        for (Uint32 i = 0; i < ips.size() ; ++i)
-        {
-            String addr = ips[i];
-            HostAddress tmp;
-            tmp.setHostAddress(addr);
-            if(tmp.getAddressType() == HostAddress::AT_IPV6)
-            {
-                addr = "[" + addr + "]";
-            }
-            addr.append(":");
-            addr.append(httpsPort);
-            instance  =
-                buildCIMXMLCommunicationMechanismInstance(
-                    namespaceType,
-                    namespaceAccessProtocol,
-                    addr,
-                    commMechClass);
-            instances.append(instance);
-        }
-        // If System::getInterfaceAddrs() fails add ip4 addr here.
-        if (!ips.size())
-        {
-            instance  = buildCIMXMLCommunicationMechanismInstance(
-                namespaceType,
-                namespaceAccessProtocol,
-                getHostAddress(hostName, namespaceAccessProtocol, httpsPort),
-                commMechClass);
-            instances.append(instance);
-        }
+        _buildCommInstSkeleton( true, ips, commMechClass, instances);
     }
 
     PEG_METHOD_EXIT();

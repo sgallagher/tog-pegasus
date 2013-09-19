@@ -34,9 +34,15 @@ else
   SOURCES_NO_ASM = $(SOURCES)
 endif
 
-ifeq ($(CXX), g++)
+##
+## test for compiler definition in CXX (g++, clang++, etc. compilers).
+## Test for compiler type  as substring, not exact because there
+## are cases where other info exists in CXX (ex. CXX=ccache g++)
+##
+ifeq ($(findstring g++, $(CXX)), g++)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -M
 endif
+
 ifeq ($(CXX), clang++)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -M
     C_SOURCES = $(filter %.c, $(SOURCES))
@@ -50,6 +56,10 @@ ifeq ($(CXX), aCC)
     acc_sed_filter = -e 's=$(OBJ_DIR).*cpp:==g'
 endif
 
+##
+## If compiler definition found, use compiler to define depend.mak
+## each obj dir
+##
 ifdef PEGASUS_CXX_MAKEDEPEND_OPTION
 
 ifeq ($(COMPILER), clang)
@@ -62,9 +72,14 @@ depend: $(OBJ_DIR)/target $(ERROR)
 endif
 else
   depend: $(OBJ_DIR)/target $(ERROR)
-       $(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
-  
+	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
 endif
+
+##
+## Compiler type not found.   If PEGASUS_HAS_MAKEDEPEND set use makedepend
+## to define depend.mak files.  Otherwise use OpenPegasus mu to create
+## depend.make files
+##
 else
 ifdef PEGASUS_HAS_MAKEDEPEND
 DEPEND_INCLUDES += -DPEGASUS_OS_TYPE_UNIX -I/usr/include $(SYS_INCLUDES)

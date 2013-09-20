@@ -30,9 +30,6 @@ ROOT = ../../../../..
 
 include $(ROOT)/mak/config.mak
 
-#### TODO Restore the full test
-#### DIRS = Child Parent
-DIRS = Child
-
+DIRS = Child Parent
 
 include $(ROOT)/mak/recurse.mak

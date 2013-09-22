@@ -2,6 +2,7 @@
 //base url which is identical for all requests
 baseURL = "http://"+window.location.hostname+":"+window.location.port+"/cimrs/";
 host = "http://"+window.location.hostname+":"+window.location.port+"/";
+//configURL = "root%2FPG_InterOp/enum?class=cim_indicationsubscription";
 configURL = "root%2FPG_InterOp/enum?class=cim_indicationsubscription";
 currentElement = null;
 
@@ -44,15 +45,14 @@ function writeContent(data) {
     //define a global variable to store property names and corresponding $ref values 
     refArray = new Array();
 	
-    var indicationList = JSON.parse(data);
-
+    var processList = JSON.parse(data);
+    var indicationList=processList.instances;
     var i=0;
     for (i=0; i < indicationList.length; i++) {
-        insertindicationRow(decodeURIComponent(indicationList[i].SubscriptionInfo),
-        		decodeURIComponent(indicationList[i].Handler),
-        		decodeURIComponent(indicationList[i].Filter),
-        		decodeURIComponent(indicationList[i].SubscriptionState),
-        		decodeURIComponent(indicationList[i].$ref));
+        insertindicationRow(decodeURIComponent(indicationList[i].properties.SubscriptionInfo),
+        		decodeURIComponent(indicationList[i].properties.Handler),
+        		decodeURIComponent(indicationList[i].properties.Filter),
+        		decodeURIComponent(indicationList[i].properties.SubscriptionState));
     }
     //change background color for every second row to improve readability
     var t_rows = document.getElementById('indicationTable').rows;

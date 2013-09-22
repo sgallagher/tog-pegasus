@@ -533,7 +533,11 @@ void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
         _buffer.get(bufferSize-2) == ']' &&
         _buffer.get(bufferSize-1) == '}')
     {
-        _buffer.remove(bufferSize-1);
+        _buffer.remove(_buffer.size()-1);
+        if (bufferSize > 2 && _buffer.get(bufferSize-3) == '[')
+        {
+            _buffer.remove(_buffer.size()-1);
+        }
     }
     else if (_numObjectsEnumerated == 0)
     {

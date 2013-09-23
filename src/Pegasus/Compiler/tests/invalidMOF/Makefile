@@ -57,6 +57,8 @@ tests: clean
 	@$(MAKE) -i -s qualiferDeclInvalidTests
 	@$(MAKE) -i -s instAliasInvalidTests
 	@$(MAKE) -i -s pragmaInvalidTests
+	@$(MAKE) -i -s qualifierDefInvalidTests
+	@$(MAKE) -i -s invalidClassDefinitionTests
 
 	@ $(DIFF) $(RESULTFILE) $(RESULTMASTERFILE)
 	@ $(ECHO) +++ invalidMOF tests passed successfully +++
@@ -65,7 +67,7 @@ tests: clean
 ##  Error tests. One mof file for each syntax error test. 1 - 9 are
 ##  Flavor error. 10-16 are Scope errors.
 qualiferDeclInvalidTests:
-	@ $(ECHO) > $(RESULTFILE)
+	@ $(ECHO) qualiferDeclInvalidTests > $(RESULTFILE)
 	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
 	    badQualifierDecl1.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
@@ -97,6 +99,7 @@ qualiferDeclInvalidTests:
 	@ $(ECHO) +++ qualifierDeclInvalid error tests executed successfully +++
 
 instAliasInvalidTests:
+	@ $(ECHO) instAliasInvalidTests >> $(RESULTFILE)
 	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
 	    InstAliasError.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
@@ -106,11 +109,25 @@ instAliasInvalidTests:
 	@ $(ECHO) +++ instAliasInvalid error tests executed successfully +++
 
 pragmaInvalidTests:
+	@ $(ECHO) pragmaInvalidTests >> $(RESULTFILE)
 	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
 	    InvalidPragma1.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
 	    InvalidPragma2.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@ $(ECHO) +++ pragmaInvalid error tests executed successfully +++
+
+## errors in the definition of qualifiers.
+qualifierDefInvalidTests:
+	@ $(ECHO) qualifierDefInvalidTests >> $(RESULTFILE)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badQualifierDef1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@ $(ECHO) +++ qualifierDefInvalid error tests executed successfully +++
+
+invalidClassDefinitionTests:
+	@ $(ECHO) invalidClassDefinitionTests >> $(RESULTFILE)
+	@ cimmofl "-W" "-nroot" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" \
+	    badClassDefinition1.mof
+	@ $(ECHO) +++ invalidClassDefinition error tests executed successfully +++
 
 poststarttests:
 
@@ -120,6 +137,5 @@ clean:
 
 depend:
 
-general:
 
 poststarttests:

@@ -56,6 +56,9 @@ ifeq ($(OS_TYPE),windows)
 EXTRA_INCLUDES += -I./nt_includes
 endif
 
+##LEX_DEBUG = -T
+##BISON_DEBUG=--report=all -t -v
+
 LOCAL_DEFINES = -DPEGASUS_COMPILER_INTERNAL
 
 ## This pushes BISON_SIMPLE into the environment so that

@@ -63,6 +63,24 @@
 //#include <sstream>
 #include "parserExceptions.h"
 
+
+//-----------------------------------------------------------------------
+//Implementation of the parserTypeFunctions
+//-----------------------------------------------------------------------
+static const char* _parserTypeStrings[] =
+{
+   "Null","Integer", "Real", "String", "Boolean,", "Char"
+};
+
+static const Uint32 _NUM_TYPES = sizeof(_parserTypeStrings) /
+                                sizeof(_parserTypeStrings[0]);
+
+const char* strValTypeEnumToString(strValTypeNS::strValTypeEnum type)
+{
+    PEGASUS_ASSERT(type < _NUM_TYPES);
+    return _parserTypeStrings[Uint32(type)];
+
+}
 //---------------------------------------------------------------------
 // Take a YY_BUFFERSTATE off the stack of saved contexts
 //---------------------------------------------------------------------
@@ -88,11 +106,13 @@ int parser::setInputBufferFromName(const String &filename)
 #else
     FILE *f = fopen(filename.getCString(),"rt");
 #endif
-    if (f) {
+    if (f)
+    {
         set_current_filename(filename);
         set_lineno(1);
         return setInputBuffer(f, false);
-    } else {
+    } else
+    {
         return 1;
     }
 }
@@ -113,7 +133,8 @@ int parser::wrap()
         set_current_filenamePath(v->filenamePath);
         delete v;
         return 0;  // more data available
-    } else {
+    } else
+    {
         return 1;  // end of it all
     }
 }

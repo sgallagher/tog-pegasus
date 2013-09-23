@@ -56,20 +56,63 @@
 #include <Pegasus/Common/FileSystem.h>
 
 
+
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-#define CIMMOF_CONSTANT_VALUE  1
-#define CIMMOF_ARRAY_VALUE     2
-#define CIMMOF_REFERENCE_VALUE 3
-#define CIMMOF_NULL_VALUE      4
-
 // #define  DEBUG_INCLUDE // enables include file processing debug printout
 
+// Define symbol for Empty Array.  Actually signal that this is not an
+// array.
+#define CIMMOF_EMPTY_ARRAY -1
+
+//// Enum to type the string values from nonNullConstantValue.
+//// Used primarily to seperate Boolean and String types but test within
+//// valueFactory to compare types with parsed types.
+////
+namespace strValTypeNS
+{
+    enum strValTypeEnum
+    {
+        NULL_VALUE = 0,
+        INTEGER_VALUE,
+        REAL_VALUE,
+        STRING_VALUE,
+        BOOLEAN_VALUE,
+        CHAR_VALUE
+    } ;
+};
+
+// Display char def for the names (Used in exception generation)
+const char * strValTypeEnumToString(strValTypeNS::strValTypeEnum x);
+
+//// Define a struct to contain the string value and type for
+//// initializer values in the parser. This is used only by the grammar
+//// today.
 typedef struct typedInitializerValue
 {
-    Uint16 type;
+    enum InitValueType
+    {
+        CONSTANT_VALUE = 1,
+        ARRAY_VALUE,
+        REFERENCE_VALUE,
+        NULL_VALUE
+    } ;
+
+    InitValueType type;
     const String *value;
+    int nonNullParserType;
+    void set(InitValueType t, String* v)
+    {
+        type = t;
+        value = v;
+    }
+    void setNull()
+    {
+        type = NULL_VALUE;
+        value = new String(String::EMPTY);
+        nonNullParserType = strValTypeNS::NULL_VALUE;
+    }
 } TYPED_INITIALIZER_VALUE;
 
 struct bufstate

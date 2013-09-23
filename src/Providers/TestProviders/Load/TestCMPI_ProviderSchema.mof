@@ -131,9 +131,9 @@ class TestCMPI_Method : TestCMPI_Parent
         string inputInstances[],
         [OUT, EmbeddedInstance("TestCMPI_Parent")]
         string outputInstances[],
-        [OUT, EmbeddedObject("TestCMPI_Parent")]
+        [OUT, EmbeddedObject]
         string outputObjects[],
-        [OUT, EmbeddedObject("TestCMPI_Embedded")]
+        [OUT, EmbeddedObject]
         string outputEmbeddedObjects[]);
 
 

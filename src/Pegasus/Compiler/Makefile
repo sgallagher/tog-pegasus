@@ -29,11 +29,13 @@
 #
 #  NOTE:  The grammar and parser are no longer built in this makefile,
 #  and in fact flex and bison are assumed to already have been run
-#  and their output committed to CVS.  Run
+#  and their output committed to CVS.  To rebuild the compiler grammar, run
 #      make grammar
 #           which executes the grammar makefile
 #  to generate cimmof_tab.cpp, cimmof_tab.h, and cimmof_lex.cpp.
 #  Remember to  commit them afterwards.
+#  Please read the warnings in Makefile.grammar before trying to commit
+#  changes to the compiler.
 #
 
 ROOT = ../../..

@@ -64,7 +64,7 @@
     {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt",
                     IS_STATIC, IS_VISIBLE},//TODO verify
 #endif
-#else
+#else // Non Release build
     {"httpPort", "", IS_STATIC, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, IS_VISIBLE},

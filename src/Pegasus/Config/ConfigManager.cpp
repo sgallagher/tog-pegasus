@@ -222,7 +222,7 @@ static struct OwnerEntry _properties[] =
 #endif
 };
 
-const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);
+const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);
 
 
 /////////////////////////////////////////////////////////////////////////////

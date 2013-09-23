@@ -145,7 +145,7 @@ String RsURI::getNamespaceName(Boolean encoded)
     // namespace value is the second segment in path
     // e.g. /cimrs/root%2Fcimv2/
 
-    Uint32 pathSize = _path.size();
+    const Uint32 pathSize = _path.size();
 
     if (_namespaceName.isNull() && pathSize > 0)
     {
@@ -180,18 +180,17 @@ Boolean RsURI::hasClassPath()
 
 CIMName RsURI::getClassName()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,
-        "RsURI::getClassName()");
+    PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::getClassName()");
 
     // class name is always the third segment in path
     // e.g. /cimrs/root%2Fcimv2/ACME_RegisteredProfile
 
-    Uint32 pathSize = _path.size();
+    const Uint32 pathSize = _path.size();
 
-    if (_className.isNull() && pathSize > 1 &&
-            CIMName::legal(_path[1]))
+    if (_className.isNull() && pathSize > 1 && CIMName::legal(_path[1]))
     {
         _className = CIMName(_path[1]);
+
         // if the class name is enum, then this is not the class name.
         // in such cases the class name is in the query string
         if(String::compare(_path[1], "enum") == 0)
@@ -209,8 +208,9 @@ CIMName RsURI::getClassName()
             if(nextParamPos == PEG_NOT_FOUND)
                 nextParamPos = _queryString.size();
 
-            _className = _queryString.subString(classPos,
-                                                nextParamPos - classPos);
+            _className = _queryString.subString(
+                classPos,
+                nextParamPos - classPos);
         }
     }
     PEG_METHOD_EXIT();
@@ -225,10 +225,9 @@ Boolean RsURI::hasEnum()
     // enum is as shown
     // e.g. /cimrs/root%2Fcimv2/enum?class=ACME_RegisteredProfile
 
-    Uint32 pathSize = _path.size();
     Boolean res = false;
 
-    if (pathSize > 1) // ToDo: Should be check for exactly 2 ??
+    if (_path.size() > 1) // ToDo: Should be check for exactly 2 ??
     {
         res = (String::compareNoCase(_path[1], "enum") == 0);
     }
@@ -244,10 +243,9 @@ Boolean RsURI::hasCreate()
     // enum is as shown
     // e.g. /cimrs/root%2Fcimv2/create?class=ACME_RegisteredProfile
 
-    Uint32 pathSize = _path.size();
     Boolean res = false;
 
-    if (pathSize > 1) // ToDo: Should be check for exactly 2 ??
+    if (_path.size() > 1) // ToDo: Should be check for exactly 2 ??
     {
         res = (String::compareNoCase(_path[1], "create") == 0);
     }
@@ -257,7 +255,6 @@ Boolean RsURI::hasCreate()
 
 Boolean RsURI::hasInstancePath()
 {
-    Boolean res = false;
     // ToDo. How are multiple keys handled?
     // /cimrs/root%2Fcimv2/ACME_RegisteredProfile/key
 
@@ -268,6 +265,7 @@ Boolean RsURI::hasInstancePath()
     }
 
     // if got a class name, then see if there are keys specified?
+    Boolean res = false;
     if(!_className.isNull())
     {
         if(_path.size() > 2) // ToDo: Should this be exactly 3 ??
@@ -343,7 +341,7 @@ String RsURI::getNavString()
 {
     // test expand first
     String paramValue = _findStringParameter("expand");
-    String assocClass;
+
     if(paramValue.size() == 0)
         paramValue = _findStringParameter("refer");
 
@@ -430,11 +428,11 @@ CIMName RsURI::getAssociationClassName()
 {
     // test expand first
     String paramValue = _findStringParameter("expand");
-    String assocClass;
     if(paramValue.size() == 0)
         paramValue = _findStringParameter("refer");
 
     Uint32 endPos = paramValue.find(0, '.');
+    String assocClass;
     if(endPos != PEG_NOT_FOUND)
     {
         assocClass = paramValue.subString(0, endPos);
@@ -518,7 +516,7 @@ String RsURI::getParamValues(CIMConstMethod& method,
     }
 
 
-    for (Uint32 x=0; x<pNames.size(); x++)
+    for (Uint32 x = 0; x < pNames.size(); x++)
     {
         Uint32 index = method.findParameter(pNames[x]);
         CIMConstParameter p = method.getParameter(index);

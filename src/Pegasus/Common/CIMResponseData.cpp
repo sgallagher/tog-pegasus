@@ -51,23 +51,27 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Defines debug code in CIMResponseData.  This under this
+// special compile flag so that it can be compiled independent of
+// PEGASUS_DEBUG flags.
+#define CIMRESPONSEDATA_DEBUG
+
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 // C++ objects interface handling
 
 // KS_TODO Remove this completely when finished testing.
 bool CIMResponseData::sizeValid()
 {
-    TRACELINE;
-
-    PEGASUS_ASSERT(valid());
+    PEGASUS_DEBUG_ASSERT(valid());
+#ifdef CIMRESPONSEDATA_DEBUG
     if (_size > 1000000)
     {
-        TRACELINE;
         cout << "CIMResponseData::PSVALID _size too big " << _size << endl;
         PEG_TRACE((TRC_XML, Tracer::LEVEL4,
                    "CIMResponseData::PSVALID _size too big %u",_size ));
         return false;
     }
+#endif
     PEG_TRACE((TRC_XML, Tracer::LEVEL4,
         "CIMResponseData Size _size=%u", _size));
     return true;
@@ -75,7 +79,6 @@ bool CIMResponseData::sizeValid()
 // Instance Names handling
 Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
 {
-    TRACELINE;
     PSVALID;
     PEGASUS_DEBUG_ASSERT(
     (_dataType==RESP_INSTNAMES || _dataType==RESP_OBJECTPATHS));
@@ -91,7 +94,6 @@ Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
 // an empty instance.
 CIMInstance& CIMResponseData::getInstance()
 {
-    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCE);
     _resolveToCIM();
     if (0 == _instances.size())
@@ -104,7 +106,6 @@ CIMInstance& CIMResponseData::getInstance()
 // Instances handling
 Array<CIMInstance>& CIMResponseData::getInstances()
 {
-    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCES);
     _resolveToCIM();
     return _instances;
@@ -119,7 +120,6 @@ Array<CIMInstance>& CIMResponseData::getInstances()
 // this keeps it working for the moment.
 Array<CIMInstance>& CIMResponseData::getInstancesFromInstancesOrObjects()
 {
-    TRACELINE;
     if (_dataType == RESP_INSTANCES)
     {
         _resolveToCIM();
@@ -135,15 +135,16 @@ Array<CIMInstance>& CIMResponseData::getInstancesFromInstancesOrObjects()
         return _instances;
 
     }
-    PEGASUS_DEBUG_ASSERT(false);
+    PEGASUS_ASSERT(false);
 }
 
 // Objects handling
 Array<CIMObject>& CIMResponseData::getObjects()
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::getObjects");
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_OBJECTS);
     _resolveToCIM();
+    PEG_METHOD_EXIT();
     return _objects;
 }
 
@@ -156,8 +157,7 @@ Array<CIMObject>& CIMResponseData::getObjects()
 // represented as SCMOInstance this returns array of SCMOInstance.
 Array<SCMOInstance>& CIMResponseData::getSCMO()
 {
-    TRACELINE;
-
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::getSCMO");
     // This function resolves to instances and so cannot handle responses to
     // the associators,etc.requests that return classes (input object path with
     // no keys). That issue is resolved however, since CIMResponseData uses the
@@ -166,34 +166,34 @@ Array<SCMOInstance>& CIMResponseData::getSCMO()
     // false(instancePaths) so that this should always produce instance paths.
 
     _resolveToSCMO();
+    PEG_METHOD_EXIT();
     return _scmoInstances;
 }
 
 // set an array of SCMOInstances into the response data object
 void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 {
+
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setSCMO");
     //// AutoMutex autoMut(testLock);
-    TRACELINE;
     PSVALID;
     _scmoInstances=x;
     _encoding |= RESP_ENC_SCMO;
     _size += x.size();
+    PEG_METHOD_EXIT();
 }
 
 // Binary data is just a data stream
 Array<Uint8>& CIMResponseData::getBinary()
 {
-    TRACELINE;
     PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_BINARY || _encoding == 0);
     return _binaryData;
 }
 
 bool CIMResponseData::setBinary(CIMBuffer& in)
 {
-    //// AutoMutex autoMut(testLock);
-
-    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setBinary");
+    //// AutoMutex autoMut(testLock);
 
     // Append all serial data from the CIMBuffer to the local data store.
     // Returns error if input not a serialized Uint8A
@@ -212,8 +212,6 @@ bool CIMResponseData::setBinary(CIMBuffer& in)
 bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 {
     //// AutoMutex autoMut(testLock);
-
-    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setRemainingBinaryData");
 
     // Append any data that has not been deserialized already from
@@ -229,7 +227,6 @@ bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 bool CIMResponseData::setXml(CIMBuffer& in)
 {
     //// AutoMutex autoMut(testLock);
-    TRACELINE;
     PSVALID;
     switch (_dataType)
     {
@@ -370,7 +367,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
         case RESP_OBJECTPATHS:
         default:
         {
-            PEGASUS_DEBUG_ASSERT(false);
+            PEGASUS_ASSERT(false);
         }
     }
     _encoding |= RESP_ENC_XML;
@@ -384,21 +381,17 @@ bool CIMResponseData::setXml(CIMBuffer& in)
 // that the from object is not used during the move.
 Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::moveObjects");
+
     //// AutoMutex autoMut(testLock);
 
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::moveObjects");
-    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::move(%u)", count));
 
-    PEGASUS_ASSERT(valid());                 // KS_TEMP
-    PEGASUS_ASSERT(_size == 0);    // Validate that to size == 0 or fix below
-    if (_dataType != from._dataType)         // KS_TEMP
-    {
-        printf("ERROR moveObjects _dataType %u. from._dataType %u\n",
-        _dataType, from._dataType);
-    }
+    PEGASUS_DEBUG_ASSERT(valid());                 // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(_size == 0);    // Validate size == 0 or fix below
     PEGASUS_DEBUG_ASSERT(_dataType == from._dataType);
+
     Uint32 rtnSize = 0;
     Uint32 toMove = count;
 
@@ -411,15 +404,14 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
                 break;
             case RESP_INSTANCE:
                 {
-                    //// TODO fix this Uint32 moveCount = toMove;
                     if (from._instanceData.size() > 0)
                     {
                         // temp test to assure all sizes are the same.
-                        PEGASUS_ASSERT(from._hostsData.size() ==
+                        PEGASUS_DEBUG_ASSERT(from._hostsData.size() ==
                                         from._instanceData.size());
-                        PEGASUS_ASSERT(from._referencesData.size() ==
+                        PEGASUS_DEBUG_ASSERT(from._referencesData.size() ==
                                         from._instanceData.size());
-                        PEGASUS_ASSERT(from._nameSpacesData.size() ==
+                        PEGASUS_DEBUG_ASSERT(from._nameSpacesData.size() ==
                                         from._instanceData.size());
                         _instanceData.append(from._instanceData.getData(),1);
                         from._instanceData.remove(0, 1);
@@ -444,7 +436,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
                 }
                 break;
 
-            // KS-TODO The above should probably be folded into the following.
+            // KS-TODO The above could probably be folded into the following.
             // Need something like an assert if there is ever more than
             // one instance in _instanceData for type RESP_INSTANCE
             case RESP_INSTANCES:
@@ -453,7 +445,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
                     Uint32 moveCount = LOCAL_MIN(toMove,
                                                  from._instanceData.size());
 
-                    PEGASUS_ASSERT(from._referencesData.size() ==
+                    PEGASUS_DEBUG_ASSERT(from._referencesData.size() ==
                                     from._instanceData.size());
                     _instanceData.append(from._instanceData.getData(),
                                          moveCount);
@@ -470,9 +462,11 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
     }
     if (RESP_ENC_BINARY == (from._encoding & RESP_ENC_BINARY))
     {
-        // KS_PULL TBD Add binary move function
         // Cannot resolve this one without actually processing
-        // the data since it is a stream.
+        // the data since it is a stream. Concluded that we do not
+        // want to do that since cost higher than gain.  Therefore we do
+        // not allow this option.  Should only mean that provider agent
+        // cannot generate binary for pull operations.
         rtnSize += 0;
         PEGASUS_ASSERT(false);
     }
@@ -538,6 +532,7 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
     _size += rtnSize;
     from._size -= rtnSize;
 
+    //// KS_TODO diagnostic that we should be able to remove
     if (rtnSize != _size)
     {
         PEG_TRACE((TRC_XML, Tracer::LEVEL1,
@@ -557,7 +552,6 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
 Uint32 CIMResponseData::size()
 {
     AutoMutex autoMut(testLock);
-    TRACELINE;
     PEG_METHOD_ENTER(TRC_XML,"CIMResponseData::size()");
     PSVALID;
 // If debug mode, add up all the individual size components to
@@ -567,7 +561,7 @@ Uint32 CIMResponseData::size()
 // but there are many sources of size info and we need to be sure we
 // have covered them all.
 #ifdef PEGASUS_DEBUG
-    PEGASUS_ASSERT(valid());            //KS_TEMP KS_TODO
+    PEGASUS_DEBUG_ASSERT(valid());            //KS_TEMP KS_TODO
 
     Uint32 rtnSize = 0;
     TEMPLOG;
@@ -656,13 +650,13 @@ Uint32 CIMResponseData::size()
 // target array
 void CIMResponseData::appendResponseData(const CIMResponseData & x)
 {
-
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::appendResponseData");
     //// AutoMutex autoMut(testLock);
-    TRACELINE;
     // Confirm that the CIMResponseData type matches the type
     // of the data being appended
 
-    PEGASUS_ASSERT(valid());            // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
     PEGASUS_DEBUG_ASSERT(_dataType == x._dataType);
     _encoding |= x._encoding;
 
@@ -691,12 +685,13 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
 
     // transfer property list
     _propertyList = x._propertyList;
+
+    PEG_METHOD_EXIT();
 }
 
 // Encoding responses into output format
 void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 {
-    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeBinaryResponse");
 
@@ -750,7 +745,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
             }
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
@@ -762,7 +757,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         // This actually should not happen following general code logic
-        PEGASUS_DEBUG_ASSERT(false);
+        PEGASUS_ASSERT(false);
     }
 
     PEG_METHOD_EXIT();
@@ -770,7 +765,6 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 
 void CIMResponseData::completeNamespace(const SCMOInstance * x)
 {
-    TRACELINE;
     const char * ns;
     Uint32 len;
     ns = x->getNameSpace_l(len);
@@ -846,6 +840,7 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
             }
         }
     }
+
     if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
         for (Uint32 j = 0, n = _scmoInstances.size(); j < n; j++)
@@ -863,11 +858,10 @@ void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
     const CIMNamespaceName & ns)
 {
-    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::completeHostNameAndNamespace");
 
-    PEGASUS_ASSERT(valid());            // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
 
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
@@ -941,15 +935,19 @@ void CIMResponseData::completeHostNameAndNamespace(
                 {
                     CIMObjectPath& p = _instanceNames[j];
                     if (p.getHost().size() == 0)
+                    {
                         p.setHost(hn);
+                    }
                     if (p.getNameSpace().isNull())
+                    {
                         p.setNameSpace(ns);
+                    }
                 }
                 break;
             }
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
@@ -983,7 +981,7 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
@@ -995,12 +993,14 @@ void CIMResponseData::completeHostNameAndNamespace(
 // are one of the pull responses or not
 void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::encodeXmlResponse");
 
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X)",
+        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X, pull=)",
         _encoding,
-        _dataType));
+        _dataType,
+        (isPullResponse? "true" : "false")));
 
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
@@ -1078,7 +1078,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
             case RESP_OBJECTPATHS:
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
@@ -1197,7 +1197,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
             }
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
@@ -1313,17 +1313,21 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
             }
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
+
+    PEG_METHOD_EXIT();
 }
 
 // contrary to encodeXmlResponse this function encodes the Xml in a format
 // not usable by clients
 void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::encodeInternalXmlResponse");
+
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)",
         _encoding,
@@ -1401,7 +1405,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_OBJECTPATHS:
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
@@ -1455,16 +1459,15 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_OBJECTPATHS:
             default:
             {
-                PEGASUS_DEBUG_ASSERT(false);
+                PEGASUS_ASSERT(false);
             }
         }
     }
-
+    PEG_METHOD_EXIT();
 }
 
 void CIMResponseData::_resolveToCIM()
 {
-    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::_resolveToCIM(encoding=%X,content=%X)",
         _encoding,
@@ -1488,7 +1491,6 @@ void CIMResponseData::_resolveToCIM()
 
 void CIMResponseData::_resolveToSCMO()
 {
-    TRACELINE;
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "CIMResponseData::_resolveToSCMO(encoding=%X,content=%X)",
         _encoding,
@@ -1514,7 +1516,6 @@ void CIMResponseData::_resolveToSCMO()
 // avoided whenever possible
 void CIMResponseData::_resolveBinary()
 {
-    TRACELINE;
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::_resolveBinary");
 
@@ -1610,7 +1611,7 @@ void CIMResponseData::_resolveBinary()
                 }
                 default:
                 {
-                    PEGASUS_DEBUG_ASSERT(false);
+                    PEGASUS_ASSERT(false);
                 }
             } // switch
             _encoding |= RESP_ENC_CIM;
@@ -1630,6 +1631,9 @@ void CIMResponseData::_resolveBinary()
 
 void CIMResponseData::_deserializeObject(Uint32 idx,CIMObject& cimObject)
 {
+
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_deserializeObject");
     // Only start the parser when instance data is present.
     if (0 != _instanceData[idx].size())
     {
@@ -1652,10 +1656,13 @@ void CIMResponseData::_deserializeObject(Uint32 idx,CIMObject& cimObject)
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to resolve XML object data, parser error!");
     }
+    PEG_METHOD_EXIT();
 }
 
 void CIMResponseData::_deserializeInstance(Uint32 idx,CIMInstance& cimInstance)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_deserializeInstance");
     // Only start the parser when instance data is present.
     if (0 != _instanceData[idx].size())
     {
@@ -1670,6 +1677,8 @@ void CIMResponseData::_deserializeInstance(Uint32 idx,CIMInstance& cimInstance)
     // reset instance when parsing may not be successfull or
     // no instance is present.
     cimInstance = CIMInstance();
+
+    PEG_METHOD_EXIT();
 }
 
 Boolean CIMResponseData::_deserializeReference(
@@ -1728,7 +1737,9 @@ Boolean CIMResponseData::_deserializeInstanceName(
 
 void CIMResponseData::_resolveXmlToCIM()
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_resolveXmlToCIM");
+
     switch (_dataType)
     {
         // Xml encoding for instance names and object paths not used
@@ -1787,7 +1798,7 @@ void CIMResponseData::_resolveXmlToCIM()
         }
         default:
         {
-            PEGASUS_DEBUG_ASSERT(false);
+            PEGASUS_ASSERT(false);
         }
     }
     // Xml was resolved, release Xml content now
@@ -1799,21 +1810,27 @@ void CIMResponseData::_resolveXmlToCIM()
     _encoding &=(~RESP_ENC_XML);
     // add CIM Encoding flag
     _encoding |=RESP_ENC_CIM;
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMResponseData::_resolveXmlToSCMO()
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_resolveXmlToSCMO");
     // Not optimal, can probably be improved
     // but on the other hand, since using the binary format this case should
     // actually not ever happen.
     _resolveXmlToCIM();
     _resolveCIMToSCMO();
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMResponseData::_resolveSCMOToCIM()
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_resolveSCMOToCIM");
     switch(_dataType)
     {
         case RESP_INSTNAMES:
@@ -1859,7 +1876,7 @@ void CIMResponseData::_resolveSCMOToCIM()
         }
         default:
         {
-            PEGASUS_DEBUG_ASSERT(false);
+            PEGASUS_ASSERT(false);
         }
     }
     _scmoInstances.clear();
@@ -1867,11 +1884,14 @@ void CIMResponseData::_resolveSCMOToCIM()
     _encoding &=(~RESP_ENC_SCMO);
     // add SCMO Encoding flag
     _encoding |=RESP_ENC_CIM;
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMResponseData::_resolveCIMToSCMO()
 {
-    TRACELINE;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_resolveCIMToSCMO");
     CString nsCString=_defaultNamespace.getString().getCString();
     const char* _defNamespace = nsCString;
     Uint32 _defNamespaceLen;
@@ -1957,7 +1977,7 @@ void CIMResponseData::_resolveCIMToSCMO()
         }
         default:
         {
-            PEGASUS_DEBUG_ASSERT(false);
+            PEGASUS_ASSERT(false);
         }
     }
 
@@ -1965,6 +1985,8 @@ void CIMResponseData::_resolveCIMToSCMO()
     _encoding &=(~RESP_ENC_CIM);
     // add SCMO Encoding flag
     _encoding |=RESP_ENC_SCMO;
+
+    PEG_METHOD_EXIT();
 }
 
 /**
@@ -1984,7 +2006,6 @@ void CIMResponseData::setRequestProperties(
     const Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    TRACELINE;
     _includeQualifiers = includeQualifiers;
     _includeClassOrigin = includeClassOrigin;
     _propertyList = propertyList;

@@ -606,19 +606,21 @@ struct testCalls{
     void startOperationTest(const char* operationName)
     {
         _operationName = operationName;
-        VCOUT << "Start "<< _testName << " " << _operationName << endl;
+        VCOUT << "Start " << _testName << " test. Operation "
+            << _operationName << endl;
     }
 
     void continueOperationTest(const char* operationName)
     {
         _operationName = operationName;
-        VCOUT << "Start "<< _testName << " " << _operationName
-              << "/" << operationName <<endl;
+        VCOUT << "Start " << _testName << " test. Operation "
+            << _operationName << endl;
     }
 
     void displayEnd()
     {
-        VCOUT << "End " << _testName << " " << _operationName << endl;
+        VCOUT << "End " << _testName << " test. Operation"
+            << _operationName << endl;
     }
     void testCIMException(CIMException& e)
     {
@@ -1030,38 +1032,40 @@ int main(int argc, char** argv)
 //  tc1._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
 //  tc1.pullInstancesWithPath();
 
-    // KS_TODO - The following is incorrect in that I am using what should
-    // be a private function to mess with the EnumerationContext. Need
-    // to fix this and also clean up the CIMEnumerationContext.h file.
-    testCalls tc2(client, "test/TestProvider");
-    tc2.setTestName("est TPull with invalid Enumeration Context");
-    tc2._className =  "CMPI_TEST_Person";
-    tc2._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
-    tc2.openEnumerateInstances();
-    tc2.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
-    tc2._enumerationContext.clearEnumeration();
-    tc2.pullInstancesWithPath();
-
-    // repeat test for EnumerateInstancePaths
-    tc2.openEnumerateInstancePaths();
-    tc2._enumerationContext.clearEnumeration();
-    tc2.pullInstancePaths();
-
-    tc2.openReferenceInstances();
-    tc2._enumerationContext.clearEnumeration();
-    tc2.pullInstancesWithPath();
-
-    tc2.openReferenceInstancePaths();
-    tc2._enumerationContext.clearEnumeration();
-    tc2.pullInstancePaths();
-
-    tc2.openAssociatorInstances();
-    tc2._enumerationContext.clearEnumeration();
-    tc2.pullInstancesWithPath();
-
-    tc2.openAssociatorInstancePaths();
-    tc2._enumerationContext.clearEnumeration();
-    tc2.pullInstancePaths();
+//// KS_TODO MOve all of these tests to static test so we just do pull with
+///  invalid context.
+//  // KS_TODO - The following is incorrect in that I am using what should
+//  // be a private function to mess with the EnumerationContext. Need
+//  // to fix this and also clean up the CIMEnumerationContext.h file.
+//  testCalls tc2(client, "test/TestProvider");
+//  tc2.setTestName("Pull with invalid Enumeration Context");
+//  tc2._className =  "CMPI_TEST_Person";
+//  tc2._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+//  tc2.openEnumerateInstances();
+//  tc2.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
+//  tc2._enumerationContext.clearEnumeration();
+//  tc2.pullInstancesWithPath();
+//
+//  // repeat test for EnumerateInstancePaths
+//  tc2.openEnumerateInstancePaths();
+//  tc2._enumerationContext.clearEnumeration();
+//  tc2.pullInstancePaths();
+//
+//  tc2.openReferenceInstances();
+//  tc2._enumerationContext.clearEnumeration();
+//  tc2.pullInstancesWithPath();
+//
+//  tc2.openReferenceInstancePaths();
+//  tc2._enumerationContext.clearEnumeration();
+//  tc2.pullInstancePaths();
+//
+//  tc2.openAssociatorInstances();
+//  tc2._enumerationContext.clearEnumeration();
+//  tc2.pullInstancesWithPath();
+//
+//  tc2.openAssociatorInstancePaths();
+//  tc2._enumerationContext.clearEnumeration();
+//  tc2.pullInstancePaths();
 
     // Test invalid pull type for enumeration.
     // KS_TODO - This one is incorrect I think.  Check to see if it

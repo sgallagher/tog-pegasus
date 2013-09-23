@@ -485,6 +485,7 @@ Boolean ProviderInfoList::hasMore(Boolean isProvider)
         _index = 0;
         return false;
     }
+
 /*************************************************************************
 **
 ** Implementation of CIMOperationRequestDispatcher Class
@@ -1934,7 +1935,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
-    //// TODO why this like here
+    //// TODO why this like here KS_TODO Sort this out ASAP
     PEGASUS_ASSERT(poA->getRequestType() !=
         CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE);
     PEGASUS_ASSERT(serviceId);
@@ -3061,6 +3062,9 @@ struct ProviderRequests
 
             // set this className into the new request
             REQ* requestCopy = new REQ(*request);
+
+            // set this className into the new request
+            requestCopy->className = providerInfo.className;
 
             // Forward to provider. If fails return empty response
             // KS_TODO Confirm that this short bypass is needed and works.

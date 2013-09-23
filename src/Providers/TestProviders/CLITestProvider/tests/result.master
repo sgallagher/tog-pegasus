@@ -108,7 +108,9 @@ class Test_CLITestProviderClass
             "behavior" ), 
         static]
     uint32 setProviderParameters([in, 
-    out] string substituteHostName);
+    out, 
+    Description ( "Sets a string to be used as the host name for responses "
+        "that require a host name" )] string substituteHostName);
     
         [Description ( "Method to reset all parameters that control "
             "provider behavior " ), 

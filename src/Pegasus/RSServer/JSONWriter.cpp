@@ -305,7 +305,7 @@ void JSONWriter::append(CIMInvokeMethodResponseMessage* methodResult,
         _buffer.append(':');
         _append(outParms[x].getValue(), repository, requestUri);
 
-        if( x+1 < outParms.size())
+        if( x + 1 < outParms.size())
         {
             _buffer.append(',');
         }

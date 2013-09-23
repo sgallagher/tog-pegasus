@@ -32,7 +32,7 @@ ROOT = .
 
 include $(ROOT)/env_var.status
 
-# There is no 'OS' defined when it is on linux platform, so define OS = linux. 
+# There is no 'OS' defined when it is on linux platform, so define OS = linux.
 # On zOS,Solaris,HP ,'OS' has already been defined.
 ifndef OS
 	OS = linux

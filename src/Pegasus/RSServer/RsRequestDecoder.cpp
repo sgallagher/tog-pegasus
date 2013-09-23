@@ -29,7 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <cctype>
 #include <cstdio>
@@ -59,14 +58,14 @@ RsRequestDecoder::~RsRequestDecoder()
 {
 }
 
-
-
 void RsRequestDecoder::handleEnqueue(Message* message)
 {
     PEG_METHOD_ENTER(TRC_RSSERVER,
         "RsOperationRequestDecoder::handleEnqueue(Message* message)");
     if (!message)
+    {
         return;
+    }
 
     switch (message->getType())
     {
@@ -76,7 +75,7 @@ void RsRequestDecoder::handleEnqueue(Message* message)
 
     default:
         // Unexpected message type
-        PEGASUS_ASSERT(0);
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
         break;
     }
 

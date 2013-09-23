@@ -81,6 +81,7 @@ void WebServer::handleEnqueue(Message* message)
 
     if ( !message )
     {
+        PEG_METHOD_EXIT();
         return;
     }
 

@@ -178,7 +178,7 @@ Real64 valueFactory::stringToReal(
 */
 Boolean _stringToBoolean(const String& sval)
 {
-    Boolean rtn = false;
+    Boolean rtn;
 
     if (sval == "T")
     {

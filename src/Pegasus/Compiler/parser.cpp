@@ -77,7 +77,7 @@ static const Uint32 _NUM_TYPES = sizeof(_parserTypeStrings) /
 
 const char* strValTypeEnumToString(strValTypeNS::strValTypeEnum type)
 {
-    PEGASUS_ASSERT(type < _NUM_TYPES);
+    PEGASUS_ASSERT(Uint32(type) < _NUM_TYPES);
     return _parserTypeStrings[Uint32(type)];
 
 }

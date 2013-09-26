@@ -302,9 +302,9 @@ Boolean _compareProperty(CIMProperty& propTest,
         if (display)
         {
             cout << "isArray Attributes differ differ. "
-                 << _toString(propTest.isArray())
+                 << boolToString(propTest.isArray())
                  << " vs. "
-                 << _toString(propRtnd.isArray())
+                 << boolToString(propRtnd.isArray())
                  << endl;
         }
         rtn = false;
@@ -347,9 +347,9 @@ Boolean _compareProperty(CIMProperty& propTest,
             if (display)
             {
                 cout << "getPropagated values differ.  "
-                     << _toString(propTest.getPropagated())
+                     << boolToString(propTest.getPropagated())
                      << " vs. "
-                     << _toString(propRtnd.getPropagated())
+                     << boolToString(propRtnd.getPropagated())
                      << endl;
             }
             rtn = false;
@@ -1076,11 +1076,13 @@ int enumerateInstances(Options& opts)
         cout << "EnumerateInstances "
             << "Namespace = " << opts.nameSpace
             << ", Class = " << opts.className.getString()
-            << ", deepInheritance = " << _toString(opts.deepInheritance)
-            << ", localOnly = " << _toString(opts.localOnly)
-            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
-            << ", PropertyList = " << _toString(opts.propertyList)
+            << ", deepInheritance = " << boolToString(opts.deepInheritance)
+            << ", localOnly = " << boolToString(opts.localOnly)
+            << ", includeQualifiers = "
+                << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin = "
+                << boolToString(opts.includeClassOrigin)
+            << ", PropertyList = " << opts.propertyList.toString()
             << endl;
     }
 
@@ -1261,10 +1263,12 @@ int getInstance(Options& opts)
         cout << "getInstance "
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/class = " << opts.getTargetObjectNameStr()
-            << ", localOnly = " << _toString(opts.localOnly)
-            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
-            << ", PropertyList = " << _toString(opts.propertyList)
+            << ", localOnly = " << boolToString(opts.localOnly)
+            << ", includeQualifiers = "
+                << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin = "
+                << boolToString(opts.includeClassOrigin)
+            << ", PropertyList = " << opts.propertyList.toString()
             << endl;
         _showValueParameters(opts);
     }
@@ -1375,9 +1379,10 @@ int testInstance(Options& opts)
         cout << "testInstance "
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/ClassName = " << opts.getTargetObjectNameStr()
-            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
-            << ", PropertyList = " << _toString(opts.propertyList)
+            << ", includeQualifiers = " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin = "
+                << boolToString(opts.includeClassOrigin)
+            << ", PropertyList = " << opts.propertyList.toString()
             << endl;
         _showValueParameters(opts);
     }
@@ -1444,8 +1449,8 @@ int testInstance(Options& opts)
     {
         cerr << "Warning: Response returned different property"
             " set than requested."
-            << "\nRequested = " << _toString(opts.propertyList) << endl
-            << "Returned = " << _toString(_buildPropertyList(rtndInstance))
+            << "\nRequested = " << opts.propertyList.toString() << endl
+            << "Returned = " << _buildPropertyList(rtndInstance).toString()
             << "\nContinuing and testing against requested property list"
             << endl;
         rtndInstance.instanceFilter(opts.includeQualifiers,
@@ -1530,8 +1535,7 @@ int modifyInstance(Options& opts)
         cout << "modifyInstance "
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/ClassName = " << opts.getTargetObjectNameStr()
-            << ", Property List = " <<
-                _toString(opts.propertyList)
+            << ", Property List = " << opts.propertyList.toString()
             << endl;
         _showValueParameters(opts);
     }
@@ -1610,7 +1614,7 @@ int enumerateClassNames(Options& opts)
         cout << "EnumerateClasseNames "
             << "Namespace= " << opts.nameSpace
             << ", Class= " << opts.className.getString()
-            << ", deepInheritance= " << _toString(opts.deepInheritance)
+            << ", deepInheritance= " << boolToString(opts.deepInheritance)
             << endl;
     }
     Array<CIMName> classNames;
@@ -1643,10 +1647,12 @@ int enumerateClasses(Options& opts)
         cout << "EnumerateClasses "
             << "Namespace= " << opts.nameSpace
             << ", Class= " << opts.className.getString()
-            << ", deepInheritance= " << _toString(opts.deepInheritance)
-            << ", localOnly= " << _toString(opts.localOnly)
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", deepInheritance= " << boolToString(opts.deepInheritance)
+            << ", localOnly= " << boolToString(opts.localOnly)
+            << ", includeQualifiers= "
+                << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin= "
+                << boolToString(opts.includeClassOrigin)
             << endl;
     }
 
@@ -1706,11 +1712,11 @@ int getClass(Options& opts)
         cout << "getClass "
             << "Namespace= " << opts.nameSpace
             << ", Class= " << opts.className.getString()
-            << ", deepInheritance= " << _toString(opts.deepInheritance)
-            << ", localOnly= " << _toString(opts.localOnly)
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
-            << ", PropertyList= " << _toString(opts.propertyList)
+            << ", deepInheritance= " << boolToString(opts.deepInheritance)
+            << ", localOnly= " << boolToString(opts.localOnly)
+            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
+            << ", PropertyList= " << opts.propertyList.toString()
             << endl;
     }
 
@@ -2006,9 +2012,9 @@ int references(Options& opts)
             << ", ObjectName = " << opts.getTargetObjectNameStr()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
-            << ", CIMPropertyList= " << _toString(opts.propertyList)
+            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
+            << ", CIMPropertyList= " << opts.propertyList.toString()
             << endl;
     }
 
@@ -2130,9 +2136,9 @@ int associators(Options& opts)
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", resultRole= " << opts.resultRole
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
-            << ", propertyList= " << _toString(opts.propertyList)
+            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
+            << ", propertyList= " << opts.propertyList.toString()
             << endl;
     }
 
@@ -2406,7 +2412,7 @@ struct classTreeEntry
              << "  subclassesCnt=" << _subclasses.size() << " "
              << " subclasses=" << _toString(_subclasses)
              << " assocRefs=" << _toString(_assocRefs) << " "
-             << " isAssociation=" << _toString(_isAssociation)
+             << " isAssociation=" << boolToString(_isAssociation)
              << endl;
     }
 };

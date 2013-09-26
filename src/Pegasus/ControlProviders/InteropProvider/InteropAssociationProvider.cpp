@@ -87,7 +87,7 @@ void InteropProvider::associators(
         (const char *)resultRole.getCString(),
                       boolToString(includeQualifiers),
                       boolToString(includeClassOrigin),
-        (const char *)propertyListToString(propertyList).getCString()));
+        (const char *)propertyList.toString().getCString()));
 
     handler.processing();
     String originRole = role;
@@ -241,7 +241,7 @@ void InteropProvider::references(
         (const char *)role.getCString(),
                       boolToString(includeQualifiers),
                       boolToString(includeClassOrigin),
-        (const char *)propertyListToString(propertyList).getCString()));
+        (const char *)propertyList.toString().getCString()));
 
     handler.processing();
     String tmpRole = role;

@@ -231,12 +231,6 @@ String PEGASUS_CLI_LINKAGE _toString(Boolean x);
 void  PEGASUS_CLI_LINKAGE _print(Boolean x);
 
 /**
- * Convert CIMPropertyList to a String in the form name[,name]
- * @param pl  property list
- * @return String PEGASUS_CLI_LINKAGE
- */
-String  PEGASUS_CLI_LINKAGE _toString(const CIMPropertyList& pl);
-/**
  * Convert a PropertyList object to displayable form
  * @param pl propertyList to print
  * @return String containing propertyList in displayable form

@@ -286,7 +286,7 @@ void InteropProvider::modifyInstance(
         thisProvider,
         (const char *) (instanceReference.toString().getCString()),
         boolToString(includeQualifiers),
-        (const char *) (propertyListToString(propertyList).getCString())));
+        (const char *)propertyList.toString().getCString()));
 
     // test for legal namespace for this provider. Exception if not
     //namespaceSupported(instanceReference);

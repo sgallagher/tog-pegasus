@@ -42,6 +42,8 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 static Boolean verbose;         // controls test IO
 
+#define VCOUT if (verbose) cout
+
 void test01()
 {
     CIMProperty pnull;
@@ -250,6 +252,12 @@ void test03()
     names.append(CIMName ("property3"));
     list1.set(names);
     list2 = list1;
+
+    VCOUT << list1.toString() << endl;
+    VCOUT << list2.toString() << endl;
+    PEGASUS_TEST_ASSERT(list1.toString() == "property1, property2, property3");
+    PEGASUS_TEST_ASSERT(list2.toString() == "property1, property2, property3");
+
     Array<CIMName> names1a = list1.getPropertyNameArray();
     PEGASUS_TEST_ASSERT(names == names1a);
     PEGASUS_TEST_ASSERT(list2[0] == CIMName("property1"));
@@ -258,6 +266,11 @@ void test03()
 
     list1.clear();
     list2.clear();
+
+    VCOUT << list1.toString() << endl;
+    VCOUT << list2.toString() << endl;
+    PEGASUS_TEST_ASSERT(list1.toString() == "NULL");
+    PEGASUS_TEST_ASSERT(list2.toString() == "NULL");
 
     // Test use of empty list.  Note that the requirement for
     // property lists assumes that we must be able to distinguish
@@ -270,6 +283,8 @@ void test03()
     PEGASUS_TEST_ASSERT(list1.size() == 0);
     Array<CIMName> names3 = list1.getPropertyNameArray();
     PEGASUS_TEST_ASSERT(names3.size() == 0);
+    VCOUT << list1.toString() << endl;
+    PEGASUS_TEST_ASSERT(list1.toString() == "EMPTY");
 
 }
 

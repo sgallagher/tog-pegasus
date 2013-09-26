@@ -85,30 +85,6 @@ PEGASUS_NAMESPACE_BEGIN
  *                                                             *
  ***************************************************************/
 
-const char * boolToString(Boolean x)
-{
-    return (x ? "true" : "false");
-}
-
-//
-// Utility function used to produce trace/logging statements
-//
-String propertyListToString(const CIMPropertyList& pl)
-{
-    if(pl.isNull())
-        return "NULL";
-    else if(pl.size() == 0)
-        return "EMPTY";
-
-    String tmp;
-    for (Uint32 i = 0; i < pl.size() ; i++)
-    {
-        if (i > 0)
-            tmp.append(", ");
-        tmp.append(pl[i].getString());
-    }
-    return tmp;
-}
 
 //
 // function that creates an object path given a class definition, an

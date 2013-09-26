@@ -538,7 +538,7 @@ void lookupBooleanOption(Options& opts,
     optsTarget = om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
     {
-        cout << optionName << " = " << _toString(optsTarget) << endl;
+        cout << optionName << " = " << boolToString(optsTarget) << endl;
     }
 }
 
@@ -553,7 +553,7 @@ void lookupBooleanOptionNegate(Options& opts,
     optsTarget = !om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
     {
-        cout << optionName << " = " << _toString(optsTarget) << endl;
+        cout << optionName << " = " << boolToString(optsTarget) << endl;
     }
 }
 
@@ -711,7 +711,7 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // Used the not version because the DMTF and pegasus default is true
     if (verboseTest && debug && om.isTrue("notLocalOnly"))
     {
-        cout << "localOnly= " << _toString(opts.localOnly) << endl;;
+        cout << "localOnly= " << boolToString(opts.localOnly) << endl;;
     }
 
     // Process includeQualifiers and notIncludeQualifiers
@@ -875,9 +875,8 @@ void CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             }
             if (debug && verboseTest && properties != "###!###")
             {
-                cout << "PropertyList= "
-                    << _toString(opts.propertyList)
-                    << endl;
+                cout << "PropertyList= " << opts.propertyList.toString()
+                     << endl;
             }
         }
     }

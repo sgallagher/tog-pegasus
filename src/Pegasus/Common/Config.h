@@ -393,6 +393,6 @@ PEGASUS_NAMESPACE_END
  */
 PEGASUS_NAMESPACE_BEGIN
 // Include PEGASUS_EXPORT explicitly because Linkage calls Config.h
-PEGASUS_EXPORT const char* const boolToString(bool x);
+PEGASUS_EXPORT const char* boolToString(bool x);
 PEGASUS_NAMESPACE_END
 #endif  /* Pegasus_Config_h */

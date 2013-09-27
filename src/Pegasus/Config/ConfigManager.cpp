@@ -251,7 +251,7 @@ static struct FixedValueEntry _fixedValues[] =
 };
 
 const Uint32 NUM_FIXED_PROPERTIES =
-    sizeof(_fixedValues) / sizeof(struct FixedValueEntry);
+    sizeof(_fixedValues) / sizeof( _fixedValues[0]);
 
 
 /**
@@ -305,7 +305,6 @@ Boolean ConfigManager::initCurrentValue(
     const String& propertyValue)
 {
     ConfigPropertyOwner* propertyOwner = 0;
-    Boolean success = true;
 
     //
     // get property owner object from the config table.
@@ -325,6 +324,7 @@ Boolean ConfigManager::initCurrentValue(
     //
     propertyOwner->initCurrentValue(propertyName, propertyValue);
 
+    Boolean success = true;
     if (useConfigFiles)
     {
         try
@@ -355,7 +355,6 @@ Boolean ConfigManager::updateCurrentValue(
     Uint32 timeoutSeconds,
     Boolean unset)
 {
-    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -370,7 +369,7 @@ Boolean ConfigManager::updateCurrentValue(
     //
     // keep a copy of the existing config value
     //
-    prevValue = propertyOwner->getCurrentValue(name);
+    String prevValue = propertyOwner->getCurrentValue(name);
 
     //
     // ask owner to update the current value
@@ -431,7 +430,6 @@ Boolean ConfigManager::updatePlannedValue(
     const String& value,
     Boolean unset)
 {
-    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -446,7 +444,7 @@ Boolean ConfigManager::updatePlannedValue(
     //
     // keep a copy of the existing config value
     //
-    prevValue = propertyOwner->getPlannedValue(name);
+    String prevValue = propertyOwner->getPlannedValue(name);
 
     //
     // ask owner to update the planned value to new value

@@ -90,8 +90,8 @@
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE},
 #endif
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB //TODO how to get the PEGASUS_HOME ?
-    {"webRoot", "/opt/tog-pegasus/www", IS_STATIC, IS_VISIBLE},
-    {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
-    {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt", IS_STATIC, IS_VISIBLE}
+    {"webRoot", "", IS_STATIC, IS_VISIBLE},
+    {"indexFile", "", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "", IS_STATIC, IS_VISIBLE}
 #endif
 #endif /* Pegasus_DefaultPropertyTableLinux_h */

@@ -379,7 +379,7 @@ struct configPropertyDescription configPropertyDescriptionList[] =
 
 };
 
-Uint32 configPropertyDescriptionListSize =
+const Uint32 configPropertyDescriptionListSize =
     sizeof(configPropertyDescriptionList) /
         sizeof(configPropertyDescriptionList[0]);
 

@@ -75,6 +75,7 @@ endif
 copy_webadmin_directory: FORCE
 	@$(CPDIRHIER) $(WEBADMIN_ROOT) $(WEBADMIN_HOME)
 
+#Linux specific script won't work in windows
 config_webadmin_directory:FORCE
 	if [ ! -d $(WEBADMIN_TARGET) ]; then \
 		echo "$(WEBADMIN_TARGET) not found"; \

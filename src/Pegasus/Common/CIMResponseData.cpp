@@ -226,8 +226,8 @@ bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 
 bool CIMResponseData::setXml(CIMBuffer& in)
 {
-    //// AutoMutex autoMut(testLock);
-    PSVALID;
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setXml");
+
     switch (_dataType)
     {
         case RESP_INSTANCE:
@@ -371,6 +371,8 @@ bool CIMResponseData::setXml(CIMBuffer& in)
         }
     }
     _encoding |= RESP_ENC_XML;
+
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -453,6 +455,12 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
                     _referencesData.append(from._referencesData.getData(),
                                            moveCount);
                     from._referencesData.remove(0, moveCount);
+                    _hostsData.append(from._hostsData.getData(),
+                                         moveCount);
+                    from._hostsData.remove(0, moveCount);
+                    _nameSpacesData.append(from._nameSpacesData.getData(),
+                                         moveCount);
+                    from._nameSpacesData.remove(0, moveCount);
                     rtnSize += moveCount;
                     toMove -= moveCount;
                     _encoding |= RESP_ENC_XML;
@@ -540,6 +548,65 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
     }
     PEG_METHOD_EXIT();
     return rtnSize;
+}
+
+Boolean CIMResponseData::hasBinaryData() const
+{
+    return (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY));
+}
+// Sets the _size variable based on the internal size counts.
+void CIMResponseData::setSize()
+{
+    PEGASUS_DEBUG_ASSERT(valid());            //KS_TEMP KS_TODO
+
+    Uint32 rtnSize = 0;
+    if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTPATHS:
+            case RESP_INSTNAMES:
+                break;
+            case RESP_INSTANCE:
+                rtnSize +=1;
+                break;
+            case RESP_INSTANCES:
+            case RESP_OBJECTS:
+                rtnSize += _instanceData.size();
+                break;
+        }
+    }
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+    {
+        // KS_PULL_TODO
+        // Cannot resolve this one without actually processing
+        // the data since it is a stream.
+        rtnSize += 0;
+    }
+
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
+    {
+        rtnSize += _scmoInstances.size();
+    }
+
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTPATHS:
+            case RESP_INSTNAMES:
+                rtnSize += _instanceNames.size();
+                break;
+            case RESP_INSTANCE:
+            case RESP_INSTANCES:
+                rtnSize += _instances.size();
+                break;
+            case RESP_OBJECTS:
+                rtnSize += _objects.size();
+                break;
+        }
+    }
+    _size = rtnSize;
 }
 
 // Return the number of CIM objects in the CIM Response data object
@@ -856,7 +923,8 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
 
 void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
-    const CIMNamespaceName & ns)
+    const CIMNamespaceName & ns,
+    Boolean isPullOperation)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::completeHostNameAndNamespace");
@@ -887,6 +955,32 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
         }
     }
+    // Need to set for Pull Enumeration operations
+    if ((RESP_ENC_XML == (_encoding & RESP_ENC_XML)) &&
+            ((RESP_INSTANCES == _dataType) || isPullOperation))
+    {
+        for (Uint32 j = 0, n = _referencesData.size(); j < n; j++)
+        {
+            if (0 == _hostsData[j].size())
+            {
+                _hostsData[j]=hn;
+            }
+            if (_nameSpacesData[j].isNull())
+            {
+                _nameSpacesData[j]=ns;
+            }
+
+            // TODO Remove Diagnostic
+            PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
+              "completeHostNameAndNamespace Setting hostName, etc "
+              "host %s ns %s set to _hostData %s _namespaceData %s",
+                  (const char *)hn.getCString(),
+                  (const char *)ns.getString().getCString(),
+                  (const char *)_hostsData[j].getCString(),
+                  (const char *)_nameSpacesData[j].getString().getCString() ));
+        }
+    }
+
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
         switch (_dataType)
@@ -997,7 +1091,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
         "CIMResponseData::encodeXmlResponse");
 
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X, pull=)",
+        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X, pull= %s)",
         _encoding,
         _dataType,
         (isPullResponse? "true" : "false")));
@@ -2014,6 +2108,21 @@ void CIMResponseData::setRequestProperties(
 void CIMResponseData::setIsClassOperation(Boolean b)
 {
     _isClassOperation = b;
+}
+
+//// KS_TODO Remove. Diagnostic Display
+void CIMResponseData::traceResponseData()
+{
+    PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "CIMResponseData::traceResponseData(encoding=%X,dataType=%X "
+        " size %u C++instNamecount %u c++Instances %u c++Objects %u "
+        "scomInstances %u XMLInstData %u binaryuData %u "
+        "xmlref %u xmlinst %u, xmlhost %u xmlns %u",
+        _encoding,_dataType, _size,
+        _instanceNames.size(),_instances.size(), _objects.size(),
+        _scmoInstances.size(),_instanceData.size(),_binaryData.size(),
+        _referencesData.size(), _instanceData.size(), _hostsData.size(),
+        _nameSpacesData.size()        ));
 }
 
 PEGASUS_NAMESPACE_END

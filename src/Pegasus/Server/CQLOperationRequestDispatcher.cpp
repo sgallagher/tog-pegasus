@@ -51,8 +51,11 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     CQLSelectStatement* qs = ((CQLQueryExpressionRep*)query)->_stmt;
 
+    // Get instances in the response data, converting all of them
+    // to C++ nstance format for the evaluator
     Array<CIMInstance>& a = enr->getResponseData().getInstances();
 
+    // Remove any instances from this array that do not match
     for (int i = a.size() - 1; i >= 0; i--)
     {
         try
@@ -74,6 +77,9 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
             a.remove(i);
         }
     }
+
+    // Reset the CIMResponseData size since we may have modified it.
+    enr->getResponseData().setSize();
     PEG_METHOD_EXIT();
 }
 

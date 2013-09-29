@@ -45,8 +45,11 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     WQLSelectStatement* qs = ((WQLQueryExpressionRep*)query)->_stmt;
 
+    // get instances from the response data converting them to
+    // C++ instance format for the evaluator
     Array<CIMInstance>& a = enr->getResponseData().getInstances();
 
+    // Remove any instances from this array that do not match
     for (int i = a.size() - 1; i >= 0; i--)
     {
         WQLInstancePropertySource ips(a[i]);
@@ -70,6 +73,8 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
             a.remove(i);
         }
     }
+    // Reset the ResponseData size since we may have modified it.
+    enr->getResponseData().setSize();
 }
 
 void WQLOperationRequestDispatcher::handleQueryRequest(

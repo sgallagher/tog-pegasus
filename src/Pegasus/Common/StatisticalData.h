@@ -61,12 +61,9 @@ request->setServerStartTime(serverStartTimeMicroseconds);
 response->endServer();\
 
 #define STAT_BYTESSENT \
-Uint16 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE) ? \
-    response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE : \
-    response->getType() - 1; \
 StatisticalData::current()->addToValue( \
-    message.size(), statType, StatisticalData::PEGASUS_STATDATA_BYTES_SENT);
-
+    message.size(), response->getType(), \
+    StatisticalData::PEGASUS_STATDATA_BYTES_SENT);
 
 #define STAT_SERVEREND_ERROR \
 response->endServer();
@@ -124,7 +121,7 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
 public:
     enum StatRequestType
     {
-        GET_CLASS,
+        GET_CLASS,    // 0
         GET_INSTANCE,
         INDICATION_DELIVERY,
         DELETE_CLASS,
@@ -134,7 +131,7 @@ public:
         MODIFY_CLASS,
         MODIFY_INSTANCE,
         ENUMERATE_CLASSES,
-        ENUMERATE_CLASS_NAMES,
+        ENUMERATE_CLASS_NAMES,  // 10
         ENUMERATE_INSTANCES,
         ENUMERATE_INSTANCE_NAMES,
         EXEC_QUERY,
@@ -144,12 +141,12 @@ public:
         REFERENCE_NAMES,
         GET_PROPERTY,
         SET_PROPERTY,
-        GET_QUALIFIER,
+        GET_QUALIFIER,      //20,
         SET_QUALIFIER,
         DELETE_QUALIFIER,
         ENUMERATE_QUALIFIERS,
 //EXP_PULL_BEGIN
-        OPEN_ENUMERATE_INSTANCES,
+        OPEN_ENUMERATE_INSTANCES, //24
         OPEN_ENUMERATE_INSTANCEPATHS,
         OPEN_REFERENCE_INSTANCES,
         OPEN_REFERENCE_INSTANCE_PATHS,
@@ -185,9 +182,13 @@ public:
     Sint64 requestSize[NUMBER_OF_TYPES];
     Sint64 requSize;    //tempory storage for requestSize vlaue
     Boolean copyGSD;
+
     static StatisticalData* cur;
-    void addToValue(Sint64 value, Uint16 type, Uint32 t);
+
+    void addToValue(Sint64 value, MessageType msgType, Uint32 t);
+
     static String requestName[];
+
     void setCopyGSD(Boolean flag);
 
 protected:

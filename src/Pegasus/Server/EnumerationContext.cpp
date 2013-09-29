@@ -357,7 +357,20 @@ Boolean EnumerationContext::putCache(MessageType type,
         dynamic_cast<CIMResponseDataMessage*>(response);
 
     CIMResponseData & from = localResponse->getResponseData();
+    from.traceResponseData();
 
+    // KS_TODO Calling this for everything, not just Enum.
+    // Need to work off of the poA and only for enumerateInstances.
+//    cout << "Test putCache " << (from.isBinaryOrXML()? "true" : "false")
+//            << " type " << MessageTypeToString(response->getType()) << endl;
+
+////  if (from.hasBinaryData() && (response->getType() ==
+////      CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE))
+////  {
+////      cout << "Calling getInstances " << endl;
+////      from.getInstances();
+////  }
+    from.traceResponseData();
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Enter putCache, response isComplete %s ResponseDataType %u "
             " cache size= %u put size= %u clientClosed %s",

@@ -240,7 +240,7 @@ void ProviderAgent::run()
                 {
                     _threadPool.cleanupIdleThreads();
                     if (!_providerManagerRouter.hasActiveProviders() &&
-                              (_threadPool.runningCount() == 0)) 
+                              (_threadPool.runningCount() == 0))
                     {
                         _terminating = true;
                     }
@@ -585,16 +585,16 @@ Boolean ProviderAgent::_readAndProcessRequest()
             // CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
             // CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
             // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
-            // CIM_EXPORT_INDICATION_REQUEST_MESSAGE 
+            // CIM_EXPORT_INDICATION_REQUEST_MESSAGE
             // All the above have already been handled differently
             // except for CIM_EXPORT_INDICATION_REQUEST_MESSAGE,
             // CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE and
             // CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE.
             if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES &&
                 (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE ||
-                 request->getType() == 
+                 request->getType() ==
                      CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
-                 request->getType() == 
+                 request->getType() ==
                      CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE))
             {
                 Threads::yield();
@@ -623,7 +623,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
                     Logger::put_l(Logger::STANDARD_LOG,
                         System::CIMSERVER,Logger::WARNING,msgLoaderPrms);
                 }
-                
+
                 delete agentRequest;
                 delete request;
 
@@ -720,11 +720,14 @@ inline void _completeHostNameAndNamespace(
     CIMRequestMessage* request,
     Message* response)
 {
+    // if defined in request, complete HostNameAndNamespace
     MessageType msgType = request->getType();
     if (msgType == CIM_ASSOCIATORS_REQUEST_MESSAGE ||
         msgType == CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE ||
         msgType == CIM_REFERENCES_REQUEST_MESSAGE ||
-        msgType == CIM_REFERENCE_NAMES_REQUEST_MESSAGE)
+        msgType == CIM_REFERENCE_NAMES_REQUEST_MESSAGE ||
+        (msgType == CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE &&
+                        request->internalOperation) )
     {
         // can do this cast here since we know request to be one of the four
         // association request messages
@@ -752,8 +755,8 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
         // Forward the request to the ProviderManager
         response = _providerManagerRouter.processMessage(request);
 
-        // for association operations we need to complete hostname and
-        // namespace before the response data gets binary encoded in 
+        // For some operations complete hostname and
+        // namespace before the response data is binary encoded
         _completeHostNameAndNamespace(request,response);
     }
     catch (Exception& e)
@@ -992,7 +995,7 @@ Boolean ProviderAgent::_unloadIdleProviders()
     {
          PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
              "Unexpected exception during unload idle providers.");
-         
+
          PEG_METHOD_EXIT();
          return false;
 

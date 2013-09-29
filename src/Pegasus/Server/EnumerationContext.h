@@ -338,6 +338,8 @@ public:
     // errors.
     CIMException _cimException;
 
+    CIMNamespaceName getNamespace() const;
+
 private:
 
     friend class EnumerationContextTable;
@@ -511,6 +513,11 @@ inline Uint32 EnumerationContext::responseCacheSize()
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP
     return _responseCache.size();
+}
+
+inline CIMNamespaceName EnumerationContext::getNamespace() const
+{
+    return _nameSpace;
 }
 
 PEGASUS_NAMESPACE_END

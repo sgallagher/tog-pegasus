@@ -76,7 +76,7 @@ String StatisticalData::requestName[] =
 //// TODO these are not defined in CIM_StatisticalData class
   "OpenEnumerateInstances",         //    71
   "OpenEnumerateInstancePaths",     //    72
-  "OpenReferences",                 //    73   
+  "OpenReferences",                 //    73
   "OpenReferenceNames",             //    74
   "OpenAssociators",                //    75
   "OpenAssociatorPaths",            //    76
@@ -114,8 +114,30 @@ StatisticalData::StatisticalData()
     }
 }
 
-void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
+void StatisticalData::addToValue(Sint64 value, MessageType msgType, Uint32 t)
 {
+    // Map MessageType to statistic type
+    Uint16 type;
+    if ((msgType) >= CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
+    {
+        type = msgType - CIM_SET_QUALIFIER_RESPONSE_MESSAGE;
+    }
+    else if (msgType >= CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE)
+    {
+       type = msgType - CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE;
+    }
+    else if (msgType >= CIM_GET_CLASS_RESPONSE_MESSAGE)
+    {
+        type = msgType - CIM_GET_CLASS_RESPONSE_MESSAGE;
+    }
+    else
+    {
+        type = msgType - 1;
+    }
+
+    cout << "StatisticalData::addToValue " << MessageTypeToString(msgType)
+         << " # " << msgType << " stat type " << type << endl;
+    // Test if valid statistic type
     if (type >= NUMBER_OF_TYPES)
     {
          PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,

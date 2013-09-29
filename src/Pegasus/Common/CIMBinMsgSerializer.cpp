@@ -32,6 +32,7 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include "CIMBinMsgSerializer.h"
 #include "CIMInternalXmlEncoder.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -39,6 +40,8 @@ void CIMBinMsgSerializer::serialize(
     CIMBuffer& out,
     CIMMessage* cimMessage)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMBinMsgSerializer::serialize");
+
     if (cimMessage == 0)
         return;
 
@@ -50,6 +53,9 @@ void CIMBinMsgSerializer::serialize(
 
     // [binaryResponse]
     out.putBoolean(cimMessage->binaryResponse);
+
+    // [internalOperation]
+    out.putBoolean(cimMessage->internalOperation);
 
     // [type]
     out.putUint32(Uint32(cimMessage->getType()));
@@ -94,6 +100,8 @@ void CIMBinMsgSerializer::serialize(
     }
     else
         out.putPresent(false);
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMBinMsgSerializer::_putRequestMessage(
@@ -602,7 +610,7 @@ void CIMBinMsgSerializer::_serializeOperationContext(
     }
     else
         out.putPresent(false);
-    
+
     // [UserRoleContainer]
 
     if (operationContext.contains(UserRoleContainer::NAME))
@@ -939,7 +947,7 @@ void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
 {
     out.putString(msg->messageId);
     out.putNamespaceName(msg->nameSpace);
-    out.putName(msg->className);    
+    out.putName(msg->className);
 }
 
 void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(
@@ -980,12 +988,15 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
+        msg->getResponseData().traceResponseData();
         msg->getResponseData().encodeBinaryResponse(data);
         out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
+
+        msg->getResponseData().traceResponseData();
         msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }

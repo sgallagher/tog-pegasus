@@ -54,6 +54,7 @@ void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
 #endif
     binaryRequest = request->binaryRequest;
     binaryResponse = request->binaryResponse;
+    internalOperation = request->internalOperation;
 }
 
 CIMResponseMessage* CIMGetClassRequestMessage::buildResponse() const
@@ -766,6 +767,7 @@ CIMMessage::CIMMessage(
 
     binaryRequest = false;
     binaryResponse = false;
+    internalOperation = false;
 }
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -780,13 +782,13 @@ void CIMMessage::endServer()
     Uint64 serverTimeMicroseconds =
         _totalServerTimeMicroseconds - _providerTimeMicroseconds;
 
-    Uint16 statType = (Uint16)((getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
-        getType() - CIM_GET_CLASS_RESPONSE_MESSAGE : getType() - 1);
-
-    StatisticalData::current()->addToValue(serverTimeMicroseconds, statType,
+    MessageType msgType = getType();
+    StatisticalData::current()->addToValue(serverTimeMicroseconds,
+        msgType,
         StatisticalData::PEGASUS_STATDATA_SERVER);
 
-    StatisticalData::current()->addToValue(_providerTimeMicroseconds, statType,
+    StatisticalData::current()->addToValue(_providerTimeMicroseconds,
+        msgType,
         StatisticalData::PEGASUS_STATDATA_PROVIDER);
 
     /* This adds the number of bytes read to the total.the request size
@@ -797,7 +799,7 @@ void CIMMessage::endServer()
 
     StatisticalData::current()->addToValue(
         StatisticalData::current()->requSize,
-        statType,
+        msgType,
         StatisticalData::PEGASUS_STATDATA_BYTES_READ);
 }
 #endif

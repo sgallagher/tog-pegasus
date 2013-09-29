@@ -160,6 +160,19 @@ public:
      */
     Uint32 size();
 
+    /** Set the internal size variable based on the current count
+     *  of what is in the CIMResponseData.  This operation
+     *  required after users have played with the arrays. See
+     *  CQLOperationRequestDispatcher for example */
+
+    void setSize();
+
+    /** Determine if there is any binary content in the CIM
+        ResponseData object
+        @return Boolean true if binary data exists in content.
+     */
+    Boolean hasBinaryData() const;
+
     ~CIMResponseData()
     {
     }
@@ -311,10 +324,11 @@ public:
 
     // Function primarily used by CIMOperationRequestDispatcher to complete
     // namespace and hostname on a,an,r and rn operations in the
-    // OperationAggregator
+    // OperationAggregator. Note that behavior is different for pull operations
     void completeHostNameAndNamespace(
         const String & hn,
-        const CIMNamespaceName & ns);
+        const CIMNamespaceName & ns,
+        Boolean isPullOperation = false);
 
     // Encoding responses
 
@@ -363,6 +377,8 @@ public:
 
     bool sizeValid();                   //KS_TEMP KS_TODO REMOVE
 
+    void traceResponseData();           // KS_TODO Diagnostic. remove
+
 private:
 
     // helper functions to transform different formats into one-another
@@ -390,7 +406,7 @@ private:
     Boolean _deserializeReference(Uint32 idx,CIMObjectPath& cimObjectPath);
     Boolean _deserializeInstanceName(Uint32 idx,CIMObjectPath& cimObjectPath);
 
-    // Bitflags in this integer will reflect what data representation types
+    // Bitflags in this integer reflect what data representation types
     // are currently stored in this CIMResponseData object
     Uint32 _encoding;
 

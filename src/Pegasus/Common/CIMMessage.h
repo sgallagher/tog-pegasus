@@ -154,6 +154,17 @@ public:
     // as the "Accept" header is "application/x-openpegasus".
     Boolean binaryResponse;
 
+    // Defines Request Operations that were created internally rather than
+    // from a client.  For the moment that is the internal provider
+    // requests for the Pull Operations (ex. EnumerateInstances when
+    // OpenEnumerateInstances is received). This allows the internal
+    // code (ex. OOP) to discriminate between external operations and
+    // the internal provider operations since there are some behavior
+    // differences (ex. EnumerateInstances paths in response, handling
+    // of statistics). Normally set by CIMOperationRequestDispatcher.
+    // Defaults to false and must be specifically set to true.
+    Boolean internalOperation;
+
 private:
 
     ThreadType _languageContextThreadId;
@@ -193,6 +204,10 @@ public:
         const QueueIdStack& queueIds_,
         Boolean isAsyncResponsePending=false);
 
+    /* Sync attributes from the request to the response including:
+       Mask, HttpMethod, closeConnect, Response type (binary, xml)
+       Server start time.
+    */
     void syncAttributes(const CIMRequestMessage* request);
 
     QueueIdStack queueIds;
@@ -200,7 +215,6 @@ public:
 
     // This flag indicates if the response will arrive asynchronously.
     Boolean isAsyncResponsePending;
-
 };
 
 //

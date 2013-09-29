@@ -32,6 +32,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "CIMBinMsgDeserializer.h"
 
@@ -41,6 +42,8 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     CIMBuffer& in,
     size_t size)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMBinMsgDeserializer::deserialize");
+
     if (size == 0)
         return 0;
 
@@ -70,6 +73,10 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     if (!in.getBoolean(binaryResponse))
         return 0;
 
+    Boolean internalOperation;
+
+    if (!in.getBoolean(internalOperation))
+        return 0;
     // [type]
 
     MessageType type;
@@ -151,7 +158,9 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     msg->setComplete(isComplete);
     msg->setIndex(index);
     msg->operationContext = operationContext;
+    msg->internalOperation = internalOperation;
 
+    PEG_METHOD_EXIT();
     return msg;
 }
 
@@ -352,7 +361,7 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
                 msg = _getIndicationServiceDisabledRequestMessage();
                 break;
             case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
-                msg = _getProvAgtGetScmoClassRequestMessage(in);            
+                msg = _getProvAgtGetScmoClassRequestMessage(in);
                 break;
 
 
@@ -472,7 +481,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getIndicationServiceDisabledResponseMessage();
             break;
         case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
-            msg = _getProvAgtGetScmoClassResponseMessage(in);            
+            msg = _getProvAgtGetScmoClassResponseMessage(in);
             break;
 
         default:
@@ -1709,6 +1718,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
             return 0;
         }
 
+        responseData.traceResponseData();  // KS_TODO DELETE
         return msg;
     }
     else
@@ -1719,6 +1729,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
             return 0;
         }
 
+        responseData.traceResponseData(); // KS_TODO DELETE
         return msg;
     }
 }

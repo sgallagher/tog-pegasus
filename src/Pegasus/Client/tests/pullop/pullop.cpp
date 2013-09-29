@@ -2391,6 +2391,7 @@ int main(int argc, char** argv)
     {
         if (host_opt == "")
         {
+            VCOUT << "connectLocal" << endl;
             client.connectLocal();
         }
         else
@@ -2399,6 +2400,7 @@ int main(int argc, char** argv)
             Uint32 port;
             if (parseHostName(host_opt, hostName, port))
             {
+                VCOUT << " Connect to host " << hostName << ":" << port << endl;
                 client.connect(hostName, port, user_opt, password_opt);
             }
             else

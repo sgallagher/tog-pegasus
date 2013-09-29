@@ -113,7 +113,17 @@ TODO list:
       pull operations.
       b. test the enumeration timeout thread
       c. New Mergout to bring up to to date again.
-      d. Fix known problem with the interop provider.
+
+29 September 2013. CVS update.
+1. Modified calls to statisticalData.cpp to a) directly call with request
+   type, b) incorporate the open, pull, etc. messages.  However, since these
+   are not part of the CIM class, we must do something special with them.
+2. Corrected OOP interface to enable new flag to indicate internal operations
+   and set host, etc.
+3. Add code to CQLOperationsDispatcher and WQLOperationDispatcher to clean
+   up CIMResponseDataCounter after filtering.
+4. Modified ProviderAgent to set Host info for some pull operations.
+5. Added new flag to CIMBinMsgSerializer and Deserializer.
 
 17 September 2013 CVS update (Actually two different updates over 3 days)
 1. Clean up some issues in CIMMessage.h and CIMMessage.cpp

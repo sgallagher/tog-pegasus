@@ -77,13 +77,6 @@ enum TARGET_CLASS
  *                                                             *
  ***************************************************************/
 
-const char * boolToString(Boolean x);
-
-//
-// Utility function used to produce trace/logging statements
-//
-String propertyListToString(const CIMPropertyList& pl);
-
 //
 // Helper function that constructs an the InstanceId property out of its
 // constituent pieces.

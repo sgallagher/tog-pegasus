@@ -165,7 +165,7 @@ String tokenItem::toString()
     x.append(", input=");
     x.append(tokenInput);
     x.append(", duplicate=");
-    x.append(_toString(duplicate));
+    x.append(boolToString(duplicate));
     x.append(" Instance count=");
     x.append(Uint32ToString(tmp, _instances.size(), cvtSize));
     for (Uint32 i = 0 ; i < _instances.size(); i++)

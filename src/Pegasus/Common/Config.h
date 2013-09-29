@@ -108,10 +108,7 @@
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
 
-
-
 /*
-//<<< Sun Apr  6 19:28:00 2003 mdd >>>
 //
 // COMPILER Checks
 //
@@ -338,7 +335,7 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_FORMAT(A1, A2) /* not implemented */
 #endif
 
-/* 
+/*
 ** PEGASUS_INITIAL_THREADSTACK_SIZE
 **
 ** This macro is used to restrict the maximal stack size used per thread.
@@ -354,7 +351,7 @@ PEGASUS_NAMESPACE_END
 
 /*
 ** PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME
-** 
+**
 ** This macro is used to set ElementName property on the PG_ObjectManager
 ** instance. This value is also used in SLP announcment for service-hi-name.
 **
@@ -366,7 +363,7 @@ PEGASUS_NAMESPACE_END
 #  define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME PEGASUS_FLAVOR"-pegasus"
 # else
 #  define PEGASUS_PG_OBJECTMANAGER_ELEMENTNAME "Pegasus"
-# endif 
+# endif
 #endif
 
 /*
@@ -385,4 +382,17 @@ PEGASUS_NAMESPACE_END
 # endif
 #endif
 
+
+/**
+    Return a const char * true or false for the Boolean input.
+    Note that this works for Boolean and bool.  It is contained
+    here because Boolean is used as a CIM Type but has no c++
+    class in Pegasus.
+
+    @return const char* containing "true" or "false"
+ */
+PEGASUS_NAMESPACE_BEGIN
+// Include PEGASUS_EXPORT explicitly because Linkage calls Config.h
+PEGASUS_EXPORT const char* boolToString(bool x);
+PEGASUS_NAMESPACE_END
 #endif  /* Pegasus_Config_h */

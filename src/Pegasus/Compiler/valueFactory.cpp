@@ -44,6 +44,9 @@
                               to know about cimmofParser, it might as well
                               be rolled into it. */
 #include "valueFactory.h"
+#include "parser.h"
+
+extern char *cimmof_text;
 
 // put any debug include, I'd say about here
 
@@ -51,28 +54,32 @@
 #define local_max(a,b) ( a > b ? a : b )
 
 /* Fix up a string with embedded comma with extra
-   escape character and return the result. This is a hack
-   to get around the problem that arrays having strings
-   with an embedded comma are treat the embedded comma
+   escape character and return the result. This
+   gets around the problem that arrays having strings
+   with an embedded comma treat the embedded comma
    as an array item separator.
    NOTE: The correct solution is to add a new value factory
-   funciton for arrays specifically that uses a different
-   separator on an array of values.
-   BUG 497 fix, KS Sept 2003
+   function for arrays specifically that uses a different
+   separator on an array of values, one that cannot be found
+   in the normal input.  This is difficult because we do not have
+   any set of truly illegal characters.
+   BUG 497 fix
 */
-String valueFactory::stringWComma(String tmp)
+String valueFactory::stringEscapeComma(String str)
 {
-    //String tmp = *$3;
     String rtn = String::EMPTY;
     Uint32 len;
-    while((len = tmp.find(',')) != PEG_NOT_FOUND)
+    while((len = str.find(',')) != PEG_NOT_FOUND)
     {
-        rtn.append(tmp.subString(0,len));
+        // if escape char found prepend escape character.
+        rtn.append(str.subString(0,len));
         rtn.append("\\,");
-        tmp = tmp.subString(len+1);
+        str = str.subString(len+1);
     }
-    if (tmp.size() > 0)
-        rtn.append(tmp);
+    if (str.size() > 0)
+    {
+        rtn.append(str);
+    }
     return(rtn);
 }
 
@@ -98,7 +105,9 @@ Uint64 valueFactory::stringToUint(
         arglist.append(val);
         cimmofMessages::getMessage(
             message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
-        throw Exception(message);
+
+        cimmofParser::Instance()->log_parse_error(
+           cimmof_text, message.getCString());
     }
 
     return u64;
@@ -130,7 +139,9 @@ Sint64 valueFactory::stringToSint(
         arglist.append(val);
         cimmofMessages::getMessage(
             message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
-        throw Exception(message);
+
+        cimmofParser::Instance()->log_parse_error(
+           cimmof_text, message.getCString());
     }
 
     return s64;
@@ -151,18 +162,56 @@ Real64 valueFactory::stringToReal(
         arglist.append(val);
         cimmofMessages::getMessage(
             message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
-        throw Exception(message);
+
+        cimmofParser::Instance()->log_parse_error(
+           cimmof_text, message.getCString());
     }
 
     return r64;
 }
 
+/*
+    Test for valid string value for boolean type and return boolean value.
+    Generates log_pars_error if not valid string value.
+    NOTE: The boolean type was forced to T or F string valuein the
+    parser (cimmof.y)
+*/
+Boolean _stringToBoolean(const String& sval)
+{
+    Boolean rtn = false;
+
+    if (sval == "T")
+    {
+            rtn = true;
+    }
+    else if ((sval == "F"))
+    {
+        rtn = false;
+    }
+    else
+    {
+        // Output message
+        String message;
+        cimmofMessages::arglist arglist;
+        arglist.append(cimTypeToString(CIMTYPE_BOOLEAN));
+        arglist.append("Value not valid boolean");
+        cimmofMessages::getMessage(
+            message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
+
+        cimmofParser::Instance()->log_parse_error(
+           cimmof_text, message.getCString());
+    }
+    return rtn;
+}
+
 //-------------------------------------------------------------------------
-// This is a parser for a comma-separated value String.  It returns one
+// Parser for a comma-separated value String.  It returns one
 // value per call.  It handles quoted String and depends on the caller to
 // tell it where the end of the String is.
 // Returns value in value and return pointing to character after separator
 // string
+// Returns the next substring based on the separator character and returns
+// the start state for the next call.
 //-------------------------------------------------------------------------
 static Uint32 nextcsv(const String &csv, int sep, const Uint32 start,
     const Uint32 end, String &value)
@@ -196,6 +245,8 @@ static Uint32 nextcsv(const String &csv, int sep, const Uint32 start,
                         break;
                 }
                 break;
+            // Transient state that starts with the escape character
+            // and appends the next character and returns to NOTINQUOTE.
             case INSQUOTE:
                 value.append(idxchar);
                 state = NOTINQUOTE;
@@ -216,9 +267,8 @@ static Uint32 nextcsv(const String &csv, int sep, const Uint32 start,
     return idx;
 }
 
-
 // ------------------------------------------------------------------
-// When the value to be build is of Array type, this routine
+// When the value to be built is of Array type, this routine
 // parses out the comma-separated values and builds the array
 // -----------------------------------------------------------------
 CIMValue* valueFactory::_buildArrayValue(
@@ -240,10 +290,7 @@ CIMValue* valueFactory::_buildArrayValue(
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        if (sval[0] == 'T')
-                            a.append(1);
-                        else
-                            a.append(0);
+                        a.append(_stringToBoolean(sval));
                     } while (start < end);
                 }
                 return new CIMValue(a);
@@ -440,17 +487,124 @@ CIMValue* valueFactory::_buildArrayValue(
             x.set(Uint16(9)
 */
 //----------------------------------------------------------------
+
+/*
+    Test th expected parse type against the received parse type
+    Return true if equal
+*/
+Boolean _testType(int expectedType, int parseValueType)
+{
+    return ((expectedType == parseValueType));
+}
+
+/*
+    Compare the CIMType to the parse type for selected CIMTypes to assure
+    that the type we parsed is the type we are expected to put into the
+    result.  Note that this code was the result of bug 3574 where
+    boolean and string types cannot be separated.
+*/
+Boolean valueFactory::compareTypeToParseType(CIMType type, int expectedType)
+{
+    Boolean rtn = true;
+    switch(type)
+    {
+        case CIMTYPE_UINT8:
+        case CIMTYPE_SINT8:
+        case CIMTYPE_UINT16:
+        case CIMTYPE_SINT16:
+        case CIMTYPE_UINT32:
+        case CIMTYPE_SINT32:
+        case CIMTYPE_UINT64:
+        case CIMTYPE_SINT64:
+            {
+                rtn = _testType(expectedType, strValTypeNS::INTEGER_VALUE);
+            }
+            break;
+        case CIMTYPE_REAL32:
+        case CIMTYPE_REAL64:
+            {
+                rtn =_testType(expectedType,strValTypeNS::REAL_VALUE);
+            }
+            break;
+        case CIMTYPE_CHAR16:
+            {
+                //// TODO bypass this test because we apparently have other
+                //// problems in system with this.  See bug 9774.
+                ////rtn = _testType(expectedType,strValTypeNS::CHAR_VALUE);
+            }
+            break;
+        case CIMTYPE_BOOLEAN:
+            {
+                rtn = _testType(expectedType,strValTypeNS::BOOLEAN_VALUE);
+            }
+            break;
+        case CIMTYPE_STRING:
+            {
+                rtn = _testType(expectedType,strValTypeNS::STRING_VALUE);
+            }
+            break;
+        // The remaining types do not matter at this point.
+        case CIMTYPE_DATETIME:
+            break;
+        case CIMTYPE_REFERENCE:
+            break;
+        case CIMTYPE_OBJECT:
+        case CIMTYPE_INSTANCE:
+            break;
+        default:
+            PEGASUS_ASSERT(false);    // default
+    }
+    return rtn;
+}
 CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
       Boolean isNULL,
+      int parseType,
       const String *repp)
 {
   const String &rep = *repp;
   CIMDateTime dt;
 
+  if (!isNULL)
+  {
+     // Compare the parseType enum against the type.  They must match.
+     // This originated from bug 3574 which discovered that the parser
+     // cannot really separate boolean and strings effectively since
+     // the leading quote was removed from parsed strings.
+     // Error generates error log (i.e. exception)
+     if (!compareTypeToParseType(type, parseType))
+     {
+        String message;
+        cimmofMessages::arglist arglist;
+        String localMsg(" Does not match parsed type ");
+        arglist.append(cimTypeToString(type));
+
+        localMsg.append(strValTypeEnumToString(
+           (strValTypeNS::strValTypeEnum)parseType));
+        localMsg.append(". ");
+        arglist.append(localMsg);
+        cimmofMessages::getMessage(
+            message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
+
+        cimmofParser::Instance()->log_parse_error(
+           cimmof_text, message.getCString());
+     }
+  }
+  /****************************************************************
+  Debug display for valueFactory.
+  cout << " valueFactory::createValue " << cimTypeToString(type)
+       << ". " << (isNULL? "NULL" : "nonNULL")
+       << ". arrayDimension= " << arrayDimension;
+  if (!isNULL)
+  {
+      cout << ". value " << rep << endl;
+  }
+  cout << endl;
+  *****************************************************************/
+
   CIMValue * rtn;
 
   // if arrayDimension == -1 this is not an array type
-  if (arrayDimension == -1)
+  if (arrayDimension == CIMMOF_EMPTY_ARRAY)
   {
     if (isNULL)
     {
@@ -495,7 +649,7 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
                 rtn = new CIMValue((Char16) rep[0]);
                 break;
             case CIMTYPE_BOOLEAN:
-                rtn = new CIMValue((Boolean) (rep[0] == 'T'?1:0));
+                rtn = new CIMValue((Boolean) _stringToBoolean(rep));
                 break;
             case CIMTYPE_STRING:
                 rtn = new CIMValue(rep);

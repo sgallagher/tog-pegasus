@@ -58,32 +58,6 @@ PEGASUS_USING_STD;
 
 #define CSTRING(ARG) (const char*) ARG.getCString()
 
-// EXP_PULL_TEMP
-//
-const char * _toCharP(Boolean x)
-{
-    return (x? "true" : "false");
-}
-
-String _toString(const CIMPropertyList& pl)
-{
-    String rtn;
-    //Array<CIMName> pls = pl.getPropertyNameArray();
-    if (pl.isNull())
-        return("NULL");
-
-    if (pl.size() == 0)
-        return("EMPTY");
-
-    for (Uint32 i = 0 ; i < pl.size() ; i++)
-    {
-        if (i != 0)
-            rtn.append(",");
-        rtn.append(pl[i].getString());
-    }
-    return(rtn);
-}
-
 /******************************************************************************
 **
 **  Static variables outside of object context
@@ -124,10 +98,6 @@ Uint32 responseCacheDefaultMaximumSize = 1000;
 static EnumerationContextTable enumerationContextTable(
     _pullOperationMaxTimeout,
     responseCacheDefaultMaximumSize);
-
-// Local save for host name. save host name here.  NOTE: Problem if hostname
-// changes. Set by object init. Used by aggregator.
-String cimAggregationLocalHost;
 
 // A helper function that resets the Propagated and ClassOrigin attributes on
 // properties of CIMInstance and CIMClass objects. This is used during
@@ -207,7 +177,7 @@ Boolean OperationAggregate::appendResponse(CIMResponseMessage* response)
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "numberResponses = %u append. Rtns %s size before = %u",
                 (Uint32)_responseList.size(),
-                _toCharP(returnValue), _responseList.size() ));
+                boolToString(returnValue), _responseList.size() ));
     return returnValue;
 }
 
@@ -324,7 +294,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         func,response.getIndex(),
         _totalReceivedComplete,
         _totalReceivedExpected,
-        _toCharP(isComplete),
+        boolToString(isComplete),
         _totalIssued,
         response.getIndex()
          ));
@@ -412,7 +382,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // TODO KS_TEMP
         "%s: return status.  isComplete: %s Total responses: %u, "
             "total chunks: %u, total errors: %u totalIssued: %u",
-        func, _toCharP(isComplete),
+        func, boolToString(isComplete),
         _totalReceivedComplete,
         _totalReceived,
         _totalReceivedErrors,
@@ -1826,7 +1796,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
         // also deletes the copied request attached to it //// TODO temp
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Provider response complete. isPull %s",
-            _toCharP(poA->_pullOperation)));
+            boolToString(poA->_pullOperation)));
         // delete OperationAggregation and attached request.
         delete poA;
         poA = 0;
@@ -3215,9 +3185,9 @@ struct ProviderRequests
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s getting from cache. isComplete: %s cacheSize: %u error: %s",
             opSeqName,
-            _toCharP(enumContext->ifProvidersComplete()),
+            boolToString(enumContext->ifProvidersComplete()),
             enumContext->responseCacheSize(),
-            _toCharP(enumContext->isErrorState())  ));
+            boolToString(enumContext->isErrorState())  ));
 
         // If error set, send error response, else send the next group of
         // response objects which is in the from CIMResponseData object
@@ -3324,7 +3294,7 @@ struct ProviderRequests
           "%s Send response to type %u"
               "  providersComplete %s remaining cacheSize %u", reqMsgName,
           tempto.getResponseDataContent(),
-          _toCharP(enumerationContext->ifProvidersComplete()),
+          boolToString(enumerationContext->ifProvidersComplete()),
           enumerationContext->responseCacheSize() ));
 
         // Do check here after we have processed the results of the get.
@@ -5127,13 +5097,13 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             "maxObjectCount=%u ",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->className.getString()),
-        _toCharP(request->deepInheritance),
-        _toCharP(request->includeClassOrigin),
+        boolToString(request->deepInheritance),
+        boolToString(request->includeClassOrigin),
         CSTRING(request->propertyList.toString()),
         CSTRING(request->filterQueryLanguage),
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     // get the class name or generate error if class not found for target
@@ -5360,7 +5330,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
         CSTRING(request->filterQueryLanguage),
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     // get the class name
@@ -5548,12 +5518,12 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         CSTRING(request->objectName.toString()),
         CSTRING(request->resultClass.getString()),
         CSTRING(request->role),
-        _toCharP(request->includeClassOrigin),
+        boolToString(request->includeClassOrigin),
         CSTRING(request->propertyList.toString()),
         CSTRING(request->filterQueryLanguage),
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     //// KS_TODO Remove once validated.
@@ -5865,7 +5835,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         CSTRING(request->filterQueryLanguage),
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     if (_rejectAssociationTraversalDisabled(request,
@@ -6148,12 +6118,12 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         CSTRING(request->resultClass.getString()),
         CSTRING(request->role),
         CSTRING(request->resultClass.getString()),
-        _toCharP(request->includeClassOrigin),
+        boolToString(request->includeClassOrigin),
         CSTRING(request->propertyList.toString()),
         CSTRING(request->filterQueryLanguage),
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     if (_rejectAssociationTraversalDisabled(request, "OpenAssociatorInstances"))
@@ -6463,7 +6433,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         CSTRING(request->filterQueryLanguage),
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     //// KS_TODO Remove once validated.
@@ -6727,9 +6697,9 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->queryLanguage),
                CSTRING(request->query),
-        _toCharP(request->returnQueryResultClass),
+        boolToString(request->returnQueryResultClass),
         CSTRING(request->operationTimeout.toString()),
-        _toCharP(request->continueOnError),
+        boolToString(request->continueOnError),
         request->maxObjectCount ));
 
     if (_rejectIfContinueOnError(request, request->continueOnError))

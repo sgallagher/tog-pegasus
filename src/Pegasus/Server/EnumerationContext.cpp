@@ -50,14 +50,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define MAX_ZERO_PULL_OPERATIONS 1000
 
-static const char * _toString(Boolean x)
-{
-    return (x? "true" : "false");
-}
-static const char* _toCharP(Boolean x)
-{
-    return (x? "true" : "false");
-}
 /*
     Simple statistics keeper.  Keeps total and highWaterMark
     on 32 bit counter and computes average.
@@ -301,10 +293,10 @@ void EnumerationContext::trace()
         (const char *)_nameSpace.getString().getCString(),
         (long unsigned int)_operationTimeoutSec,
         (long unsigned int)_interOperationTimer,
-        _toCharP(_continueOnError),
+        boolToString(_continueOnError),
         MessageTypeToString(_pullRequestType),
-        _toCharP(_providersComplete),
-        _toCharP(_clientClosed),
+        boolToString(_providersComplete),
+        boolToString(_clientClosed),
         (long unsigned int)
             (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
         _pullOperationCounter,
@@ -374,9 +366,9 @@ Boolean EnumerationContext::putCache(MessageType type,
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Enter putCache, response isComplete %s ResponseDataType %u "
             " cache size= %u put size= %u clientClosed %s",
-        _toCharP(providersComplete), to.getResponseDataContent(),
+        boolToString(providersComplete), to.getResponseDataContent(),
         to.size(), from.size(),
-        _toCharP(_clientClosed)));
+        boolToString(_clientClosed)));
 
     // If an operation has closed the enumerationContext can
     // ignore any received responses until the providersComplete is received
@@ -545,8 +537,8 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
         "waitCacheSizeConditon return "
         "Request Size %u complete %s result %s time %lu Usec",
         size,
-        _toCharP(_providersComplete),
-        _toCharP((!_providersComplete && (responseCacheSize()) < size)),
+        boolToString(_providersComplete),
+        boolToString((!_providersComplete && (responseCacheSize()) < size)),
         (unsigned long int)waitTimer.getElapsedUsec() ));
 
     PEG_METHOD_EXIT();
@@ -602,8 +594,8 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
        "waitproviderLimitCondition exit state %s responseCacheSize %u size %u "
        "closed %s time %lu",
-         _toCharP((!_clientClosed && (responseCacheSize() < limit))),
-         responseCacheSize(), limit, _toCharP(_clientClosed),
+         boolToString((!_clientClosed && (responseCacheSize() < limit))),
+         responseCacheSize(), limit, boolToString(_clientClosed),
          (long unsigned int)waitTimer.getElapsedUsec() ));
 
     _providerLimitConditionMutex.unlock();

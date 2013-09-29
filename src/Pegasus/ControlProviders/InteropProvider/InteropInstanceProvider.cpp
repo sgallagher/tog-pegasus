@@ -50,7 +50,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/Pegasus_inl.h>
 
 #include <cctype>
 #include <iostream>

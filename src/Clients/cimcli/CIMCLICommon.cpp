@@ -187,16 +187,9 @@ void cimcliMsg::msg(
     cout << Formatter::format(formatString, arg0, arg1, arg2) << endl;
 }
 
-/* Convert Boolean parameter to String "true" or "false"
-*/
-String _toString(Boolean x)
-{
-    return(x ? "true" : "false");
-}
-
 void _print(Boolean x)
 {
-    cout << _toString(x);
+    cout << boolToString(x);
 }
 
 String _toString(Array<CIMName> array)
@@ -211,30 +204,10 @@ String _toString(Array<CIMName> array)
     return rtn;
 }
 
-// Convert a CIMPropertyList parameter to CIM String
-String _toString(const CIMPropertyList& pl)
-{
-    String rtn;
-    Array<CIMName> pls = pl.getPropertyNameArray();
-    if (pl.isNull())
-        return("NULL");
-
-    if (pl.size() == 0)
-        return("EMPTY");
-
-    for (Uint32 i = 0 ; i < pls.size() ; i++)
-    {
-        if (i != 0)
-            rtn.append(", ");
-        rtn.append(pls[i].getString());
-    }
-    return(rtn);
-}
-
 // Output a CIMPropertyList to cout
 void _print(const CIMPropertyList& pl)
 {
-    cout << _toString(pl);
+    cout << pl.toString();
 }
 
 String _toString(const Array<CIMNamespaceName>& nsList)

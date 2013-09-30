@@ -142,7 +142,7 @@ public:
 
 
     void  _connect();
-    void _disconnect();
+    void _disconnect(bool keepChallengeStat = true);
 
     HTTPConnector* _httpConnector;
     Monitor* _monitor;

@@ -194,7 +194,7 @@ void ExportClient::_connect()
     PEG_METHOD_EXIT();
 }
 
-void ExportClient::_disconnect()
+void ExportClient::_disconnect( bool keepChallengeStatus)
 {
     PEG_METHOD_ENTER(TRC_EXPORT_CLIENT, "ExportClient::_disconnect()");
 
@@ -240,8 +240,11 @@ void ExportClient::_disconnect()
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
 
+    if( keepChallengeStatus == false)
+    {
     // Reset the challenge status
     _authenticator.resetChallengeStatus();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -263,7 +266,7 @@ void ExportClient::connect(
     // If the host is empty, set hostName to "localhost"
     //
     String hostName = host;
-    if (host == String::EMPTY)
+    if (host.size()  == 0 )
     {
         hostName = "localhost";
     }
@@ -300,7 +303,7 @@ void ExportClient::connect(
     // If the host is empty, set hostName to "localhost"
     //
     String hostName = host;
-    if (host == String::EMPTY)
+    if (host.size() == 0 )
     {
         hostName = "localhost";
     }

@@ -182,7 +182,8 @@ Boolean WSMANExportClient::_doRequest(
             PEGASUS_ASSERT(getCount() == 0);
             if(response->getCloseConnect() == true)
             {
-                _disconnect();
+                _disconnect(true);
+                _doReconnect = true;
                 response->setCloseConnect(false);
             }
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)

@@ -292,6 +292,7 @@ buildclientlibs: FORCE
 #
 setupdevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	-$(MAKE) --directory=$(PEGASUS_ROOT)/www -f Makefile setupwebadmin
 	@$(ECHO) "PEGASUS Development Server Runtime Environment configured "
 
 cleandevserver: FORCE
@@ -358,8 +359,4 @@ endif
 rootbundle:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
 
-webadmin: FORCE
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB), true)
-	$(MAKE) -f Makefile.webadmin copy_webadmin_directory
-endif	
 # DO NOT DELETE

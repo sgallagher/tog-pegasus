@@ -46,15 +46,15 @@ WEBADMIN_HOME = $(PEGASUS_HOME)
 
 #WEBADMIN_TARGET is the path where webadmin pages locate in the system.
 ifeq ($(OS), linux)
-WEBADMIN_TARGET = /opt/tog-pegasus/www
+ WEBADMIN_TARGET = /opt/tog-pegasus/www
 endif
 
 ifeq ($(OS), zos)
-WEBADMIN_TARGET = /var/wbem/www
+ WEBADMIN_TARGET = /var/wbem/www
 endif
 
 ifeq ($(OS), PASE)
-WEBADMIN_TARGET = /QOpenSys/QIBM/UserData/UME/Pegasus/www
+ WEBADMIN_TARGET = /QOpenSys/QIBM/UserData/UME/Pegasus/www
 endif
 
 ifeq ($(OS),solaris)

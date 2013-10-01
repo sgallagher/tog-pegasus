@@ -84,10 +84,14 @@ void WebConfig::_loadConfig()
 
     ConfigManager* _configManager = ConfigManager::getInstance();
     // get values from current config
-    _webRoot = _configManager->getCurrentValue(PROPERTY_WEB_ROOT);
+    _webRoot = ConfigManager::getHomedPath(
+                 _configManager->getCurrentValue(PROPERTY_WEB_ROOT));
+
     _indexFile = _configManager->getCurrentValue(PROPERTY_INDEX_FILE);
-    String mimeTypesFile = _configManager->getCurrentValue(
-                                             PROPERTY_MIMETYPES_FILE);
+
+    String mimeTypesFile = ConfigManager::getHomedPath(
+                               _configManager->getCurrentValue(
+                                   PROPERTY_MIMETYPES_FILE));
 
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
             "WebConfig::_loadConfig() - "

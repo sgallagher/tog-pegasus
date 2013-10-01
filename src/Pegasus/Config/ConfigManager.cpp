@@ -987,7 +987,7 @@ String ConfigManager::getHomedPath(const String& value)
 {
     String homedPath;
 
-    if (value != String::EMPTY)
+    if (value.size() != 0 )
     {
         if (System::is_absolute_path((const char *)value.getCString()))
         {
@@ -1025,7 +1025,9 @@ String ConfigManager::getHomedPath(const String& value)
             }
 
             if (token == 1)
+            {
                 homedPath.append(FileSystem::getPathDelimiter());
+            }
             temp.remove(0, pos + token);
         } while (temp.size() > 0);
     }

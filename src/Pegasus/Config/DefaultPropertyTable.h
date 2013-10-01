@@ -80,9 +80,9 @@
 # endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    {"webRoot", "", IS_STATIC, IS_VISIBLE},
-    {"indexFile", "", IS_STATIC, IS_VISIBLE},
-    {"mimeTypesFile", "", IS_STATIC, IS_VISIBLE}
+    {"webRoot", "www", IS_STATIC, IS_VISIBLE},
+    {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
+    {"mimeTypesFile", "www/mimeTypes.txt", IS_STATIC, IS_VISIBLE}
 #endif
 #endif
 #endif /* Pegasus_DefaultPropertyTable_h */

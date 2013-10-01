@@ -49,9 +49,4 @@ public:
 
 static DummyObject _dummy;
 
-PEGASUS_COMMON_LINKAGE const char* boolToString(bool x)
-{
-    return (x ? "true" : "false");
-}
-
 PEGASUS_NAMESPACE_END

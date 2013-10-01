@@ -382,17 +382,4 @@ PEGASUS_NAMESPACE_END
 # endif
 #endif
 
-
-/**
-    Return a const char * true or false for the Boolean input.
-    Note that this works for Boolean and bool.  It is contained
-    here because Boolean is used as a CIM Type but has no c++
-    class in Pegasus.
-
-    @return const char* containing "true" or "false"
- */
-PEGASUS_NAMESPACE_BEGIN
-// Include PEGASUS_EXPORT explicitly because Linkage calls Config.h
-PEGASUS_EXPORT const char* boolToString(bool x);
-PEGASUS_NAMESPACE_END
 #endif  /* Pegasus_Config_h */

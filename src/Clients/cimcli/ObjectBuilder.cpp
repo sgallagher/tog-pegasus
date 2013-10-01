@@ -35,6 +35,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Pegasus_inl.h>
 
 #include "CIMCLIClient.h"
 #include "ObjectBuilder.h"

@@ -65,4 +65,21 @@ inline void* peg_inln_realloc(void *oldPtr, size_t newSize)
     return newPtr;
 }
 
+/**
+    Return a const char * true or false for the Boolean input.
+    Note that this works for Boolean and bool.  It is contained
+    here because to work around a bug and should be moved to proper
+    place when we have a separate files for CIMTypes
+
+    See the 9785 and 9778
+
+    @return const char* containing "true" or "false"
+*/
+
+inline const char* boolToString( const bool x )
+{
+    return x ? "true": "false";
+}
+
+
 #endif //Pegasus_inl_h end

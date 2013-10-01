@@ -49,6 +49,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/Pegasus_inl.h>
 
 #include "CIMCLIOptions.h"
 #include "CIMCLIClient.h"

@@ -152,7 +152,7 @@ CIMInstance InteropProvider::localGetInstance(
         "%s getInstance. instanceName= %s , PropertyList= %s",
         thisProvider,
         (const char *)instanceName.toString().getCString(),
-        (const char *)propertyListToString(propertyList).getCString()));
+        (const char *)propertyList.toString().getCString()));
 
     // Test if we're looking for something outside of our namespace. This will
     // happen during associators calls from PG_RegisteredProfile instances
@@ -299,7 +299,7 @@ Array<CIMInstance> InteropProvider::getReferencedInstances(
         {
             case PG_SOFTWAREIDENTITY:
             {
-                CIMInstance retInstance = 
+                CIMInstance retInstance =
                     getSoftwareIdentityInstance(thisTarget);
                 normalizeInstance(
                     retInstance, thisTarget, false, false, propertyList);
@@ -375,7 +375,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         "%s enumerateInstances. referenc= %s , PropertyList= %s",
         thisProvider,
         (const char *)className.getString().getCString(),
-        (const char *)propertyListToString(propertyList).getCString()));
+        (const char *)propertyList.toString().getCString()));
 
     // Verify that ClassName is correct and get its enum value
     TARGET_CLASS classEnum  = translateClassInput(className);

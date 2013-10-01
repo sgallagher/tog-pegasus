@@ -374,15 +374,13 @@ Real64 strToReal(const char * str, CIMType type)
     return r64;
 }
 
-// Local function that tests exitCode against expectedExitCode and
-// returns proper result. Used only by cimcliExit and cimcliExitRtn
-Uint32 _cimcliExitLocal(Uint32 exitCode)
+void cimcliExit(Uint32 exitCode)
 {
     // This should be the only use of exit in cimcli.
     // all other exits should use cimcliExit
     if (expectedExitCode == exitCode)
     {
-        return 0;
+        exit(0);
     }
 
     // Do not print a warning message if the expected return code is
@@ -395,15 +393,7 @@ Uint32 _cimcliExitLocal(Uint32 exitCode)
              << ". Program delivered exit code (" << exitCode
              << ") " << rtnExitCodeToString(exitCode) << endl;
     }
-    return exitCode;
-}
-Uint32 cimcliExitRtn(Uint32 exitCode)
-{
-    return _cimcliExitLocal(exitCode);
-}
-void cimcliExit(Uint32 exitCode)
-{
-    exit(_cimcliExitLocal(exitCode));
+    exit(exitCode);
 }
 
 void setExpectedExitCode(Uint32 exitCode)

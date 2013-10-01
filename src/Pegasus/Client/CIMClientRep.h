@@ -347,8 +347,8 @@ private:
     bool _localConnect;
 };
 
-/****************************************************************************
-**
+/**************************************************************************** 
+**  
 **   Implementation of ClientTrace class.  This allows setup of variables
 **   to control display of Client network send and receive.
 **

@@ -1225,18 +1225,17 @@ void RsProcessor::handleResponse(CIMResponseMessage* cimResponse)
     AutoPtr<CIMResponseMessage> cimResponseDestroyer(cimResponse);
     Uint32 queueId = cimResponse->queueIds.top();
     MessageQueue* queue = MessageQueue::lookup(queueId);
-    RsHTTPRequest* request;
-    RsHTTPResponse* response;
     CIMException& cimException = cimResponse->cimException;
     Boolean httpCloseConnect = cimResponse->getCloseConnect();
     Boolean complete = cimResponse->isComplete();
 
-    Boolean conversationSaved = _requestTable.lookup(queueId, request);
-    PEGASUS_ASSERT(conversationSaved);
+    RsHTTPRequest* request;
+    PEGASUS_FCT_EXECUTE_AND_ASSERT(
+       true, _requestTable.lookup(queueId, request));
+    RsHTTPResponse *response = request->response;
 
-    response = request->response;
-
-    try {
+    try
+    {
         if (cimException.getCode() != CIM_ERR_SUCCESS)
         {
             throw cimException;
@@ -1306,9 +1305,8 @@ void RsProcessor::handleResponse(CIMResponseMessage* cimResponse)
             httpMessage->setComplete(complete);
             //httpMessage->setIndex(cimResponse->getIndex());
             httpMessage->setIndex(0);
+            PEGASUS_FCT_EXECUTE_AND_ASSERT(true, _requestTable.remove(queueId));
 
-            Boolean removed = _requestTable.remove(queueId);
-            PEGASUS_ASSERT(removed);
             delete request;
 
             queue->enqueue(httpMessage.release());

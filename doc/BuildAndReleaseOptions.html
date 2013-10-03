@@ -881,9 +881,9 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
 <ul>
   <b>Description:&nbsp;</b>Enable pegasus to act as webserver capable
      of serving webpages by comsuming the JSON output from CIM-RS.<br>
-  <b>Default Value:&nbsp;</b>false<br>
+  <b>Default Value:&nbsp;</b>true<br>
   <b>Recommended Value (Development Build):&nbsp;</b>true<br>
-  <b>Recommended Value (Release Build):&nbsp;</b>false<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>true<br>
   <b>Required:&nbsp;</b>No<br>
   <b>Considerations:&nbsp;</b> The CIM-RS and webserver implementation are
      shaky at present and not stable. Anybody can modify the settings of
@@ -3437,8 +3437,35 @@ configuration properties.</p>
 <ul>
   <b>Description:&nbsp;</b> Points to a location where the static web pages to
   be served by the pegasus are stored.<br>
-  <b>Default Value:&nbsp;</b>3<br>
+  <b>Default Value:&nbsp;</b>www<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>www<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>
+  <b>Dynamic?:</b>&nbsp;No<br>
+  <b>Considerations:</b> &nbsp;<br>
+  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
+</ul>
+
+<h5>indexFile</h5>
+<ul>
+  <b>Description:&nbsp;</b> Specifies the name of index file used by webserver,
+  default to index.html. This file should be available at the webRoot path<br>
+  <b>Default Value:&nbsp;</b>index.html<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>index.html<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>
+  <b>Dynamic?:</b>&nbsp;No<br>
+  <b>Considerations:</b> &nbsp;<br>
+  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
+</ul>
+
+<h5>"mimeTypesFile"</h5>
+<ul>
+  <b>Description:&nbsp;</b> Mime types being served by the pegasus webserver<br>
+  <b>Default Value:&nbsp;</b>www/mimeTypes.txt<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>www/mimeTypes.txt<br>
   <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>

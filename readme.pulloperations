@@ -22,17 +22,7 @@ TODO list:
       pull not completed so we feed the responses back to the EnmerationContext
       queues
    3. Lots of minor TODOs, diagnostics, etc.
-   4. External runtime variables. Decide this as part of PEP. The variables
-      exist in CIMOperationRequestDispatcher but not in CIMConfig.  The primary
-      ones to consider are:
-      a. System maxObjectCount.  Setting some maximum size on what a pull
-          client can request (i.e. the maximum size of the maxObjectCount on
-          Open... and pull operations.
-      b. Pull interoperationTimeout (max times between operations). This is
-          the maximum number of seconds on the operationTimeout parameter of the
-          Open operations
-      c. Maximum size of the responseCache before it starts backing up
-          responses to the providers.
+   4. External runtime variables. Proposing that they be fixed for this release.
    5. Decision on EnumerationContext timeout (separate thread or just
       checks during other operations). Can we, in fact really keep the 
       enumeration context table and queue under control without monitoring
@@ -46,8 +36,12 @@ TODO list:
           today
    6. Clean up code in Dispatcher. Want to at least reduce the code for the
       Open Operations to a set of templates so we know that the code is the
-      same for all operations.  Right now the existing operations enum, assoc,
-      etc. are all in templates but not the open operations.  Note that the
+      same for all operations.  Most of the common code for the enum, assoc,
+      ref operations and their corresponding open/pull operations is now in a
+      set of template functions so that it is largely common code. Used the
+      templates where there is common code but not the same CIMMessage. However,
+      we should be able to do some of it with common functions (i.e. not templates)
+      by adding a layer to CIMMessage hiearchy and reduce code size. The
       pull is a single template for both pullInstances and pullInstancePaths.
       However, we might be able to reduce this to a single function by adding
       a new level to CIMMessage.h (CommonPullResponse)
@@ -63,9 +57,11 @@ TODO list:
       contains the pull data.  Then we can use a single function to process all
       pull operations.
       b. test the enumeration timeout thread
-      c. New Mergout to bring up to to date again.
       d. Sort out issues with statisticalData since it really does not work
-         with Open and Pull operations
+         with Open and Pull operations. See separate bug 9786.
+
+30 September 2013 - CVS Update
+Mergeout head of tree up to 29 September 2013.
 
 29 September 2013. CVS update.
 1. Modified calls to statisticalData.cpp to a) directly call with request

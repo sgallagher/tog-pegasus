@@ -35,8 +35,6 @@
 #include <Pegasus/Common/Tracer.h>
 
 #include <Pegasus/WebServer/WebServer.h>
-#include <Pegasus/WebServer/WebProcessor.h>
-#include <Pegasus/WebServer/WebRequest.h>
 
 
 PEGASUS_USING_STD;
@@ -91,8 +89,8 @@ void WebServer::handleEnqueue(Message* message)
             handleHTTPMessage((HTTPMessage*)message);
             break;
 
+        //Handles only the HTTP_MESSAGE, So this is unrechable
         default:
-            // Unexpected message type
             PEGASUS_UNREACHABLE( PEGASUS_ASSERT(0);)
             break;
     }
@@ -103,8 +101,7 @@ void WebServer::handleEnqueue(Message* message)
 
 void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 {
-    PEG_METHOD_ENTER(TRC_WEBSERVER,
-                "WebServer::handleHTTPMessage(HTTPMessage* httpMessage)");
+    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebServer::handleHTTPMessage()");
 
     if (!httpMessage)
     {
@@ -207,8 +204,7 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
 void WebServer::handleResponse(HTTPMessage* response)
 {
 
-    PEG_METHOD_ENTER(TRC_WEBSERVER,
-            "WebServer::handleResponse(HTTPMessage* response)");
+    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebServer::handleResponse()");
 
     Uint32 queueId = response->queueId;
     MessageQueue* queue = MessageQueue::lookup(queueId);

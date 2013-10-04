@@ -118,16 +118,16 @@ private:
        Name of index-file, will be served when requesting resource '/'
      */
     String _indexFile;
+    /**
+
+     */
+    MimeTypes _mimeTypes;
+
 
     /**
        Locale encoding of files, for ex. 'ISO-5889-1' or 'UTF-8'
      */
     String _localFileEnc;
-
-    /**
-
-     */
-    MimeTypes _mimeTypes;
 
     /**
        Loads mimetypes from file.

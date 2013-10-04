@@ -32,17 +32,13 @@
 #ifndef Pegasus_WebServer_h
 #define Pegasus_WebServer_h
 
+#include <Pegasus/WebServer/Linkage.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/MessageQueue.h>
 
 #include <Pegasus/WebServer/WebProcessor.h>
 #include <Pegasus/WebServer/WebRequest.h>
-#include <Pegasus/WebServer/Linkage.h>
 
-
-// Dummy value; HTTP responses are always
-// unique to their request based on client socket
-#define WEB_MESSAGE_ID "1234"
 
 PEGASUS_NAMESPACE_BEGIN
 

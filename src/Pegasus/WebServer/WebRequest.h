@@ -49,11 +49,11 @@ public:
      * Constructor.
      *
      * @param queueId
-     *             Request's queueId required for generation of the response
+     *      Request's queueId required for generation of the response
      *             for a successful delivery back to the requester.
      */
     WebRequest(Uint32 queueId)
-                    :_queueId(queueId)
+        :_queueId(queueId)
     {
     }
 

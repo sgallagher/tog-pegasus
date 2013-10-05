@@ -67,6 +67,7 @@ Mergeout head of tree up to 29 September 2013.
 1. Modified calls to statisticalData.cpp to a) directly call with request
    type, b) incorporate the open, pull, etc. messages.  However, since these
    are not part of the CIM class, we must do something special with them.
+   See bug 9785 for full solution to this issue.
 2. Corrected OOP interface to enable new flag to indicate internal operations
    and set host, etc.
 3. Add code to CQLOperationsDispatcher and WQLOperationDispatcher to clean

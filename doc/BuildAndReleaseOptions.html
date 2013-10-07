@@ -885,9 +885,9 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
   <b>Recommended Value (Development Build):&nbsp;</b>true<br>
   <b>Recommended Value (Release Build):&nbsp;</b>true<br>
   <b>Required:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b> The CIM-RS and webserver implementation are
-     shaky at present and not stable. Anybody can modify the settings of
-     pegasus. This will be made stable and secure in future releases. <br>
+  <b>Considerations:&nbsp;</b> The webserver implementation uses the
+  authentication method for authenticantion, Enable authentication when using
+  webadmin to prevent unauthorized access. <br>
 </ul>
 
 
@@ -3441,9 +3441,10 @@ configuration properties.</p>
   <b>Recommended Default Value (Development Build):&nbsp;</b>www<br>
   <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
   <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> &nbsp;<br>
+  <b>Considerations:</b> When not fixed and hidden, it can be modified to
+  point to a location having spurious pages. Please consider fixing this value. &nbsp;<br>
   <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
 </ul>
 
@@ -3453,7 +3454,7 @@ configuration properties.</p>
   default to index.html. This file should be available at the webRoot path<br>
   <b>Default Value:&nbsp;</b>index.html<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>index.html<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>index.html<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>
   <b>Dynamic?:</b>&nbsp;No<br>

@@ -49,7 +49,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 RsRequestDecoder::RsRequestDecoder(RsProcessor* rsProcessor)
-: MessageQueueService("RsRequestDecoder"),
+    : MessageQueueService("RsRequestDecoder"),
     _rsProcessor(rsProcessor)
 {
 }
@@ -60,10 +60,10 @@ RsRequestDecoder::~RsRequestDecoder()
 
 void RsRequestDecoder::handleEnqueue(Message* message)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,
-        "RsOperationRequestDecoder::handleEnqueue(Message* message)");
+    PEG_METHOD_ENTER(TRC_RSSERVER,"RsOperationRequestDecoder::handleEnqueue()");
     if (!message)
     {
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -86,8 +86,7 @@ void RsRequestDecoder::handleEnqueue(Message* message)
 
 void RsRequestDecoder::handleEnqueue()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,
-        "RsOperationRequestDecoder::handleEnqueue()");
+    PEG_METHOD_ENTER(TRC_RSSERVER,"RsOperationRequestDecoder::handleEnqueue()");
     Message* message = dequeue();
     if (message)
     {

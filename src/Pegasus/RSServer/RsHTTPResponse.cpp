@@ -57,23 +57,26 @@ RsHTTPResponse::RsHTTPResponse():
 RsHTTPResponse::~RsHTTPResponse()
 {
     if (_hasWriter)
+    {
         delete _writer;
+    }
 }
 
 void RsHTTPResponse::setStatus(const char* status, Uint32 length)
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,
-        "RsHTTPResponse::setStatus(const char* status)");
+    PEG_METHOD_ENTER(TRC_RSSERVER, "RsHTTPResponse::setStatus()");
     if (_message.size() > 0)
+    {
         _message.clear();
+    }
 
     _message.append(STRLIT_ARGS("HTTP/1.1 "));
     _message.append(status, length);
     _message.append(STRLIT_ARGS("\r\n"));
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsHTTPResponse::setStatus() Status Line: [%s]",
-            _message.getData()));
+        "RsHTTPResponse::setStatus() Status Line: [%s]",
+        _message.getData()));
 
     // Date is MUST per rfc 2616
     // for format see section 3.3.3.1 / rfc 1123, e.g.
@@ -88,8 +91,7 @@ void RsHTTPResponse::setStatus(const char* status, Uint32 length)
     _message.append(STRLIT_ARGS("Date: "));
     _message.append(timeValue, 29);
 
-    _message.append(STRLIT_ARGS("\r\n"
-            "Content-Length: "));
+    _message.append(STRLIT_ARGS("\r\n" "Content-Length: "));
     _contentLengthPos = _message.size();
     _message.append(STRLIT_ARGS("\r\n"));
 
@@ -160,9 +162,9 @@ HTTPMessage* RsHTTPResponse::getHTTPMessage()
     char scratch[22];
     Uint32 contentLengthSize = 0;
 
-    const char* contentLength = Uint32ToString(scratch,
-        _message.size() - (_headerLength + 2),
-        contentLengthSize);
+    const char* contentLength = Uint32ToString( scratch,
+            _message.size() - (_headerLength + 2),
+            contentLengthSize);
 
     // Carve in body length
     _message.insert(_contentLengthPos, contentLength, contentLengthSize);

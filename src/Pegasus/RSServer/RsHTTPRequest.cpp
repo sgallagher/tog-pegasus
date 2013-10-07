@@ -66,12 +66,12 @@ RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage) :
         startLine, methodName, requestUri, httpVersion);
 
     PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-            "RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage)- Queue %d: "
+        "RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage)- Queue %d: "
             "methodName [%s], requestUri [%s], httpVersion [%s]",
-            httpMessage->queueId,
-            (const char*)methodName.getCString(),
-            (const char*)requestUri.getCString(),
-            (const char*)httpVersion.getCString()));
+        httpMessage->queueId,
+        (const char*)methodName.getCString(),
+        (const char*)requestUri.getCString(),
+        (const char*)httpVersion.getCString()));
 
     // TODO provide a getUri that lazy-loads the uri
     _uri = RsURI(requestUri);
@@ -165,9 +165,6 @@ RsOperationType RsHTTPRequest::getType()
         _type = RS_CLASS_COLLECTION_GET;
     }
 
-
-
-
     _hasType = true;
     PEG_METHOD_EXIT();
     return _type;
@@ -178,8 +175,7 @@ RsOperationType RsHTTPRequest::getType()
 // Range = "Range" ":" ranges-specifier
 Boolean RsHTTPRequest::hasRange()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,
-        "RsHTTPRequest::hasRange()");
+    PEG_METHOD_ENTER(TRC_RSSERVER, "RsHTTPRequest::hasRange()");
 
     if (!_rangeHeaderLoaded)
     {
@@ -214,8 +210,8 @@ Uint32 RsHTTPRequest::getRangeEnd()
 
 void RsHTTPRequest::_loadRangeHeader()
 {
-    PEG_METHOD_ENTER(TRC_RSSERVER,
-        "RsHTTPRequest::_loadRangeHeader()");
+    PEG_METHOD_ENTER(TRC_RSSERVER, "RsHTTPRequest::_loadRangeHeader()");
+
     Boolean found = false;
     for (Uint32 i = 0; i < _headers.size(); i++)
     {
@@ -229,23 +225,23 @@ void RsHTTPRequest::_loadRangeHeader()
 
             if (delimPos != PEG_NOT_FOUND)
             {
-                _first = atoi((const char*)range.subString(6,
-                    delimPos).getCString());
-                _last = atoi((const char*)range.subString(delimPos + 1,
-                    len - delimPos + 1).getCString());
+                _first = atoi((const char*)range.subString(
+                            6, delimPos).getCString());
+
+                _last = atoi((const char*)range.subString(
+                            delimPos + 1, len - delimPos + 1).getCString());
 
                 found = true;
 
                 PEG_TRACE((TRC_RSSERVER, Tracer::LEVEL4,
-                        "RsHTTPRequest::_loadRangeHeader() found in header %d, "
-                        "first: %d, second: %d",
-                        i, _first, _last));
+                    "RsHTTPRequest::_loadRangeHeader() found in header %d, "
+                    "first: %d, second: %d",
+                    i, _first, _last));
             }
             // TODO else throw Range not satisfiable
 
             break;
-        }
-
+        } // if
     }
 
     _rangeHeaderLoaded = true;

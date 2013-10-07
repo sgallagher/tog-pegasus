@@ -32,6 +32,7 @@
 #ifndef Pegasus_RsHTTPRequest_h
 #define Pegasus_RsHTTPRequest_h
 
+#include <Pegasus/RSServer/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
@@ -39,7 +40,6 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Buffer.h>
-#include <Pegasus/RSServer/Linkage.h>
 
 #include "RsURI.h"
 #include "RsHTTPResponse.h"

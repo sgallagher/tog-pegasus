@@ -45,7 +45,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class RsProcessor;
 
-/** This class decodes CIM-RS operation requests and passes them down-stream.
+/**
+ * This class decodes CIM-RS operation requests and passes them down-stream.
  */
 class PEGASUS_RSSERVER_LINKAGE RsRequestDecoder : public MessageQueueService
 {

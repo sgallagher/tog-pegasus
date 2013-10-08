@@ -293,7 +293,7 @@ buildclientlibs: FORCE
 setupdevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB), true)
-	-$(MAKE) --directory=$(PEGASUS_ROOT)/www -f Makefile setupwebadmin
+	-$(MAKE) -f Makefile.webAdmin setupwebadmin
 endif
 	@$(ECHO) "PEGASUS Development Server Runtime Environment configured "
 

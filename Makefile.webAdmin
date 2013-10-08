@@ -49,7 +49,7 @@ WEBADMIN_HOME = $(PEGASUS_HOME)
 # difinition of WEBADMIN_TARGET for all supported platforms, But NOT CURRENTLY
 # IN USE
 ifeq ($(OS), linux)
- WEBADMIN_TARGET = /var/tog-pegasus/www
+ WEBADMIN_TARGET = /opt/tog-pegasus/www
 endif
 
 ifeq ($(OS), zos)
@@ -76,7 +76,7 @@ ifeq ($(OS),darwin)
 endif
 
 setupwebadmin: FORCE
-	-@$(CPDIRHIER) $(WEBADMIN_ROOT) $(WEBADMIN_HOME)
+	@$(CPDIRHIER) $(WEBADMIN_ROOT) $(WEBADMIN_HOME)
 
 .PHONY: FORCE
 

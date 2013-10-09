@@ -52,8 +52,6 @@ const String WebProcessor::GZIP = "gzip";
 const String WebProcessor::DEFLATE = "deflate";
 
 
-
-
 WebProcessor::WebProcessor(WebServer* const webServer)
     : _webConfig(), _webServer(webServer)
 {
@@ -62,7 +60,6 @@ WebProcessor::WebProcessor(WebServer* const webServer)
 WebProcessor::~WebProcessor()
 {
 }
-
 
 void WebProcessor::handleWebRequest(WebRequest* request)
 {
@@ -78,8 +75,8 @@ void WebProcessor::handleWebRequest(WebRequest* request)
 
 
     // check protocol version
-    if (String::equal(request->httpVersion, "")
-        || PEG_NOT_FOUND == request->httpVersion.find("HTTP/"))
+    if( String::equal(request->httpVersion, "") ||
+            PEG_NOT_FOUND == request->httpVersion.find("HTTP/"))
     {// bad request
         _sendError( HTTP_STATUSCODE_BADREQUEST, queueId,
             "Malformed Http, http version string not found!");
@@ -97,18 +94,18 @@ void WebProcessor::handleWebRequest(WebRequest* request)
         return;
     }
     PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL3,"WebServer::handleWebRequest"
-                "(WebRequest* webRequest) - httpVersion='%s'",
-                (const char*)request->httpVersion.getCString()));
+        "(WebRequest* webRequest) - httpVersion='%s'",
+        (const char*)request->httpVersion.getCString()));
 
-    String* method;
+    const char* method = NULL;
     // check HTTPmethod
     if (request->httpMethod == HTTP_METHOD_GET)
     {
-        method = new String("GET");
+        method = "GET";
     }
     else if (request->httpMethod == HTTP_METHOD_HEAD)
     {
-        method = new String("HEAD");
+        method = "HEAD";
     }
     else
     {// handle bad request (method not allowed)
@@ -121,9 +118,7 @@ void WebProcessor::handleWebRequest(WebRequest* request)
         PEG_METHOD_EXIT();
         return;
     }
-    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL4,"WebServer::handleWebRequest"
-        "(WebRequest* webRequest) - httpMethod='%s'",
-            (const char*)method->getCString()));
+    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL4,"Requested httpMethod= %s",method));
 
     // get absolute filename from URI
     String fileName;
@@ -131,26 +126,25 @@ void WebProcessor::handleWebRequest(WebRequest* request)
     if (statusCode != HTTP_STATUSCODE_OK)
     {
         _sendError(
-                statusCode,
-                queueId,
-                "<p>Request-URI: <b>'" + request->requestURI
-                    + "'</b><br/>"
-                    + "Current web-root: <b>'" + _webConfig.getWebRoot()
-                    + "'</b>"
-                    + ((statusCode == HTTP_STATUSCODE_FORBIDDEN)?
-                            ("<br/><br/>Reason: It points to a directory or "
-                             "the requested file's real path is not located "
-                             "in the webRoot!</p>")
-                             :("</p>")));
+            statusCode,
+            queueId,
+            "<p>Request-URI: <b>'" + request->requestURI
+                + "'</b><br/>"
+                + "Current web-root: <b>'" + _webConfig.getWebRoot()
+                + "'</b>"
+                + ((statusCode == HTTP_STATUSCODE_FORBIDDEN)?
+                    ("<br/><br/>Reason: It points to a directory or "
+                     "the requested file's real path is not located "
+                     "in the webRoot!</p>")
+                    :("</p>")));
         PEG_METHOD_EXIT();
         return;
     }
-    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL3,"WebServer::handleWebRequest"
-        "(WebRequest* webRequest) - URI maps to valid/allowed " "fileName='%s'",
-            (const char*)fileName.getCString()));
+    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL4,"URI maps to valid/allowed "
+        "fileName='%s'",
+        (const char*)fileName.getCString()));
 
     // get and check contentType for requested file
-    String contentType;
     /* RFC 2616, section 10.4.7 '406 Not Acceptable'
      *
      * Note: HTTP/1.1 servers are allowed to return responses which are
@@ -163,6 +157,7 @@ void WebProcessor::handleWebRequest(WebRequest* request)
      *    the delivered file with a header line in the response including a 
      *    mime-type definition it does not know.
      */
+    String contentType;
     if (!_getContentType(fileName, contentType))
     {
         // no contentType known for requested file(-extension)
@@ -173,8 +168,8 @@ void WebProcessor::handleWebRequest(WebRequest* request)
         PEG_METHOD_EXIT();
         return;
     }
-    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL3,"WebServer::handleWebRequest"
-        "(WebRequest* webRequest) - response contentType='%s'",
+    PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL4,
+        " Requested response contentType='%s'",
             (const char*)contentType.getCString()));
 
     /* is it a text based mime-type ?
@@ -188,7 +183,7 @@ void WebProcessor::handleWebRequest(WebRequest* request)
 
     PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL3,"WebServer::handleWebRequest"
         "(WebRequest* webRequest) - contentType is binary='%s'",
-            (isBinFile ? "true" : "false" )));
+        (isBinFile ? "true" : "false" )));
 
     /*
      * check requested encodings
@@ -229,7 +224,7 @@ void WebProcessor::handleWebRequest(WebRequest* request)
 
     PEG_TRACE_CSTRING(TRC_WEBSERVER,Tracer::LEVEL4,"WebServer::handleWebRequest"
         "(WebRequest* webRequest) - All Headers have been parsed and "
-        "successfully validated.");
+            "successfully validated.");
 
 
     /*
@@ -238,16 +233,17 @@ void WebProcessor::handleWebRequest(WebRequest* request)
     if (!FileSystem::canRead(fileName))
     {// file not accessible
         _sendError(
-                HTTP_STATUSCODE_FORBIDDEN,
-                queueId,
-                "The requested file '" + fileName + "' is not accessible!");
+            HTTP_STATUSCODE_FORBIDDEN,
+            queueId,
+            "The requested file '" + fileName + "' is not accessible!");
+
         PEG_METHOD_EXIT();
         return;
     }
 
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
         "WebServer::handleWebRequest(WebRequest* webRequest) - "
-        "File accessible, creating response. HTTP-statusCode: %d ",
+            "File accessible, creating response. HTTP-statusCode: %d ",
         statusCode));
 
     // initialize response-buffer
@@ -313,9 +309,8 @@ void WebProcessor::handleWebRequest(WebRequest* request)
     // end of headers
     _message << "\r\n";
 
-    PEG_TRACE_CSTRING(TRC_WEBSERVER,Tracer::LEVEL2,"WebServer::handleWebRequest"
-                "(WebRequest* webRequest) - All response headers have been "
-                "written.");
+    PEG_TRACE_CSTRING(TRC_WEBSERVER,Tracer::LEVEL4,"WebServer::handleWebRequest"
+        "(WebRequest* webRequest) - All response headers have been written.");
 
     /*
      * Write Body
@@ -337,11 +332,12 @@ void WebProcessor::handleWebRequest(WebRequest* request)
     }
 
     PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL4,"WebServer::handleWebRequest"
-            "(WebRequest* webRequest) - response:\n%s\n",
-            Tracer::getHTTPRequestMessage(_message).get()));
+        "(WebRequest* webRequest) - response:\n%s\n",
+        Tracer::getHTTPRequestMessage(_message).get()));
 
     // create response message
     HTTPMessage* response = new HTTPMessage(_message, queueId);
+
     // set close connection flag
     response->setCloseConnect(true);
 
@@ -395,9 +391,9 @@ void WebProcessor::_sendError(
     _message << getErrorPage(statusC, debugMsg);
 
      PEG_TRACE((TRC_WEBSERVER,Tracer::LEVEL1,"WebServer::_sendError"
-                "(Uint32 statusCode, Uint32 queueId, String debugMsg) - "
-                "response:\n%s\n",
-                Tracer::getHTTPRequestMessage(_message).get()));
+        "(Uint32 statusCode, Uint32 queueId, String debugMsg) - "
+            "response:\n%s\n",
+        Tracer::getHTTPRequestMessage(_message).get()));
 
     // create response message
     HTTPMessage* response = new HTTPMessage(_message, queueId);

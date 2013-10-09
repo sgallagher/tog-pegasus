@@ -83,6 +83,7 @@ void WebConfig::_loadConfig()
     PEG_METHOD_ENTER(TRC_WEBSERVER, "WebConfig::_loadConfig()");
 
     ConfigManager* _configManager = ConfigManager::getInstance();
+
     // get values from current config
     _webRoot = ConfigManager::getHomedPath(
                  _configManager->getCurrentValue(PROPERTY_WEB_ROOT));
@@ -94,12 +95,12 @@ void WebConfig::_loadConfig()
                                    PROPERTY_MIMETYPES_FILE));
 
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
-            "WebConfig::_loadConfig() - "
-                "ConfigManager returned\nwebRoot='%s',\nindexFile='%s',\n"
+        "WebConfig::_loadConfig() - "
+            "ConfigManager returned\nwebRoot='%s',\nindexFile='%s',\n"
                 "mimeTypesFile='%s'",
-                (const char*)_webRoot.getCString(),
-                (const char*)_indexFile.getCString(),
-                (const char*)mimeTypesFile.getCString()));
+        (const char*)_webRoot.getCString(),
+        (const char*)_indexFile.getCString(),
+        (const char*)mimeTypesFile.getCString()));
 
     // load mime types map
     _loadMimeTypes(mimeTypesFile);
@@ -109,13 +110,10 @@ void WebConfig::_loadConfig()
 
 void WebConfig::_loadMimeTypes(String& mimeTypesFile)
 {
-    PEG_METHOD_ENTER(TRC_WEBSERVER,
-            "WebConfig::_loadMimeTypes(String& mimeTypesFile)");
+    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebConfig::_loadMimeTypes()");
 
     // ensure an empty list
     _mimeTypes.clear();
-
-
 
     const char delimiter = '=';
     ifstream fileStream(mimeTypesFile.getCString());
@@ -134,32 +132,35 @@ void WebConfig::_loadMimeTypes(String& mimeTypesFile)
         _mimeTypes.insert("jpg", "image/jpeg");
         // write trace
         PEG_TRACE_CSTRING(TRC_WEBSERVER, Tracer::LEVEL4,
-                   "WebConfig::_loadMimeTypes() - "
-                       "Failed to read mime-types file, using defaults.");
+            "WebConfig::_loadMimeTypes() - "
+                "Failed to read mime-types file, using defaults.");
+
         // trace
         String defaultMimeTypes = "";
         for (MimeTypes::Iterator i = _mimeTypes.start(); i; i++)
         {
             defaultMimeTypes.append(i.key() + ":" + i.value() + "\n");
         }
+
         defaultMimeTypes.append("\n");
         PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
-                 "WebConfig::_loadMimeTypes() - "
+            "WebConfig::_loadMimeTypes() - "
                  "Failed to read mime-types file, using defaults."
-                 " Default MIME-types are: \n%s",
-                 (const char*)defaultMimeTypes.getCString()));
+                     " Default MIME-types are: \n%s",
+            (const char*)defaultMimeTypes.getCString()));
         return;
     }
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
-                       "WebConfig::_loadMimeTypes() - "
-                           "Reading mime-types file '%s'",
-                       (const char*)mimeTypesFile.getCString()));
+        "WebConfig::_loadMimeTypes() - "
+            "Reading mime-types file '%s'",
+    (const char*)mimeTypesFile.getCString()));
 
     String line;
     while (!fileStream.eof())
     {
         // read line
         GetLine(fileStream, line);
+
         // is it a comment line ?
         if (!line.compare("#", line, 1))
         {
@@ -171,9 +172,11 @@ void WebConfig::_loadMimeTypes(String& mimeTypesFile)
         {// delimiter not found
             continue;
         }
+
         // extract key/value
         String key = line.subString(0, delimPos);
         String value = line.subString(delimPos+1);
+
         // apply config value
         _mimeTypes.insert(key, value);
     }
@@ -186,9 +189,9 @@ void WebConfig::_loadMimeTypes(String& mimeTypesFile)
     definedMimeTypes.append("\n");
 
     PEG_TRACE((TRC_WEBSERVER, Tracer::LEVEL4,
-            "WebConfig::_loadMimeTypes() - "
-                "Loaded MIME-types are: \n%s",
-            (const char*)definedMimeTypes.getCString()));
+        "WebConfig::_loadMimeTypes() - "
+            "Loaded MIME-types are: \n%s",
+        (const char*)definedMimeTypes.getCString()));
 
     PEG_METHOD_EXIT();
 }

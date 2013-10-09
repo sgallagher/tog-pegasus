@@ -51,6 +51,8 @@ class PEGASUS_WEBSERVER_LINKAGE WebConfig
 
 public:
 
+
+
     /**
        Initializes the config with defaults which will be overriden by
        the current config values and mime-types file.
@@ -62,14 +64,29 @@ public:
      */
     ~WebConfig();
 
+    /**
+     */
+    String getWebRoot() const;
+
+    /**
+     */
+    String getIndexFile() const;
 
     /*
      * MimeType mapping, for ex. '.js => text/javascript'
      */
     typedef HashTable<String, String,
-                        EqualFunc<String>,
-                        HashFunc<String> > MimeTypes;
+                EqualFunc<String>,
+                HashFunc<String> > MimeTypes;
+    /**
+     */
+    MimeTypes getMimeTypes() const;
 
+    /**
+     */
+    void reload();
+
+    
     /*
      * Property-key for the webRoot stored in the current config.
      */
@@ -86,27 +103,6 @@ public:
      */
     static const String PROPERTY_MIMETYPES_FILE;
 
-
-    /**
-
-     */
-    String getWebRoot() const;
-
-    /**
-
-     */
-    String getIndexFile() const;
-
-    /**
-
-     */
-    MimeTypes getMimeTypes() const;
-
-    /**
-
-     */
-    void reload();
-
 private:
 
     /**
@@ -116,6 +112,7 @@ private:
 
     /**
        Name of index-file, will be served when requesting resource '/'
+       by default it is index.html at _webRoot dir
      */
     String _indexFile;
     /**

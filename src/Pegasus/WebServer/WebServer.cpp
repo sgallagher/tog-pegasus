@@ -74,8 +74,7 @@ void WebServer::handleEnqueue()
 
 void WebServer::handleEnqueue(Message* message)
 {
-    PEG_METHOD_ENTER(TRC_WEBSERVER,
-            "WebServer::handleEnqueue(Message* message)");
+    PEG_METHOD_ENTER(TRC_WEBSERVER, "WebServer::handleEnqueue()");
 
     if ( !message )
     {
@@ -128,6 +127,7 @@ void WebServer::handleHTTPMessage(HTTPMessage* httpMessage)
         headers, "Accept-Charset", charSetHeader, false);
 
     //ex.: 'Accept-Encoding: gzip,deflate'
+    //Not supported yet
     const char* encHeader = NULL;
     Boolean encHeaderFound = HTTPMessage::lookupHeader(
         headers, "Accept-Encoding", encHeader, false);

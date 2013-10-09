@@ -448,42 +448,6 @@ String FileSystem::getAbsoluteFileName(
 }
 
 
-//#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-//
-//String FileSystem::getAbsoluteFileName(
-//    const String& filename)
-//{
-//#ifdef PEGASUS_OS_LINUX
-//    char resolvedName[PATH_MAX+1];
-//#endif
-//#ifdef PEGASUS_OS_ZOS
-//    char resolvedName[_POSIX_PATH_MAX+1];
-//#endif
-////for other platform,please add here.
-//
-//    /*
-//     * ReturnValue:
-//     *    1) Upon successful completion, realpath() shall return a pointer to
-//     *        the buffer containing the resolved name. Otherwise, realpath()
-//     *        shall return a null pointer and set errno to indicate the error.
-//     *    2) If the resolved_name argument is a null pointer, the pointer
-//     *        returned by realpath() can be passed to free().
-//     *    3) If the resolved_name argument is not a null pointer and the
-//     *        realpath() function fails, the contents of the buffer pointed to
-//     *        by resolved_name are undefined.
-//     */
-//    char* result = realpath(filename.getCString(), resolvedName);
-//    if (!result)
-//    {// failed, resolvedName is undefined
-//        return String("");
-//    }
-//    return String(result);
-//}
-//
-//#endif
-
-
-
 String FileSystem::buildLibraryFileName(const String &libraryName)
 {
     String fileName;

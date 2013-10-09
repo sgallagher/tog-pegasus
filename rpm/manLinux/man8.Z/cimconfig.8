@@ -480,6 +480,41 @@ purposes it is by default set to false.
 .PD
 .PP
 
+.B webRoot
+.IP
+.BR Description: "Points to a location where the static web pages to be served
+by the pegasus webserver are stored. 
+.PD 0
+.IP
+.BR "Default Value: " /var/tog-pegasus/www
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+
+.B indexFile
+.IP
+.BR Description: "Specifies the name of index file used by pegasus webserver, default to index.html.
+This file should be available at the webRoot path
+.PD 0
+.IP
+.BR "Default Value: " index.html
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+
+.B mimeTypesFile 
+.IP
+.BR Description: " Refers to the file which holds the mime types being served by the pegasus webserver
+.PD 0
+.IP
+.BR "Default Value: "/var/tog-pegasus/www/mimeTypes.txt 
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+
 
 If both the 
 .B enableHttpsConnection

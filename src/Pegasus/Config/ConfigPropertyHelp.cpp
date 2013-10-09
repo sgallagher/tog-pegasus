@@ -374,8 +374,19 @@ struct configPropertyDescription configPropertyDescriptionList[] =
 
    {"sslBackwardCompatibility",
         "If 'true', OpenPegasus support SSLv3 and TLSv1 protocol.If 'false',\n"
-        "OpenPegasus support only TLS1.2 protocol for openssl 1.0.1+"}  
+        "OpenPegasus support only TLS1.2 protocol for openssl 1.0.1+"},
         
+    {"webRoot",
+        "Points to a location where the static web pages to be served by the\n"
+        "pegasus webserver are stored"},
+
+    {"indexFile",
+        "Specifies the name of index file used by pegasus webserver, default \n"
+        "to index.html. This file should be available at the webRoot path"},
+
+    {"mimeTypesFile",
+        "Refers to the file which holds the mime types being served by the \n"
+        "pegasus webserver "}
 
 };
 

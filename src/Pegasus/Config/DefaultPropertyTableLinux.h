@@ -59,9 +59,9 @@
 # endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    {"webRoot", "/opt/tog-pegasus/www", IS_STATIC, IS_VISIBLE},
+    {"webRoot", "/var/tog-pegasus/www", IS_STATIC, IS_VISIBLE},
     {"indexFile", "index.html", IS_STATIC, IS_VISIBLE},
-    {"mimeTypesFile", "/opt/tog-pegasus/mimeTypes.txt",
+    {"mimeTypesFile", "/var/tog-pegasus/www/mimeTypes.txt",
                     IS_STATIC, IS_VISIBLE},//TODO verify
 #endif
 #else // Non Release build

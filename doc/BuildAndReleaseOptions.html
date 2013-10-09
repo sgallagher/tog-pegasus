@@ -885,8 +885,8 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
   <b>Recommended Value (Development Build):&nbsp;</b>true<br>
   <b>Recommended Value (Release Build):&nbsp;</b>true<br>
   <b>Required:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b> The webserver implementation uses the
-  authentication method for authenticantion, Enable authentication when using
+  <b>Considerations:&nbsp;</b> When authentication is disabled, Anybody can
+  modify the pegasus cimserver. Please enable authentication when using
   webadmin to prevent unauthorized access. <br>
 </ul>
 
@@ -2011,6 +2011,10 @@ configuration properties.</p>
       <tr align="center">
         <td align="left" height="14" width="1">$MESSAGEDIR</td>
       </tr>
+      <tr align="center">
+        <td align="left" height="14" width="1">$WEBCONFDIR</td>
+      </tr>
+
       </tbody></table>
 </ul>
 
@@ -3439,7 +3443,7 @@ configuration properties.</p>
   be served by the pegasus webserver are stored.<br>
   <b>Default Value:&nbsp;</b>www<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>www<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>$WEBCONFDIR/www<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
   <b>Dynamic?:</b>&nbsp;No<br>
@@ -3451,27 +3455,31 @@ configuration properties.</p>
 <h5>indexFile</h5>
 <ul>
   <b>Description:&nbsp;</b> Specifies the name of index file used by pegasus webserver,
-  default to index.html. This file should be available at the webRoot path<br>
+  default to index.html. This file should be available at the webRoot path.<br>
   <b>Default Value:&nbsp;</b>index.html<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>index.html<br>
   <b>Recommended Default Value (Release Build):&nbsp;</b>index.html<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
   <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> &nbsp;<br>
+  <b>Considerations:</b> &nbsp; Hide it and fixed in release build to prevent
+  using any file as index file<br>
   <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
 </ul>
 
-<h5>"mimeTypesFile"</h5>
+<h5>mimeTypesFile</h5>
 <ul>
-  <b>Description:&nbsp;</b> Mime types being served by the pegasus webserver<br>
+  <b>Description:&nbsp;</b> Refers to the file which holds the mime types being
+  served by the pegasus webserver.<br>
   <b>Default Value:&nbsp;</b>www/mimeTypes.txt<br>
   <b>Recommended Default Value (Development Build):&nbsp;</b>www/mimeTypes.txt<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>TBD<br>
+  <b>Recommended Default Value (Release
+      Build):&nbsp;</b>$WEBCONFDIR/www/mimeTypes.txt<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;TBD<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;Yes/Yes<br>
   <b>Dynamic?:</b>&nbsp;No<br>
-  <b>Considerations:</b> &nbsp;<br>
+  <b>Considerations:</b>&nbsp;Fix and make it read only when to prevent
+  modification in deployment<br>
   <b>Source Configuration File:</b>&nbsp; Pegsus/Config/DefaultPropertyOwner.cpp<p>&nbsp;</p>
 </ul>
 

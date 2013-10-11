@@ -553,7 +553,7 @@ void testSUCCESSMessage(
     char messageText[MESSAGE_SIZE];
 
     sprintf(messageText,
-        ((expectedLanguage == "ROOT") ?
+        ((strcmp(expectedLanguage, "ROOT") == 0) ?
             "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, NUMBER = %s" :
             "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, number = %s"),
             expectedLanguage,
@@ -571,7 +571,7 @@ void testSUCCESSMessage(
     PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) == messageText);
     PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(
         mlp.contentlanguages) ==
-            ((expectedLanguage == "ROOT") ? "" : expectedLanguage));
+            ((strcmp(expectedLanguage,"ROOT") == 0) ? "" : expectedLanguage));
 }
 
 void testFAILEDMessage(MessageLoaderParms &mlp, const char * expectedLanguage,
@@ -592,7 +592,7 @@ void testFAILEDMessage(MessageLoaderParms &mlp, const char * expectedLanguage,
     PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) == messageText);
     PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(
         mlp.contentlanguages) ==
-            ((expectedLanguage == "ROOT") ? "" : expectedLanguage));
+            ((strcmp(expectedLanguage,"ROOT") == 0) ? "" : expectedLanguage));
 }
 
 
@@ -1124,7 +1124,8 @@ void testMessageLoader()
 
     testSUCCESSMessage(mlp, defaultResourceBundle,
         "rab oof is foo bar backwards",
-        ((defaultResourceBundle == "de") ? "64.000" : "64,000"), "testML", 1);
+        ((strcmp(defaultResourceBundle,"de") == 0) ?
+            "64.000" : "64,000"), "testML", 1);
 #else
 
     PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
@@ -1149,7 +1150,8 @@ void testMessageLoader()
 
     testSUCCESSMessage(mlp, defaultResourceBundle,
         "rab oof is foo bar backwards",
-        ((defaultResourceBundle == "de") ? "64.000" : "64,000"), "testML", 2);
+        ((strcmp(defaultResourceBundle,"de") == 0) ?
+            "64.000" : "64,000"), "testML", 2);
 
 #else
 

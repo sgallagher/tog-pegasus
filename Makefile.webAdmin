@@ -49,7 +49,7 @@ WEBADMIN_HOME = $(PEGASUS_HOME)
 # difinition of WEBADMIN_TARGET for all supported platforms, But NOT CURRENTLY
 # IN USE
 ifeq ($(OS), linux)
- WEBADMIN_TARGET = /opt/tog-pegasus/www
+ WEBADMIN_TARGET = /var/tog-pegasus/www
 endif
 
 ifeq ($(OS), zos)

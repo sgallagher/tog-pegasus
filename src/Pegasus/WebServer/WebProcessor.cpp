@@ -29,6 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <time.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Logger.h>

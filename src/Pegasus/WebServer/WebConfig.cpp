@@ -119,7 +119,7 @@ void WebConfig::_loadMimeTypes(String& mimeTypesFile)
     ifstream fileStream(mimeTypesFile.getCString());
 
     // mimetypes file exists ?
-    if (!fileStream || !fileStream.is_open())
+    if (!fileStream)
     {// no, use defaults and abort
         // set defaults
         _mimeTypes.insert("html", "text/html");

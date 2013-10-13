@@ -119,8 +119,12 @@ private:
 class PEGASUS_COMMON_LINKAGE StatisticalData
 {
 public:
+    // Statistical data type is Request Type - 3;
     enum StatRequestType
     {
+//      UNKNOWN,
+//      OTHER,        // Other type not defined
+//      BATCHED,      // NOT used by Pegasus
         GET_CLASS,    // 0
         GET_INSTANCE,
         INDICATION_DELIVERY,
@@ -141,22 +145,14 @@ public:
         REFERENCE_NAMES,
         GET_PROPERTY,
         SET_PROPERTY,
-        GET_QUALIFIER,      //20,
+        GET_QUALIFIER,   // 20
         SET_QUALIFIER,
         DELETE_QUALIFIER,
-        ENUMERATE_QUALIFIERS,
-//EXP_PULL_BEGIN
-        OPEN_ENUMERATE_INSTANCES, //24
-        OPEN_ENUMERATE_INSTANCEPATHS,
-        OPEN_REFERENCE_INSTANCES,
-        OPEN_REFERENCE_INSTANCE_PATHS,
-        OPEN_ASSOCIATOR_INSTANCES,
-        OPEN_ASSOCIATOR_INSTANCE_PATHS,
-        PULL_INSTANCES_WITH_PATH,
-        PULL_INSTANCES_PATHS,
-        CLOSE_ENUMERATION,
-//EXP_PULL_END
-        INVOKE_METHOD,
+        ENUMERATE_QUALIFIERS,  // 23
+// Types beyond the here are NOT part of the valueMap,Values defined
+// in CIM_CIMOMStatisticalData.mof and must be treated as Other in
+// the preperation of the instance output.
+        INVOKE_METHOD,  // 24
         NUMBER_OF_TYPES
     };
 
@@ -185,8 +181,19 @@ public:
 
     static StatisticalData* cur;
 
-    void addToValue(Sint64 value, MessageType msgType, Uint32 t);
+    /** Add the value parameter to the current value for the
+        messagetype msgType and the StatDataType
 
+        @param value Sint64 type to add
+        @param msgType Pegasus message type (may be either request
+                       or response
+        @param t StatDataType stat type to which value is added
+     */
+    void addToValue(Sint64 value, MessageType msgType, StatDataType t);
+
+    /**
+        Get the name for the statistics type
+     */
     static String requestName[];
 
     void setCopyGSD(Boolean flag);

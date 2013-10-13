@@ -50,57 +50,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define MAX_ZERO_PULL_OPERATIONS 1000
 
-/*
-    Simple statistics keeper.  Keeps total and highWaterMark
-    on 32 bit counter and computes average.
-    LIMITATION: keeps total in 64 bits so overrun of this messes up
-    averages.
-*/
-uint32Stats::uint32Stats()
-    : _highWaterMark(0),
-      _counter(0),
-      _average(0),
-      _total(0),
-      _overflow(false)
-{}
-
-void uint32Stats::reset()
-{
-    _highWaterMark = 0;
-    _counter = 0;
-    _average = 0;
-    _total = 0;
-}
-void uint32Stats::add(Uint32 newInfo)
-{
-    _counter++;
-    // reset high water mark if necessary
-    if (newInfo > _highWaterMark)
-    {
-        _highWaterMark = newInfo;
-    }
-    // if overflow set overflow indicator
-    if ((_total + newInfo) < _total)
-    {
-        _overflow = true;
-    }
-    else   // update the total
-    {
-        _total += newInfo;
-    }
-}
-Uint32 uint32Stats::getHighWaterMark()
-{
-    return _highWaterMark;
-}
-Uint32 uint32Stats::getAverage()
-{
-    return (_counter != 0)? _total/_counter : 0;
-}
-Uint32 uint32Stats::getCounter()
-{
-    return _counter;
-}
 
 // Create a new context. This is called only from the enumerationTable
 // createContext function.
@@ -139,12 +88,12 @@ EnumerationContext::EnumerationContext(
      _waitingCacheSizeConditionTime.reset();
     _waitingProviderLimitConditionTime.reset();
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
-               "Create EnumerationContext operationTimeoutSec %u"
-               " responseCacheDataType %u StartTime %lu",
-               _operationTimeoutSec,
-               _responseCache.getResponseDataContent(),
-               (unsigned long int)_startTime));
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP TODO Delete
+////             "Create EnumerationContext operationTimeoutSec %u"
+////             " responseCacheDataType %u StartTime %lu",
+////             _operationTimeoutSec,
+////             _responseCache.getResponseDataContent(),
+////             (unsigned long int)_startTime));
 }
 
 EnumerationContext::EnumerationContext(const EnumerationContext& x)
@@ -164,15 +113,10 @@ void EnumerationContext::setRequestProperties(
     const Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    // Set request properties into the responseCache that are require
+    // Set request properties into the responseCache that are required
     // later for pull operations
     _responseCache.setRequestProperties(
         false, includeClassOrigin, propertyList);
-
-    // KS_TODO_DELETE_THIS DIAGNOSTIC
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-      "EnumerationContext setPropertyList=%s",
-      (const char*)_responseCache.getPropertyList().toString().getCString() ));
 }
 
 /*
@@ -269,13 +213,13 @@ Boolean EnumerationContext::isTimedOut()
     return isTimedOut(currentTime);
 }
 
-Boolean EnumerationContext::setErrorState(CIMException x)
+void EnumerationContext::setErrorState(CIMException x)
 {
     _error = true;
     _cimException = x;
-    return true;
 }
 
+// Diagnostic display of data in the enumeration context object
 void EnumerationContext::trace()
 {
     PEGASUS_ASSERT(valid());
@@ -336,6 +280,7 @@ Boolean EnumerationContext::putCache(MessageType type,
     Boolean providersComplete)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
+
     PEGASUS_ASSERT(valid());   // KS_TEMP;
     trace();                   // KS_TEMP
 
@@ -343,7 +288,7 @@ Boolean EnumerationContext::putCache(MessageType type,
     PEGASUS_ASSERT(!_providersComplete);
     PEGASUS_ASSERT(!_waitingProviderLimitCondition);
 
-    // KS_TODO all this probably diagnostic
+    // KS_TODO all this diagnostic
     CIMResponseData& to = _responseCache;
     CIMResponseDataMessage* localResponse =
         dynamic_cast<CIMResponseDataMessage*>(response);
@@ -353,15 +298,18 @@ Boolean EnumerationContext::putCache(MessageType type,
 
     // KS_TODO Calling this for everything, not just Enum.
     // Need to work off of the poA and only for enumerateInstances.
-//    cout << "Test putCache " << (from.isBinaryOrXML()? "true" : "false")
-//            << " type " << MessageTypeToString(response->getType()) << endl;
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+        "Test putCache hasBinaryData %s MsgType %s",
+               (from.hasBinaryData()? "true" : "false"),
+            MessageTypeToString(response->getType()) ));
 
-////  if (from.hasBinaryData() && (response->getType() ==
-////      CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE))
-////  {
-////      cout << "Calling getInstances " << endl;
-////      from.getInstances();
-////  }
+    // if there is any binary data, reformat it to SCMO.  There are no
+    // size counters for the binary data/
+    if (from.hasBinaryData())
+    {
+        from.resolveBinaryToSCMO();
+    }
+
     from.traceResponseData();
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Enter putCache, response isComplete %s ResponseDataType %u "
@@ -370,13 +318,13 @@ Boolean EnumerationContext::putCache(MessageType type,
         to.size(), from.size(),
         boolToString(_clientClosed)));
 
-    // If an operation has closed the enumerationContext can
+    // If an operation has closed the enumerationContext
     // ignore any received responses until the providersComplete is received
     // and then remove the Context.
     if (_clientClosed)
     {
         // If providers are complete, do not queue this response. If providers
-        // are not complete, the providers will continue to deliver
+        // are not complete, the providers will continue to generate
         // responses but they are discarded above here.
         if (providersComplete)
         {
@@ -384,7 +332,7 @@ Boolean EnumerationContext::putCache(MessageType type,
             return false;
         }
     }
-    else  // client not closed at this point
+    else  // client not closed
     {
         // put the current response into the cache. Lock cache for this
         // operation
@@ -392,7 +340,7 @@ Boolean EnumerationContext::putCache(MessageType type,
         _responseCacheMutex.lock();
         to.appendResponseData(from);
 
-        // set providersComplete flag from flag in context.
+        // set providersComplete flag from flag in call parameter.
         _providersComplete = providersComplete;
 
         // test and set the high water mark for this cache.
@@ -408,7 +356,7 @@ Boolean EnumerationContext::putCache(MessageType type,
             responseCacheSize(), to.size() ));
 
         // Signal addition to the CIMResponseData cache. Do this
-        // before waiting to be sure any cache size wait is terminated.
+        // before waiting to be sure any cache size wait is retested.
         // May lose control at this point to CacheSizeCondition.
         //
         signalCacheSizeCondition();
@@ -474,6 +422,7 @@ void EnumerationContext::getCache(
     _waitingCacheSizeCondition = true;
     waitCacheSizeCondition(count);
 
+    // Lock the cache for the move function
     AutoMutex autoMut(_responseCacheMutex);
 
     // move the defined number of objects from the cache to the
@@ -493,7 +442,7 @@ void EnumerationContext::getCache(
     // have changed.
     signalProviderLimitCondition();
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_ASSERT(valid());   // KS_TEMP diagnostic.
     PEG_METHOD_EXIT();
 }
 

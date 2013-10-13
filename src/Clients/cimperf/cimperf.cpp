@@ -69,37 +69,38 @@ const String DEFAULT_NAMESPACE = "root/cimv2";
 
 const char* _OPERATION_NAME[] =
 {
-    //                                   Enumerated       ValueMap Value
-    //                                   value from       from class
-    //                                   internal         CIM_StatisticalData
-    //                                   StatisticalData
-    //                                   ---------------  -------------------
-    "GetClass",                       //     0               3
-    "GetInstance",                    //     1               4
-    "IndicationDelivery",             //     2              26
-    "DeleteClass",                    //     3               5
-    "DeleteInstance",                 //     4               6
-    "CreateClass",                    //     5               7
-    "CreateInstance",                 //     6               8
-    "ModifyClass",                    //     7               9
-    "ModifyInstance",                 //     8              10
-    "EnumerateClasses",               //     9              11
-    "EnumerateClassNames",            //    10              12
-    "EnumerateInstances",             //    11              13
-    "EnumerateInstanceNames",         //    12              14
-    "ExecQuery",                      //    13              15
-    "Associators",                    //    14              16
-    "AssociatorNames",                //    15              17
-    "References",                     //    16              18
-    "ReferenceNames",                 //    17              19
-    "GetProperty",                    //    18              20
-    "SetProperty",                    //    19              21
-    "GetQualifier",                   //    20              22
-    "SetQualifier",                   //    21              23
-    "DeleteQualifier",                //    22              24
-    "EnumerateQualifiers",            //    23              25
-    "InvokeMethod"                    //    24              Not Present, use
-                                      //                      1 "Other"
+    //                                   ValueMap Value
+    //                                   from class CIM_StatisticalData
+    //                                   -------------------
+    "Unknown",                        //    0
+    "Other",                          //    1
+    "Batch",                          //    2
+    "GetClass",                       //    3
+    "GetInstance",                    //    4
+    "DeleteClass",                    //    5
+    "DeleteInstance",                 //    6
+    "CreateClass",                    //    7
+    "CreateInstance",                 //    8
+    "ModifyClass",                    //    9
+    "ModifyInstance",                 //   10
+    "EnumerateClasses",               //   11
+    "EnumerateClassNames",            //   12
+    "EnumerateInstances",             //   13
+    "EnumerateInstanceNames",         //   14
+    "ExecQuery",                      //   15
+    "Associators",                    //   16
+    "AssociatorNames",                //   17
+    "References",                     //   18
+    "ReferenceNames",                 //   19
+    "GetProperty",                    //   20
+    "SetProperty",                    //   21
+    "GetQualifier",                   //   22
+    "SetQualifier",                   //   23
+    "DeleteQualifier",                //   24
+    "EnumerateQualifiers",            //   25
+    "IndicationDelivery",             //   26
+    "InvokeMethod"                    //   Not Present, use 1 ((:Other")
+                                      //   
 };
 
 //------------------------------------------------------------------------------
@@ -256,116 +257,19 @@ void GetOptions(
 }
 
 
-/* Method that maps from operation type to operation name. */
+/* Method that maps from operation type to operation name. 
+*/
 
 const char* opTypeToOpName(Uint16 type)
 {
     const char* opName = NULL;
-    switch (type)
+    if (type < 28)
     {
-        case 3:
-            opName = _OPERATION_NAME[StatisticalData::GET_CLASS];
-            break;
-
-        case 4:
-            opName = _OPERATION_NAME[StatisticalData::GET_INSTANCE];
-            break;
-
-        case 5:
-            opName = _OPERATION_NAME[StatisticalData::DELETE_CLASS];
-            break;
-
-        case 6:
-            opName = _OPERATION_NAME[StatisticalData::DELETE_INSTANCE];
-            break;
-
-        case 7:
-            opName = _OPERATION_NAME[StatisticalData::CREATE_CLASS];
-            break;
-
-        case 8:
-            opName = _OPERATION_NAME[StatisticalData::CREATE_INSTANCE];
-            break;
-
-        case 9:
-            opName = _OPERATION_NAME[StatisticalData::MODIFY_CLASS];
-            break;
-
-        case 10:
-            opName = _OPERATION_NAME[StatisticalData::MODIFY_INSTANCE];
-            break;
-
-        case 11:
-            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_CLASSES];
-            break;
-
-        case 12:
-            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_CLASS_NAMES];
-            break;
-
-        case 13:
-            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_INSTANCES];
-            break;
-
-        case 14:
-            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_INSTANCE_NAMES];
-            break;
-
-        case 15:
-            opName = _OPERATION_NAME[StatisticalData::EXEC_QUERY];
-            break;
-
-        case 16:
-            opName = _OPERATION_NAME[StatisticalData::ASSOCIATORS];
-            break;
-
-        case 17:
-            opName = _OPERATION_NAME[StatisticalData::ASSOCIATOR_NAMES];
-            break;
-
-        case 18:
-            opName = _OPERATION_NAME[StatisticalData::REFERENCES];
-            break;
-
-        case 19:
-            opName = _OPERATION_NAME[StatisticalData::REFERENCE_NAMES];
-            break;
-
-        case 20:
-            opName = _OPERATION_NAME[StatisticalData::GET_PROPERTY];
-            break;
-
-        case 21:
-            opName = _OPERATION_NAME[StatisticalData::SET_PROPERTY];
-            break;
-
-        case 22:
-            opName = _OPERATION_NAME[StatisticalData::GET_QUALIFIER];
-            break;
-
-        case 23:
-            opName = _OPERATION_NAME[StatisticalData::SET_QUALIFIER];
-            break;
-
-        case 24:
-            opName = _OPERATION_NAME[StatisticalData::DELETE_QUALIFIER];
-            break;
-
-        case 25:
-            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_QUALIFIERS];
-            break;
-
-        case  26:
-            opName = _OPERATION_NAME[StatisticalData::INDICATION_DELIVERY];
-            break;
-
-        case 1:
-            opName = _OPERATION_NAME[StatisticalData::INVOKE_METHOD];
-            break;
-
-        default:
-            //Invalid type
-            opName = "Dummy Response";
+        opName = _OPERATION_NAME[type]; 
+    }
+    else
+    {
+        opName = "Dummy Response";
     }
     return opName;
 }
@@ -515,7 +419,7 @@ int main(int argc, char** argv)
             CIMProperty p;
             // Operation Type is decoded as const char*, hence type has
             // changed from string to const char*
-            const char* statName = NULL;
+            String statName;
             CIMValue v;
             Uint16 type;
             if ((pos = instance.findProperty("OperationType")) != PEG_NOT_FOUND)
@@ -525,7 +429,30 @@ int main(int argc, char** argv)
                 if (v.getType() == CIMTYPE_UINT16)
                 {
                     v.get(type);
-                    statName = opTypeToOpName(type);
+                    if (type != 1)
+                    {
+                        statName = opTypeToOpName(type); 
+                    }
+
+                    // 1 is Other type indicating that there is another
+                    // property with the name.
+                    else
+                    {
+                        if ((pos = instance.findProperty("OtherOperationType"))
+                             != PEG_NOT_FOUND)
+                        {
+                            CIMProperty pOther = (instance.getProperty(pos));
+                            CIMValue vOther = pOther.getValue();
+                            if (vOther.getType() == CIMTYPE_STRING)
+                            {
+                                vOther.get(statName);
+                            }
+                        }
+                        else
+                        {
+                            statName = "UNKNOWN";
+                        }
+                    }
                 }
             }
             else
@@ -687,9 +614,11 @@ int main(int argc, char** argv)
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
-                statName,
-                numberOfRequests, averageCimomTime,
-                averageProviderTime, averageRequestSize,
+                (const char *)statName.getCString(),
+                numberOfRequests,
+                averageCimomTime,
+                averageProviderTime,
+                averageRequestSize,
                 averageResponseSize);
         }
     }

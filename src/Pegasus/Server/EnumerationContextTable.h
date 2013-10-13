@@ -192,6 +192,10 @@ protected:
     Uint64 _nextTimeout;
 
 private:
+    // hide default constructor, assignment and copy constructor
+    EnumerationContextTable();
+    EnumerationContextTable(const EnumerationContextTable& x);
+    EnumerationContextTable& operator=(const EnumerationContextTable&);
 
     // Enumeration Context objects are maintained in the following
     // Pegasus hash table
@@ -207,22 +211,22 @@ private:
         EnumerationContext* en,
         Boolean deleteContext = false);
 
-    // monolithic increasing counter forms part of context id string
+    // monolithic increasing counter forms context id string
     AtomicInt _enumContextCounter;
 
+    // Lock on EnumerationContextTable
     Mutex tableLock;
 
     // Maximum number of objects allowed in the ResponseData cache in
-    // the enumerationContextObject. This sets the maximum number of
-    // of objects that will be placed in this cache before we start
-    // sitting on responses.
+    // any enumerationContext object. This sets the maximum number of
+    // of instances or instance names that will be placed in this cache
+    // before responses are not processed and back up to providers.
     Uint32 _responseCacheMaximumSize;
 
-    // systemwide highwater mark of number of objects in context cache
-    // maintained from max of each context close/removal.
+    // Systemwide highwater mark of number of objects in context cache
     Uint32 _cacheHighWaterMark;
 
-    // maximum time interval allowed for interoperation timeout in seconds.
+    // Maximum time interval allowed for interoperation timeout in seconds.
     // Any interoperation times greater than this can cause exception returns
     // and enumeration context close.
     Uint32 _maxOperationTimeout;

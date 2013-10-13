@@ -214,7 +214,7 @@ prn3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 
 peManagedElement:
-	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -C $(HOSTID)
+	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -T -C $(HOSTID)
 
 penManagedElement:
 	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement $(HOSTID)

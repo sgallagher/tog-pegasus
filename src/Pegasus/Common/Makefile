@@ -131,7 +131,7 @@ SOURCES1 = \
     IDFactory.cpp \
     AuditLogger.cpp \
     Magic.cpp \
-    UintArgs.cpp
+    NumericArg.cpp
 
 SOURCES2 = \
     Exception.cpp \

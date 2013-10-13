@@ -143,7 +143,7 @@ void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
         Array<Uint32> emptyNodes; 
         for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++) 
         { 
-            SCMOXmlWriter::appendValueSCMOInstanceWithPathElement( 
+            SCMOXmlWriter::appendValueInstanceWithPathElement( 
                 out, 
                 _scmoInstances[i], 
                 false, 
@@ -164,7 +164,7 @@ void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
                     _scmoInstances[i], 
                     propertyList); 
   
-            SCMOXmlWriter::appendValueSCMOInstanceWithPathElement( 
+            SCMOXmlWriter::appendValueInstanceWithPathElement( 
                 out, 
                 _scmoInstances[i], 
                 true, 
@@ -189,30 +189,6 @@ void SCMOXmlWriter::appendValueSCMOInstanceElement(
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
 
-// EXP_PULL_BEGIN
-//------------------------------------------------------------------------------
-//
-// appendValueInstanceWithPathElement() -- Pull Operation support
-//
-//     <!ELEMENT VALUE.INSTANCEWITHPATH (INSTANCEPATH,INSTANCE)>
-//
-//------------------------------------------------------------------------------
-
-// KS_TODO - Double check to be sure this not duplication
-void SCMOXmlWriter::appendValueSCMOInstanceWithPathElement(
-    Buffer& out,
-    const SCMOInstance& scmoInstance,
-    bool filtered, 
-    const Array<Uint32> & nodes)
-{
-    out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
-
-    appendInstancePathElement(out,scmoInstance);
-    appendInstanceElement(out, scmoInstance, filtered, nodes);
-
-    out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
-}
-//EXP_PULL_END
 
 void SCMOXmlWriter::appendInstanceNameElement(
     Buffer& out,
@@ -788,7 +764,6 @@ void SCMOXmlWriter::appendLocalInstancePathElement(
     out << STRLIT("</LOCALINSTANCEPATH>\n");
 }
 
-// EXP_PULL_BEGIN ????
 // appendInstancePathElement()
 //     <!ELEMENT INSTANCEPATH (NAMESPACEPATH,INSTANCENAME)>
 void SCMOXmlWriter::appendInstancePathElement(
@@ -806,7 +781,6 @@ void SCMOXmlWriter::appendInstancePathElement(
     appendInstanceNameElement(out, instancePath);
     out << STRLIT("</INSTANCEPATH>\n");
 }
-//EXP_PULL_END???
 
 void SCMOXmlWriter::appendValueObjectWithPathElement(
     Buffer& out,

@@ -379,6 +379,8 @@ public:
 
     void traceResponseData();           // KS_TODO Diagnostic. remove
 
+    void resolveBinaryToSCMO();
+
 private:
 
     // helper functions to transform different formats into one-another
@@ -388,7 +390,7 @@ private:
     void _resolveToCIM();
     void _resolveToSCMO();
 
-    void _resolveBinary();
+    void _resolveBinaryToSCMO();
 
     void _resolveXmlToSCMO();
     void _resolveXmlToCIM();

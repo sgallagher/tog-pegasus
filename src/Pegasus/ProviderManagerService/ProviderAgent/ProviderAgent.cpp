@@ -722,6 +722,7 @@ inline void _completeHostNameAndNamespace(
 {
     // if defined in request, complete HostNameAndNamespace
     MessageType msgType = request->getType();
+
     if (msgType == CIM_ASSOCIATORS_REQUEST_MESSAGE ||
         msgType == CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE ||
         msgType == CIM_REFERENCES_REQUEST_MESSAGE ||
@@ -734,7 +735,7 @@ inline void _completeHostNameAndNamespace(
         CIMOperationRequestMessage* reqMsg=
             (CIMOperationRequestMessage*) request;
         // Can use System::getHostName() reliably here since it was initialized
-        // through the COnfigManager at start of ProviderAgent.
+        // through the ConfigManager at start of ProviderAgent.
         CIMResponseDataMessage * rspMsg= (CIMResponseDataMessage*) response;
         CIMResponseData & rspData = rspMsg->getResponseData();
 

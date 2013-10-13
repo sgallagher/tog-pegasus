@@ -66,6 +66,7 @@ DIRS = \
     Method \
     ModuleController \
     Mutex \
+    NumericArg \
     Object \
     ObjectNormalizer \
     OperationContext \
@@ -103,8 +104,7 @@ DIRS = \
     HostAddress \
     HostLocator \
     OrderedSet \
-    XmlWriter \
-    UintArgs
+    XmlWriter
 
 
 ifndef PEGASUS_DISABLE_PERFINST

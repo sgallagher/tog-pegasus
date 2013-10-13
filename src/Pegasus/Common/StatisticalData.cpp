@@ -45,12 +45,15 @@ String StatisticalData::requestName[] =
 {
                                     // Enumerated     ValueMap Value
                                     // value from     from class
-                                    // internal       CIM_StatisticalData
+                                    // Pegasus        CIM_StatisticalData
                                     // message type
                                     // -------------- -------------------
+  "Unknown",                        //                 0   default
+  "Other",                          //                 1   mapped
+  "Batched",                        //                 2   not used
   "GetClass",                       //     1           3
   "GetInstance",                    //     2           4
-  "IndicationDelivery",             //     3           26
+  "IndicationDelivery",             //     3          26
   "DeleteClass",                    //     4           5
   "DeleteInstance",                 //     5           6
   "CreateClass",                    //     6           7
@@ -58,23 +61,26 @@ String StatisticalData::requestName[] =
   "ModifyClass",                    //     8           9
   "ModifyInstance",                 //     9          10
   "EnumerateClasses",               //    10          11
-  "EnumerateClassNames",            //    11          12
-  "EnumerateInstances",             //    12          13
-  "EnumerateInstanceNames",         //    13          14
-  "ExecQuery",                      //    14          15
-  "Associators",                    //    15          16
-  "AssociatorNames",                //    16          17
-  "References",                     //    17          18
-  "ReferenceNames",                 //    18          19
-  "GetProperty",                    //    19          20
+  "EnumerateClassNames",            //    12          12
+  "EnumerateInstances",             //    13          13
+  "EnumerateInstanceNames",         //    14          14
+  "ExecQuery",                      //    15          15
+  "Associators",                    //    16          16
+  "AssociatorNames",                //    17          17
+  "References",                     //    18          18
+  "ReferenceNames",                 //    19          20
   "SetProperty",                    //    20          21
   "GetQualifier",                   //    21          22
   "SetQualifier",                   //    22          23
   "DeleteQualifier",                //    23          24
   "EnumerateQualifiers",            //    24          25
+// Entries below this point are not part of the CIM Class and are treated
+// as OtherOperationTypes in the instance.
+  "InvokeMethod"                    //     25          Not Present index = 26
 //EXP_PULL_BEGIN
-//// TODO these are not defined in CIM_StatisticalData class
-  "OpenEnumerateInstances",         //    71
+//// TODO these are not defined in CIM_StatisticalData class and are
+///  represented by the Other groping with supplementary property
+  "OpenEnumerateInstances",         //    71          27
   "OpenEnumerateInstancePaths",     //    72
   "OpenReferences",                 //    73
   "OpenReferenceNames",             //    74
@@ -84,13 +90,14 @@ String StatisticalData::requestName[] =
   "PullInstancePaths",              //    77
   "CloseEnumeration" ,              //    79
 //EXP_PULL_END
-  "InvokeMethod"                    //    25          Not Present
+
 };
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;
 
 StatisticalData* StatisticalData::cur = NULL;
 
+// If first call, create the statistical data array
 StatisticalData* StatisticalData::current()
 {
     if (cur == NULL)
@@ -100,6 +107,7 @@ StatisticalData* StatisticalData::current()
     return cur;
 }
 
+// Clear the statisticalData Array
 StatisticalData::StatisticalData()
 {
     copyGSD = 0;
@@ -114,7 +122,9 @@ StatisticalData::StatisticalData()
     }
 }
 
-void StatisticalData::addToValue(Sint64 value, MessageType msgType, Uint32 t)
+void StatisticalData::addToValue(Sint64 value,
+    MessageType msgType,
+    StatDataType t)
 {
     // Map MessageType to statistic type
     Uint16 type;
@@ -132,11 +142,16 @@ void StatisticalData::addToValue(Sint64 value, MessageType msgType, Uint32 t)
     }
     else
     {
-        type = msgType - 1;
+        type = msgType;
     }
 
-    cout << "StatisticalData::addToValue " << MessageTypeToString(msgType)
-         << " # " << msgType << " stat type " << type << endl;
+    //// KS_TODO diagnostic to confirm that the above if statements are correct
+    //// KS_DELETE when we get bug 9786 completely integrated.
+    PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
+     "StatisticalData::addToValue msgType %s %u. stat type %u",
+               MessageTypeToString(msgType),
+               msgType, type ));
+
     // Test if valid statistic type
     if (type >= NUMBER_OF_TYPES)
     {

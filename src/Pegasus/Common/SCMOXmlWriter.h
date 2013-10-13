@@ -81,12 +81,6 @@ public:
         const CIMPropertyList & propertyList); 
 
     // EXP_PULL_BEGIN
-    static void appendValueSCMOInstanceWithPathElement(
-        Buffer& out,
-        const SCMOInstance& scmoInstance,
-        bool filtered, 
-        const Array<Uint32> & nodes);
-
     static void appendValueSCMOInstanceWithPathElements(
         Buffer& out,
         const Array<SCMOInstance> & _scmoInstances,

@@ -144,8 +144,7 @@ public:
 
     /**
        Get the name of this enumeration context. The Name is the key
-       to access the enumeration table and also the context
-       definition in Request and Response Operations.
+       to access the context entry in the enumeration context table.
        @return Context name String.
      */
     String& getName();
@@ -193,7 +192,12 @@ public:
 
     Boolean isErrorState();
 
-    Boolean setErrorState(CIMException cimException);
+    /**Set the error state flag and set the current cimException
+       into the context object.
+
+        @param cimException
+     */
+    void setErrorState(CIMException cimException);
 
     /**
         Test the Message type for the open message saved in the
@@ -202,7 +206,7 @@ public:
         Ex. PullPaths can only be used with OpenPath contexts
         @param type MessageType for (for pull operation)
         @return Returns true if type match is correct. Returns false
-        if not
+        if not correct type.
      */
     Boolean isValidPullRequestType(MessageType type) const;
 
@@ -211,27 +215,23 @@ public:
     */
     Boolean isProcessing();
 
-    Uint32 getCurrentObjectCount(Uint32Arg& x);
-
     // Diagnostic to display the current context into the
-    // trace file
+    // trace file  KS_TODO eliminate this diagnostic
     void trace();
 
-    /**
-       Put the CIMResponseData from the response message into the
+    /**Put the CIMResponseData from the response message into the
        enumerationContext cache and if providersComplete is true,
        set the enumeration state to providersComplete. This function
        signals the getCache function conditional variable. This
        function may also wait if the cache is full.
        @return true if data set into cache, false if enumeration
-               closed.
+               closed and data not inserted into cache.
      */
     Boolean putCache(MessageType type,
                   CIMResponseMessage*& response,
                   Boolean providersComplete);
 
-    /**
-       Get up to the number of objects defined by count from the
+    /**Get up to the number of objects defined by count from the
        CIMResponseData cache in the enumerationContext into the rtn
        CIMResponseData object. This function waits for a number of
        possible events as defined below and returns only when one of
@@ -253,8 +253,12 @@ public:
     void getCache(Uint32 count, CIMResponseData& rtnData);
 
     /**
-        Return reference to the CIMResponseData in the Enumeration Context
-        that holds CIMResponseData for this context.
+        Return reference to the CIMResponseData in the Enumeration
+        Context. This CIMResponseData object holds aggregated
+        CIMResponseData for this enumeration context. Data is added
+        with putCache and removed with getCache
+        @return reference to the CIMResponseData object that is the
+                cache
     */
     CIMResponseData& getResponseData();
 
@@ -310,9 +314,6 @@ public:
     */
     Boolean setNextEnumerationState();
 
-    // copy constructor
-    EnumerationContext(const EnumerationContext& x);
-
     /**
         Increment the count of the number of pull operations executed
         for this context. This method also controls the counting
@@ -333,14 +334,18 @@ public:
     // Exception placed here in case of error. This is set by the operation
     // aggregate with any CIMException recieved from providers.  Note that
     // Only one is allowed.
-    // KS_TODO should we consider possibility of multiple errors. NO for
-    // now until we get continueOnError or really get way to return multiple
-    // errors.
+    // NO  multiple errors until we get continueOnError
+    // or really get way to return multiple  errors.
     CIMException _cimException;
 
     CIMNamespaceName getNamespace() const;
 
 private:
+    // Default constructor not used
+    EnumerationContext();
+    // hide assignment and copy constructor
+    EnumerationContext(const EnumerationContext& x);
+    EnumerationContext& operator=(const EnumerationContext&);
 
     friend class EnumerationContextTable;
 
@@ -454,9 +459,6 @@ private:
     Uint64 _startTime;
     // Max number of objects in the cache.
     Uint32 _cacheHighWaterMark;
-
-////  // Pointer to enumeration table.
-////  EnumerationContextTable* _enumerationContextTable;
 
     Magic<0x57D11474> _magic;
 };

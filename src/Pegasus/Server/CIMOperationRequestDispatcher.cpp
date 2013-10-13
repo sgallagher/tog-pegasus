@@ -3027,7 +3027,7 @@ struct ProviderRequests
                 CSTRING(providerInfo.className.getString()),
                 _getServiceName(providerInfo.serviceId),
                 CSTRING(providerInfo.controlProviderName),
-                providerInfos.getIndex(),
+                providerInfos.getIndex() + 1,
                 providerInfos.size() ));
 
             // set this className into the new request
@@ -3254,7 +3254,7 @@ struct ProviderRequests
         Uint32 operationMaxObjectCount)
     {
         PEG_METHOD_ENTER(TRC_DISPATCHER,
-            "CIMOperationRequestDispatcher::issueOpenResponseMessages");
+            "CIMOperationRequestDispatcher::issueOpenResponseMessage");
 
         if (enumerationContext->isErrorState())
         {
@@ -3280,26 +3280,26 @@ struct ProviderRequests
 
             CIMResponseData & to = openResponse->getResponseData();
             to.appendResponseData(fromCache);
-
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-              "%s AppendedResponseData. to type %u from "
-                  "type %u toSize %u fromSize %u", reqMsgName,
-              to.getResponseDataContent(),
-              fromCache.getResponseDataContent(),
-              to.size(), fromCache.size()));
+////
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////            "%s AppendedResponseData. to type %u from "
+////                "type %u toSize %u fromSize %u", reqMsgName,
+////            to.getResponseDataContent(),
+////            fromCache.getResponseDataContent(),
+////            to.size(), fromCache.size()));
         }
 
-        CIMResponseData & tempto = openResponse->getResponseData();
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-          "%s Send response to type %u"
-              "  providersComplete %s remaining cacheSize %u", reqMsgName,
-          tempto.getResponseDataContent(),
-          boolToString(enumerationContext->ifProvidersComplete()),
-          enumerationContext->responseCacheSize() ));
+////      CIMResponseData & tempto = openResponse->getResponseData();
+////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////        "%s Send response to type %u"
+////            "  providersComplete %s remaining cacheSize %u", reqMsgName,
+////        tempto.getResponseDataContent(),
+////        boolToString(enumerationContext->ifProvidersComplete()),
+////        enumerationContext->responseCacheSize() ));
 
-        // Do check here after we have processed the results of the get.
-        // At this point we are current with the provider response status
-        // If return true, enumerateion sequence complete.
+        // Do check here after processing the results of the get.
+        // At this point context is current with provider response status
+        // If return = true, enumerateion sequence complete.
         if (enumerationContext->setNextEnumerationState())
         {
             openResponse->endOfSequence = true;
@@ -5299,7 +5299,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
        request,
        openResponse,
        enumerationContext,
-       "OpenReferenceInstances",
+       "OpenEnumerateInstances",
        operationMaxObjectCount);
 
     PEG_METHOD_EXIT();
@@ -5487,7 +5487,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
        request,
        openResponse,
        enumerationContext,
-       "OpenReferenceInstances",
+       "OpenEnumerateInstancePaths",
        operationMaxObjectCount);
 
     PEG_METHOD_EXIT();
@@ -6668,7 +6668,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
        request,
        openResponse,
        enumerationContext,
-       "OpenAssociatorInstances",
+       "OpenAssociatorInstancesPaths",
        operationMaxObjectCount);
 
     PEG_METHOD_EXIT();
@@ -7026,15 +7026,16 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     CIMResponseDataMessage* toResponse =
         (CIMResponseDataMessage*) poA->getResponse(0);
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
-        "CIMOperationRequestDispatcher Response - "
-            "Type %s"
+        "CIMOperationRequestDispatcher - "
+            "Request Type %s Response Type %s"
             "Namespace: %s  Class name: %s Response Count: %u",
         MessageTypeToString(poA->_msgRequestType),
+        MessageTypeToString(toResponse->getType()),
         CSTRING(poA->_nameSpace.getString()),
         CSTRING(poA->_className.getString()),
         poA->numberResponses()));
 
-//// TODO This one is temporary while we finish pull testing
+//// KS_TODO temporary while we finish pull testing
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
         "CIMOperationRequestDispatcher::handleOperationResponseAggregation"
         " -  Type %s requiresHostnameCompletion : %s _hasPropList: %s",

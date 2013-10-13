@@ -61,19 +61,16 @@ request->setServerStartTime(serverStartTimeMicroseconds);
 response->endServer();\
 
 #define STAT_BYTESSENT \
-Uint16 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE) ? \
-    response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE : \
-    response->getType() - 1; \
 StatisticalData::current()->addToValue( \
-    message.size(), statType, StatisticalData::PEGASUS_STATDATA_BYTES_SENT);
-
+    message.size(), response->getType(), \
+    StatisticalData::PEGASUS_STATDATA_BYTES_SENT);
 
 #define STAT_SERVEREND_ERROR \
 response->endServer();
 
 /*
     The request size value must be stored (requSize) and passed to the
-    StatisticalData object at the end of processing other wise it will be
+    StatisticalData object at the end of processing otherwise it will be
     the ONLY vlaue that is passed to the client which reports the current
     state of the object, not the pevious (one command ago) state
 */
@@ -122,9 +119,13 @@ private:
 class PEGASUS_COMMON_LINKAGE StatisticalData
 {
 public:
+    // Statistical data type is Request Type - 3;
     enum StatRequestType
     {
-        GET_CLASS,
+//      UNKNOWN,
+//      OTHER,        // Other type not defined
+//      BATCHED,      // NOT used by Pegasus
+        GET_CLASS,    // 0
         GET_INSTANCE,
         INDICATION_DELIVERY,
         DELETE_CLASS,
@@ -134,7 +135,7 @@ public:
         MODIFY_CLASS,
         MODIFY_INSTANCE,
         ENUMERATE_CLASSES,
-        ENUMERATE_CLASS_NAMES,
+        ENUMERATE_CLASS_NAMES,  // 10
         ENUMERATE_INSTANCES,
         ENUMERATE_INSTANCE_NAMES,
         EXEC_QUERY,
@@ -144,11 +145,14 @@ public:
         REFERENCE_NAMES,
         GET_PROPERTY,
         SET_PROPERTY,
-        GET_QUALIFIER,
+        GET_QUALIFIER,   // 20
         SET_QUALIFIER,
         DELETE_QUALIFIER,
-        ENUMERATE_QUALIFIERS,
-        INVOKE_METHOD,
+        ENUMERATE_QUALIFIERS,  // 23
+// Types beyond the here are NOT part of the valueMap,Values defined
+// in CIM_CIMOMStatisticalData.mof and must be treated as Other in
+// the preperation of the instance output.
+        INVOKE_METHOD,  // 24
         NUMBER_OF_TYPES
     };
 
@@ -161,26 +165,63 @@ public:
     };
 
     static const Uint32 length;
-    static StatisticalData* current();
 
-    StatisticalData();
+    /**
+        Static function to get address of singleton StatisticalData
+        instance. Creates a new object if none exists.
+
+        @return StatisticalData*  Pointer to the object which
+                contains the table of accumulated statistics.
+     */
+    static StatisticalData* current();
 
     timeval timestamp;
 
+    // Statistics entries where statistics information is aggregated from
+    // each operation.
     Sint64 numCalls[NUMBER_OF_TYPES];
     Sint64 cimomTime[NUMBER_OF_TYPES];
     Sint64 providerTime[NUMBER_OF_TYPES];
     Sint64 responseSize[NUMBER_OF_TYPES];
     Sint64 requestSize[NUMBER_OF_TYPES];
-    Sint64 requSize;    //tempory storage for requestSize vlaue
+    Sint64 requSize;    //temporary storage for requestSize value
     Boolean copyGSD;
-    static StatisticalData* cur;
-    void addToValue(Sint64 value, Uint16 type, Uint32 t);
-    static String requestName[];
+
+    static StatisticalData* table;
+
+    /** Add the value parameter to the current value for the
+        messagetype msgType and the StatDataType
+
+        @param value Sint64 type to add
+        @param msgType Pegasus message type (may be either request
+                       or response
+        @param t StatDataType stat type to which value is added
+     */
+    void addToValue(Sint64 value, MessageType msgType, StatDataType t);
+
+    /** Clear the StatisticalData table entries back to zero
+     */
+    void clear();
+
+    /**
+        Get the name for the statistics type
+     */
+    String getRequestName(Uint16 i);
+
+    /** Set the copyGSD flag that controls whether statistics are to
+        be gathered and displayed into the singleton object
+        @param flag
+     */
     void setCopyGSD(Boolean flag);
 
 protected:
     Mutex _mutex;
+
+private:
+    StatisticalData();
+    StatisticalData(const StatisticalData&);        // Prevent copy-construction
+    StatisticalData& operator=(const StatisticalData&);
+    static String requestName[];
 };
 
 

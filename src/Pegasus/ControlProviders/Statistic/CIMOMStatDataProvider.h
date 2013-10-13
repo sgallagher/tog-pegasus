@@ -102,12 +102,20 @@ public:
         const CIMObjectPath & ref,
         ResponseHandler & handler);
 
-    CIMInstance getInstance(Uint16 type, CIMObjectPath cimRef);
-    Uint16 getOpType(Uint16 type);
+    CIMInstance buildInstance(
+        StatisticalData::StatRequestType type,
+        CIMObjectPath cimRef);
+
+    Uint16 getValueMapType(StatisticalData::StatRequestType type);
+
+    CIMObjectPath buildObjectPath(Uint16 type);
+    String buildKey(Uint16 type);
 
 protected:
-    CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
+////    CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
     void checkObjectManager();
+private:
+StatisticalData* sData;
 };
 
 PEGASUS_NAMESPACE_END

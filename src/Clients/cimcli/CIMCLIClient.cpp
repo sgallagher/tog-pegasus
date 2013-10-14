@@ -49,6 +49,7 @@
 #include <Pegasus/General/MofWriter.h>
 #include <Pegasus/Common/Print.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Pegasus_inl.h>
 
 #include "CIMCLIClient.h"
 

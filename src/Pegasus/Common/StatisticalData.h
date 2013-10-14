@@ -70,7 +70,7 @@ response->endServer();
 
 /*
     The request size value must be stored (requSize) and passed to the
-    StatisticalData object at the end of processing other wise it will be
+    StatisticalData object at the end of processing otherwise it will be
     the ONLY vlaue that is passed to the client which reports the current
     state of the object, not the pevious (one command ago) state
 */
@@ -165,21 +165,29 @@ public:
     };
 
     static const Uint32 length;
-    static StatisticalData* current();
 
-    StatisticalData();
+    /**
+        Static function to get address of singleton StatisticalData
+        instance. Creates a new object if none exists.
+
+        @return StatisticalData*  Pointer to the object which
+                contains the table of accumulated statistics.
+     */
+    static StatisticalData* current();
 
     timeval timestamp;
 
+    // Statistics entries where statistics information is aggregated from
+    // each operation.
     Sint64 numCalls[NUMBER_OF_TYPES];
     Sint64 cimomTime[NUMBER_OF_TYPES];
     Sint64 providerTime[NUMBER_OF_TYPES];
     Sint64 responseSize[NUMBER_OF_TYPES];
     Sint64 requestSize[NUMBER_OF_TYPES];
-    Sint64 requSize;    //tempory storage for requestSize vlaue
+    Sint64 requSize;    //temporary storage for requestSize value
     Boolean copyGSD;
 
-    static StatisticalData* cur;
+    static StatisticalData* table;
 
     /** Add the value parameter to the current value for the
         messagetype msgType and the StatDataType
@@ -191,15 +199,29 @@ public:
      */
     void addToValue(Sint64 value, MessageType msgType, StatDataType t);
 
+    /** Clear the StatisticalData table entries back to zero
+     */
+    void clear();
+
     /**
         Get the name for the statistics type
      */
-    static String requestName[];
+    String getRequestName(Uint16 i);
 
+    /** Set the copyGSD flag that controls whether statistics are to
+        be gathered and displayed into the singleton object
+        @param flag
+     */
     void setCopyGSD(Boolean flag);
 
 protected:
     Mutex _mutex;
+
+private:
+    StatisticalData();
+    StatisticalData(const StatisticalData&);        // Prevent copy-construction
+    StatisticalData& operator=(const StatisticalData&);
+    static String requestName[];
 };
 
 

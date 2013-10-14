@@ -41,7 +41,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Server/EnumerationTable.h>
+
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

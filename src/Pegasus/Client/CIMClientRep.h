@@ -432,7 +432,7 @@ public:
 private:
 
     void _connect(bool binaryRequest, bool binaryResponse);
-    void _disconnect();
+    void _disconnect(bool keepChallengeStatus = false);
     void _connectLocal(bool binary);
 
     Message* _doRequest(

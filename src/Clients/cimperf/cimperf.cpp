@@ -62,12 +62,12 @@ PEGASUS_USING_STD;
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
-// The table on the right represents the mapping from the enumerated types
-// in the CIM_CIMOMStatisticalDate class ValueMap versus the internal
-// message type defined in Message.h.
+// The table represents the mapping from the enumerated types
+// in the CIM_CIMOMStatisticalDate class ValueMap qualifier for the
+// operationType property to the message type defined in the value for
+// OperationType. This table must match the table in StatisticalData.cpp
 //
-
-const char* _OPERATION_NAME[] =
+const char* operationName[] =
 {
     //                                   ValueMap Value
     //                                   from class CIM_StatisticalData
@@ -100,110 +100,10 @@ const char* _OPERATION_NAME[] =
     "EnumerateQualifiers",            //   25
     "IndicationDelivery",             //   26
     "InvokeMethod"                    //   Not Present, use 1 ((:Other")
-                                      //   
 };
 
-//------------------------------------------------------------------------------
-//
-// _indent()
-//
-//------------------------------------------------------------------------------
-
-static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentSize)
-{
-    Uint32 n = level * indentSize;
-    if (n > 50)
-    {
-        cout << "Jumped Ship " << level << " size " << indentSize << endl;
-        exit(1);
-    }
-
-    for (Uint32 i = 0; i < n; i++)
-        os << ' ';
-}
-
-void mofFormat(
-    PEGASUS_STD(ostream)& os,
-    const char* text,
-    Uint32 indentSize)
-{
-    char* var = new char[strlen(text)+1];
-    char* tmp = strcpy(var, text);
-    Uint32 count = 0;
-    Uint32 indent = 0;
-    Boolean quoteState = false;
-    Boolean qualifierState = false;
-    char c;
-    char prevchar='\0';
-    while ((c = *tmp++) != '\0')
-    {
-        count++;
-        // This is too simplistic and must move to a token based mini parser
-        // but will do for now. One problem is tokens longer than 12 characters
-        // that overrun the max line length.
-        switch (c)
-        {
-            case '\n':
-                os << Sint8(c);
-                prevchar = c;
-                count = 0 + (indent * indentSize);
-                _indent(os, indent, indentSize);
-                break;
-
-            case '\"':   // quote
-                os << Sint8(c);
-                prevchar = c;
-                quoteState = !quoteState;
-                break;
-
-            case ' ':
-                os << Sint8(c);
-                prevchar = c;
-                if (count > 66)
-                {
-                    if (quoteState)
-                    {
-                        os << "\"\n";
-                        _indent(os, indent + 1, indentSize);
-                        os <<"\"";
-                    }
-                    else
-                    {
-                        os <<"\n";
-                        _indent(os, indent + 1,  indentSize);
-                    }
-                    count = 0 + ((indent + 1) * indentSize);
-                }
-                break;
-            case '[':
-                if (prevchar == '\n')
-                {
-                    indent++;
-                    _indent(os, indent,  indentSize);
-                    qualifierState = true;
-                }
-                os << Sint8(c);
-                prevchar = c;
-                break;
-
-            case ']':
-                if (qualifierState)
-                {
-                    if (indent > 0)
-                        indent--;
-                    qualifierState = false;
-                }
-                os << Sint8(c);
-                prevchar = c;
-                break;
-
-            default:
-                os << Sint8(c);
-                prevchar = c;
-        }
-    }
-    delete [] var;
-}
+Uint32 operationNameSize = sizeof(operationName[0]) /
+    sizeof (operationName);
 
 /* Method to build an OptionManager object - which holds and organizes options
    and the properties */
@@ -242,8 +142,6 @@ void GetOptions(
 
     om.registerOptions(optionsTable, NUM_OPTIONS);
 
-    //We want to make this code common to all of the commands
-
     String configFile = "/CLTest.conf";
 
     if (FileSystem::exists(configFile))
@@ -257,15 +155,15 @@ void GetOptions(
 }
 
 
-/* Method that maps from operation type to operation name. 
+/* Method that maps from operation type to operation name.
 */
 
 const char* opTypeToOpName(Uint16 type)
 {
     const char* opName = NULL;
-    if (type < 28)
+    if (type < operationNameSize)
     {
-        opName = _OPERATION_NAME[type]; 
+        opName = operationName[type];
     }
     else
     {
@@ -431,7 +329,7 @@ int main(int argc, char** argv)
                     v.get(type);
                     if (type != 1)
                     {
-                        statName = opTypeToOpName(type); 
+                        statName = opTypeToOpName(type);
                     }
 
                     // 1 is Other type indicating that there is another

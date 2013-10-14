@@ -234,14 +234,15 @@ CIMInstance InteropProvider::localGetInstance(
                 }
             }
 
-            PEG_METHOD_EXIT();
             if (!found)
             {
+                PEG_METHOD_EXIT();
                 throw CIMObjectNotFoundException(instanceName.toString());
             }
         }
     }
 
+    PEG_METHOD_EXIT();
     return retInstance;
 }
 

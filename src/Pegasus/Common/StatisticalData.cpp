@@ -48,9 +48,9 @@ String StatisticalData::requestName[] =
                                     // Pegasus        CIM_StatisticalData
                                     // message type
                                     // -------------- -------------------
-  "Unknown",                        //                 0   default
-  "Other",                          //                 1   mapped
-  "Batched",                        //                 2   not used
+//"Unknown",                        //                 0   default
+//"Other",                          //                 1   mapped
+//"Batched",                        //                 2   not used
   "GetClass",                       //     1           3
   "GetInstance",                    //     2           4
   "IndicationDelivery",             //     3          26
@@ -90,28 +90,34 @@ String StatisticalData::requestName[] =
   "PullInstancePaths",              //    77
   "CloseEnumeration" ,              //    79
 //EXP_PULL_END
-
 };
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;
 
-StatisticalData* StatisticalData::cur = NULL;
+// Pointer to StatisticalData table if it exists.
+StatisticalData* StatisticalData::table = NULL;
 
 // If first call, create the statistical data array
 StatisticalData* StatisticalData::current()
 {
-    if (cur == NULL)
+    if (table == NULL)
     {
-        cur = new StatisticalData();
+        table = new StatisticalData();
     }
-    return cur;
+    return table;
 }
 
-// Clear the statisticalData Array
+// Constructor clears the statisticalData Array and sets the gatherint
+// flag to zero
 StatisticalData::StatisticalData()
 {
     copyGSD = 0;
+    clear();
+}
 
+void StatisticalData::clear()
+{
+    AutoMutex autoMut(_mutex);
     for (unsigned int i=0; i<StatisticalData::length; i++)
     {
         numCalls[i] = 0;
@@ -122,11 +128,17 @@ StatisticalData::StatisticalData()
     }
 }
 
+String StatisticalData::getRequestName(Uint16 i)
+{
+    return requestName[i];
+}
+
 void StatisticalData::addToValue(Sint64 value,
     MessageType msgType,
     StatDataType t)
 {
-    // Map MessageType to statistic type
+    // Map MessageType to statistic type. Requires multiple tests because
+    // mapping request and responses to the request types.
     Uint16 type;
     if ((msgType) >= CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
     {
@@ -142,7 +154,7 @@ void StatisticalData::addToValue(Sint64 value,
     }
     else
     {
-        type = msgType;
+        type = msgType - 1;
     }
 
     //// KS_TODO diagnostic to confirm that the above if statements are correct

@@ -5773,10 +5773,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
                 *(providerInfo.providerIdContainer.get()));
         }
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "Forwarding to provider for class %s",
-            CSTRING(providerInfo.className.getString())));
-
         _forwardRequestForAggregation(providerInfo, requestCopy, poA);
         // Note: poA must not be referenced after last "forwardRequest"
     }

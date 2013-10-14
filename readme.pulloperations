@@ -11,7 +11,7 @@ TODO list:
    1. Binary operation from OOP.  Need to add counter to binary
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
-      OOP right now.
+      OOP right now.  Corrected by converting to XML. 
    2. OpenExecQuery - Code is incorrect in that it used InstancesWithPath
       where the spec is instances with no path.  Need new function to wrap
       getInstanceElement(withoutPathElement) in XmlReader.  Note that
@@ -22,7 +22,8 @@ TODO list:
       pull not completed so we feed the responses back to the EnmerationContext
       queues
    3. Lots of minor TODOs, diagnostics, etc.
-   4. External runtime variables. Proposing that they be fixed for this release.
+   4. External runtime variables. Proposing that they be fixed for this release
+      rather than set by configuration.  This should be discussed.
    5. Decision on EnumerationContext timeout (separate thread or just
       checks during other operations). Can we, in fact really keep the 
       enumeration context table and queue under control without monitoring
@@ -34,7 +35,7 @@ TODO list:
       b. We should protect against providers that no not every finish delivering
           or take to long between deliveries.  This does not exist in Pegasus
           today
-   6. Clean up code in Dispatcher. Want to at least reduce the code for the
+   6. Further clean up code in Dispatcher. Want to at least reduce the code for the
       Open Operations to a set of templates so we know that the code is the
       same for all operations.  Most of the common code for the enum, assoc,
       ref operations and their corresponding open/pull operations is now in a
@@ -57,8 +58,17 @@ TODO list:
       contains the pull data.  Then we can use a single function to process all
       pull operations.
       b. test the enumeration timeout thread
-      d. Sort out issues with statisticalData since it really does not work
-         with Open and Pull operations. See separate bug 9786.
+
+13 October 2013 CVS branch update.
+1. Integrated bug 9786 into the branch.  Note that we need to test the
+   generated statistics.
+2. Mergeout executed to update to head of tree as of 8:00 am 13 October 2013.
+3. Cleaned up several errors in OOP processing.  Note that there is at least
+   one issue left when we to a pull on ManagedElement in at least one of the
+   namespaces.
+4. Cleaned up some of the outstanding diagnostic code
+5. Generally passes all tests except for one test of pullop where it is trying
+   to pull enum instances CIM_ManagedElement from a particular namespace.
 
 30 September 2013 - CVS Update
 Mergeout head of tree up to 29 September 2013.

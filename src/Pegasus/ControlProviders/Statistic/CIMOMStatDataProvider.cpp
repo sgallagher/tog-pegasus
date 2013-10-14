@@ -37,15 +37,23 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMOMStatDataProvider::CIMOMStatDataProvider()
 {
-    for (Uint32 i=0; i<StatisticalData::length; i++)
-    {
-        char buffer[32];
-        sprintf(buffer, "%u", i);
-        _references[i] = CIMObjectPath(
-            "CIM_CIMOMStatisticalData.InstanceID=\"CIM_CIMOMStatisticalData"+
-            String(buffer)+"\"");
-    }
+    sData = StatisticalData::current();
+}
 
+// Build a single instance key property value.  The value consists of
+// the StatisticalData name prepended to the StatisticalData index.
+String CIMOMStatDataProvider::buildKey(Uint16 type)
+{
+    String key;
+    char buffer[32];
+    sprintf(buffer, "%u", type);
+    return String(sData->getRequestName(type) + buffer);
+}
+
+CIMObjectPath CIMOMStatDataProvider::buildObjectPath(Uint16 type)
+{
+        return CIMObjectPath(
+            "CIM_CIMOMStatisticalData.InstanceID=\""+ buildKey(type) +"\"");
 }
 
 CIMOMStatDataProvider::~CIMOMStatDataProvider()
@@ -69,13 +77,16 @@ void CIMOMStatDataProvider::getInstance(
     // begin processing the request
     handler.processing();
 
-    // instance index corresponds to reference index
-    for (Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
+    // find the correct instance and build it
+    for (Uint16 i = StatisticalData::GET_CLASS;
+           i < StatisticalData::NUMBER_OF_TYPES; i++)
     {
-        if (localReference == _references[i])
+        if (localReference == buildObjectPath(i))
         {
             // deliver requested instance
-            handler.deliver(getInstance(i, instanceReference));
+            handler.deliver(buildInstance(
+               (StatisticalData::StatRequestType)i,
+               instanceReference));
             break;
         }
     }
@@ -95,12 +106,14 @@ void CIMOMStatDataProvider::enumerateInstances(
     // begin processing the request
     handler.processing();
 
-    // instance index corresponds to reference index
-    for (Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
+    // Loop throuh complete StatisticalData table building instances
+    // Start at GET_CLASS because lower groups are not part of data
+    for (StatisticalData::StatRequestType i = StatisticalData::GET_CLASS;
+          i < StatisticalData::NUMBER_OF_TYPES;
+          i = StatisticalData::StatRequestType(i + 1))
     {
         // deliver instance
-        handler.deliver(getInstance(i, classReference));
-
+        handler.deliver(buildInstance(i,classReference));
     }
 
     // complete processing the request
@@ -115,10 +128,13 @@ void CIMOMStatDataProvider::enumerateInstanceNames(
     // begin processing the request
     handler.processing();
 
-    for (Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
+    // Enumerate over the whole enum set
+    for (StatisticalData::StatRequestType i = StatisticalData::GET_CLASS;
+          i < StatisticalData::NUMBER_OF_TYPES;
+          i = StatisticalData::StatRequestType(i + 1))
     {
         // deliver reference
-        handler.deliver(_references[i]);
+        handler.deliver(buildObjectPath(i));
     }
 
     // complete processing the request
@@ -153,126 +169,59 @@ void CIMOMStatDataProvider::deleteInstance(
     throw CIMNotSupportedException("StatisticalData::deleteInstance");
 }
 
-CIMInstance CIMOMStatDataProvider::getInstance(
-    Uint16 type,
+CIMInstance CIMOMStatDataProvider::buildInstance(
+    StatisticalData::StatRequestType type,
     CIMObjectPath cimRef)
 {
-
-    StatisticalData* sd = StatisticalData::current();
-    char buffer[32];
-    sprintf(buffer, "%hu", type);
-
     checkObjectManager();
 
-    CIMDateTime cimom_time = CIMDateTime((sd->cimomTime[type]), true);
-    CIMDateTime provider_time = CIMDateTime((sd->providerTime[type]), true);
+    CIMDateTime cimom_time = CIMDateTime((sData->cimomTime[type]), true);
+    CIMDateTime provider_time = CIMDateTime((sData->providerTime[type]), true);
 
     CIMInstance requestedInstance("CIM_CIMOMStatisticalData");
 
     requestedInstance.addProperty(CIMProperty("InstanceID",
-        CIMValue("CIM_CIMOMStatisticalData"+String(buffer))));
+        CIMValue(buildKey(type))));
 
-    Uint16 mof_type = getOpType(type);
-
-    requestedInstance.addProperty(CIMProperty("OperationType", 
-        CIMValue(mof_type)));
-
-    // If type = 1 "Other" add the OtherOperationType property.
-    if (type == 1)
+    // If StatRequestType > the types defined in the mof class
+    // set OperationType to other "Other" add the OtherOperationType property.
+    if (type > StatisticalData::ENUMERATE_QUALIFIERS)
     {
-        requestedInstance.addProperty(CIMProperty("OtherOperationType", 
-            CIMValue(sd->requestName[type])));
+        requestedInstance.addProperty(CIMProperty("OperationType",
+            CIMValue(Uint16(1))));
+        requestedInstance.addProperty(CIMProperty("OtherOperationType",
+            CIMValue(sData->getRequestName(type))));
+        cout << "Set other property " << sData->getRequestName(type) << endl;
+    }
+    else
+    {
+        Uint16 mof_type = getValueMapType(type);
+        requestedInstance.addProperty(CIMProperty("OperationType",
+            CIMValue(mof_type)));
     }
 
     requestedInstance.addProperty(CIMProperty("NumberOfOperations",
-        CIMValue((Uint64)sd->numCalls[type])));
+        CIMValue((Uint64)sData->numCalls[type])));
     requestedInstance.addProperty(CIMProperty("CimomElapsedTime",
         CIMValue(cimom_time)));
     requestedInstance.addProperty(CIMProperty("ProviderElapsedTime",
         CIMValue(provider_time)));
     requestedInstance.addProperty(CIMProperty("RequestSize",
-        CIMValue((Uint64)sd->requestSize[type])));
+        CIMValue((Uint64)sData->requestSize[type])));
     requestedInstance.addProperty(CIMProperty("ResponseSize",
-        CIMValue((Uint64)sd->responseSize[type])));
+        CIMValue((Uint64)sData->responseSize[type])));
     requestedInstance.addProperty( CIMProperty("Description",
         CIMValue(String("CIMOM performance statistics for CIM request "))));
     requestedInstance.addProperty(CIMProperty("Caption",
         CIMValue(String("CIMOM performance statistics for CIM request"))));
 
-    requestedInstance.setPath(_references[type]);
+    requestedInstance.setPath(buildObjectPath(type));
 
     return requestedInstance;
 }
 
-/*CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
-{
-    // Break millisecond value into days, hours, minutes, seconds and
-    // milliseconds.
-    // Turn each number into a string and append them to each other.
-
-    const Sint64 oneDay = Sint64(864) * 100000000;
-
-        Sint64 ndays = date/oneDay;        //one day = 8.64*10^10 millisecond
-        Sint64 rem = date % oneDay;      //rem_1 is remander of above operation
-        char buf_day[9];
-        sprintf(buf_day,"%08d",(int)ndays);
-
-String test = String(buf_day);
-
-        //one hour = 3.6*10^9 milliseconds
-        Sint64 nhour = rem/PEGASUS_UINT64_LITERAL(3600000000);
-        //rem_2 is remander of above operation
-        Sint64 rem_2 = rem%PEGASUS_UINT64_LITERAL(3600000000);
-        char buf_hour[3];
-        sprintf(buf_hour,"%02d",(int)nhour);
-
-String hour = String(buf_hour);
-String dh = test.append(String(buf_hour));
-//printf("this is test now after append\n");// %s\n", test.getCString());
-
-        Sint64 nmin = rem_2/60000000;  // one minute = 6*10^7
-        Sint64 rem_3 = rem_2%60000000;
-        char buf_minute[3];
-        sprintf(buf_minute,"%02d",(int)nmin);
-
-String dhm = dh.append(String(buf_minute));
-//printf("after second append this is test %s\n", test.getCString());
-
-        Sint64 nsecond = rem_3/1000000; //one second = 10^6 milliseconds
-        char buf_second[3];
-        sprintf(buf_second,"%02d",(int)nsecond);
-
-String dhms = dhm.append(String(buf_second));
-//printf("after third append this is test\n");// %s \n",test.getCString());
-
-
-        Sint64 nmilsec = rem_3%1000000;
-        char buf_milsec[20];
-        sprintf(buf_milsec,".%06d:000",(int)nmilsec);
-
-String dhmsm = dhms.append(String(buf_milsec));
-    //cout << "String for datetime= " << dhmsm << endl;
-    CIMDateTime ans;
-    try
-    {
-        ans.set(dhmsm);
-    }
-    catch(Exception& e)
-    {
-        cout << "Error in string convert of " << dhmsm << " " <<
-            e.getMessage() << endl;;
-        ans.clear();
-    }
-//cout<<"this is being passed back for toDateTime" << ans.toString() << endl;
-
-        return ans;
-
-} */
-
-
 void CIMOMStatDataProvider::checkObjectManager()
 {
-    StatisticalData* sData = StatisticalData::current();
 
     if (!sData->copyGSD)
     {
@@ -295,12 +244,15 @@ void CIMOMStatDataProvider::checkObjectManager()
 // The CIM_StatisticalData class specifys type 0 as "unknown"
 // and 1 as "other"
 //
-// The internal message types are subject to change so the symblic
+// The internal message types are subject to change so the symb0lic
 // enumerated values are used within a select statement rather than
 // a one dimensional array that is simply indexed to determine the
 // output type.
+// Returns the ValueMap type corresponding to each StatisticalData
+// type.
 
-Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
+Uint16 CIMOMStatDataProvider::getValueMapType(
+   StatisticalData::StatRequestType type)
 {
     Uint16 outType;
 
@@ -312,6 +264,10 @@ Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
 
         case StatisticalData::GET_INSTANCE:
             outType= 4;
+            break;
+
+        case StatisticalData::INDICATION_DELIVERY:
+            outType= 26;
             break;
 
         case StatisticalData::DELETE_CLASS:
@@ -398,11 +354,7 @@ Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
             outType= 25;
             break;
 
-
-        case StatisticalData::INDICATION_DELIVERY:
-            outType= 26;
-            break;
-
+        // This converts to Other type. (OperationType = 1)
         case StatisticalData::INVOKE_METHOD:
             outType= 1;
             break;
@@ -412,6 +364,7 @@ Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
             outType=0;
             break;
     }
+    cout << "Proivder type mapper " << type << " returns" << outType << endl;
 
     return outType;
 }

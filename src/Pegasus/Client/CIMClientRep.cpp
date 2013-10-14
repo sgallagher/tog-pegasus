@@ -134,7 +134,7 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
-void CIMClientRep::_disconnect()
+void CIMClientRep::_disconnect(bool keepChallengeStatus)
 {
     if (_connected)
     {
@@ -167,8 +167,11 @@ void CIMClientRep::_disconnect()
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
 
+    if (keepChallengeStatus == false)
+    {
     // Reset the challenge status
     _authenticator.resetChallengeStatus();
+}
 }
 
 void CIMClientRep::connect(
@@ -1524,7 +1527,7 @@ Message* CIMClientRep::_doRequest(
             //
             if (response->getCloseConnect() == true)
             {
-                _disconnect();
+                _disconnect(true);
                 _doReconnect = true;
                 response->setCloseConnect(false);
             }

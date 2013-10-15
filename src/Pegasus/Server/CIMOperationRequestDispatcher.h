@@ -489,7 +489,6 @@ inline MessageType OperationAggregate::getRequestType() const
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
-
     friend struct ProviderRequests;
 public:
 

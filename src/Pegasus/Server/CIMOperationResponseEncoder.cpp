@@ -51,13 +51,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//KS_PULL_TEMP_BEGIN_DIAG_DELETE
-const char * _printb(Boolean x)
-{
-    return ( x? "true" : "false");
-}
-//KS_PULL_TEMP_END
-
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
     : Base(PEGASUS_QUEUENAME_OPRESPENCODER)
 {

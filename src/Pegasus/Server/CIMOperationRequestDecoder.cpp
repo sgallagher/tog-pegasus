@@ -1270,7 +1270,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                 else if (System::strcasecmp(cimMethodName, "ExecQuery") == 0)
                     request.reset(decodeExecQueryRequest(
                         queueId, parser, messageId, nameSpace));
-                // Pull Operations decoders
+                // EXP_PULL_BEGIN
                 else if (System::strcasecmp(
                              cimMethodName, "OpenEnumerateInstances") == 0)
                     request.reset(decodeOpenEnumerateInstancesRequest(
@@ -1325,7 +1325,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                              cimMethodName, "OpenQueryInstances") == 0)
                     request.reset(decodeOpenQueryInstancesRequest(
                         queueId, parser, messageId, nameSpace));
-                // End Of Pull Operations
+                // EXP_PULL_END
                 else
                 {
                     throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
@@ -2149,6 +2149,7 @@ private:
     stringIParam& operator = (const stringIParam&);
 };
 
+//EXP_PULL_BEGIN
 // Attribute decoder for Uint32Arg Parameters
 // The constructor MUST include the attribute name.
 // The second defines whether a value is required.
@@ -2174,13 +2175,6 @@ public:
     // @param name const char* with name of IParam to match
     uint32ArgIParam(const char* name, Uint32 _int):
         got(false), value(_int), iParamName(name), valueRequired(false){}
-
-    // constructor with definition of attribute and default for the
-    // required flag.
-    // @param name const char* with name of IParam to match
-    // @param valueRequired Boolean that defines whether value is required
-////  uint32ArgIParam(const char* name, Boolean _valueRequired):
-////      got(false), iParamName(name), valueRequired(_valueRequired){}
 
     ~uint32ArgIParam(){}
 
@@ -2242,13 +2236,6 @@ public:
     uint32IParam(const char* name, Uint32 _int):
         got(false), value(_int), iParamName(name), valueRequired(false){}
 
-    // constructor with definition of attribute and default for the
-    // required flag.
-    // @param name const char* with name of IParam to match
-    // @param valueRequired Boolean that defines whether value is required
-////  uint32IParam(const char* name, Boolean _valueRequired):
-////      got(false), iParamName(name), valueRequired(_valueRequired){}
-
     ~uint32IParam(){}
 
     void iParamFound(Boolean& duplicate)
@@ -2284,6 +2271,7 @@ private:
     uint32IParam(const uint32IParam&);
     uint32IParam& operator = (const uint32IParam&);
 };
+// EXP_PULL_END
 
 /************************************************************************
 **

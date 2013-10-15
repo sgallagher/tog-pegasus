@@ -3381,7 +3381,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         while (providerInfos.hasMore(true))
         {
-            cout <<"assocNames found response4 " << poA->_totalIssued << endl;
             ProviderInfo& providerInfo = providerInfos.getNext();
 
             CIMAssociatorNamesRequestMessage* requestCopy =

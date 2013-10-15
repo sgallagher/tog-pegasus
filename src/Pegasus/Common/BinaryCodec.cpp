@@ -357,7 +357,7 @@ static void _encodeEnumerateInstancesResponseBody(
     {
         // [PROPERTY-LIST]
         out.putPropertyList(data.getPropertyList());
-    }    
+    }
     data.encodeBinaryResponse(out);
 }
 
@@ -3516,7 +3516,7 @@ bool BinaryCodec::encodeRequest(
         out.append('\0');
     }
     // Need fix-up Content-length value...
-    char * contentLengthValueStart = 
+    char * contentLengthValueStart =
         (char*) strstr(out.getData(), "content-length");
     contentLengthValueStart += sizeof("content-length: ")-1;
     // using sprintf to stay equal to the macro OUTPUT_CONTENTLENGTH definition

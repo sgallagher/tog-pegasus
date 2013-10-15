@@ -352,7 +352,7 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
                 msg = _getIndicationServiceDisabledRequestMessage();
                 break;
             case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
-                msg = _getProvAgtGetScmoClassRequestMessage(in);            
+                msg = _getProvAgtGetScmoClassRequestMessage(in);
                 break;
 
 
@@ -472,7 +472,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getIndicationServiceDisabledResponseMessage();
             break;
         case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
-            msg = _getProvAgtGetScmoClassResponseMessage(in);            
+            msg = _getProvAgtGetScmoClassResponseMessage(in);
             break;
 
         default:

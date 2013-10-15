@@ -309,7 +309,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
                 returnedPropList);
         }
     }
-#endif    
+#endif
     // remove name space and host name to be instance names
     for (Uint32 i = 0, n = a.size(); i < n ; i++)
     {
@@ -333,7 +333,7 @@ Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
         nameSpace,
         className).getInstanceNames();
 
-    // remover name space and host name from object paths to be 
+    // remover name space and host name from object paths to be
     // instance names.
     for (Uint32 i = 0, n = p.size(); i < n ; i++)
     {
@@ -387,7 +387,7 @@ Array<CIMObject> CIMClient::associators(
         if ((a.size() > 0) && (a[0].isInstance()))
         {
             for (Uint32 i = 0, n = a.size(); i < n ; i++)
-            {    
+            {
                 CIMObject & obj = a[i];
                 obj.instanceFilter(
                     includeQualifiers,
@@ -395,7 +395,7 @@ Array<CIMObject> CIMClient::associators(
                     propertyList);
             }
         }
-    }    
+    }
 #endif
     return a;
 }
@@ -444,7 +444,7 @@ Array<CIMObject> CIMClient::references(
         if ((a.size() > 0) && (a[0].isInstance()))
         {
             for (Uint32 i = 0, n = a.size(); i < n ; i++)
-            {    
+            {
                 CIMObject & obj = a[i];
                 obj.instanceFilter(
                     includeQualifiers,
@@ -452,7 +452,7 @@ Array<CIMObject> CIMClient::references(
                     propertyList);
             }
         }
-    }    
+    }
 #endif
     return a;
 }

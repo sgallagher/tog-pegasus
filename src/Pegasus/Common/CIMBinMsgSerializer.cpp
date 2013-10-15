@@ -602,7 +602,7 @@ void CIMBinMsgSerializer::_serializeOperationContext(
     }
     else
         out.putPresent(false);
-    
+
     // [UserRoleContainer]
 
     if (operationContext.contains(UserRoleContainer::NAME))
@@ -939,7 +939,7 @@ void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
 {
     out.putString(msg->messageId);
     out.putNamespaceName(msg->nameSpace);
-    out.putName(msg->className);    
+    out.putName(msg->className);
 }
 
 void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(

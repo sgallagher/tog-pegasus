@@ -70,7 +70,7 @@ public:
         Uint32 returnQueueId);
 
     /**
-       Decode an input CIMBuffer containing a serialized message stream 
+       Decode an input CIMBuffer containing a serialized message stream
        into a singe CIMResponseMessage.
     */
     static CIMResponseMessage* decodeResponse(

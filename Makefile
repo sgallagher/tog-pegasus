@@ -105,8 +105,6 @@ usage: FORCE
 	$(USAGE)"testusage2          - TestMakefile usage2"
 	$(USAGE)"stresstests         - Runs the default stresstests"
 	$(USAGE)
-	$(USAGE)"webadmin            - build/config webadmin" 
-	$(USAGE)
 	$(USAGE)"--------------------"
 	$(USAGE)"Quick start:"
 	$(USAGE)"  After checkout of new tree:"

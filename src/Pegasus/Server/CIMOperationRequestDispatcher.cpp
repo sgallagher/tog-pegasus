@@ -2914,6 +2914,39 @@ struct ProviderRequests
         request->resultClass = providerInfo.className;
     }
 
+    // Set the appropriate data into the CIMResponseData container of the
+    // response message.  This is used with the open handlers
+    // to set the response data into the repository response messages
+    // because some messages have paths and others objects.
+
+    static void setCIMResponseData(
+        CIMAssociatorsResponseMessage* response,
+        Array<CIMObject>& repositoryData)
+    {
+        response->getResponseData().setObjects(repositoryData);
+    }
+
+    static void setCIMResponseData(
+        CIMAssociatorNamesResponseMessage* response,
+        Array<CIMObjectPath>& repositoryData)
+    {
+        response->getResponseData().setInstanceNames(repositoryData);;
+    }
+
+    static void setCIMResponseData(
+        CIMReferencesResponseMessage* response,
+        Array<CIMObject>& repositoryData)
+    {
+        response->getResponseData().setObjects(repositoryData);;
+    }
+
+    static void setCIMResponseData(
+        CIMReferenceNamesResponseMessage* response,
+        Array<CIMObjectPath>& repositoryData)
+    {
+        response->getResponseData().setInstanceNames(repositoryData);;
+    }
+
     /**************************************************************************
     **
     ** issueAssocRequests - Template method to issue requests for
@@ -2932,14 +2965,14 @@ struct ProviderRequests
         CIMOperationRequestDispatcher* dispatcher,
         REQ* request,
         AutoPtr<RSP>& response,
-        ProviderInfoList providerInfos,
+        ProviderInfoList& providerInfos,
         const char * reqMsgName)
     {
         // No providers and nothing from repository. Return empty
         if ((providerInfos.providerCount == 0) && (response.get() == 0))
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-                "% Request, Returns nothing for %s", reqMsgName,
+                "%s Request, Returns nothing for %s", reqMsgName,
                 CSTRING(request->className.getString()) ));
 
             response.reset(dynamic_cast<RSP*>(request->buildResponse()));
@@ -2996,6 +3029,93 @@ struct ProviderRequests
         }
     } // end issueAssocRequest
 
+    /**************************************************************************
+    **
+    ** issueAssocRequests - Template method to issue requests for
+    **     OpenAssociator and OpenReference operations.
+    **
+    **************************************************************************/
+    /*  Template method issues the provider requests, repository
+        responses and provider requests for:
+        OpenAssociators
+        OpenAssociatorNames
+        OpenReferences
+        OpenReferenceNames
+        It differs from the issueAssocRequests in that this builds the
+        enumerationContext for the operations.
+    */
+    //template<class REQ, class IREQ, class RSP, class IRSP, class OBJTYPE>
+
+    template<class REQ, class IREQ, class RSP, class IRSP, class OBJTYPE>
+    static void issueOpenAssocRequestMessagesToProviders(
+       CIMOperationRequestDispatcher* dispatcher,
+       REQ* openRequest,
+       IREQ* internalRequest,
+       AutoPtr<RSP>& openResponse,
+       AutoPtr<IRSP>& internalResponse,
+       Array<OBJTYPE>& repositoryData,
+       ProviderInfoList& providerInfos,
+       EnumerationContext * enumerationContext,
+       OperationAggregate* poA,
+       const char * reqMsgName)
+    {
+        // If response from repository, forward for aggregation.
+
+        // The following is call dependent (instancePaths or cimObjects
+        // Need an array of something parameter
+        if (repositoryData.size() != 0)
+        {
+            // This one is a problem unless we define a new parameter
+            // for internalResponse. Maybe need the same thing as the
+            // setSelectedRequestFields. But since this is a conditional
+            // not sure how to provide the parameter.
+////          AutoPtr<IRSP> internalResponse;
+            internalResponse.reset(dynamic_cast<IRSP*>(
+                internalRequest->buildResponse()));
+//          internalResponse->getResponseData().setObjects(repositoryData);
+            // this one is a setObjects or setInstanceNames
+
+            poA->incTotalIssued();
+
+            // send the repository's results for aggregation
+            // directly to callback (includes response).
+            //
+            dispatcher->_forwardResponseForAggregation(
+                new REQ(*internalRequest),
+                poA,
+                internalResponse.release());
+
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
+            "%s repository _forwardForAggregation."
+            " ProviderCount= %u total issued = %u", reqMsgName,
+            providerInfos.providerCount, poA->getTotalIssued()));
+        }
+
+        // Issue requests to all providers defined.
+        while (providerInfos.hasMore(true))
+        {
+            ProviderInfo& providerInfo = providerInfos.getNext();
+
+            IREQ* requestCopy = new IREQ(*internalRequest);
+            // Insert the association class name to limit the provider
+            // to this class.
+            setSelectedRequestFields(requestCopy, providerInfo);
+
+            if (providerInfo.providerIdContainer.get() != 0)
+            {
+                requestCopy->operationContext.insert(
+                    *(providerInfo.providerIdContainer.get()));
+            }
+
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "%s Forwarding to provider for class %s",reqMsgName,
+                CSTRING(providerInfo.className.getString()) ));
+
+            dispatcher->_forwardAggregatingRequestToProvider(
+               providerInfo, requestCopy, poA);
+            // Note: poA must not be referenced after last "forwardRequest"
+        }
+    }    // end of issueOpenAssocRequestMessagesToProviders
 
     /**************************************************************************
     **
@@ -5571,7 +5691,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
             false,                       // force includeQualifiers to false
             request->includeClassOrigin,
             request->propertyList);
-        //// enumResponse->getResponseData().setObjects(cimObjects);
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "OpenReferenceInstances repository access: class = %s, count = %u.",
@@ -5654,6 +5773,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
+
     //
     // Set up an aggregate object and save the original request message
     //
@@ -5671,13 +5791,30 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     //
     poA->setPullOperation((void *)enumerationContext);
 
+//// NOTE KS_TODO having problem with this template right now so that
+//// code is disabled.
+////  AutoPtr<CIMReferencesResponseMessage> internalResponse;
+////  ProviderRequests::issueOpenAssocRequestMessagesToProviders(
+////     this,
+////     request,
+////     internalRequest,
+////     openResponse,
+////     internalResponse,
+////     cimObjects,
+////     providerInfos,
+////     enumerationContext,
+////     poA,
+////     "OpenAssociatorInstances"
+////     );
+
+
     // If response from repository not empty, forward for aggregation.
     if (cimObjects.size() != 0)
     {
-        AutoPtr<CIMReferencesResponseMessage> enumResponse;
-        enumResponse.reset(dynamic_cast<CIMReferencesResponseMessage*>(
+        AutoPtr<CIMReferencesResponseMessage> internalResponse;
+        internalResponse.reset(dynamic_cast<CIMReferencesResponseMessage*>(
             internalRequest->buildResponse()));
-        enumResponse->getResponseData().setObjects(cimObjects);
+        internalResponse->getResponseData().setObjects(cimObjects);
 
         poA->incTotalIssued();
 
@@ -5687,7 +5824,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         _forwardResponseForAggregation(
             new CIMReferencesRequestMessage(*internalRequest),
             poA,
-            enumResponse.release());
+            internalResponse.release());
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
         "OpenReferenceInstances repository _forwardForAggregation."
@@ -5943,11 +6080,11 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     if (instanceNames.size() != 0)
     {
-        AutoPtr<CIMReferenceNamesResponseMessage> enumResponse;
-        enumResponse.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
+        AutoPtr<CIMReferenceNamesResponseMessage> internalResponse;
+        internalResponse.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
             internalRequest->buildResponse()));
 
-        enumResponse->getResponseData().setInstanceNames(instanceNames);
+        internalResponse->getResponseData().setInstanceNames(instanceNames);
 
         poA->incTotalIssued();
         // send the repository's results for aggregation
@@ -5955,7 +6092,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         _forwardResponseForAggregation(
             new CIMReferenceNamesRequestMessage(*internalRequest),
             poA,
-            enumResponse.release());
+            internalResponse.release());
     }
 
     // Call all providers
@@ -6242,11 +6379,11 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
 
     if (cimObjects.size() != 0)
     {
-        AutoPtr<CIMAssociatorsResponseMessage> enumResponse;
-        enumResponse.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
+        AutoPtr<CIMAssociatorsResponseMessage> internalResponse;
+        internalResponse.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
             internalRequest->buildResponse()));
 
-        enumResponse->getResponseData().setObjects(cimObjects);
+        internalResponse->getResponseData().setObjects(cimObjects);
 
         poA->incTotalIssued();
 
@@ -6256,7 +6393,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         _forwardResponseForAggregation(
             new CIMAssociatorsRequestMessage(*internalRequest),
             poA,
-            enumResponse.release());
+            internalResponse.release());
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
         "OpenAssociatorInstances repository _forwardForAggregation."
@@ -6522,10 +6659,10 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // If any return from repository, send it to aggregator.
     if (objectNames.size() != 0)
     {
-        AutoPtr<CIMAssociatorNamesResponseMessage> enumResponse;
-        enumResponse.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+        AutoPtr<CIMAssociatorNamesResponseMessage> internalResponse;
+        internalResponse.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
             internalRequest->buildResponse()));
-        enumResponse->getResponseData().setInstanceNames(objectNames);
+        internalResponse->getResponseData().setInstanceNames(objectNames);
 
         poA->incTotalIssued();
         // send the repository's results for aggregation
@@ -6533,7 +6670,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         _forwardResponseForAggregation(
             new CIMAssociatorNamesRequestMessage(*internalRequest),
             poA,
-            enumResponse.release());
+            internalResponse.release());
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
         "OpenAssociatorInstancePaths 8. ProviderCount = %u",

@@ -84,6 +84,12 @@ void _throwCIMExceptionInvalidIParamName(const String& param = String::EMPTY)
     _throwCIMExceptionCIMErrNotSupported(param);
 }
 
+/******************************************************************************
+**
+**            CIMOperationRequestDecoder Class
+**
+******************************************************************************/
+
 #ifdef PEGASUS_PAM_SESSION_SECURITY
 void CIMOperationRequestDecoder::_updateExpiredPassword(
     Uint32 queueId,
@@ -97,7 +103,7 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
 {
     static CIMName meth = CIMName("UpdateExpiredPassword");
     static CIMName clName = CIMName("PG_Account");
-    
+
 
     // this has to be an invokeMethod and
     if (CIM_INVOKE_METHOD_REQUEST_MESSAGE != request->getType())
@@ -109,7 +115,7 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
             "Header \'Pragma: UpdateExpiredPassword\' not valid for this "
                 "CIMMethod.",
             closeConnect);
-        
+
         return;
     }
 
@@ -118,7 +124,7 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
 
     // class PG_Account
     // method UpdateExpiredPassword
-    // InterOp namespace    
+    // InterOp namespace
     if ((!clName.equal(msg->className)) ||
         (!(meth.equal(msg->methodName))) ||
         (!msg->nameSpace.equal(PEGASUS_NAMESPACENAME_INTEROP.getString())))
@@ -133,7 +139,7 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
             closeConnect);
         return;
     }
-    
+
     String newPass;
     Boolean found = false;
 
@@ -318,7 +324,7 @@ void CIMOperationRequestDecoder::sendUserAccountExpired(
             httpMethod,
             myExc);
     }
-                          
+
     sendResponse(queueId, message,closeConnect);
 }
 
@@ -568,7 +574,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String pragmaValue;
     if(HTTPMessage::lookupHeader(headers,"Pragma",pragmaValue))
     {
-        updateExpiredPassword = 
+        updateExpiredPassword =
             (PEG_NOT_FOUND != pragmaValue.find("UpdateExpiredPassword"));
     }
 
@@ -1661,7 +1667,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
         if (updateExpiredPassword)
         {
             // update expired password
-            // fct. _updateExpiredPassword returns false 
+            // fct. _updateExpiredPassword returns false
             //        if the request was NOT for PG_Account etc.
             _updateExpiredPassword(
                 queueId,
@@ -1990,12 +1996,6 @@ class stringIParam
 public:
     Boolean got;
     String value;
-
-    // constructor with definition of iParam name and default for the
-    // required flag.
-    // @param name const char* with name of IParam to match
-////  stringIParam(const char* name):
-////      got(false), iParamName(name), valueRequired(false){}
 
     // constructor with definition of attribute and default for the
     // required flag.

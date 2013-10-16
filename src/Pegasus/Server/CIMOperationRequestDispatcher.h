@@ -220,7 +220,7 @@ public:
         @return true if more, false if finished
 
         <p><b>Example:</b>
-        
+
         while (providerInfo.hasMore(x, true)) // loop to return all providers
         or
         while (providerInfo.hasMore(x, false)) // loop to returns classes w/o
@@ -363,7 +363,7 @@ public:
         @param query QueryExpressionRep* The query Statement. Used
         only by CQL & WQL OperationRequestDispatchers (Optional)
         @param String queryLanguage (Optional)
-                                              */
+    */
     OperationAggregate(CIMOperationRequestMessage* request,
         CIMName className,
         CIMNamespaceName nameSpace,
@@ -443,7 +443,6 @@ inline Uint32 OperationAggregate::getTotalIssued()
 {
     return _totalIssued;
 }
-
 
 inline void OperationAggregate::incTotalIssued()
 {
@@ -654,7 +653,6 @@ protected:
         const CIMOperationRequestMessage* request,
         const CIMResponseMessage* response);
 
-
     void _enqueueExceptionResponse(
         CIMOperationRequestMessage* request,
         CIMException& exception);
@@ -722,20 +720,41 @@ protected:
         CIMOperationRequestMessage* request,
         const CIMObjectPath& path);
 
+    /**Tests for existence of the class defined in the request and
+       if successful return true with the class in the targetClass
+       argument. Note that exceptions are caught in this method.
+
+        @param request CIMOperationRequestMessage containing
+                       Request. Note that this depends on class name
+                       and namespace being in this message
+        @param targetClass CIMClass class to be returned if request
+                           successful
+
+        @return Boolean true if class in request->className found
+                for request->nameSpace. False if not found.
+     */
+
+    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
+        CIMConstClass& targetClass);
+
+    /**Equivalent to _rejectInvalidClassParameter above except that
+       it included objecName parameter
+
+        @param request
+        @param nameSpace
+        @param objectName
+
+        @return Boolean
+     */
     Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName);
 
-    Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        CIMConstClass& targetClass);
     /**
         Reject if no providers or repository for this class
     */
     Boolean _rejectNoProvidersOrRepository(CIMOperationRequestMessage* request,
-        const ProviderInfoList&,
-        const CIMName& className);
+        const ProviderInfoList&);
 
     /**
         Checks whether the number of providers required to complete an
@@ -769,23 +788,34 @@ protected:
         const CIMName& className,
         CIMException& cimException);
 
-////  void enumerateInstancesFromRepository(
-////      CIMEnumerateInstancesResponseMessage *response,
-////      OperationAggregate* poA,
-////      const CIMNamespaceName& nameSpace,
-////      const CIMName& className,
-////      Boolean includeQualifiers = false,
-////      Boolean includeClassOrigin = false,
-////      const CIMPropertyList& propertyList = CIMPropertyList());
+/*
+    Check to determine if we have any providers or repository for this
+    class.
+    NOTE: There may be issues with this test in general since it is use
+    for enumerates, etc. and the goal there is to never exception for
+    things like this, simply return no objects.  On the other hand
+    This is a real boundary condition for the server where the
+    repository is not to be used and there are NO providers registered.
+    TODO - Check if this is really valid
+*/
+    Boolean _checkNoProvidersOrRepository(CIMOperationRequestMessage* request,
+        Uint32 providerCount, const CIMName& className);
+
 
     Boolean _forwardEnumerationToProvider(
         ProviderInfo &providerInfo,
         OperationAggregate* poA,
         CIMOperationRequestMessage* request);
 
+    void enumerateInstancesFromRepository(
+        CIMEnumerateInstancesResponseMessage *response,
+        OperationAggregate* poA,
+        CIMOperationRequestMessage* request);
+
     CIMRepository* _repository;
 
     ProviderRegistrationManager* _providerRegistrationManager;
+
     //
     // Enable particular Operations or services
     //
@@ -815,7 +845,6 @@ protected:
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
 
-
     Boolean _lookupAssociationProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& assocClass,
@@ -841,7 +870,8 @@ private:
     DynamicRoutingTable *_routing_table;
 };
 
-// Forward response to aggregrator
+// Forward response to Common Request Aggregator.  This is simply
+// a syntatic simplification.
 inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
     CIMOperationRequestMessage* request,
     OperationAggregate* poA,
@@ -855,6 +885,9 @@ inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
         response);
 }
 
+/*
+    For request for aggregation with poA as parameter.
+*/
 inline void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     const ProviderInfo& providerInfo,
     CIMOperationRequestMessage* request,

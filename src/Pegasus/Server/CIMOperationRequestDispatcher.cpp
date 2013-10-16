@@ -1972,7 +1972,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     PEG_METHOD_EXIT();
 }
 
-/** _forwardRequestToProvider
+/** _forwardRequestToSingleProvider
     This function forwards the request to a single provider,
     control provider or service. It decides based on
     the controlProviderName parameter whether to forward to
@@ -1985,13 +1985,13 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     function, _forwardRequestCallback(...) for responses to the
     request.
 */
-void CIMOperationRequestDispatcher::_forwardRequestToProvider(
+void CIMOperationRequestDispatcher::_forwardRequestToSingleProvider(
     const ProviderInfo& providerInfo,
     CIMOperationRequestMessage* request,
     CIMOperationRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardRequestToProvider");
+        "CIMOperationRequestDispatcher::_forwardRequestToSingleProvider");
 
     PEGASUS_ASSERT(providerInfo.serviceId);
 
@@ -2986,7 +2986,8 @@ struct ProviderRequests
                     "Forwarding to provider for class %s",
                     CSTRING(providerInfo.className.getString()) ));
 
-                dispatcher->_forwardRequestForAggregation(providerInfo,
+                dispatcher->_forwardAggregatingRequestToProvider(
+                    providerInfo,
                     requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest
             }
@@ -3412,7 +3413,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         CIMGetInstanceRequestMessage* requestCallbackCopy =
             new CIMGetInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -3529,7 +3530,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         CIMDeleteInstanceRequestMessage* requestCallbackCopy =
             new CIMDeleteInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -3643,7 +3644,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         CIMCreateInstanceRequestMessage* requestCallbackCopy =
             new CIMCreateInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -3752,7 +3753,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         CIMModifyInstanceRequestMessage* requestCallbackCopy =
             new CIMModifyInstanceRequestMessage(*requestCopy);
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -4593,59 +4594,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             response,
             providerInfos);
 
-////      KS_TODO delete this old code
-////      if ((providerInfos.providerCount == 0) &&  (response.get() == 0))
-////      {
-////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-////              "Referencenamess Returns Nothing for %s",
-////              CSTRING(request->className.getString()) ));
-////          _enqueueResponse(request, response.release());
-////          PEG_METHOD_EXIT();
-////          return;
-////      }
-////      //
-////      // Set up an aggregate object and save the original request message
-////      // NOTE: OperationAggregate released only when operation complete
-////      //
-////
-////      OperationAggregate* poA = new OperationAggregate(
-////          new CIMReferenceNamesRequestMessage(*request),
-////          request->objectName.getClassName(),
-////          request->nameSpace,
-////          providerInfos.providerCount,
-////          true);
-////
-////      // Include the repository response in the aggregation, if applicable
-////      if (response.get() != 0)
-////      {
-////          poA->incTotalIssued();
-////          _forwardResponseForAggregation(
-////              new CIMReferenceNamesRequestMessage(*request),
-////              poA,
-////              response.release());
-////      }
-////
-////      while (providerInfos.hasMore(true))
-////      {
-////          ProviderInfo& providerInfo = providerInfos.getNext();
-////          CIMReferenceNamesRequestMessage* requestCopy =
-////              new CIMReferenceNamesRequestMessage(*request);
-////          // Insert the association class name to limit the provider
-////          // to this class.
-////          requestCopy->resultClass = providerInfo.className;
-////
-////          if (providerInfo.providerIdContainer.get() != 0)
-////              requestCopy->operationContext.insert(
-////                  *(providerInfo.providerIdContainer.get()));
-////
-////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-////              "Forwarding to provider for class %s",
-////              CSTRING(providerInfo.className.getString())));
-////
-////          _forwardRequestForAggregation(providerInfo.serviceId,
-////              providerInfo.controlProviderName, requestCopy, poA);
-////          // Note: poA must not be referenced after last "forwardRequest"
-////      }
     }  // End of instance processing
 
     PEG_METHOD_EXIT();
@@ -4681,7 +4629,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
         CIMGetPropertyRequestMessage* requestCallbackCopy =
             new CIMGetPropertyRequestMessage(*requestCopy);
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -4744,7 +4692,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         CIMSetPropertyRequestMessage* requestCallbackCopy =
             new CIMSetPropertyRequestMessage(*requestCopy);
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -5047,7 +4995,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
             providerIdContainer = NULL;
         }
 
-        _forwardRequestToProvider(
+        _forwardRequestToSingleProvider(
             providerInfo,
             requestCopy,
             requestCallbackCopy);
@@ -5273,23 +5221,18 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // Issue Enumeration requests to all providers.
     //
 
-    // Issue to providers before we send open response to get
+    // Issue requests to providers before we send open response to get
     // provider responses before we build response.  This required to allow
     // building initial response of max requested size
-    // //// KS_TODO this can probably be reduced to about two lines.
-    // 1. setProvidersComplete on both providercount and total issued
-    // 2. Just make the issue requests and assume that none will be issued.
-    //// This should be automatic based on the totalIssued, etc. Should
-    //// never have to set this from the client side.
     ProviderRequests::issueEnumerationRequests(
         this,
         internalRequest,
         providerInfos,
         poA);
 
-    // Issue the Response to the Open Request. Note that this may cause
+    // Issue the Response to the Open Request. This may cause
     // wait for the enumeration cache before the response is issued.
-    // gets response data from the cache up to maxObjectCount and return
+    // Gets response data from the cache up to maxObjectCount and returns
     // it in a new CIMResponseData object. This function waits for
     // sufficient objects in cache or providers complete.
     // If there was an error in the provider responses, puts the exception
@@ -5664,10 +5607,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         // anything.
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenReferenceInstances 8. ProviderCount = %u",
-        providerInfos.providerCount));
-
     // Build Open Response message.
     AutoPtr<CIMOpenReferenceInstancesResponseMessage> openResponse;
     openResponse.reset(dynamic_cast<CIMOpenReferenceInstancesResponseMessage*>(
@@ -5713,10 +5652,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenReferenceInstances 10. ProviderCount = %u",
-        providerInfos.providerCount));
-
     //
     // Set up an aggregate object and save the original request message
     //
@@ -5731,11 +5666,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation((void *)enumerationContext);
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenReferenceInstances 10a. ProviderCount = %u "
-        "repository count = %u",
-        providerInfos.providerCount, enumResponse->getResponseData().size()));
 
     // If response from repository, forward for aggregation.
     if (enumResponse.get() != 0)
@@ -5773,7 +5703,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
                 *(providerInfo.providerIdContainer.get()));
         }
 
-        _forwardRequestForAggregation(providerInfo, requestCopy, poA);
+        _forwardAggregatingRequestToProvider(
+           providerInfo, requestCopy, poA);
         // Note: poA must not be referenced after last "forwardRequest"
     }
 
@@ -6032,10 +5963,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         providerInfos.providerCount, instanceNames.size()));
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-    "OpenReferenceInstancePaths 9. ProviderCount = %u",
-    providerInfos.providerCount));
-
     // Call all providers
     while (providerInfos.hasMore(true))
     {
@@ -6056,8 +5983,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
             (const char *)providerInfo.
                    className.getString().getCString()));
 
-        _forwardRequestForAggregation(providerInfo.serviceId,
-            providerInfo.controlProviderName, internalRequestCopy, poA);
+        _forwardAggregatingRequestToProvider(
+           providerInfo, internalRequestCopy, poA);
         // Note: poA must not be referenced after last "forwardRequest"
     }
 
@@ -6374,17 +6301,14 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
             "Forwarding to provider for class %s",
             CSTRING(providerInfo.className.getString()) ));
 
-        _forwardRequestForAggregation(providerInfo, requestCopy, poA);
+        _forwardAggregatingRequestToProvider(
+           providerInfo, requestCopy, poA);
         // Note: poA must not be referenced after last "forwardRequest"
     }
 
     //
     // Complete and enqueue open response.
     //
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenAssociatorInstances 13. ProviderCount = %u"
-            " TotalIssued = %u",
-        providerInfos.providerCount, poA->getTotalIssued() ));
 
     ProviderRequests::issueOpenResponseMessage(
        this,
@@ -6649,11 +6573,10 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Forwarding to provider for class %s",
-            (const char *)providerInfo.
-                   className.getString().getCString()));
+            CSTRING(providerInfo.className.getString()) ));
 
-        _forwardRequestForAggregation(providerInfo.serviceId,
-            providerInfo.controlProviderName, internalRequestCopy, poA);
+        _forwardAggregatingRequestToProvider(
+           providerInfo, internalRequestCopy, poA);
         // Note: poA must not be referenced after last "forwardRequest"
     }
 
@@ -6868,8 +6791,6 @@ void CIMOperationRequestDispatcher::handleEnumerationCount(
     PEG_METHOD_EXIT();
     return;
 }
-
-//// TODO Move this below all the opens
 /**$********************************************************
     handlePullInstancesWithPath
 ************************************************************/
@@ -7808,7 +7729,7 @@ Boolean CIMOperationRequestDispatcher::_enumerateFromRepository(
 
 // Forward request to provider unless class does not exist
 // If class does not exist, return false
-// TODO Change this to always send.  Sends exception message if
+// KS_TODO Possibly change this to always send.  Sends exception message if
 // class get error. No need for Boolean Return
 Boolean CIMOperationRequestDispatcher::_forwardEnumerationToProvider(
     ProviderInfo &providerInfo,
@@ -7849,7 +7770,8 @@ Boolean CIMOperationRequestDispatcher::_forwardEnumerationToProvider(
                 CachedClassDefinitionContainer(cimClass));
         }
 #endif
-        _forwardRequestForAggregation(providerInfo, request, poA);
+        _forwardAggregatingRequestToProvider(
+           providerInfo, request, poA);
     }
     return true;
 }

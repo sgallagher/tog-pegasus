@@ -698,7 +698,7 @@ protected:
     /*Forward the response defined for aggregation processing
       and queue for output.  Note this function is called
       when a response that should be processed through the
-      aggregator already exists.
+      aggregator already exists. It just queues the response.
     */
     void _forwardResponseForAggregation(
         CIMOperationRequestMessage* request,
@@ -707,17 +707,18 @@ protected:
 
     /*
         Forward a request for aggregation.  This is the path used
-        to forward aggregationoperation requests to providers,
+        to forward aggregating operation requests to providers,
         control providers, and services
     */
-    void _forwardRequestForAggregation(
+    void _forwardAggregatingRequestToProvider(
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
         OperationAggregate* poA);
 
     /*  Commmon aggregating function used by both _forwardResponseForAggregation
-        and _forwardRequestForAggregation above.
-
+        and _forwardRequestForAggregation above. This is an inline function
+        //// KS_TODO we should be able to eliminate this one completely
+        //// in favor of the one above. Also change the name.
     */
     void _forwardRequestForAggregation(
         Uint32 serviceId,
@@ -726,14 +727,14 @@ protected:
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
-    void _forwardRequestToProviderManager(
-        const CIMName& className,
-        Uint32 serviceId,
-        const String& controlProviderName,
-        CIMOperationRequestMessage* request,
-        CIMOperationRequestMessage* requestCopy);
+////  void _forwardRequestToProviderManager(
+////      const CIMName& className,
+////      Uint32 serviceId,
+////      const String& controlProviderName,
+////      CIMOperationRequestMessage* request,
+////      CIMOperationRequestMessage* requestCopy);
 
-    void _forwardRequestToProvider(
+    void _forwardRequestToSingleProvider(
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
         CIMOperationRequestMessage* requestCopy);
@@ -795,7 +796,13 @@ protected:
 
     void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 
-//// TODO these should probably be below the next big comment
+    // Request Error Response Functions - The following functions test for
+    // particular operations parameters, etc. and if the tests fail
+    // generate error response messages.  They all follow the same common
+    // pattern of returning true if the test fails so that the main
+    // function must test the result and return.  This allows putting
+    // the trace method return into the CIMOperationRequestDispatcher main.
+    //
     Boolean _rejectIfContinueOnError(CIMOperationRequestMessage* request,
         Boolean continueOnError);
 
@@ -826,13 +833,6 @@ protected:
     Boolean _rejectIfEnumerationContextProcessing(
         CIMOperationRequestMessage* request,
         Boolean processing);
-
-    // Request Error Response Functions - The following functions test for
-    // particular operations parameters, etc. and if the tests fail
-    // generate error response messages.  They all follow the same common
-    // pattern of returning true if the test fails so that the main
-    // function must test the result and return.  This allows putting
-    // the trace method return into the CIMOperationRequestDispatcher main.
 
     Boolean _rejectAssociationTraversalDisabled(
         CIMOperationRequestMessage* request,
@@ -1030,7 +1030,7 @@ inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
 /*
     For request for aggregation with poA as parameter.
 */
-inline void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
+inline void CIMOperationRequestDispatcher::_forwardAggregatingRequestToProvider(
     const ProviderInfo& providerInfo,
     CIMOperationRequestMessage* request,
     OperationAggregate* poA)

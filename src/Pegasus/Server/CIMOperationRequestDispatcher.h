@@ -727,13 +727,6 @@ protected:
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
-////  void _forwardRequestToProviderManager(
-////      const CIMName& className,
-////      Uint32 serviceId,
-////      const String& controlProviderName,
-////      CIMOperationRequestMessage* request,
-////      CIMOperationRequestMessage* requestCopy);
-
     void _forwardRequestToSingleProvider(
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
@@ -862,6 +855,7 @@ protected:
 
     Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         CIMConstClass& targetClass);
+
     /**Equivalent to _rejectInvalidClassParameter above except that
        it included objecName parameter
 
@@ -934,7 +928,6 @@ protected:
         OperationAggregate* poA,
         CIMOperationRequestMessage* request);
 
-    //// KS TODO KS_TBD -- Should this one still be here???
     void enumerateInstancesFromRepository(
         CIMEnumerateInstancesResponseMessage *response,
         OperationAggregate* poA,

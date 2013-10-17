@@ -190,7 +190,6 @@ void SCMOXmlWriter::appendValueSCMOInstanceElement(
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
 
-
 void SCMOXmlWriter::appendInstanceNameElement(
     Buffer& out,
     const SCMOInstance& scmoInstance)

@@ -326,8 +326,6 @@ public:
         const String& messageId,
         const CIMNamespaceName& nameSpace);
 
-// EXP_PULL_TBD Should we carry namespace for Pull in close operations KS_TODO
-
     CIMEnumerationCountRequestMessage* decodeEnumerationCountRequest(
         Uint32 queueId,
         XmlParser& parser,

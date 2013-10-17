@@ -988,15 +988,12 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        msg->getResponseData().traceResponseData();
         msg->getResponseData().encodeBinaryResponse(data);
         out.putUint32((Uint32)data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-
-        msg->getResponseData().traceResponseData();
         msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }

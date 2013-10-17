@@ -1906,9 +1906,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
-    //// TODO why this like here KS_TODO Sort this out ASAP
-    PEGASUS_ASSERT(poA->getRequestType() !=
-        CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE);
     PEGASUS_ASSERT(serviceId);
 
     AsyncOpNode* op = this->get_op();
@@ -2504,7 +2501,6 @@ Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
     class exists.
     @return false if class found or true if class not found
 */
-
 Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
     CIMOperationRequestMessage* request,
     CIMConstClass& targetClass)
@@ -2573,6 +2569,7 @@ void _buildPropertyListFromClass(CIMConstClass& thisClass,
     propertyList.append(pla);
 }
 
+//EXP_PULL_BEGIN
 /*
     Test if this is a valid Pull message corresponding to the type
      of the open. If not valid, put out error message and return false
@@ -2852,6 +2849,7 @@ Boolean CIMOperationRequestDispatcher::_rejectIfEnumerationContextProcessing(
     }
     return processing;
 }
+// EXP_PULL_END
 
 /*****************************************************************************
 **
@@ -3361,6 +3359,7 @@ struct ProviderRequests
     **
     ** issue OpenRequest Response message - Template method to issue the open
     **     response message for all of the OpenRequests.
+    **
     **************************************************************************/
     /*  Template method to issue the open response message itself. This method
         inserts the required field into the open response, communicates with
@@ -4636,7 +4635,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         PEG_METHOD_EXIT();
         return;
     }
-
 
     if (request->isClassRequest)
     {

@@ -153,7 +153,7 @@ public:
     // Note that a binary response can be sent to an XML request as long
     // as the "Accept" header is "application/x-openpegasus".
     Boolean binaryResponse;
-
+// EXP_PULL_BEGIN
     // Defines Request Operations that were created internally rather than
     // from a client.  For the moment that is the internal provider
     // requests for the Pull Operations (ex. EnumerateInstances when
@@ -164,7 +164,7 @@ public:
     // of statistics). Normally set by CIMOperationRequestDispatcher.
     // Defaults to false and must be specifically set to true.
     Boolean internalOperation;
-
+// EXP_PULL_END
 private:
 
     ThreadType _languageContextThreadId;

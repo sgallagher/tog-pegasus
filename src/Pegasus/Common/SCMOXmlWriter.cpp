@@ -61,117 +61,117 @@ void SCMOXmlWriter::buildPropertyFilterNodesArray(
     }
 }
 
-const Array<Uint32> & SCMOXmlWriter::getFilteredNodesArray( 
-     Array<propertyFilterNodesArray_t> & propFilterNodesArrays, 
-     const SCMOInstance& scmoInstance, 
-     const CIMPropertyList & propertyList) 
-{ 
-    //First see if the class ptr is already stored in the propFilterNodesArrays 
-    const SCMOClass * classPtr = scmoInstance.inst.hdr->theClass.ptr; 
-    SCMBClass_Main * classPtrMemBlock = classPtr->cls.hdr; 
-    for (int i=0, k=propFilterNodesArrays.size(); i < k; i++) 
-    { 
-        if (classPtrMemBlock == propFilterNodesArrays[i].classPtrMemBlock) 
-        { 
-            return propFilterNodesArrays[i].nodes; 
-        } 
-    } 
-  
-    // Could not find the class pointer of this SCMOInstance in the 
-    // property filter nodes array 
-    // --> need to create the new entry and return that 
-    propertyFilterNodesArray_t newEntry; 
-    newEntry.classPtrMemBlock = classPtrMemBlock; 
-    SCMOXmlWriter::buildPropertyFilterNodesArray( 
-        newEntry.nodes, 
-        classPtr, 
-        propertyList); 
-    propFilterNodesArrays.append(newEntry); 
-  
-    // return the new nodes entry, but as a reference into the array 
-    return propFilterNodesArrays[propFilterNodesArrays.size()-1].nodes; 
-} 
+const Array<Uint32> & SCMOXmlWriter::getFilteredNodesArray(
+     Array<propertyFilterNodesArray_t> & propFilterNodesArrays,
+     const SCMOInstance& scmoInstance,
+     const CIMPropertyList & propertyList)
+{
+    //First see if the class ptr is already stored in the propFilterNodesArrays
+    const SCMOClass * classPtr = scmoInstance.inst.hdr->theClass.ptr;
+    SCMBClass_Main * classPtrMemBlock = classPtr->cls.hdr;
+    for (int i=0, k=propFilterNodesArrays.size(); i < k; i++)
+    {
+        if (classPtrMemBlock == propFilterNodesArrays[i].classPtrMemBlock)
+        {
+            return propFilterNodesArrays[i].nodes;
+        }
+    }
 
-void SCMOXmlWriter::appendValueSCMOInstanceElements( 
-     Buffer& out, 
-     const Array<SCMOInstance> & _scmoInstances, 
-     const CIMPropertyList & propertyList) 
-{ 
-    if (propertyList.isNull()) 
-    { 
-        Array<Uint32> emptyNodes; 
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++) 
-        { 
-            SCMOXmlWriter::appendValueSCMOInstanceElement( 
-                out, 
-                _scmoInstances[i], 
-                false, 
-                emptyNodes); 
-        } 
-    } 
-    else 
-    { 
-        Array<propertyFilterNodesArray_t> propFilterNodesArrays; 
-  
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++) 
-        { 
-            // This searches for an already created array of nodes, 
-            // if not found, creates it inside propFilterNodesArrays 
-            const Array<Uint32> & nodes= 
-                SCMOXmlWriter::getFilteredNodesArray( 
-                    propFilterNodesArrays, 
-                    _scmoInstances[i], 
-                    propertyList); 
-  
-            SCMOXmlWriter::appendValueSCMOInstanceElement( 
-                out, 
-                _scmoInstances[i], 
-                true, 
-                nodes); 
-        } 
-    } 
+    // Could not find the class pointer of this SCMOInstance in the
+    // property filter nodes array
+    // --> need to create the new entry and return that
+    propertyFilterNodesArray_t newEntry;
+    newEntry.classPtrMemBlock = classPtrMemBlock;
+    SCMOXmlWriter::buildPropertyFilterNodesArray(
+        newEntry.nodes,
+        classPtr,
+        propertyList);
+    propFilterNodesArrays.append(newEntry);
+
+    // return the new nodes entry, but as a reference into the array
+    return propFilterNodesArrays[propFilterNodesArrays.size()-1].nodes;
 }
 
-// EXP_PULL_BEGIN 
-void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements( 
-     Buffer& out, 
-     const Array<SCMOInstance> & _scmoInstances, 
-     const CIMPropertyList & propertyList) 
-{ 
-    if (propertyList.isNull()) 
-    { 
-        Array<Uint32> emptyNodes; 
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++) 
-        { 
-            SCMOXmlWriter::appendValueInstanceWithPathElement( 
-                out, 
-                _scmoInstances[i], 
-                false, 
-                emptyNodes); 
-        } 
-    } 
-    else 
-    { 
-        Array<propertyFilterNodesArray_t> propFilterNodesArrays; 
-  
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++) 
-        { 
-            // This searches for an already created array of nodes, 
-            // if not found, creates it inside propFilterNodesArrays 
-            const Array<Uint32> & nodes= 
-                SCMOXmlWriter::getFilteredNodesArray( 
-                    propFilterNodesArrays, 
-                    _scmoInstances[i], 
-                    propertyList); 
-  
-            SCMOXmlWriter::appendValueInstanceWithPathElement( 
-                out, 
-                _scmoInstances[i], 
-                true, 
-                nodes); 
-        } 
-    } 
-} 
+void SCMOXmlWriter::appendValueSCMOInstanceElements(
+     Buffer& out,
+     const Array<SCMOInstance> & _scmoInstances,
+     const CIMPropertyList & propertyList)
+{
+    if (propertyList.isNull())
+    {
+        Array<Uint32> emptyNodes;
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            SCMOXmlWriter::appendValueSCMOInstanceElement(
+                out,
+                _scmoInstances[i],
+                false,
+                emptyNodes);
+        }
+    }
+    else
+    {
+        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
+
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            // This searches for an already created array of nodes,
+            // if not found, creates it inside propFilterNodesArrays
+            const Array<Uint32> & nodes=
+                SCMOXmlWriter::getFilteredNodesArray(
+                    propFilterNodesArrays,
+                    _scmoInstances[i],
+                    propertyList);
+
+            SCMOXmlWriter::appendValueSCMOInstanceElement(
+                out,
+                _scmoInstances[i],
+                true,
+                nodes);
+        }
+    }
+}
+
+// EXP_PULL_BEGIN
+void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
+     Buffer& out,
+     const Array<SCMOInstance> & _scmoInstances,
+     const CIMPropertyList & propertyList)
+{
+    if (propertyList.isNull())
+    {
+        Array<Uint32> emptyNodes;
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            SCMOXmlWriter::appendValueInstanceWithPathElement(
+                out,
+                _scmoInstances[i],
+                false,
+                emptyNodes);
+        }
+    }
+    else
+    {
+        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
+
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            // This searches for an already created array of nodes,
+            // if not found, creates it inside propFilterNodesArrays
+            const Array<Uint32> & nodes=
+                SCMOXmlWriter::getFilteredNodesArray(
+                    propFilterNodesArrays,
+                    _scmoInstances[i],
+                    propertyList);
+
+            SCMOXmlWriter::appendValueInstanceWithPathElement(
+                out,
+                _scmoInstances[i],
+                true,
+                nodes);
+        }
+    }
+}
 //EXP_PULL_END
 
 // KS_TODO - Show the XML statement for this function
@@ -834,7 +834,7 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
 void SCMOXmlWriter::appendValueInstanceWithPathElement(
     Buffer& out,
     const SCMOInstance& namedInstance,
-    bool filtered, 
+    bool filtered,
     const Array<Uint32> & nodes)
 {
     out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");

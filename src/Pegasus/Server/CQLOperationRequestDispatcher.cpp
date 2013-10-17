@@ -52,7 +52,7 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
     CQLSelectStatement* qs = ((CQLQueryExpressionRep*)query)->_stmt;
 
     // Get instances in the response data, converting all of them
-    // to C++ nstance format for the evaluator
+    // to C++ Instance format for the evaluator
     Array<CIMInstance>& a = enr->getResponseData().getInstances();
 
     // Remove any instances from this array that do not match

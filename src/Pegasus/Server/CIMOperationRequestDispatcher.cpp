@@ -1480,7 +1480,7 @@ ProviderInfoList CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
     // associations pointing back to the target class.
 
     // ATTN: KS 20030515. After we test and complete the move to using this
-    // option, back and change the call to avoid the double
+    // option, go back and change the call to avoid the double
     // conversion to and from CIM Object path.
 
     Array<CIMObjectPath> objPaths;

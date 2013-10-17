@@ -126,6 +126,12 @@ void _throwCIMExceptionInvalidIParamName(const String& param = String::EMPTY)
     _throwCIMExceptionCIMErrNotSupported(param);
 }
 
+/******************************************************************************
+**
+**            CIMOperationRequestDecoder Class
+**
+******************************************************************************/
+
 #ifdef PEGASUS_PAM_SESSION_SECURITY
 void CIMOperationRequestDecoder::_updateExpiredPassword(
     Uint32 queueId,

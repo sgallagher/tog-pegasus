@@ -41,24 +41,24 @@
 #include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
-void SCMOXmlWriter::buildPropertyFilterNodesArray( 
-     Array<Uint32> & nodes, 
-     const SCMOClass * classPtr, 
-     const CIMPropertyList & propertyList) 
-{ 
-    for (Uint32 i=0,k=propertyList.size(); i<k; i++) 
-    { 
-        Uint32 node = 0; 
-        const CIMName & name = propertyList[i]; 
-        SCMO_RC rc = 
-            classPtr->_getProperyNodeIndex( 
-                node, 
-                (const char *)name.getString().getCString()); 
-        if(rc == SCMO_OK) 
-        { 
-            nodes.append(node); 
-        } 
-    } 
+void SCMOXmlWriter::buildPropertyFilterNodesArray(
+     Array<Uint32> & nodes,
+     const SCMOClass * classPtr,
+     const CIMPropertyList & propertyList)
+{
+    for (Uint32 i=0,k=propertyList.size(); i<k; i++)
+    {
+        Uint32 node = 0;
+        const CIMName & name = propertyList[i];
+        SCMO_RC rc =
+            classPtr->_getProperyNodeIndex(
+                node,
+                (const char *)name.getString().getCString());
+        if(rc == SCMO_OK)
+        {
+            nodes.append(node);
+        }
+    }
 }
 
 const Array<Uint32> & SCMOXmlWriter::getFilteredNodesArray( 
@@ -178,8 +178,9 @@ void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
 void SCMOXmlWriter::appendValueSCMOInstanceElement(
     Buffer& out,
     const SCMOInstance& scmoInstance,
-    bool filtered, 
-    const Array<Uint32> & nodes) 
+    bool filtered,
+    const Array<Uint32> & nodes)
+
 {
     out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
 
@@ -261,8 +262,8 @@ void SCMOXmlWriter::appendInstanceNameElement(
 void SCMOXmlWriter::appendInstanceElement(
     Buffer& out,
     const SCMOInstance& scmoInstance,
-    bool filtered, 
-    const Array<Uint32> & nodes) 
+    bool filtered,
+    const Array<Uint32> & nodes)
 {
     // Class opening element:
 
@@ -294,7 +295,7 @@ void SCMOXmlWriter::appendInstanceElement(
         for (Uint32 i=0,k=scmoInstance.inst.hdr->numberProperties;i<k;i++)
         {
             SCMOXmlWriter::appendPropertyElement(out,scmoInstance,i);
-        } 
+        }
     }
     else
     {
@@ -787,35 +788,35 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
     const Array<SCMOInstance> & objectWithPath,
     const CIMPropertyList& propertyList)
 {
-    if (propertyList.isNull()) 
-    { 
-        Array<Uint32> emptyNodes; 
-        for (Uint32 i = 0, n = objectWithPath.size(); i < n; i++) 
-        { 
+    if (propertyList.isNull())
+    {
+        Array<Uint32> emptyNodes;
+        for (Uint32 i = 0, n = objectWithPath.size(); i < n; i++)
+        {
             SCMOXmlWriter::appendValueObjectWithPathElement(
                 out,
                 objectWithPath[i],
                 false,
                 emptyNodes);
-        } 
+        }
     }
     else
     {
         Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-        for (Uint32 i = 0, n = objectWithPath.size(); i < n; i++) 
+        for (Uint32 i = 0, n = objectWithPath.size(); i < n; i++)
         {
-            // This searches for an already created array of nodes, 
-            // if not found, creates it inside propFilterNodesArrays 
-            const Array<Uint32> & nodes= 
-                SCMOXmlWriter::getFilteredNodesArray( 
-                    propFilterNodesArrays, 
-                    objectWithPath[i], 
+            // This searches for an already created array of nodes,
+            // if not found, creates it inside propFilterNodesArrays
+            const Array<Uint32> & nodes=
+                SCMOXmlWriter::getFilteredNodesArray(
+                    propFilterNodesArrays,
+                    objectWithPath[i],
                     propertyList);
             SCMOXmlWriter::appendValueObjectWithPathElement(
                 out,
                 objectWithPath[i],
                 true,
-                nodes); 
+                nodes);
 
         }
     }
@@ -852,8 +853,8 @@ void SCMOXmlWriter::appendValueInstanceWithPathElement(
 void SCMOXmlWriter::appendValueObjectWithPathElement(
     Buffer& out,
     const SCMOInstance& objectWithPath,
-    bool filtered, 
-    const Array<Uint32> & nodes) 
+    bool filtered,
+    const Array<Uint32> & nodes)
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 

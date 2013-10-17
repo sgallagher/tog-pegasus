@@ -134,7 +134,7 @@ public:
     static void appendValueInstanceWithPathElement(
         Buffer& out,
         const SCMOInstance& namedInstance,
-        bool filtered, 
+        bool filtered,
         const Array<Uint32> & nodes);
 //EXP_PULL_END
     static void appendValueObjectWithPathElement(

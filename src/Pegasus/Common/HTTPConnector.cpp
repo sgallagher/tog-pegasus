@@ -263,7 +263,7 @@ HTTPConnection* HTTPConnector::connect(
 
         // Make the internet address:
 #ifdef PEGASUS_ENABLE_IPV6
-        struct addrinfo *addrInfo, *addrInfoRoot;
+        struct addrinfo *addrInfo, *addrInfoRoot = NULL;
 #else
         sockaddr_in address;
 #endif

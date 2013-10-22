@@ -37,9 +37,9 @@
 // This provider is registered to support operations at
 // several class levels:
 //
-//  CIM_ComputerSystem
-//  CIM_UnitaryComputerSystem
 //  <platform>_ComputerSustem
+//  CIM_UnitaryComputerSystem
+//  CIM_ComputerSystem
 //
 // Enumeration operations always return instances from the
 // deepest class available.  All other
@@ -95,17 +95,22 @@ void ComputerSystemProvider::getInstance(
     String keyValue;
 
     if (keys.size() != keyCount)
+    {
         throw CIMInvalidParameterException("Wrong number of keys");
+    }
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
     {
         keyName = keys[ii].getName();
         keyValue = keys[ii].getValue();
 
+        //Put CLASS_EXTENDED_COMPUTER_SYSTEM in front CLASS_CIM_COMPUTER_SYSTEM
+        //to prefer CLASS_EXTENDED_COMPUTER_SYSTEM as class being served first
+        //followed by CLASS_CIM_UNITARY_COMPUTER_SYSTEM
         if (keyName.equal(PROPERTY_CREATION_CLASS_NAME) &&
-            (String::equalNoCase(keyValue,CLASS_CIM_COMPUTER_SYSTEM) ||
+            (String::equalNoCase(keyValue,CLASS_EXTENDED_COMPUTER_SYSTEM) ||
              String::equalNoCase(keyValue,CLASS_CIM_UNITARY_COMPUTER_SYSTEM) ||
-             String::equalNoCase(keyValue,CLASS_EXTENDED_COMPUTER_SYSTEM) ||
+             String::equalNoCase(keyValue,CLASS_CIM_COMPUTER_SYSTEM) ||
              String::equalNoCase(keyValue,String::EMPTY)))
         {
             keyCount--;
@@ -189,7 +194,7 @@ void ComputerSystemProvider::enumerateInstanceNames(
 
         keys.append(CIMKeyBinding(
             PROPERTY_CREATION_CLASS_NAME,
-            CLASS_CIM_COMPUTER_SYSTEM,
+            CLASS_EXTENDED_COMPUTER_SYSTEM,
             CIMKeyBinding::STRING));
         keys.append(CIMKeyBinding(
             PROPERTY_NAME,
@@ -250,9 +255,9 @@ void ComputerSystemProvider::terminate()
 
 void ComputerSystemProvider::_checkClass(CIMName& className)
 {
-    if (!className.equal(CLASS_CIM_COMPUTER_SYSTEM) &&
+    if (!className.equal(CLASS_EXTENDED_COMPUTER_SYSTEM) &&
         !className.equal(CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
-        !className.equal(CLASS_EXTENDED_COMPUTER_SYSTEM))
+        !className.equal(CLASS_CIM_COMPUTER_SYSTEM))
     {
         throw CIMNotSupportedException(String::EMPTY);
     }

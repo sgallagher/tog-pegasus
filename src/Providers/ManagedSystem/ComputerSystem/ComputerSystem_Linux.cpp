@@ -43,8 +43,6 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-static String _hostName;
-
 ComputerSystem::ComputerSystem()
 {
 }
@@ -304,48 +302,14 @@ Boolean ComputerSystem::getElementName(CIMProperty& p)
 }
 
 /**
- * initialize primarily functions to initialize static global variables
- * that will not be changed frequently. These variables are currently
- * _hostName.
- *
+ * This is empty as we get the hostname through
+ * System class
  */
 void ComputerSystem::initialize()
 {
-    char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-    struct  hostent *hostEntry;
-
-    if (gethostname(hostName, sizeof(hostName)) != 0)
-    {
-        _hostName.assign("Not initialized");
-    }
-    hostName[sizeof(hostName)-1] = 0;
-
-    // Now get the official hostname.  If this call fails then return
-    // the value from gethostname().
-
-    char hostEntryBuffer[8192];
-    struct hostent hostEntryStruct;
-    int hostEntryErrno;
-
-    gethostbyname_r(
-        hostName,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntry,
-        &hostEntryErrno);
-
-    if (hostEntry)
-    {
-        _hostName.assign(hostEntry->h_name);
-    }
-    else
-    {
-        _hostName.assign(hostName);
-    }
 }
 
 String ComputerSystem::getHostName()
 {
-    return _hostName;
+    return System::getFullyQualifiedHostName();
 }

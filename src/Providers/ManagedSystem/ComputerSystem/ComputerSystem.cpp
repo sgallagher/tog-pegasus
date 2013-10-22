@@ -27,12 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//              added nsk platform support
-//              Sean Keenan Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ComputerSystem.h"

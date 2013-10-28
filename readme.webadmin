@@ -54,9 +54,27 @@ Enter the your local host name along with port number in the address bar of a
 browser. For example, if your hostname is localhost.localdomain. Just type in
 localhost.localdomain:5988. 
 
-Where do I put my custom webpages?
 where does my webRoot points to?
+===============================
+webRoot is the path that webadmin pages locate. Following are the value of 
+webRoot for part of the platforms.
+
+Linux           /opt/tog-pegasus/www
+i5/PASE         /QOpenSys/QIBM/UserData/UME/Pegasus/www
+Windows         <PEGASUS_HOME>/www
+zOS             /var/wbem/www
+
+Where do I put my custom webpages? 
+===============================
+The custom webpages can be put in to webRoot and the types are limited to the 
+ones in mimeTypes.txt. 
+ 
 What are the security concern for using webadmin?
+===============================
+The security is enabled by default in the release version.To disable it,set 
+enableAuthentication=true when start cimserver. When PAM is enabled, webadmin is
+able to access by the system users, otherwise the cim users needs to be added by 
+the tool cimuser. 
 
 
 References:

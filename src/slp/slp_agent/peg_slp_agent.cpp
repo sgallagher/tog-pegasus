@@ -583,8 +583,10 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 #endif
 
     agent->_should_listen = 1;
-
+#ifndef PEGASUS_SLP_REG_TIMEOUT
     lslpMsg msg_list;
+#endif
+
     while (agent->_should_listen.get())
     {
         Uint32 now, msec;

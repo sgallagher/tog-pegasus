@@ -54,6 +54,11 @@ Enter the your local host name along with port number in the address bar of a
 browser. For example, if your hostname is localhost.localdomain. Just type in
 localhost.localdomain:5988. 
 
+What port is uses?
+==================
+For this release(OpenPegasus 2.14), the port is fixed and not able to change. The port is 5988.
+In the furture release , the port will be able assigned.
+
 where does my webRoot points to?
 ===============================
 webRoot is the path that webadmin pages locate. Following are the value of 
@@ -70,12 +75,19 @@ The custom webpages can be put in to webRoot and the types are limited to the
 ones in mimeTypes.txt. 
  
 What are the security concern for using webadmin?
-===============================
+=================================================
 The security is enabled by default in the release version.To disable it,set 
 enableAuthentication=true when start cimserver. When PAM is enabled, webadmin is
 able to access by the system users, otherwise the cim users needs to be added by 
-the tool cimuser. 
+the tool cimuser.Authorization is still not clear until a role based authorization is 
+implemented in the future release.
 
+
+What is relation between Webadmin and CIM-RS?
+=================================================================
+Webadmin is based on the restful services which is defined by DMTF DSP0210.
+http://dmtf.org/sites/default/files/standards/documents/DSP0210_1.0.0.pdf 
+From OpenPegasus 2.14, CIM-RS will be supported partly.
 
 References:
 ===========

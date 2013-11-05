@@ -985,6 +985,7 @@ int main(int argc, char** argv)
     tc.setCIMException(CIM_ERR_INVALID_PARAMETER);
     tc.executeAssociationCalls();
 
+
     // test Filter parameters on all operations
 
     tc.setTestName("Filter Parameter test- Using filterQuery");

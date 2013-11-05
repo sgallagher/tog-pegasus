@@ -109,7 +109,8 @@ PEGASUS_USING_STD;
 #ifdef PEGASUS_USE_PULL_TIMEOUT_THREAD
 ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 {
-    cout << "Start operationContextTimerThread " << endl;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContextTable::operationContextTimerThread");
     Thread *my_handle = (Thread *)parm;
     EnumerationContextTable* et =
         (EnumerationContextTable *)my_handle->get_parm();
@@ -132,11 +133,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 
         et->removeExpiredContexts();
         et->updateNextTimeout();
+
     }
-    cout << "End operationContextTimerThread " << endl;
     // reset the timeout value to indicate that the thread is quiting
     et->setTimerThreadIdle();
 
+    PEG_METHOD_EXIT();
     return ThreadReturnType(0);
 }
 #endif
@@ -260,6 +262,8 @@ EnumerationContext* EnumerationContextTable::createContext(
         enumCtxt = 0;
         PEGASUS_ASSERT(false);
     }
+    // If we do not use the separate thread, test for timeouts each time
+    // we create a new context.
 #ifndef PEGASUS_USE_PULL_TIMEOUT_THREAD
     if (isTimedOut())
     {
@@ -298,7 +302,6 @@ void EnumerationContextTable::removeCxt(
 
 // KS_TODO - Clean up fact that we repeat code above and here and have
 // 2 parallel functions for deletion (pointer and name)
-//// KS_TODO why any return here.  Should be removed.
 void EnumerationContextTable::removeContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::removeContext");

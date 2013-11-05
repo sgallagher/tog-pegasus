@@ -153,6 +153,18 @@ public:
 // in CIM_CIMOMStatisticalData.mof and must be treated as Other in
 // the preperation of the instance output.
         INVOKE_METHOD,  // 24
+// EXP_PULL_BEGIN
+        OPEN_ENUMERATE_INSTANCES, // 25
+        OPEN_ENUMERATEINSTANCE_PATHS,
+        OPEN_ASSOCIATORS,
+        OPEN_ASSOCIATOR_PATHS,
+        OPEN_REFERENCES,
+        OPEN_REFERENCE_PATHS,
+        OPEN_QUERY_INSTANCES,
+        PULL_INSTANCES_WITH_PATH,
+        PULL_INSTANCE_PATHS,
+        CLOSE_ENUMERATION,
+// EXP_PULL_END
         NUMBER_OF_TYPES
     };
 

@@ -43,7 +43,6 @@ DIRS =	AssociationClient \
 	pullop \
 	SSLCipherVerification
 
-
 DIRS_SLP = \
     slp
 

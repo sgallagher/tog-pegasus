@@ -53,7 +53,8 @@ PEGASUS_NAMESPACE_BEGIN
 */
 
 // Enumeration of all possible operations
-enum OperationID {
+enum OperationID
+{
     ID_EnumerateInstanceNames = 1,
     ID_EnumerateInstances        ,
     ID_GetClass                  ,

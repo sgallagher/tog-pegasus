@@ -68,27 +68,29 @@ String StatisticalData::requestName[] =
   "Associators",                    //    16          16
   "AssociatorNames",                //    17          17
   "References",                     //    18          18
-  "ReferenceNames",                 //    19          20
-  "SetProperty",                    //    20          21
-  "GetQualifier",                   //    21          22
-  "SetQualifier",                   //    22          23
-  "DeleteQualifier",                //    23          24
-  "EnumerateQualifiers",            //    24          25
+  "ReferenceNames",                 //    19          19
+  "GetProperty",                    //    20          20
+  "SetProperty",                    //    21          21
+  "GetQualifier",                   //    22          22
+  "SetQualifier",                   //    23          23
+  "DeleteQualifier",                //    24          24
+  "EnumerateQualifiers",            //    25          25
 // Entries below this point are not part of the CIM Class and are treated
-// as OtherOperationTypes in the instance.
-  "InvokeMethod"                    //     25          Not Present index = 26
+// as OtherOperationTypes in the CIM_CIMOMStatisticalData instance.
+  "InvokeMethod",                    //    26          Not Present index = 26
 //EXP_PULL_BEGIN
 //// TODO these are not defined in CIM_StatisticalData class and are
 ///  represented by the Other groping with supplementary property
   "OpenEnumerateInstances",         //    71          27
   "OpenEnumerateInstancePaths",     //    72
-  "OpenReferences",                 //    73
-  "OpenReferenceNames",             //    74
-  "OpenAssociators",                //    75
-  "OpenAssociatorPaths",            //    76
-  "PullInstancesWithPath",          //    77
-  "PullInstancePaths",              //    77
-  "CloseEnumeration" ,              //    79
+  "OpenAssociators",                //    73
+  "OpenAssociatorPaths",           //     74
+  "OpenReferences",                 //    75
+  "OpenReferenceNames",             //    76
+  "OpenQueryInstances",             //    77
+  "PullInstancesWithPath",          //    78
+  "PullInstancePaths",              //    79
+  "CloseEnumeration" ,              //    80
 //EXP_PULL_END
 };
 
@@ -140,13 +142,10 @@ void StatisticalData::addToValue(Sint64 value,
     // Map MessageType to statistic type. Requires multiple tests because
     // mapping request and responses to the request types.
     Uint16 type;
-    if ((msgType) >= CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
+
+    if ((msgType) >= CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE)
     {
-        type = msgType - CIM_SET_QUALIFIER_RESPONSE_MESSAGE;
-    }
-    else if (msgType >= CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE)
-    {
-       type = msgType - CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE;
+        type = msgType - CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE;
     }
     else if (msgType >= CIM_GET_CLASS_RESPONSE_MESSAGE)
     {
@@ -157,13 +156,6 @@ void StatisticalData::addToValue(Sint64 value,
         type = msgType - 1;
     }
 
-    //// KS_TODO diagnostic to confirm that the above if statements are correct
-    //// KS_DELETE when we get bug 9786 completely integrated.
-    PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
-     "StatisticalData::addToValue msgType %s %u. stat type %u",
-               MessageTypeToString(msgType),
-               msgType, type ));
-
     // Test if valid statistic type
     if (type >= NUMBER_OF_TYPES)
     {
@@ -172,6 +164,12 @@ void StatisticalData::addToValue(Sint64 value,
                  "Invalid Request Type =  %u", type));
          return;
     }
+    //// Diagnostic to confirm message type conversion. Normally commented
+    //// out
+//  PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
+//   "StatisticalData::addToValue msgType %s %u. stat type %u %s",
+//             MessageTypeToString(msgType),
+//             msgType, type, (const char*)requestName[type].getCString() ));
 
     if (copyGSD)
     {

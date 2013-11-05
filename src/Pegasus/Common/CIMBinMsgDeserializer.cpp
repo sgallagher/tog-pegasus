@@ -1717,8 +1717,6 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
             delete(msg);
             return 0;
         }
-
-        responseData.traceResponseData();  // KS_TODO DELETE
         return msg;
     }
     else
@@ -1728,8 +1726,6 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
             delete(msg);
             return 0;
         }
-
-        responseData.traceResponseData(); // KS_TODO DELETE
         return msg;
     }
 }

@@ -522,7 +522,6 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
         PEG_METHOD_EXIT();
         return String();
     }
-    // ToDo: Better way to parse the content??
     String contentStr(content, contentSize); 
 
     // Sample content:

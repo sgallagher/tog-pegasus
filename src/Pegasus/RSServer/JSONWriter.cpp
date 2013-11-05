@@ -363,7 +363,6 @@ void JSONWriter::append(CIMReferencesResponseMessage* referencesResult,
         _append(requestUri.getClassName().getString());
 
         // the key properties
-        // ToDo: We need to get these from a get instance call???
         _buffer.append(STRLIT_ARGS(",\"properties\":{"));
         _buffer.append('}'); // end properties
 
@@ -451,7 +450,6 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
         _append(requestUri.getClassName().getString());
 
         // the key properties
-        // ToDo: We need to get these from a get instance call???
         _buffer.append(STRLIT_ARGS(",\"properties\":{"));
         _buffer.append('}'); // end properties
 
@@ -521,7 +519,6 @@ void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
     // make sure that they are contained in one array
     Uint32 bufferSize = _buffer.size();
     if (_numObjectsEnumerated == 0 &&
-        // ToDo: How do we perform the following check?
         // bufferSize > 2 && _buffer.get(bufferSize-2) == '[' &&
         _buffer.get(bufferSize-2) == ']' &&
         _buffer.get(bufferSize-1) == '}')
@@ -716,7 +713,7 @@ void JSONWriter::append(CIMException& e, String& httpMethod, RsURI& reqURI)
     _buffer.append(STRLIT_ARGS("\""));
     _buffer.append(',');
 
-    // ToDo: Verify with an error
+
     _buffer.append(STRLIT_ARGS("\"errors\":["));
     for(Uint32 i = 0; i < e.getErrorCount(); i++)
     {

@@ -152,7 +152,7 @@ String RsURI::getNamespaceName(Boolean encoded)
     return (encoded)? _namespaceEncodedName : _namespaceName.getString();
 }
 
-// ToDo: Implement for class operations
+
 Boolean RsURI::hasClassesPath()
 {
     if (_namespaceName.isNull())
@@ -163,7 +163,6 @@ Boolean RsURI::hasClassesPath()
 
 }
 
-// ToDo: Implement for class operations
 Boolean RsURI::hasClassPath()
 {
     if (_className.isNull())
@@ -224,7 +223,7 @@ Boolean RsURI::hasEnum()
 
     Boolean res = false;
 
-    if (_path.size() > 1) // ToDo: Should be check for exactly 2 ??
+    if (_path.size() > 1)
     {
         res = (String::compareNoCase(_path[1], "enum") == 0);
     }
@@ -241,7 +240,7 @@ Boolean RsURI::hasCreate()
 
     Boolean res = false;
 
-    if (_path.size() > 1) // ToDo: Should be check for exactly 2 ??
+    if (_path.size() > 1)
     {
         res = (String::compareNoCase(_path[1], "create") == 0);
     }
@@ -251,7 +250,6 @@ Boolean RsURI::hasCreate()
 
 Boolean RsURI::hasInstancePath()
 {
-    // ToDo. How are multiple keys handled?
     // /cimrs/root%2Fcimv2/ACME_RegisteredProfile/key
 
     // see if we can get the classname first
@@ -264,7 +262,7 @@ Boolean RsURI::hasInstancePath()
     Boolean res = false;
     if(!_className.isNull())
     {
-        if(_path.size() > 2) // ToDo: Should this be exactly 3 ??
+        if(_path.size() > 2)
             res = true;
     }
 
@@ -286,7 +284,6 @@ Boolean RsURI::hasAssociationPath()
 {
     // if there is an expand or refer and these is a single dot in the value,
     // then true;
-    // ToDo: For now we support only a single hop for associators.
     return(_queryString.size() > 0 &&
            ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
             (_queryString.find("refer=") != PEG_NOT_FOUND)) &&
@@ -297,7 +294,6 @@ Boolean RsURI::hasReferencesPath()
 {
     // if there is an expand or refer and these is NO dot in the value,
     // then true;
-    // ToDo: For now we support only a single hop for references.
     return(_queryString.size() > 0 &&
            ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
             (_queryString.find("refer=") != PEG_NOT_FOUND)) &&
@@ -365,7 +361,7 @@ CIMName RsURI::getMethodName()
     return _methodName;
 }
 
-// ToDo
+
 CIMObjectPath RsURI::getAssociationPath(const CIMClass& cimClass)
 {
     if (!hasAssociationPath())

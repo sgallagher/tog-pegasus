@@ -52,7 +52,7 @@ public:
     RsURI(const String&);
     virtual ~RsURI();
 
-    // TODO subclass
+
     String getNamespaceName(Boolean encoded = false);
     CIMName getClassName();
 
@@ -65,12 +65,12 @@ public:
     Boolean hasMethodPath();
     Boolean hasEnum();
     Boolean hasCreate();
-    // TODO refactor into Request
+
     CIMObjectPath getAssociationPath(const CIMClass&);
     CIMObjectPath getReferencePath(const CIMClass& cimClass);
     CIMObjectPath getMethodPath(const CIMClass& cimClass);
 
-    // TODO refactor into request
+
     void setRepository(CIMRepository*);
     CIMObjectPath getInstancePath(const CIMClass&);
     CIMName getMethodName();

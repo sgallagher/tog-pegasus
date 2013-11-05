@@ -150,11 +150,11 @@ RsOperationType RsHTTPRequest::getType()
     }
     else if (_uri.hasClassPath())
     {
-        _type = RS_CLASS_MEMBER_GET; // ToDo
+        _type = RS_CLASS_MEMBER_GET;
     }
     else if (_uri.hasClassesPath())
     {
-        _type = RS_CLASS_COLLECTION_GET; // ToDo
+        _type = RS_CLASS_COLLECTION_GET;
     }
     else
     {

@@ -118,6 +118,13 @@ private:
     CIMName _findNameParameter(const String&);
     String _findStringParameter(const String&);
     Uint32 _navHopCount();
+
+    inline Boolean _checkQuerystring()
+    {
+        return (_queryString.size() > 0 &&
+               ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
+               (_queryString.find("refer=") != PEG_NOT_FOUND)));
+    }
 };
 
 PEGASUS_NAMESPACE_END

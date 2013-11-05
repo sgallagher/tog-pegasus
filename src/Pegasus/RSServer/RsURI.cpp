@@ -284,9 +284,7 @@ Boolean RsURI::hasAssociationPath()
 {
     // if there is an expand or refer and these is a single dot in the value,
     // then true;
-    return(_queryString.size() > 0 &&
-           ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
-            (_queryString.find("refer=") != PEG_NOT_FOUND)) &&
+    return(_checkQuerystring() &&
             _navHopCount() == 1);
 }
 
@@ -294,9 +292,7 @@ Boolean RsURI::hasReferencesPath()
 {
     // if there is an expand or refer and these is NO dot in the value,
     // then true;
-    return(_queryString.size() > 0 &&
-           ((_queryString.find("expand=") != PEG_NOT_FOUND) ||
-            (_queryString.find("refer=") != PEG_NOT_FOUND)) &&
+    return(_checkQuerystring() &&
             _navHopCount() == 0);
 }
 
@@ -308,9 +304,7 @@ Uint32 RsURI::_navHopCount()
     // <instancepath>?expand=<associationclass>.<ResultRole>.<>.<>
     // <instancepath>?refer=<associationclass>.<ResultRole>.<>.<>
 
-    if(_queryString.size() > 0 &&
-           (((startPos = _queryString.find("expand=")) != PEG_NOT_FOUND) ||
-            ((startPos = _queryString.find("refer=")) != PEG_NOT_FOUND)))
+    if(_checkQuerystring())
     {
         // check to see if there is exactly one .
         //in the value of expand or refer

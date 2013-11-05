@@ -63,7 +63,6 @@ class PEGASUS_RSSERVER_LINKAGE RsHTTPRequest
 {
 public:
 
-    // TODO make RsHTTPRequest inherit from HTTPMessage?
     RsHTTPRequest(HTTPMessage*);
     virtual ~RsHTTPRequest();
 

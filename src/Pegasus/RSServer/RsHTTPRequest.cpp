@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// TODO inherit from HTTPMessage
+
 RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage) :
     _hasType(false),
     _rangeHeaderLoaded(false),
@@ -73,9 +73,8 @@ RsHTTPRequest::RsHTTPRequest(HTTPMessage* httpMessage) :
         (const char*)requestUri.getCString(),
         (const char*)httpVersion.getCString()));
 
-    // TODO provide a getUri that lazy-loads the uri
+
     _uri = RsURI(requestUri);
-    // TODO better place for this?
     if (!RsURI::hasDefaultNamespace())
     {
         RsURI::setDefaultNamespace(_uri.getNamespaceName());
@@ -158,9 +157,6 @@ RsOperationType RsHTTPRequest::getType()
         _type = RS_CLASS_COLLECTION_GET; // ToDo
     }
     else
-    // TODO implement namespace resources
-    // For now, just pretend it's a GetClass and let error handling
-    // take care when it's not
     {
         _type = RS_CLASS_COLLECTION_GET;
     }
@@ -217,7 +213,6 @@ void RsHTTPRequest::_loadRangeHeader()
     {
         if (!strcmp("Range", _headers[i].first.getData()))
         {
-            // TODO validation
             // ranges-specifier = "items" "=" item-first "-" item-last
             String range = String(_headers[i].second.getData());
             Uint32 len = range.size();
@@ -238,7 +233,6 @@ void RsHTTPRequest::_loadRangeHeader()
                     "first: %d, second: %d",
                     i, _first, _last));
             }
-            // TODO else throw Range not satisfiable
 
             break;
         } // if

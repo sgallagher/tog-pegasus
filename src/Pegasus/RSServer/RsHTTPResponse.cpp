@@ -81,13 +81,12 @@ void RsHTTPResponse::setStatus(const char* status, Uint32 length)
     // Date is MUST per rfc 2616
     // for format see section 3.3.3.1 / rfc 1123, e.g.
     // Sun, 06 Nov 1994 08:49:37 GMT
-    // TODO own method/class?
     time_t currentTime;
     struct tm* gmtTime;
     char timeValue[30];
     time(&currentTime);
     gmtTime = gmtime(&currentTime);
-    strftime(timeValue,30,"%a, %d %b %Y %H:%M:%S GMT",gmtTime); // TODO locale?
+    strftime(timeValue,30,"%a, %d %b %Y %H:%M:%S GMT",gmtTime);
     _message.append(STRLIT_ARGS("Date: "));
     _message.append(timeValue, 29);
 
@@ -102,7 +101,6 @@ void RsHTTPResponse::setStatus(const char* status, Uint32 length)
 
 void RsHTTPResponse::setRange(Uint32 start, Uint32 end, Uint32 total)
 {
-    // TODO make sure status is set
     char startc[22];
     Uint32 startSize;
     char endc[22];
@@ -126,7 +124,6 @@ void RsHTTPResponse::setRange(Uint32 start, Uint32 end, Uint32 total)
     _message.insert(_headerLength, contentRange.getData(),
         contentRange.size());
 
-    // TODO refactor into _appendHeader
     PEGASUS_ASSERT(_headerLength > 0);
     _headerLength += contentRange.size();
 }
@@ -158,7 +155,6 @@ JSONWriter* RsHTTPResponse::getJSONWriter()
 
 HTTPMessage* RsHTTPResponse::getHTTPMessage()
 {
-    // TODO make sure this is callable multiple times
     char scratch[22];
     Uint32 contentLengthSize = 0;
 

@@ -65,7 +65,6 @@ RsURI::RsURI(const String& uri) :
 {
     PEG_METHOD_ENTER(TRC_RSSERVER, "RsURI::RsURI()");
 
-    // TODO where to get this from?
     _authority = String::EMPTY;
 
     // Parse a path-absolute URI as given by
@@ -607,7 +606,6 @@ CIMObjectPath RsURI::_getInstancePath(const CIMClass& cimClass, Uint32 refPos)
     Uint32 prev = 0;
     Uint32 next;
 
-    // TODO CIMObjectPath has _Sort(Array) but that is defined locally
     qsort((void*)keyNames.getData(), keyNames.size(),
         sizeof(CIMName), _compare);
 
@@ -681,7 +679,6 @@ void RsURI::_appendKeybinding(
 
     if (property.getType() == CIMTYPE_REFERENCE)
     {
-        // TODO refactor!
         Uint32 refValPos = value.find(';');
         String refVal;
         if (refValPos == PEG_NOT_FOUND)
@@ -760,7 +757,6 @@ Buffer RsURI::fromObjectPath(
         }
         else
         {
-            // TODO has to be a cleaner way?
             uri << RsURI::_defaultNamespaceEncoded; 
         }
 

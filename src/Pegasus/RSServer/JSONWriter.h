@@ -123,10 +123,11 @@ private:
 
     void _loadPropertyNames(const CIMConstInstance&);
     void _deletePropertyNames();
-    void _appendMethods(const CIMClass &cimClass,
-                        Buffer instanceUri,
-                        const CIMConstInstance& cimInstance,
-                        Boolean useAbsoluteUri);
+    void _appendMethods(
+        const CIMClass &cimClass,
+        Buffer instanceUri,
+        const CIMConstInstance& cimInstance,
+        Boolean useAbsoluteUri);
 };
 
 PEGASUS_NAMESPACE_END

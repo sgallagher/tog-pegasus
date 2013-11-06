@@ -492,12 +492,6 @@ void JSONWriter::append(CIMAssociatorsResponseMessage* enumResult,
     PEG_METHOD_EXIT();
 }
 
-
-//void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult)
-//{
-//    append(enumResult, PEG_NOT_FOUND, PEG_NOT_FOUND, NULL);
-//}
-
 void JSONWriter::append(CIMEnumerateInstancesResponseMessage* enumResult,
     Uint32 firstInstance, Uint32 lastInstance, CIMRepository* repository,
     RsURI& requestUri)

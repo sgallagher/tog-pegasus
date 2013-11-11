@@ -71,8 +71,6 @@ EnumerationContext::EnumerationContext(
     _providersComplete(false),
     _processing(false),
     _error(false),
-    _waitingCacheSizeCondition(false),
-    _waitingProviderLimitCondition(false),
     _responseCache(contentType),
     _cacheTestCondMutex(Mutex::NON_RECURSIVE),
     _conditionCounter(0),
@@ -106,7 +104,6 @@ EnumerationContext::EnumerationContext(const EnumerationContext& x)
     _processing = x._processing;
     _clientClosed = x._clientClosed;
     _error = x._error;
-    _waitingCacheSizeCondition = x._waitingCacheSizeCondition;
 }
 
 void EnumerationContext::setRequestProperties(
@@ -213,10 +210,14 @@ Boolean EnumerationContext::isTimedOut()
     return isTimedOut(currentTime);
 }
 
+// FUTURE: In future consider list of exceptions since there may be
+// multiples.
 void EnumerationContext::setErrorState(CIMException x)
 {
-    _error = true;
+    PEGASUS_ASSERT(valid());
+    // Set exception first and use flag as indicator to avoid ipc issues.
     _cimException = x;
+    _error = true;
 }
 
 // Diagnostic display of data in the enumeration context object
@@ -231,8 +232,8 @@ void EnumerationContext::trace()
         "closed=%s "
         "timeOpen %lu millisec totalPullCount=%u "
         "cache highWaterMark=%u "
-        "waitingCacheSizeCondition=%f ms "
-        "_waitingProviderLimitCondition=%f ms "              ,
+        "_waitingCacheSizeConditionTime=%f ms "
+        "_waitingProviderLimitConditionTime=%f ms "              ,
         (const char *)_enumerationContextName.getCString(),
         (const char *)_nameSpace.getString().getCString(),
         (long unsigned int)_operationTimeoutSec,
@@ -274,6 +275,10 @@ EnumerationContext::~EnumerationContext()
     If the operation is closed, we discard the response. If
     this is the last response, remove the enumerationContext
     Return true if putCache worked, false if closed and nothing put
+    NOTE: This is single threaded. It is based on the mutex in
+    _enquueueResponse which serializes independent responses. See
+    _enqueueResponseMutex.
+
 */
 Boolean EnumerationContext::putCache(MessageType type,
     CIMResponseMessage*& response,
@@ -282,11 +287,10 @@ Boolean EnumerationContext::putCache(MessageType type,
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP;
-    trace();                   // KS_TEMP
+////    trace();                   // KS_TEMP
 
     // Design error if we ever get here with providers already set complete
     PEGASUS_ASSERT(!_providersComplete);
-    PEGASUS_ASSERT(!_waitingProviderLimitCondition);
 
     // KS_TODO all this diagnostic
     CIMResponseData& to = _responseCache;
@@ -376,14 +380,12 @@ Boolean EnumerationContext::putCache(MessageType type,
 ////             "size %u."
 ////             " signal CacheSizeConditon responseCacheMaximumSize %u",
 ////             responseCacheSize(), to.size(), _responseCacheMaximumSize));
-            _waitingProviderLimitCondition = true;
             waitProviderLimitCondition(_responseCacheMaximumSize);
 //          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
 //              "After putCache providers wait end ProviderLimitCondition Not "
 //              "complete insert responseCacheSize %u. CIMResponseData size %u."
 //              " signal CacheSizeConditon responseCacheMaximumSize %u",
 //              responseCacheSize(), to.size(), _responseCacheMaximumSize));
-            _waitingProviderLimitCondition = false;
         }
     }
 
@@ -418,8 +420,8 @@ void EnumerationContext::getCache(
     // Wait for cache size to match count or providers to complete
     // set mutex only for the move objects. We don't want to mutex for
     // the wait period since we expect things to be put into the
-    // cache during this period.
-    _waitingCacheSizeCondition = true;
+    // cache during this period. Called from a client operation and the
+    // operation will hang until this completes.
     waitCacheSizeCondition(count);
 
     // Lock the cache for the move function
@@ -437,7 +439,6 @@ void EnumerationContext::getCache(
       "EnumerationContext::getCacheResponseData moveObjects expected=%u"
           " actual %u", count, rtnData.size()));
 
-    _waitingCacheSizeCondition = false;
     // Signal the ProviderLimitCondition that the cache size may
     // have changed.
     signalProviderLimitCondition();
@@ -531,13 +532,11 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 
     Stopwatch waitTimer;
     waitTimer.start();
-    _waitingProviderLimitCondition = true;
     while (!_clientClosed && (responseCacheSize() > limit))
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
 
-    _waitingProviderLimitCondition = false;
     waitTimer.stop();
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
@@ -613,13 +612,15 @@ void EnumerationContext::setProvidersComplete()
 // responseCacheSize = 0). Returns false if providers not complete or
 // there is data in the cache
 
-Boolean EnumerationContext::setNextEnumerationState()
+Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::setNextEnumerationState");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
-    if (ifProvidersComplete() && (responseCacheSize() == 0))
+
+    if ((ifProvidersComplete() && (responseCacheSize() == 0)) ||
+        (errorFound && !_continueOnError))
     {
         setClientClosed();
         return true;

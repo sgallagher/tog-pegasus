@@ -212,7 +212,7 @@ pr3:
 	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 prn3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
-
+## KS_TODO - This one causing failure in nightly tests.
 peManagedElement:
 	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -T -C $(HOSTID)
 

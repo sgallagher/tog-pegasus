@@ -867,6 +867,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     // bug 5157 because we only need to serialize on a per-request basis.
     // This prevents serializing independent requests on separate connections.
     AutoMutex autoMut(poA->_enqueueResponseMutex);
+
     Boolean isComplete = false;
 
     try
@@ -980,7 +981,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             enumerationContextTable.valid();    // KS_TEMP
             enumerationContextTable.tableValidate();    // KS_TEMP
 
-            //// KS_TODO the following is test code just to be sure
+            //// KS_TODO DELETE the following is test code just to be sure
             //// the context is still in the table
             EnumerationContext* enTest = enumerationContextTable.find(
                 en->getName());
@@ -3220,8 +3221,6 @@ struct ProviderRequests
             return;
         }
 
-        enumContext->trace();          // KS_TEMP
-
         // reject if this is a not valid request for the originating Operation
         if (dispatcher->_rejectInvalidPullRequest(request,
             enumContext->isValidPullRequestType(request->getType())))
@@ -3311,8 +3310,12 @@ struct ProviderRequests
             boolToString(enumContext->isErrorState())  ));
 
         // If error set, send error response, else send the next group of
-        // response objects which is in the from CIMResponseData object
-        if (enumContext->isErrorState())
+        // response objects which is in the from CIMResponseData object.
+        // This implies error response before data response.
+        // Do local variable to avoid issue of error being inserted between
+        // isErrorState and setNextEnumerationState
+        Boolean errorFound = false;
+        if (errorFound = enumContext->isErrorState())
         {
             response->cimException = enumContext->_cimException;
         }
@@ -3332,15 +3335,20 @@ struct ProviderRequests
             to.appendResponseData(fromCache);
         }
 
-        // Do check here after we have processed the results of the get.
+        // Check here after we have processed the results of the get.
+        // This function sets the operation closed if providers are complete
+        // and nothing left in the cache, thus closing the operation.
+        // Otherwise it sets the processing state = false so the next
+        // operation can be processed.
         // At this point we are current with the provider response status
         // If return true, enumeration sequence complete.
-        // Sets endOfSequence if true. Otherwise sets enumerationContext
+        // Set endOfSequence if true. Otherwise sets enumerationContext
         // name.
-        if (enumContext->setNextEnumerationState())
+        if (enumContext->setNextEnumerationState(errorFound))
         {
             response->endOfSequence = true;
         }
+        // only return enum name if not endOfSequence
         else
         {
             response->enumerationContext = enumContext->getName();
@@ -3377,8 +3385,8 @@ struct ProviderRequests
     {
         PEG_METHOD_ENTER(TRC_DISPATCHER,
             "CIMOperationRequestDispatcher::issueOpenResponseMessage");
-
-        if (enumerationContext->isErrorState())
+        Boolean errorFound = false;
+        if (errorFound = enumerationContext->isErrorState())
         {
             openResponse->cimException = enumerationContext->_cimException;
         }
@@ -3420,9 +3428,12 @@ struct ProviderRequests
 ////        enumerationContext->responseCacheSize() ));
 
         // Do check here after processing the results of the get.
+        // The function either closes the operation of providers are complete
+        // and the response cache is empty or sets the processing state =
+        // false to allow the next operation.
         // At this point context is current with provider response status
         // If return = true, enumerateion sequence complete.
-        if (enumerationContext->setNextEnumerationState())
+        if (enumerationContext->setNextEnumerationState(errorFound))
         {
             openResponse->endOfSequence = true;
         }

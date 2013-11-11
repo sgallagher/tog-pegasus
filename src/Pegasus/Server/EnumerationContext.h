@@ -308,11 +308,14 @@ public:
     /**
         Called by the Dispatcher Client operation when the
         processing of a Request is complete, this function
-        determines and sets the next state for the operation,
+        determines sets the next state for the operation,
         either back to wait for the next operation or complete.
+         @param errorFound Boolean indicating that an error was
+         encountered which, if continueOnError = false, forces
+         the operation to be closed and the true response returned.
         @return Boolean true if the enumeration is complete.
     */
-    Boolean setNextEnumerationState();
+    Boolean setNextEnumerationState(Boolean errorFound);
 
     /**
         Increment the count of the number of pull operations executed
@@ -387,10 +390,7 @@ private:
     // Set true when error received from Providers.
     Boolean _error;
 
-    // Set to true if waiting on condition variable.  Cannot remove until
-    // this cleared.
-    Boolean _waitingCacheSizeCondition;
-    Boolean _waitingProviderLimitCondition;
+
     Stopwatch _waitingCacheSizeConditionTime;
     Stopwatch _waitingProviderLimitConditionTime;
 

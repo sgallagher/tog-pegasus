@@ -166,8 +166,7 @@ EnumerationContextTable::~EnumerationContextTable()
     // remove any existing entries
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
-    //// KS TODO delete this
-    cout << "Start ~EnumerationContextTable(). size " << size() << endl;
+
     Uint32 ctr = 0;
     for (HT::Iterator i = ht.start(); i; i++)
     {
@@ -330,9 +329,7 @@ Boolean EnumerationContextTable::_removeContext(
     // This function assumes that the sequence is really complete and
     // provider returns complete.  If that is not true, it just generates
     // an error and returns.
-    if (en->_clientClosed && en->_providersComplete
-        && !en->_waitingCacheSizeCondition &&
-         !en->_waitingProviderLimitCondition)
+    if (en->_clientClosed && en->_providersComplete)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId= %s",
@@ -374,20 +371,13 @@ Boolean EnumerationContextTable::_removeContext(
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP TODO
             "_removeContext ERRORERROR %s  _providersComplete=%s"
-                " _waitingCacheSizeCondition=%s "
                 " _waitingCacheSizeCondition=%s clientClosed=%s",
             (const char *)en->getName().getCString(),
             (const char *)(en->_providersComplete? "true" : "false"),
-            (const char*)(en->_waitingCacheSizeCondition? "true" : "false" ),
-            (const char*)(en->_waitingProviderLimitCondition? "true" :"false" ),
-             (const char *)(en->_clientClosed? "true" : "false")
+            (const char *)(en->_clientClosed? "true" : "false")
                      ));
         //// KS_TODO remove this.  Test Diagnostic only.
         cout << "remove ignored. "
-            << " _waitingCacheSizeCondition "
-            << (en->_waitingCacheSizeCondition? "true" : "false")
-            << " _waitingProviderLimitCondition "
-            << (en->_waitingProviderLimitCondition? "true" : "false")
             << " clientClosed " <<(en->_clientClosed? "true" : "false")
             << " _providersComplete " <<
                  (en->_providersComplete? "true" : "false")

@@ -3315,23 +3315,23 @@ struct ProviderRequests
         // Do local variable to avoid issue of error being inserted between
         // isErrorState and setNextEnumerationState
         Boolean errorFound = false;
-        if (errorFound = enumContext->isErrorState())
+        if ((errorFound = enumContext->isErrorState()))
         {
             response->cimException = enumContext->_cimException;
         }
         else
         {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-              "%s getCacheResponsedata. max objects %u",
-              opSeqName,localMaxObjectCount ));
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////            "%s getCacheResponsedata. max objects %u",
+////            opSeqName,localMaxObjectCount ));
 
-            CIMResponseData & to = response->getResponseData();
-
-            to.setDataType((enumContext->getCIMResponseDataType()));
             CIMResponseData fromCache(enumContext->getCIMResponseDataType());
 
             enumContext->getCache(localMaxObjectCount,fromCache);
 
+            CIMResponseData & to = response->getResponseData();
+
+            to.setDataType((enumContext->getCIMResponseDataType()));
             to.appendResponseData(fromCache);
         }
 
@@ -3379,38 +3379,38 @@ struct ProviderRequests
         CIMOperationRequestDispatcher* dispatcher,
         REQ* openRequest,
         AutoPtr<RSP>& openResponse,
-        EnumerationContext* enumerationContext,
+        EnumerationContext* enumContext,
         const char* reqMsgName,
         Uint32 operationMaxObjectCount)
     {
         PEG_METHOD_ENTER(TRC_DISPATCHER,
             "CIMOperationRequestDispatcher::issueOpenResponseMessage");
+
         Boolean errorFound = false;
-        if (errorFound = enumerationContext->isErrorState())
+        if ((errorFound = enumContext->isErrorState()))
         {
-            openResponse->cimException = enumerationContext->_cimException;
+            openResponse->cimException = enumContext->_cimException;
         }
         else
         {
             // Create a Response data based on what is in the cache now.
 
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "%s Cache size after repository put %u"
-                " maxObjectCount %u", reqMsgName,
-                enumerationContext->responseCacheSize(),
-                operationMaxObjectCount ));
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+////              "%s Cache size after repository put %u"
+////              " maxObjectCount %u", reqMsgName,
+////              enumContext->responseCacheSize(),
+////              operationMaxObjectCount ));
 
-            CIMResponseData fromCache(
-               enumerationContext->getCIMResponseDataType());
+            CIMResponseData fromCache(enumContext->getCIMResponseDataType());
 
             // get response data from the cache up to maxObjectCount and return
             // it in a new CIMResponseData object. This function waits for
             // sufficient objects in cache or providers complete
-            enumerationContext->getCache(operationMaxObjectCount,fromCache);
+            enumContext->getCache(operationMaxObjectCount,fromCache);
 
             CIMResponseData & to = openResponse->getResponseData();
             to.appendResponseData(fromCache);
-////
+////        // KS_TODO Delete this code when we are really confident
 ////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
 ////            "%s AppendedResponseData. to type %u from "
 ////                "type %u toSize %u fromSize %u", reqMsgName,
@@ -3418,14 +3418,14 @@ struct ProviderRequests
 ////            fromCache.getResponseDataContent(),
 ////            to.size(), fromCache.size()));
         }
-
+////      // KS_TODO Delete this code when we are really confident of pull
 ////      CIMResponseData & tempto = openResponse->getResponseData();
 ////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
 ////        "%s Send response to type %u"
 ////            "  providersComplete %s remaining cacheSize %u", reqMsgName,
 ////        tempto.getResponseDataContent(),
-////        boolToString(enumerationContext->ifProvidersComplete()),
-////        enumerationContext->responseCacheSize() ));
+////        boolToString(enumContext->ifProvidersComplete()),
+////        enumContext->responseCacheSize() ));
 
         // Do check here after processing the results of the get.
         // The function either closes the operation of providers are complete
@@ -3433,20 +3433,20 @@ struct ProviderRequests
         // false to allow the next operation.
         // At this point context is current with provider response status
         // If return = true, enumerateion sequence complete.
-        if (enumerationContext->setNextEnumerationState(errorFound))
+        if (enumContext->setNextEnumerationState(errorFound))
         {
             openResponse->endOfSequence = true;
         }
         else
         {
-            openResponse->enumerationContext = enumerationContext->getName();
+            openResponse->enumerationContext = enumContext->getName();
         }
 
         dispatcher->_enqueueResponse(openRequest, openResponse.release());
 
-        if (enumerationContext->isClosed())
+        if (enumContext->isClosed())
         {
-            enumerationContextTable.removeContext(enumerationContext);
+            enumerationContextTable.removeContext(enumContext);
         }
         PEG_METHOD_EXIT();
     }  // issueOpenResponseMessages Template

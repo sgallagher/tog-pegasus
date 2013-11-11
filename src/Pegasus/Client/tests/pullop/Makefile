@@ -84,17 +84,21 @@ poststarttests:
 	make smallTestEnumerateInstanceNames
 	make peManagedElement
 	make penManagedElement
-	make pcmpie1
-	make pcmpien1
+	make cmpiEnumerate1
+	make cmpiEnumerateNames1
 	make enumerateMaxObjectSizeVariations
 	make enumeratePathsMaxObjectSizeVariations
+	make enumerateEmptyResponse
 	make stresse1
+	make stresse2
 	make stressen1
+	make stressen2
 
 	@$(ECHO)  Associator and Reference tests - get to completion
-	make SimpleRef
-	make passoc1
-	make passoc2
+	make SimpleRefAndAssoc
+	make SimpleAssociatorTest1
+	make SimpleAssociatorTest2
+	make SimpleAssociatorTest3
 	make pcmpir1
 	make pcmpirn1
 	make pcmpian1
@@ -107,8 +111,8 @@ poststarttests:
 ##       @$(ECHO)  Test timeout in process of delivery
 ##       make testtimeout
 ##
-##       @$(ECHO) Error tests. Tests simple parameter errors.
-##       make errortests
+	@$(ECHO) Error tests. Tests simple parameter errors.
+	make errortests
 
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
@@ -149,18 +153,19 @@ smallTestEnumerateInstanceNames:
 	$(PROGRAM) en -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
 
-## KS_TODO _ move this test up to enumerates
-pcmpie1:
+## enumerate from cmpi providers. There are 3 tests here to include
+## property list variations
+cmpiEnumerate1:
 	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P Message
 	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P ""
 
-## KS_TODO move this test up to enumerates
-pcmpien1:
+## enumerate from cmpi providers
+cmpiEnumerateNames1:
 	$(PROGRAM) en -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
 
 ## Simple pull ref and assoc operations.
-SimpleRef:
+SimpleRefAndAssoc:
 	$(PROGRAM) r -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 	$(PROGRAM) rn -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 	$(PROGRAM) a -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
@@ -168,42 +173,33 @@ SimpleRef:
 
 ## returns a single association object and asks for one object per request
 ## compares results with assoc request so counts should match.  This
-
-passoc1: a1tst pa1 pan1 pr1 prn1
-
-a1tst:
+SimpleAssociatorTest1:
+## this test confirms that we are getting one object
 	cimcli a $(CxxAssocOB) -n $(CxxAssocNS) --sum -count 1
-pa1:
-	$(PROGRAM) a  -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-
-pan1:
-	$(PROGRAM) an -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-
-pr1:
-	$(PROGRAM) r  -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-
-prn1:
-	$(PROGRAM) rn -M 1 -N 1 -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) a  -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) an -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) r  -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) rn -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
 
 ## Request class that returns a single object but ask for more than one in
 ## response
 
-passoc2: pa2 pan2 pr2 prn2
+SimpleAssociatorTest2: pa2 pan2 pr2 prn2
 pa2:
-	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) a -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 pan2:
-	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) an -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 pr2:
-	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) rn -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 prn2:
-	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) rn -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
 
 
-## With repository entry
-passoc3: pa3 pan3 pr3 prn3
+## Request class that returns objects with some in repository
+SimpleAssociatorTest3: pa3 pan3 pr3 prn3
 pa3:
 	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 pan3:
@@ -212,6 +208,7 @@ pr3:
 	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 prn3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+
 ## KS_TODO - This one causing failure in nightly tests.
 peManagedElement:
 	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -T -C $(HOSTID)
@@ -221,22 +218,30 @@ penManagedElement:
 ###	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## KS_TODO this one generates an error
-peall1:
-	$(PROGRAM) e -M 9 -N 9 -c CIM_Namespace -C -n root/PG_InterOp $(HOSTID)
+enumerateAll1:
+	$(PROGRAM) e -M 9 -N 9 -C -c CIM_Namespace -n root/PG_InterOp $(HOSTID)
 
-peall2:
+enumerateAll2:
 	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## Enumerate all objects in the test/TestProvider namespace
-peall3:
+enumerateAll3:
 	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
+
+## Enumerate all objects in the test/TestProvider namespace
+enumerateAll4:
+	$(PROGRAM) e -M 9 -N 9 -C -c CIM_Namespace -n root/cimv2 $(HOSTID)
+
+enumerateAll5:
+	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
 
 removefornow:
 	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## Test Empty response.
-pempty:
+enumerateEmptyResponse:
 	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
+	$(PROGRAM) en -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 
 ## test with large scale response provider
 ## Execute the large scale test with just one property in response.
@@ -246,8 +251,9 @@ pempty:
 ## Included list of properties to return to make this test valid.
 ## CIMCLi is called before each test to set the response size and number
 ## of responses requested
-## Note that calling the invoke method before starting each test forces
+## Calling the invoke method before starting each test forces
 ## the provider to be loaded which eliminates startup differences.
+## stresse1 object size 10,000, response coutn 10,000
 stresse1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
@@ -265,12 +271,16 @@ stressen1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -T -v 3 $(HOSTID)
 
-stressVariation:
-#	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-#	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 10 -N 10 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
-#	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 100 -N 100 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1000 -N 1000 -C -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+stressen2:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -T -v 3 $(HOSTID)
 
+## test of variation of response  max size form very small to large
+stressVariation:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 10 -N 10 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 100 -N 100 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1000 -N 1000 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 
 ### Error Tests 
 ## These tests actually return exit 0 because the -R option reverses the
@@ -359,9 +369,12 @@ pcmpian1:
 ##nstanceWithPath
 ###################################################
 
-## test all operations against all classes in the defined namespace
-all:
+## test all operations against all classes in namespace root/cimv2
+allOperationsCIMV2:
 	$(PROGRAM) all -n root/cimv2 -C -T -v 3 $(HOSTID)
+
+allOperationsInterop:
+	$(PROGRAM) all -n root/PG_InterOp -C -T -v 3 $(HOSTID)
 
 clirep:
 	cimcli pei Test_Person -n test/TestProvider $(CIMCLIHOSTID)

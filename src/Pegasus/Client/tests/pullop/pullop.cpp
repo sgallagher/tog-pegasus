@@ -447,6 +447,7 @@ String _showTime(Uint64 time)
     String result;
     Uint64 fraction;
     char temp[100];
+    // Display as sec, millisec, etc depending on size
     if (time >= 1000000)
     {
         fraction = time - ((time/1000000) * 1000000);
@@ -466,14 +467,35 @@ String _showTime(Uint64 time)
     result.append(temp);
     return result;
 }
+
+String _showTimeSint64(Sint64 time)
+{
+    String result;
+    if (time < 0)
+    {
+        Uint64 ltime = -time;
+        result.append("-");
+        result.append(_showTime(ltime));
+    }
+    else
+    {
+        result.append(_showTime(Uint64(time)));
+    }
+    return result;
+}
+
 // if the timer option is set, display the time between the entries
-void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
-                     Stopwatch& elapsedPullTime)
+void displayTimeDiff(const String& operationName,
+    Stopwatch& pullTime,
+    Stopwatch& enumTime,
+    Stopwatch& elapsedPullTime,
+    Uint32 responseSize)
 {
     if (!timeOperation_opt)
     {
         return;
     }
+
     Uint64 enumResult = enumTime.getElapsedUsec();
     Uint64 pullResult = pullTime.getElapsedUsec();
     Uint64 elapsedPullResult = elapsedPullTime.getElapsedUsec();
@@ -483,13 +505,14 @@ void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
 
         Sint64 diff = pullResult - enumResult;
 
-        cout << "stat pull=" << _showTime(pullResult)
+        cout << "PullStat " << operationName << " ops=" << _showTime(pullResult)
              << " elap=" << _showTime(elapsedPullResult)
              << " enum=" << _showTime(enumResult)
-             << " diff=" << _showTime(diff) << " "
-             << pullCounter << " pulls="
-            << maxObjectsOnOpen_opt << "/"
-            << maxObjectsOnPull_opt;
+             << " diff=" << _showTimeSint64(diff)
+             << " objectCount=" << responseSize
+             << " for "  << pullCounter <<  " pull ops. "
+             << " maxCtrs=" << maxObjectsOnOpen_opt << "/"
+             << maxObjectsOnPull_opt;
 
         // display more detailed difference info between the
         // pull and original operations.
@@ -508,10 +531,13 @@ void displayTimeDiff(Stopwatch& pullTime, Stopwatch& enumTime,
     }
     else    // no comparison requested so no enum times available.
     {
-        cout << "Stat Pull Execution "
+        cout << "PullStat ops="
              << _showTime(pullResult)
              << " Pull Elapsed " << _showTime(elapsedPullResult)
-             << " for " << pullCounter << " pull ops." << endl;
+             << " for " << pullCounter << " pull ops."
+             << " maxCtrs=" << maxObjectsOnOpen_opt << "/"
+             << maxObjectsOnPull_opt
+             << endl;
     }
 }
 //------------------------------------------------------------------------------
@@ -1415,7 +1441,8 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
             VCOUT1 << "Error in path return of PullInstancesWithPath" << endl;
         }
 
-        displayTimeDiff(pullTime, enumTime, elapsedPullTime);
+        displayTimeDiff(operationName, pullTime, enumTime, elapsedPullTime,
+                        pulledInstances.size());
     }
 
     catch (CIMException& e)
@@ -1524,7 +1551,8 @@ void testPullEnumerationInstancePaths(CIMClient& client,
                          "enumerateInstanceNames",
                          cimObjectPaths, cimObjectPaths2);
         }
-        displayTimeDiff(pullTime, enumTime, elapsedPullTime);
+        displayTimeDiff(operationName, pullTime, enumTime, elapsedPullTime,
+                        cimObjectPaths.size());
     }
 
     catch (CIMException& e)
@@ -1600,6 +1628,8 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             maxObjectsOnOpen_opt
             );
 
+        pullTime.stop();
+
         displayAndTestReturns(operationName, endOfSequence,
             pulledInstances.size(), maxObjectsOnOpen_opt);
 
@@ -1639,7 +1669,8 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             compareInstances(operationName, "references",
                              pulledInstances, refdInstances);
         }
-        displayTimeDiff(pullTime, enumTime, elapsedPullTime);
+        displayTimeDiff(operationName, pullTime, enumTime, elapsedPullTime,
+                        pulledInstances.size());
     }
 
     catch (CIMException& e)
@@ -1746,7 +1777,8 @@ void testPullReferenceInstancePaths(CIMClient& client,
             compareObjectPaths(operationName,
                 "referenceNames", cimObjectPaths, cimObjectPathsOrig);
         }
-        displayTimeDiff(pullTime, enumTime, elapsedPullTime);
+        displayTimeDiff(operationName, pullTime, enumTime, elapsedPullTime,
+                        cimObjectPaths.size());
     }
 
     catch (CIMException& e)
@@ -1869,7 +1901,8 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
             compareInstances("PullAssociators", "associators",
                              cimInstances, cimObjectsOrig);
         }
-        displayTimeDiff(pullTime, enumTime, elapsedPullTime);
+        displayTimeDiff(operationName, pullTime, enumTime, elapsedPullTime,
+                        cimInstances.size());
     }
 
     catch (CIMException& e)
@@ -1988,7 +2021,8 @@ void testPullAssociatorInstancePaths(CIMClient& client,
                          "associatorNames",
                          cimObjectPaths, cimObjectPathsOrig);
         }
-        displayTimeDiff(pullTime, enumTime, elapsedPullTime);
+        displayTimeDiff(operationName, pullTime, enumTime, elapsedPullTime,
+                        cimObjectPaths.size());
     }
 
     catch (CIMException& e)

@@ -34,7 +34,6 @@ LIBRARIES = \
     pegservice \
     pegclient \
     pegserver \
-    peguser \
     pegprm \
     NamespaceProvider \
     pegindicationservice \
@@ -43,8 +42,12 @@ LIBRARIES = \
     DefaultProviderManager \
     ProviderRegistrationProvider \
     pegauthentication \
-    UserAuthProvider \
     pegqueryexpression
+
+ifndef PEGASUS_PAM_AUTHENTICATION
+    LIBRARIES += peguser \
+		 UserAuthProvider
+endif
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     LIBRARIES += \

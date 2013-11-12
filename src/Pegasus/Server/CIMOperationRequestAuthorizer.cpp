@@ -31,10 +31,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Security/UserManager/UserManager.h>
+#ifndef PEGASUS_PAM_AUTHENTICATION
+# include <Pegasus/Security/UserManager/UserManager.h>
+#endif
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include "CIMOperationRequestAuthorizer.h"
 
@@ -448,6 +451,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
         //
         if (!System::isPrivilegedUser(userName))
         {
+#ifndef PEGASUS_PAM_AUTHENTICATION
             UserManager* userManager = UserManager::getInstance();
 
             if (!userManager ||
@@ -490,6 +494,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                 PEG_METHOD_EXIT();
                 return;
             }
+#endif
         }
     }
 

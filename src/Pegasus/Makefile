@@ -83,15 +83,20 @@ ifneq ($(OS),HPUX)
         Compiler/cmdline/tests
 endif
 
+ifndef PEGASUS_PAM_AUTHENTICATION
+    DIRS += Security/UserManager \
+	    ControlProviders/UserAuthProvider
+    TEST_DIRS += Security/UserManager/tests
+endif
+
+
 DIRS += \
     ExportClient \
     Server/ProviderRegistrationManager \
     ExportServer \
     Listener \
-    Security/UserManager \
     Security/Authentication \
     ControlProviders/ConfigSettingProvider \
-    ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
     HandlerService \
@@ -104,13 +109,11 @@ TEST_DIRS += \
     Server/ProviderRegistrationManager/tests \
     ExportServer/tests \
     Listener/tests \
-    Security/UserManager/tests \
     Security/Authentication/tests \
     ControlProviders/ProviderRegistrationProvider/tests \
     HandlerService/tests \
     IndicationService/tests \
     DynListener/tests 
-
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \

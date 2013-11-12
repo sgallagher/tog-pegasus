@@ -343,8 +343,10 @@ int main(int, char** argv)
 
         // -- Create a UserManager object:
 
+#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager* userManager = UserManager::getInstance(repository);
         PEGASUS_TEST_ASSERT(0 != userManager);
+#endif
 
         testHttpAuthHeader();
 
@@ -363,7 +365,9 @@ int main(int, char** argv)
         if (verbose) cout << "Doing testBasicAuthSuccess()...." << endl;
         testBasicAuthSuccess();
 
+#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager::destroy();
+#endif
         delete repository;
         FileSystem::removeDirectoryHier(repositoryPath);
     }

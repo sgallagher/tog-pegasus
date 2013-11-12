@@ -61,7 +61,10 @@
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Security/UserManager/UserManager.h>
+#ifndef PEGASUS_PAM_AUTHENTICATION
+# include <Pegasus/Security/UserManager/UserManager.h>
+# include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
+#endif
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
@@ -85,7 +88,6 @@
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
 #include <Pegasus/Common/ModuleController.h>
-#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/\
 ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/\
@@ -314,7 +316,10 @@ void CIMServer::_init()
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
+#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager::getInstance(_repository);
+#endif
+
 
     // -- Create a SCMOClass Cache and set call back for the repository
 
@@ -357,6 +362,7 @@ void CIMServer::_init()
         configProvider,
         controlProviderReceiveMessageCallback);
 
+#ifndef PEGASUS_PAM_AUTHENTICATION
     // Create the User/Authorization control provider
     ProviderMessageHandler* userAuthProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "UserAuthProvider",
@@ -366,6 +372,7 @@ void CIMServer::_init()
         PEGASUS_MODULENAME_USERAUTHPROVIDER,
         userAuthProvider,
         controlProviderReceiveMessageCallback);
+#endif
 
     // Create the Provider Registration control provider
     ProviderMessageHandler* provRegProvider = new ProviderMessageHandler(
@@ -687,7 +694,9 @@ CIMServer::~CIMServer ()
 
     // Destroy the singleton services
     SCMOClassCache::destroy();
+#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager::destroy();
+#endif
     ShutdownService::destroy();
 
     PEG_METHOD_EXIT ();

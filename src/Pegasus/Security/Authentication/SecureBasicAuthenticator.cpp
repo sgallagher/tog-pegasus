@@ -85,7 +85,9 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     _realm.append(Char16('"'));
 
     // Get a user manager instance handler
+#ifndef PEGASUS_PAM_AUTHENTICATION
     _userManager = UserManager::getInstance();
+#endif
 
 #ifdef PEGASUS_OS_ZOS
     ConfigManager* configManager = ConfigManager::getInstance();
@@ -244,8 +246,10 @@ AuthenticationStatus SecureBasicAuthenticator::authenticate(
         }
         else
         {
+#ifndef PEGASUS_PAM_AUTHENTICATION
             if (_userManager->verifyCIMUserPassword(userName, password))
                 authenticated = true;
+#endif
         }
     }
     catch(InvalidUser &)
@@ -285,10 +289,12 @@ AuthenticationStatus SecureBasicAuthenticator::validateUser(
             if (Executor::validateUser(userName.getCString()) != 0)
                 authenticated = true;
         }
+#ifndef PEGASUS_PAM_AUTHENTICATION
         else if (_userManager->verifyCIMUser(userName))
         {
             authenticated = true;
         }
+#endif
 #endif
     }
 

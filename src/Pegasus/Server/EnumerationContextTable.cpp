@@ -171,7 +171,8 @@ EnumerationContextTable::~EnumerationContextTable()
     for (HT::Iterator i = ht.start(); i; i++)
     {
         EnumerationContext* enumeration = i.value();
-        //// KS_TODO remove this diagnostic
+        //// KS_TODO remove this diagnostic which shows leftover
+        //// context entries.  Should be zero.
         cout << "Found at ~EnumerationContextTable "
              << enumeration->_enumerationContextName
              << " started " << (long unsigned int)
@@ -197,8 +198,6 @@ EnumerationContextTable::~EnumerationContextTable()
         cout << "EnumerationContextTable shutdown found "
              << ctr << " contexts " << endl;
     }
-
-    cout << "End ~EnumerationContextTable() " << endl;
     PEG_METHOD_EXIT();
 }
 

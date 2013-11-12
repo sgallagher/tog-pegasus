@@ -390,7 +390,7 @@ private:
     // Set true when error received from Providers.
     Boolean _error;
 
-
+    // Timers for the wait conditions. Counts time waiting
     Stopwatch _waitingCacheSizeConditionTime;
     Stopwatch _waitingProviderLimitConditionTime;
 

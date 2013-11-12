@@ -68,7 +68,6 @@ tests:
 	pullop -h
 	$(PROGRAM) --help
 
-
 ## KS_TODO - Redo this list to actually put in the pullop code for each
 ## Will make it more understandable and also can work with options easier.
 errortests:
@@ -211,7 +210,7 @@ prn3:
 
 ## KS_TODO - This one causing failure in nightly tests.
 peManagedElement:
-	$(PROGRAM) e -M 9 -N 9 -c CIM_ManagedElement -T -C $(HOSTID)
+	$(PROGRAM) e -M 100 -N 100 -c CIM_ManagedElement -v 5 $(HOSTID)
 
 penManagedElement:
 	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement $(HOSTID)
@@ -282,7 +281,7 @@ stressVariation:
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 100 -N 100 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1000 -N 1000 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 
-### Error Tests 
+### Error Tests
 ## These tests actually return exit 0 because the -R option reverses the
 ## exit codes so the following should actually return positive exits for
 ## make
@@ -309,7 +308,7 @@ filterParamError:
 	$(PROGRAM) an Test_Person -f abc -R $(HOSTID)
 	$(PROGRAM) an Test_Person -l WQL -R $(HOSTID)
 
-## test continueOnError Parameter.  Should return error in all cases since 
+## test continueOnError Parameter.  Should return error in all cases since
 ## continueOnError not supported
 continueOnErrorError:
 	$(PROGRAM) e Test_Person  -R -x $(HOSTID)
@@ -331,11 +330,11 @@ invalidAssocObjectPath:
 ### Set the the size and value of responses to get large number of
 ### responses. Then call pullop to get small set of objects and then
 ### close
-testenumclose: 
+testenumclose:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
 
-testenumpathsclose: 
+testenumpathsclose:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
 
@@ -473,7 +472,7 @@ cmpir1:
 	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 pcmpir1:
-	$(PROGRAM) r -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID) 
+	$(PROGRAM) r -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
 
 pcmpirn1:
 	$(PROGRAM) rn -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T  $(HOSTID)

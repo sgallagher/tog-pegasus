@@ -63,7 +63,7 @@
              Could have either rotation through the array or remove used
              from top.  Add code to say which (repeat or something). This
              means we could remove the -p option in favor of use of the
-             array
+             array (Low Priority)
            - Set timeout to spec default of NULL. MaxObjectCount to correspond
              to spec defaults. 0 for open, required for Pulls.
            - Figure way to do whole sequence of operations. Note that
@@ -94,7 +94,7 @@
              whole setup and thread for each open, do, close with inner loop
              for repeat of particular open-pull sequence.
            - Clean up the levels of output visibility.  I did not consistently
-             apply the various levels (0,1,2,3,4,5)
+             apply the various levels (0,1,2,3,4,5,6)
 */
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
@@ -205,9 +205,11 @@ static char * verbose;
 // the verbose_opt. Specifying a level on input gets that level and lower.
 /*
     Definition of what is displayed at each level
-    5 - Object/name details
-    4 - Details of operations (i.e. data returned
-    3 - Overview of each operation (send and rtn parameters)
+    7 - returned objects
+    6 - Step by Step through operations.
+    5 - Details of operations (i.e. data returned)
+    4 - Overview of each operation (send and rtn parameters)
+    3 - Statistical information on operations
     2 - Add Warning messages
     1 - Error messages
     0 - None of the VCOUT calls
@@ -218,6 +220,8 @@ static char * verbose;
 #define VCOUT3 if (verbose_opt >= 3) cout
 #define VCOUT4 if (verbose_opt >= 4) cout
 #define VCOUT5 if (verbose_opt >= 5) cout
+#define VCOUT6 if (verbose_opt >= 6) cout
+#define VCOUT7 if (verbose_opt >= 7) cout
 
 Uint32 warnings = 0;
 Uint32 errors = 0;
@@ -235,7 +239,7 @@ Uint32 maxObjectsOnPull_opt =16;
 String objectName_opt = "";
 bool compare_opt = false;
 Uint32 sleep_opt = 0;
-Uint32 verbose_opt = 5;
+Uint32 verbose_opt = 2;
 bool timeOperation_opt = false;
 bool continueOnError_opt = false;
 bool reverseExitCode_opt = false;
@@ -289,8 +293,10 @@ Example:\n\
 \n\
 OPTIONS:\n\
     -V              Print version.\n\
-    -v  LEVEL       Integer defining level of displays (0 - 4)\n\
-                    0 - none, 1 - info, 2, warnings, 3 - errors, 4 - details\n\
+    -v  LEVEL       Integer defining level of displays (0 - 6)\n\
+                    0 - none, 1 - Errors, 2, warnings, 3 - statistical info,\n\
+                    4 - operation overview, 5 - Operation details, 6 - Steps\n\
+                    7 - display returned objects\n\
     -h              Print this help message.\n\
     --help          Print this help message.\n\
     -n NAMESPACE    The operation namespace(default is \"root/cimv2\").\n\
@@ -505,7 +511,8 @@ void displayTimeDiff(const String& operationName,
 
         Sint64 diff = pullResult - enumResult;
 
-        cout << "PullStat " << operationName << " ops=" << _showTime(pullResult)
+        VCOUT3 << "PullStat " << operationName
+             << " ops=" << _showTime(pullResult)
              << " elap=" << _showTime(elapsedPullResult)
              << " enum=" << _showTime(enumResult)
              << " diff=" << _showTimeSint64(diff)
@@ -531,7 +538,7 @@ void displayTimeDiff(const String& operationName,
     }
     else    // no comparison requested so no enum times available.
     {
-        cout << "PullStat ops="
+        VCOUT3 << "PullStat ops="
              << _showTime(pullResult)
              << " Pull Elapsed " << _showTime(elapsedPullResult)
              << " for " << pullCounter << " pull ops."
@@ -1004,13 +1011,13 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
 
     // KS_TODO - Account for NULL expectedCount.
     if (!endOfSequence && (returnedCount < expectedCount))
-        {
-            VCOUT2 << "WARN: Delivered less than requested instances. "
-                 << " Expected " << expectedCount
-                 << ". Delivered " << returnedCount << endl;
-            warnings++;
-            return false;
-        }
+    {
+        VCOUT2 << "WARN: Delivered less than requested instances. "
+             << " Expected " << expectedCount
+             << ". Delivered " << returnedCount << endl;
+        warnings++;
+        return false;
+    }
     if (returnedCount > expectedCount)
     {
         VCOUT1 << "ERROR: Delivered more objects than requested."
@@ -1047,6 +1054,7 @@ Boolean compareInstances(const String& s1, const String s2,
                       Array<CIMInstance>& inst1,
                       Array<CIMInstance>& inst2, bool verbose = false)
 {
+    VCOUT6 << "Comparing Instances" << endl;
     Boolean rtn = true;
     if (inst1.size() != inst2.size())
     {
@@ -1091,6 +1099,8 @@ Boolean compareInstances(const String& s1, const String s2,
                       Array<CIMInstance>& instances,
                       Array<CIMObject>& objects, bool verbose = false)
 {
+
+    VCOUT6 << "Comparing Instances to Objects" << endl;
     Boolean rtn = true;
 
     if (instances.size() != objects.size())
@@ -1141,6 +1151,8 @@ Boolean compareObjectPaths(
     Array<CIMObjectPath>& p2,
     bool ignoreHost = true)
 {
+
+    VCOUT6 << "Comparing ObjectPaths" << endl;
     Boolean rtn = true;
     if (p1.size() != p2.size())
     {
@@ -1254,7 +1266,7 @@ bool pullInstancePaths(CIMClient& client,
     {
         VCOUT4 << "Total ObjectPaths count=" << resultArray.size()
              << "endOfSequence=" << _toCharP(endOfSequence) << endl;
-        if (verbose)
+        if (verbose_opt >= 7)
         {
             displayObjectPaths(resultArray);
         }
@@ -1303,7 +1315,7 @@ bool pullInstancesWithPath(CIMClient& client,
     {
         VCOUT4 << "Total Instances count= " << resultArray.size()
           << " endOfSequence= " << _toCharP(endOfSequence)<< endl;
-        if (verbose)
+        if (verbose_opt >= 7)
         {
             displayInstances(resultArray);
         }
@@ -1417,9 +1429,12 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         elapsedPullTime.stop();
 
+        VCOUT6 << "Pull Sequence Complete" << endl;
+
         // if the compare opt was set, get with enumerate and compare
         if (compare_opt && endOfSequence)
         {
+            VCOUT << "Comparing Result to enumerateInstances" << endl;
             enumTime.start();
             Array<CIMInstance> enumeratedInstances = client.enumerateInstances(
                 nameSpace,
@@ -1431,6 +1446,10 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                 propertyList);
 
             enumTime.stop();
+
+            VCOUT6 << "EnumerateInstances returned "
+                   << enumeratedInstances.size()
+                   << " instances" << endl;
 
             compareInstances("PullnstancesWithPath",
                              "EnumerateInstances  ",
@@ -1535,7 +1554,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
 
         elapsedPullTime.stop();
 
-            // if the compare opt was set, get with enumerate and comapre
+        // if the compare opt was set, get with enumerate and comapre
         if (compare_opt && endOfSequence)
         {
             enumTime.start();
@@ -2055,8 +2074,8 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
 {
     // get all classes in the namespace
     Array<CIMName> cn =  client.enumerateClassNames(ns, CIMName(), true);
-
-    VCOUT5 << "Enumerated " << cn.size() << " classNames" << endl;
+    VCOUT4 << "Start testAllClasses " << "Enumerated " << cn.size()
+           << " classNames" << endl;
 
     // Enumerate remove any that do not return instanceNames
 
@@ -2078,7 +2097,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
                  << instanceNames.size() << " instances" << endl;
         }
     }
-    VCOUT5 << "Test " << cn.size() << " classes. Total "
+    VCOUT4 << "Testing " << cn.size() << " classes with instaces. Total "
         << instanceCount << " instances." << endl;
 
     Uint32 counter;
@@ -2087,13 +2106,11 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     //
     //  Test Pull EnumerateInstances for all classes with instances
     //
-    VCOUT5 << "Test Pull Enumerate Instances" << endl;
+    VCOUT4 << "Test Pull Enumerate Instances for each class" << endl;
     testTime.start();
     for (Uint32 i = 0 ; i < cn.size() ; i++)
     {
-        // KS_TODO - Move the executing functions to directly
-        // use CIMName.
-        cout << "Test for class "<< cn[i].getString() << endl;
+        VCOUT5 << "Test for class "<< cn[i].getString() << endl;
         testPullEnumerateInstances(client, ns, cn[i].getString());
         counter++;
     }
@@ -2111,6 +2128,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     counter = 0;
     for (Uint32 i = 0 ; i < cn.size() ; i++)
     {
+        VCOUT5 << "Test for class "<< cn[i].getString() << endl;
         testPullEnumerationInstancePaths(client, ns, cn[i].getString());
         counter++;
     }
@@ -2120,7 +2138,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
 
     // Test association requests against all instances in the system
     // that are not association classes.
-    VCOUT5 << "Association Tests" << endl;
+    VCOUT4 << "Association Tests" << endl;
     counter = 0;
     for (Uint32 i = 0 ; i < cn.size() ; i++)
     {
@@ -2260,8 +2278,7 @@ int main(int argc, char** argv)
             case 'v':               // verbose display with integer
             {
                 verbose_opt = stringToUint32(optarg);
-                cout << "verbose_opt " << verbose_opt << endl;
-                if (verbose_opt > 5)
+                if (verbose_opt > 6)
                 {
                     cerr << "INPUT ERROR: max verbose level is 5" << endl;
                     exit(1);

@@ -99,12 +99,23 @@ static void  testHandleIndication(
 
     ContentLanguageList contentLanguages;
 
-    hdlr->handleIndication(context,
-            PEGASUS_NAMESPACENAME_INTEROP.getString(),
-            indicationInstance,
-            hInstance,
-            subscription,
-            contentLanguages);
+    try
+    {
+        hdlr->handleIndication(context,
+                PEGASUS_NAMESPACENAME_INTEROP.getString(),
+                indicationInstance,
+                hInstance,
+                subscription,
+                contentLanguages);
+    }
+    catch (CannotOpenFile &e)
+    {
+        throw e;
+    }
+    catch (const Exception &e)
+    {
+        throw e;
+    }
 }
 
 static CIMObjectPath CreateFilterInstance(CIMClient& client,

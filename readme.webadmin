@@ -36,6 +36,8 @@ Pegasus webadmin interface provides a limited edition of administering the
 cimserver through web. Currently, modification of cimserver config options
 viewing the Providers registered and subscriptions view are supported. In
 future management of subscriptions and provider management will be added.
+In OpenPegasus 2.14, Webadmin is still in a experimental vesrion and will
+be improved in the future.
 
 How to build pegasus for using webadmin?
 ========================================
@@ -77,7 +79,7 @@ ones in mimeTypes.txt.
 What are the security concern for using webadmin?
 =================================================
 The security is enabled by default in the release version.To disable it,set 
-enableAuthentication=true when start cimserver. When PAM is enabled, webadmin is
+enableAuthentication=false when start cimserver. When PAM is enabled, webadmin is
 able to access by the system users, otherwise the cim users needs to be added by 
 the tool cimuser.Authorization is still not clear until a role based authorization is 
 implemented in the future release.
@@ -88,6 +90,7 @@ What is relation between Webadmin and CIM-RS?
 Webadmin is based on the restful services which is defined by DMTF DSP0210.
 http://dmtf.org/sites/default/files/standards/documents/DSP0210_1.0.0.pdf 
 From OpenPegasus 2.14, CIM-RS will be supported partly.
+
 
 References:
 ===========

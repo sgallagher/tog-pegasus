@@ -99,10 +99,11 @@ void RsProcessor::handleEnqueue(Message* message)
     PEG_METHOD_EXIT();
 }
 
-Uint32 findEndBlock(String& contentStr,
-                    Uint32 startPos,
-                    Char16 delemStart,
-                    Char16 delemEnd)
+Uint32 findEndBlock(
+    String& contentStr,
+    Uint32 startPos,
+    Char16 delemStart,
+    Char16 delemEnd)
 {
     Uint32 retPos = PEG_NOT_FOUND;
     Uint32 indent = 1;
@@ -979,8 +980,8 @@ void RsProcessor::handleRequest(RsHTTPRequest* request)
                     QueueIdStack(request->queueId)));
 
                 response->setContentType(STRLIT_ARGS(CIM_RS_CONTENT_TYPE));
-
                 break;
+
             case RS_REFERENCE_GET:
                 cimClass = _repository->getClass(
                     namespaceName,

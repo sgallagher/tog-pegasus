@@ -41,13 +41,13 @@ be improved in the future.
 
 How to build pegasus for using webadmin?
 ========================================
-If you are building from sources, No need to set any build environ variable. It
-is enabled by default.
+If you are building from sources, No need to set any build environ variable.
+It is enabled by default.
 webadmin interface's backbone is CIM-RS details at [1] and webserver facility
 built on pegasus. CIM-RS accepts payload represented as JSON[2]. The response
 in JSON can be consumed webserver and can be shown as a webpage.
-CIM-RS is built as a integral part of cimserver, not controlled by any env and
-webserver facility is controlled by PEGASUS_ENABLE_PROTOCOL_WEB, which is
+CIM-RS is built as a integral part of cimserver, not controlled by any env
+and webserver facility is controlled by PEGASUS_ENABLE_PROTOCOL_WEB, which is
 enabled by default. To disable it set PEGASUS_ENABLE_PROTOCOL_WEB=false.
 
 How do I bring up the webadmin?
@@ -58,8 +58,9 @@ localhost.localdomain:5988.
 
 What port is uses?
 ==================
-For this release(OpenPegasus 2.14), the port is fixed and not able to change. The port is 5988.
-In the furture release , the port will be able assigned.
+Webadmin and CIM-RS currently uses the DMTF's CIMOM ports i.e 5988(http) and
+5989(https). This port will be updated with dedicated port for CIM-RS when
+available.
 
 where does my webRoot points to?
 ===============================
@@ -78,18 +79,19 @@ ones in mimeTypes.txt.
  
 What are the security concern for using webadmin?
 =================================================
-The security is enabled by default in the release version.To disable it,set 
+The two usual scenarios about security authentication and authorizations
+The security is enabled by default in the release version. To disable it,set 
 enableAuthentication=false when start cimserver. When PAM is enabled, webadmin is
 able to access by the system users, otherwise the cim users needs to be added by 
-the tool cimuser.Authorization is still not clear until a role based authorization is 
-implemented in the future release.
+the tool cimuser.Authorization is still not clear until a role based authorization
+is implemented in the future release.
 
 
 What is relation between Webadmin and CIM-RS?
 =================================================================
-Webadmin is based on the restful services which is defined by DMTF DSP0210.
-http://dmtf.org/sites/default/files/standards/documents/DSP0210_1.0.0.pdf 
-From OpenPegasus 2.14, CIM-RS will be supported partly.
+Webadmin is based on the CIM-Restful services(CIM-RS) which is defined by [1].
+As of pegasus 2.14, CIM-RS support is partial and this support will be done
+phase by phase.
 
 
 References:

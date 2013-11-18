@@ -1016,7 +1016,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String authorization;
 
             //
-            // do Local/Pegasus authenticatio
+            // do Local/Pegasus authentication
             //
             if (HTTPMessage::lookupHeader(headers,
                     _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false))

@@ -29,7 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #ifndef PEGASUS_PAM_AUTHENTICATION
 # include <Pegasus/Security/UserManager/UserManager.h>
@@ -350,7 +349,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
     {
         if ( ! System::isPrivilegedUser(userName) )
         {
-            Uint32 size = _authorizedUserGroups.size();
+            const Uint32 size = _authorizedUserGroups.size();
 
             if (size > 0)
             {
@@ -513,7 +512,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
 
     Message* request = dequeue();
     if (request)
+    {
         handleEnqueue(request);
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -547,7 +548,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     //
     // Check if the group name is empty
     //
-    if (groupNames == String::EMPTY)
+    if (groupNames.size() == 0 )
     {
         PEG_METHOD_EXIT();
         return authorizedGroups;
@@ -561,7 +562,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     Uint32 position = 0;
     String groupName;
 
-    while (groupNames != String::EMPTY)
+    while (groupNames.size() != 0 )
     {
         //
         // Get a group name from user groups

@@ -59,8 +59,7 @@ LIBRARIES = \
 	ProviderRegistrationProvider\
 	NamespaceProvider \
 	peggeneral \
-	pegcommon \
-	cimrsserver
+	pegcommon
 
 ifndef PEGASUS_PAM_AUTHENTICATION
     LIBRARIES += peguser \

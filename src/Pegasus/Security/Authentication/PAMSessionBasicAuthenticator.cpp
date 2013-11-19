@@ -122,7 +122,8 @@ String PAMSessionBasicAuthenticator::getAuthResponseHeader()
 AuthenticationStatus PAMSessionBasicAuthenticator::updateExpiredPassword(
         const String& userName,
         const String& oldPass,
-        const String& newPass)
+        const String& newPass,
+        const String& ipAddress)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMSessionBasicAuthenticator::updateExpiredPassword()");
@@ -130,7 +131,8 @@ AuthenticationStatus PAMSessionBasicAuthenticator::updateExpiredPassword(
     int pamRC = _PAMUpdateExpiredPassword(
         userName.getCString(),
         oldPass.getCString(),
-        newPass.getCString());
+        newPass.getCString(),
+        ipAddress.getCString());
 
     AuthenticationStatus authStatus = _getAuthStatusFromPAM_RC(pamRC);
     

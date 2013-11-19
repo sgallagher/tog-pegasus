@@ -73,20 +73,19 @@ PAMData;
 **==============================================================================
 */
 
-static void _freePAMMessage(int numMsg, struct pam_response** rsp)
+static void _freePAMResponse(int numMsg, struct pam_response* rsp)
 {
     // rsp is initialized to zero's, can call free() since it does check for
     // Null Pointer and a failed malloc does not change pointer value
     for (int i = 0; i < numMsg; i++)
     {
-        if (rsp[i]->resp != NULL)
+        if (rsp[i].resp != NULL)
         {
-            memset(rsp[i]->resp, 0, PAM_MAX_MSG_SIZE);
-            free(rsp[i]->resp);
+            memset(rsp[i].resp, 0, PAM_MAX_MSG_SIZE);
+            free(rsp[i].resp);
         }
     }
-    free(*rsp);
-    *rsp = NULL;
+    free(rsp);
 }
 
 static int PAMAuthenticateCallback(
@@ -96,18 +95,19 @@ static int PAMAuthenticateCallback(
 #else
     struct pam_message** msg,
 #endif
-    struct pam_response** resp,
+    struct pam_response** response,
     void* appdata_ptr)
 {
     PAMData* data = (PAMData*)appdata_ptr;
+    struct pam_response *reply;
     int i;
 
     if (num_msg > 0)
     {
-        *resp = (struct pam_response*)calloc(
+        reply = (struct pam_response*)calloc(
             num_msg, sizeof(struct pam_response));
 
-        if (*resp == NULL)
+        if (reply == NULL)
             return PAM_BUF_ERR;
     }
     else
@@ -121,25 +121,26 @@ static int PAMAuthenticateCallback(
         {
             case PAM_PROMPT_ECHO_OFF:
             {
-                resp[i]->resp = (char*)malloc(PAM_MAX_MSG_SIZE);
-                if (resp[i]->resp == NULL)
+                reply[i].resp = (char*)malloc(PAM_MAX_MSG_SIZE);
+                if (reply[i].resp == NULL)
                 {
-                    _freePAMMessage(num_msg, resp);
+                    _freePAMResponse(num_msg, reply);
                     return PAM_BUF_ERR;
                 }
-                strncpy(resp[i]->resp, data->password, PAM_MAX_MSG_SIZE);
-                resp[i]->resp_retcode = 0;
+                strncpy(reply[i].resp, data->password, PAM_MAX_MSG_SIZE);
+                reply[i].resp_retcode = 0;
                 break;
             }
 
             default:
             {
-                _freePAMMessage(num_msg, resp);
+                _freePAMResponse(num_msg, reply);
                 return PAM_CONV_ERR;
             }
         }
     }
-    return PAM_SUCCESS;
+    *response = reply; 
+    return PAM_SUCCESS;  
 }
 
 /*
@@ -159,18 +160,19 @@ static int PAMUpdateExpiredPasswordCallback(
 #else
     struct pam_message** msg,
 #endif
-    struct pam_response** resp,
+    struct pam_response** response,
     void* appdata_ptr)
 {
     PAMData* data = (PAMData*)appdata_ptr;
+    struct pam_response *reply;
     int i;
 
     if (num_msg > 0)
     {
-        *resp = (struct pam_response*)calloc(
+        reply = (struct pam_response*)calloc(
             num_msg, sizeof(struct pam_response));
 
-        if (*resp == NULL)
+        if (reply == NULL)
             return PAM_BUF_ERR;
     }
     else
@@ -184,31 +186,32 @@ static int PAMUpdateExpiredPasswordCallback(
         {
             case PAM_PROMPT_ECHO_OFF:
             {
-                resp[i]->resp = (char*)malloc(PAM_MAX_MSG_SIZE);
-                if (resp[i]->resp == NULL)
+                reply[i].resp = (char*)malloc(PAM_MAX_MSG_SIZE);
+                if (reply[i].resp == NULL)
                 {
-                    _freePAMMessage(num_msg, resp);
+                    _freePAMResponse(num_msg, reply);
                     return PAM_BUF_ERR;
                 }
                 if (i > 0)
                 {
-                    strncpy(resp[i]->resp, data->newpassword, PAM_MAX_MSG_SIZE);
+                    strncpy(reply[i].resp, data->newpassword, PAM_MAX_MSG_SIZE);
                 }
                 else
                 {
-                    strncpy(resp[0]->resp, data->password, PAM_MAX_MSG_SIZE);
+                    strncpy(reply[0].resp, data->password, PAM_MAX_MSG_SIZE);
                 }
-                resp[i]->resp_retcode = 0;
+                reply[i].resp_retcode = 0;
                 break;
             }
 
             default:
             {
-                _freePAMMessage(num_msg, resp);
+                _freePAMResponse(num_msg, reply);
                 return PAM_CONV_ERR;
             }
         }
     }
+    *response = reply; 
     return PAM_SUCCESS;
 }
 
@@ -229,26 +232,28 @@ static int PAMValidateUserCallback(
 #else
     struct pam_message** msg,
 #endif
-    struct pam_response** resp,
+    struct pam_response** response,
     void* appdata_ptr)
 {
+ 
+    struct pam_response* reply;
     msg = 0;
 
     appdata_ptr = 0;
 
     if (num_msg > 0)
     {
-        *resp = (struct pam_response*)calloc(
+        reply = (struct pam_response*)calloc(
             num_msg, sizeof(struct pam_response));
 
-        if (*resp == NULL)
+        if (reply == NULL)
             return PAM_BUF_ERR;
     }
     else
     {
         return PAM_CONV_ERR;
     }
-
+    *response = reply;
     return PAM_SUCCESS;
 }
 
@@ -445,7 +450,8 @@ static int _PAMValidateUser(
 static int _PAMUpdateExpiredPassword(
     const char* username,
     const char* oldpass,
-    const char* newpass)
+    const char* newpass,
+    const char* ipaddress)
 {
     pam_handle_t* handle;
     PAMData data;
@@ -465,13 +471,34 @@ static int _PAMUpdateExpiredPassword(
         _logPAMError(0, "pam_start", pam_rc);
         return pam_rc;
     }
-    
-    pam_rc = pam_authenticate(handle, 0);
+  
+    // set the PAM_RHOST so product can audit log the ip  
+    // address of the remote host that is changing the password
+ 
+    pam_rc = pam_set_item(
+        handle,
+        PAM_RHOST,
+        ipaddress);  
 
-    if (!(pam_rc == AUTHSC_PASSWORD_EXPIRED) ||
-         (pam_rc == AUTHSC_PASSWORD_CHG_REQUIRED))
+    if (pam_rc !=PAM_SUCCESS)
+    {
+        _logPAMError(handle, "pam_set_item(PAM_RHOST)", pam_rc);
+        pam_end(handle, 0);
+        return pam_rc;
+    }
+    pam_rc = pam_authenticate(handle, 0);
+    if (pam_rc != PAM_SUCCESS)
     {
         _logPAMError(handle, "pam_authenticate", pam_rc);
+        pam_end(handle, 0);
+        return pam_rc;
+    }
+    
+    pam_rc = pam_acct_mgmt(handle, 0);
+    if ( (pam_rc != PAM_CRED_EXPIRED) &&
+         (pam_rc != PAM_NEW_AUTHTOK_REQD))
+    {
+        _logPAMError(handle, "pam_acct_mgmt", pam_rc);
         pam_end(handle, 0);
         return pam_rc;
     }

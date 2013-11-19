@@ -82,20 +82,30 @@
              not as error prone.
            - Drop the existing defaults in favor of namespace = root/cimv2
              and no target default.
+           - Expand object compare to more details (maybe) 
            - Finish connect code so we can connect to other systems.  Needs
              to be tested and determine if we need security.
            - Combine verbose and verbose_opt.  i.e. Use a particular level
-             of verbose_opt for verbose. Probably just delete the old
+             of verbose_opt for verbose. Better just delete the old
              verbose option.  Not of real value here or use it to set
-             a particular level of display output
-           - Add the other options for other parameters. I think we now have
+             a particular level of display output.
+           - Review the other options for other parameters. I think we now have
              almost all operations defined.
            - Add concurrent repeat operation test mode (while loop around)
              whole setup and thread for each open, do, close with inner loop
              for repeat of particular open-pull sequence.
-           - Clean up the levels of output visibility.  I did not consistently
-             apply the various levels (0,1,2,3,4,5,6)
 */
+
+/*
+    Known issues
+    -  In a compare of all classes, if the instances change during the
+       operation or between the pull and other operation, we will report
+       differences that are actually real differences, not errors.  The
+       best way around that might be a mechanism to exclude certain classes
+       from the all request via a parameter to provide a list of classes to
+       be excluded.
+*/
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
@@ -342,39 +352,6 @@ OPTIONS:\n\
                      as the MAXOBJECTS parameters.\n\
     -W               Boolean. Treat Errors in Compare as warnings.\n\
 \n";
-
-/*
-    TODO - - Expand concept of max objects to array so we can have a sequence.
-             Could have either rotation through the array or remove used
-             from top.  Add code to say which (repeat or something). This
-             means we could remove the -p option in favor of use of the
-             array
-           - Set timeout to spec default of NULL. MaxObjectCount to correspond
-             to spec defaults. 0 for open, required for Pulls.. What do we
-             We Really do want two parameters since the basic requirement
-             differs between open and pull.
-           - Figure way to do whole sequence of operations. Note that
-             expanding maxobjects and timeout part of that. This would add
-             repeat opt with corresponding do{...} while loop.
-           - Add operation timer. We have commands for start and stop.  Want
-             to be able to see overall and detailed results of each operation
-             and somehow specify each.  For details we can do an array of
-             a struct and then do a single accumulator for the total which
-             would be the accumulated time of each operation.
-           - Expand classname to array (i.e. multiple use of option) with
-             for loop for processing of the list.
-           - Question - Is timeout on all operations or just open.  Answer.
-             Just open. Check to be sure we comply
-           - Expand object compare to more details (maybe)
-           - Finish connect code so we can connect to other systems.
-           - Combine verbose and verbose_opt.  i.e. Use a particular level
-             of verbose_opt for verbose.
-           - Add the other options for other parameters. I think we now have
-             almost all operations defined.
-           - Add concurrent repeat operation test mode (while loop around)
-             whole setup and thread for each open, do, close with inner loop
-             for repeat of particular open-pull sequence.
-*/
 
 /*************************************************************************
 **

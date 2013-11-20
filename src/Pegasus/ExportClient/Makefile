@@ -40,13 +40,18 @@ endif
 
 LIBRARY = pegexportclient
 
-LIBRARIES = \
-    pegcommon \
-    pegclient
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-LIBRARIES +=\
+LIBRARIES =\
 	pegwsmserver
 endif
+
+LIBRARIES += \
+    pegwql \
+    pegquerycommon \
+    pegrepository \
+    pegconfig \
+    pegcommon \
+    pegclient
 
 PRE_DEPEND_INCLUDES = -I./depends
 

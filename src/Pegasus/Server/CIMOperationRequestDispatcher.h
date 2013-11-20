@@ -391,8 +391,7 @@ public:
 
     Boolean appendResponse(CIMResponseMessage* response);
 
-    //// TODO restore constness
-    Uint32 numberResponses();
+    Uint32 numberResponses()const ;
 
     CIMOperationRequestMessage* getRequest();
 
@@ -907,8 +906,6 @@ protected:
         const CIMName& className,
         CIMException& cimException);
 
-    // KS_TODO Bring all the error functions into a common place and with
-    // common naming (ex. check...) common return mechanism.
 /*
     Check to determine if we have any providers or repository for this
     class.

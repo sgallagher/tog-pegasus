@@ -748,6 +748,17 @@ Array<CIMObjectPath> CIMClient::pullInstancePaths(
         maxObjectCount).getInstanceNames();
 }
 
+Array<CIMInstance> CIMClient::pullInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+    return _rep->pullInstances(
+        enumerationContext,
+        endOfSequence,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
 void CIMClient::closeEnumeration(
     CIMEnumerationContext& enumerationContext)
 {

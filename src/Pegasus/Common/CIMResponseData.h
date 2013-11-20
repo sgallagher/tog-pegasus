@@ -59,12 +59,13 @@ typedef Array<Sint8> ArraySint8;
 
 //// KS_TODO REMOVE THIS _Temp test for size validity DELETE when done
 //// With development of pull extensions that use the size() function
-////#define PSVALID PEGASUS_ASSERT(sizeValid());
-#define PSVALID
+#define TEST_SIZE_VALID PEGASUS_ASSERT(sizeValid());
+////#define TEST_SIZE_VALID
 /*
-#define PSVALID {printf("PSVALID Error line %u\n",__LINE__); \
+#define TEST_SIZE_VALID {printf("TEST_SIZE_VALID Error line %u\n",__LINE__); \
  PEGASUS_ASSERT(sizeValid());}
-#define PSVALID {if(!sizeValid(){printf("PSVALID Error line %u\n",__LINE__);
+#define TEST_SIZE_VALID {if(!sizeValid(){
+printf("TEST_SIZE_VALID Error line %u\n",__LINE__);
 PEGASUS_ASSERT(false);}}
 */
 class PEGASUS_COMMON_LINKAGE CIMResponseData
@@ -216,13 +217,13 @@ public:
     void setInstance(const CIMInstance& x)
     {
         //// AutoMutex autoMut(testLock);
-        PSVALID;
+        TEST_SIZE_VALID;
         _instances.clear();
         _instances.append(x);
         _size++;
         _encoding |= RESP_ENC_CIM;
 
-        PSVALID;
+        TEST_SIZE_VALID;
     }
 
     // Instances handling
@@ -242,11 +243,11 @@ public:
     void setInstances(const Array<CIMInstance>& x)
     {
         //// AutoMutex autoMut(testLock);
-        PSVALID;
+        TEST_SIZE_VALID;
         _instances=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
-        PSVALID;
+        TEST_SIZE_VALID;
     }
 
     void appendInstance(const CIMInstance& x)

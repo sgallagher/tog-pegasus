@@ -1272,13 +1272,6 @@ CIMResponseData CIMClientRep::pullInstancesWithPath(
     Boolean& endOfSequence,
     const Uint32 maxObjectCount)
 {
-    // Issue local exception if the context is invalid
-    // KS_TODO - Why not just let server do this.
-//  if (endOfSequence == false &&
-//      enumerationContext.getContextString().size())
-//  {
-//      throw InvalidEnumerationContextException();
-//  }
     AutoPtr<CIMRequestMessage> request(
         new CIMPullInstancesWithPathRequestMessage(
             String::EMPTY,                  // messageId_ param
@@ -1307,12 +1300,6 @@ CIMResponseData CIMClientRep::pullInstancePaths(
     Boolean& endOfSequence,
     Uint32 maxObjectCount)
 {
-    // Issue local exception of context is invalid
-//  if (endOfSequence == false &&
-//      enumerationContext.getContextString().size())
-//  {
-//      throw InvalidEnumerationContextException();
-//  }
     AutoPtr<CIMRequestMessage> request(
         new CIMPullInstancePathsRequestMessage(
             String::EMPTY,                  // messageId_ param
@@ -1337,15 +1324,37 @@ CIMResponseData CIMClientRep::pullInstancePaths(
         return response->getResponseData();
 }
 
+CIMResponseData CIMClientRep::pullInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMPullInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            maxObjectCount,
+            QueueIdStack() ));
+
+        Message* message =
+            _doRequest(request, CIM_PULL_INSTANCES_RESPONSE_MESSAGE);
+
+        CIMPullInstancesResponseMessage* response =
+            (CIMPullInstancesResponseMessage*)message;
+
+        AutoPtr<CIMPullInstancesResponseMessage> destroyer(response);
+
+        // set paramters to be returned to caller
+        endOfSequence = response->endOfSequence;
+        enumerationContext.setContextString(response->enumerationContext);
+
+        return response->getResponseData();
+}
+
 void CIMClientRep::closeEnumeration(
     CIMEnumerationContext& enumerationContext)
 {
-    // Issue local exception of context invalid
-    // KS_TODO - Why even getting enumerationContext???
-//  if (enumerationContext.getContextString().size())
-//  {
-//      throw InvalidEnumerationContextException();
-//  }
     AutoPtr<CIMRequestMessage> request(
         new CIMCloseEnumerationRequestMessage(
             String::EMPTY,                  // messageId_ param

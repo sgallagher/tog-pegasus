@@ -302,12 +302,14 @@ public:
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
+
     CIMOpenEnumerateInstancePathsRequestMessage*
         decodeOpenEnumerateInstancePathsRequest(
             Uint32 queueId,
             XmlParser& parser,
             const String& messageId,
             const CIMNamespaceName& nameSpace);
+
     CIMPullInstancesWithPathRequestMessage* decodePullInstancesWithPathRequest(
         Uint32 queueId,
         XmlParser& parser,
@@ -315,6 +317,12 @@ public:
         const CIMNamespaceName& nameSpace);
 
     CIMPullInstancePathsRequestMessage* decodePullInstancePathsRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMPullInstancesRequestMessage* decodePullInstancesRequest(
         Uint32 queueId,
         XmlParser& parser,
         const String& messageId,

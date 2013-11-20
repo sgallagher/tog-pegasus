@@ -385,10 +385,16 @@ public:
     virtual CIMResponseData pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
-         Uint32 maxObjectCount
+        Uint32 maxObjectCount
     );
 
     virtual CIMResponseData pullInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        Uint32 maxObjectCount
+    );
+
+    virtual CIMResponseData pullInstances(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         Uint32 maxObjectCount

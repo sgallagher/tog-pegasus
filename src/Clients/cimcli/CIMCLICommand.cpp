@@ -1062,7 +1062,7 @@ int main(int argc, char** argv)
                         exit(CIMCLI_INPUT_ERR);
                     opts.termCondition = pullAssociatorInstancePaths(opts);
                     break;
-
+//KS_PULL_END
                 case (ID_CountInstances):
                     if (_getClassNameInput(argc, argv, opts,  false))
                     {
@@ -1073,7 +1073,7 @@ int main(int argc, char** argv)
                         exit(CIMCLI_INPUT_ERR);
                     }
                     break;
-//KS_PULL_END
+
 
                 case (ID_ClassTree):
                     if (_getClassNameInput(argc, argv, opts,  false))

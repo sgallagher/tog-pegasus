@@ -280,6 +280,12 @@ private:
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
+    CIMPullInstancesResponseMessage*
+        _decodePullInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
     CIMCloseEnumerationResponseMessage* _decodeCloseEnumerationResponse(
         XmlParser& parser,
         const String& messageId,

@@ -666,6 +666,20 @@ CIMResponseMessage* CIMPullInstancePathsRequestMessage::buildResponse() const
     return response.release();
 }
 
+CIMResponseMessage*
+    CIMPullInstancesRequestMessage::buildResponse() const
+{
+    AutoPtr<CIMPullInstancesResponseMessage> response(
+        new CIMPullInstancesResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            false,
+            enumerationContext));
+    response->syncAttributes(this);
+    return response.release();
+}
+
 CIMResponseMessage* CIMCloseEnumerationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMCloseEnumerationResponseMessage> response(

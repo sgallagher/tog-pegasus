@@ -707,6 +707,12 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
                     parser, messageId, isEmptyTag);
             }
             else if (System::strcasecmp(
+                    iMethodResponseName, "PullInstances") == 0)
+            {
+                response = _decodePullInstancesWithPathResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
                     iMethodResponseName, "CloseEnumeration") == 0)
             {
                 response = _decodeCloseEnumerationResponse(
@@ -1925,6 +1931,33 @@ void _decodeGetInstancesWithPathElement(
     }
 }
 
+/*
+    decode returned instances Element into an array
+    of instances. This function is only for pullInstances.
+*/
+//// KS_TODO Since there is only one user, this could be in the decode
+//// function
+void _decodeGetInstancesElement(
+    XmlParser& parser,
+    Array<CIMInstance>& instances)
+{
+    XmlEntry entry;
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMInstance instance;
+
+            while (XmlReader::getInstanceElement(parser, instance))
+            {
+                instances.append(instance);
+            }
+
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+}
+
 /*  Common Function for Open, Pull Parm Value processing.
     Parse the output parameters from the  responses that
     have two parameters (endOfSequence and enumerationContext). These
@@ -2437,6 +2470,55 @@ CIMPullInstancePathsResponseMessage*
         enumerationContext);
 
     msg->getResponseData().setInstanceNames(instancePaths);
+    return msg;
+}
+
+CIMPullInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodePullInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> instances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMPullInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+    // EXP_PULL should error out if response empty
+    if (isEmptyImethodresponseTag)
+    {
+        CIMException cimException;
+        return new CIMPullInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+    _decodeGetInstancesElement(parser, instances);
+
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMPullInstancesResponseMessage* msg;
+
+    msg = new CIMPullInstancesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstances(instances);
     return msg;
 }
 

@@ -347,6 +347,11 @@ public:
         Boolean& endOfSequence,
         Uint32 MaxObjectCount ) = 0;
 
+    virtual CIMResponseData pullInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        Uint32 MaxObjectCount) = 0;
+
     virtual void closeEnumeration(
         CIMEnumerationContext& enumerationContext ) = 0;
 

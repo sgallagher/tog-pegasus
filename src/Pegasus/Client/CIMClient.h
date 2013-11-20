@@ -1474,7 +1474,57 @@ public:
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         Uint32 maxObjectCount );
+    /**
+    The <TT>PullInstances</TT> operation retrieves instances for an
+    open enumeration sequence opened by an openQueryInstances
+    operation and represented by an enumeration context returned by
+    the original open or previous <TT>pullInstances</TT> operation.
+    The client must not issue a pull operation until the previous
+    open or pull operation has been successfully completed.
 
+    @param enumerationContext CIMEnumerationContext input/output
+    parameter. The <TT>enumerationContext</TT> is the identifier for the
+    enumeration sequence. Since the server may modify the
+    <TT>enumerationContext</TT> value for each operation in the sequence,
+    the client MUST return the enumerationContext received in the
+    previous operation for this sequence.
+
+    @param endOfSequence Boolean output parameter indicates when the
+    enumeration sequence is complete. if <TT>endofSequence</TT> is
+    true upon successful completion of the operation, the sequence is
+    complete and the <TT>enumerationContext</TT> can be assumed to be
+    invalid for any future operations. If the <TT>endOfSequence</TT> is
+    false additional elements may be available from the server.
+
+    @param maxObjectCount Uint32 input parameter (required) that defines
+    the maximum number of instances that may be returned by the server. Any
+    Uint32 integer is allowed including 0. The client may use
+    the value zero to tell the server to keep the enumeration sequence
+    open without retrieving any instances.
+
+    @return If the <TT>pullInstances</TT> request is successful the
+    method return contains zero or more CIMInstances (with no path
+    component).
+
+    If not successful the operation returns one of the following
+    exceptions:
+        <UL>
+            <LI>CIM_ERR_ACCESS_DENIED
+            <LI>CIM_ERR_SERVER_IS_SHUTTING_DOWN
+            <LI>CIM_ERR_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_NAMESPACE
+            <LI>CIM_ERR_INVALID_PARAMETER
+            <LI>CIM_ERR_INVALID_ENUMERATION_CONTEXT
+            <LI>CIM_ERR_PULL_HAS_BEEN_ABANDONED
+            <LI>CIM_ERR_SERVER_LIMITS_EXCEEDED
+            <LI>CIM_ERR_FAILED
+        </UL>
+    */
+
+    Array<CIMInstance> pullInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        Uint32 maxObjectCount );
     /**
     The <TT>closeEnumeration</TT> operation closes an open enumeration
     sequence represented by a valid <TT>enumerationContext</TT> parameter. This

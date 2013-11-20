@@ -260,11 +260,6 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     "Clients.cimcli.CIMCLIClient.PAIP_COMMAND_HELP",
         "Execute Open,Pull AssociatorInstancePaths using the Pull Operations"},
 //KS_PULL_END
-
-    {ID_CountInstances,   "Count All instances in Namespace",2, "cci",
-    "Clients.cimcli.CIMCLIClient.CntInst_COMMAND_HELP",
-        "Counts all Instances in Namespace and sorts by ClassName"},
-
 };
 
 const Uint32 NUM_OPERATIONS =

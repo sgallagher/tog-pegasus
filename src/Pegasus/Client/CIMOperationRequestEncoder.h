@@ -173,6 +173,9 @@ private:
     void _encodePullInstancePathsRequest(
         CIMPullInstancePathsRequestMessage* message);
 
+    void _encodePullInstancesRequest(
+        CIMPullInstancesRequestMessage* message);
+
     void _encodeCloseEnumerationRequest(
         CIMCloseEnumerationRequestMessage* message);
 

@@ -186,18 +186,19 @@ Boolean OperationAggregate::appendResponse(CIMResponseMessage* response)
    responseList.  Note:this is not the Total number of responses,
    just the number currently available for aggregation.
 */
-//// TODO Restore the const on this one.  Gone for moment because of automutex
-Uint32 OperationAggregate::numberResponses()
+
+Uint32 OperationAggregate::numberResponses() const
 {
     PEGASUS_ASSERT(valid());   // KS_TEMP TODO
-    AutoMutex autoMut(_appendResponseMutex);
-    Uint32 size = _responseList.size();
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses = %u read", size ));
-    return size;
+//// KS_TODO This was temporary code during testing.
+////  AutoMutex autoMut(_appendResponseMutex);
+////  Uint32 size = _responseList.size();
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////      "numberResponses = %u read", size ));
+////  return size;
 
     //// TODO AutoMutex autoMut(_appendResponseMutex);
-    //// return _responseList.size();
+    return _responseList.size();
 }
 
 CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)

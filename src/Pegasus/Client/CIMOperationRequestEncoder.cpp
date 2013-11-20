@@ -286,6 +286,11 @@ void CIMOperationRequestEncoder::handleEnqueue()
                 (CIMPullInstancePathsRequestMessage*)message);
             break;
 
+        case CIM_PULL_INSTANCES_REQUEST_MESSAGE:
+            _encodePullInstancesRequest(
+                (CIMPullInstancesRequestMessage*)message);
+            break;
+
         case CIM_CLOSE_ENUMERATION_REQUEST_MESSAGE:
             _encodeCloseEnumerationRequest(
                 (CIMCloseEnumerationRequestMessage*)message);
@@ -1361,7 +1366,28 @@ void CIMOperationRequestEncoder::_encodePullInstancePathsRequest(
     _sendRequest(buffer);
 }
 
-void CIMOperationRequestEncoder::_encodeCloseEnumerationRequest(
+void CIMOperationRequestEncoder::_encodePullInstancesRequest(
+    CIMPullInstancesRequestMessage* message)
+{
+    Buffer params;
+
+    _encodeCommonPullOperationParameters(message->maxObjectCount,
+        message->enumerationContext,
+        params);
+
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, CIMName ("PullInstances"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        ((AcceptLanguageListContainer)message->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params, _binaryResponse);
+
+    _sendRequest(buffer);
+}void CIMOperationRequestEncoder::_encodeCloseEnumerationRequest(
     CIMCloseEnumerationRequestMessage* message)
 {
     Buffer params;

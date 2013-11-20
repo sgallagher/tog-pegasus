@@ -1118,7 +1118,31 @@ public:
     String enumerationContext;
     Uint32 maxObjectCount;
 };
+class PEGASUS_COMMON_LINKAGE CIMPullInstancesRequestMessage
+    : public CIMOperationRequestMessage
+{
+public:
+    CIMPullInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        const Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY)
+    : CIMOperationRequestMessage(
+        CIM_PULL_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
+            authType_, userName_,
+            nameSpace_,CIMName()),
+        enumerationContext(enumerationContext_),
+        maxObjectCount(maxObjectCount_)
+    {
+    }
+    virtual CIMResponseMessage* buildResponse() const;
 
+    String enumerationContext;
+    Uint32 maxObjectCount;
+};
 
 class PEGASUS_COMMON_LINKAGE CIMCloseEnumerationRequestMessage
     : public CIMOperationRequestMessage
@@ -1990,6 +2014,21 @@ class PEGASUS_COMMON_LINKAGE CIMPullInstancePathsResponseMessage
 {
 public:
     CIMPullInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_);
+
+    Boolean endOfSequence;
+    String enumerationContext;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMPullInstancesResponseMessage
+    : public CIMResponseDataMessage
+{
+public:
+    CIMPullInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,

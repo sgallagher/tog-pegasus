@@ -2113,8 +2113,7 @@ public:
     Boolean got;
     String value;
 
-    // constructor with definition of attribute and default for the
-    // required flag.
+    // constructor with definition of attribute and  required flag.
     // @param name const char* with name of IParam to match
     // @param valueRequired Boolean that defines whether value is required
     stringIParam(const char* name, Boolean _valueRequired):
@@ -2230,17 +2229,35 @@ public:
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is NULL if
-    // no value is supplied.
+    // no value is supplied. This is for paramaters that are not required but
+    // where the default value is NULL.
     // @param name const char* with name of IParam to match
     uint32IParam(const char* name):
         got(false), iParamName(name), valueRequired(false){}
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is integer defined
-    // by supplied value.
+    // by supplied value. This is for parameters that are not required but
+    // for which there is a nonNull default value if the parameter is not
+    // supplied.
     // @param name const char* with name of IParam to match
-    uint32IParam(const char* name, Uint32 _int):
-        got(false), value(_int), iParamName(name), valueRequired(false){}
+    // @param uint32Value Uint32 value that is the default if the paramter
+    // is not  found.
+    // @param rqd Boolean (optional) that defines whether the parameter is
+    // required on input.  If it is required, the iomt32Value is not used
+    uint32IParam(const char* name, Uint32 uint32Value, Boolean rqd = false):
+        got(false), value(uint32Value), iParamName(name), valueRequired(rqd){}
+
+//  // constructor with definition of iParam name and required flag.
+//  //
+//  // @param name const char* with name of IParam to match
+//  // @param required. Boolean indicating whether parameter required.
+//  // NOTE: It might be better to combine this and the default into a single
+//  // constructor since the required=false of this one makes no sense and
+//  // does not allow a default.
+//  uint32IParam(const char* name, Boolean required):
+//      got(false), value(0), iParamName(name), valueRequired(required)
+//  {}
 
     ~uint32IParam(){}
 
@@ -2302,7 +2319,7 @@ void _checkMissingEndTagOrDuplicateParamValue(
     }
 }
 
-// test if Required paramters exist (i.e. the got variable is
+// test if Required parameters exist (i.e. the got variable is
 // true. Generates exception if exist == false
 void _testRequiredParametersExist(Boolean exist)
 {
@@ -3915,6 +3932,7 @@ CIMOpenReferenceInstancesRequestMessage*
     stringIParam filterQueryLanguage("FilterQueryLanguage",false);
     stringIParam filterQuery("FilterQuery", false);
     booleanIParam continueOnError("ContinueOnError");
+    // [IN,OPTIONAL] uint32 MaxObjectCount = 0
     uint32IParam maxObjectCount("MaxObjectCount", 0);
     uint32ArgIParam operationTimeout("OperationTimeout");
 
@@ -4020,6 +4038,7 @@ CIMOpenReferenceInstancePathsRequestMessage*
     stringIParam filterQueryLanguage("FilterQueryLanguage",false);
     stringIParam filterQuery("FilterQuery", false);
     booleanIParam continueOnError("ContinueOnError");
+    // [IN,OPTIONAL] uint32 MaxObjectCount = 0
     uint32IParam maxObjectCount("MaxObjectCount", 0);
     uint32ArgIParam operationTimeout("OperationTimeout");
 
@@ -4112,6 +4131,7 @@ CIMOpenAssociatorInstancesRequestMessage*
     stringIParam filterQueryLanguage("FilterQueryLanguage",false);
     stringIParam filterQuery("FilterQuery", false);
     booleanIParam continueOnError("ContinueOnError");
+    // [IN,OPTIONAL] uint32 MaxObjectCount = 0
     uint32IParam maxObjectCount("MaxObjectCount", 0);
     uint32ArgIParam operationTimeout("OperationTimeout");
 
@@ -4222,6 +4242,7 @@ CIMOpenAssociatorInstancePathsRequestMessage*
     stringIParam filterQueryLanguage("FilterQueryLanguage",false);
     stringIParam filterQuery("FilterQuery", false);
     booleanIParam continueOnError("ContinueOnError");
+    // [IN,OPTIONAL] uint32 MaxObjectCount = 0
     uint32IParam maxObjectCount("MaxObjectCount", 0);
     uint32ArgIParam operationTimeout("OperationTimeout");
 
@@ -4462,6 +4483,64 @@ CIMPullInstancePathsRequestMessage*
     return request.release();
 }
 
+CIMPullInstancesRequestMessage*
+    CIMOperationRequestDecoder::decodePullInstancesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace)
+{
+    STAT_GETSTARTTIME
+
+    // enumerationContext parameter. Required.
+    //[IN,OUT] <enumerationContext> EnumerationContext,
+    stringIParam enumerationContext("EnumerationContext",  true);
+    // maxObjectCount Parameter, Required. The default value is ignored.
+    // [IN] uint32 MaxObjectCount
+    uint32IParam maxObjectCount("MaxObjectCount",0, true);
+
+    Boolean duplicateParameter = false;
+    Boolean emptyTag;
+
+    for (const char* name;
+         XmlReader::getIParamValueTag(parser, name, emptyTag); )
+    {
+        //// KS_TODO confirm that this requires parameter and maxObjecCount
+        //// also
+        if(enumerationContext.get(parser, name, emptyTag))
+        {
+            enumerationContext.iParamFound(duplicateParameter);
+        }
+        else if (maxObjectCount.get(parser, name, emptyTag))
+        {
+            maxObjectCount.iParamFound(duplicateParameter);
+        }
+        else
+        {
+            _throwCIMExceptionInvalidIParamName();
+        }
+
+        // generate exception if endtag error or duplicate attributes
+        _checkMissingEndTagOrDuplicateParamValue(
+            parser, duplicateParameter, emptyTag);
+    }
+
+    _testRequiredParametersExist(maxObjectCount.got);
+
+    _testRequiredParametersExist(enumerationContext.got);
+
+    AutoPtr<CIMPullInstancesRequestMessage> request(
+        new CIMPullInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            enumerationContext.value,
+            maxObjectCount.value,
+            QueueIdStack(queueId, _returnQueueId)));
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
 CIMCloseEnumerationRequestMessage*
     CIMOperationRequestDecoder::decodeCloseEnumerationRequest(
         Uint32 queueId,

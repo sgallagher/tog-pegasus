@@ -44,8 +44,6 @@
 #include <Pegasus/Common/CIMInternalXmlEncoder.h>
 #include <Pegasus/Common/SCMOInternalXmlEncoder.h>
 
-// KS_TODO_DELETE
-#include <Pegasus/Common/Print.h>
 
 PEGASUS_USING_STD;
 
@@ -66,9 +64,10 @@ bool CIMResponseData::sizeValid()
 #ifdef CIMRESPONSEDATA_DEBUG
     if (_size > 1000000)
     {
-        cout << "CIMResponseData::PSVALID _size too big " << _size << endl;
+        cout << "CIMResponseData::TEST_SIZE_VALID _size too big "
+             << _size << endl;
         PEG_TRACE((TRC_XML, Tracer::LEVEL4,
-                   "CIMResponseData::PSVALID _size too big %u",_size ));
+                   "CIMResponseData::TEST_SIZE_VALID _size too big %u",_size ));
         return false;
     }
 #endif
@@ -79,7 +78,7 @@ bool CIMResponseData::sizeValid()
 // Instance Names handling
 Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
 {
-    PSVALID;
+    TEST_SIZE_VALID;
     PEGASUS_DEBUG_ASSERT(
     (_dataType==RESP_INSTNAMES || _dataType==RESP_OBJECTPATHS));
     _resolveToCIM();
@@ -176,7 +175,7 @@ void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setSCMO");
     //// AutoMutex autoMut(testLock);
-    PSVALID;
+    TEST_SIZE_VALID;
     _scmoInstances=x;
     _encoding |= RESP_ENC_SCMO;
     _size += x.size();
@@ -635,7 +634,7 @@ Uint32 CIMResponseData::size()
 {
     AutoMutex autoMut(testLock);
     PEG_METHOD_ENTER(TRC_XML,"CIMResponseData::size()");
-    PSVALID;
+    TEST_SIZE_VALID;
 // If debug mode, add up all the individual size components to
 // determine overall size of this object.  Then compare this with
 // the _size variable.  this is a good check on the completeness of the
@@ -663,7 +662,7 @@ Uint32 CIMResponseData::size()
                 rtnSize += _instanceData.size();
                 break;
         }
-        PSVALID;
+        TEST_SIZE_VALID;
         TEMPLOG;
     }
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
@@ -680,7 +679,7 @@ Uint32 CIMResponseData::size()
 
     if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
-        PSVALID;
+        TEST_SIZE_VALID;
         TEMPLOG;
         rtnSize += _scmoInstances.size();
         TEMPLOG;
@@ -688,7 +687,7 @@ Uint32 CIMResponseData::size()
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        PSVALID;
+        TEST_SIZE_VALID;
         TEMPLOG;
         switch (_dataType)
         {
@@ -704,14 +703,14 @@ Uint32 CIMResponseData::size()
                 rtnSize += _objects.size();
                 break;
         }
-        PSVALID;
+        TEST_SIZE_VALID;
         TEMPLOG;
     }
     // Test of actual count against _size variable. KS_TODO diagnostic
     if (rtnSize != _size)
     {
         TEMPLOG;
-        PSVALID;
+        TEST_SIZE_VALID;
         PEG_TRACE((TRC_XML, Tracer::LEVEL1,
         "CIMResponseData::size ERROR. debug size mismatch."
             "Computed = %u. variable = %u",rtnSize, _size ));
@@ -784,7 +783,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeBinaryResponse");
 
-    PSVALID;
+    TEST_SIZE_VALID;
 
     // Need to do a complete job here by transferring all contained data
     // into binary format and handing it out in the CIMBuffer

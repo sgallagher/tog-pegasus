@@ -92,6 +92,7 @@ enum OperationID
     ID_PullReferenceInstancePaths,
     ID_PullAssociatorInstances   ,
     ID_PullAssociatorInstancePaths,
+    ID_PullQueryInstances,
 //EXP_PULL_END
     ID_CountInstances            ,
     ID_ClassTree

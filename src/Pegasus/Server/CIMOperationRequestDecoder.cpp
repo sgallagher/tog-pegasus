@@ -4492,10 +4492,10 @@ CIMPullInstancesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    // enumerationContext parameter. Required.
+    // enumerationContext parameter. Value Required.
     //[IN,OUT] <enumerationContext> EnumerationContext,
     stringIParam enumerationContext("EnumerationContext",  true);
-    // maxObjectCount Parameter, Required. The default value is ignored.
+    // maxObjectCount Parameter, Value Required. The default value is ignored.
     // [IN] uint32 MaxObjectCount
     uint32IParam maxObjectCount("MaxObjectCount",0, true);
 
@@ -4505,13 +4505,11 @@ CIMPullInstancesRequestMessage*
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        //// KS_TODO confirm that this requires parameter and maxObjecCount
-        //// also
-        if(enumerationContext.get(parser, name, emptyTag))
+       if(enumerationContext.get(parser, name, emptyTag))
         {
             enumerationContext.iParamFound(duplicateParameter);
         }
-        else if (maxObjectCount.get(parser, name, emptyTag))
+        else if(maxObjectCount.get(parser, name, emptyTag))
         {
             maxObjectCount.iParamFound(duplicateParameter);
         }
@@ -4525,9 +4523,9 @@ CIMPullInstancesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(maxObjectCount.got);
-
+    // test to be sure required parameters exist.
     _testRequiredParametersExist(enumerationContext.got);
+    _testRequiredParametersExist(maxObjectCount.got);
 
     AutoPtr<CIMPullInstancesRequestMessage> request(
         new CIMPullInstancesRequestMessage(

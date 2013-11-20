@@ -203,8 +203,8 @@ prn   ReferencesInstances with Pull Execute Open,Pull ReferenceInstancePaths
 pa    AssociatorInstances with Pull Execute Open and Pull Associations
 pan   AssociatorInstance paths with Pull Execute Open,Pull
                             AssociatorInstancePaths using the Pull Operations
-cci   Count All instances in Namespace Counts all Instances in Namespace and
-                            sorts by ClassName -h for all help, -hc for commands, -ho for options
+pxq   execQuery with Pull   Execute query operation using pull Operations
+                           pzq <querylanguage> <query> <pull parameters> -h for all help, -hc for commands, -ho for options
 
 Examples : 
 cimcli ni -n test/TestProvider TST_Person
@@ -411,7 +411,10 @@ cimcli an TST_Person.name=\"Mike\" -n test/TestProvider -ac TST_Lineage
 or
  cimcli an TST_Person -n test/TestProvider -ac TST_Lineage
 
-cimcli cci TST_Person
+cimcli pxq "select * from CIM_ComputerSystem"
+    -- This command will work when the code is compiled with
+       ExecQuery enabled
+
 
 ni    enumerateInstanceNames Enumerate instancenames of <classname>
 niall enumallInstanceNames  Enumerate all instance names and count of
@@ -523,8 +526,8 @@ prn   ReferencesInstances with Pull Execute Open,Pull ReferenceInstancePaths
 pa    AssociatorInstances with Pull Execute Open and Pull Associations
 pan   AssociatorInstance paths with Pull Execute Open,Pull
                             AssociatorInstancePaths using the Pull Operations
-cci   Count All instances in Namespace Counts all Instances in Namespace and
-                            sorts by ClassName -h for all help, -hc for commands, -ho for options
+pxq   execQuery with Pull   Execute query operation using pull Operations
+                           pzq <querylanguage> <query> <pull parameters> -h for all help, -hc for commands, -ho for options
 The options for this command are:
 
 This command executes single CIM Operations.

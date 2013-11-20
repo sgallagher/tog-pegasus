@@ -408,16 +408,16 @@ public:
         CIMEnumerationContext& enumerationContext
     );
 
-    virtual CIMResponseData OpenQueryInstances(
+    virtual CIMResponseData openQueryInstances(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         const CIMNamespaceName& nameSpace,
-        const String& filterQueryLanguage,
-        const String& filterQuery,
+        const String& queryLanguage,
+        const String& query,
         CIMClass& queryResultClass,
         Boolean returnQueryResultClass = false,
+        const Uint32Arg& operationTimeout = NULL,
         Boolean continueOnError = false,
-        Uint32 operationTimeout = NULL,
         Uint32 maxObjectCount = 0
     );
  //EXP_PULL_END

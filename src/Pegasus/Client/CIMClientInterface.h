@@ -337,6 +337,19 @@ public:
         Uint32 maxObjectCount = 0     // Default is 0
         ) = 0;
 
+    virtual CIMResponseData openQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass = false,
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+        ) = 0;
+
     virtual CIMResponseData pullInstancesWithPath(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
@@ -358,17 +371,6 @@ public:
     virtual Uint64Arg enumerationCount(
         CIMEnumerationContext& enumerationContext ) = 0;
 
-    virtual CIMResponseData OpenQueryInstances(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const String& filterQueryLanguage,
-        const String& filterQuery,
-        CIMClass& queryResultClass,
-        Boolean returnQueryResultClass = false,
-        Boolean continueOnError = false,
-        Uint32 operationTimeout = NULL,
-        Uint32 maxObjectCount = 0 ) = 0;
 // EXP_PULL_END
 
 };

@@ -1402,16 +1402,16 @@ Uint64Arg CIMClientRep::enumerationCount(
         return response->count ;
 }
 
-CIMResponseData CIMClientRep::OpenQueryInstances(
+CIMResponseData CIMClientRep::openQueryInstances(
         CIMEnumerationContext& enumerationContext,
         Boolean& endOfSequence,
         const CIMNamespaceName& nameSpace,
-        const String& filterQueryLanguage,
-        const String& filterQuery,
+        const String& queryLanguage,
+        const String& query,
         CIMClass& queryResultClass,
         Boolean returnQueryResultClass,
+        const Uint32Arg& operationTimeout,
         Boolean continueOnError,
-        Uint32 operationTimeout,
         Uint32 maxObjectCount)
 {
     // Save requied information in enumerationContext
@@ -1422,11 +1422,11 @@ CIMResponseData CIMClientRep::OpenQueryInstances(
         new CIMOpenQueryInstancesRequestMessage(
             String::EMPTY,                  // messageId_ param
             nameSpace,
-            filterQueryLanguage,
-            filterQuery,
+            queryLanguage,
+            query,
             returnQueryResultClass,
-            continueOnError,
             operationTimeout,
+            continueOnError,
             maxObjectCount,
             QueueIdStack()));
 

@@ -1062,6 +1062,26 @@ int main(int argc, char** argv)
                         exit(CIMCLI_INPUT_ERR);
                     opts.termCondition = pullAssociatorInstancePaths(opts);
                     break;
+                case ID_PullQueryInstances:
+                    if (argc <= 2 && opts.query.size() == 0)
+                    {
+                        cerr << "ERROR: PullQueryInstances requires a query"
+                                "filter definition\n"
+                                "   - supplied directly as a parameter\n"
+                                "   - OR supplied with the -f option\n"
+                                "   The filterLanguage may be supplied\n"
+                                "   - as the second argument\n"
+                                "   - OR as the -ql option\n"
+                              << endl;
+                    }
+                    opts.query = argv[2];
+                    if (argc==4)
+                    {
+                        opts.queryLanguage = argv[3];
+                    }
+                    opts.termCondition = pullQueryInstances(opts);
+                    break;
+
 //KS_PULL_END
                 case (ID_CountInstances):
                     if (_getClassNameInput(argc, argv, opts,  false))

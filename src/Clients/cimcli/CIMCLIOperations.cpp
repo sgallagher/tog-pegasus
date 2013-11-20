@@ -259,6 +259,12 @@ OPERATION_TABLE_ENTRY OperationTable[] =
         "AssociatorInstance paths with Pull",2, "pan",
     "Clients.cimcli.CIMCLIClient.PAIP_COMMAND_HELP",
         "Execute Open,Pull AssociatorInstancePaths using the Pull Operations"},
+
+    {ID_PullQueryInstances,
+        "execQuery with Pull",2, "pxq",
+    "Clients.cimcli.CIMCLIClient.PXQIP_COMMAND_HELP",
+        "Execute query operation using pull Operations\n"
+        "pzq <querylanguage> <query> <pull parameters>"},
 //KS_PULL_END
 };
 
@@ -372,7 +378,6 @@ OperationExampleEntry OperationExamples[] = {
         "       TST_Person.name=\"Mike\" using object path input format\n",
     "Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS",
     "    -n\n"},
-
 
     // Create Class Not Supported
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
@@ -630,13 +635,18 @@ OperationExampleEntry OperationExamples[] = {
         " cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n",
     "Clients.cimcli.CIMCLIClient.PAN_COMMAND_OPTIONS",
     "    -n, -ac, -rc, -r, -rr, -i\n"},
-
+    {"Clients.cimcli.CIMCLIClient.PXQ_COMMAND_EXAMPLE",
+    "cimcli pxq \"select * from CIM_ComputerSystem\"\n"
+        "    -- This command will work when the code is compiled with\n"
+        "       ExecQuery enabled\n",
+    "Clients.cimcli.CIMCLIClient.p\PXQ_COMMAND_OPTIONS",
+    "    -n, queryLanguage, query, pull parameters\n"},
+//KS_PULL_END
     {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
     "cimcli cci TST_Person",
     "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
     "    -n, -ac, -rc, -r, -rr, -i\n"}
 
-//KS_PULL_END
 };
 
 const Uint32 NUM_EXAMPLES = sizeof(OperationExamples) /

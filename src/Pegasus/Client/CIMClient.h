@@ -1377,6 +1377,74 @@ public:
         const Boolean continueOnError = false,
         Uint32 maxObjectCount = 0 );
 
+
+    /** The <TT>openQueryInstances</TT> operation establishes and
+        opens an enumeration context for an execute query operation.
+        This is the pull parallel to the execQuery opertion.  The
+        corresponding pullInstances() method must be used to
+        continue the sequence.
+
+    @param enumerationContext See enumerationContext parameter for
+        openEnumerateInstances.
+
+    @param  endOfSequence See endOfSequence parameter for
+        openEnumerateInstances.
+
+    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+
+    @param filterQueryLanguage String Specifies a Query language for which the
+        <TT>filterQuery</TT> argument is valid. This is either a CQL
+        or WQL query, NOT an FQL query
+
+    @param filterQuery String defining a valid query in the
+        query language defined by the <TT>filterQueryLanguage</TT> argument.
+
+    @param returnQueryResultClass Boolean that controls whether a class
+        definition is returned in <TT>QueryResultClass</TT>. if false,
+        the queryResultClass is set to CIMClass() (i.e. NULL class object)
+        on return. Otherwise on completion the queryResultClass argument will
+        contain a class definition that defines the properties of each
+        instance of the query result.
+
+    @param continueOnError - See continueOnError parameter for
+        openEnumerateInstances.
+
+    @param maxObjectCount - See maxObjectCount parameter for
+        openEnumerateInstances.
+
+    @return Array<CIMInstance>  If successful, the return contains an array
+        of zero or more instances that satisfy the filterQuery. These
+        instances are available only in the context of the enumeration and
+        do not return an instance path.
+
+        If unsuccessful one of the following set of status codes will be
+        returned:
+        <UL>
+            <LI>CIM_ERR_ACCESS_DENIED
+            <LI>CIM_ERR_SERVER_IS_SHUTTING_DOWN
+            <LI>CIM_ERR_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_NAMESPACE
+            <LI>CIM_ERR_INVALID_OPERATION_TIMEOUT
+            <LI>CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_PARAMETER
+            <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_QUERY
+            <LI>CIM_ERR_QUERY_FEATURE_NOT_SUPPORTED
+            <LI>CIM_ERR_FAILED
+        </UL>
+     */
+    Array<CIMInstance> openQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass = false,
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0 );
+
     /**
     The <TT>PullInstancesWithPath</TT> operation retrieves instances for an
     open enumeration sequence opened by an openEnumerationInstances,
@@ -1595,74 +1663,6 @@ public:
         CIMEnumerationContext& enumerationContext
         );
 
-    /** The <TT>OpenQueryInstances</TT> operation establishes and
-        opens an enumeration context for instances of a CIMClass
-        (including subclasses) in the target namespace. It
-        optionally retrieves a subset of the requested instances.
-
-    @param enumerationContext See enumerationContext parameter for
-        openEnumerateInstances.
-
-    @param  endOfSequence See endOfSequence parameter for
-        openEnumerateInstances.
-
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
-
-    @param filterQueryLanguage String Specifies a Query language for which the
-        <TT>filterQuery</TT> argument is valid.
-
-    @param filterQuery String defining a valid query in the
-        query language defined by the <TT>filterQueryLanguage</TT> argument.
-
-    @param returnQueryResultClass Boolean that controls whether a class
-        definition is returned in <TT>QueryResultClass</TT>. if false,
-        the queryResultClass is set to CIMClass() (i.e. NULL class object)
-        on return. Otherwise on completion the queryResultClass argument will
-        contain a class definition that defines the properties of each
-        instance of the query result.
-
-    @param continueOnError - See continueOnError parameter for
-        openEnumerateInstances.
-
-    @param maxObjectCount - See maxObjectCount parameter for
-        openEnumerateInstances.
-
-    @return Array<CIMInstance>  If successful, the return contains an array
-        of zero or more instances that satisfy the filterQuery. These
-        instances are available only in the context of the enumeration and
-        do not return an instance path.
-
-        If unsuccessful one of the following set of status codes will be
-        returned:
-        <UL>
-            <LI>CIM_ERR_ACCESS_DENIED
-            <LI>CIM_ERR_SERVER_IS_SHUTTING_DOWN
-            <LI>CIM_ERR_NOT_SUPPORTED
-            <LI>CIM_ERR_INVALID_NAMESPACE
-            <LI>CIM_ERR_INVALID_OPERATION_TIMEOUT
-            <LI>CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED
-            <LI>CIM_ERR_INVALID_PARAMETER
-            <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED
-            <LI>CIM_ERR_INVALID_QUERY
-            <LI>CIM_ERR_QUERY_FEATURE_NOT_SUPPORTED
-            <LI>CIM_ERR_FAILED
-        </UL>
-     */
-    //// KS_TODO - The order of some of the parameters is different than
-    // the open, etc. Should we regularize that for consistency.  See
-    // continue)nError
-    //
-    Array<CIMInstance> OpenQueryInstances(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const String& filterQueryLanguage,
-        const String& filterQuery,
-        CIMClass& queryResultClass,
-        Boolean returnQueryResultClass = false,
-        Boolean continueOnError = false,
-        Uint32 operationTimeout = NULL,
-        Uint32 maxObjectCount = 0 );
 //KS_PULL_END
 
 private:

@@ -2205,6 +2205,7 @@ CIMOpenAssociatorInstancePathsResponseMessage::
         enumerationContext(enumerationContext_)
     {
     }
+
 CIMPullInstancesWithPathResponseMessage::
     CIMPullInstancesWithPathResponseMessage(
         const String& messageId_,
@@ -2229,6 +2230,21 @@ CIMPullInstancePathsResponseMessage::
         const String& enumerationContext_)
     : CIMResponseDataMessage(CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS),
+        endOfSequence(endOfSequence_),
+        enumerationContext(enumerationContext_)
+    {
+    }
+
+CIMPullInstancesResponseMessage::
+    CIMPullInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_
+        )
+    : CIMResponseDataMessage(CIM_PULL_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES),
         endOfSequence(endOfSequence_),
         enumerationContext(enumerationContext_)
     {

@@ -1177,10 +1177,23 @@ int enumerateInstances(Options& opts)
 
 */
 
+/**
+ * _pullInstances executes the proper pullInstances function in
+ * a loop to get everything until either endOfSequence received
+ * or the size limit defined on input is received.
+ * @param  instances Array<CIMInstance> pulled
+ * @param  enumerationContext CIMEnumerationContext for this
+ *                            operation
+ * @param withPath Boolean that defines whether the
+ *                 pullInstancesWithPath or pullInstances should
+ *                 be executed.
+ */
+
 int _pullInstances(
     Options& opts,
     Array<CIMInstance>& instances,
-    CIMEnumerationContext& enumerationContext)
+    CIMEnumerationContext& enumerationContext,
+    Boolean withPath = true)
 {
     Boolean endOfSequence = false;
     Uint32 maxPullObj = opts.maxObjectCount;
@@ -1208,12 +1221,23 @@ int _pullInstances(
             {
                 sleep(opts.pullDelay);
             }
-
-            Array<CIMInstance> cimInstancesPulled =
-                opts.client.pullInstancesWithPath(
-                    enumerationContext,
-                    endOfSequence,
-                    maxPullObj);
+            Array<CIMInstance> cimInstancesPulled;
+            if (withPath)
+            {
+                cimInstancesPulled =
+                    opts.client.pullInstancesWithPath(
+                        enumerationContext,
+                        endOfSequence,
+                        maxPullObj);
+            }
+            else
+            {
+                cimInstancesPulled =
+                    opts.client.pullInstances(
+                        enumerationContext,
+                        endOfSequence,
+                        maxPullObj);
+            }
 
             rtn = !_testRcvTooManyElements(maxPullObj,
                 cimInstancesPulled.size(), opts.verboseTest);
@@ -1223,6 +1247,7 @@ int _pullInstances(
     }
     return rtn;
 }
+
 
 /*
     Common function for the loop to pull instance paths until
@@ -1685,6 +1710,86 @@ int pullAssociatorInstances(Options& opts)
     String s = "Pull Associations";
     /// KS_TBD CIMCLIOutput::displayInstances(opts,instances,s);
     CIMCLIOutput::displayInstances(opts,instances);
+    return(CIMCLI_RTN_CODE_OK);
+}
+
+int pullQueryInstances(Options& opts)
+{
+
+    // Currently we do not allow the query return class in OpenPegasus.
+    Boolean returnQueryResultClass = false;
+
+    if (opts.verboseTest)
+    {
+        cout << "OpenQueryInstances "
+            << "Namespace = " << opts.nameSpace
+            << ", queryLanguage = " << opts.queryLanguage
+            << ", query = " << opts.query
+            << ", returnQueryResultClass = "
+            << boolToString(returnQueryResultClass)
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullQueryInstances "
+            << "Namespace = " << opts.nameSpace
+            << ", queryLanguage = " << opts.queryLanguage
+            << ", query = " << opts.query
+            << endl;
+    }
+
+    Array<CIMInstance> instances;
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    // insure that we do not request more than limit on open
+    if (opts.maxObjectsToReceive != 0)
+    {
+        // if ask for more than max we want, reset max count.
+        if (opts.maxObjectCount > opts.maxObjectsToReceive)
+        {
+            opts.maxObjectCount = opts.maxObjectsToReceive;
+        }
+    }
+
+    CIMEnumerationContext enumerationContext;
+    CIMClass queryResultClass;
+
+    instances = opts.client.openQueryInstances(
+        enumerationContext,
+        endOfSequence,
+        opts.nameSpace,
+        opts.queryLanguage,
+        opts.query,
+        queryResultClass,
+        returnQueryResultClass,
+        opts.pullOperationTimeout,
+        opts.continueOnError,
+        opts.maxObjectCount);
+
+    _testRcvTooManyElements(opts.maxObjectCount,
+        instances.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstances(opts, instances, enumerationContext, false ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+
+    _stopCommandTimer(opts);
+
+    // KS_TODO need to do option to display instances without path to cover this
+    // Also warning message if path exists.
+    CIMCLIOutput::displayInstances(opts, instances);
+
     return(CIMCLI_RTN_CODE_OK);
 }
 //KS_PULL_END

@@ -725,6 +725,32 @@ Array<CIMObjectPath> CIMClient::openAssociatorInstancePaths(
         maxObjectCount).getInstanceNames();
 }
 
+
+Array<CIMInstance> CIMClient::openQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass,
+        const Uint32Arg& operationTimeout,
+        Boolean continueOnError,
+        Uint32 maxObjectCount)
+{
+    return _rep->openQueryInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        queryLanguage,
+        query,
+        queryResultClass,
+        returnQueryResultClass,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstances();
+}
+
 Array<CIMInstance> CIMClient::pullInstancesWithPath(
     CIMEnumerationContext& enumerationContext,
     Boolean& endOfSequence,
@@ -773,30 +799,6 @@ Uint64Arg CIMClient::enumerationCount(
         enumerationContext);
 }
 
-Array<CIMInstance> CIMClient::OpenQueryInstances(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const String& filterQueryLanguage,
-        const String& filterQuery,
-        CIMClass& queryResultClass,
-        Boolean returnQueryResultClass,
-        Boolean continueOnError,
-        Uint32 operationTimeout,
-        Uint32 maxObjectCount)
-{
-    return _rep->OpenQueryInstances(
-        enumerationContext,
-        endOfSequence,
-        nameSpace,
-        filterQueryLanguage,
-        filterQuery,
-        queryResultClass,
-        returnQueryResultClass,
-        continueOnError,
-        operationTimeout,
-        maxObjectCount).getInstances();
-}
 // KS_PULL_END
 
 void CIMClient::registerClientOpPerformanceDataHandler(

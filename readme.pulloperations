@@ -12,10 +12,8 @@ TODO list:
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
       OOP right now.  Corrected by converting to XML. 
-   2. OpenExecQuery - Code is incorrect in that it used InstancesWithPath
-      where the spec is instances with no path.  Need new function to wrap
-      getInstanceElement(withoutPathElement) in XmlReader.  Note that
-      Alternate is to put flag on InstancesWith Path to say no path
+   2. OpenExecQuery - Code is incorrect in that it does not include the
+      return from the exec query function to the aggregator yet.
    3. Code for Pull part of OpenQueryInstancesRequest a) should be part of
       the common CIMOperationRequestDispatcher execCommon code.
    4. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
@@ -23,7 +21,8 @@ TODO list:
       queues
    3. Lots of minor TODOs, diagnostics, etc.
    4. External runtime variables. Proposing that they be fixed for this release
-      rather than set by configuration.  This should be discussed.
+      rather than set by configuration.  This should be discussed.  Am making
+      this a separate bug.  See bug
    5. Decision on EnumerationContext timeout (separate thread or just
       checks during other operations). Can we, in fact really keep the 
       enumeration context table and queue under control without monitoring
@@ -35,17 +34,8 @@ TODO list:
       b. We should protect against providers that no not every finish delivering
           or take to long between deliveries.  This does not exist in Pegasus
           today
-   6. Further clean up code in Dispatcher. Want to at least reduce the code for the
-      Open Operations to a set of templates so we know that the code is the
-      same for all operations.  Most of the common code for the enum, assoc,
-      ref operations and their corresponding open/pull operations is now in a
-      set of template functions so that it is largely common code. Used the
-      templates where there is common code but not the same CIMMessage. However,
-      we should be able to do some of it with common functions (i.e. not templates)
-      by adding a layer to CIMMessage hiearchy and reduce code size. The
-      pull is a single template for both pullInstances and pullInstancePaths.
-      However, we might be able to reduce this to a single function by adding
-      a new level to CIMMessage.h (CommonPullResponse)
+   6. Consider moving some of the code in dispatcher from templates to common
+      functions which would mean adding intermediate classes in CIMMessage
    7. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
@@ -53,11 +43,14 @@ TODO list:
       of queue when converting (avoids the second move).  Big issue here
       with binary data since need to extend format to count it.
    8. NEXT TASKS: 
-      a. get the pull operations rather than a template into a single
-      function by creating a new CIMPullResponse message in CIMMessage.h that
-      contains the pull data.  Then we can use a single function to process all
-      pull operations.
-      b. test the enumeration timeout thread
+      a. test the enumeration timeout thread
+      b. Add openQueryInstances test to pullop
+
+18 November 2013
+1. Cleanup of a bunch of minor errors and completion of all of the code for
+   the openQueryInstances except for the PullInstances in Dispatcher and
+   the aggregator function.
+2. OpenqueryInstances added to cimcli.
 
 13 October 2013 CVS branch update.
 1. Integrated bug 9786 into the branch.  Note that we need to test the
@@ -137,15 +130,11 @@ TAG: TASK_PEP317_5JUNE_2013_2
 2 June 2013
 
 Issues  - KS
-1. have not installed the binary move in CIMResponseData. Please run
-with OPP off.
-2. Some problem in the processing so we are getting server crashes.
-Right no I am guessing that this is in the binaryCodec and am going to
-expand the test tools to allow testing through the localhost.
 
-3. Still way to many TODO and KS comments and KS_TEMPS.  Removing bit by bit.
+ - Still way to many TODO and KS comments and KS_TEMPS.  Removing bit by bit.
 
-4. Env variable connection for the config parameters not installed.
+ - Runtime variable connection for the config parameters not installed. That
+   has been made into a separate bug (see bug 9819)
 
 5. Issue with the threaded timer.  For some reason during tests it
 eventually calls the timer thread with trash for the parm (which is
@@ -159,11 +148,10 @@ the handle... processing.
 EnumerationContext so that the outputter will just take a defined number
 of objects directly from the gathering cache and save the second move.
 
-8. Not yet passing all tests but getting closer now.
+8. Not yet passing all tests but getting closer now. The major test that is
+causing an error today is the execution of a full enumeration with the
+forceProviders = true.  This causes a client timeout sometimes.
 
-9. Created a tag before this commit TASK_PEP317_1JUNE_2013.
-
-10. Next Tag will be TASK_PEP317_2_JUNE_2013 in the task branch
 
 
 ===========================================

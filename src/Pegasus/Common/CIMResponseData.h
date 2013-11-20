@@ -343,8 +343,12 @@ public:
 
     // Encode the CIMResponse data into official Xml format(CIM over Http)
     // used to communicate to clients in the provided CIMBuffer.
-    //Note that the pull responses requires a flag.
-    void encodeXmlResponse(Buffer& out, Boolean isPull);
+    // The pull responses requires a flag (isPull) and the special
+    // case  of encoding OpenQueryInstances and PullInstances a second flag
+    // (encodeInstanceOnly which only encodes the instance itself)
+    void encodeXmlResponse(Buffer& out,
+        Boolean isPull,
+        Boolean encodeInstanceOnly = false);
 
     // diagnostic tests magic number in context to see if valid object
     Boolean valid() const;
@@ -408,6 +412,7 @@ private:
     void _deserializeObject(Uint32 idx,CIMObject& cimObject);
     Boolean _deserializeReference(Uint32 idx,CIMObjectPath& cimObjectPath);
     Boolean _deserializeInstanceName(Uint32 idx,CIMObjectPath& cimObjectPath);
+    void _appendInstanceElement(Buffer& out, SCMOInstance _scmoInstance);
 
     // Bitflags in this integer reflect what data representation types
     // are currently stored in this CIMResponseData object

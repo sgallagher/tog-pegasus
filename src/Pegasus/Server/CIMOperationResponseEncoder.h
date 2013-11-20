@@ -141,6 +141,9 @@ public:
     void encodePullInstancePathsResponse(
         CIMPullInstancePathsResponseMessage* response);
 
+    void encodePullInstancesResponse(
+        CIMPullInstancesResponseMessage* response);
+
     void encodeCloseEnumerationResponse(
         CIMCloseEnumerationResponseMessage* response);
 

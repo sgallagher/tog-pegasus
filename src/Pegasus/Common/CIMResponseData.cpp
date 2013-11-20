@@ -75,6 +75,42 @@ bool CIMResponseData::sizeValid()
         "CIMResponseData Size _size=%u", _size));
     return true;
 }
+
+/*
+    Append an InstanceElement to the Buffer. This function accounts
+    for the existence of a propertyList.
+*/
+void CIMResponseData::_appendInstanceElement(
+    Buffer& out,
+    SCMOInstance _scmoInstance)
+{
+    if(_propertyList.isNull())
+    {
+        Array<Uint32> emptyNodes;
+        SCMOXmlWriter::appendInstanceElement(
+            out,
+            _scmoInstance,
+            false,
+            emptyNodes);
+    }
+    else
+    {
+        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
+        // This searches for an already created array of nodes,
+        //if not found, creates it inside propFilterNodesArrays
+        const Array<Uint32> & nodes=
+            SCMOXmlWriter::getFilteredNodesArray(
+                propFilterNodesArrays,
+                _scmoInstance,
+                _propertyList);
+        SCMOXmlWriter::appendInstanceElement(
+            out,
+            _scmoInstance,
+            true,
+            nodes);
+    }
+}
+
 // Instance Names handling
 Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
 {
@@ -1131,7 +1167,9 @@ void CIMResponseData::completeHostNameAndNamespace(
 // NOTE: The reason for the isPullResponse variable is that there are
 // some variations in ouput to Xml depending on whether the responses
 // are one of the pull responses or not
-void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
+void CIMResponseData::encodeXmlResponse(Buffer& out,
+    Boolean isPullResponse,
+    Boolean encodeInstanceOnly)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeXmlResponse");
@@ -1271,12 +1309,24 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
                 {
                     if (isPullResponse)
                     {
-                        XmlWriter::appendValueInstanceWithPathElement(
-                            out,
-                            _instances[i],
-                            _includeQualifiers,
-                            _includeClassOrigin,
-                            _propertyList);
+                        if (encodeInstanceOnly)
+                        {
+                            XmlWriter::appendInstanceElement(
+                                out,
+                                _instances[i],
+                                _includeQualifiers,
+                                _includeClassOrigin,
+                                _propertyList);
+                        }
+                        else
+                        {
+                            XmlWriter::appendValueInstanceWithPathElement(
+                                out,
+                                _instances[i],
+                                _includeQualifiers,
+                                _includeClassOrigin,
+                                _propertyList);
+                        }
                     }
                     else
                     {
@@ -1354,24 +1404,19 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
         {
             case RESP_INSTNAMES:
             {
-                if (isPullResponse)
+                for (Uint32 i = 0, n = _scmoInstances.size();i < n; i++)
                 {
-                    for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                    if (isPullResponse)
                     {
                         SCMOXmlWriter::appendInstancePathElement(
-                            out,
-                            _scmoInstances[i]);
-
+                           out,
+                           _scmoInstances[i]);
                     }
-                }
-                else
-                {
-                    for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                    else
                     {
                         SCMOXmlWriter::appendInstanceNameElement(
                             out,
                             _scmoInstances[i]);
-
                     }
                 }
                 break;
@@ -1380,31 +1425,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
             {
                 if (_scmoInstances.size() > 0)
                 {
-                    if(_propertyList.isNull())
-                    {
-                        Array<Uint32> emptyNodes;
-                        SCMOXmlWriter::appendInstanceElement(
-                            out,
-                            _scmoInstances[0],
-                            false,
-                            emptyNodes);
-                    }
-                    else
-                    {
-                        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-                        // This searches for an already created array of nodes,
-                        //if not found, creates it inside propFilterNodesArrays
-                        const Array<Uint32> & nodes=
-                            SCMOXmlWriter::getFilteredNodesArray(
-                                propFilterNodesArrays,
-                                _scmoInstances[0],
-                                _propertyList);
-                        SCMOXmlWriter::appendInstanceElement(
-                            out,
-                            _scmoInstances[0],
-                            true,
-                            nodes);
-                    }
+                    _appendInstanceElement(out, _scmoInstances[0]);
                 }
                 break;
             }
@@ -1412,8 +1433,20 @@ void CIMResponseData::encodeXmlResponse(Buffer& out, Boolean isPullResponse)
             {
                 if (isPullResponse)
                 {
-                    SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
-                        out, _scmoInstances, _propertyList);
+                    // pull and encodeInstanceOnly (i.e. response to
+                    // OpenQueryInstances and pullInstances
+                    if (encodeInstanceOnly)
+                    {
+                        for (Uint32 i = 0, n = _scmoInstances.size();i < n; i++)
+                        {
+                            _appendInstanceElement(out, _scmoInstances[i]);
+                        }
+                    }
+                    else
+                    {
+                        SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
+                            out, _scmoInstances, _propertyList);
+                    }
                 }
                 else
                 {

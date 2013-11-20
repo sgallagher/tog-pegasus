@@ -917,6 +917,26 @@ void CIMOperationResponseEncoder::encodePullInstancePathsResponse(
                      &body);
 }
 
+void CIMOperationResponseEncoder::encodePullInstancesResponse(
+    CIMPullInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        // encode as pull and also encode only the instance
+        response->getResponseData().encodeXmlResponse(body, true, true);
+    }
+
+    // Add return elements, endOfSequence and context
+    _appendPullResponseParameters(rtnParamBody,
+        response->endOfSequence, response->enumerationContext);
+
+    sendResponsePull(response, "PullInstances", true,
+                     &rtnParamBody, &body);
+}
+
 void CIMOperationResponseEncoder::encodeCloseEnumerationResponse(
     CIMCloseEnumerationResponseMessage* response)
 {
@@ -948,9 +968,8 @@ void CIMOperationResponseEncoder::encodeOpenQueryInstancesResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         // Encode response objects with indication that this is pull
-        // operation.
-        // KS_TODO - This implements with path.  We need without path.
-        response->getResponseData().encodeXmlResponse(body, true);
+        // operation and that we encode only the instance
+        response->getResponseData().encodeXmlResponse(body, true, true);
     }
 
     // KS_TODO implement the addition of the queryClassResult

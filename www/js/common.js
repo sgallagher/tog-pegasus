@@ -36,8 +36,7 @@ host = httpTag+"//"+window.location.hostname+":"+window.location.port+"/";
 function genericRequestGet(urlAdd, funcToCall, synchronous){
     /*
 	 * based on api example from: 
-	 * https://developer.mozilla.org/En/XMLHttpRequest/
-     *        Using_XMLHttpRequest#Example.3a_Asynchronous_request
+	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
 	 */
         
         
@@ -80,8 +79,7 @@ function genericRequestGet(urlAdd, funcToCall, synchronous){
 function genericRequestPost(requestURL, requestContent,funcToCall, synchronous){
     /*
 	 * based on api example from: 
-	 * https://developer.mozilla.org/En/XMLHttpRequest/
-     *         Using_XMLHttpRequest#Example.3a_Asynchronous_request
+	 * https://developer.mozilla.org/En/XMLHttpRequest/Using_XMLHttpRequest#Example.3a_Asynchronous_request
 	 */
  
     try {

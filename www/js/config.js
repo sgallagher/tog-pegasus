@@ -27,9 +27,6 @@
  *
  */
 
-//base url which is identical for all requests
-baseURL = "http://"+window.location.hostname+":"+window.location.port+"/cimrs/";
-host = "http://"+window.location.hostname+":"+window.location.port+"/";
 getConfigURL = "root%2FPG_Internal/enum?class=PG_ConfigSetting";
 updateConfigURL="root%2FPG_Internal/PG_ConfigSetting/";
 currentElement = null;

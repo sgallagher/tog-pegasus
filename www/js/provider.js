@@ -27,9 +27,6 @@
  *
  */
 
-//base url which is identical for all requests
-baseURL = "http://"+window.location.hostname+":"+window.location.port+"/cimrs/";
-host = "http://"+window.location.hostname+":"+window.location.port+"/";
 configURL = "root%2FPG_InterOp/enum?class=PG_ProviderModule";
 currentElement = null;
 

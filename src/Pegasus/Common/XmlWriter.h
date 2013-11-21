@@ -57,7 +57,7 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
 #include <Pegasus/Common/XmlGenerator.h>
-#include <Pegasus/Common/NumericArg.h>
+#include <Pegasus/Common/UintArg.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

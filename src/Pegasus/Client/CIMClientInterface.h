@@ -48,7 +48,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Common/NumericArg.h>                     // PEP 317
+#include <Pegasus/Common/UintArg.h>                     // PEP 317
 #include <Pegasus/Client/CIMEnumerationContext.h>
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h> //PEP# 128

@@ -50,7 +50,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/NumericArg.h>
+#include <Pegasus/Common/UintArg.h>
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Common/IndicationRouter.h>
 

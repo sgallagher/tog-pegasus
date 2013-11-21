@@ -79,7 +79,7 @@ String StatisticalData::requestName[] =
 // as OtherOperationTypes in the CIM_CIMOMStatisticalData instance.
   "InvokeMethod",                    //    26          Not Present index = 26
 //EXP_PULL_BEGIN
-//// TODO these are not defined in CIM_StatisticalData class and are
+//// These are not defined in CIM_StatisticalData class and are
 ///  represented by the Other groping with supplementary property
   "OpenEnumerateInstances",         //    71          27
   "OpenEnumerateInstancePaths",     //    72

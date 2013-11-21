@@ -181,6 +181,13 @@ private:
         const CIMPropertyList &propList);
 
     /**
+        This method Cleanup all DestinationQueues
+        Depending on flag _needDestinationQueueCleanup, this method is called
+        either from IndicationHandlerService dtor or from _handleIndication 
+   */
+    void _destinationQueuesCleanup(); 
+ 
+   /**
         Gets the Queue name from either subscriptionName or handlerName,
         constructed as follows.
         namespace:ClassName.Name=\"HandlerName\".
@@ -204,6 +211,8 @@ private:
     Thread _dispatcherThread;
     AtomicInt _stopDispatcherThread;
     const Uint32 _maxDeliveryThreads;
+    Uint16 _maxDeliveryRetry;
+    Boolean _needDestinationQueueCleanup; 
     Semaphore _dispatcherWaitSemaphore;
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _dispatcherRoutine(void *param);

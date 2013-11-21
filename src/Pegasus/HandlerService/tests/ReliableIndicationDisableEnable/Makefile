@@ -26,18 +26,62 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT=../../../../../..
+ROOT = ../../../../..
 
-LIBRARIES= \
-    pegauthentication \
-    pegrepository \
-    pegconfig \
-    pegcommon
-ifndef PEGASUS_PAM_AUTHENTICATION
-    LIBRARIES += peguser
+DIR = Pegasus/HandlerService/tests/ReliableIndicationDisableEnable
+
+include $(ROOT)/mak/config.mak
+
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
+LIBRARIES = \
+     peglistener \
+     pegclient \
+     pegexportserver \
+     peggeneral \
+     pegcommon
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+ifeq ($(OS),VMS)
+ LOCAL_DEFINES = -DINDICATION_DIR="""$(DISPLAYCONSUMER_DIR)"""
+else
+ LOCAL_DEFINES = -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
 endif
 
-ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
-    LIBRARIES += z
+LOCAL_DEFINES += -DPEGASUS_INTERNALONLY
+
+PROGRAM = ReliableIndicationDisableEnableTest
+PROGRAM2 = $(PROGRAM) IndicationStressTestClass test/TestProvider
+
+SOURCES = ReliableIndicationDisableEnableTest.cpp
+
+include $(ROOT)/mak/program.mak
+
+include $(ROOT)/mak/test.mak
+
+
+testreliablehttp:
+	$(PROGRAM2) setupCL WQL HTTP
+	$(PROGRAM2) run 1 1 
+	@$(ECHO) "Disabling the reliable indiaction ...."
+	@cimconfig -s maxIndicationDeliveryRetryAttempts=0 
+	$(PROGRAM2) run 1 1
+	$(PROGRAM2) cleanup
+	@$(ECHO) "Set the Defult value  maxIndicationDeliveryRetryAttempts=3 ...."
+	@cimconfig -s maxIndicationDeliveryRetryAttempts=3	
+
+testreliablehttps:
+ifdef PEGASUS_HAS_SSL
+	$(PROGRAM2) setupCL WQL HTTPS
+	$(PROGRAM2) run 1 1
+	@$(ECHO) "Disabling the reliable indiaction ...."
+	@cimconfig -s maxIndicationDeliveryRetryAttempts=0                                 
+	$(PROGRAM2) run 1 1
+	$(PROGRAM2) cleanup
+	@$(ECHO) "Set the Defult value  maxIndicationDeliveryRetryAttempts=3 ...."
+	@cimconfig -s maxIndicationDeliveryRetryAttempts=3
+	
 endif
-    
+
+tests:
+poststarttests:

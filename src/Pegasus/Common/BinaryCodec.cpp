@@ -5179,8 +5179,7 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
             break;
 //EXP_PULL_END
         default:
-            // Unexpected message type
-            PEGASUS_ASSERT(0);
+            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return 0;
     }
 }
@@ -5377,8 +5376,8 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     {
         out.append(body.getData(), body.size());
     }
-    // EXP_PULL TODO - TBD Review this.
-    // If there are any parameters include them here.
+    // EXP_PULL_BEGIN
+    // If there are any output parameters include them here.
     // Assumes that it is prebuilt with all components
     //
     if (rtnParams.size() != 0)
@@ -5386,7 +5385,7 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
         out << rtnParams;
     }
     //
-    // //EXP_PULL_END
+    // EXP_PULL_END
 
     return out;
 }

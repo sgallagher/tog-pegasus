@@ -110,7 +110,7 @@ Boolean _getClassNameInput(int argc, char** argv, Options& opts, Boolean rqd)
                  << "Must be the class Name as defined by DMTF Spec."
                  << " Input Probably contains invalid character. "
                  << endl;
-            cimcliExit(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
+            return false;
         }
     }
     else // Parameter does not exist
@@ -119,14 +119,14 @@ Boolean _getClassNameInput(int argc, char** argv, Options& opts, Boolean rqd)
         if (rqd)
         {
                 cerr << "Error: Class Name Required. ex. gc CIM_Door" << endl;
-                return(false);
+                return false;
         }
         else   // set the opts properties to indicate no classname input
         {
                 opts.className = CIMName();
         }
     }
-    return(true);
+    return true ;
 }
 /** getObjectName - gets the objectname object
  * and puts in into the opts.className holder
@@ -158,7 +158,7 @@ Boolean _getObjectNameInput(int argc, char** argv, Options& opts, Boolean rqd)
                  << endl << e.getMessage() << endl
                  << "Must be model path defined by DMTF Spec."
                  << endl;
-            cimcliExit(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
+            return false;
         }
     }
     else
@@ -166,15 +166,15 @@ Boolean _getObjectNameInput(int argc, char** argv, Options& opts, Boolean rqd)
         opts.inputObjectName = "";
         if (rqd)
         {
-                cerr << "Error: Object Name Required" << endl;
-                return(false);
+            cerr << "Error: Object Name Required" << endl;
+            return false ;
         }
         else
         {
-                opts.targetObjectName = CIMObjectPath();
+            opts.targetObjectName = CIMObjectPath();
         }
     }
-    return(true);
+    return true;
 }
 
 /** _getQualifierNameInput - Gets a single parameter for
@@ -192,9 +192,9 @@ Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
     else
     {
         cerr << "Qualifier Name Required" << endl;
-        return(false);
+        return false ;
     }
-    return(true);
+    return true ;
 }
 // static version of opts.verboseTest.  Used because some functions
 // in this code are not part of the classes that reference the opts instance
@@ -295,7 +295,9 @@ Boolean SSLCertVerifyCallback(SSLCertificateInfo& certInfo)
 //            Main
 //
 ///////////////////////////////////////////////////////////////////////
-
+// Returns from this function should use cimcliExitRtn so that the
+// return function is used to exit cimcli
+//
 int main(int argc, char** argv)
 {
     //****** Show the args diagnostic display *******
@@ -326,10 +328,11 @@ int main(int argc, char** argv)
     // If no arguments, simply print usage message and terminate.
     MessageLoader::_useProcessLocale = true;
 
+    // If no arguments, just display usage and exit.
     if (argc == 1)
     {
         showUsage();
-        cimcliExit(0);
+        return 0;
     }
 
     // Get options (from command line and from configuration file); this
@@ -361,7 +364,13 @@ int main(int argc, char** argv)
         BuildOptionsTable(om, argc, argv, testHome);
 
         // Parse and validate input Options based on the options table
-        CheckCommonOptionValues(om, argv, opts);
+        // Exits if this function returns false.  Note that this may be
+        // either an error or the option is for a help function and
+        // cimcli terminates immediatly after help displays.
+        if (!CheckCommonOptionValues(om, argv, opts))
+        {
+            return cimcliExitRtn(opts.termCondition);
+        }
 
         // move any other input parameters left to the valueParams List
         //
@@ -384,7 +393,7 @@ int main(int argc, char** argv)
              << "\n" << e.getMessage()
              << endl;
         showUsage();
-        cimcliExit(e.getCode());
+        return cimcliExitRtn(e.getCode());
     }
 
     catch (Exception& e)
@@ -392,13 +401,13 @@ int main(int argc, char** argv)
         cerr << CIMCLI << ": Caught Exception during init. "
              << e.getMessage() << endl;
         showUsage();
-        cimcliExit(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
+        return cimcliExitRtn(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
     }
     catch(...)
     {
         cerr << CIMCLI << " Caught General Exception During Init:" << endl;
         showUsage();
-        cimcliExit(GENERAL_CLI_ERROR_CODE);
+        return cimcliExitRtn(GENERAL_CLI_ERROR_CODE);
     }
 
     // if there is an arg1, assume it is the command name.
@@ -415,11 +424,11 @@ int main(int argc, char** argv)
 
         showUsage();
 
-        cimcliExit(CIMCLI_INPUT_ERR);
+        return cimcliExitRtn(CIMCLI_INPUT_ERR);
     }
 
     // if the trace option was set initialize the trace function.
-    // fir cimcli
+    // for cimcli
     if (opts.trace != 0)
     {
         const char* tmpDir = getenv ("PEGASUS_TMP");
@@ -451,7 +460,7 @@ int main(int argc, char** argv)
             << " \n  ex. cli enumerateclasses\n"
             << "Enter " << CIMCLI << " -h for help."
             << endl;
-        cimcliExit(GENERAL_CLI_ERROR_CODE);
+        return cimcliExitRtn(GENERAL_CLI_ERROR_CODE);
     }
 
     // Start the time for total elapsed time for the command
@@ -662,7 +671,7 @@ int main(int argc, char** argv)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
               " Trying to connect to " << opts.location << endl;
-        cimcliExit(CIMCLI_CONNECTION_FAILED);
+        return cimcliExitRtn(CIMCLI_CONNECTION_FAILED);
     }
 
     // Register for Client statistics which might be returned with
@@ -701,7 +710,7 @@ int main(int argc, char** argv)
     Uint64 minRtTime = 10000000;
 
     //
-    //  Process the requestd operation action function
+    //  Process the requested operation action function
     //  Process the function within a try block to catch all operation
     //  command exceptions
     //
@@ -717,7 +726,7 @@ int main(int argc, char** argv)
                 case ID_EnumerateInstanceNames :
                     if (!_getClassNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = enumerateInstanceNames(opts);
                     break;
@@ -725,7 +734,7 @@ int main(int argc, char** argv)
                 case ID_EnumerateAllInstanceNames :
                     if (!_getClassNameInput(argc, argv, opts, false))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = enumerateAllInstanceNames(opts);
                     break;
@@ -733,14 +742,14 @@ int main(int argc, char** argv)
                 case ID_EnumerateInstances :
                     if (!_getClassNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = enumerateInstances(opts);
                     break;
                 case ID_GetInstance :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = getInstance(opts);
                     break;
@@ -748,7 +757,7 @@ int main(int argc, char** argv)
                 case ID_EnumerateClassNames :
                     if (!_getClassNameInput(argc, argv, opts, false))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = enumerateClassNames(opts);
                     break;
@@ -756,7 +765,7 @@ int main(int argc, char** argv)
                 case ID_EnumerateClasses :
                     if (!_getClassNameInput(argc, argv, opts, false))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = enumerateClasses(opts);
                     break;
@@ -764,7 +773,7 @@ int main(int argc, char** argv)
                 case ID_GetClass :
                     if (!_getClassNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = getClass(opts);
                     break;
@@ -772,7 +781,7 @@ int main(int argc, char** argv)
                 case ID_CreateInstance :
                     if (!_getClassNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = createInstance(opts);
                     break;
@@ -780,7 +789,7 @@ int main(int argc, char** argv)
                 case ID_TestInstance :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = testInstance(opts);
                     break;
@@ -788,7 +797,7 @@ int main(int argc, char** argv)
                 case ID_ModifyInstance :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = modifyInstance(opts);
                     break;
@@ -796,20 +805,20 @@ int main(int argc, char** argv)
                 case ID_DeleteInstance :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = deleteInstance(opts);
                     break;
 
                 case ID_CreateClass :
                     cerr << "CreateClass not implemented" << endl;
-                    cimcliExit(CIMCLI_INPUT_ERR);
+                    return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     break;
 
                 case ID_DeleteClass :
                     if (!_getClassNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = deleteClass(opts);
                     break;
@@ -821,12 +830,12 @@ int main(int argc, char** argv)
                             "<propertyname> or"
                             " cli getproperty <classname>"
                             " <propertyname> <keypropert=value>*" << endl;
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
 
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
 
                     // The current CLI operation
@@ -847,11 +856,11 @@ int main(int argc, char** argv)
                            "Usage: cli setproperty instancename "
                            "propertyname=value "
                            << endl;
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     else
                     // The current CLI operation
@@ -871,7 +880,7 @@ int main(int argc, char** argv)
                                "Usage: cli setproperty instancename "
                                "propertyname=value "
                                << endl;
-                            cimcliExit(CIMCLI_INPUT_ERR);
+                            return cimcliExitRtn(CIMCLI_INPUT_ERR);
                         }
 
                         opts.propertyName = property.subString(0,pos);
@@ -890,13 +899,13 @@ int main(int argc, char** argv)
 
                 case ID_SetQualifier :
                     cerr << "SetQualifer not implemented" << endl;
-                    cimcliExit(CIMCLI_INPUT_ERR);
+                    return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     break;
 
                 case ID_GetQualifier :
                     if (!_getQualifierNameInput(argc, argv, opts))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = getQualifier(opts);
                     break;
@@ -904,7 +913,7 @@ int main(int argc, char** argv)
                 case ID_DeleteQualifier :
                     if (!_getQualifierNameInput(argc, argv, opts))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = deleteQualifier(opts);
                     break;
@@ -912,7 +921,7 @@ int main(int argc, char** argv)
                 case ID_References  :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = references(opts);
                     break;
@@ -920,7 +929,7 @@ int main(int argc, char** argv)
                 case ID_ReferenceNames :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = referenceNames(opts);
                     break;
@@ -928,7 +937,7 @@ int main(int argc, char** argv)
                 case ID_Associators :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = associators(opts);
                     break;
@@ -936,7 +945,7 @@ int main(int argc, char** argv)
                 case ID_AssociatorNames :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     opts.termCondition = associatorNames(opts);
                     break;
@@ -973,12 +982,12 @@ int main(int argc, char** argv)
                             "Enter each input parameter as name=value"
                             " (no spaces around equal sign)."
                             << endl;
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
 
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
-                        cimcliExit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
 
                     opts.methodName = CIMName(argv[3]);
@@ -1090,10 +1099,9 @@ int main(int argc, char** argv)
                     }
                     else
                     {
-                        exit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     break;
-
 
                 case (ID_ClassTree):
                     if (_getClassNameInput(argc, argv, opts,  false))
@@ -1102,7 +1110,7 @@ int main(int argc, char** argv)
                     }
                     else
                     {
-                        exit(CIMCLI_INPUT_ERR);
+                        return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     break;
 
@@ -1113,7 +1121,7 @@ int main(int argc, char** argv)
                         << " \n  ex. cli enumerateclasses\n"
                         << "Enter " << CIMCLI << " -h for help."
                         << endl;
-                    cimcliExit(CIMCLI_INPUT_ERR);
+                    return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     break;
             } // switch statement
 
@@ -1226,7 +1234,7 @@ int main(int argc, char** argv)
                 <<  ". Cmd = " << opts.cimCmd
                 << " Object = " << opts.inputObjectName
                 << endl;
-            opts.termCondition = CIMCLI_RTN_CODE_PEGASUS_EXCEPTION;
+        opts.termCondition = CIMCLI_RTN_CODE_PEGASUS_EXCEPTION;
     }
     catch(...)
     {
@@ -1264,7 +1272,7 @@ int main(int argc, char** argv)
     }
 
     // Terminate with termination code
-    cimcliExit(opts.termCondition);
+    return cimcliExitRtn(opts.termCondition);
 }
 
 //PEGASUS_NAMESPACE_END

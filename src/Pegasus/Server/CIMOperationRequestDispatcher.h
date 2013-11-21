@@ -391,7 +391,7 @@ public:
 
     Boolean appendResponse(CIMResponseMessage* response);
 
-    Uint32 numberResponses()const ;
+    Uint32 numberResponses() const;
 
     CIMOperationRequestMessage* getRequest();
 
@@ -574,8 +574,8 @@ public:
 
     void handleInvokeMethodRequest(
         CIMInvokeMethodRequestMessage* request);
- // EXP_PULL_BEGIN
 
+ // EXP_PULL_BEGIN
     void handleOpenEnumerateInstancesRequest(
         CIMOpenEnumerateInstancesRequestMessage* request);
 
@@ -623,8 +623,7 @@ public:
     static void _forwardForAggregationCallback(
         AsyncOpNode*,
         MessageQueue*,
-        void* userParam);
-    //// TODO it appears that the userParam is not in head of tree 5 Sept 2013
+        void*);
 
     /** Callback from providers etc. for operations that do not
         aggregate response. This callback pointer used by
@@ -636,7 +635,7 @@ public:
     static void _forwardRequestCallback(
         AsyncOpNode*,
         MessageQueue*,
-        void* userParam);
+        void*);
 
     // Response Handler functions
 
@@ -795,6 +794,7 @@ protected:
     // function must test the result and return.  This allows putting
     // the trace method return into the CIMOperationRequestDispatcher main.
     //
+// EXP_PULL_BEGIN
     Boolean _rejectIfContinueOnError(CIMOperationRequestMessage* request,
         Boolean continueOnError);
 
@@ -825,6 +825,7 @@ protected:
     Boolean _rejectIfEnumerationContextProcessing(
         CIMOperationRequestMessage* request,
         Boolean processing);
+// EXP_PULL_END
 
     Boolean _rejectAssociationTraversalDisabled(
         CIMOperationRequestMessage* request,

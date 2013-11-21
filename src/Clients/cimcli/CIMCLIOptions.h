@@ -50,7 +50,16 @@ void  PEGASUS_CLI_LINKAGE BuildOptionsTable(
     char** argv,
     const String& testHome);
 
-void PEGASUS_CLI_LINKAGE CheckCommonOptionValues(
+/** Test the common Options
+    @param om
+    @param argv
+    @param opts
+
+    @return Boolean true if results good or false if error
+    or if evaluated to a help command and we want to terminate
+    immediatly
+ */
+Boolean PEGASUS_CLI_LINKAGE CheckCommonOptionValues(
     OptionManager& om,
     char** argv,
     Options& opts);

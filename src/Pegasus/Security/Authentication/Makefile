@@ -39,8 +39,11 @@ LIBRARY = pegauthentication
 
 LIBRARIES = \
     pegcommon \
-    peguser   \
     pegconfig
+
+ifndef PEGASUS_PAM_AUTHENTICATION
+  LIBRARIES += peguser
+endif
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   LIBRARIES += ILEWrapperUtils

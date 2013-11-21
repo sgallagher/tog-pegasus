@@ -363,7 +363,8 @@ private:
         const ContentLanguageList& httpContentLanguages,
         CIMMessage* request,
         const String& userName,
-        const String& oldPass);
+        const String& oldPass,
+        const String& ipAddress);
 #endif
 
     // Do not make _outputQueue an AutoPtr.

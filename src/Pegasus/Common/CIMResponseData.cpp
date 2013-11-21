@@ -869,7 +869,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
             }
             default:
             {
-                PEGASUS_ASSERT(false);
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -881,7 +881,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         // This actually should not happen following general code logic
-        PEGASUS_ASSERT(false);
+        PEGASUS_DEBUG_ASSERT(false);
     }
 
     PEG_METHOD_EXIT();
@@ -1113,7 +1113,7 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
             default:
             {
-                PEGASUS_ASSERT(false);
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -1148,7 +1148,7 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
             default:
             {
-                PEGASUS_ASSERT(false);
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -1585,7 +1585,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_OBJECTPATHS:
             default:
             {
-                PEGASUS_ASSERT(false);
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -1639,7 +1639,7 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_OBJECTPATHS:
             default:
             {
-                PEGASUS_ASSERT(false);
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -1804,7 +1804,7 @@ void CIMResponseData::_resolveBinaryToSCMO()
                 }
                 default:
                 {
-                    PEGASUS_ASSERT(false);
+                    PEGASUS_DEBUG_ASSERT(false);
                 }
             } // switch
             _encoding |= RESP_ENC_CIM;
@@ -2069,7 +2069,7 @@ void CIMResponseData::_resolveSCMOToCIM()
         }
         default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
     _scmoInstances.clear();
@@ -2170,7 +2170,7 @@ void CIMResponseData::_resolveCIMToSCMO()
         }
         default:
         {
-            PEGASUS_ASSERT(false);
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
 

@@ -657,7 +657,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             else if (System::strcasecmp(iMethodResponseName, "ExecQuery") == 0)
                 response = _decodeExecQueryResponse(
                     parser, messageId, isEmptyTag);
- // EXP_PULL_BEGIN
+// EXP_PULL_BEGIN
             else if (System::strcasecmp(
                     iMethodResponseName, "OpenEnumerateInstances") == 0)
             {
@@ -725,7 +725,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
                 response = _decodeEnumerationCountResponse(
                     parser, messageId, isEmptyTag);
             }
- //EXP_PULL_END
+//EXP_PULL_END
             else
             {
                 MessageLoaderParms mlParms(
@@ -1995,7 +1995,6 @@ void _decodeOpenResponseParamValues(XmlParser& parser,
         }
         else
         {
-            /// EXP_PULL_TBD
             // We probably simply want to ignore this as an extra tag
         }
         if (!emptyTag)

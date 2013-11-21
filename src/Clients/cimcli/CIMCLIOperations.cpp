@@ -642,11 +642,6 @@ OperationExampleEntry OperationExamples[] = {
     "Clients.cimcli.CIMCLIClient.p\PXQ_COMMAND_OPTIONS",
     "    -n, queryLanguage, query, pull parameters\n"},
 //KS_PULL_END
-    {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
-    "cimcli cci TST_Person",
-    "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
-    "    -n, -ac, -rc, -r, -rr, -i\n"}
-
 };
 
 const Uint32 NUM_EXAMPLES = sizeof(OperationExamples) /

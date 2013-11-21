@@ -344,12 +344,13 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "failed provider module is not restarted with indications enabled\n"
         "automatically and will be moved to Degraded state immediately."},
 
-    {"maxIndicationDeliveryRetryAttempts",
+     {"maxIndicationDeliveryRetryAttempts",
         "If set to a positive integer, value defines the number of times\n"
-        "indication service will try to deliver an indication to a\n"
-        "particular listener destination. This does not effect the original\n"
-        "delivery attempt. If set to 0, cimserver will only try to\n"
-        "deliver the indication once."},
+        "indication service will enable the reliableIndication feature \n"
+        "& try to deliver an indication to a particular listener destination.\n"
+        "This does not effect the original delivery attempt. A value of 0\n"
+        "disables reliable indication feature completely, and cimserver will\n"
+        "deliver the indication once."}, 
 
     {"minIndicationDeliveryRetryInterval",
         "If set to a positive integer, defines the minimal time interval in\n"

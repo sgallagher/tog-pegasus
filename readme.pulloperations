@@ -22,7 +22,7 @@ TODO list:
    3. Lots of minor TODOs, diagnostics, etc.
    4. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration.  This should be discussed.  Am making
-      this a separate bug.  See bug
+      this a separate bug.  See bug 9819 for the changes to cover this.
    5. Decision on EnumerationContext timeout (separate thread or just
       checks during other operations). Can we, in fact really keep the 
       enumeration context table and queue under control without monitoring
@@ -35,7 +35,8 @@ TODO list:
           or take to long between deliveries.  This does not exist in Pegasus
           today
    6. Consider moving some of the code in dispatcher from templates to common
-      functions which would mean adding intermediate classes in CIMMessage
+      functions which would mean adding intermediate classes in CIMMessage but
+      would reduce code size.
    7. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
@@ -44,7 +45,15 @@ TODO list:
       with binary data since need to extend format to count it.
    8. NEXT TASKS: 
       a. test the enumeration timeout thread
-      b. Add openQueryInstances test to pullop
+      b. finish and test the OpenQueryInstances
+      c. Clean up TODOs
+      d. Find issue when we run makepoststarttests in pullop client with
+         forceProviderProcesses = true.  This causes an operation like
+         cimcli pei CIM_ManagedElement to not complete (client timeout)
+         sometimes.
+
+21 November 2013
+1. Mergeout from head of tree to 21 November 2013.
 
 18 November 2013
 1. Cleanup of a bunch of minor errors and completion of all of the code for
@@ -62,6 +71,9 @@ TODO list:
 4. Cleaned up some of the outstanding diagnostic code
 5. Generally passes all tests except for one test of pullop where it is trying
    to pull enum instances CIM_ManagedElement from a particular namespace.
+
+NOTE: I did not make comments here for changes in October despite the fact
+that I did 2 mergouts, number of fixes, and a mergein.
 
 30 September 2013 - CVS Update
 Mergeout head of tree up to 29 September 2013.
@@ -175,8 +187,10 @@ The following new CIM/XML operations as defined in DSP0200 are included;
     -OpenReferenceInstancePaths
     -OpenAssociatiorInstances
     -OpenAssociatorInstancePaths
+    -OpenQueryInstances
     -PullInstancesWithPath
     -PullInstancePaths
+    -PullInstances
     -CloseEnumeration
     -EnumerationCount
      OpenExecQuery

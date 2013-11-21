@@ -32,7 +32,9 @@
 #ifndef Pegasus_SecureBasicAuthenticator_h
 #define Pegasus_SecureBasicAuthenticator_h
 
-#include <Pegasus/Security/UserManager/UserManager.h>
+#ifndef PEGASUS_PAM_AUTHENTICATION
+# include <Pegasus/Security/UserManager/UserManager.h>
+#endif
 
 #include "BasicAuthenticator.h"
 
@@ -101,7 +103,9 @@ private:
 #endif // end PEGASUS_OS_ZOS
 
     String        _realm;
+#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager*  _userManager;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

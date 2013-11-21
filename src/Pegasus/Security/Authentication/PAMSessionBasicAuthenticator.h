@@ -64,7 +64,8 @@ public:
     static AuthenticationStatus updateExpiredPassword(
         const String& userName,
         const String& oldPass,
-        const String& newPass);
+        const String& newPass,
+        const String& ipAddress);
 
 private:
 

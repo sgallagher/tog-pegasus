@@ -322,6 +322,17 @@ Real64 PEGASUS_CLI_LINKAGE strToReal(const char * str, CIMType type);
  */
 void PEGASUS_CLI_LINKAGE cimcliExit(Uint32 exitCode);
 
+/**
+    Same cimcliExit except returns to the user with the return
+    code to be used.  This was defined to allow the main to to a
+    return on exit rather than exit which helps clean up on
+    cimcli exit. (See bug 9758)
+
+    @param exitCode
+
+    @return Uint32 code to be used for the exit.
+ */
+Uint32 PEGASUS_CLI_LINKAGE cimcliExitRtn(Uint32 exitCode);
 /** Set the expected exit code to some value.  This value will
  *  be tested by cimcliExit to determine if expected exit
  *  taken and put out message if not.

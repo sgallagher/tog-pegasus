@@ -3045,12 +3045,13 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
         if (body.size() != 0 || isFirst == false)
             _appendIReturnValueElementEnd(out);
 
+        // EXP_PULL_BEGIN
         // Insert any return parameters.
         if (rtnParams.size() != 0)
         {
             out << rtnParams;
         }
-        // //EXP_PULL_END
+        // EXP_PULL_END
 
         _appendIMethodResponseElementEnd(out);
         _appendSimpleRspElementEnd(out);

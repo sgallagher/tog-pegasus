@@ -59,7 +59,7 @@ CIMOperationResponseEncoder::CIMOperationResponseEncoder()
 CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 {
 }
-//KS_PULL_BEGIN
+//EXP_PULL_BEGIN
 
 //// TODO  KS_PULL_TBD the following is probably not needed.
 // Would be good to have a common place for all of this.
@@ -87,6 +87,7 @@ void CIMOperationResponseEncoder::sendPullResponse(
     }
     //sentResponseNew(response, name, isImplicit, bodyParams, bodygiven);
 }
+// EXP_PULL_END
 
 //==============================================================================
 //

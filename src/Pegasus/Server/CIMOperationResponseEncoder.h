@@ -116,7 +116,7 @@ public:
     void encodeEnumerateInstancesResponse(
         CIMEnumerateInstancesResponseMessage* response);
 
-//KS_PULL_BEGIN
+//EXP_PULL_BEGIN
     void encodeOpenEnumerateInstancesResponse(
         CIMOpenEnumerateInstancesResponseMessage* response);
 
@@ -152,7 +152,7 @@ public:
 
     void encodeOpenQueryInstancesResponse(
         CIMOpenQueryInstancesResponseMessage* response);
-//KS_PULL_END
+//EXP_PULL_END
 
     void encodeDeleteInstanceResponse(
         CIMDeleteInstanceResponseMessage* response);

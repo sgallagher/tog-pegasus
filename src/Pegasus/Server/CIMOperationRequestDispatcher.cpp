@@ -206,7 +206,7 @@ CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
     PEGASUS_ASSERT(valid());   // KS_TEMP;
     AutoMutex autoMut(_appendResponseMutex);
     CIMResponseMessage* tmp = _responseList[pos];
-    //// TODO remove
+    //// TODO remove this diagnostic trace.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "numberResponses = %u get # %u", _responseList.size(),
                 pos ));
@@ -2335,7 +2335,6 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
             handleOpenQueryInstancesRequest(
                 (CIMOpenQueryInstancesRequestMessage*)opRequest);
             break;
-
 //KS_PULL_END
 
         default:
@@ -3174,7 +3173,7 @@ struct ProviderRequests
             }
         }
     }
-
+// EXP_PULL_BEGIN
     /**************************************************************************
     **
     ** IssuePullResponses - Handles pullInstancesWithPath and pullInstancePaths
@@ -3452,6 +3451,7 @@ struct ProviderRequests
         PEG_METHOD_EXIT();
     }  // issueOpenResponseMessages Template
 };
+// EXP_PULL_END
 
 /****************************************************************************
 **

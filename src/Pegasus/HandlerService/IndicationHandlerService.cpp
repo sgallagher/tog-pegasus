@@ -59,11 +59,31 @@ IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
       ,_destinationQueueTable(),
       _deliveryThreadPool(0, "IndicationHandlerService", 0, 5, deallocateWait),
       _dispatcherThread(_dispatcherRoutine, this, true),
-      _maxDeliveryThreads(5)
+      _maxDeliveryThreads(5),
+      _needDestinationQueueCleanup(false) 
 #endif
 {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     _startDispatcher();
+    // Initialize with default value which is three
+    _maxDeliveryRetry=3 ; 
+    Uint64 v;
+    // Determine the value for the configuration parameter
+    // maxIndicationDeliveryRetryAttempts
+    ConfigManager* configManager = ConfigManager::getInstance();
+    String strValue = configManager->getCurrentValue(
+        "maxIndicationDeliveryRetryAttempts");
+    if (StringConversion::decimalStringToUint64(strValue.getCString(), v) &&
+        StringConversion::checkUintBounds(v, CIMTYPE_UINT16) )
+    {
+        _maxDeliveryRetry = (Uint16)v ;
+        PEG_TRACE((
+            TRC_IND_HANDLER, Tracer::LEVEL4,
+            "Value of maxIndicationDeliveryRetryAttempts when "
+                "cimserver start = %u",
+            _maxDeliveryRetry));
+    }
+
 #endif
 }
 
@@ -74,20 +94,11 @@ IndicationHandlerService::~IndicationHandlerService()
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     _stopDispatcher();
-
-    WriteLock lock(_destinationQueueTableLock);
-    // Cleanup all DestinationQueues.
-    DestinationQueueTable::Iterator i =
-        _destinationQueueTable.start();
-    DestinationQueue *queue;
-
-    for(; i; i++)
+    
+    if(_needDestinationQueueCleanup)
     {
-        queue = i.value();
-        queue->shutdown();
-        delete queue;
-    }
-    _destinationQueueTable.clear();
+        _destinationQueuesCleanup();
+    } 
 #endif
 
     PEG_METHOD_EXIT();
@@ -400,12 +411,42 @@ CIMHandleIndicationResponseMessage* IndicationHandlerService::_handleIndication(
                  // Set sequence-identfier and enqueue if the indication
                  // profile is enabled.
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-                _setSequenceIdentifierAndEnqueue(request);
-                if (request->deliveryStatusAggregator &&
-                    request->deliveryStatusAggregator->waitUntilDelivered)
+                // If the maxIndicationDeliveryRetryAttempts is set to 0 ,
+                // which indicates that reliable indications is disabled,
+                // try indication delivery once
+                                
+                if(_maxDeliveryRetry)   
                 {
-                    request->deliveryStatusAggregator = 0;
+                    
+                    _setSequenceIdentifierAndEnqueue(request);
+                    _needDestinationQueueCleanup = true;
+                    if (request->deliveryStatusAggregator &&
+                        request->deliveryStatusAggregator->waitUntilDelivered)
+                    {
+                        request->deliveryStatusAggregator = 0;
+                    }
                 }
+                else
+                {
+
+                    if (request->deliveryStatusAggregator)
+                    {
+                        request->deliveryStatusAggregator->complete();
+                        request->deliveryStatusAggregator = 0;
+                    }
+                    handleIndicationSuccess = _loadHandler(
+                        request, cimException);
+                    // check if DestinationQueue needs to be Cleaned up
+                    if(_needDestinationQueueCleanup)
+                    {
+                        _destinationQueuesCleanup() ;
+                    }       
+             
+                    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
+                        "Reliable indication is  %s",
+                        _maxDeliveryRetry ? "enable" : "disable"));
+                }  
+
 #else
                 if (request->deliveryStatusAggregator)
                 {
@@ -910,6 +951,7 @@ CIMNotifyConfigChangeResponseMessage*
     if (String::equal(
         notifyRequest->propertyName, "maxIndicationDeliveryRetryAttempts")) 
     {
+        _maxDeliveryRetry = (Uint16)v ;  
         DestinationQueue::setDeliveryRetryAttempts(v);
     }
     else if(String::equal(
@@ -1271,6 +1313,22 @@ void IndicationHandlerService::filterInstance(bool includeQualifiers,
 
     }
 
+}
+
+void IndicationHandlerService:: _destinationQueuesCleanup()
+{
+    WriteLock lock(_destinationQueueTableLock);
+    _needDestinationQueueCleanup = false;
+    // Cleanup all DestinationQueues.
+    DestinationQueueTable::Iterator i =  _destinationQueueTable.start();
+    DestinationQueue *queue;
+    for(; i; i++)
+    {
+        queue = i.value();
+        queue->shutdown();
+        delete queue;
+    }
+    _destinationQueueTable.clear();
 }
 #endif
 

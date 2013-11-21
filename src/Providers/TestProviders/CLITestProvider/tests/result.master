@@ -2697,7 +2697,7 @@ test/cimv2 Total Classes=777, with Instances=0, Instances=0
 1  Test_CLITestProviderClass returned.
 1 instances of class Test_CLITestProviderClass returned.
 
-// path= //ubuntu9/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
+// path= //ChangedHostName/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
 
 instance of Test_CLITestProviderClass
 {

@@ -1192,11 +1192,11 @@ testpullOperations:
 	@$(ECHO) 26. +++++ Test pull Operations
 	@$(ECHO) 26. +++++ Test pull Operations  >> $(RESULTFILE)
 	@cimcli pni -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-         --sum -count 1  >> $(RESULTFILE)
+         --sum -count 1  --setRtnHostNames ChangedHostName >> $(RESULTFILE)
 	@cimcli pei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-         --sum -count 1  >> $(RESULTFILE)
+         --sum -count 1  --setRtnHostNames ChangedHostName >> $(RESULTFILE)
 	@cimcli pa Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
-	    -count 1 >> $(RESULTFILE)
+	    -count 1 --setRtnHostNames ChangedHostName >> $(RESULTFILE)
 	@cimcli pan Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
             -count 1 --setRtnHostNames ChangedHostName >> $(RESULTFILE) 
 	@$(ECHO) 26. +++++ Test pull Operations

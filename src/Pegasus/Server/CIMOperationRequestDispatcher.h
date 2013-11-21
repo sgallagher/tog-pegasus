@@ -40,7 +40,7 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/QueryExpressionRep.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/UintArg.h>
+#include <Pegasus/Common/UintArgs.h>
 #include <Pegasus/Common/ArrayIterator.h>
 #include <Pegasus/Common/Magic.h>
 

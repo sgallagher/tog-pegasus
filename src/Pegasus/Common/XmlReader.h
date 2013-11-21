@@ -39,7 +39,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/UintArg.h>
+#include <Pegasus/Common/UintArgs.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

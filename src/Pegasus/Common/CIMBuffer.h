@@ -41,7 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/StringRep.h>
 #include <Pegasus/Common/SCMOInstance.h>
-#include <Pegasus/Common/UintArg.h>
+#include <Pegasus/Common/UintArgs.h>
 
 #define PEGASUS_USE_MAGIC
 

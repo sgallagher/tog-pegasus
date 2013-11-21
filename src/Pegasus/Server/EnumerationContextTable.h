@@ -39,7 +39,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/UintArg.h>
+#include <Pegasus/Common/UintArgs.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMInstance.h>

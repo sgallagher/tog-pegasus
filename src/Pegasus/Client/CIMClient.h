@@ -45,7 +45,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/UintArg.h>
+#include <Pegasus/Common/UintArgs.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Common/AcceptLanguageList.h>

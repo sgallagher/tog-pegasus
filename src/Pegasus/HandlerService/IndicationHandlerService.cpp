@@ -104,6 +104,22 @@ IndicationHandlerService::~IndicationHandlerService()
     PEG_METHOD_EXIT();
 }
 
+void IndicationHandlerService:: _destinationQueuesCleanup()
+{
+    WriteLock lock(_destinationQueueTableLock);
+    _needDestinationQueueCleanup = false;
+    // Cleanup all DestinationQueues.
+    DestinationQueueTable::Iterator i =  _destinationQueueTable.start();
+    DestinationQueue *queue;
+    for(; i; i++)
+    {
+        queue = i.value();
+        queue->shutdown();
+        delete queue;
+    }
+    _destinationQueueTable.clear();  
+}
+
 void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
 {
     if (req->getType() == ASYNC_CIMSERVICE_STOP)
@@ -1313,22 +1329,6 @@ void IndicationHandlerService::filterInstance(bool includeQualifiers,
 
     }
 
-}
-
-void IndicationHandlerService:: _destinationQueuesCleanup()
-{
-    WriteLock lock(_destinationQueueTableLock);
-    _needDestinationQueueCleanup = false;
-    // Cleanup all DestinationQueues.
-    DestinationQueueTable::Iterator i =  _destinationQueueTable.start();
-    DestinationQueue *queue;
-    for(; i; i++)
-    {
-        queue = i.value();
-        queue->shutdown();
-        delete queue;
-    }
-    _destinationQueueTable.clear();
 }
 #endif
 

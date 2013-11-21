@@ -99,7 +99,8 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
     const ContentLanguageList& httpContentLanguages,
     CIMMessage * request,
     const String& userName,
-    const String& oldPass)
+    const String& oldPass,
+    const String& ipAddress)
 {
     static CIMName meth = CIMName("UpdateExpiredPassword");
     static CIMName clName = CIMName("PG_Account");
@@ -188,7 +189,8 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
         PAMSessionBasicAuthenticator::updateExpiredPassword(
             userName,
             oldPass,
-            newPass);
+            newPass,
+            ipAddress);
 
     if (authStat.isSuccess())
     {
@@ -1677,7 +1679,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
                 httpContentLanguages,
                 cimmsg,
                 userName,
-                userPass);
+                userPass,
+                ipAddress);
         }
         else
         {

@@ -48,6 +48,7 @@
 #include <Pegasus/Common/Magic.h>
 #include <Pegasus/Common/Condition.h>
 #include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Common/TimeValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 /****************************************************************************
@@ -107,7 +108,6 @@ public:
         CIMResponseData::ResponseDataContent contentType);
 
     /** Find and remove the enumeration context from the table
-     *  TODO - Want to remove this function completely.
     */
     void removeCxt(const String& enumerationContextName,
                    Boolean deleteContext);
@@ -165,8 +165,10 @@ public:
     // KS_TODO think some of these are overkill
     Uint32 timoutInterval() const;
 
-    /** TODO
-        @return Boolean
+    /** isTimedOut tests if the next defined timeout for the context monitor
+        is less than the current time meaning that the timer has
+        timed out.
+        @return Boolean returns true if timed out.
      */
     Boolean isTimedOut() const;
 
@@ -175,7 +177,7 @@ public:
     // set
     Boolean valid();
 
-    // KS_TEMP TODO This diagnostic should be removed. It  validates
+    // KS_TEMP TODO REMOVE This diagnostic should be removed. It  validates
     // every entry in the table.
     void tableValidate();
 
@@ -260,6 +262,11 @@ inline Uint32 EnumerationContextTable::timoutInterval() const
 inline Uint32 EnumerationContextTable::getMinPullDefaultTimeout() const
 {
     return _maxOperationTimeout;
+}
+
+inline Boolean EnumerationContextTable::isTimedOut() const
+{
+    return (_nextTimeout < TimeValue::getCurrentTime().toMilliseconds() );
 }
 
 PEGASUS_NAMESPACE_END

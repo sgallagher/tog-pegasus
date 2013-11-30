@@ -33,7 +33,6 @@
 
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Time.h>
-#include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/List.h>
 #include <Pegasus/General/Guid.h>
 #include <Pegasus/Common/CIMResponseData.h>
@@ -239,8 +238,6 @@ EnumerationContext* EnumerationContextTable::createContext(
     enumCtxt->_responseCacheMaximumSize = _responseCacheMaximumSize;
 
     // Create new context name
-    // KS_TODO - Modify this whole thing to a Uint64 so we are not mapping
-    // Strings.  Works since passed as PCDATA
     //
     _enumContextCounter++;
     Uint32 size;
@@ -248,7 +245,6 @@ EnumerationContext* EnumerationContextTable::createContext(
     const char* cxtName = Uint32ToString(t,_enumContextCounter.get(),size);
 
     // Put the name into the context and return value
-    // KS_TODO We should not be duplicating the name.
     enumCtxt->_enumerationContextName = cxtName;
 
     // insert new context into the table
@@ -339,7 +335,7 @@ Boolean EnumerationContextTable::_removeContext(
         {
             _cacheHighWaterMark = en->_cacheHighWaterMark;
         }
-        // KS_TODO diagnostic trace of enumerateContext internal info
+        // KS_TODO Temporary diagnostic trace of enumerateContext internal info
         en->trace();
         // Remove from EnumerationContextTable.
         ht.remove(en->getName());
@@ -402,8 +398,12 @@ EnumerationContext* EnumerationContextTable::find(
     AutoMutex autoMut(tableLock);
 
     EnumerationContext* en;
+
+    // lookup enumeration. Boolean true if found
     if(ht.lookup(enumerationContextName, en))
     {
+        PEGASUS_ASSERT(en != 0);
+        PEGASUS_ASSERT(en->valid());
         PEG_METHOD_EXIT();
         return en;
     }
@@ -420,7 +420,8 @@ void EnumerationContextTable::removeExpiredContexts()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::removeExpiredContexts");
 
-    // Lock the table so no operations can be accepted during this process
+    // Lock the EnumerationContextTable so no operations can be accepted
+    // during this process
     AutoMutex autoMut(tableLock);
 
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
@@ -430,7 +431,9 @@ void EnumerationContextTable::removeExpiredContexts()
     {
         EnumerationContext* en = i.value();
         PEGASUS_ASSERT(en->valid());             // diagnostic. KS_TEMP
-
+        // Lock the context at this point to assure that no client
+        // operation interacts with possible timeout and removal.
+        en->lockContext();
         // test if entry is active (timer not zero)
         if (en->_interOperationTimer != 0)
         {
@@ -438,14 +441,16 @@ void EnumerationContextTable::removeExpiredContexts()
             {
 //              cout << "Entry timed out " << en->getContextName()
 //                  << " " << en->_interOperationTimer <<  endl;
-/////       KS_TODO could a client operation sneak in here???
-/////       KS_TODO what about provider operation completion and the remove.
-                en->_interOperationTimer = 0;
-                //// KS_TODO this could really just let client close it.
+                //// en->_interOperationTimer = 0;
+                // Force the client closed so nothing more accepted.
                 en->setClientClosed();
+
+                // If providers are complete we can remove the context
                 if (en->ifProvidersComplete())
                 {
                     _removeContext(en, true);
+                    PEG_METHOD_EXIT();
+                    return;
                 }
             }
 //          else
@@ -454,6 +459,7 @@ void EnumerationContextTable::removeExpiredContexts()
 //                  << " " << en->_interOperationTimer <<  endl;
 //          }
         }
+        en->unlockContext();
     }
 //  cout << "exit removeExpiredContexts" << endl;
     PEG_METHOD_EXIT();
@@ -521,14 +527,6 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
     PEG_METHOD_EXIT();
 }
 
-/*
-    Test if the next defined timeout for the context monitory is less
-    than the current time.
-*/
-Boolean EnumerationContextTable::isTimedOut() const
-{
-    return (_nextTimeout < TimeValue::getCurrentTime().toMilliseconds() );
-}
 
 void EnumerationContextTable::trace()
 {

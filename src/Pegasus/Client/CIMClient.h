@@ -1279,11 +1279,193 @@ public:
     @param objectName The <TT>objectName</TT> input parameter defines the
     Class that is the basis for the enumeration.
 
+    @param assocClass CIMName input parameter that defines a filter on
+    the associated instances set to be returned.
+
+    @param resultClass CIMName input parameter that defines a filter on
+    the associated instances set to be returned.
+
+    @param role String input parameter that defines a filter on the roles
+    of associated instances to be returned
+
+    @param filterQueryLanguage See filterQuery parameter for
+    openEnumerateInstances
+
+    @param filterQuery See filterQuery parameter for openEnumerateInstances
+
+    @param operationTimeout See operationTimeout parameter for
+    openEnumerateInstances.
+
+    @param continueOnError - See continueOnError parameter for
+    openEnumerateInstances.
+
+    @param maxObjectCount - See maxObjectCount parameter for
+    openEnumerateInstances.
+
+    @return If successful, the method returns zero or more
+     CIMObjectPaths that meet the required criteria.
+
+    If unsuccessful, one of the following status codes MUST be returned
+    by this method, where the first applicable error in the list (starting
+    with the first element of the list, and working down) is the error
+    returned. Any additional method-specific interpretation of the error in
+    is given in parentheses.
+
+        <UL>
+          <LI>CIM_ERR_ACCESS_DENIED
+          <LI>CIM_ERROR_SERVER_IS_SHUTTING_DOWN
+          <LI>CIM_ERR_NOT_SUPPORTED
+          <LI>CIM_ERR_INVALID_NAMESPACE
+          <LI>CIM_ERR_INVALID_OPERATION_TIMEOUT
+          <LI>CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED
+          <LI>CIM_ERR_INVALID_PARAMETER (including missing,
+                duplicate, unrecognized or otherwise incorrect parameters)
+          <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
+                basis for this enumeration does not exist)
+          <LI>CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED
+          <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPPORTED
+          <LI> CIM_ERR_INVALID_QUERY
+          <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+        </UL>
+    */
+
+    Array<CIMObjectPath> openReferenceInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& filterQueryLanguage = String::EMPTY,
+        const String& filterQuery = String::EMPTY,
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        const Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0 );
+
+    /**
+    The <TT>openAssociatorInstances</TT> method opens an
+    enumeration sequence  to get instances associated with
+    a CIM Instance(the <TT>objectName</TT> parameter) in the target
+    Namespace and returns zero or more CIMInstances. This function
+    is the pull parallel to the <TT>associators</TT>  function but
+    returns CIMInstances rather than CIMObjects and requires that
+    a InstancePath be supplied (not just a ClassPath).
+
+    @param enumerationContext See enumerationContext parameter for
+    openEnumerateInstances.
+
+    @param  endOfSequence See endOfSequence parameter for
+    openEnumerateInstances.
+
+    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+
+    @param objectName The <TT>objectName</TT> input parameter defines the
+    instance that is the basis for the enumeration.
+
     @param resultClass CIMName input parameter that defines a filter on
     the reference instances set to be returned.
 
     @param role String input parameter that defines a filter on the roles
-    of references instances to be returned
+    of associated instances to be returned.
+
+    @param resultRole String input parameter that defines a filter
+    on the roles of associated instances to be returned
+
+    @param includeClassOrigin A Boolean indicating whether the Class Origin
+        attribute is to be included in elements of the returned Instance.
+        If false, no Class Origin attributes are requested.
+        If not specified, this parameter defaults to false.
+
+    @param propertyList See propertyList parameter for
+                        openEnumerateInstances
+
+    @param filterQueryLanguage See filterQuery parameter for
+    openEnumerateInstances
+
+    @param filterQuery See filterQuery parameter for openEnumerateInstances
+
+    @param operationTimeout See operationTimeout parameter for
+    openEnumerateInstances.
+
+    @param continueOnError - See continueOnError parameter for
+    openEnumerateInstances.
+
+    @param maxObjectCount - See maxObjectCount parameter for
+    openEnumerateInstances.
+
+    @return If successful, the method returns zero or more
+     CIMInstances that meet the required criteria.
+
+    If unsuccessful, one of the following status codes MUST be returned
+    by this method, where the first applicable error in the list (starting
+    with the first element of the list, and working down) is the error
+    returned. Any additional method-specific interpretation of the error in
+    is given in parentheses.
+
+        <UL>
+          <LI>CIM_ERR_ACCESS_DENIED
+          <LI>CIM_ERROR_SERVER_IS_SHUTTING_DOWN
+          <LI>CIM_ERR_NOT_SUPPORTED
+          <LI>CIM_ERR_INVALID_NAMESPACE
+          <LI>CIM_ERR_INVALID_OPERATION_TIMEOUT
+          <LI>CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED
+          <LI>CIM_ERR_INVALID_PARAMETER (including missing,
+                duplicate, unrecognized or otherwise incorrect parameters)
+          <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
+                basis for this enumeration does not exist)
+          <LI>CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED
+          <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPPORTED
+          <LI> CIM_ERR_INVALID_QUERY
+          <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+        </UL>
+    */
+
+    Array<CIMInstance> openAssociatorInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String::EMPTY,
+        const String& filterQuery = String::EMPTY,
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        const Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0 );
+
+    /**
+    The <TT>openAssociatorInstancePaths</TT> method opens an
+    enumeration sequence  to get instance paths associated with
+    a CIM Instance(the <TT>objectName</TT> parameter) in the target
+    Namespace and returns zero or more CIMObjectPaths. This function
+    is the pull parallel to the <TT>associatorNames</TT>  function. but
+    requires that an InstancePath be supplied (not just a ClassPath).
+
+    @param enumerationContext See enumerationContext parameter for
+    openEnumerateInstances.
+
+    @param  endOfSequence See endOfSequence parameter for
+    openEnumerateInstances.
+
+    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+
+    @param objectName The <TT>objectName</TT> input parameter defines the
+    instance that is the basis for the enumeration. This must be an
+    instance path whereas the <TT>associatorNames<</TT> function will
+    accept either instance path or class path
+
+    @param resultClass CIMName input parameter that defines a filter on
+    the associated CIMObjectPath set to be returned.
+
+    @param role String input parameter that defines a filter on the roles
+    of associated CIMObjectPath to be returned.
+
+    @param resultRole String input parameter that defines a filter
+    on the roles of associated CIMObjectPath to be returned
 
     @param filterQueryLanguage See filterQuery parameter for
     openEnumerateInstances
@@ -1324,43 +1506,7 @@ public:
           <LI> CIM_ERR_INVALID_QUERY
           <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
         </UL>
-    */
 
-    Array<CIMObjectPath> openReferenceInstancePaths(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY,
-        const String& filterQueryLanguage = String::EMPTY,
-        const String& filterQuery = String::EMPTY,
-        const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0 );
-
-    /**
-     * KS_TODO Add Description
-    */
-
-    Array<CIMInstance> openAssociatorInstances(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass = CIMName(),
-        const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY,
-        const String& resultRole = String::EMPTY,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList(),
-        const String& filterQueryLanguage = String::EMPTY,
-        const String& filterQuery = String::EMPTY,
-        const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
-        Uint32 maxObjectCount = 0 );
-
-    /** KS_TODO Add Description
     */
     Array<CIMObjectPath> openAssociatorInstancePaths(
         CIMEnumerationContext& enumerationContext,
@@ -1639,19 +1785,17 @@ public:
     void closeEnumeration(
         CIMEnumerationContext& enumerationContext );
 
-    /**
+    /*
     The <TT>enumerationCount</TT> operation returns an estimate of
-    the number of instances that would be returned by the enumeration
-    sequence represented by the enumerationContext.
+    the total number of objects  in an open enumerationContext.
 
-    NOTE: This is an optional operation and may not be implemented. If
+    This is an optional operation and may not be implemented. If
     not supported the server will return CIM_NOT_SUPPORTED.
 
-    KS_TODO Think this should say only return NULL today Not
-    implemented in the Pegasus server today
-
-    @param enumerationContexif not NULL st of the currently open
-                              enumeration sequence
+    @param enumerationContext identifies the enumeration
+    session(returned from an Open... function for the enumerationCount
+    function. This must be a valid enumerationContext for an
+    open enumeration sequence
 
     @return Uint64Arg containing either an estimate of the the
             number of objects remaining to be returned for the

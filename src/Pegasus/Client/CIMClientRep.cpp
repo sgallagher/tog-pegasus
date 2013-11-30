@@ -1371,8 +1371,6 @@ void CIMClientRep::closeEnumeration(
 
         AutoPtr<CIMCloseEnumerationResponseMessage> destroyer(response);
 
-        // KS_PULL_QUESTION - Should we touch the enumeration context??
-
         return;
 }
 

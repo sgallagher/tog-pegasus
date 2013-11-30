@@ -224,12 +224,16 @@ public:
        set the enumeration state to providersComplete. This function
        signals the getCache function conditional variable. This
        function may also wait if the cache is full.
+
+       @param response CIMResponseMessage containing CIMResponseData
+          to be inserted into the cache.
+       @param providersComplete Boolean indicating that this is the
+          last response from providers.
        @return true if data set into cache, false if enumeration
-               closed and data not inserted into cache.
+               closed this is last response from providers.
      */
-    Boolean putCache(MessageType type,
-                  CIMResponseMessage*& response,
-                  Boolean providersComplete);
+    Boolean putCache(CIMResponseMessage*& response,
+        Boolean providersComplete);
 
     /**Get up to the number of objects defined by count from the
        CIMResponseData cache in the enumerationContext into the rtn
@@ -343,6 +347,11 @@ public:
 
     CIMNamespaceName getNamespace() const;
 
+    // This mutex locks the entire context for some critical sections.
+    void lockContext();
+    void unlockContext();
+    Mutex _contextLock;
+
 private:
     // Default constructor not used
     EnumerationContext();
@@ -380,7 +389,8 @@ private:
     // Set true when context closed from client side
     Boolean _clientClosed;
 
-    // Set to true when input from providers complete
+    // Set to true when input from providers complete. The context
+    // cannot be removed while this is false
     Boolean _providersComplete;
 
     // set true when CIMServer is processing a request within the
@@ -390,18 +400,11 @@ private:
     // Set true when error received from Providers.
     Boolean _error;
 
-    // Timers for the wait conditions. Counts time waiting
-    Stopwatch _waitingCacheSizeConditionTime;
-    Stopwatch _waitingProviderLimitConditionTime;
-
-    // Block simultaneous access to certain functions in the Enumeration
-    // context.
-    Mutex _cacheBlock;
-
     // Object cache for this context.  All pull responses feed their
     // CIMResponseData into this cache using putCache(..) and all
     // Open and Pull responses get data from the cache using getCache()
-    // Simultaneous access to the cache is controlled with _cacheBlock mutex.
+    // Simultaneous access to the cache is controlled with _responseCacheMutex
+    // mutex.
     Mutex _responseCacheMutex;
     CIMResponseData _responseCache;
 
@@ -520,6 +523,16 @@ inline Uint32 EnumerationContext::responseCacheSize()
 inline CIMNamespaceName EnumerationContext::getNamespace() const
 {
     return _nameSpace;
+}
+
+inline void EnumerationContext::lockContext()
+{
+    _contextLock.lock();
+}
+
+inline void EnumerationContext::unlockContext()
+{
+    _contextLock.unlock();
 }
 
 PEGASUS_NAMESPACE_END

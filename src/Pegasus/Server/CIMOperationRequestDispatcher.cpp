@@ -1004,15 +1004,18 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             // Send to the EnumerationContext cache along with the
             // isComplete indicator. Return indicates cache is closed
             // and providers complete so clean up.
+            // The enumerationContext could be cleaned up by the
+            // timer thread once the providers are marked complete in
+            // the enumerationContext (if the client had timed out )
 
-            if (!en->putCache(poA->getRequestType(), response, isComplete))
+            if (!en->putCache(response, isComplete))
             {
                 // If providers complete and refused by putCache (i.e.
                 // sequence closed, we can now get rid of the context.
                 if (isComplete)
                 {
-                    //// KS_TODO Should we remove here? Could there be
-                    //// something in _waiting at this point?
+                    //// KS_TODO Should we remove here? Confirm there be
+                    //// nomething in _waiting at this point?
                     enumerationContextTable.removeCxt(
                        en->getName(), true);
                 }
@@ -2781,7 +2784,6 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidOperationTimeout(
     return false;
 }
 /* Generate error response message if context is invalid.
-   Null pointer is current test for validity.
    @param valid Boolean = true if valid
    @return true if valid=true, false if valid=false.
 */
@@ -2790,10 +2792,11 @@ Boolean CIMOperationRequestDispatcher::_rejectInValidEnumerationContext(
     void * enumerationContext)
 {
     EnumerationContext* en = (EnumerationContext *) enumerationContext;
-    if (enumerationContext == 0 || !en->valid())
+    if (en == 0)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "PullInstanceWithPath Invalid Context parameter Received" ));
+            "%s Invalid Context parameter Received",
+             MessageTypeToString(request->getType()) ));
 
         CIMResponseMessage* response = request->buildResponse();
 
@@ -3214,37 +3217,45 @@ struct ProviderRequests
         EnumerationContext* enumContext =
              enumerationContextTable.find(request->enumerationContext);
 
-        // If enumeration Context not found, return invalid exception
+        // If enumeration Context not found or value is zero,
+        // return invalid exception
         if (dispatcher->_rejectInValidEnumerationContext(request, enumContext))
         {
             PEG_METHOD_EXIT();
             return;
         }
-
-        // reject if this is a not valid request for the originating Operation
-        if (dispatcher->_rejectInvalidPullRequest(request,
-            enumContext->isValidPullRequestType(request->getType())))
+        // lock the context until we have set processing state to avoid
+        // conflict with timer thread.
         {
-            PEG_METHOD_EXIT();
-            return;
-        }
+            AutoMutex contextLock(enumContext->_contextLock);
 
-        if (dispatcher->_rejectIfContextTimedOut(request,
-            enumContext->isTimedOut()))
-        {
-            PEG_METHOD_EXIT();
-            return;
-        }
-        // reject if an operation is already active on this enumeration context
-        if (dispatcher->_rejectIfEnumerationContextProcessing(request,
-            enumContext->isProcessing()))
-        {
-            PEG_METHOD_EXIT();
-            return;
-        }
+            // reject if this is a not valid request for the originating
+            // operation
+            if (dispatcher->_rejectInvalidPullRequest(request,
+                enumContext->isValidPullRequestType(request->getType())))
+            {
+                PEG_METHOD_EXIT();
+                return;
+            }
+            // reject if an operation is already active on this enumeration
+            // context
+            if (dispatcher->_rejectIfEnumerationContextProcessing(request,
+                enumContext->isProcessing()))
+            {
+                PEG_METHOD_EXIT();
+                return;
+            }
 
-        // Set active and stop interOperation timer
-        enumContext->setProcessingState(true);
+            if (dispatcher->_rejectIfContextTimedOut(request,
+                enumContext->isTimedOut()))
+            {
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+            // Set active and stop interOperation timer
+            enumContext->setProcessingState(true);
+        }
 
         // If maxObjectCount = 0, Respond with empty response unless
         // consecutieve requests with maxObjectCount = 0 exceeds limit.
@@ -3273,7 +3284,7 @@ struct ProviderRequests
                 //
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "%s Exceeded maxObjectCount consecutive zero limit",
-                           opSeqName));
+                    opSeqName));
                 response->endOfSequence = true;
                 response->cimException = CIMException(
                     CIM_ERR_SERVER_LIMITS_EXCEEDED,
@@ -5300,7 +5311,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
 
-    //// KS_TEMP KS_TODO REMOVE debugging code. Delete. OCT2011
+    //// KS_TEMP KS_TODO REMOVE debugging code. Delete.
     if (enumerationContext->responseCacheSize() != 0)
     {
         enumerationContext->valid();
@@ -6898,15 +6909,8 @@ void CIMOperationRequestDispatcher::handleEnumerationCount(
        request->enumerationContext);
 
     // test for invalid context and if found, error out.
-    if (en == 0)
+    if (_rejectInValidEnumerationContext(request, en))
     {
-        CIMResponseMessage* response = request->buildResponse();
-        CIMException x = PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_INVALID_ENUMERATION_CONTEXT, String::EMPTY);
-        response->cimException = x;
-
-        _enqueueResponse(request, response);
-
         PEG_METHOD_EXIT();
         return;
     }
@@ -6990,26 +6994,45 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         PEG_METHOD_EXIT();
         return;
     }
-
-    if (_rejectIfContextTimedOut(request, en->isTimedOut()))
+    // lock the context until we have set processing state to avoid
+    // conflict with timer thread.
     {
-        PEG_METHOD_EXIT();
-        return;
-    }
+        AutoMutex contextLock(en->_contextLock);
 
-    // If another operation is active for this context, reject this operation.
-    // The specification allows as an option concurrent close (close
-    // while pull request active) but we do not for now.  Complicates the
-    // code to much for right now.
-    if (_rejectIfEnumerationContextProcessing(request, en->isProcessing()))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        if (_rejectIfContextTimedOut(request, en->isTimedOut()))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
+
+        // If another operation is active for this context, reject this
+        // operation.
+        // The specification allows as an option concurrent close (close
+        // while pull request active) but we do not for now.  Complicates the
+        // code to much for right now.
+        if (_rejectIfEnumerationContextProcessing(request, en->isProcessing()))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
+        if (_rejectIfContextTimedOut(request, en->isTimedOut()))
+        {
+            PEG_METHOD_EXIT();
+            return;
+        }
+        // Stop interoperation timer. Turns off the
+        // interoperation timeout thread for this context.
+        en->stopTimer();
     }
 
     // Set the Enumeration Closed. No more requests will be accepted
     // for this enumerationContext
     en->setClientClosed();
+
+    // KS_TODO At this point, provider complete operation could sneak in
+    // and remove context since client closed. We need to protect against
+    // that. Probably by not setting client closed yet. or by getting the
+    // context to local variable before we close.
 
     // Confirm that the providers are complete and if not
     // to force process when they are complete.

@@ -1932,11 +1932,9 @@ void _decodeGetInstancesWithPathElement(
 }
 
 /*
-    decode returned instances Element into an array
+    Decode returned instances Element into an array
     of instances. This function is only for pullInstances.
 */
-//// KS_TODO Since there is only one user, this could be in the decode
-//// function
 void _decodeGetInstancesElement(
     XmlParser& parser,
     Array<CIMInstance>& instances)
@@ -1995,7 +1993,7 @@ void _decodeOpenResponseParamValues(XmlParser& parser,
         }
         else
         {
-            // We probably simply want to ignore this as an extra tag
+            // Ignore this as an extra tag
         }
         if (!emptyTag)
         {
@@ -2010,29 +2008,26 @@ void _decodeOpenResponseParamValues(XmlParser& parser,
         }
     }
 
-
-    // KS_TODO -Should the error be INVALID_PARAMETER since it is
-    // really MISSING.
+    // KS_TODO -Should the error be INVALID_PARAMETER or XmlValidation since
+    // it is really MISSING but this is response so we have generally
+    // used XmlValidationError. Not sure so ignore issue for now. Nov 2013, KS
     if (!gotEndOfSequence)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
             "EndOfSequence is a Required Parameter");
     }
 
+    // EnumerationContext is required parameter
     if (!gotEnumerationContext)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
             "EnumerationContext is a Required Parameter");
     }
-    if (!endOfSequence)
+    // EnumerationContext must have value if not endOfSequence
+    if ((!endOfSequence) && (enumerationContext.size() == 0))
     {
-        if(enumerationContext.size() == 0)
-        {
-            MessageLoaderParms mlParms(
-                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
-                "Expected VALUE element");
-            throw XmlValidationError(parser.getLine(), mlParms);
-        }
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Valid EnumerationContext is a Required Parameter");
     }
 }
 
@@ -2062,16 +2057,14 @@ CIMOpenEnumerateInstancesResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // EXP_PULL should error out if response empty
+    // EXP_PULL should error out if response empty because either
+    // enumerationContext or endOfSequence is required. Create
+    // missing Parameter error here.
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenEnumerateInstancesResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     _decodeGetInstancesWithPathElement(parser, namedInstances);
@@ -2114,16 +2107,13 @@ CIMOpenEnumerateInstancePathsResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenEnumerateInstancePathsResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+
     }
 
     _decodeInstancePathElements(parser, instancePaths);
@@ -2167,16 +2157,12 @@ CIMOpenReferenceInstancesResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // KS_TODO EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenReferenceInstancesResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     _decodeGetInstancesWithPathElement(parser, namedInstances);
@@ -2222,16 +2208,11 @@ CIMOpenReferenceInstancePathsResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // KS_TODO EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenReferenceInstancePathsResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     _decodeInstancePathElements(parser, instancePaths);
@@ -2274,16 +2255,12 @@ CIMOpenAssociatorInstancesResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // KS_TODO EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenAssociatorInstancesResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     _decodeGetInstancesWithPathElement(parser, namedInstances);
@@ -2327,16 +2304,12 @@ CIMOpenAssociatorInstancePathsResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenAssociatorInstancePathsResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -2390,16 +2363,12 @@ CIMPullInstancesWithPathResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMPullInstancesWithPathResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
     _decodeGetInstancesWithPathElement(parser, namedInstances);
 
@@ -2443,16 +2412,12 @@ CIMPullInstancePathsResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // KS_TODO EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMPullInstancePathsResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     _decodeInstancePathElements(parser, instancePaths);
@@ -2493,16 +2458,12 @@ CIMPullInstancesResponseMessage*
             endOfSequence,
             enumerationContext);
     }
-    // EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMPullInstancesResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            endOfSequence,
-            enumerationContext);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
     _decodeGetInstancesElement(parser, instances);
 
@@ -2568,15 +2529,11 @@ CIMEnumerationCountResponseMessage*
             0);
     }
 
-    // EXP_PULL should error out if response empty
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMEnumerationCountResponseMessage(
-            messageId,
-            cimException,
-            QueueIdStack(),
-            0);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     // Extract the parameter count from the message
@@ -2645,17 +2602,12 @@ CIMOpenQueryInstancesResponseMessage*
             enumerationContext,
             QueueIdStack());
     }
-    // EXP_PULL should error out if response empty
+
     if (isEmptyImethodresponseTag)
     {
-        CIMException cimException;
-        return new CIMOpenQueryInstancesResponseMessage(
-            messageId,
-            cimException,
-            CIMClass(),
-            endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
     }
 
     //// KS_TODO this should be instance without path. We do not have

@@ -83,15 +83,15 @@ EnumerationContext::EnumerationContext(
 
     // set start time for this enumeration sequence
     _startTime = TimeValue::getCurrentTime().toMicroseconds();
-     _waitingCacheSizeConditionTime.reset();
-    _waitingProviderLimitConditionTime.reset();
 
-////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP TODO Delete
-////             "Create EnumerationContext operationTimeoutSec %u"
-////             " responseCacheDataType %u StartTime %lu",
-////             _operationTimeoutSec,
-////             _responseCache.getResponseDataContent(),
-////             (unsigned long int)_startTime));
+    // KS_TODO Consider this one a temporary diagnostic. Delete before
+    // checkin
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP TODO Delete
+               "Create EnumerationContext operationTimeoutSec %u"
+               " responseCacheDataType %u StartTime %lu",
+               _operationTimeoutSec,
+               _responseCache.getResponseDataContent(),
+               (unsigned long int)_startTime));
 }
 
 EnumerationContext::EnumerationContext(const EnumerationContext& x)
@@ -231,9 +231,7 @@ void EnumerationContext::trace()
         "providers complete=%s "
         "closed=%s "
         "timeOpen %lu millisec totalPullCount=%u "
-        "cache highWaterMark=%u "
-        "_waitingCacheSizeConditionTime=%f ms "
-        "_waitingProviderLimitConditionTime=%f ms "              ,
+        "cache highWaterMark=%u ",
         (const char *)_enumerationContextName.getCString(),
         (const char *)_nameSpace.getString().getCString(),
         (long unsigned int)_operationTimeoutSec,
@@ -245,9 +243,7 @@ void EnumerationContext::trace()
         (long unsigned int)
             (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
         _pullOperationCounter,
-        _cacheHighWaterMark,
-        _waitingCacheSizeConditionTime.getElapsed(),
-        _waitingProviderLimitConditionTime.getElapsed()  ));
+        _cacheHighWaterMark));
 }
 
 /**
@@ -280,19 +276,17 @@ EnumerationContext::~EnumerationContext()
     _enqueueResponseMutex.
 
 */
-Boolean EnumerationContext::putCache(MessageType type,
-    CIMResponseMessage*& response,
+Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     Boolean providersComplete)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP;
-////    trace();                   // KS_TEMP
 
     // Design error if we ever get here with providers already set complete
     PEGASUS_ASSERT(!_providersComplete);
 
-    // KS_TODO all this diagnostic
+    //// KS_TODO Delete before checkin all this diagnostic
     CIMResponseData& to = _responseCache;
     CIMResponseDataMessage* localResponse =
         dynamic_cast<CIMResponseDataMessage*>(response);
@@ -380,12 +374,18 @@ Boolean EnumerationContext::putCache(MessageType type,
 ////             "size %u."
 ////             " signal CacheSizeConditon responseCacheMaximumSize %u",
 ////             responseCacheSize(), to.size(), _responseCacheMaximumSize));
+            // start timer to get time of wait for statistics.
+            Stopwatch waitTimer;        // KS_TEMP I think. should this be perm.
+            waitTimer.start();
             waitProviderLimitCondition(_responseCacheMaximumSize);
-//          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-//              "After putCache providers wait end ProviderLimitCondition Not "
-//              "complete insert responseCacheSize %u. CIMResponseData size %u."
-//              " signal CacheSizeConditon responseCacheMaximumSize %u",
-//              responseCacheSize(), to.size(), _responseCacheMaximumSize));
+            waitTimer.stop();
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+                "After putCache providers wait end ProviderLimitCondition Not "
+                "complete insert responseCacheSize %u. CIMResponseData size %u."
+                " signal CacheSizeConditon responseCacheMaximumSize %u."
+                " Wait %lu usec",
+                responseCacheSize(), to.size(), _responseCacheMaximumSize,
+                (unsigned long int)waitTimer.getElapsedUsec()));
         }
     }
 
@@ -469,8 +469,7 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     }
 
     // start timer to get time of wait for statistics.
-    Stopwatch waitTimer;        // KS_TEMP I think. should this be perm.
-    waitTimer.start();
+//  Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
 
     // condition variable wait loop. waits on cache size or
     // providers complete
@@ -481,15 +480,15 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     }
     _cacheTestCondMutex.unlock();
 
-    waitTimer.stop();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "waitCacheSizeConditon return "
-        "Request Size %u complete %s result %s time %lu Usec",
-        size,
-        boolToString(_providersComplete),
-        boolToString((!_providersComplete && (responseCacheSize()) < size)),
-        (unsigned long int)waitTimer.getElapsedUsec() ));
+//  Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
+//
+//  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+//      "waitCacheSizeConditon return "
+//      "Request Size %u complete %s result %s time %lu usec",
+//      size,
+//      boolToString(_providersComplete),
+//      boolToString((!_providersComplete && (responseCacheSize()) < size)),
+//      (unsigned long int)interval ));
 
     PEG_METHOD_EXIT();
 }
@@ -527,24 +526,23 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
 
-    // KS_TODO change this to automutex
     _providerLimitConditionMutex.lock();
 
-    Stopwatch waitTimer;
-    waitTimer.start();
+//  Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
+
     while (!_clientClosed && (responseCacheSize() > limit))
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
 
-    waitTimer.stop();
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-       "waitproviderLimitCondition exit state %s responseCacheSize %u size %u "
-       "closed %s time %lu",
-         boolToString((!_clientClosed && (responseCacheSize() < limit))),
-         responseCacheSize(), limit, boolToString(_clientClosed),
-         (long unsigned int)waitTimer.getElapsedUsec() ));
+//  Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
+//
+//  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+//     "waitproviderLimitCondition exit state %s responseCacheSize %u size %u "
+//     "closed %s time %lu",
+//       boolToString((!_clientClosed && (responseCacheSize() < limit))),
+//       responseCacheSize(), limit, boolToString(_clientClosed),
+//       (long unsigned int)interval ));
 
     _providerLimitConditionMutex.unlock();
     PEG_METHOD_EXIT();
@@ -649,14 +647,14 @@ void EnumerationContext::setClientClosed()
     }
 }
 
+/*
+    Set the processing state. Processing is true if the Dispatcher is
+    actively handling a request. The dispatcher sets processing = true
+    at the start of processing and false at the completion of processing.
+*/
 Boolean EnumerationContext::setProcessingState(Boolean state)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::setProcessingState");
-    // KS_TODO - Clean this one up.  What we should really do is
-    // error if new active same as old active
-    // processing means processing request operation.
-//// Does not make it through open    PEGASUS_ASSERT(state != _processing);
+    PEGASUS_ASSERT(_processing != state);
     _processing = state;
     if (_processing)
     {
@@ -666,6 +664,7 @@ Boolean EnumerationContext::setProcessingState(Boolean state)
     {
         startTimer();
     }
+
     return _processing;
 }
 

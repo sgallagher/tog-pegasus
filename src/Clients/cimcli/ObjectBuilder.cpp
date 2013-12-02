@@ -360,7 +360,9 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
         case CIMTYPE_REFERENCE:
             return CIMValue(CIMObjectPath(str));
 
-        default:
+        case CIMTYPE_CHAR16:
+        case CIMTYPE_OBJECT:
+        case CIMTYPE_INSTANCE:
             cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
                 "Data type $0 build from string not allowed",
                 cimTypeToString(type));
@@ -562,7 +564,9 @@ Boolean _stringToArrayValue(
             break;
         }
 
-        default:
+        case CIMTYPE_CHAR16:
+        case CIMTYPE_OBJECT:
+        case CIMTYPE_INSTANCE:
             cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
                 "Data type $0 build from string not allowed",
                 cimTypeToString(type));
@@ -742,11 +746,14 @@ void _buildValueFromToken(tokenItem& token, CIMValue& iv, CIMType cimType)
 
         // In case of no value, just pass value existing in input CIMValue
         case NO_VALUE:
-        {
+        {        default:
             break;
         }
-
-        default:
+        case UNKNOWN:
+        case ILLEGAL:
+        case NAME_ONLY:
+        case END_EMBED:
+        case EMBED_NEXT_ARRAY_ITEM:
         {
             cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
                 "Invalid token on building CIMValue. Token=$0",
@@ -1016,7 +1023,11 @@ void ObjectBuilder::scanInputList(CIMClient& client,
                           "No Name Component" : "") );
             }
 
-            default:
+        case UNKNOWN:
+        case VALUE:
+        case NO_VALUE:
+        case EXCLAM:
+        case NAME_ONLY:
             {
                 appendToken(ti);
             }

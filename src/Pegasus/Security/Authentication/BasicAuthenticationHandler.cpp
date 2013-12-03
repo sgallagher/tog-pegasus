@@ -39,7 +39,9 @@
 
 #include "SecureBasicAuthenticator.h"
 #include "PAMBasicAuthenticator.h"
+# if defined(PEGASUS_PAM_SESSION_SECURITY)
 #include "PAMSessionBasicAuthenticator.h"
+#endif
 #include "BasicAuthenticationHandler.h"
 #include "AuthenticationManager.h"
 

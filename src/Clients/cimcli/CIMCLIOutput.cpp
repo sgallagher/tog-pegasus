@@ -140,7 +140,7 @@ static int _compareKeyBinding(const CIMKeyBinding& kb1,
                     }
                 }
                 break;
-            default:
+            case CIMKeyBinding::STRING:
                 // no conversion required.  Compare as Strings.
                 rtn = String::compare(kb1.getValue(), kb2.getValue());
                 break;

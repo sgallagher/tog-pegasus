@@ -1,13 +1,11 @@
-<html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
 
-<head>
+
 <meta http-equiv="Content-Language" content="en-us">
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-<title>PEP 221 - Pegasus Coding Conventions</title>
-<link rel="stylesheet" href="http://www.opengroup.org/stylesheets/info1+margins.css">
-</head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>PEP 221 - Pegasus Coding Conventions</title>
 
-<body>
+<link rel="stylesheet" href="http://www.opengroup.org/stylesheets/info1+margins.css"></head><body>
 
 <hr>
 
@@ -16,14 +14,12 @@
 <p><b>Title:</b> Pegasus Coding Conventions</p>
 <p><b>Status:</b> Approved</p>
 <p><b>Version History:</b></p>
-<table border="1" cellspacing="1" bordercolordark="#666666"
-    bordercolorlight="#CCCCCC" width=100%
-    style='font-size=10.0pt;font-family:Arial'>
-  <tr>
-    <th bgcolor="#CAE6CA">Version</th>
-    <th bgcolor="#CAE6CA">Date</th>
-    <th bgcolor="#CAE6CA">Author</th>
-    <th bgcolor="#CAE6CA">Change Description</th>
+<table bordercolordark="#666666" bordercolorlight="#CCCCCC" style="font-family: Arial;" border="1" cellspacing="1" width="100%">
+  <tbody><tr>
+    <th bgcolor="#cae6ca">Version</th>
+    <th bgcolor="#cae6ca">Date</th>
+    <th bgcolor="#cae6ca">Author</th>
+    <th bgcolor="#cae6ca">Change Description</th>
   </tr>
   <tr>
     <td align="center">1.0</td>
@@ -110,8 +106,18 @@
     <td align="center">22 January 2013</td>
     <td align="center">Marek Szermutzky</td>
     <td>macro PEGASUS_FCT_EXECUTE_AND_ASSERT added</td>
-  </tr>
-</table>
+  </tr><tr>
+      <td style="vertical-align: top; text-align: center;">3.6<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">19 November 2013<br>
+      </td>
+      <td style="vertical-align: top;">Karl Schopmeyer<br>
+      </td>
+      <td style="vertical-align: top;">Add rule about defaults in switch constructs (see Formatting, 22)<br>
+      </td>
+    </tr>
+
+</tbody></table>
 <p>&nbsp;</p>
 <hr>
 <p><b>Abstract:</b> This document formalizes the Pegasus coding conventions.
@@ -119,16 +125,14 @@
 <hr>
 
 <h2><font color="#000000">Definition of the Problem</font></h2>
-<p><The use of inconsistent coding styles is an impediment to
-effective development and maintenance of Pegasus code.  Formalization of
-Pegasus coding conventions may help to improve code consistency.
-</p>
+<p><the use="" inconsistent="" styles="" is="" an="" impediment="" effective="" development="" and="" maintenance="" code.="" formalization="" of="" pegasus="" coding="" conventions="" may="" help="" to="" improve="" code="" consistency.=""></the></p>
 
 <h2><font color="#000000">Proposed Solution</font></h2>
 <p>The following items comprise the Pegasus coding conventions.</p>
 
 <h3>Formatting</h3>
 <ol>
+
   <li>Indent by increments of four spaces.  Indent comments
       equally with the associated code.</li>
   <li>Do not use tab characters.</li>
@@ -139,124 +143,76 @@ Pegasus coding conventions may help to improve code consistency.
   <li>Put opening brace on a line by itself, aligned with control keyword
       or method signature.
       Do this:
-      <pre><code>    for (...)
-    {
-    }</code></pre>
+      <pre><code>    for (...)<br>    {<br>    }</code></pre>
       Not this:
-      <pre><code>    for (...) {
-    }</code></pre>
+      <pre><code>    for (...) {<br>    }</code></pre>
       Or this:
-      <pre><code>    for (...)
-      {
-      }</code></pre>
+      <pre><code>    for (...)<br>      {<br>      }</code></pre>
   </li>
   <li>Use braces around the body of a control block (e.g., <code>if</code>,
       <code>for</code>, or <code>while</code> statement), even if the body
       contains just a single statement.
       Do this:
-      <pre><code>    for (...)
-    {
-        i++;
-    }</code></pre>
+      <pre><code>    for (...)<br>    {<br>        i++;<br>    }</code></pre>
       Not this:
-      <pre><code>    for (...)
-        i++;</code></pre>
+      <pre><code>    for (...)<br>        i++;</code></pre>
   </li>
   <li>Use a new line for <code>else</code> statements rather
       than placing then on the same line as a preceding '<code>}</code>'.
       Do this:
-      <pre><code>    if (...)
-    {
-        i++;
-    }
-    else
-    {
-        j++;
-    }</code></pre>
+      <pre><code>    if (...)<br>    {<br>        i++;<br>    }<br>    else<br>    {<br>        j++;<br>    }</code></pre>
       Not this:
-      <pre><code>    if (...)
-    {
-        i++;
-    } else
-    {
-        j++;
-    }</code></pre>
+      <pre><code>    if (...)<br>    {<br>        i++;<br>    } else<br>    {<br>        j++;<br>    }</code></pre>
   </li>
   <li>Use normal indenting for parameters in a complex method signature:
-      <pre><code>    void MyClass::myMethod(
-        const char* someReallyLongName,
-        const char* someOtherReallyLongName);</code></pre>
+      <pre><code>    void MyClass::myMethod(<br>        const char* someReallyLongName,<br>        const char* someOtherReallyLongName);</code></pre>
   </li>
   <li>Use normal indenting for all arguments in a complex function call.
       Do this:
-      <pre><code>    callingMyFunction(
-        arg1,
-        arg2,
-        arg3);</code></pre>
+      <pre><code>    callingMyFunction(<br>        arg1,<br>        arg2,<br>        arg3);</code></pre>
       Not this:
-      <pre><code>    callingMyFunction(arg1,
-                      arg2,
-                      arg3);</code></pre>
+      <pre><code>    callingMyFunction(arg1,<br>                      arg2,<br>                      arg3);</code></pre>
       Each argument should be placed on a separate line.
       An exception is made for <code>PEG_TRACE</code> and
       <code>PEG_TRACE_CSTRING</code> statements, where the first two
       arguments should be placed on the opening line:
-      <pre><code>    PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
-        "Connection IP address = %s",
-        (const char*)_ipAddress.getCString()));</code></pre>
+      <pre><code>    PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,<br>        "Connection IP address = %s",<br>        (const char*)_ipAddress.getCString()));</code></pre>
   </li>
   <li>For an <code>if</code>, <code>while</code>, or <code>for</code>
       condition that does not fit on a single line, indent peer subconditions
       according to their level of nesting and indent other continuation lines
       using normal indenting.  Do this:
-      <pre><code>    if ((variable1 == variable2) ||
-        ((anotherVariableToConsider ==
-              variable1 + variable2) &&
-         (dayOfWeek == "Tuesday")))</code></pre>
+      <pre><code>    if ((variable1 == variable2) ||<br>        ((anotherVariableToConsider ==<br>              variable1 + variable2) &amp;&amp;<br>         (dayOfWeek == "Tuesday")))</code></pre>
       Not this:
-      <pre><code>    if ((variable1 == variable2) ||
-            ((anotherVariableToConsider ==
-              variable1 + variable2) &&
-                 (dayOfWeek == "Tuesday")))</code></pre>
+      <pre><code>    if ((variable1 == variable2) ||<br>            ((anotherVariableToConsider ==<br>              variable1 + variable2) &amp;&amp;<br>                 (dayOfWeek == "Tuesday")))</code></pre>
   </li>
   <li>For a statement that does not fit on a single line,
       all continuation lines should be indented once from the first line.
       For example:
-      <pre><code>    sum = a + b + c +
-        d + e + f +
-        g + h;</code></pre>
+      <pre><code>    sum = a + b + c +<br>        d + e + f +<br>        g + h;</code></pre>
   </li>
   <li>Do not separate a return type onto its own line.  Avoid this:
-      <pre><code>    int
-    f()
-    {
-    }</code></pre>
+      <pre><code>    int<br>    f()<br>    {<br>    }</code></pre>
   </li>
-  <li>Avoid use of &quot;<code>(void)</code>&quot; for an empty parameter list.
-      Use &quot;<code>()</code>&quot; instead.
+  <li>Avoid use of "<code>(void)</code>" for an empty parameter list.
+      Use "<code>()</code>" instead.
   </li>
   <li>Avoid adding a space between function/method name the opening parenthesis.
       Do this:
-      <pre><code>    void f(int i);
-    f(10);</code></pre>
+      <pre><code>    void f(int i);<br>    f(10);</code></pre>
       Not this:
-      <pre><code>    void f (int i);
-    f (10);</code></pre>
+      <pre><code>    void f (int i);<br>    f (10);</code></pre>
   </li>
   <li>Include a space between a keyword and an opening parenthesis.
       Do this:
-      <pre><code>    if (i > 0)
-    for (i = 0; i < 10; i++)</code></pre>
+      <pre><code>    if (i &gt; 0)<br>    for (i = 0; i &lt; 10; i++)</code></pre>
       Not this:
-      <pre><code>    if(i > 0)
-    for(i = 0; i < 10; i++)</code></pre>
+      <pre><code>    if(i &gt; 0)<br>    for(i = 0; i &lt; 10; i++)</code></pre>
   </li>
   <li>Do not add spaces around a condition.  Do this:
-      <pre><code>    if (cond)
-    while (cond)</code></pre>
+      <pre><code>    if (cond)<br>    while (cond)</code></pre>
       Not this:
-      <pre><code>    if ( cond )
-    while ( cond )</code></pre>
+      <pre><code>    if ( cond )<br>    while ( cond )</code></pre>
   </li>
   <li>Do not add a space between a template name and its type.  Do this:
       <pre><code>    Array&lt;Uint8&gt; myArray;</code></pre>
@@ -264,64 +220,46 @@ Pegasus coding conventions may help to improve code consistency.
       <pre><code>    Array &lt;Uint8&gt; myArray;</code></pre>
   </li>
   <li>Avoid aligning variable names in a declaration list.  Do this:
-      <pre><code>    int x;
-    float y;</code></pre>
+      <pre><code>    int x;<br>    float y;</code></pre>
       Not this:
-      <pre><code>    int      x;
-    float    y;</code></pre>
+      <pre><code>    int      x;<br>    float    y;</code></pre>
   </li>
-  <li>Avoid indenting &quot;<code>public:</code>&quot;,
-      &quot;<code>protected:</code>&quot;, and
-      &quot;<code>private:</code>&quot;. Do this:
-      <pre><code>    class X
-    {
-    public:
-        int f();
-        ...
-    private:
-        int _g();
-        ...
-    };</code></pre>
+  <li>Avoid indenting "<code>public:</code>",
+      "<code>protected:</code>", and
+      "<code>private:</code>". Do this:
+      <pre><code>    class X<br>    {<br>    public:<br>        int f();<br>        ...<br>    private:<br>        int _g();<br>        ...<br>    };</code></pre>
   </li>
   <li>The '<code>#</code>' indicating a preprocessing directive is placed
       at the beginning of a line.  Nested preprocessing directives are
       indented with one space after the '<code>#</code>' for each level of
       nesting.  The <code>#ifndef</code> used for header file include protection
       is not considered a level of nesting.  For example:
-      <pre><code>#ifdef PEGASUS_HAS_SIGNALS
-# ifdef PEGASUS_OS_TYPE_WINDOWS
-#  include &lt;windows.h&gt;
-# else
-#  include &lt;unistd.h&gt;
-# endif
-#endif</code></pre>
+      <pre><code>#ifdef PEGASUS_HAS_SIGNALS<br># ifdef PEGASUS_OS_TYPE_WINDOWS<br>#  include &lt;windows.h&gt;<br># else<br>#  include &lt;unistd.h&gt;<br># endif<br>#endif</code></pre>
   </li>
   <li>In a <code>switch</code> statement, indent the <code>case</code>
       statement from the <code>switch</code> and indent the case logic from
       the <code>case</code> statement.  For example:
-      <pre><code>    switch(n)
-    {
-        case 0:
-            printf("Rock");
-            break;
-        case 1:
-            printf("Paper");
-            break;
-        case 2:
-            printf("Scissors");
-            break;
-        default:
-            printf("Error");
-            break;
-    }</code></pre>
-  </li>
+      <pre><code>    switch(n)<br>    {<br>        case 0:<br>            printf("Rock");<br>            break;<br>        case 1:<br>            printf("Paper");<br>            break;<br>        case 2:<br>            printf("Scissors");<br>            break;<br>        default:<br>            printf("Error");<br>            break;<br>    }</code></pre></li>
+  <li>A <code>switch </code>construct for an enumerated type the
+construct MUST contain either all of the possible cases&nbsp; or the
+default statement but not both. We encourage including all of the
+enumerated types since this provides a compile time check if the
+enumerated type changes.&nbsp; Do not include the default statement if
+all of the possible enumerated types are included in the <code>case</code>
+statements. At least in gcc this is enforced in the standard build with
+the -Werror=switch flag which generates an error statement when the <code>switch</code> has an index of enumerated type
+and lacks a <code>case</code> for one or more of the named codes of that
+enumeration.</li>
+
   <li>Do not put parentheses around the return value in a
       <code>return</code> statement.
   </li>
 </ol>
 
+
 <h3>Naming</h3>
 <ol>
+
   <li>For class/struct names, use mixed case with initial upper case and
       no underscores: <code>ThisIsAClassName</code>.
   </li>
@@ -348,7 +286,7 @@ Pegasus coding conventions may help to improve code consistency.
   <li>Environment variables must begin with <code>PEGASUS_</code> and have
       this form: <code>PEGASUS_ENVIRONMENT_VARIABLE</code>.
       This applies to environment variables that control the build and test
-      configuration as well as those (if any) used by Pegasus at run time.
+      configuration as well as those (if any) used by Pegasus at run time by forcing an error if the&nbsp;
   </li>
   <li>Test executable names should begin with 'Test' (to distinguish them
       from other executables) and should use mixed case with initial upper
@@ -357,15 +295,16 @@ Pegasus coding conventions may help to improve code consistency.
   </li>
 </ol>
 
+
 <h3>Style</h3>
 <ol>
   <li>In a header file, use angle brackets (with a fully qualified path)
       rather than quotes when including a file.  Do this:
       <pre><code>    #include &lt;Pegasus/Common/Array.h&gt;</code></pre>
       Not this:
-      <pre><code>    #include &quot;Array.h&quot;</code></pre>
+      <pre><code>    #include "Array.h"</code></pre>
   </li>
-  <li>Use &quot;<code>0</code>&quot; rather than &quot;<code>NULL</code>&quot;
+  <li>Use "<code>0</code>" rather than "<code>NULL</code>"
       as a null pointer value.
   </li>
   <li>Avoid <code>throw()</code> declarations.  These may be used
@@ -385,9 +324,7 @@ Pegasus coding conventions may help to improve code consistency.
       String construction:
       <pre><code>    String s = foo();</code></pre>
       while this logic causes two String constructions and an assignment:
-      <pre><code>    String s;
-    ...
-    s = foo();</code></pre>
+      <pre><code>    String s;<br>    ...<br>    s = foo();</code></pre>
       </li>
   <li>Present resources as part of classes, do not use them directly.</li>
   <li>Use <code>new</code> and <code>delete</code> to manage dynamic
@@ -397,26 +334,15 @@ Pegasus coding conventions may help to improve code consistency.
       block, avoid specifying the object to throw so that exception subtype
       information is not lost and construction of an extra exception
       object is avoided.  Do this:
-      <pre><code>    catch (Exception&)
-    {
-        ...
-        throw;
-    }</code></pre>
+      <pre><code>    catch (Exception&amp;)<br>    {<br>        ...<br>        throw;<br>    }</code></pre>
       Not this:
-      <pre><code>    catch (Exception& e)
-    {
-        ...
-        throw e;
-    }</code></pre></li>
+      <pre><code>    catch (Exception&amp; e)<br>    {<br>        ...<br>        throw e;<br>    }</code></pre></li>
   <li>Do not check whether a pointer is non-null before
       deleting it.  The check is unnecessary, since it is also performed by
       the <code>delete</code> operator.  Do this:
       <pre><code>    delete ptr;</code></pre>
       Not this:
-      <pre><code>    if (ptr)
-    {
-        delete ptr;
-    }</code></pre></li>
+      <pre><code>    if (ptr)<br>    {<br>        delete ptr;<br>    }</code></pre></li>
   <li>Avoid using the compiler default implementations for
       default constructors, copy constructors, and assignment operators.
       These should be declared as private and left unimplemented if they
@@ -432,7 +358,7 @@ Pegasus coding conventions may help to improve code consistency.
       </li>
   <li>Pass object parameters by reference, when feasible,
       to avoid unnecessary copy constructions.  For example, this:
-      <pre><code>    void func(const String& s);</code></pre>
+      <pre><code>    void func(const String&amp; s);</code></pre>
       is preferred to this:
       <pre><code>    void func(String s);</code></pre></li>
   <li>Avoid using the C++ standard template library (STL) and the standard
@@ -464,34 +390,13 @@ Pegasus coding conventions may help to improve code consistency.
       comments.
   </li>
   <li>Use this comment style for DOC++ comments:
-      <pre><code>    class X
-    {
-    public:
-
-        /**
-            Creates widgets.
-            @param numWidgets The number of widgets to create.
-            @return true if successful, false otherwise.
-        */
-        Boolean createWidgets(Uint32 numWidgets);
-    };</code></pre>
+      <pre><code>    class X<br>    {<br>    public:<br><br>        /**<br>            Creates widgets.<br>            @param numWidgets The number of widgets to create.<br>            @return true if successful, false otherwise.<br>        */<br>        Boolean createWidgets(Uint32 numWidgets);<br>    };</code></pre>
   </li>
   <li>A description should end with a period, even if it is brief:
-      <pre><code>    /**
-        Does something useful.
-    */</code></pre>
+      <pre><code>    /**<br>        Does something useful.<br>    */</code></pre>
   </li>
   <li>Add a blank line between documented methods:
-      <pre><code>    /**
-        Does something quite useful.
-    */
-    void f();
-
-    /**
-        The previous method has a newline after it
-        to improve its visibility.
-    */
-    void g();</code></pre>
+      <pre><code>    /**<br>        Does something quite useful.<br>    */<br>    void f();<br><br>    /**<br>        The previous method has a newline after it<br>        to improve its visibility.<br>    */<br>    void g();</code></pre>
   </li>
 </ol>
 
@@ -525,9 +430,7 @@ Pegasus coding conventions may help to improve code consistency.
       define a <code>PEGASUS_&lt;LIBRARY&gt;_LINKAGE</code> symbol in a
       Linkage.h file.  Each symbol that is exported from the library
       must be declared with this linkage macro.  For example:
-      <pre><code>    class PEGASUS_COMMON_LINKAGE String;
-
-    PEGASUS_COMMON_LINKAGE void globalFunction();</code></pre>
+      <pre><code>    class PEGASUS_COMMON_LINKAGE String;<br><br>    PEGASUS_COMMON_LINKAGE void globalFunction();</code></pre>
   </li>
   <li>A <code>main()</code> function must return an int (required by
       Windows NT).
@@ -539,19 +442,9 @@ Pegasus coding conventions may help to improve code consistency.
       <pre><code>    void f() throw TooBad;</code></pre>
   </li>
   <li>Do not include a definition of a static member with its declaration:
-      <pre><code>    class X
-    {
-    public:
-
-        static const Uint32 COLOR = 225;
-    };</code></pre>
+      <pre><code>    class X<br>    {<br>    public:<br><br>        static const Uint32 COLOR = 225;<br>    };</code></pre>
       Use this instead:
-      <pre><code>    class X
-    {
-    public:
-
-        static const Uint32 COLOR;
-    };</code></pre>
+      <pre><code>    class X<br>    {<br>    public:<br><br>        static const Uint32 COLOR;<br>    };</code></pre>
       And add the definition in the source file:
       <pre><code>    const Uint32 X::COLOR = 225;</code></pre>
   </li>
@@ -559,27 +452,15 @@ Pegasus coding conventions may help to improve code consistency.
       printf and scanf conversions of 64-bit integers rather than
       <code>ll</code> or <code>L</code>.
       Do this:
-      <pre><code>    Sint64 i64 = 10;
-    printf(&quot;i64 value = %&quot; PEGASUS_64BIT_CONVERSION_WIDTH &quot;d.\n&quot;, i64);</code></pre>
+      <pre><code>    Sint64 i64 = 10;<br>    printf("i64 value = %" PEGASUS_64BIT_CONVERSION_WIDTH "d.\n", i64);</code></pre>
       Instead of this:
-      <pre><code>    Sint64 i64 = 10;
-    printf(&quot;i64 value = %lld.\n&quot;, i64);</code></pre>
+      <pre><code>    Sint64 i64 = 10;<br>    printf("i64 value = %lld.\n", i64);</code></pre>
   </li>
   <li>Do not include class scoping on methods or members in a class definition.
       Do this:
-      <pre><code>    class X
-    {
-    public:
-
-        int myMethod();
-    };</code></pre>
+      <pre><code>    class X<br>    {<br>    public:<br><br>        int myMethod();<br>    };</code></pre>
       Not this:
-      <pre><code>    class X
-    {
-    public:
-
-        int X::myMethod();
-    };</code></pre>
+      <pre><code>    class X<br>    {<br>    public:<br><br>        int X::myMethod();<br>    };</code></pre>
   </li>
   <li>Do not use <code>Pegasus::</code> to scope symbols.  Not all platforms
       support C++ namespaces, and this will cause a compilation failure.  If
@@ -604,13 +485,9 @@ Pegasus coding conventions may help to improve code consistency.
     definition while keeping the parameter type in place. In the
     following example of function <i>main()</i> the parameter <i>argv</i>
     is used later on but parameter <i>argc</i> is not. Do this:<br>
-    <pre><code>int main(int, void** argv)
-{
-}</code></pre>
+    <pre><code>int main(int, void** argv)<br>{<br>}</code></pre>
     Not this:<br>
-    <pre><code>int main(int argc, void** argv)
-{
-}</code></pre>
+    <pre><code>int main(int argc, void** argv)<br>{<br>}</code></pre>
   </li>
   <li>Avoid unused variables when the return value of a function is
     assigned to a variable only to be used to do an assert check
@@ -621,11 +498,9 @@ Pegasus coding conventions may help to improve code consistency.
     value of function against VALUE for equalness but only if
     asserts are enabled. The Function FCT will always be called
     (equal if asserts enabled or disabled). Do this:
-    <pre><code>PEGASUS_FCT_EXECUTE_AND_ASSERT(true, f());
-    </code></pre>
+    <pre><code>PEGASUS_FCT_EXECUTE_AND_ASSERT(true, f());<br>    </code></pre>
     Not this:
-    <pre><code>bool returnCode = f();<br>PEGASUS_ASSERT(true == returnCode);
-    </code></pre>
+    <pre><code>bool returnCode = f();<br>PEGASUS_ASSERT(true == returnCode);<br>    </code></pre>
   </li>
 
 </ol>
@@ -633,14 +508,14 @@ Pegasus coding conventions may help to improve code consistency.
 
 <h2><font color="#000000">Discussion</font></h2>
 <p>Suggestions for additional conventions are listed here for discussion:
-<ul>
+</p><ul>
   <li>Handling of error conditions (cerr vs. logging) and exceptions</li>
   <li>Testing (perhaps reference another document)</li>
   <li>Is it appropriate to make a statement about defining
       localizable messages in the appropriate message bundle?
   </li>
 </ul>
-</p>
+<p></p>
 
 
 <hr>
@@ -650,7 +525,7 @@ VERITAS Software Corporation</font><br>
 <br>
 <font size="1">Permission is hereby granted, free of charge, to any person
 obtaining a copy&nbsp; of this software and associated documentation files
-(the &quot;Software&quot;), to deal in the Software without restriction,
+(the "Software"), to deal in the Software without restriction,
 including without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to permit
 persons to whom the Software is furnished to do so, subject to the following
@@ -659,7 +534,7 @@ conditions:</font><br>
 </font>
 <font size="1">THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE
 INCLUDED IN ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS
-PROVIDED&nbsp; &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+PROVIDED&nbsp; "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -670,6 +545,4 @@ SOFTWARE.</font></i></p>
 <p>Template last modified: <b>March 9th 2004</b> by <b>Martin Kirk<br>
 </b>Template version: <b>1.8</b></p>
 
-</body>
-
-</html>
+</body></html>

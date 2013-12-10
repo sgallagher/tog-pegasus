@@ -33,7 +33,6 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     cliutils \
     cimconfig \
-    cimuser \
     cimauth \
     cimprovider \
     osinfo \
@@ -91,6 +90,11 @@ endif
 ifneq ($(OS_TYPE),windows)
     DIRS += cimreparchive
     TEST_DIRS += cimreparchive/tests
+endif
+
+# Have cimuser as a crude replacement of PAM
+ifndef PEGASUS_PAM_AUTHENTICATION
+    DIRS += cimuser
 endif
 
 #The following tests are NOT included as part of the standard

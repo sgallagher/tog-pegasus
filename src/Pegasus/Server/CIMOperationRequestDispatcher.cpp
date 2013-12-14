@@ -1014,8 +1014,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 // sequence closed, we can now get rid of the context.
                 if (isComplete)
                 {
-                    //// KS_TODO Should we remove here? Confirm there be
-                    //// nomething in _waiting at this point?
+                    //// KS_TODO Should we remove here? Confirm there is
+                    //// something in _waiting at this point?
                     enumerationContextTable.removeCxt(
                        en->getName(), true);
                 }

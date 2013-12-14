@@ -5140,43 +5140,33 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
         case OP_OpenEnumerateInstances:
             return _decodeOpenEnumerateInstancesRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_OpenEnumerateInstancePaths:
             return _decodeOpenEnumerateInstancePathsRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_OpenReferenceInstances:
             return _decodeOpenReferenceInstancesRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_OpenReferenceInstancePaths:
             return _decodeOpenReferenceInstancePathsRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_OpenAssociatorInstances:
             return _decodeOpenAssociatorInstancesRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_OpenAssociatorInstancePaths:
             return _decodeOpenAssociatorInstancePathsRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_PullInstancesWithPath:
             return _decodePullInstancesWithPathRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_PullInstancePaths:
             return _decodePullInstancePathsRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_CloseEnumeration:
             return _decodeCloseEnumerationRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
         case OP_EnumerationCount:
             return _decodeEnumerationCountRequest(
                 in, queueId, returnQueueId, flags, messageId);
-            break;
 //EXP_PULL_END
         default:
             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)

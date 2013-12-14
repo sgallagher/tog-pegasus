@@ -639,7 +639,7 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli pxq \"select * from CIM_ComputerSystem\"\n"
         "    -- This command will work when the code is compiled with\n"
         "       ExecQuery enabled\n",
-    "Clients.cimcli.CIMCLIClient.p\PXQ_COMMAND_OPTIONS",
+    "Clients.cimcli.CIMCLIClient.PXQ_COMMAND_OPTIONS",
     "    -n, queryLanguage, query, pull parameters\n"},
 //KS_PULL_END
 };

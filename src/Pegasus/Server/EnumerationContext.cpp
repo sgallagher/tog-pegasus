@@ -69,7 +69,7 @@ EnumerationContext::EnumerationContext(
     _pullRequestType(pullRequestType_),
     _clientClosed(false),
     _providersComplete(false),
-    _processing(false),
+    _processing(true),    // set true because always created during processing
     _error(false),
     _responseCache(contentType),
     _cacheTestCondMutex(Mutex::NON_RECURSIVE),
@@ -654,7 +654,9 @@ void EnumerationContext::setClientClosed()
 */
 Boolean EnumerationContext::setProcessingState(Boolean state)
 {
+    // Diagnostic to confirm we are changing state
     PEGASUS_ASSERT(_processing != state);
+
     _processing = state;
     if (_processing)
     {

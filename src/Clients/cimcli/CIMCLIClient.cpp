@@ -1203,11 +1203,11 @@ int _pullInstances(
 
     while (!endOfSequence)
     {
-        if (limitSize && (instances.size() == maxObjToReceive))
+        // hit limit defined on input, end and return true
+        if (limitSize && (instances.size() >= maxObjToReceive))
         {
             opts.client.closeEnumeration(enumerationContext);
             endOfSequence = true;
-            return rtn;
         }
         else
         {
@@ -1271,11 +1271,10 @@ Boolean _pullInstancePaths(
     {
         // if we have exceeded the input maxObjectsToReceive
         // close the connection.
-        if (limitSize && (paths.size() == maxObjToReceive))
+        if (limitSize && (paths.size() >= maxObjToReceive))
         {
             opts.client.closeEnumeration(enumerationContext);
             endOfSequence = true;
-            return rtn;
         }
         else
         {

@@ -108,7 +108,7 @@ CIMInstance _buildInstance(Uint64 sequenceNumber,
 
     // filter out unwanted properties. Would be cheaper to not add
     // the unwanted properties
-    instance.instanceFilter(true, true, propertyList);
+    //// KS_TODO instance.instanceFilter(true, true, propertyList);
 
     return(instance);
 }

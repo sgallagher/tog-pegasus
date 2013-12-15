@@ -477,8 +477,17 @@ pcmpir1:
 pcmpirn1:
 	$(PROGRAM) rn -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T  $(HOSTID)
 
-## Association tests
-cmpia1:
-	cimcli a $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
+## Reference Operations Simple tests
+cmpir1:
+	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
+
+cmpirn1:
+	cimcli rn $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
+
+cmpipr1:
+	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
+
+cmpiprn1:
+	cimcli rn $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 

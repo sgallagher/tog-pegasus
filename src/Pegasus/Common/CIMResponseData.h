@@ -205,10 +205,15 @@ public:
 
     void setInstanceNames(const Array<CIMObjectPath>& x)
     {
-       ////  AutoMutex autoMut(testLock);
+        ////  AutoMutex autoMut(testLock);
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
+    }
+    // See also setArrayData with CIMObjects below.
+    void setArrayData(const Array<CIMObjectPath>& x)
+    {
+        setInstanceNames(x);
     }
 
     // Instance handling
@@ -270,6 +275,7 @@ public:
 
     // Objects handling
     Array<CIMObject>& getObjects();
+
     void setObjects(const Array<CIMObject>& x)
     {
         //// AutoMutex autoMut(testLock);
@@ -277,6 +283,17 @@ public:
         _objects=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
+    }
+
+    // Sets array of CIMObjects into the CIMResponseData
+    //// TODO. We could make this name the common function for
+    //// setObjects.
+    //   NOTE: This was added to provider overloaded
+    //     function for setting arrays of both CIMObject and
+    //   CIMObjectPaths from CIMOperationRequestDispatcher
+    void setArrayData(const Array<CIMObject>& x)
+    {
+        setObjects(x);
     }
     void appendObject(const CIMObject& x)
     {

@@ -417,7 +417,7 @@ void OperationAggregate::setPullOperation(const void* enContext)
     in the class.
 */
 void _buildPropertyListWithTags(CIMConstClass& thisClass,
-                                         CIMPropertyList& propertyList)
+    CIMPropertyList& propertyList)
 {
     Array<String> propertyNameArray;
     Uint32 numProperties = thisClass.getPropertyCount();
@@ -3048,50 +3048,49 @@ struct ProviderRequests
     */
     //template<class REQ, class IREQ, class RSP, class IRSP, class OBJTYPE>
 
-    template<class REQ, class IREQ, class RSP, class IRSP, class OBJTYPE>
-    static void issueOpenAssocRequestMessagesToProviders(
+    template<class IREQ>
+    static void issueOpenAssocRequestMsgsToProviders(
        CIMOperationRequestDispatcher* dispatcher,
-       REQ* openRequest,
        IREQ* internalRequest,
-       AutoPtr<RSP>& openResponse,
-       AutoPtr<IRSP>& internalResponse,
-       Array<OBJTYPE>& repositoryData,
        ProviderInfoList& providerInfos,
        EnumerationContext * enumerationContext,
        OperationAggregate* poA,
        const char * reqMsgName)
     {
-        // If response from repository, forward for aggregation.
-
-        // The following is call dependent (instancePaths or cimObjects
-        // Need an array of something parameter
-        if (repositoryData.size() != 0)
-        {
-            // This one is a problem unless we define a new parameter
-            // for internalResponse. Maybe need the same thing as the
-            // setSelectedRequestFields. But since this is a conditional
-            // not sure how to provide the parameter.
+          ///  KS_TODOMarking comment for now.  Have not figured out how to
+          /// get the MsgType to this function for the internalResponse.
+////      // If response from repository, forward for aggregation.
+////
+////      // The following is call dependent (instancePaths or cimObjects
+////      // Need an array of something parameter
+////      if (repositoryData.size() != 0)
+////      {
+////          // This one is a problem unless we define a new parameter
+////          // for internalResponse. Maybe need the same thing as the
+////          // setSelectedRequestFields. But since this is a conditional
+////          // not sure how to provide the parameter.
 ////          AutoPtr<IRSP> internalResponse;
-            internalResponse.reset(dynamic_cast<IRSP*>(
-                internalRequest->buildResponse()));
-//          internalResponse->getResponseData().setObjects(repositoryData);
-            // this one is a setObjects or setInstanceNames
-
-            poA->incTotalIssued();
-
-            // send the repository's results for aggregation
-            // directly to callback (includes response).
-            //
-            dispatcher->_forwardResponseForAggregation(
-                new REQ(*internalRequest),
-                poA,
-                internalResponse.release());
-
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-            "%s repository _forwardForAggregation."
-            " ProviderCount= %u total issued = %u", reqMsgName,
-            providerInfos.providerCount, poA->getTotalIssued()));
-        }
+////          internalResponse.reset(dynamic_cast<IRSP*>(
+////              internalRequest->buildResponse()));
+////          // Sets the data into the appropriate type in CIMResponseData
+////          // There are functions for CIMObjects and CIMObjectPaths
+////          internalResponse->getResponseData().setArrayData(repositoryData);
+////
+////          poA->incTotalIssued();
+////
+////          // send the repository's results for aggregation
+////          // directly to callback (includes response).
+////          //
+////          dispatcher->_forwardResponseForAggregation(
+////              new REQ(*internalRequest),
+////              poA,
+////              internalResponse.release());
+////
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
+////          "%s repository _forwardForAggregation."
+////          " ProviderCount= %u total issued = %u", reqMsgName,
+////          providerInfos.providerCount, poA->getTotalIssued()));
+////      }
 
         // Issue requests to all providers defined.
         while (providerInfos.hasMore(true))
@@ -3406,11 +3405,11 @@ struct ProviderRequests
         {
             // Create a Response data based on what is in the cache now.
 
-////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-////              "%s Cache size after repository put %u"
-////              " maxObjectCount %u", reqMsgName,
-////              enumContext->responseCacheSize(),
-////              operationMaxObjectCount ));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "%s Cache size after repository put %u"
+                " maxObjectCount %u", reqMsgName,
+                enumContext->responseCacheSize(),
+                operationMaxObjectCount ));
 
             CIMResponseData fromCache(enumContext->getCIMResponseDataType());
 
@@ -5330,7 +5329,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         internalRequest->className,
         internalRequest->nameSpace,
         providerInfos.providerCount,
-        true, true);
+        true,       // completeHostAndNamespace = false
+        true);      // _hasPropList = true
 
     PEGASUS_ASSERT(poA->valid());   // KS_TEMP
     PEGASUS_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
@@ -5530,7 +5530,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
         internalRequest->className,
         internalRequest->nameSpace,
         providerInfos.providerCount,
-        true, false);
+        true,           // completeHostAndNamespace = false
+        false);         // No property List for this operation
 
     PEGASUS_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
 
@@ -5812,23 +5813,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     //
     poA->setPullOperation((void *)enumerationContext);
 
-//// NOTE KS_TODO having problem with this template right now so that
-//// code is disabled.
-////  AutoPtr<CIMReferencesResponseMessage> internalResponse;
-////  ProviderRequests::issueOpenAssocRequestMessagesToProviders(
-////     this,
-////     request,
-////     internalRequest,
-////     openResponse,
-////     internalResponse,
-////     cimObjects,
-////     providerInfos,
-////     enumerationContext,
-////     poA,
-////     "OpenAssociatorInstances"
-////     );
-
-
     // If response from repository not empty, forward for aggregation.
     if (cimObjects.size() != 0)
     {
@@ -5853,37 +5837,14 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         providerInfos.providerCount, poA->getTotalIssued()));
     }
 
-    // Issue requests to all providers defined.
-    while (providerInfos.hasMore(true))
-    {
-        ProviderInfo& providerInfo = providerInfos.getNext();
-
-            CIMReferencesRequestMessage* requestCopy =
-                new CIMReferencesRequestMessage(*internalRequest);
-        // Insert the association class name to limit the provider
-        // to this class.
-        requestCopy->resultClass = providerInfo.className;
-
-        if (providerInfo.providerIdContainer.get() != 0)
-        {
-            requestCopy->operationContext.insert(
-                *(providerInfo.providerIdContainer.get()));
-        }
-
-        _forwardAggregatingRequestToProvider(
-           providerInfo, requestCopy, poA);
-        // Note: poA must not be referenced after last "forwardRequest"
-    }
-
-    //
-    // Complete and enqueue open response message.
-    //
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "OpenReferenceInstances Cache size after repository put %u"
-        " maxObjectCount %u",
-        enumerationContext->responseCacheSize(),
-        operationMaxObjectCount ));
+    ProviderRequests::issueOpenAssocRequestMsgsToProviders(
+        this,
+        internalRequest,
+        providerInfos,
+        enumerationContext,
+        poA,
+        "OpenReferenceInstances"
+        );
 
     // Issue the Response to the Open Request. Note that this may cause
     // wait for the enumeration cache before the response is issued.
@@ -5964,6 +5925,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     }
 
     Uint32 operationMaxObjectCount;
+
     if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
             false, operationMaxObjectCount, Uint32(0)))
     {
@@ -6086,7 +6048,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         internalRequest->objectName.getClassName(),
         internalRequest->nameSpace,
         providerInfos.providerCount,
-        true, false);
+        true,          // completeHostAndNamespace = false
+        false);        // No property list for this operation
 
     (enumerationContext->valid());  // EXP_PULL_TEMP KS_TODO
 
@@ -6097,8 +6060,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     // If any return from repository, send it to aggregator.
     // Send repository response for aggregation
-    // Temp hack because resequencing a single object causes problems
-
     if (instanceNames.size() != 0)
     {
         AutoPtr<CIMReferenceNamesResponseMessage> internalResponse;
@@ -6116,43 +6077,22 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
             internalResponse.release());
     }
 
-    // Call all providers
-    while (providerInfos.hasMore(true))
-    {
-        ProviderInfo& providerInfo = providerInfos.getNext();
-
-        CIMReferenceNamesRequestMessage* internalRequestCopy =
-            new CIMReferenceNamesRequestMessage(*internalRequest);
-        // Insert the association class name to limit the provider
-        // to this class.
-        internalRequestCopy->resultClass = providerInfo.className;
-
-        if (providerInfo.providerIdContainer.get() != 0)
-            internalRequestCopy->operationContext.insert(
-                *(providerInfo.providerIdContainer.get()));
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "Forwarding to provider for class %s",
-            (const char *)providerInfo.
-                   className.getString().getCString()));
-
-        _forwardAggregatingRequestToProvider(
-           providerInfo, internalRequestCopy, poA);
-        // Note: poA must not be referenced after last "forwardRequest"
-    }
-
-    //
-    // Complete and enqueue open response.
-    //
-    // Build get from the cache and return any response
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-               "Cache size after repository put %u maxObjectCount %u",
-               enumerationContext->responseCacheSize(),
-               operationMaxObjectCount ));
+     ProviderRequests::issueOpenAssocRequestMsgsToProviders(
+        this,
+        internalRequest,
+        providerInfos,
+        enumerationContext,
+        poA,
+        "OpenReferenceInstancePaths"
+        );
 
     // Issue the Response to the Open Request. Note that this may cause
     // wait for the enumeration cache before the response is issued.
+    // gets response data from the cache up to maxObjectCount and return
+    // it in a new CIMResponseData object. This function waits for
+    // sufficient objects in cache or providers complete.
+    // If there was an error in the provider responses, puts the exception
+    // into the response
     ProviderRequests::issueOpenResponseMessage(
        this,
        request,
@@ -6160,7 +6100,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
        enumerationContext,
        "OpenReferenceInstancePaths",
        operationMaxObjectCount);
-
     PEG_METHOD_EXIT();
 }
 
@@ -6389,7 +6328,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         internalRequest->objectName.getClassName(),
         internalRequest->nameSpace,
         providerInfos.providerCount,
-        true, true);
+        true,             // completeHostAndNamespace = false
+        true);            // Operation has property list
 
     //
     // Set Open... operation parameters into the operationAggregate
@@ -6422,35 +6362,22 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         providerInfos.providerCount,  poA->getTotalIssued()));
     }
 
-    while (providerInfos.hasMore(true))
-    {
-        ProviderInfo& providerInfo = providerInfos.getNext();
+    ProviderRequests::issueOpenAssocRequestMsgsToProviders(
+        this,
+        internalRequest,
+        providerInfos,
+        enumerationContext,
+        poA,
+        "OpenAssociatorInstances"
+        );
 
-        CIMAssociatorsRequestMessage* requestCopy =
-            new CIMAssociatorsRequestMessage(*internalRequest);
-        // Insert the association class name to limit the provider
-        // to this class.
-        requestCopy->assocClass = providerInfo.className;
-
-        if (providerInfo.providerIdContainer.get() != 0)
-        {
-            requestCopy->operationContext.insert(
-                *(providerInfo.providerIdContainer.get()));
-        }
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "Forwarding to provider for class %s",
-            CSTRING(providerInfo.className.getString()) ));
-
-        _forwardAggregatingRequestToProvider(
-           providerInfo, requestCopy, poA);
-        // Note: poA must not be referenced after last "forwardRequest"
-    }
-
-    //
-    // Complete and enqueue open response.
-    //
-
+    // Issue the Response to the Open Request. Note that this may cause
+    // wait for the enumeration cache before the response is issued.
+    // gets response data from the cache up to maxObjectCount and return
+    // it in a new CIMResponseData object. This function waits for
+    // sufficient objects in cache or providers complete.
+    // If there was an error in the provider responses, puts the exception
+    // into the response
     ProviderRequests::issueOpenResponseMessage(
        this,
        request,
@@ -6670,7 +6597,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         internalRequest->objectName.getClassName(),
         internalRequest->nameSpace,
         providerInfos.providerCount,
-        true, false);
+        true,                  // completeHostAndNamespace = false
+        false);                // No property list for this operation
 
     //
     // Set Open... operation parameters into the operationAggregate
@@ -6698,31 +6626,22 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         providerInfos.providerCount));
     }
 
-    // Call all providers
-    while (providerInfos.hasMore(true))
-    {
-        ProviderInfo& providerInfo = providerInfos.getNext();
-        CIMAssociatorNamesRequestMessage* internalRequestCopy =
-            new CIMAssociatorNamesRequestMessage(*internalRequest);
-        // Insert the association class name to limit the provider
-        // to this class.
-        internalRequestCopy->assocClass = providerInfo.className;
-
-        if (providerInfo.providerIdContainer.get() != 0)
-            internalRequestCopy->operationContext.insert(
-                *(providerInfo.providerIdContainer.get()));
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "Forwarding to provider for class %s",
-            CSTRING(providerInfo.className.getString()) ));
-
-        _forwardAggregatingRequestToProvider(
-           providerInfo, internalRequestCopy, poA);
-        // Note: poA must not be referenced after last "forwardRequest"
-    }
+    ProviderRequests::issueOpenAssocRequestMsgsToProviders(
+        this,
+        internalRequest,
+        providerInfos,
+        enumerationContext,
+        poA,
+        "OpenAssociatorInstancePaths"
+        );
 
     // Issue the Response to the Open Request. Note that this may cause
     // wait for the enumeration cache before the response is issued.
+    // gets response data from the cache up to maxObjectCount and return
+    // it in a new CIMResponseData object. This function waits for
+    // sufficient objects in cache or providers complete.
+    // If there was an error in the provider responses, puts the exception
+    // into the response
     ProviderRequests::issueOpenResponseMessage(
        this,
        request,

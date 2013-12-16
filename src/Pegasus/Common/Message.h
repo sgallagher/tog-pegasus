@@ -56,6 +56,10 @@ enum HttpMethod
 {
     HTTP_METHOD__POST,
     HTTP_METHOD_M_POST
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    ,HTTP_METHOD_GET,
+    HTTP_METHOD_HEAD
+#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
 };
 
 enum MessageType

@@ -1250,7 +1250,9 @@ Boolean _IsBodylessMessage(const char* line)
     const char* METHOD_NAMES[] =
     {
         "GET",
-        "HEAD"
+        "HEAD",
+        "OPTIONS",
+        "DELETE"
     };
 
     // List of response codes which the client accepts and which should not
@@ -2213,14 +2215,21 @@ void HTTPConnection::_handleReadEvent()
         {
             char* buf = _incomingBuffer.getContentPtr();
             // The first bytes of a connection to the server have to contain
-            // a valid cim-over-http HTTP Method (M-POST or POST).
+            // a valid HTTP Method.
             if ((strncmp(buf, "POST", 4) != 0) &&
+                            (strncmp(buf, "PUT", 3) != 0) &&
+                            (strncmp(buf, "OPTIONS", 7) != 0) &&
+                            (strncmp(buf, "DELETE", 6) != 0) &&
+#if defined(PEGASUS_ENABLE_PROTOCOL_WEB)
+                            (strncmp(buf, "GET", 3) != 0) &&
+                            (strncmp(buf, "HEAD", 4) != 0) &&
+#endif
                 (strncmp(buf, "M-POST", 6) != 0))
             {
                 _clearIncoming();
 
                 PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-                      "This Request has non-valid CIM-HTTP Method: "
+                      "This Request has an unknown HTTP Method: "
                       "%02X %02X %02X %02X %02X %02X",
                       buf[0],buf[1],buf[2],
                       buf[3],buf[4],buf[5]));

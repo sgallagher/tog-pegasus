@@ -37,8 +37,13 @@
     {"enableBinaryRepository",                  "false"},
     {"daemon",                                   "false"},
     {"passwordFilePath",                         "cimserver.passwd"},
-#ifdef PEGASUS_ENABLE_SLP
+# ifdef PEGASUS_ENABLE_SLP
     {"slp",                                      "true"},
+# endif
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    {"webRoot",         "/QOpenSys/QIBM/UserData/UME/Pegasus/www"},
+    {"indexFile",       "index.html"},
+    {"mimeTypesFile",   "/QOpenSys/QIBM/UserData/UME/Pegasus/www/mimeType.txt"},
 #endif
     {"authorizedUserGroups",                          ""},
     {"repositoryDir",         "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"},

@@ -53,6 +53,10 @@ class CIMExportRequestDispatcher;
 class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
 class WsmProcessor;
+class RsProcessor;
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+class WebServer;
+#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
 class HTTPAcceptor;
 class CIMRepository;
 
@@ -171,6 +175,10 @@ private:
     CIMExportRequestDecoder* _cimExportRequestDecoder;
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
+    RsProcessor* _rsProcessor;
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    WebServer* _webServer;
+#endif
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     WsmProcessor* _wsmProcessor;
 #endif

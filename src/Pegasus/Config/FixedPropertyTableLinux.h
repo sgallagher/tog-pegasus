@@ -74,6 +74,12 @@
     {"sslTrustStore",       "/etc/opt/tog-pegasus/cimserver_trust"},
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    {"webRoot",             "/var/tog-pegasus/www"},
+    {"indexFile",           "index.html"},
+    {"mimeTypesFile",       "/var/tog-pegasus/www/mimeType.txt"},
+#endif
+
 #  if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/"
                                 PEGASUS_ARCH_LIB "/cmpi"},

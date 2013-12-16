@@ -40,8 +40,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer :
-    public MessageQueue
+/*
+ *
+ * The CIM Operation request authorizer: checks if the user is authorized
+ * to issue CIM operations
+*/
+class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 {
 public:
 

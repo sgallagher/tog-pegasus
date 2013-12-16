@@ -43,7 +43,7 @@ LIBRARIES = \
 	pegrepository \
 	pegprovider \
 	pegexportserver \
-        pegpmrouter \
+	pegpmrouter \
 	pegpmservice \
 	pegprovidermanager \
 	pegconfig \
@@ -58,8 +58,9 @@ LIBRARIES = \
 	ConfigSettingProvider \
 	ProviderRegistrationProvider\
 	NamespaceProvider \
-        peggeneral \
-	pegcommon
+	peggeneral \
+	pegcommon \
+	cimrsserver
 
 ifndef PEGASUS_PAM_AUTHENTICATION
     LIBRARIES += peguser \
@@ -94,6 +95,10 @@ endif
 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
     LIBRARIES += pegwsmserver
+endif
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
+    LIBRARIES += pegwebserver
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends

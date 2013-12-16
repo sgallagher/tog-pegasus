@@ -1482,6 +1482,29 @@ else
   endif
 endif
 
+
+##==============================================================================
+##
+## PEGASUS_ENABLE_PROTOCOL_WEB
+##
+##     Enables the GET-Method for files in order to act as a web-server
+##
+##
+##
+##
+##==============================================================================
+ifndef PEGASUS_ENABLE_PROTOCOL_WEB
+  PEGASUS_ENABLE_PROTOCOL_WEB = true
+endif
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
+  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_WEB
+else
+  ifneq ($(PEGASUS_ENABLE_PROTOCOL_WEB),false)
+    $(error "PEGASUS_ENABLE_PROTOCOL_WEB must be true or false")
+  endif
+endif
+
 ## ======================================================================
 ##
 ## PLATFORM_CORE_PATTERN

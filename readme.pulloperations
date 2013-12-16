@@ -52,6 +52,12 @@ TODO list:
          cimcli pei CIM_ManagedElement to not complete (client timeout)
          sometimes.
 
+15 December 2013
+1. Mergeout and mergein up to 15 December 2013
+2. Clean up issues from tests documented in bug 9676 last week.
+3. Clean up some code in dispatcher
+4. Remove the filter function from ResponseStressc++Provider.
+
 21 November 2013
 1. Mergeout from head of tree to 21 November 2013.
 

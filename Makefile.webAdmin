@@ -76,7 +76,7 @@ ifeq ($(OS),darwin)
 endif
 
 setupwebadmin: FORCE
-	@$(CPDIRHIER) $(WEBADMIN_ROOT) $(WEBADMIN_HOME)
+	@$(CPDIRHIER) $(WEBADMIN_ROOT) $(WEBADMIN_HOME) || true
 
 .PHONY: FORCE
 

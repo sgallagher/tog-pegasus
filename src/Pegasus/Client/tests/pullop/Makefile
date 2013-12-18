@@ -210,10 +210,10 @@ prn3:
 
 ## KS_TODO - This one causing failure in nightly tests.
 peManagedElement:
-	$(PROGRAM) e -M 100 -N 100 -c CIM_ManagedElement -v 5 $(HOSTID)
+	$(PROGRAM) e -M 100 -N 100 -c CIM_ManagedElement -v 5 -n root/cimv2 $(HOSTID)
 
 penManagedElement:
-	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement $(HOSTID)
+	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
 ###	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## KS_TODO this one generates an error
@@ -468,7 +468,7 @@ cmpie1:
 
 
 ## reference tests
-cmpir1:
+clicmpir1:
 	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 pcmpir1:
@@ -478,16 +478,14 @@ pcmpirn1:
 	$(PROGRAM) rn -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T  $(HOSTID)
 
 ## Reference Operations Simple tests
-cmpir1:
-	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
-cmpirn1:
+clicmpirn1:
 	cimcli rn $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
-cmpipr1:
+clicmpipr1:
 	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
-cmpiprn1:
+clicmpiprn1:
 	cimcli rn $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 

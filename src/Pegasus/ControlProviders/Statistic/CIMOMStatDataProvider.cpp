@@ -192,7 +192,8 @@ CIMInstance CIMOMStatDataProvider::buildInstance(
             CIMValue(Uint16(1))));
         requestedInstance.addProperty(CIMProperty("OtherOperationType",
             CIMValue(sData->getRequestName(type))));
-        cout << "Set other property " << sData->getRequestName(type) << endl;
+        // Test Diagnostic Output
+        // cout << "Set other property " << sData->getRequestName(type) << endl;
     }
     else
     {
@@ -365,7 +366,8 @@ Uint16 CIMOMStatDataProvider::getValueMapType(
             outType=0;
             break;
     }
-    cout << "Proivder type mapper " << type << " returns" << outType << endl;
+    // test diagnostic output
+    //cout << "Proivder type mapper " << type << " returns" << outType << endl;
 
     return outType;
 }

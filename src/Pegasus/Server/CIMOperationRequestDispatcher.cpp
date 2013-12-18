@@ -287,18 +287,17 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     Boolean isComplete = response.isComplete();
 // KS_PULLOP_TEMP TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "%s resequenceinfo index %u"
+        "%s resequenceinfo index %u "
         "totalResponsesReceivedComplete = %u. _totalReceivedExpected = %u "
-        "provider isComplete %s"
-        " _totalIssued %u"
+        "provider isComplete %s "
+        "_totalIssued %u "
         "response.getIndex() %u",
         func,response.getIndex(),
         _totalReceivedComplete,
         _totalReceivedExpected,
         boolToString(isComplete),
         _totalIssued,
-        response.getIndex()
-         ));
+        response.getIndex() ));
 
     // if this provider is complete increment totalReceivedComplete, etc.
     if (isComplete == true)
@@ -380,6 +379,9 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     }
 
     response.setComplete(isComplete);
+
+    //// KS_TODO TBD this one is in error in that we have reset the
+    //// counters. Remove it.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // TODO KS_TEMP
         "%s: return status.  isComplete: %s Total responses: %u, "
             "total chunks: %u, total errors: %u totalIssued: %u",

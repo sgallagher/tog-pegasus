@@ -375,17 +375,17 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 ////             " signal CacheSizeConditon responseCacheMaximumSize %u",
 ////             responseCacheSize(), to.size(), _responseCacheMaximumSize));
             // start timer to get time of wait for statistics.
-            Stopwatch waitTimer;        // KS_TEMP I think. should this be perm.
-            waitTimer.start();
+            Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
             waitProviderLimitCondition(_responseCacheMaximumSize);
-            waitTimer.stop();
+            Uint64 interval =
+                TimeValue::getCurrentTime().toMicroseconds() - startTime;
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
                 "After putCache providers wait end ProviderLimitCondition Not "
                 "complete insert responseCacheSize %u. CIMResponseData size %u."
                 " signal CacheSizeConditon responseCacheMaximumSize %u."
                 " Wait %lu usec",
                 responseCacheSize(), to.size(), _responseCacheMaximumSize,
-                (unsigned long int)waitTimer.getElapsedUsec()));
+                (unsigned long int)interval ));
         }
     }
 
@@ -469,7 +469,7 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     }
 
     // start timer to get time of wait for statistics.
-//  Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
+    Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
 
     // condition variable wait loop. waits on cache size or
     // providers complete
@@ -480,15 +480,15 @@ void EnumerationContext::waitCacheSizeCondition(Uint32 size)
     }
     _cacheTestCondMutex.unlock();
 
-//  Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
-//
-//  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-//      "waitCacheSizeConditon return "
-//      "Request Size %u complete %s result %s time %lu usec",
-//      size,
-//      boolToString(_providersComplete),
-//      boolToString((!_providersComplete && (responseCacheSize()) < size)),
-//      (unsigned long int)interval ));
+    Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "waitCacheSizeConditon return "
+        "Request Size %u complete %s result %s time %lu usec",
+        size,
+        boolToString(_providersComplete),
+        boolToString((!_providersComplete && (responseCacheSize()) < size)),
+        (unsigned long int)interval ));
 
     PEG_METHOD_EXIT();
 }
@@ -528,21 +528,21 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 
     _providerLimitConditionMutex.lock();
 
-//  Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
+    Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
 
     while (!_clientClosed && (responseCacheSize() > limit))
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
 
-//  Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
-//
-//  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-//     "waitproviderLimitCondition exit state %s responseCacheSize %u size %u "
-//     "closed %s time %lu",
-//       boolToString((!_clientClosed && (responseCacheSize() < limit))),
-//       responseCacheSize(), limit, boolToString(_clientClosed),
-//       (long unsigned int)interval ));
+    Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+       "waitproviderLimitCondition exit state: %s responseCacheSize: %u "
+       "size: %u client closed: %s wait time: %lu us",
+         boolToString((!_clientClosed && (responseCacheSize() < limit))),
+         responseCacheSize(), limit, boolToString(_clientClosed),
+         (long unsigned int)interval ));
 
     _providerLimitConditionMutex.unlock();
     PEG_METHOD_EXIT();

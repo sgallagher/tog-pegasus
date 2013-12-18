@@ -82,7 +82,7 @@
              not as error prone.
            - Drop the existing defaults in favor of namespace = root/cimv2
              and no target default.
-           - Expand object compare to more details (maybe) 
+           - Expand object compare to more details (maybe)
            - Finish connect code so we can connect to other systems.  Needs
              to be tested and determine if we need security.
            - Combine verbose and verbose_opt.  i.e. Use a particular level
@@ -842,7 +842,7 @@ bool compareInstance(const String& s1, const String& s2,
 
     if (i1.getPath() != i2.getPath())
     {
-        cout << "WARN: Paths Not identical " << s1 << " "
+        cerr << "WARN: Paths Not identical " << s1 << " "
                << i1.getPath().toString()
                << " " << s2 << " " << i2.getPath().toString()
                << endl;
@@ -851,19 +851,19 @@ bool compareInstance(const String& s1, const String& s2,
 
     else
     {
-        cout << "ERROR: Instances Not identical "
+        cerr << "ERROR: Instances Not identical "
             << i1.getPath().toString() << endl;
 
         if (i1.getQualifierCount() != i2.getQualifierCount())
         {
-            cout << "ERROR: Qualifier Counts differ "
+            cerr << "ERROR: Qualifier Counts differ "
                 << s1 << " " << i1.getQualifierCount() << " "
                 << s2 << " " << i2.getQualifierCount() << endl;
         }
         bool switchInstances = false;
         if (i1.getPropertyCount() != i2.getPropertyCount())
         {
-            cout << "ERROR: PropertyCounts differ " << s1 << " "
+            cerr << "ERROR: PropertyCounts differ " << s1 << " "
                 <<  i1.getPropertyCount() << " "
                 << s2 << " " << i2.getPropertyCount() << endl;
 
@@ -915,7 +915,7 @@ bool compareInstance(const String& s1, const String& s2,
             {
                 if (p1.getName() != p2.getName())
                 {
-                    cout << "ERROR: Property Names differ. Property " << i
+                    cerr << "ERROR: Property Names differ. Property " << i
                          << " "
                          << s11 << " " << p1.getName().getString() << " "
                          << s21 << " " << p2.getName().getString() << endl;
@@ -923,19 +923,19 @@ bool compareInstance(const String& s1, const String& s2,
 
                 else if (p1.getType() != p2.getType())
                 {
-                    cout << "ERROR: Property Types differ "
+                    cerr << "ERROR: Property Types differ "
                          << s11 << " " << p1.getName().getString() << " "
                          << p1.getType() << " "
                          << s21 << " " << p2.getType() << endl;
                 }
                 else if(p1.isArray() != p2.isArray())
                 {
-                    cout << "Property Array flags differ "
+                    cerr << "WARNING: Property Array flags differ "
                          << p1.getName().getString() << endl;
                 }
                 else if(p1.getArraySize() != p2.getArraySize())
                 {
-                    cout << "ERROR: Property Array size parameters differ "
+                    cerr << "ERROR: Property Array size parameters differ "
                          << p1.getName().getString() <<  " "
                          << p1.getArraySize() << " "
                          <<  p2.getArraySize() << endl;
@@ -946,14 +946,14 @@ bool compareInstance(const String& s1, const String& s2,
                     CIMValue v2 = p2.getValue();
                     if (!v1.equal(v2))
                     {
-                        cout << "ERROR: Property values differ for "
+                        cerr << "ERROR: Property values differ for "
                              << p1.getName().getString() << " "
                              << s11 << " " <<  v1.toString() << " "
                              << s21 << " " << v2.toString() << endl;
                     }
                     else
                     {
-                        cout << "ERROR: Properties Not identical in param"
+                        cerr << "ERROR: Properties Not identical in param"
                                 " other than type, value, etc "
                             << i1.getPath().toString() << endl;
                     }
@@ -1411,7 +1411,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         // if the compare opt was set, get with enumerate and compare
         if (compare_opt && endOfSequence)
         {
-            VCOUT << "Comparing Result to enumerateInstances" << endl;
+            VCOUT1 << "Comparing Result to enumerateInstances" << endl;
             enumTime.start();
             Array<CIMInstance> enumeratedInstances = client.enumerateInstances(
                 nameSpace,
@@ -2255,7 +2255,7 @@ int main(int argc, char** argv)
             case 'v':               // verbose display with integer
             {
                 verbose_opt = stringToUint32(optarg);
-                if (verbose_opt > 6)
+                if (verbose_opt > 7)
                 {
                     cerr << "INPUT ERROR: max verbose level is 5" << endl;
                     exit(1);
@@ -2419,7 +2419,7 @@ int main(int argc, char** argv)
     {
         if (host_opt == "")
         {
-            VCOUT << "connectLocal" << endl;
+            VCOUT1 << "connectLocal" << endl;
             client.connectLocal();
         }
         else
@@ -2428,7 +2428,8 @@ int main(int argc, char** argv)
             Uint32 port;
             if (parseHostName(host_opt, hostName, port))
             {
-                VCOUT << " Connect to host " << hostName << ":" << port << endl;
+                VCOUT1 << " Connect to host "
+                       << hostName << ":" << port << endl;
                 client.connect(hostName, port, user_opt, password_opt);
             }
             else

@@ -195,9 +195,6 @@ const char protocolVersionAttribute[] = "ProtocolVersion";
 const char functionalProfilesSupportedAttribute[] =
                "FunctionalProfilesSupported";
 
-const char functionalProfileDescriptionsAttribute[] =
-               "FunctionalProfileDescriptions";
-
 const char otherProfileDescriptionAttribute[] =
                "OtherProfileDescription";
 
@@ -206,9 +203,6 @@ const char multipleOperationsSupportedAttribute[] =
 
 const char authenticationMechanismsSupportedAttribute[] =
                "AuthenticationMechanismsSupported";
-
-const char otherAuthenticationDescriptionsAttribute[] =
-               "OtherAuthenticationDescription";
 
 const char authenticationMechanismDescriptionsAttribute[] =
                "AuthenticationMechanismDescriptions";

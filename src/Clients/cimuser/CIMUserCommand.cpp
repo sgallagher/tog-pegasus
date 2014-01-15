@@ -270,26 +270,14 @@ static const char   NEW_PASS_PARAM[]             = "NewPassword";
 static const char   PASSWORD_PROMPT []  =
                         "Please enter your password: ";
 
-static const char   PASSWORD_PROMPT_KEY [] =
-    "Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT";
-
 static const char   OLD_PASSWORD_PROMPT []  =
     "Please enter your old password: ";
-
-static const char   OLD_PASSWORD_PROMPT_KEY []  =
-    "Clients.cimuser.CIMUserCommand.OLD_PASSWORD_PROMPT";
 
 static const char   RE_ENTER_PROMPT []  =
     "Please re-enter your password: ";
 
-static const char   RE_ENTER_PROMPT_KEY []  =
-    "Clients.cimuser.CIMUserCommand.RE_ENTER_PROMPT";
-
 static const char   NEW_PASSWORD_PROMPT []  =
     "Please enter your new password: ";
-
-static const char   NEW_PASSWORD_PROMPT_KEY []  =
-    "Clients.cimuser.CIMUserCommand.NEW_PASSWORD_PROMPT";
 
 static const char   PASSWORD_DOES_NOT_MATCH []  =
     "Passwords do not match. Please Re-enter.";

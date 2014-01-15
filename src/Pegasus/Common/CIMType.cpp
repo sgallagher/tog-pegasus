@@ -40,7 +40,6 @@ static const char* _typeStrings[] =
     "reference", "object", "instance"
 };
 
-static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);
 
 const char* cimTypeToString(const CIMType type)
 {

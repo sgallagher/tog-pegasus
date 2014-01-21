@@ -1384,8 +1384,8 @@ Uint32 RsProcessor::getRsRequestDecoderQueueId()
 {
     PEG_METHOD_ENTER(TRC_RSSERVER,
         "RsProcessor::getRsRequestDecoderQueueId()");
-    return _rsRequestDecoder.getQueueId();
     PEG_METHOD_EXIT();
+    return _rsRequestDecoder.getQueueId();
 }
 
 

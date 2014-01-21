@@ -178,9 +178,9 @@ Boolean RsHTTPRequest::hasRange()
         _loadRangeHeader();
     }
 
+    PEG_METHOD_EXIT();
     return (_first != PEG_NOT_FOUND && _last != PEG_NOT_FOUND);
 
-    PEG_METHOD_EXIT();
 }
 
 Uint32 RsHTTPRequest::getRangeStart()

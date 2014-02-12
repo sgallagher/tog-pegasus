@@ -692,7 +692,15 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
                     content[currentPos] == '\r' ||
                     content[currentPos] == '\n' ||
                     content[currentPos] == '"')
+            {
+                if (content[currentPos] == '"' &&
+                       currentPos>0 &&
+                       content[currentPos-1] == '"')
+                {
+                    break;
+                }
                 currentPos++;
+            }
 
             Uint32 newPos = nextPos - 1;
             while(content[newPos] == ' ' ||
@@ -700,7 +708,15 @@ String RsProcessor::getParamValues(CIMConstMethod& method,
                     content[newPos] == '\r' ||
                     content[newPos] == '\n' ||
                     content[newPos] == '"')
+            {
+                if (content[newPos] == '"' &&
+                       newPos+1<contentSize &&
+                       content[newPos+1] == '"')
+                {
+                    break;
+                }
                 newPos--;
+            }
 
             String pValue(contentStr.subString(currentPos,
                                                newPos-currentPos+1));

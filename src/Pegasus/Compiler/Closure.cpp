@@ -31,6 +31,7 @@
 
 #include "Closure.h"
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -70,7 +71,9 @@ static bool _isAssociation(const CIMClass& cc)
     CIMConstQualifier cq = cc.getQualifier(pos);
 
     if (cq.getType() != CIMTYPE_BOOLEAN || cq.isArray())
+    {
         return false;
+    }
 
     return true;
 }
@@ -82,12 +85,16 @@ static int _getEmbeddedClassName(const CONTAINER& c, String& ecn)
     Uint32 pos = c.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
 
     if (pos == PEG_NOT_FOUND)
+    {
         return 0;
+    }
 
     CIMConstQualifier cq = c.getQualifier(pos);
 
     if (cq.getType() != CIMTYPE_STRING || cq.isArray())
+    {
         return -1;
+    }
 
     cq.getValue().get(ecn);
     return 0;
@@ -101,14 +108,18 @@ static bool _isA(
     // If same class, return true now:
 
     if (superClassName == className)
+    {
         return true;
+    }
 
     // Find the class:
 
     Uint32 pos = _findClass(classes, className);
 
     if (pos == PEG_NOT_FOUND)
+    {
         return false;
+    }
 
     const CIMClass& cc = classes[pos];
 
@@ -117,7 +128,9 @@ static bool _isA(
     const CIMName& scn = cc.getSuperClassName();
 
     if (scn.isNull())
+    {
         return false;
+    }
 
     return _isA(classes, superClassName, scn);
 }
@@ -130,7 +143,9 @@ int Closure(
     // Avoid if class already in closure:
 
     if (_findClass(closure, className) != PEG_NOT_FOUND)
+    {
         return 0;
+    }
 
     // Add class to closure:
 
@@ -141,7 +156,9 @@ int Closure(
     Uint32 pos = _findClass(classes, className);
 
     if (pos == PEG_NOT_FOUND)
+    {
         return -1;
+    }
 
     const CIMClass& cc = classes[pos];
 
@@ -166,17 +183,23 @@ int Closure(
             const CIMName& rcn = cp.getReferenceClassName();
 
             if (Closure(rcn, classes, closure) != 0)
+            {
                 return -1;
+            }
         }
         else if (cp.getType() == CIMTYPE_STRING)
         {
             String ecn;
 
             if (_getEmbeddedClassName(cp, ecn) != 0)
+            {
                 return -1;
+            }
 
             if (ecn.size() && Closure(ecn, classes, closure) != 0)
+            {
                 return -1;
+            }
         }
     }
 
@@ -191,10 +214,14 @@ int Closure(
             String ecn;
 
             if (_getEmbeddedClassName(cm, ecn) != 0)
+            {
                 return -1;
+            }
 
             if (ecn.size() && Closure(ecn, classes, closure) != 0)
+            {
                 return -1;
+            }
         }
 
         // Parameters and EmbeddedInstances:
@@ -208,17 +235,23 @@ int Closure(
                 const CIMName& rcn = cp.getReferenceClassName();
 
                 if (Closure(rcn, classes, closure) != 0)
+                {
                     return -1;
+                }
             }
             else if (cp.getType() == CIMTYPE_STRING)
             {
                 String ecn;
 
                 if (_getEmbeddedClassName(cp, ecn) != 0)
+                {
                     return -1;
+                }
 
                 if (ecn.size() && Closure(ecn, classes, closure) != 0)
+                {
                     return -1;
+                }
             }
         }
     }
@@ -234,13 +267,15 @@ int Closure(
         const CIMClass& tcc = classes[i];
 
         if (!_isAssociation(tcc))
+        {
             continue;
-
+        }
         const CIMName& tcn = tcc.getClassName();
 
         if (_findClass(closure, tcn) != PEG_NOT_FOUND)
+        {
             continue;
-
+        }
         for (Uint32 j = 0; j < tcc.getPropertyCount(); j++)
         {
             const CIMConstProperty& cp = tcc.getProperty(j);

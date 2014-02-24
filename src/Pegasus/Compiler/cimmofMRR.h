@@ -27,6 +27,19 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+/** The MRR (Memory Resident Repository) .
+ *  This class implements compiler output to generate input for
+ *  a memory-resident repository in pegasus.  See PEP 307
+ *  for details of the memory resident repository.
+ *
+ *  The output of the compiler for the memory resident
+ *  repository is a set of C++ header and cpp file defining the
+ *  classes defined in the mof input.
+ *
+ *  These will be compiled as part of the CIMRepository to
+ *  produce a read-only class repository in memory.
+*/
+
 #ifndef _cimmofMRR_h
 #define _cimmofMRR_h
 
@@ -42,8 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-/** The MRR (Memory Resident Repository) .
-*/
+
 class PEGASUS_COMPILER_LINKAGE cimmofMRR
 {
 public:

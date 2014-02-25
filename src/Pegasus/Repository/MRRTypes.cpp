@@ -174,9 +174,13 @@ static int _makeValue(
     if (value == 0)
     {
         if (subscript == -1)
+        {
             cv.setNullValue(CIMType(type), false);
+        }
         else
+        {
             cv.setNullValue(CIMType(type), true, subscript);
+        }
 
         return 0;
     }
@@ -530,7 +534,9 @@ int MergeFeatures(
         const MRRFeature* sf = sc->features[i];
 
         if (!(sf->flags & flags))
+        {
             continue;
+        }
 
         // Override feature if defined by ancestor class:
 
@@ -582,7 +588,9 @@ static const MRRFeature* _findFeature(
         const MRRFeature* sf = sc->features[i];
 
         if (_eqi(sf->name, name))
+        {
             return sf;
+        }
     }
 
     // Not found!
@@ -598,7 +606,9 @@ static const MRRFeature* _findParameter(
         const MRRFeature* sf = sm->parameters[i];
 
         if (_eqi(sm->name, name))
+        {
             return sf;
+        }
     }
 
     // Not found!
@@ -638,7 +648,9 @@ static int _mergeQualifiers(
         const MRRFeature* sf = _findFeature(sc, featureName);
 
         if (sf)
+        {
             quals = sf->qualifiers;
+        }
     }
     else if (featureName && parameterName)
     {
@@ -652,14 +664,18 @@ static int _mergeQualifiers(
             const MRRFeature* p = _findParameter(sm, parameterName);
 
             if (p)
+            {
                 quals = p->qualifiers;
+            }
         }
     }
 
     // Merge quals into the qualifiers array:
 
     if (!quals)
+    {
         return 0;
+    }
 
     for (size_t i = 0; quals[i]; i++)
     {
@@ -777,7 +793,9 @@ static int _addProperty(
     CIMProperty cp(sp->name, cv);
 
     if (includeClassOrigin)
+    {
         cp.setClassOrigin(classOrigin);
+    }
 
     cp.setPropagated(propagated);
 
@@ -836,7 +854,9 @@ static int _addReference(
     CIMProperty cp(sr->name, cv, arraySize, rcn);
 
     if (includeClassOrigin)
+    {
         cp.setClassOrigin(classOrigin);
+    }
 
     cp.setPropagated(propagated);
 
@@ -956,7 +976,9 @@ static int _addMethod(
     CIMMethod cm(sm->name, CIMType(sm->type));
 
     if (includeClassOrigin)
+    {
         cm.setClassOrigin(classOrigin);
+    }
 
     cm.setPropagated(propagated);
 
@@ -1108,7 +1130,7 @@ int MakeClass(
 
         if (includeQualifiers)
         {
-            if (_addQualifiers(ns, sc, 0, 0, cc) != 0)
+            if (_addQualifiers(ns, sc, NULL, NULL, cc) != 0)
             {
                 return -1;
             }
@@ -1194,9 +1216,13 @@ int MakeQualifierDecl(
     Uint32 arraySize;
 
     if (mqd->subscript == -1)
+    {
         arraySize = 0;
+    }
     else
+    {
         arraySize = mqd->subscript;
+    }
 
     cqd = CIMQualifierDecl(mqd->name, cv, scope, flavor, arraySize);
 
@@ -1210,7 +1236,9 @@ const MRRClass* FindClass(const MRRNameSpace* ns, const char* name)
         const MRRClass* sc = ns->classes[i];
 
         if (_eqi(sc->name, name))
+        {
             return sc;
+        }
     }
 
     // Not found!
@@ -1226,7 +1254,9 @@ const MRRQualifierDecl* FindQualifierDecl(
         const MRRQualifierDecl* mqd = ns->qualifiers[i];
 
         if (_eqi(mqd->name, name))
+        {
             return mqd;
+        }
     }
 
     // Not found!
@@ -1236,12 +1266,16 @@ const MRRQualifierDecl* FindQualifierDecl(
 bool IsSubClass(const MRRClass* super, const MRRClass* sub)
 {
     if (!super)
+    {
         return true;
+    }
 
     for (MRRClass* p = sub->super; p; p = p->super)
     {
         if (p == super)
+        {
             return true;
+        }
     }
 
     return false;
@@ -1257,7 +1291,9 @@ const MRRFeature* FindFeature(
         const MRRFeature* sf = sc->features[i];
 
         if (sf->flags & flags && _eqi(sf->name, name))
+        {
             return sf;
+        }
     }
 
     // Not found!

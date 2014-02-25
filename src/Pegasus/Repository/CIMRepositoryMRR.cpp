@@ -29,6 +29,35 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/**
+ * This file redefines the CIMRepository.h interfaces to be a
+ * read-only memory-resident  class repository and an in-memory instance
+ * repository. It implements all functions of the
+ * CIMRepository.h interface. All  class functions that would
+ * modify the repository return exceptions since the repository is read-only.
+ * Functions that return data (ex. getClass, enumerateClasses, etc.) return
+ * the same form of data as the other repository implementations.
+ *
+ * NOTE: This repository does NOT implement a cache because it
+ * appeared that it would be of little gain since the movement
+ * of data from the in-memory repository is already fast.
+ * Therefore there are some parameters of the API (Ex clone)
+ * that are not implemented.
+ *
+ * The class repository is actually a .CPP/.h file that is
+ * produced by the MOF compiler from input mof files. This file
+ * includes the definition of all namespaces, qualifiers, and
+ * classes defined as part of the mof input.
+ *
+ * The instance repository is an in-memory repository that
+ * includes functions to load the instance repository on startup
+ * and checkpoint the instance repository each time a change is
+ * made
+ *
+ * See PEP 307 for more information on the implementation and
+ * usage of the memory-resident repository.
+ */
+
 #include "MRR.h"
 #include <cstdarg>
 #include <Pegasus/Common/Resolver.h>
@@ -131,14 +160,16 @@ private:
     @return true if the property is in the list otherwise false.
 */
 static Boolean _containsProperty(
-    CIMProperty& property,
+    const CIMProperty& property,
     const CIMPropertyList& propertyList)
 {
     //  For each property in the propertly list
     for (Uint32 p=0; p<propertyList.size(); p++)
     {
         if (propertyList[p].equal(property.getName()))
+        {
             return true;
+        }
     }
     return false;
 }
@@ -156,7 +187,9 @@ static void _removeAllQualifiers(CIMClass& cimClass)
     // remove qualifiers of the class
     Uint32 count = 0;
     while ((count = cimClass.getQualifierCount()) > 0)
+    {
         cimClass.removeQualifier(count - 1);
+    }
 
     // remove qualifiers from the properties
     for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
@@ -164,7 +197,9 @@ static void _removeAllQualifiers(CIMClass& cimClass)
         CIMProperty p = cimClass.getProperty(i);
         count = 0;
         while ((count = p.getQualifierCount()) > 0)
+        {
             p.removeQualifier(count - 1);
+        }
     }
 
     // remove qualifiers from the methods
@@ -176,11 +211,15 @@ static void _removeAllQualifiers(CIMClass& cimClass)
             CIMParameter p = m.getParameter(j);
             count = 0;
             while ((count = p.getQualifierCount()) > 0)
+            {
                 p.removeQualifier(count - 1);
+            }
         }
         count = 0;
         while ((count = m.getQualifierCount()) > 0)
+        {
             m.removeQualifier(count - 1);
+        }
     }
 }
 
@@ -279,7 +318,9 @@ static void _removeProperties(
             // Since the propertyList is not NULL, only properties in the list
             // should be included in the instance.
             if (!_containsProperty(cimInstance.getProperty(i), propertyList))
+            {
                 cimInstance.removeProperty(i);
+            }
         }
     }
 }
@@ -296,7 +337,9 @@ static void _removeAllQualifiers(CIMInstance& cimInstance)
     // remove qualifiers from the instance
     Uint32 count = 0;
     while ((count = cimInstance.getQualifierCount()) > 0)
+    {
         cimInstance.removeQualifier(count - 1);
+    }
 
     // remove qualifiers from the properties
     for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
@@ -304,7 +347,9 @@ static void _removeAllQualifiers(CIMInstance& cimInstance)
         CIMProperty p = cimInstance.getProperty(i);
         count = 0;
         while ((count = p.getQualifierCount()) > 0)
+        {
             p.removeQualifier(count - 1);
+        }
     }
 }
 
@@ -320,7 +365,9 @@ void _removeClassOrigins(CIMInstance& cimInstance)
 
     Uint32 propertyCount = cimInstance.getPropertyCount();
     for (Uint32 i = 0; i < propertyCount ; i++)
+    {
         cimInstance.getProperty(i).setClassOrigin(CIMName());
+    }
 }
 
 /* Filters the properties, qualifiers, and classorigin out of a single instance.
@@ -440,11 +487,15 @@ static void _filterClass(
 
         Uint32 propertyCount = cimClass.getPropertyCount();
         for (Uint32 i = 0; i < propertyCount ; i++)
+        {
             cimClass.getProperty(i).setClassOrigin(CIMName());
+        }
 
         Uint32 methodCount =  cimClass.getMethodCount();
         for (Uint32 i=0; i < methodCount ; i++)
+        {
             cimClass.getMethod(i).setClassOrigin(CIMName());
+        }
     }
 }
 
@@ -454,7 +505,9 @@ static bool _contains(const CIMPropertyList& propertyList, const CIMName& name)
     for (Uint32 i = 0; i < propertyList.size(); i++)
     {
         if (propertyList[i] == name)
+        {
             return true;
+        }
     }
 
     return false;
@@ -499,7 +552,9 @@ static void _applyModifiedInstance(
             // Add or replace property in result instance:
 
             if (pos != PEG_NOT_FOUND)
+            {
                 resultInstance.removeProperty(pos);
+            }
 
             resultInstance.addProperty(cp);
         }
@@ -540,7 +595,9 @@ static const MRRNameSpace* _findNameSpace(const char* name)
         const MRRNameSpace* ns = _nameSpaceTable[i];
 
         if (_eqi(ns->name, name))
+        {
             return ns;
+        }
     }
 
     // Not found!
@@ -550,12 +607,16 @@ static const MRRNameSpace* _findNameSpace(const char* name)
 static bool _isSubClass(const MRRClass* super, const MRRClass* sub)
 {
     if (!super)
+    {
         return true;
+    }
 
     for (MRRClass* p = sub->super; p; p = p->super)
     {
         if (p == super)
+        {
             return true;
+        }
     }
 
     return false;
@@ -571,13 +632,17 @@ static inline bool _isDirectSubClass(
 static char** _makePropertyList(const CIMPropertyList& propertyList)
 {
     if (propertyList.isNull())
+    {
         return 0;
+    }
 
     size_t size = propertyList.size();
     char** pl = (char**)malloc(sizeof(char*) * (size + 1));
 
     for (size_t i = 0; i < size; i++)
+    {
         pl[i] = strdup(*Str(propertyList[i]));
+    }
 
     pl[size] = 0;
 
@@ -587,7 +652,9 @@ static char** _makePropertyList(const CIMPropertyList& propertyList)
 static void _freePropertyList(char** pl)
 {
     if (!pl)
+    {
         return;
+    }
 
     for (size_t i = 0; pl[i]; i++)
     {
@@ -600,10 +667,14 @@ static void _freePropertyList(char** pl)
 static void _printPropertyList(const char* const* pl)
 {
     if (!pl)
+    {
         return;
+    }
 
     for (size_t i = 0; pl[i]; i++)
+    {
         printf("pl[%s]\n", pl[i]);
+    }
 }
 
 static bool _contains(const Array<const MRRClass*>& x, const MRRClass* sc)
@@ -614,7 +685,9 @@ static bool _contains(const Array<const MRRClass*>& x, const MRRClass* sc)
     while (n--)
     {
         if (*p++ == sc)
+        {
             return true;
+        }
     }
 
     return false;
@@ -634,7 +707,9 @@ static void _associators(
     const MRRClass* sc = FindClass(ns, *Str(className));
 
     if (!sc)
+    {
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
+    }
 
 
     // Lookup result class (if any).
@@ -646,7 +721,9 @@ static void _associators(
         rmc = FindClass(ns, *Str(resultClass));
 
         if (!rmc)
+        {
             Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(resultClass)));
+        }
     }
 
     // Convert these to UTF8 now to avoid doing so in loop below.
@@ -664,12 +741,16 @@ static void _associators(
         // Skip non-association classes:
 
         if (!(amc->flags & MRR_FLAG_ASSOCIATION))
+        {
             continue;
+        }
 
         // Filter by assocClass parameter:
 
         if (!assocClass.isNull() && !_eqi(ac, amc->name))
+        {
             continue;
+        }
 
         // Process reference properties:
 
@@ -684,19 +765,25 @@ static void _associators(
             // Skip non references:
 
             if (!(sf->flags & MRR_FLAG_REFERENCE))
+            {
                 continue;
+            }
 
             const MRRReference* sr = (const MRRReference*)sf;
 
             // Filter by role parameter.
 
             if (role.size() && !_eqi(r, sf->name))
+            {
                 continue;
+            }
 
             // Filter by source class:
 
             if (!IsA(sr->ref, sc))
+            {
                 continue;
+            }
 
             // Process result reference:
 
@@ -707,24 +794,32 @@ static void _associators(
                 // Skip the feature under consideration:
 
                 if (rmf == sf)
+                {
                     continue;
+                }
 
                 // Skip non references:
 
                 if (!(rmf->flags & MRR_FLAG_REFERENCE))
+                {
                     continue;
+                }
 
                 const MRRReference* rmr = (const MRRReference*)rmf;
 
                 // Filter by resultRole parameter.
 
                 if (resultRole.size() && !_eqi(rr, rmf->name))
+                {
                     continue;
+                }
 
                 // Skip references not of the result class kind:
 
                 if (rmc && !IsA(rmr->ref, rmc))
+                {
                     continue;
+                }
 
                 // ATTN: should we include entire class hierarchy under
                 // result class?
@@ -732,7 +827,9 @@ static void _associators(
                 // If reached, then save this one.
 
                 if (!_contains(result, rmr->ref))
+                {
                     result.append(rmr->ref);
+                }
             }
         }
     }
@@ -750,7 +847,9 @@ static void _references(
     const MRRClass* sc = FindClass(ns, *Str(className));
 
     if (!sc)
+    {
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
+    }
 
     // Lookup result class (if any).
 
@@ -761,7 +860,9 @@ static void _references(
         rmc = FindClass(ns, *Str(resultClass));
 
         if (!rmc)
+        {
             Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(resultClass)));
+        }
     }
 
     // Convert these to UTF8 now to avoid doing so in loop below.
@@ -777,12 +878,16 @@ static void _references(
         // Skip non-association classes:
 
         if (!(amc->flags & MRR_FLAG_ASSOCIATION))
+        {
             continue;
+        }
 
         // Filter by result class:
 
         if (rmc && !IsA(rmc, amc))
+        {
             continue;
+        }
 
         // Process reference properties:
 
@@ -797,24 +902,32 @@ static void _references(
             // Skip non references:
 
             if (!(sf->flags & MRR_FLAG_REFERENCE))
+            {
                 continue;
+            }
 
             const MRRReference* sr = (const MRRReference*)sf;
 
             // Filter by role parameter.
 
             if (role.size() && !_eqi(r, sf->name))
+            {
                 continue;
+            }
 
             // Filter by source class:
 
             if (!IsA(sr->ref, sc))
+            {
                 continue;
+            }
 
             // Add this one to the output:
 
             if (!_contains(result, amc))
+            {
                 result.append((MRRClass*)amc);
+            }
         }
     }
 }
@@ -828,7 +941,9 @@ static const MRRClass* _findMRRClass(
     const MRRNameSpace* ns = _findNameSpace(nameSpace);
 
     if (!ns)
+    {
         return 0;
+    }
 
     return FindClass(ns, className);
 }
@@ -843,7 +958,9 @@ static Array<CIMName> _enumerateClassNames(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Lookup class:
 
@@ -854,7 +971,9 @@ static Array<CIMName> _enumerateClassNames(
         super = FindClass(ns, *Str(className));
 
         if (!super)
+        {
             Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
+        }
     }
 
     // Iterate all classes looking for matches:
@@ -868,12 +987,16 @@ static Array<CIMName> _enumerateClassNames(
         if (deepInheritance)
         {
             if (_isSubClass(super, sc))
+            {
                 result.append(sc->name);
+            }
         }
         else
         {
             if (_isDirectSubClass(super, sc))
+            {
                 result.append(sc->name);
+            }
         }
     }
 
@@ -906,7 +1029,9 @@ static Array<CIMObject> _associatorClasses(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Get associator schema-classes:
 
@@ -951,7 +1076,9 @@ static Array<CIMObjectPath> _associatorClassPaths(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Get associator schema-classes:
 
@@ -963,7 +1090,9 @@ static Array<CIMObjectPath> _associatorClassPaths(
     Array<CIMObjectPath> result;
 
     for (Uint32 i = 0; i < mcs.size(); i++)
+    {
         result.append(CIMObjectPath(_getHostName(), nameSpace, mcs[i]->name));
+    }
 
     return result;
 }
@@ -982,7 +1111,9 @@ static Array<CIMObject> _referenceClasses(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Get reference schema-classes:
 
@@ -1025,7 +1156,9 @@ static Array<CIMObjectPath> _referenceClassPaths(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Get reference schema-classes:
 
@@ -1037,7 +1170,9 @@ static Array<CIMObjectPath> _referenceClassPaths(
     Array<CIMObjectPath> result;
 
     for (Uint32 i = 0; i < mcs.size(); i++)
+    {
         result.append(CIMObjectPath(_getHostName(), nameSpace, mcs[i]->name));
+    }
 
     return result;
 }
@@ -1051,15 +1186,19 @@ static CIMQualifierDecl _getQualifier(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Lookup qualifier:
 
     const MRRQualifierDecl* mqd = FindQualifierDecl(ns, *Str(qualifierName));
 
     if (!mqd)
+    {
         Throw((CIM_ERR_NOT_FOUND,
             "unknown qualifier: %s", *Str(qualifierName)));
+    }
 
     // Make the qualifier declaration:
 
@@ -1081,7 +1220,9 @@ static Array<CIMQualifierDecl> _enumerateQualifiers(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Build the array of qualifier declarations:
 
@@ -1129,7 +1270,9 @@ static void _getSuperClassNames(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Lookup class:
 
@@ -1141,7 +1284,9 @@ static void _getSuperClassNames(
     // Append superclass names:
 
     for (const MRRClass* p = sc->super; p; p = p->super)
+    {
         superClassNames.append(p->name);
+    }
 }
 
 //==============================================================================
@@ -1195,7 +1340,9 @@ CIMClass CIMRepository::getClass(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Lookup class:
 
@@ -1235,7 +1382,9 @@ CIMInstance CIMRepository::getInstance(
     Uint32 pos = _rep->_findInstance(nameSpace, instanceName);
 
     if (pos == PEG_NOT_FOUND)
+    {
         Throw((CIM_ERR_NOT_FOUND, "%s", *Str(instanceName)));
+    }
 
     CIMInstance cimInstance = _rep->_rep[pos].second.clone();
 
@@ -1262,7 +1411,9 @@ void CIMRepository::deleteInstance(
     Uint32 pos = _rep->_findInstance(nameSpace, instanceName);
 
     if (pos == PEG_NOT_FOUND)
+    {
         Throw((CIM_ERR_NOT_FOUND, "%s", *Str(instanceName)));
+    }
 
     _rep->_rep.remove(pos);
     _rep->_processSaveCallback();
@@ -1293,7 +1444,9 @@ CIMObjectPath CIMRepository::createInstance(
     // Reject if an instance with this name already exists:
 
     if (_rep->_findInstance(nameSpace, cop) != PEG_NOT_FOUND)
+    {
         Throw((CIM_ERR_ALREADY_EXISTS, "%s", *Str(cop)));
+    }
 
     // Add instance to array:
 
@@ -1373,7 +1526,9 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     const MRRNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
+    {
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
+    }
 
     // Lookup class:
 
@@ -1384,7 +1539,9 @@ Array<CIMClass> CIMRepository::enumerateClasses(
         super = FindClass(ns, *Str(className));
 
         if (!super)
+        {
             Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
+        }
     }
 
     // Iterate all classes looking for matches:
@@ -1453,7 +1610,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         Array<CIMInstance> instances = enumerateInstancesForClass(
-            nameSpace, classNames[i], false, includeQualifiers,
+            nameSpace, classNames[i], includeQualifiers,
             includeClassOrigin, propertyList);
 
         for (Uint32 i = 0 ; i < instances.size(); i++)
@@ -1538,12 +1695,16 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
     for (Uint32 i = 0; i < _rep->_rep.size(); i++)
     {
         if (_rep->_rep[i].first != nameSpace)
+        {
             continue;
+        }
 
         CIMInstance& ci = _rep->_rep[i].second;
 
         if (ci.getPath().getClassName() == className)
+        {
             result.append(ci.getPath());
+        }
     }
 
     return result;
@@ -1845,12 +2006,16 @@ void CIMRepositoryRep::_processLoadCallback()
         CIMNamespaceName nameSpace;
 
         if (MRRDeserializeNameSpace(in, pos, nameSpace) != 0)
+        {
             return;
+        }
 
         CIMInstance cimInstance;
 
         if (MRRDeserializeInstance(in, pos, cimInstance) != 0)
+        {
             return;
+        }
 
         _rep.append(NamespaceInstancePair(nameSpace, cimInstance));
     }
@@ -1859,13 +2024,19 @@ void CIMRepositoryRep::_processLoadCallback()
 Boolean MRRAddNameSpace(const MRRNameSpace* nameSpace)
 {
     if (!nameSpace)
+    {
         return false;
+    }
 
     if (_nameSpaceTableSize == _MAX_NAMESPACE_TABLE_SIZE)
+    {
         return false;
+    }
 
     if (_findNameSpace(nameSpace->name))
+    {
         return false;
+    }
 
     _nameSpaceTable[_nameSpaceTableSize++] = nameSpace;
 
@@ -1892,7 +2063,8 @@ CIMClass CIMRepository::_getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean clone)                 // Not used by MRR.
 {
     return getClass(nameSpace, className, localOnly, includeQualifiers,
         includeClassOrigin, propertyList);

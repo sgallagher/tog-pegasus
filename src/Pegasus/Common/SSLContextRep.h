@@ -37,6 +37,13 @@
 # include <openssl/err.h>
 # include <openssl/ssl.h>
 # include <openssl/rand.h>
+
+//Include the applink.c to stop crashes as per OpenSSL FAQ
+//http://www.openssl.org/support/faq.html#PROG
+# ifdef PEGASUS_OS_TYPE_WINDOWS
+ # include<openssl/applink.c>
+# endif
+
 #else
 # define SSL_CTX void
 #endif
@@ -94,8 +101,12 @@ public:
         if (_instanceCount == 0)
         {
             _initializeCallbacks();
-            SSL_load_error_strings();
+
+            //important as per following site for 
+            //http://www.openssl.org/support/faq.html#PROG
+            CRYPTO_malloc_init();
             SSL_library_init();
+            SSL_load_error_strings();
         }
 
         _instanceCount++;

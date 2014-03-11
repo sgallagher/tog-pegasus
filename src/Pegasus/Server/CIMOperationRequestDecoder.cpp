@@ -198,6 +198,10 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
         Buffer message;
         Buffer emptyBody;
 
+        XmlWriter::appendReturnValueElement(
+            emptyBody,
+            CIMValue((Uint8)authStat.getMethodReturnCode()));
+
         message = XmlWriter::formatSimpleMethodRspMessage(
             meth,
             messageId,

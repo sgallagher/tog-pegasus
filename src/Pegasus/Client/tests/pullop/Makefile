@@ -242,7 +242,7 @@ enumerateAll3:
 
 ## Test Empty response.
 enumerateEmptyResponse:
-	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID) --sum
+	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 	$(PROGRAM) en -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 
 ## test with large scale response provider

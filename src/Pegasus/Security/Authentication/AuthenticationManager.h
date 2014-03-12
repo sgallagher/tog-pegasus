@@ -110,8 +110,7 @@ public:
     String getHttpAuthResponseHeader();
 #endif
 
-    static Boolean isRemotePrivilegedUserAccessAllowed(
-        String & userName);
+    static Boolean isRemotePrivilegedUserAccessAllowed( String & userName);
 
 private:
 

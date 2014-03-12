@@ -14,6 +14,10 @@ if [ $1 -eq 0 ]; then
    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
    rm -f %PEGASUS_CIMSERVER_START_FILE;
    rm -f %PEGASUS_CIMSERVER_START_LOCK_FILE;
+   rm -f %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_CERT_FILE
+   rm -f %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_KEY_FILE
+   rm -f %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_TRUSTSTORE
+   rm -f %PEGASUS_CONFIG_DIR/ssl.cnf
 fi
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-preun.spec

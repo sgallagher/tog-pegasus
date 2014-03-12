@@ -82,6 +82,7 @@ PEGASUS_PROVIDER_MANAGERS =
 PEGASUS_LIBRARIES = \
    libCIMxmlIndicationHandler \
    libFileListenerDestination \
+   libcimrsserver    \
    libConfigSettingProvider \
    libNamespaceProvider \
    libProviderRegistrationProvider \
@@ -151,6 +152,11 @@ endif
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
 PEGASUS_LIBRARIES += \
     libpegwsmserver
+endif
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+PEGASUS_LIBRARIES += \
+    libpegwebserver
 endif
 
 ifeq ($(PEGASUS_ENABLE_SLP), true)

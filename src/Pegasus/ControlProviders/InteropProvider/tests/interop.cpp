@@ -77,8 +77,6 @@ static Boolean verbose;
 
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
-static const char programVersion[] =  "1.0";
-
 // Property Names for __Namespace Class
 static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");

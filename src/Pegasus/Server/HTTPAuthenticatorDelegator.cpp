@@ -31,9 +31,6 @@
 
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/HTTPAcceptor.h>
-#include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -64,7 +61,10 @@ static const String _HTTP_VERSION_1_0 = "HTTP/1.0";
 
 static const String _HTTP_METHOD_MPOST = "M-POST";
 static const String _HTTP_METHOD = "POST";
-
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+static const String _HTTP_METHOD_GET = "GET";
+static const String _HTTP_METHOD_HEAD = "HEAD";
+#endif /* #ifdef PEGASUS_ENABLE_PROTOCOL_WEB */
 static const char* _HTTP_HEADER_CIMEXPORT = "CIMExport";
 static const char* _HTTP_HEADER_CONNECTION = "Connection";
 static const char* _HTTP_HEADER_CIMOPERATION = "CIMOperation";
@@ -83,6 +83,10 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
       _cimOperationMessageQueueId(cimOperationMessageQueueId),
       _cimExportMessageQueueId(cimExportMessageQueueId),
       _wsmanOperationMessageQueueId(PEG_NOT_FOUND),
+      _rsOperationMessageQueueId(PEG_NOT_FOUND),
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+      _webOperationMessageQueueId(PEG_NOT_FOUND),
+#endif
       _repository(repository)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
@@ -383,7 +387,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     String methodName;
     String requestUri;
     String httpVersion;
-    HttpMethod httpMethod = HTTP_METHOD__POST;
 
     HTTPMessage::parseRequestLine(
         startLine, methodName, requestUri, httpVersion);
@@ -391,14 +394,31 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     //  Set HTTP method for the request
     //
+    HttpMethod httpMethod = HTTP_METHOD__POST;
     if (methodName == _HTTP_METHOD_MPOST)
     {
         httpMethod = HTTP_METHOD_M_POST;
     }
-
-    if (methodName != _HTTP_METHOD_MPOST && methodName != _HTTP_METHOD)
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    else if (methodName == _HTTP_METHOD_GET)
     {
-        // Only POST and M-POST are implemented by this server
+        httpMethod = HTTP_METHOD_GET;
+    }
+    else if (methodName == _HTTP_METHOD_HEAD)
+    {
+        httpMethod = HTTP_METHOD_HEAD;
+    }
+#endif
+
+    if (httpMethod != HTTP_METHOD__POST && httpMethod != HTTP_METHOD_M_POST
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+        && httpMethod != HTTP_METHOD_GET && httpMethod != HTTP_METHOD_HEAD
+#endif
+       )
+    {
+        //
+        //  M-POST method is not valid with version 1.0
+        //
         _sendHttpError(
             queueId,
             HTTP_STATUS_NOTIMPLEMENTED,
@@ -408,7 +428,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         PEG_METHOD_EXIT();
         return;
     }
-
+    
     if ((httpMethod == HTTP_METHOD_M_POST) &&
              (httpVersion == _HTTP_VERSION_1_0))
     {
@@ -421,6 +441,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String::EMPTY,
             String::EMPTY,
             closeConnect);
+
         PEG_METHOD_EXIT();
         return;
     }
@@ -995,7 +1016,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String authorization;
 
             //
-            // do Local/Pegasus authenticatio
+            // do Local/Pegasus authentication
             //
             if (HTTPMessage::lookupHeader(headers,
                     _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false))
@@ -1269,7 +1290,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //   - A "CIMOperation" header indicates a CIM operation request
         //   - A "CIMExport" header indicates a CIM export request
         //   - A "/wsman" path in the start message indicates a WS-Man request
-        //
+        //   - The requestUri starting with "/cimrs" indicates a CIM-RS request
+        CString uri = requestUri.getCString();
 
         const char* cimOperation;
 
@@ -1374,6 +1396,124 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 deleteMessage = false;
             }
         }
+        else if (
+            (_rsOperationMessageQueueId != PEG_NOT_FOUND) &&
+            (strncmp((const char*)uri, "/cimrs", 6) == 0))
+        {
+            MessageQueue* queue = MessageQueue::lookup(
+                                  _rsOperationMessageQueueId);
+            if (queue)
+            {
+                httpMessage->dest = queue->getQueueId();
+                try
+                {
+                    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                            "HTTPAuthenticatorDelegator - "
+                            "CIM-RS request enqueued [%d]",
+                            queue->getQueueId()));
+                    queue->enqueue(httpMessage);
+                }
+                catch (const bad_alloc&)
+                {
+                    delete httpMessage;
+                    _sendHttpError(
+                        queueId,
+                        HTTP_STATUS_REQUEST_TOO_LARGE,
+                        String::EMPTY,
+                        String::EMPTY,
+                        closeConnect);
+                    PEG_METHOD_EXIT();
+                    deleteMessage = false;
+                    return;
+                }
+                deleteMessage = false;
+            }
+            else
+            {
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
+                        "HTTPAuthenticatorDelegator - "
+                        "Queue not found for URI: %s\n",
+                        (const char*)uri));
+            }
+        }
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+        //Unlike Other protocol, Web server is an pegasus extension
+        //and uses method name to identify it as it we don't have any
+        //like /cimrs and /wsman yet
+        //Instead, We deduce operation request to Webserver through it's
+        //method name GET and HEAD which is HACKISH.
+        else if ((_webOperationMessageQueueId != PEG_NOT_FOUND) &&
+            (httpMethod == HTTP_METHOD_GET || httpMethod == HTTP_METHOD_HEAD ))
+        {
+            MessageQueue* queue = MessageQueue::lookup(
+                                  _webOperationMessageQueueId);
+            if (queue)
+            {
+                httpMessage->dest = queue->getQueueId();
+                try
+                {
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                            "HTTPAuthenticatorDelegator - "
+                            "WebServer request enqueued [%d]",
+                            queue->getQueueId()));
+                queue->enqueue(httpMessage);
+                }
+                catch (const bad_alloc&)
+                {
+                    delete httpMessage;
+                    HTTPConnection *httpQueue =
+                        dynamic_cast<HTTPConnection*>(
+                             MessageQueue::lookup(queueId));
+                    if (httpQueue)
+                    {
+                        httpQueue->handleInternalServerError(0, true);
+                    }
+                    PEG_METHOD_EXIT();
+                    deleteMessage = false;
+                    return;
+                }
+                catch (Exception& e)
+                {
+                    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                                "HTTPAuthenticatorDelegator - "
+                                "WebServer has thrown an exception: %s",
+                                (const char*)e.getMessage().getCString()));
+                    delete httpMessage;
+                    _sendHttpError(
+                        queueId,
+                        HTTP_STATUS_INTERNALSERVERERROR,
+                        String::EMPTY,
+                        String::EMPTY,
+                        true);
+                    PEG_METHOD_EXIT();
+                    deleteMessage = false;
+                    return;
+                }
+                catch (...)
+                {
+                    delete httpMessage;
+                    HTTPConnection *httpQueue =
+                        dynamic_cast<HTTPConnection*>(
+                             MessageQueue::lookup(queueId));
+                    if (httpQueue)
+                    {
+                        httpQueue->handleInternalServerError(0, true);
+                    }
+                    PEG_METHOD_EXIT();
+                    deleteMessage = false;
+                    return;
+                }
+                    deleteMessage = false;
+            }
+            else
+            {
+               PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
+                        "HTTPAuthenticatorDelegator - "
+                        "Queue not found for URI: %s\n",
+                        (const char*)requestUri.getCString()));
+            }
+        }
+#endif /* PEGAUS_ENABLE_PROTOCOL_WEB */
         else
         {
             // We don't recognize this request message type

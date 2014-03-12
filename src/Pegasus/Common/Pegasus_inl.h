@@ -49,9 +49,9 @@
 
 
 /*
- * pegasus wrapper on realloc functions and should prefer 
+ * pegasus wrapper on realloc functions and should prefer
  * over the native realloc as it takes care of failure situation
- * It frees old pointer which hold the allocated memory and hence 
+ * It frees old pointer which hold the allocated memory and hence
  * prevent leak and throws bad_alloc exception.
 */
 inline void* peg_inln_realloc(void *oldPtr, size_t newSize)

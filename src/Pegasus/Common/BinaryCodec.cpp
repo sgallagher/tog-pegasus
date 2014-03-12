@@ -62,7 +62,6 @@ PEGASUS_NAMESPACE_BEGIN
 static const Uint32 _MAGIC = 0xF00DFACE;
 static const Uint32 _REVERSE_MAGIC = 0xCEFA0DF0;
 static const Uint32 _VERSION = 1;
-static const size_t _DEFAULT_CIM_BUFFER_SIZE = 16*1024;
 
 enum Operation
 {

@@ -71,7 +71,7 @@ struct configPropertyDescription
 PEGASUS_CONFIG_LINKAGE
     extern struct configPropertyDescription configPropertyDescriptionList[];
 
-PEGASUS_CONFIG_LINKAGE extern Uint32 configPropertyDescriptionListSize;
+PEGASUS_CONFIG_LINKAGE extern const Uint32 configPropertyDescriptionListSize;
 
 PEGASUS_NAMESPACE_END
 

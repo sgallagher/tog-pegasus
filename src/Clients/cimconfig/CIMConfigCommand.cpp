@@ -497,7 +497,7 @@ CIMConfigCommand::CIMConfigCommand ()
                                     " the next planned\n");
     usage.append("    configuration without having the CIM Server running."
                                     " All other options\n");
-    usage.append("    except -h, --help and -H of the cimconfig command"
+    usage.append("    except -h, --help and --version of the cimconfig command"
                                     " require that the\n");
     usage.append("    CIM Server is running.");
 

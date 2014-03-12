@@ -71,7 +71,7 @@ en:table {
     "     --version   - Display CIM server version number.\n\n"
     "Usage note: The cimconfig command can be used to update the next planned\n"
     "    configuration without having the CIM Server running. All other options\n"
-    "    except -h, --help and -H of the cimconfig command require that the\n"
+    "    except -h, --help and --version of the cimconfig command require that the\n"
     "    CIM Server is running.\n"
     "\n"
         }

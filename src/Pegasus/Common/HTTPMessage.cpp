@@ -479,7 +479,7 @@ Boolean HTTPMessage::parseRequestLine(
 
     methodName = startLine.subString(0, space1);
 
-    // Extrat the request-URI:
+    // Extract the request-URI:
 
     Uint32 space2 = startLine.find(space1 + 1, ' ');
 

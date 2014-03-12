@@ -127,6 +127,7 @@ usage: FORCE
 	$(USAGE)
 	$(USAGE)"  After \"cvs update\" or to start over: make new world"
 	$(USAGE)
+	
 
 listplatforms: FORCE
 	$(USAGE)
@@ -289,6 +290,9 @@ buildclientlibs: FORCE
 #
 setupdevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB), true)
+	-$(MAKE) -f Makefile.webAdmin setupwebadmin
+endif
 	@$(ECHO) "PEGASUS Development Server Runtime Environment configured "
 
 cleandevserver: FORCE
@@ -354,4 +358,5 @@ endif
 
 rootbundle:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
+
 # DO NOT DELETE

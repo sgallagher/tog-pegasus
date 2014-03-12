@@ -188,9 +188,6 @@ static const char MODULE_KEY [] = "Module";
     Exception messages and corresponding Keys
 */
 static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
-static const char MODULE_NOT_FOUND_KEY [] =
-    "Server.ProviderRegistrationManager."
-        "ProviderRegistrationManager.MODULE_NOT_FOUND";
 
 static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
 static const char PROVIDER_NOT_FOUND_KEY [] =

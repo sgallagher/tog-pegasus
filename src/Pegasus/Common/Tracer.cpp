@@ -101,6 +101,10 @@ char const* Tracer::TRACE_COMPONENT_LIST[] =
     "IndicationReceipt",
     "CMPIProviderInterface",
     "WsmServer",
+    "RsServer",
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    "WebServer",
+#endif
     "LogMessages",
     "WMIMapperConsumer",
     "InternalProvider"

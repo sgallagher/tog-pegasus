@@ -644,9 +644,6 @@ OperationExampleEntry OperationExamples[] = {
 //KS_PULL_END
 };
 
-const Uint32 NUM_EXAMPLES = sizeof(OperationExamples) /
-                            sizeof(OperationExamples[0]);
-
 
 /*
    Operations Class implements the operations on the OperationTable and

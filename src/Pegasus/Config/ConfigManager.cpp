@@ -193,6 +193,14 @@ static struct OwnerEntry _properties[] =
     {"enableAuditLog",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+      {"webRoot",
+               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+      {"indexFile",
+               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+      {"mimeTypesFile",
+               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+#endif
     {"socketWriteTimeout",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"idleConnectionTimeout",
@@ -214,7 +222,7 @@ static struct OwnerEntry _properties[] =
 #endif
 };
 
-const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);
+const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -243,7 +251,7 @@ static struct FixedValueEntry _fixedValues[] =
 };
 
 const Uint32 NUM_FIXED_PROPERTIES =
-    sizeof(_fixedValues) / sizeof(struct FixedValueEntry);
+    sizeof(_fixedValues) / sizeof( _fixedValues[0]);
 
 
 /**
@@ -297,7 +305,6 @@ Boolean ConfigManager::initCurrentValue(
     const String& propertyValue)
 {
     ConfigPropertyOwner* propertyOwner = 0;
-    Boolean success = true;
 
     //
     // get property owner object from the config table.
@@ -317,6 +324,7 @@ Boolean ConfigManager::initCurrentValue(
     //
     propertyOwner->initCurrentValue(propertyName, propertyValue);
 
+    Boolean success = true;
     if (useConfigFiles)
     {
         try
@@ -347,7 +355,6 @@ Boolean ConfigManager::updateCurrentValue(
     Uint32 timeoutSeconds,
     Boolean unset)
 {
-    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -362,7 +369,7 @@ Boolean ConfigManager::updateCurrentValue(
     //
     // keep a copy of the existing config value
     //
-    prevValue = propertyOwner->getCurrentValue(name);
+    String prevValue = propertyOwner->getCurrentValue(name);
 
     //
     // ask owner to update the current value
@@ -423,7 +430,6 @@ Boolean ConfigManager::updatePlannedValue(
     const String& value,
     Boolean unset)
 {
-    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -438,7 +444,7 @@ Boolean ConfigManager::updatePlannedValue(
     //
     // keep a copy of the existing config value
     //
-    prevValue = propertyOwner->getPlannedValue(name);
+    String prevValue = propertyOwner->getPlannedValue(name);
 
     //
     // ask owner to update the planned value to new value
@@ -981,7 +987,7 @@ String ConfigManager::getHomedPath(const String& value)
 {
     String homedPath;
 
-    if (value != String::EMPTY)
+    if (value.size() != 0 )
     {
         if (System::is_absolute_path((const char *)value.getCString()))
         {
@@ -1019,7 +1025,9 @@ String ConfigManager::getHomedPath(const String& value)
             }
 
             if (token == 1)
+            {
                 homedPath.append(FileSystem::getPathDelimiter());
+            }
             temp.remove(0, pos + token);
         } while (temp.size() > 0);
     }

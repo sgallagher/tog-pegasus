@@ -47,6 +47,9 @@ PEGASUS_NAMESPACE_BEGIN
         6. Through recusive application to classes discovered in 1 to 5.
 
     The closure is contained in the #closure# parameter upon return.
+    
+    NOTE: Currently the closure concept is implemented only for
+    the memory resident repository (MRR)
 */
 int Closure(
     const CIMName& className,

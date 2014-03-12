@@ -115,6 +115,12 @@ CIMQueryCapabilitiesProvider.h>
 # include <Pegasus/WsmServer/WsmProcessor.h>
 #endif
 
+# include <Pegasus/RSServer/RsProcessor.h>
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+# include <Pegasus/WebServer/WebServer.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_SLP_REG_TIMEOUT
@@ -514,6 +520,18 @@ void CIMServer::_init()
         _cimExportRequestDecoder->getQueueId(),
         _repository);
 
+    _rsProcessor = new RsProcessor(
+        cimOperationProcessorQueue,
+        _repository);
+    _httpAuthenticatorDelegator->setRsQueueId(
+        _rsProcessor->getRsRequestDecoderQueueId());
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    _webServer = new WebServer();
+    _httpAuthenticatorDelegator->setWebQueueId(
+        _webServer->getQueueId());
+#endif
+
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     _wsmProcessor = new WsmProcessor(
         cimOperationProcessorQueue,
@@ -640,6 +658,10 @@ CIMServer::~CIMServer ()
     delete _cimOperationRequestDecoder;
     delete _cimOperationResponseEncoder;
 
+    delete _rsProcessor;
+#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
+    delete _webServer;
+#endif
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     // WsmProcessor depends on CIMOperationRequestAuthorizer/Dispatcher and
     // CIMRepository
@@ -884,6 +906,7 @@ void CIMServer::setState(Uint32 state)
         // tell decoder that CIMServer is terminating
         _cimOperationRequestDecoder->setServerTerminating(true);
         _cimExportRequestDecoder->setServerTerminating(true);
+        _rsProcessor->setServerTerminating(true);
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
         _wsmProcessor->setServerTerminating(true);
 #endif
@@ -901,6 +924,8 @@ void CIMServer::setState(Uint32 state)
         // tell decoder that CIMServer is not terminating
         _cimOperationRequestDecoder->setServerTerminating(false);
         _cimExportRequestDecoder->setServerTerminating(false);
+
+        _rsProcessor->setServerTerminating(false);
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
         _wsmProcessor->setServerTerminating(false);
 #endif

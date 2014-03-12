@@ -39,7 +39,8 @@ DIRS = \
     Repository \
     getoopt \
     WQL \
-	Handler
+	Handler \
+    RSServer
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
@@ -50,6 +51,11 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
         WsmServer
     TEST_DIRS += \
         WsmServer/tests
+endif
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
+    DIRS += \
+        WebServer
 endif
 
 DIRS += \

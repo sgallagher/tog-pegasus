@@ -25,7 +25,34 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Memory Resident Repository implementation.  See PEP 307
+ */
+
+#include <cstdio>
+#include <cstdarg>
+#include <cctype>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Repository/MRRTypes.h>
+#include <Pegasus/Repository/MRRSerialization.h>
+#include <Pegasus/Common/Constants.h>
+#include "cimmofMRR.h"
+#include "Closure.h"
+
+#define PEGASUS_LLD "%" PEGASUS_64BIT_CONVERSION_WIDTH "d"
+#define PEGASUS_LLU "%" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T CIMConstQualifier
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+//==============================================================================
 //
 // Local routines:
 //
@@ -200,22 +227,28 @@ static void _writeFlags(
     Uint32 flags = 0;
 
     if (isProperty)
+    {
         flags |= MRR_FLAG_READ;
+    }
 
     if (isParameter)
+    {
         flags |= MRR_FLAG_IN;
+    }
 
+    // set the flags bits in the qualifier maskfor each qualifier type
     for (Uint32 i = 0; i < c.getQualifierCount(); i++)
     {
         CIMConstQualifier cq = c.getQualifier(i);
         const CIMName& qn = cq.getName();
 
         if (cq.getType() != CIMTYPE_BOOLEAN || cq.isArray())
+        {
             continue;
+        }
 
         Boolean x;
         cq.getValue().get(x);
-
 
         if (System::strcasecmp(*Str(qn), "KEY") == 0)
         {
@@ -439,12 +472,16 @@ static bool _testBooleanQualifier(const CIMClass& cc, const CIMName& name)
     Uint32 pos = cc.findQualifier(name);
 
     if (pos == PEG_NOT_FOUND)
+    {
         return false;
+    }
 
     CIMConstQualifier cq = cc.getQualifier(pos);
 
     if (cq.getType() != CIMTYPE_BOOLEAN || cq.isArray())
+    {
         return false;
+    }
 
     Boolean x;
     cq.getValue().get(x);
@@ -570,7 +607,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
     }
 
     if (quote)
+    {
         fputc('"', os);
+    }
 
     if (cv.isArray())
     {
@@ -584,7 +623,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeBoolean(os, x[i]);
+                }
                 break;
             }
 
@@ -596,7 +637,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeUint8(os, x[i]);
+                }
                 break;
             }
 
@@ -608,7 +651,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeSint8(os, x[i]);
+                }
                 break;
             }
 
@@ -620,7 +665,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeUint16(os, x[i]);
+                }
                 break;
             }
 
@@ -632,7 +679,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeSint16(os, x[i]);
+                }
                 break;
             }
 
@@ -644,7 +693,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeUint32(os, x[i]);
+                }
                 break;
             }
 
@@ -656,7 +707,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeSint32(os, x[i]);
+                }
                 break;
             }
 
@@ -668,7 +721,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeUint64(os, x[i]);
+                }
                 break;
             }
 
@@ -680,7 +735,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeSint64(os, x[i]);
+                }
                 break;
             }
 
@@ -692,7 +749,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeReal32(os, x[i]);
+                }
                 break;
             }
 
@@ -704,7 +763,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeReal64(os, x[i]);
+                }
                 break;
             }
 
@@ -716,7 +777,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeChar16(os, x[i]);
+                }
                 break;
             }
 
@@ -743,7 +806,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
                 _writeUint16(os, x.size());
 
                 for (Uint32 i = 0; i < x.size(); i++)
+                {
                     _writeDateTime(os, x[i]);
+                }
                 break;
             }
 
@@ -873,7 +938,9 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
     }
 
     if (quote)
+    {
         fputc('"', os);
+    }
 
     return 0;
 }
@@ -1013,41 +1080,55 @@ void cimmofMRR::_loadClassFile(
     FILE* is = fopen(*Str(path), "r");
 
     if (!is)
+    {
         return;
+    }
 
     char buffer[1024];
 
     for (int line = 1; fgets(buffer, sizeof(buffer), is) != NULL; line++)
     {
         if (buffer[0] == '#')
+        {
             continue;
+        }
 
         char* start = buffer;
 
         // Remove leading whitespace.
 
         while (isspace(*start))
+        {
             start++;
+        }
 
         // Remove trailing whitespace.
 
         char* p = start;
 
         while (*p)
+        {
             p++;
+        }
 
         while (p != start && isspace(p[-1]))
+        {
             *--p = '\0';
+        }
 
         // Skip empty lines.
 
         if (*start == '\0')
+        {
             continue;
+        }
 
         // Skip comment lines:
 
         if (*start == '#')
+        {
             continue;
+        }
 
         /* Check whether legal class name. */
 
@@ -1073,7 +1154,9 @@ void cimmofMRR::_loadClassFile(
         }
 
         if (!found)
+        {
             classes.append(start);
+        }
     }
 
     fclose(is);
@@ -1203,7 +1286,9 @@ void cimmofMRR::finish()
     printf("Created %s_namespace.cpp\n", *Str(ns));
 
     if (_instances.size())
+    {
         printf("Created %s_namespace.mrr\n", *Str(ns));
+    }
 
     printf("\n");
 }
@@ -1213,7 +1298,9 @@ Uint32 cimmofMRR::_findClass(const CIMName& className) const
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
         if (_classes[i].getClassName() == className)
+        {
             return i;
+        }
     }
 
     // Not found!
@@ -1225,7 +1312,9 @@ Uint32 cimmofMRR::_findQualifier(const CIMName& qualifierName) const
     for (Uint32 i = 0; i < _qualifiers.size(); i++)
     {
         if (_qualifiers[i].getName() == qualifierName)
+        {
             return i;
+        }
     }
 
     // Not found!
@@ -1259,13 +1348,14 @@ void cimmofMRR::_writeQualifier(
     const CIMConstQualifier& cq)
 {
     CIMName qn = cq.getName();
-    CIMType qt = cq.getType();
     CIMValue qv = cq.getValue();
 
     Uint32 pos = _findQualifier(qn);
 
     if (pos == PEG_NOT_FOUND)
+    {
         _throw(CIM_ERR_FAILED, "undefined qualifier: %s", *Str(qn));
+    }
 
     // Write the qualifier string literal:
 
@@ -1350,7 +1440,9 @@ void cimmofMRR::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
             _out("%s", *Str(scopes[i]));
 
             if (i + 1 != scopes.size())
+            {
                 _out("|");
+            }
         }
 
         _outn(",");
@@ -1383,7 +1475,9 @@ void cimmofMRR::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
             _out("%s", *Str(flavors[i]));
 
             if (i + 1 != flavors.size())
+            {
                 _out("|");
+            }
         }
 
         _outn(",");
@@ -1406,7 +1500,9 @@ Array<CIMConstQualifier> _Qualifiers(const C& c)
     Array<CIMConstQualifier> tmp;
 
     for (Uint32 i = 0; i < c.getQualifierCount(); i++)
+    {
         tmp.append(c.getQualifier(i));
+    }
 
     return tmp;
 }
@@ -1423,7 +1519,6 @@ void cimmofMRR::_writeQualifierArray(
     {
         CIMConstQualifier cq = qualifiers[i];
         CIMName qn = cq.getName();
-        CIMType qt = cq.getType();
 
         if (_discard && qn == "Description")
         {
@@ -1833,7 +1928,9 @@ void cimmofMRR::_writeNameSpace(const CIMNamespaceName& nameSpace)
         CIMName cn = _classes[i].getClassName();
 
         if (_includeClass(cn))
+        {
             _outn("extern MRRClass __%s_%s;", *Str(ns), *Str(cn));
+        }
     }
 
     _nl();
@@ -1845,7 +1942,9 @@ void cimmofMRR::_writeNameSpace(const CIMNamespaceName& nameSpace)
         CIMName cn = _classes[i].getClassName();
 
         if (_includeClass(cn))
+        {
             _writeClass(nameSpace, _classes[i]);
+        }
     }
 
     // Write qualifiers list:
@@ -1884,7 +1983,9 @@ void cimmofMRR::_writeNameSpace(const CIMNamespaceName& nameSpace)
         CIMName cn = _classes[i].getClassName();
 
         if (_includeClass(cn))
+        {
             _outn("&__%s_%s,", *Str(ns), *Str(cn));
+        }
     }
 
     _outn("0,");
@@ -1931,12 +2032,16 @@ void cimmofMRR::_nl()
 bool cimmofMRR::_includeClass(const CIMName& cn)
 {
     if (_closure.size() == 0)
+    {
         return true;
+    }
 
     for (Uint32 i = 0; i < _closure.size(); i++)
     {
         if (_closure[i] == cn)
+        {
             return true;
+        }
     }
 
     return false;

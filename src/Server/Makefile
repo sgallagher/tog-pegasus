@@ -90,6 +90,10 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
     LIBRARIES += pegwsmserver
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
+    LIBRARIES += pegwebserver
+endif
+
 LIBRARIES += \
     pegprovidermanager \
     pegpmservice \
@@ -100,7 +104,8 @@ LIBRARIES += \
     pegconfig \
     peghandler \
     peggeneral \
-    pegcommon
+    pegcommon \
+    cimrsserver
 
 ifeq ($(PEGASUS_ENABLE_COMPRESSED_REPOSITORY),true)
     LIBRARIES += z

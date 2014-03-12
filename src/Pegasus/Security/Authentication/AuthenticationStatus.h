@@ -88,7 +88,12 @@ public:
     {
         return _errorDetail;
     }
-
+    
+    AuthenticationStatusCode getMethodReturnCode() const
+    {
+        return _code;
+    }
+    
 private:
 
     /* Prohibit usage of default constructor */

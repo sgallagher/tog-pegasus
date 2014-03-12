@@ -223,18 +223,6 @@ static const char NEW_CLASS_RETRIEVAL_ERROR [] =
 static const char NEW_CLASS_RETRIEVAL_ERROR_KEY [] =
            "Clients.repupgrade.RepositoryUpgrade.NEW_CLASS_RETRIEVAL_ERROR";
 
-static const char LIBRARY_LOAD_ERROR [] =
-                "Error loading special handling library $0.";
-
-static const char LIBRARY_LOAD_ERROR_KEY [] =
-                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_LOAD_ERROR";
-
-static const char LIBRARY_ENTRY_POINT_ERROR [] =
-                "Error trying to get entry point symbol in library $0.";
-
-static const char LIBRARY_ENTRY_POINT_ERROR_KEY [] =
-    "Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR";
-
 static const char CLASS_XML_OUTPUT_FILE [] =
               "CIM/XML request for this class has been logged to file $0 ";
 

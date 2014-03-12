@@ -50,7 +50,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-// A request class to hold the provider info passed to the 
+// A request class to hold the provider info passed to the
 // AsyncRequestExecutor for processing on different threads.
 class UnloadProviderRequest : public AsyncRequestExecutor::AsyncRequestMsg
 {
@@ -591,6 +591,9 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
     }
     catch (...)
     {
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "Initialization Error.  Provider %s",
+            (const char*)provider->getName().getCString()));
         initializeError = true;
     }
 
@@ -765,14 +768,14 @@ void DefaultProviderManager::_shutdownAllProviders()
     PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "providers in cache = %d", _providers.size()));
 
-    //create an array of UnloadProviderRequest requests one per 
+    //create an array of UnloadProviderRequest requests one per
     //provider to process shutdown of providers simultaneously.
     Array<AsyncRequestExecutor::AsyncRequestMsg*> ProviderRequests;
     for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
     {
         AutoMutex lock(i.value()->status.getStatusMutex());
         if(i.value()->status.isInitialized())
-        { 
+        {
             ProviderRequests.append(
                 new UnloadProviderRequest(i.value()));
         }
@@ -782,7 +785,7 @@ void DefaultProviderManager::_shutdownAllProviders()
     //the request executor. This will invoke _asyncRequestCallback() on a
     //seperate thread for each provider which in turn will unload that
     //provider.
- 
+
     CIMException exception =
         AsyncRequestExecutor(&_asyncRequestCallback,this).executeRequests(
             ProviderRequests);
@@ -945,12 +948,12 @@ CIMException DefaultProviderManager::_asyncRequestCallback(
     {
         PEGASUS_ASSERT(0 != callbackPtr);
 
-        DefaultProviderManager *dpmPtr = 
+        DefaultProviderManager *dpmPtr =
             static_cast<DefaultProviderManager*>(callbackPtr);
 
         ProviderMessageHandler* provider =
             dynamic_cast<ProviderMessageHandler*>(my_request->_provider);
-        try 
+        try
         {
             AutoMutex lock(provider->status.getStatusMutex());
             //unload the provider
@@ -990,7 +993,7 @@ CIMException DefaultProviderManager::_asyncRequestCallback(
 
     // delete the UnloadProviderRequest.
     delete request;
- 
+
     PEG_METHOD_EXIT();
     return responseException;
 }

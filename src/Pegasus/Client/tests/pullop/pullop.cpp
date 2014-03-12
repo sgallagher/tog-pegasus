@@ -59,7 +59,7 @@
     best done by wbemexc and the pegasus/test test cases)
 */
 /*
-    TODO - - Expand concept of max objects to array so we can have a sequence.
+    FUTURE - Expand concept of max objects to array so we can have a sequence.
              Could have either rotation through the array or remove used
              from top.  Add code to say which (repeat or something). This
              means we could remove the -p option in favor of use of the
@@ -257,6 +257,11 @@ bool deepInheritance_opt = true;
 bool requestClassOrigin_opt = false;
 bool errorsAsWarnings_opt = false;
 
+// if not NULL defines a client timeout (to be set by the CIMClient.setTimeout
+// function.  However, the input is in seconds so the call to the client
+// function must multiply by 1000. The default is zero which m
+Uint32Arg clientTimeoutSeconds_opt;
+
 // Actual property list to be used. This should be null unless a property
 // list is provided.
 CIMPropertyList propertyList_opt;
@@ -344,13 +349,16 @@ OPTIONS:\n\
                     Makefiles where we can conduct tests that expect\n\
                     exception returns. If return code is zero this option\n\
                     sets it to nonzero and viceversa.\n\
+    -y TIME         Pegasus client timeout in seconds.  Default is to not\n\
+                    set a timeout. TIME is number of seconds until client\n\
+                    times out the connection.\n\
     -X MAXOPERATIONS Integer. Maximum operations in enumeration sequence\n\
-                     before close executed. Default is not used. If set\n\
-                     close will be executed after that number of operations.\n\
-                     Zero(0) Not allowed since has no meaning. One(1) means\n\
-                     execute only open operation. This is not the same\n\
-                     as the MAXOBJECTS parameters.\n\
-    -W               Boolean. Treat Errors in Compare as warnings.\n\
+                    before close executed. Default is not used. If set\n\
+                    close will be executed after that number of operations.\n\
+                    Zero(0) Not allowed since has no meaning. One(1) means\n\
+                    execute only open operation. This is not the same\n\
+                    as the MAXOBJECTS parameters.\n\
+    -W              Boolean. Treat Errors in Compare as warnings.\n\
 \n";
 
 /*************************************************************************
@@ -789,7 +797,7 @@ bool comparePath(CIMObjectPath& p1, CIMObjectPath p2, bool ignoreHost = true)
         }
         if (p1x != p2x)
         {
-            VCOUT1 << "Error: pull path(NoHost)= " << p1x.toString() << endl
+            VCOUT1 << "ERROR: pull path(NoHost)= " << p1x.toString() << endl
                  << "Enumerate path  (NoHost)= " << p2x.toString() << endl;
             return false;
         }
@@ -821,6 +829,8 @@ void clearHostAndNamespace(CIMInstance& inst)
     Compare two instances.  The ignorehost parameter allows us to
     clear the host and namespace fields since they will be different
     at least between enumerates and pull enumerates.
+
+    // FUTURE: extend this so shows which is pull operation
 */
 bool compareInstance(const String& s1, const String& s2,
     const CIMInstance& inst1,
@@ -851,12 +861,12 @@ bool compareInstance(const String& s1, const String& s2,
 
     else
     {
-        cerr << "ERROR: Instances Not identical "
+        cerr << "ERROR: Instances Not identical for path= "
             << i1.getPath().toString() << endl;
 
         if (i1.getQualifierCount() != i2.getQualifierCount())
         {
-            cerr << "ERROR: Qualifier Counts differ "
+            cerr << "ERROR: Instance Qualifier Counts differ "
                 << s1 << " " << i1.getQualifierCount() << " "
                 << s2 << " " << i2.getQualifierCount() << endl;
         }
@@ -895,9 +905,11 @@ bool compareInstance(const String& s1, const String& s2,
             CIMConstProperty p1 = i1.getProperty(i);
             CIMConstProperty p2;
             bool found = false;
+
+            // Note that property ordering may not be the same so we
+            // search for the property in i2 by name.
             for (size_t j = 0 ; j < i2.getPropertyCount() ; j++)
             {
-
                 p2 = i2.getProperty(j);
                 if (p2.getName() == p1.getName())
                 {
@@ -905,28 +917,33 @@ bool compareInstance(const String& s1, const String& s2,
                     break;
                 }
             }
+
+            // Property from p1 not fount in p2
             if (!found)
             {
-                cout << "Property " << p1.getName().getString()
+                cerr << "Property " << p1.getName().getString()
                        << " not found in " << s21 << endl;
                 continue;
             }
+
+            // If properties not identical test for individual attribute
+            // equality
             if (!p1.identical(p2))
             {
                 if (p1.getName() != p2.getName())
                 {
                     cerr << "ERROR: Property Names differ. Property " << i
                          << " "
-                         << s11 << " " << p1.getName().getString() << " "
-                         << s21 << " " << p2.getName().getString() << endl;
+                         << s11 << "= " << p1.getName().getString() << " "
+                         << s21 << "= " << p2.getName().getString() << endl;
                 }
 
                 else if (p1.getType() != p2.getType())
                 {
                     cerr << "ERROR: Property Types differ "
-                         << s11 << " " << p1.getName().getString() << " "
-                         << p1.getType() << " "
-                         << s21 << " " << p2.getType() << endl;
+                         <<  p1.getName().getString() << " "
+                         << s11 << "= " << p1.getType() << " "
+                         << s21 << "= " << p2.getType() << endl;
                 }
                 else if(p1.isArray() != p2.isArray())
                 {
@@ -936,9 +953,38 @@ bool compareInstance(const String& s1, const String& s2,
                 else if(p1.getArraySize() != p2.getArraySize())
                 {
                     cerr << "ERROR: Property Array size parameters differ "
+                         <<  p1.getName().getString() <<  " "
+                         << s11 << "= " << p1.getArraySize()
+                         << " " << s21 << "= " <<  p2.getArraySize() << endl;
+                }
+                else if (p1.getQualifierCount() != p2.getQualifierCount())
+                {
+                    cerr << "ERROR: Property Qualifier counts not identical "
                          << p1.getName().getString() <<  " "
-                         << p1.getArraySize() << " "
-                         <<  p2.getArraySize() << endl;
+                         << s11 << "= " << p1.getQualifierCount()
+                         << " " << s21 << "= "
+                         <<  p2.getQualifierCount() << endl;
+
+                }
+                else if (p1.getReferenceClassName() !=
+                         p2.getReferenceClassName())
+                {
+                    cerr << "ERROR: ReferenceClass Names Differ "
+                         << p1.getName().getString() <<  " "
+                         << s11 << "= "
+                         << p1.getReferenceClassName().getString()
+                         << " "<< s21 << "= "
+                         << p2.getReferenceClassName().getString() << endl;
+                }
+
+                else if(p1.getClassOrigin() != p2.getClassOrigin())
+                {
+                    cerr << "ERROR: ClassOrigin Names Differ "
+                         << p1.getName().getString() <<  "  "
+                         << s11 << "= "
+                         << p1.getClassOrigin().getString()
+                         << " "<< s21 << "= "
+                         << p2.getClassOrigin().getString() << endl;
                 }
                 else
                 {
@@ -948,22 +994,31 @@ bool compareInstance(const String& s1, const String& s2,
                     {
                         cerr << "ERROR: Property values differ for "
                              << p1.getName().getString() << " "
-                             << s11 << " " <<  v1.toString() << " "
-                             << s21 << " " << v2.toString() << endl;
+                             << s11 << "= " <<  v1.toString() << " "
+                             << s21 << "= " << v2.toString() << endl;
                     }
                     else
                     {
-                        cerr << "ERROR: Properties Not identical in param"
-                                " other than type, value, etc "
+                        cerr << "ERROR: Property " << p1.getName().getString()
+                             << " Not identical in parameters"
+                                " other than type, value, array type, and size "
                             << i1.getPath().toString() << endl;
+
+                        // display the two properties that differ
+                        cerr << "Display complete instances that differ"
+                             << endl;
+                        cerr << "Property 1" << endl;
+                        PrintProperty(cout, p1);
+                        cerr << "Property 2 " << endl;
+                        PrintProperty(cout,p2);
                     }
                 }
 
                 if (verbose_opt > 0)
                 {
-                    cout << s11 << endl;
+                    cout << "Instance from " << s11 << endl;
                     PrintInstance(cout, i1);
-                    cout << s21 << endl;
+                    cout << "Instance from " << s21 << endl;
                     PrintInstance(cout, i2);
 
                 }
@@ -1028,15 +1083,16 @@ void displayObjectPaths(const Array<CIMObjectPath>& paths)
 // Compare instances between two arrays and display any differences.
 // return false if differences exist.
 Boolean compareInstances(const String& s1, const String s2,
-                      Array<CIMInstance>& inst1,
-                      Array<CIMInstance>& inst2, bool verbose = false)
+    Array<CIMInstance>& inst1,
+    Array<CIMInstance>& inst2,
+    bool verbose = false)
 {
     VCOUT6 << "Comparing Instances" << endl;
     Boolean rtn = true;
     if (inst1.size() != inst2.size())
     {
         VCOUT1 << s1 << " count mismatch "
-            << "Pull sequence " <<  inst1.size()
+            << "s1 " <<  inst1.size()
             << " " << s2 <<" " << inst2.size()
             << endl;
         rtn = false;
@@ -1049,7 +1105,8 @@ Boolean compareInstances(const String& s1, const String s2,
     for (Uint32 i = 0 ; i < inst1.size() ; i++)
     {
         bool localRtn = compareInstance(s1, s2,
-                                        inst1[i], inst2[i], true, verbose);
+            inst1[i], inst2[i], true, verbose);
+
         if (!localRtn)
         {
             errors++;
@@ -1073,10 +1130,10 @@ Boolean compareInstances(const String& s1, const String s2,
     new operations return instances.
 */
 Boolean compareInstances(const String& s1, const String s2,
-                      Array<CIMInstance>& instances,
-                      Array<CIMObject>& objects, bool verbose = false)
+    Array<CIMInstance>& instances,
+    Array<CIMObject>& objects,
+    bool verbose = false)
 {
-
     VCOUT6 << "Comparing Instances to Objects" << endl;
     Boolean rtn = true;
 
@@ -1118,9 +1175,10 @@ Boolean compareInstances(const String& s1, const String s2,
     return rtn;
 }
 
+
 // Compare instances between two arrays and display any differences.
 // return false if differences exist.
-// KS-TODO - See other detailed compare above.  Should have only one
+
 Boolean compareObjectPaths(
     const String& s1,
     const String s2,
@@ -1128,7 +1186,6 @@ Boolean compareObjectPaths(
     Array<CIMObjectPath>& p2,
     bool ignoreHost = true)
 {
-
     VCOUT6 << "Comparing ObjectPaths" << endl;
     Boolean rtn = true;
     if (p1.size() != p2.size())
@@ -1151,7 +1208,10 @@ Boolean compareObjectPaths(
         rtn = false;
     }
 
-    // Should we sort here???
+    // sort the paths to assure that same order.
+    _Sort(p1);
+    _Sort(p2);
+
     for (Uint32 i = 0 ; i < p1.size() ; i++)
     {
         bool localRtn = comparePath(p1[i], p2[i], ignoreHost);
@@ -2207,7 +2267,7 @@ int main(int argc, char** argv)
     */
     int opt;
     while ((opt = getopt(argc, argv,
-                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:")) != -1)
+                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:")) != -1)
     {
         switch (opt)
         {
@@ -2250,6 +2310,14 @@ int main(int argc, char** argv)
             case 'o':               // set deepInheritance = false;
             {
                 requestClassOrigin_opt = true;
+                break;
+            }
+            case 'y' :    // Set client timeout value in seconds
+            {
+                if (strcasecmp("null", optarg) != 0)
+                {
+                    clientTimeoutSeconds_opt.setValue(stringToUint32(optarg));
+                }
                 break;
             }
             case 'v':               // verbose display with integer
@@ -2295,18 +2363,6 @@ int main(int argc, char** argv)
                 password_opt = optarg;
                 break;
             }
-            case 't':           // set pull timeout parameter
-            {
-                if (strcasecmp("null", optarg) == 0)
-                {
-                    timeout_opt.setNullValue();
-                }
-                else
-                {
-                    timeout_opt.setValue(stringToUint32(optarg));
-                }
-                break;
-            }
             case 'M':           // set maxObjectsOnOpen operation parameter
             {
                 //// TODO Use the string conversion to get this right
@@ -2321,6 +2377,18 @@ int main(int argc, char** argv)
             case 'C':           // set flag to compare pull and non pull ops
             {
                 compare_opt = true;
+                break;
+            }
+            case 't':           // set pull timeout parameter
+            {
+                if (strcasecmp("null", optarg) == 0)
+                {
+                    timeout_opt.setNullValue();
+                }
+                else
+                {
+                    timeout_opt.setValue(stringToUint32(optarg));
+                }
                 break;
             }
             case 'T':
@@ -2451,6 +2519,13 @@ int main(int argc, char** argv)
         PEGASUS_TEST_ASSERT(false);
     }
 
+    // if this option not null, set the clientTimeout value in
+    // milliseconds
+    if (!clientTimeoutSeconds_opt.isNull())
+    {
+        client.setTimeout(clientTimeoutSeconds_opt.getValue() * 1000);
+    }
+
     // Default class, object, and namespace for this test tool.
     // LS_TODO- These are not really logical options for defaults in the
     // long term.
@@ -2499,7 +2574,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            cout << "Error. Invalid operation name. " << operation << endl;
+            cout << "ERROR: Invalid operation name. " << operation << endl;
             exit(1);
         }
     }

@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Print.h"
+#include "Pegasus_inl.h"
 
 PEGASUS_USING_STD;
 
@@ -488,9 +489,18 @@ void PrintProperty(
 {
     os << Ind(n) << "CIMProperty" << endl;
     os << Ind(n) << "{" << endl;
+
+    if (x.getQualifierCount() != 0)
+    {
+        for (Uint32 i = 0; i < x.getQualifierCount(); i++)
+        {
+            PrintQualifier(os, x.getQualifier(i), n + 1);
+        }
+    }
     os << Ind(n) << "    name=" << x.getName().getString() << endl;
 
     os << Ind(n) << "    CIMType=" << cimTypeToString(x.getType());
+
     if (x.isArray())
     {
         os << " Array";
@@ -516,9 +526,19 @@ void PrintInstance(
 {
     os << Ind(n) << "CIMInstance" << endl;
     os << Ind(n) << "{" << endl;
+
+    if (x.getQualifierCount() != 0)
+    {
+        for (Uint32 i = 0; i < x.getQualifierCount(); i++)
+        {
+            PrintQualifier(os, x.getQualifier(i), n + 1);
+        }
+    }
+
     os << Ind(n) << "    class=" << x.getClassName().getString() << endl;
 
     PrintObjectPath(os, x.getPath(), n + 1);
+
 
     for (Uint32 i = 0; i < x.getPropertyCount(); i++)
     {
@@ -540,6 +560,21 @@ void PEGASUS_COMMON_LINKAGE PrintQualifierDecl(
     os << Ind(n) << "    scope=" << x.getScope().toString() << endl;
     os << Ind(n) << "    flavor=" << x.getFlavor().toString() << endl;
     os << Ind(n) << "    arraySize=" << x.getArraySize() << endl;
+    PrintValue(os, x.getValue(), n + 1);
+    os << Ind(n) << "}" << endl;
+}
+
+void PEGASUS_COMMON_LINKAGE PrintQualifier(
+    PEGASUS_STD(ostream)& os,
+    const CIMConstQualifier& x,
+    Uint32 n)
+{
+    os << Ind(n) << "CIMQualifier" << endl;
+    os << Ind(n) << "{" << endl;
+    os << Ind(n) << "    name=" << x.getName().getString() << endl;
+    os << Ind(n) << "    type=" << _typeStrings[x.getType()] << endl;
+    os << Ind(n) << "    flavor=" << x.getFlavor().toString() << endl;
+    os << Ind(n) << "    isArray=" << boolToString(x.isArray()) << endl;
     PrintValue(os, x.getValue(), n + 1);
     os << Ind(n) << "}" << endl;
 }
@@ -611,15 +646,22 @@ PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
 }
 
 PEGASUS_COMMON_LINKAGE void PrintParamValue(
-    PEGASUS_STD(ostream)&, 
-    const CIMParamValue&, 
+    PEGASUS_STD(ostream)&,
+    const CIMParamValue&,
     Uint32)
 {
 }
 
 PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
-    PEGASUS_STD(ostream)&, 
-    const Array<CIMParamValue>&, 
+    PEGASUS_STD(ostream)&,
+    const Array<CIMParamValue>&,
+    Uint32)
+{
+}
+
+PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
+    PEGASUS_STD(ostream)&,
+    const CIMConstQualifier&,
     Uint32)
 {
 }

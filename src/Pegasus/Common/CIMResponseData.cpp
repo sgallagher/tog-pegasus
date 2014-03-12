@@ -1153,7 +1153,7 @@ void CIMResponseData::completeHostNameAndNamespace(
         }
     }
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TODO TEMP
-      "completeHostNameAndNamespace Set hostName, etc count %u"
+      "completeHostNameAndNamespace Set hostName, etc count %u "
       "host %s ns %s set for dataType=%u encoding=%u isPull=%s",
           count,
           (const char *)hn.getCString(),
@@ -1314,7 +1314,8 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                             XmlWriter::appendInstanceElement(
                                 out,
                                 _instances[i],
-                                _includeQualifiers,
+                                false,   // no qualifiers in pull inst response
+                                // KS_TODO should not have to block this here
                                 _includeClassOrigin,
                                 _propertyList);
                         }
@@ -1323,7 +1324,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                             XmlWriter::appendValueInstanceWithPathElement(
                                 out,
                                 _instances[i],
-                                _includeQualifiers,
+                                false,   // no qualifiers in pull inst response
                                 _includeClassOrigin,
                                 _propertyList);
                         }

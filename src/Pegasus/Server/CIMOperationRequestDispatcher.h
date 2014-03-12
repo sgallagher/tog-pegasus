@@ -386,10 +386,9 @@ public:
 
     Uint32 getTotalIssued();
 
-    // Append a new entry to the response list.  Return value indicates
-    // whether this response is the last one expected
+    // Append a new entry to the response list.
 
-    Boolean appendResponse(CIMResponseMessage* response);
+    void appendResponse(CIMResponseMessage* response);
 
     Uint32 numberResponses() const;
 

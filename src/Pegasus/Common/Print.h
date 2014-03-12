@@ -48,6 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 // PrintObjectPath()
 // PrintInstance()
 // PrintQualifierDecl()
+// PrintQualifier()
 //
 //     These functions print selected CIM objects in a format suitable for
 //     debugging. These functions print every element of the object. Some
@@ -90,15 +91,19 @@ PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
     Uint32 n = 0);
 
 PEGASUS_COMMON_LINKAGE void PrintParamValue(
-    PEGASUS_STD(ostream)& os, 
-    const CIMParamValue& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMParamValue& x,
     Uint32 n = 0);
 
 PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
-    PEGASUS_STD(ostream)& os, 
-    const Array<CIMParamValue>& x, 
+    PEGASUS_STD(ostream)& os,
+    const Array<CIMParamValue>& x,
     Uint32 n = 0);
 
+PEGASUS_COMMON_LINKAGE void PrintQualifier(
+    PEGASUS_STD(ostream)& os,
+    const CIMConstQualifier& x,
+    Uint32 n = 0);
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Print_h */

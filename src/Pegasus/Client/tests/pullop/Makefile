@@ -208,16 +208,25 @@ pr3:
 prn3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 
-## KS_TODO - This one causing failure in nightly tests.
-peManagedElement:
+peManagedElement: peManagedElementcimv2
+
+peManagedElementcimv2:
 	$(PROGRAM) e -M 100 -N 100 -c CIM_ManagedElement -v 5 -n root/cimv2 $(HOSTID)
 
 penManagedElement:
 	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
-###	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
-## KS_TODO this one generates an error
-enumerateAll1:
+## generates error because of qualifier data and classorigin data from PG_Namespace
+peManagedElementInterop:
+	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
+
+penManagedElementInterop:
+	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
+
+## This one definitly generates an error in the pullop test because it returns
+## a bunch of errors in exact data returned.  The pull returns qualifiers.
+## They should NEVER be returned for pull operations.
+enumerateNamespaceErr:
 	$(PROGRAM) e -M 9 -N 9 -C -c CIM_Namespace -n root/PG_InterOp $(HOSTID)
 
 enumerateAll2:
@@ -225,21 +234,15 @@ enumerateAll2:
 
 ## Enumerate all objects in the test/TestProvider namespace
 enumerateAll3:
-	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
-
-## Enumerate all objects in the test/TestProvider namespace
-enumerateAll4:
-	$(PROGRAM) e -M 9 -N 9 -C -c CIM_Namespace -n root/cimv2 $(HOSTID)
-
-enumerateAll5:
-	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
-
-removefornow:
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
+        ## The cimcli initializes the providers.  This bypasses an error
+	## where we get timeout on a getClass from Initialize in one of the
+	## test providers for this namespace only.
+	cimcli ni CIM_ManagedElement -n test/TestProvider $(CIMCLIHOSTID)
+	$(PROGRAM) e -M 9 -N 9 -C -y 90 -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
 
 ## Test Empty response.
 enumerateEmptyResponse:
-	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
+	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID) --sum
 	$(PROGRAM) en -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 
 ## test with large scale response provider
@@ -469,7 +472,7 @@ cmpie1:
 
 ## reference tests
 clicmpir1:
-	cimcli r $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
+	cimcli pr $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
 pcmpir1:
 	$(PROGRAM) r -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
@@ -488,4 +491,7 @@ clicmpipr1:
 clicmpiprn1:
 	cimcli rn $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
 
+### Known error conditions
 
+clicmpir2:
+	cimcli r CMPI_TEST_Person.name=\"Melvin\" -rc CMPI_TEST_Racing -n test/TestProvider $(CIMCLIHOSTID)

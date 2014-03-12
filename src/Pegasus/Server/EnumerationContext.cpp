@@ -215,6 +215,11 @@ Boolean EnumerationContext::isTimedOut()
 void EnumerationContext::setErrorState(CIMException x)
 {
     PEGASUS_ASSERT(valid());
+    // Until we handle multiple errors, return only the first error
+    if (_error)
+    {
+        return;
+    }
     // Set exception first and use flag as indicator to avoid ipc issues.
     _cimException = x;
     _error = true;

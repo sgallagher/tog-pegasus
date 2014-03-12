@@ -163,11 +163,29 @@ void ProviderMessageHandler::initialize(CIMOMHandle& cimom)
     {
         _provider->initialize(cimom);
     }
-    catch (...)
+    catch (CIMException& e)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Caught CIMexception from provider %s initialize() method."
+            " Code: %u Msg: %s",
+            (const char*)_fullyQualifiedProviderName.getCString(),
+             e.getCode(), cimStatusCodeToString(e.getCode()) ));
+        throw;
+    }
+    catch (Exception& e)
+    {
+
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Caught Exception from provider %s initialize() method. %s",
+            (const char*)_fullyQualifiedProviderName.getCString(),
+            (const char*) e.getMessage().getCString() ));
+        throw;
+    }
+     catch (...)
     {
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught exception from provider %s initialize() method.",
-            (const char*)_fullyQualifiedProviderName.getCString()));
+            (const char*)_fullyQualifiedProviderName.getCString() ));
         throw;
     }
 
@@ -1102,7 +1120,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        CIMInstance instance = 
+        CIMInstance instance =
             getInstanceResponse->getResponseData().getInstance();
 
         Uint32 pos = instance.findProperty(request->propertyName);

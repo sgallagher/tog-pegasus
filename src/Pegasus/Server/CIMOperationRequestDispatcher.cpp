@@ -3384,20 +3384,15 @@ struct ProviderRequests
         }
         else
         {
-            // Create new ResponseData object and fill it from the
-            // EnumerationContext cache. getCache waits for sufficient
-            // objects to be inserted into cache or for providers to
-            // complete.
-            CIMResponseData fromCache(enumContext->getCIMResponseDataType());
-            enumContext->getCache(localMaxObjectCount, fromCache);
-
-            // GetResponseData object based from response object and
+            // Get ResponseData object based from response object and
             // append the data from the cache to this response. Sets
             // attributes of the to CIMResponseData from the
-            // cache CIMResponsedata
+            // cache CIMResponsedata. This function waits for
+            // sufficient objects in cache or providers complete
+            //
             CIMResponseData & to = response->getResponseData();
             to.setResponseAttributes(enumContext->getCacheResponseData());
-            to.appendResponseData(fromCache);
+            enumContext->getCache(localMaxObjectCount, to);
         }
 
         // Check here after we have processed the results of the get.
@@ -3470,15 +3465,15 @@ struct ProviderRequests
                 " maxObjectCount %u", reqMsgName,
                 enumContext->responseCacheSize(),
                 operationMaxObjectCount ));
-            // get response data from the cache up to maxObjectCount and return
-            // it in a new CIMResponseData object. This function waits for
-            // sufficient objects in cache or providers complete
-            CIMResponseData fromCache(enumContext->getCIMResponseDataType());
-            enumContext->getCache(operationMaxObjectCount, fromCache);
 
+            // Get response data from the cache up to maxObjectCount and return
+            // it in a new CIMResponseData object. This function waits for
+            // sufficient objects in cache or providers complete.
+            //
             CIMResponseData & to = openResponse->getResponseData();
             to.setResponseAttributes(enumContext->getCacheResponseData());
-            to.appendResponseData(fromCache);
+            enumContext->getCache(operationMaxObjectCount, to);
+
 ////        // KS_TODO Delete this code when we are really confident
 ////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
 ////            "%s AppendedResponseData. to type %u from "

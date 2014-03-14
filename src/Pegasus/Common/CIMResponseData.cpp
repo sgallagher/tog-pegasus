@@ -805,8 +805,6 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
     _nameSpacesData.appendArray(x._nameSpacesData);
     _size += x._instanceData.size();
 
-
-
     // transfer property list
     _propertyList = x._propertyList;
 
@@ -1307,6 +1305,8 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
             {
                 for (Uint32 i = 0, n = _instances.size(); i < n; i++)
                 {
+                    cout << "CIMReponseData IncludeQualifiers "
+                         << boolToString(_includeQualifiers) << endl;
                     if (isPullResponse)
                     {
                         if (encodeInstanceOnly)
@@ -1314,7 +1314,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                             XmlWriter::appendInstanceElement(
                                 out,
                                 _instances[i],
-                                false,   // no qualifiers in pull inst response
+                                _includeQualifiers,
                                 // KS_TODO should not have to block this here
                                 _includeClassOrigin,
                                 _propertyList);
@@ -1324,7 +1324,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                             XmlWriter::appendValueInstanceWithPathElement(
                                 out,
                                 _instances[i],
-                                false,   // no qualifiers in pull inst response
+                                _includeQualifiers,
                                 _includeClassOrigin,
                                 _propertyList);
                         }

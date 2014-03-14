@@ -264,7 +264,7 @@ public:
         @return reference to the CIMResponseData object that is the
                 cache
     */
-    CIMResponseData& getResponseData();
+    CIMResponseData& getCacheResponseData();
 
     /**
         Returns count of objects in the EnumerationContext CIMResponseData
@@ -473,13 +473,14 @@ inline String& EnumerationContext::getName()
     return _enumerationContextName;
 }
 
+// KS_TODO Should be able to eliminate this
 inline CIMResponseData::ResponseDataContent
     EnumerationContext::getCIMResponseDataType()
 {
     return _responseCache.getResponseDataContent();
 }
 
-inline CIMResponseData& EnumerationContext::getResponseData()
+inline CIMResponseData& EnumerationContext::getCacheResponseData()
 {
     return _responseCache;
 }

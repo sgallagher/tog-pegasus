@@ -508,7 +508,7 @@ void NamespaceProvider::enumerateInstances(
        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
                         "NamespaceProvider::enumerateInstances()");
 
-       // Verify that ClassName == __Namespace
+        // Verify that ClassName == __Namespace
        if (!ref.getClassName().equal(NAMESPACE_CLASSNAME))
        {
             PEG_METHOD_EXIT();

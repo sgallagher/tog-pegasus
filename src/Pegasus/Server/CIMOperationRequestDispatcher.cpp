@@ -3384,13 +3384,19 @@ struct ProviderRequests
         }
         else
         {
+            // Create new ResponseData object and fill it from the
+            // EnumerationContext cache. getCache waits for sufficient
+            // objects to be inserted into cache or for providers to
+            // complete.
             CIMResponseData fromCache(enumContext->getCIMResponseDataType());
+            enumContext->getCache(localMaxObjectCount, fromCache);
 
-            enumContext->getCache(localMaxObjectCount,fromCache);
-
+            // GetResponseData object based from response object and
+            // append the data from the cache to this response. Sets
+            // attributes of the to CIMResponseData from the
+            // cache CIMResponsedata
             CIMResponseData & to = response->getResponseData();
-
-            to.setDataType((enumContext->getCIMResponseDataType()));
+            to.setResponseAttributes(enumContext->getCacheResponseData());
             to.appendResponseData(fromCache);
         }
 
@@ -3464,15 +3470,14 @@ struct ProviderRequests
                 " maxObjectCount %u", reqMsgName,
                 enumContext->responseCacheSize(),
                 operationMaxObjectCount ));
-
-            CIMResponseData fromCache(enumContext->getCIMResponseDataType());
-
             // get response data from the cache up to maxObjectCount and return
             // it in a new CIMResponseData object. This function waits for
             // sufficient objects in cache or providers complete
-            enumContext->getCache(operationMaxObjectCount,fromCache);
+            CIMResponseData fromCache(enumContext->getCIMResponseDataType());
+            enumContext->getCache(operationMaxObjectCount, fromCache);
 
             CIMResponseData & to = openResponse->getResponseData();
+            to.setResponseAttributes(enumContext->getCacheResponseData());
             to.appendResponseData(fromCache);
 ////        // KS_TODO Delete this code when we are really confident
 ////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
@@ -5365,6 +5370,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
             CIMResponseData::RESP_INSTANCES);
 
+    // Set properties from request into the context
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
 
@@ -6097,9 +6103,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
             CIMResponseData::RESP_OBJECTPATHS);
 
-    /// KS_TODO should we have to do this here or is this default?
-    enumerationContext->setRequestProperties(
-        false, CIMPropertyList());
     //
     // Set up an aggregate object and save the created internalRequest
     //
@@ -6815,6 +6818,7 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
             CIMResponseData::RESP_INSTANCES);
 
+      //// KS TODO check this since not sure whether required.
 ////  enumerationContext->setRequestProperties(
 ////      request->includeClassOrigin, request->propertyList);
       //// This moved to query processor
@@ -7805,7 +7809,7 @@ Boolean CIMOperationRequestDispatcher::_enumerateFromRepository(
                         dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
                             req->buildResponse()));
 
-                     // Enumerate instances only for this class
+                    // Enumerate instances only for this class
                     response->getResponseData().setInstances(
                         _repository->enumerateInstancesForClass(
                             req->nameSpace,

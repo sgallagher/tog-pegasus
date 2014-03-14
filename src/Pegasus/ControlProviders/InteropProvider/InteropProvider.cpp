@@ -371,6 +371,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::localEnumerateInstances()");
+
     const CIMName & className = ref.getClassName();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s enumerateInstances. referenc= %s , PropertyList= %s",
@@ -379,7 +380,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         (const char *)propertyList.toString().getCString()));
 
     // Verify that ClassName is correct and get its enum value
-    TARGET_CLASS classEnum  = translateClassInput(className);
+    TARGET_CLASS classEnum = translateClassInput(className);
 
     Array<CIMInstance> instances;
     switch(classEnum)

@@ -1088,6 +1088,12 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
         sprintf(messagePtrString, "%p", request);
         String uniqueMessageId = messagePtrString;
 
+        // Trace to relate request messageId to provider internal messageId
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "ProviderAgentContainer, request message ID %s "
+                "provider internal messageId %s",
+            (const char*)request->messageId.getCString(),
+            messagePtrString ));
         //
         // Set up the OutstandingRequestEntry for this request
         //

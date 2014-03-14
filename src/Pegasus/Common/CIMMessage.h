@@ -73,7 +73,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /*
- * Please DONOT make any ctor of CIMMessage(s) inline as it bloats code
+ * Please DO NOT make any ctor of CIMMessage(s) inline as it bloats code
  * Instead define the ctor in CIMMessage.cpp,
  * Bug 9580 has details
 */

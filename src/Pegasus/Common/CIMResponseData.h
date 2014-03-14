@@ -86,17 +86,21 @@ public:
         RESP_OBJECTS = 4,
         RESP_OBJECTPATHS = 5
     };
-    //includeClassOrigin & _includeQualifiers are set to true by default.
-    //_propertyList is initialized to an empty propertylist to enable
-    // sending all properties by default. _isClassOperation set false and
-    // only reset by selected operations (ex. associator response builder)
+    /** Constructor that sets the ResponseDataContent attributes.
+        includeClassOrigin & _includeQualifiers are set to true by
+        default. //_propertyList is initialized to an empty
+        propertylist to enable // sending all properties by default.
+        _isClassOperation set false and // only reset by selected
+        operations (ex. associator response builder)
+    */
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content),_size(0), _includeQualifiers(true),
+        _encoding(0),_dataType(content),_size(0),
+        _includeQualifiers(true),
         _includeClassOrigin(true),
         _isClassOperation(false),
         _propertyList(CIMPropertyList())
     {
-        /// KS_TODO the following is all test code.
+        /// KS_TODO the following two lines are test code.
         PEGASUS_DEBUG_ASSERT(valid()); // KS_TEMP KS_TODO DELETE THIS
         size();
     }
@@ -126,18 +130,19 @@ public:
         PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
     }
 
-    // Construct an empty object.  Issue here in that we would like to
-    // assure that this is invalid but if we add the _dataType parameter
-    // it must be a valid one.  The alternative would be to define an
-    // invalid enum but that would cost us in all case/if statements.
-    // Therefore up to the user to create and then use correctly.
-    // KS_TODO fix this so that the empty state is somehow protected.
+    /**Construct an empty object.  Issue here in that we would like
+       to assure that this is invalid but if we add the _dataType
+       parameter it must be a valid one.  The alternative would be
+       to define an invalid enum but that would cost us in all
+       case/if statements. Therefore up to the user to create and
+       then use correctly. KS_TODO fix this so that the empty state
+       is somehow protected.
+    */
     CIMResponseData():
         _encoding(0),_mapObjectsToIntances(false), _size(0),
         _includeQualifiers(true), _includeClassOrigin(true),
         _propertyList(CIMPropertyList())
     {
-
         PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
     }
 
@@ -162,9 +167,10 @@ public:
     Uint32 size();
 
     /** Set the internal size variable based on the current count
-     *  of what is in the CIMResponseData.  This operation
-     *  required after users have played with the arrays. See
-     *  CQLOperationRequestDispatcher for example */
+       of what is in the CIMResponseData.  This operation
+       required after users have played with the arrays. See
+       CQLOperationRequestDispatcher for example
+     */
 
     void setSize();
 
@@ -178,27 +184,50 @@ public:
     {
     }
 
-    // Issue with pull and other operations
-    // in that the other assoc operations return objects and objectPaths
-    // and the pulls return instances and instancePaths. The pull operation
-    // must be able to handle either so we use this to reset the datatype
-    // KS_TODO -- This should check size and only allow if nothing in the
-    // object.
-    Boolean setDataType(ResponseDataContent content)
+    /** Issue with pull and other operations
+       in that the other assoc operations return objects and objectPaths
+       and the pulls return instances and instancePaths. The pull operation
+       must be able to handle either so we use this to reset the datatype
+    */
+    void setDataType(ResponseDataContent content)
+    {
+        PEGASUS_DEBUG_ASSERT(valid());
+        // This assert is temp test since the object should be zero
+        // size when data type set.
+        PEGASUS_ASSERT(_size == 0);      // KS_TODO_TEMP or debug mode.
+        _dataType = content;
+    }
+
+    /** Move key attributes from one CIMResponseData object to
+       another. The attributes include the _dataType,
+       includeQualifiers and includeClassOrigin and properties
+       parameters. This used with pull operations to set up
+       output CIMResponseData from cache.
+       @param from CIMResponseData object that is source for attributes
+     */
+    void setResponseAttributes(CIMResponseData& from)
     {
         PEGASUS_DEBUG_ASSERT(valid());
         PEGASUS_ASSERT(_size == 0);      // KS_TODO_TEMP or debug mode.
-        _dataType = content;
-        return true;
+        _dataType = from._dataType;
+        _includeQualifiers = from._includeQualifiers;
+        _includeClassOrigin = from._includeClassOrigin;
+        _propertyList = from._propertyList;
     }
 
-    // get the datatype property
+    /** get the datatype property
+       @return ResponseDataContent enum value
+    */
     ResponseDataContent getResponseDataContent()
     {
         PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP KS_TODO
         return _dataType;
     }
-    // C++ objects interface handling
+    /*******************************************************************
+    **
+    **     C++ objects interface handling
+    **
+    *******************************************************************/
 
     // Instance Names handling
     Array<CIMObjectPath>& getInstanceNames();
@@ -304,6 +333,11 @@ public:
         _size += 1;
     }
 
+    /*******************************************************************
+    **
+    **     SCMO objects interface handling
+    **
+    *******************************************************************/
     // SCMO representation, single instance stored as one element array
     // object paths are represented as SCMOInstance
     Array<SCMOInstance>& getSCMO();

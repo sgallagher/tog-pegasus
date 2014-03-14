@@ -111,7 +111,11 @@ void EnumerationContext::setRequestProperties(
     const CIMPropertyList& propertyList)
 {
     // Set request properties into the responseCache that are required
-    // later for pull operations
+    // later for pull operations. Not required for names operations
+    // since the attributes defined characteristics of objects returned
+    // (qualifiers, classorigin, propertylists).
+    // Always sets includeQualifiers == false since this attribute
+    // not supported for pull operations.
     _responseCache.setRequestProperties(
         false, includeClassOrigin, propertyList);
 }
@@ -305,6 +309,7 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
         "Test putCache hasBinaryData %s MsgType %s",
                (from.hasBinaryData()? "true" : "false"),
             MessageTypeToString(response->getType()) ));
+    //// End of diagnostic delete
 
     // if there is any binary data, reformat it to SCMO.  There are no
     // size counters for the binary data/

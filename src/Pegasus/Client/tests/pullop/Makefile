@@ -208,36 +208,38 @@ pr3:
 prn3:
 	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
 
+######################################################################
 peManagedElement: peManagedElementcimv2
 
 peManagedElementcimv2:
 	$(PROGRAM) e -M 100 -N 100 -c CIM_ManagedElement -v 5 -n root/cimv2 $(HOSTID)
 
-penManagedElement:
-	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
-
 ## generates error because of qualifier data and classorigin data from PG_Namespace
 peManagedElementInterop:
 	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
+penManagedElement:
+	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
+
+#########################################################
+penManagedElement: penManagedElementcimv2
+
+penManagedElementcimv2:
+	$(PROGRAM) en -M 9 -N 4 -C -c CIM_ManagedElement $(HOSTID)
+
 penManagedElementInterop:
 	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
-## This one definitly generates an error in the pullop test because it returns
-## a bunch of errors in exact data returned.  The pull returns qualifiers.
-## They should NEVER be returned for pull operations.
-enumerateNamespaceErr:
-	$(PROGRAM) e -M 9 -N 9 -C -c CIM_Namespace -n root/PG_InterOp $(HOSTID)
 
 enumerateAll2:
 	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
 
 ## Enumerate all objects in the test/TestProvider namespace
-enumerateAll3:
+enumerateAllErr1:
         ## The cimcli initializes the providers.  This bypasses an error
 	## where we get timeout on a getClass from Initialize in one of the
 	## test providers for this namespace only.
-	cimcli ni CIM_ManagedElement -n test/TestProvider $(CIMCLIHOSTID)
+	###cimcli ni CIM_ManagedElement -n test/TestProvider $(CIMCLIHOSTID)
 	$(PROGRAM) e -M 9 -N 9 -C -y 90 -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
 
 ## Test Empty response.

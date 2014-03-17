@@ -1087,21 +1087,26 @@ Boolean compareInstances(const String& s1, const String s2,
     Array<CIMInstance>& inst2,
     bool verbose = false)
 {
-    VCOUT6 << "Comparing Instances" << endl;
+    VCOUT6 << "Comparing Arrays of Instances" << endl;
     Boolean rtn = true;
     if (inst1.size() != inst2.size())
     {
-        VCOUT1 << s1 << " count mismatch "
-            << "s1 " <<  inst1.size()
-            << " " << s2 <<" " << inst2.size()
+        VCOUT1 << "Instance Arrays count mismatch "
+            << s1 << "= " <<  inst1.size()
+            << " instances " << s2 << "= " << inst2.size() << " instances"
             << endl;
-        rtn = false;
+        errors++;
+        rtn = (errorsAsWarnings_opt)? true : false;
     }
 
-    // sort the two arrays since there is no guarantee that the
+    // sort the two arrays since there is no guarantee that they
     // returned with same ordering.
+
     _Sort(inst1);
     _Sort(inst2);
+    //// TODO. We need to account that if there was a size difference
+    //// above inst1 may not be the largest and that we may not have
+    //// equal paths.
     for (Uint32 i = 0 ; i < inst1.size() ; i++)
     {
         bool localRtn = compareInstance(s1, s2,
@@ -1110,14 +1115,7 @@ Boolean compareInstances(const String& s1, const String s2,
         if (!localRtn)
         {
             errors++;
-            if (errorsAsWarnings_opt)
-            {
-                rtn = true;
-            }
-            else
-            {
-                rtn = false;
-            }
+            rtn = (errorsAsWarnings_opt)? true : false;
         }
     }
     VCOUT4 << "compareInstances " << (rtn? "OK" : "Failed") << endl;

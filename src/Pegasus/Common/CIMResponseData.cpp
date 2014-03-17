@@ -661,10 +661,9 @@ void CIMResponseData::setSize()
 
 // Return the number of CIM objects in the CIM Response data object
 //
-#define TEMPLOG PEG_TRACE((TRC_XML, Tracer::LEVEL4, \
- "rtnSize %u size %u line %u", rtnSize, _size, __LINE__))
-//#define TEMPLOG cout << "rtnSize " << rtnSize << " _size " << _size
-//<< " line " << __LINE__ << endl
+////#define TEMPLOG PEG_TRACE((TRC_XML, Tracer::LEVEL4, \
+//// "rtnSize %u size %u line %u", rtnSize, _size, __LINE__))
+#define TEMPLOG
 
 Uint32 CIMResponseData::size()
 {
@@ -1305,8 +1304,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
             {
                 for (Uint32 i = 0, n = _instances.size(); i < n; i++)
                 {
-                    cout << "CIMReponseData IncludeQualifiers "
-                         << boolToString(_includeQualifiers) << endl;
                     if (isPullResponse)
                     {
                         if (encodeInstanceOnly)

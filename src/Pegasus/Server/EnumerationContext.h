@@ -193,8 +193,8 @@ public:
     Boolean isErrorState();
 
     /**Set the error state flag and set the current cimException
-       into the context object.
-
+       into the context object. This indicates that an exception
+       was received from the provider side.
         @param cimException
      */
     void setErrorState(CIMException cimException);
@@ -249,22 +249,15 @@ public:
        Wait events:
            a. Number of objects in cache matches or exceeds count
            b. _providersComplete flag to be set.
-           c. Future - The errorState to be set KS_TODO
+           c. error condition. It tests for error condition from
+              providers before and after wait.
        @param count Uint32 count of max number of objects to return
        @param rtnData CIMResponseData containing the
-                                 objects returned
+           objects returned. Count of objects le count argument
+       @return true if data acquired from cache. False if error from
+       providers encountered
      */
-    void getCache(Uint32 count, CIMResponseData& rtnData);
-
-    /**
-        Return reference to the CIMResponseData in the Enumeration
-        Context. This CIMResponseData object holds aggregated
-        CIMResponseData for this enumeration context. Data is added
-        with putCache and removed with getCache
-        @return reference to the CIMResponseData object that is the
-                cache
-    */
-    CIMResponseData& getCacheResponseData();
+    Boolean getCache(Uint32 count, CIMResponseData& rtnData);
 
     /**
         Returns count of objects in the EnumerationContext CIMResponseData
@@ -478,11 +471,6 @@ inline CIMResponseData::ResponseDataContent
     EnumerationContext::getCIMResponseDataType()
 {
     return _responseCache.getResponseDataContent();
-}
-
-inline CIMResponseData& EnumerationContext::getCacheResponseData()
-{
-    return _responseCache;
 }
 
 inline Boolean EnumerationContext::isProcessing()

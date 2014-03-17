@@ -417,8 +417,10 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     The wait function is called before removing items from the cache and
     only completes when a. there are sufficient objects, b. the providers
     have completed, c. an error has occurred.
+    Returns true if data acquired from cache. Returns false if CIMException
+    found (i.e. returned an error).
 */
-void EnumerationContext::getCache(
+Boolean EnumerationContext::getCache(
     Uint32 count,
     CIMResponseData& rtnData)
 {
@@ -427,6 +429,16 @@ void EnumerationContext::getCache(
 
     PEGASUS_ASSERT(valid());   // KS_TEMP;
 
+    // Move attributes from Cache to new CIMResponseData object
+    // sets the attributes for propertyList, includeQualifiers,
+    // classOrigin
+    rtnData.setResponseAttributes(_responseCache);
+
+    // if Error set, honor this.
+    if (isErrorState())
+    {
+        return false;
+    }
     // Wait for cache size to match count or providers to complete
     // set mutex only for the move objects. We don't want to mutex for
     // the wait period since we expect things to be put into the
@@ -434,15 +446,21 @@ void EnumerationContext::getCache(
     // operation will hang until this completes.
     waitCacheSizeCondition(count);
 
+    // Note that there is an issue here in that we should prioritize returning
+    // data before returning errors.  In this case, it may leave data in the
+    // cache and return error. However, have issue if error is on last
+    // provider return where it drops the error.
+    // KS_TODO TBD
+    if (isErrorState())
+    {
+        return false;
+    }
+
     // Lock the cache for the move function
     AutoMutex autoMut(_responseCacheMutex);
 
-    // move the defined number of objects from the cache to the
-    // return object.
+    // Move the defined number of objects from the cache to the return object.
     rtnData.moveObjects(_responseCache, count);
-
-    // KS_TODO_QUESTION. Confirm this should be at this level.
-    rtnData.setPropertyList(_responseCache.getPropertyList());
 
     // KS_TODO_DIAG_DELETETHIS
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -455,6 +473,7 @@ void EnumerationContext::getCache(
 
     PEGASUS_ASSERT(valid());   // KS_TEMP diagnostic.
     PEG_METHOD_EXIT();
+    return true;
 }
 
 // Test the cache to determine if we are ready to send a response.
@@ -627,16 +646,16 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
 
     PEGASUS_ASSERT(valid());   // KS_TEMP
 
+    // Return true if client closed because of error or all responses complete,
+    // else set ProcessingState false and return false
     if ((ifProvidersComplete() && (responseCacheSize() == 0)) ||
         (errorFound && !_continueOnError))
     {
         setClientClosed();
         return true;
     }
-    else
-    {
-        setProcessingState(false);
-    }
+
+    setProcessingState(false);
 
     return false;
 }

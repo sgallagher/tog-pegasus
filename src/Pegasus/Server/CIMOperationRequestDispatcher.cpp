@@ -184,12 +184,6 @@ Uint32 OperationAggregate::numberResponses() const
     PEGASUS_ASSERT(valid());   // KS_TEMP TODO
 //// KS_TODO This was temporary code during testing.
 ////  AutoMutex autoMut(_appendResponseMutex);
-////  Uint32 size = _responseList.size();
-////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-////      "numberResponses = %u read", size ));
-////  return size;
-
-    //// TODO AutoMutex autoMut(_appendResponseMutex);
     return _responseList.size();
 }
 
@@ -617,6 +611,7 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher");
+    // Delete EnumerationContextTable
     PEG_METHOD_EXIT();
 }
 

@@ -76,10 +76,18 @@ public:
     /**
        Create a new Enumeration Table defining the defaults for
        operation Timeout and response Cache Maximum Size.
-       @param  maxInteroperationTimeoutValue Uint32 time in
+       @param  maxInteroperationTimeoutValue Uint32 Maximum time
+       between operations of a pull sequence before Server will
+       close the connection.
+
+       @param maxInteroperationTimeoutValue Uint32 maximum value
+       for the Interoperation timeout in seconds.
+
+       @param responseCacheMaximumSize Uint32 Maximum number of
+       objects in response queue before it backs up to providers
      */
     EnumerationContextTable(Uint32 maxInteroperationTimeoutValue,
-        Uint32 reponseCacheDefaultMaximumSize);
+        Uint32 reponseCacheMaximumSize);
 
     ~EnumerationContextTable();
 

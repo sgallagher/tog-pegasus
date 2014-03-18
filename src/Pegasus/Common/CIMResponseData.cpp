@@ -71,8 +71,9 @@ bool CIMResponseData::sizeValid()
         return false;
     }
 #endif
-    PEG_TRACE((TRC_XML, Tracer::LEVEL4,
-        "CIMResponseData Size _size=%u", _size));
+////  KS TODO Remove this diagnostic completely
+////  PEG_TRACE((TRC_XML, Tracer::LEVEL4,
+////      "CIMResponseData Size _size=%u", _size));
     return true;
 }
 

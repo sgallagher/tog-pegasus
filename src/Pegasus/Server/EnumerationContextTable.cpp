@@ -142,17 +142,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 }
 #endif
 
-/*  Create the Enumeration table and set the maximum/minimum values for
-    input parameters that will require this.
+/*  Create the Enumeration table and set the values for
+    maximum InteroperationTimeOut and maximum size of the
+    response Cache where objects are gathered from the
+    providers to be distributed as pull client operations
+    are processed.
 */
 EnumerationContextTable::EnumerationContextTable(
     Uint32 maxInteroperationTimeoutValue,
-    Uint32 responseCacheMaximumSize)
+    Uint32 reponseCacheMaximumSize)
     :
     _timeoutInterval(0),
     _nextTimeout(0),
     _enumContextCounter(1),
-    _responseCacheMaximumSize(responseCacheMaximumSize),
+    _responseCacheMaximumSize(reponseCacheMaximumSize),
     _cacheHighWaterMark(0),
     _maxOperationTimeout(maxInteroperationTimeoutValue)
 {
@@ -344,7 +347,7 @@ Boolean EnumerationContextTable::_removeContext(
         if (en->responseCacheSize() != 0)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "ERROR. Cache != 0EnumerationContext Remove. ContextId= %s "
+                "ERROR. Cache != 0 EnumerationContext Remove. ContextId= %s "
                 " size = %u",
                 (const char *)en->getName().getCString(),
                 en->responseCacheSize() ));

@@ -45,6 +45,17 @@ void CIMBinMsgSerializer::serialize(
     if (cimMessage == 0)
         return;
 
+    PEG_TRACE((TRC_DISPATCHER,  Tracer::LEVEL4,
+        "Serialize Message id %s type %s binary req %s"
+                       " binary resp %s iscomplete %s internal %s",
+        (const char*)cimMessage->messageId.getCString(),
+        MessageTypeToString(cimMessage->getType()),
+        boolToString(cimMessage->binaryRequest),
+        boolToString(cimMessage->binaryResponse),
+        boolToString(cimMessage->isComplete()),
+        boolToString(cimMessage->internalOperation)
+        ));
+
     // [messageId]
     out.putString(cimMessage->messageId);
 

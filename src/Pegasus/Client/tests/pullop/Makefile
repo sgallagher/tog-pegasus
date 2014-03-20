@@ -242,6 +242,11 @@ enumerateAllErr1:
 	###cimcli ni CIM_ManagedElement -n test/TestProvider $(CIMCLIHOSTID)
 	$(PROGRAM) e -M 9 -N 9 -C -y 90 -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
 
+## The following generates the error when it calls Test_StorageSystem.  Same
+## problem for Test_MCSStorageSystem
+enumerateErrorRequest1:
+	$(PROGRAM) e -M 9 -N 9 -C -y 90 -c Test_StorageSystem -n test/TestProvider $(HOSTID)
+
 ## Test Empty response.
 enumerateEmptyResponse:
 	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)

@@ -142,64 +142,41 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 }
 #endif
 
+EnumerationContextTable::EnumerationContextTable()
+    :
+    _timeoutInterval(0),
+    _nextTimeout(0),
+    _enumContextCounter(1),
+    _responseCacheMaximumSize(0),
+    _cacheHighWaterMark(0),
+    _maxOperationTimeout(0)
+{
+}
 /*  Create the Enumeration table and set the values for
     maximum InteroperationTimeOut and maximum size of the
     response Cache where objects are gathered from the
     providers to be distributed as pull client operations
     are processed.
 */
-EnumerationContextTable::EnumerationContextTable(
+void EnumerationContextTable::setContextDefaultParameters(
     Uint32 maxInteroperationTimeoutValue,
     Uint32 reponseCacheMaximumSize)
-    :
-    _timeoutInterval(0),
-    _nextTimeout(0),
-    _enumContextCounter(1),
-    _responseCacheMaximumSize(reponseCacheMaximumSize),
-    _cacheHighWaterMark(0),
-    _maxOperationTimeout(maxInteroperationTimeoutValue)
 {
+    _responseCacheMaximumSize = reponseCacheMaximumSize;
+    _maxOperationTimeout = maxInteroperationTimeoutValue;
 }
 
 /* Remove all contexts and delete them. Only used on system shutdown.
 */
 EnumerationContextTable::~EnumerationContextTable()
 {
+
     // remove any existing entries
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
 
-    Uint32 ctr = 0;
-    for (HT::Iterator i = ht.start(); i; i++)
-    {
-        EnumerationContext* enumeration = i.value();
-        //// KS_TODO remove this diagnostic which shows leftover
-        //// context entries.  Should be zero.
-        cout << "Found at ~EnumerationContextTable "
-             << enumeration->_enumerationContextName
-             << " started " << (long unsigned int)
-            (TimeValue::getCurrentTime().toMilliseconds()
-               - enumeration->_startTime)/1000
-            << " milliseconds before." << endl;
+    removeContextTable();
 
-        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
-            "EnumerationTable Close. Entry Found "
-                " name %s, started %llu milliseconds before,",
-             (const char *)enumeration->getName().getCString(),
-             ((TimeValue::getCurrentTime().toMilliseconds()
-               - enumeration->_startTime)/1000) ));
-
-        // KS_TODO _ clean up threads before closing the table
-
-        delete enumeration;
-        ht.remove(i.key());
-        ctr++;
-    }
-    if (ctr > 0)
-    {
-        cout << "EnumerationContextTable shutdown found "
-             << ctr << " contexts " << endl;
-    }
     PEG_METHOD_EXIT();
 }
 
@@ -269,7 +246,47 @@ EnumerationContext* EnumerationContextTable::createContext(
 #endif
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CreateContext ContextId= %s", cxtName));
+
+    PEG_METHOD_EXIT();
     return enumCtxt;
+}
+
+void EnumerationContextTable::removeContextTable()
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContextTable::removeContextTable");
+    Uint32 ctr = 0;
+    for (HT::Iterator i = ht.start(); i; i++)
+    {
+        EnumerationContext* enumeration = i.value();
+        //// KS_TODO remove this diagnostic which shows leftover
+        //// context entries.  Should be zero.
+        cout << "Found at ~EnumerationContextTable "
+             << enumeration->_enumerationContextName
+             << " started " << (long unsigned int)
+            (TimeValue::getCurrentTime().toMilliseconds()
+               - enumeration->_startTime)/1000
+            << " milliseconds before." << endl;
+
+        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
+            "EnumerationTable Close. Entry Found "
+                " name %s, started %llu milliseconds before,",
+             (const char *)enumeration->getName().getCString(),
+             ((TimeValue::getCurrentTime().toMilliseconds()
+               - enumeration->_startTime)/1000) ));
+
+        // KS_TODO _ clean up threads before closing the table
+
+        delete enumeration;
+        ht.remove(i.key());
+        ctr++;
+    }
+    if (ctr > 0)
+    {
+        cout << "EnumerationContextTable shutdown found "
+             << ctr << " contexts " << endl;
+    }
+    PEG_METHOD_EXIT();
 }
 
 /*
@@ -371,9 +388,8 @@ Boolean EnumerationContextTable::_removeContext(
             "_removeContext ERRORERROR %s  _providersComplete=%s"
                 " _waitingCacheSizeCondition=%s clientClosed=%s",
             (const char *)en->getName().getCString(),
-            (const char *)(en->_providersComplete? "true" : "false"),
-            (const char *)(en->_clientClosed? "true" : "false")
-                     ));
+            boolToString(en->_providersComplete),
+            boolToString(en->_clientClosed) ));
         //// KS_TODO remove this.  Test Diagnostic only.
         cout << "remove ignored. "
             << " clientClosed " <<(en->_clientClosed? "true" : "false")

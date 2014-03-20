@@ -64,40 +64,11 @@ PEGASUS_USING_STD;
 **
 ******************************************************************************/
 
-// Define the variable that controls the default pull operation timeout
-// when NULL is received with a request. This sets the time in seconds between
-// the completion of one operation of an enumeration sequence and the
-// recipt of another.  The server must maintain the context for at least
-// the time defined in this value.
-#ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
-    Uint32 _pullOperationMaxTimeout =
-        PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
-#else
-    Uint32 _pullOperationMaxTimeout = 15;
-#endif
-
-// Sets the maximum size for the response cache in each
-// enumerationContext.  As responses are returned from providers this is the
-// maximum number that can be placed in the CIMResponseData cache waiting
-// for pull operations to move send them as responses before responses
-// start backing up the providers (i.e. delaying return from the provider
-// deliver calls.
-// FUTURE: As we develop more flexible resource management this value should
-// be modified for each context creation in terms of the object sizes expected
-// and the memory usage of the CIMServer.  Thus, it would be logical to
-// allow caching many more path responses than instance responses because
-// they are probably much smaller.
-// This variable is not externalized because we are not yet sure
-// if that is logical.
-Uint32 responseCacheDefaultMaximumSize = 1000;
-//
 // Define the table that will contain enumeration contexts for Open, Pull,
 // Close, and countEnumeration operations.  The default interoperation
 // timeout and max cache size are set as part of creating the table.
 //
-static EnumerationContextTable enumerationContextTable(
-    _pullOperationMaxTimeout,
-    responseCacheDefaultMaximumSize);
+static EnumerationContextTable enumerationContextTable;
 
 // A helper function that resets the Propagated and ClassOrigin attributes on
 // properties of CIMInstance and CIMClass objects. This is used during
@@ -553,17 +524,46 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     _systemMaxPullOperationObjectCount = 1000;
 #endif
 
-    // Define system maximum pull interoperation timeout value.  This defines
+    // Define the maximum size for the response cache in each
+    // enumerationContext.  As responses are returned from providers this is the
+    // maximum number that can be placed in the CIMResponseData cache waiting
+    // for pull operations to move send them as responses before responses
+    // start backing up the providers (i.e. delaying return from the provider
+    // deliver calls.
+    // FUTURE: As we develop more flexible resource management this value should
+    // be modified for each context creation in terms of the object sizes
+    // expected and the memory usage of the CIMServer.  Thus, it would be
+    // logical to allow caching many more path responses than instance
+    // responses because they are probably much smaller.
+    // This variable is not externalized because we are not sure
+    // if that is logical.
+
+    Uint32 responseCacheDefaultMaximumSize = 1000;
+
+    // Define maximum pull interoperation timeout value.  This defines
     // the maximum value for operationTimeout that will be accepted by
     // Pegasus. Anything larger than this will be rejected with the
     // error CIM_ERR_INVALID_OPERATION_TIMEOUT.
+    // This sets the time in seconds between
+    // the completion of one operation of an enumeration sequence and the
+    // recipt of another.  The server must maintain the context for at least
+    // the time defined in this value.
+    #ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
+      _pullOperationMaxTimeout =
+          PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
+    #else
+      _pullOperationMaxTimeout = 15;
+    #endif
 
-    _systemMaxOperationTimeout = 15;
+    enumerationContextTable.setContextDefaultParameters(
+        _pullOperationMaxTimeout,
+        responseCacheDefaultMaximumSize);
 
     // Define the variable that controls whether we allow 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
     // that the server maintains no timer for the context, it may be the
     // decision of some implementors to not allow this value.
+
 #ifdef PEGASUS_PULL_OPERATION_REJECT_ZERO_TIMEOUT_VALUE
     _rejectZeroOperationTimeoutValue = true
 #else
@@ -611,7 +611,9 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher");
+
     // Delete EnumerationContextTable
+    enumerationContextTable.removeContextTable();
     PEG_METHOD_EXIT();
 }
 
@@ -2792,12 +2794,12 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidOperationTimeout(
 
     // If the value is greater than the system allowed max, send error
     // response
-    if (operationTimeout.getValue() > _systemMaxOperationTimeout)
+    if (operationTimeout.getValue() > _pullOperationMaxTimeout)
     {
        CIMResponseMessage* response = request->buildResponse();
        String strError = "Operation Timeout too large. ";
        // KS_PULL_TBD. Create real value here.
-       strError.append(_systemMaxOperationTimeout);
+       strError.append(_pullOperationMaxTimeout);
        strError.append(" maximum allowed.");
 
         response->cimException =
@@ -3257,7 +3259,8 @@ struct ProviderRequests
 
         // Find the enumerationContext object from the request parameter
         EnumerationContext* enumContext =
-             enumerationContextTable.find(request->enumerationContext);
+             enumerationContextTable.find(
+                 request->enumerationContext);
 
         // If enumeration Context not found or value is zero,
         // return invalid exception

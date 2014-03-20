@@ -958,10 +958,10 @@ protected:
     // a configuration parameter
     Boolean _rejectZeroOperationTimeoutValue;
 
-    // KS_TBD - Think this one can go away.
-    Uint32 _systemMaxOperationTimeout;
+    Uint32 _pullOperationMaxTimeout;
 
     Uint32 _providerManagerServiceId;
+
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Array<String> _excludeModulesFromNormalization;
 #endif

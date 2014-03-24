@@ -736,9 +736,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 #endif
     }
 
-#ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
     options |= SSL_OP_NO_SSLv2;
-#endif
     SSL_CTX_set_options(sslContext, options);
 
 #ifdef PEGASUS_SSL_WEAKENCRYPTION

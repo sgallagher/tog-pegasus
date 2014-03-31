@@ -32,6 +32,21 @@
 
 #include "CIMInternalXmlEncoder.h"
 #include "XmlWriter.h"
+#include "Tracer.h"
+
+/*
+    FUTURE. The functions _putXMLInstance and _putXMLNamedInstance are the
+    same except for the wrapper around the object path.  First, in at
+    least some cases, the xml output removes this (CIM CIMResponseData and
+    second we could simplify by making one function with a flag to
+    add the wrapper. However. Should coordinate functions names, etc. with
+    SCMO. Finally, there is a XmlWriter::appendValueReferenceElement which
+    does the same as the internal function
+    KS 28 March 2014.  I am not touching this until we sort out all the
+    paths and get pull running correctly.  This goes through to many
+    paths adding and removing the value.reference entity.
+*/
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -42,6 +57,8 @@ void CIMInternalXmlEncoder::_putXMLInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+
+    PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "_putXMLInstance");
     if (ci.isUninitialized())
     {
         out.putUint32(0);
@@ -80,9 +97,8 @@ void CIMInternalXmlEncoder::_putXMLInstance(
         }
         else
         {
-            // add ValueReferenceElement with VALUE.REFERENCE as instancePath
-            // and with VALUE.REFERENCE wrapper
-            XmlWriter::appendValueReferenceElement(buf, cop, false, true);
+            // add ValueReferenceElement
+            XmlWriter::appendValueReferenceElement(buf, cop, false);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -91,8 +107,11 @@ void CIMInternalXmlEncoder::_putXMLInstance(
             out.putNamespaceName(cop.getNameSpace());
         }
     }
+    PEG_METHOD_EXIT();
 }
-
+// Same as _putXMLInstance except this function maps the objectPath directly
+// appendInstanceNameElement whereas _putXMLInstance maps it to
+// appendValueReferenceElement
 void CIMInternalXmlEncoder::_putXMLNamedInstance(
     CIMBuffer& out,
     const CIMInstance& ci,
@@ -100,6 +119,7 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "_putXMLNamedInstance");
     if (ci.isUninitialized())
     {
         out.putUint32(0);
@@ -147,6 +167,7 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
             out.putNamespaceName(cop.getNameSpace());
         }
     }
+    PEG_METHOD_EXIT();
 }
 
 void CIMInternalXmlEncoder::_putXMLObject(
@@ -156,6 +177,7 @@ void CIMInternalXmlEncoder::_putXMLObject(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "_putXMLObject");
     if (co.isUninitialized())
     {
         out.putUint32(0);
@@ -203,8 +225,8 @@ void CIMInternalXmlEncoder::_putXMLObject(
             out.putNamespaceName(cop.getNameSpace());
         }
     }
+    PEG_METHOD_EXIT();
 }
-
 
 // Calls appendInstanceName the other calls appendValueReference
 // This is a shortcut function that puts VALUE.REFERENCE around

@@ -19,7 +19,7 @@ TODO list:
    4. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
       pull not completed so we feed the responses back to the EnmerationContext
       queues
-   3. Lots of minor TODOs, diagnostics, etc.
+   3. Lots of minor TODOs, diagnostics, etc. still in the code
    4. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration.  This should be discussed.  Am making
       this a separate bug.  See bug 9819 for the changes to cover this.
@@ -51,6 +51,28 @@ TODO list:
          forceProviderProcesses = true.  This causes an operation like
          cimcli pei CIM_ManagedElement to not complete (client timeout)
          sometimes.
+
+31 March 2014 - Checkin
+1. Fixed issues in OOP processing of pull operations, in particular
+   issues with cimxml output format when processed through the
+   *InternalXmlEncoder functions.
+2. Clean up some of the internalXml functionality
+3. Found issues causing timeout with a particular provider.  The issue
+   is that the dispatcher and monitor end up using the same thread so the
+   condition variable in the dispatcher thread stops the monitor. Turned
+   off the conditionVariable in getCache for the moment which means that
+   we get number of responses for open... with 0 objects before the
+   providers can begin to respond.  This is only for test.
+4. Added some statistics for enumerations and display the statistics 
+   when we close the server (same as cache statistics)
+
+12 March 2014 - Mergeout and Mergein
+1. Mergeout to head of tree for this date and mergein for patch update
+   to bug 9676
+2. Extensions to pullop tests program and tests.
+3. Added some diagnostics in looking for OOP issue.
+4. Removed a number of diagnostics messages and cleaned up code in
+   dispatcher to simplify pull operation processing.
 
 15 December 2013
 1. Mergeout and mergein up to 15 December 2013

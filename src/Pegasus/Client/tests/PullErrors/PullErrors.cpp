@@ -1076,7 +1076,7 @@ int main(int argc, char** argv)
     tc3._className =  "CMPI_TEST_Person";
     tc3._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
     tc3.openEnumerateInstances();
-    tc3.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
+    tc3.setCIMException(CIM_ERR_FAILED);
     tc3.pullInstancePaths();
 
     // Test for a complete sequence that works.
@@ -1099,7 +1099,6 @@ int main(int argc, char** argv)
         is actually released.
     */
     // test openEnumerateInstances and pull after timeout.
-    //testCalls tc(client, "test/TestProvider");
     tc.setTestName("Interoperation Timeout upon Pull");
     tc._className =  "CMPI_TEST_Person";
     tc._maxObjectCount = 1;
@@ -1107,7 +1106,8 @@ int main(int argc, char** argv)
 
     // execute the open call and then wait past timer to test for timeout
     tc.openEnumerateInstances();
-    VCOUT << "Wait for open operation to timeout" << endl;
+    VCOUT << "Wait for open operation to timeout. This should wait about"
+             " 10 Seconds, return error, and then pass test." << endl;
     sleep(10);
 
     tc.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);

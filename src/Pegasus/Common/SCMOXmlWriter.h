@@ -114,8 +114,11 @@ public:
 
     static void appendValueReferenceElement(
         Buffer& out,
-        const SCMOInstance& ref,
-        Boolean putValueWrapper);
+        const SCMOInstance& ref);
+
+    static void appendClassOrInstancePathElement(
+        Buffer& out,
+        const SCMOInstance& ref);
 
     static void appendLocalInstancePathElement(
         Buffer& out,

@@ -1173,10 +1173,12 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
         "CIMResponseData::encodeXmlResponse");
 
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X, pull= %s)",
+        "CIMResponseData::encodeXmlResponse(encoding=%X,dataType=%X, isPull= %s"
+        " encodeInstanceOnly= %s)",
         _encoding,
         _dataType,
-        (isPullResponse? "true" : "false")));
+        boolToString(isPullResponse),
+        boolToString(encodeInstanceOnly) ));
 
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
@@ -1236,22 +1238,47 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
 
                 for (Uint32 i = 0, n = a.size(); i < n; i++)
                 {
-                    out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
+                    if (isPullResponse)
+                    {
+                        out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
+                    }
+                    else
+                    {
+                        out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
+                    }
                     out << STRLIT("<INSTANCEPATH>\n");
                     XmlWriter::appendNameSpacePathElement(
                             out,
                             _hostsData[i],
                             _nameSpacesData[i]);
-                    // Leave out the surrounding tags "<VALUE.REFERENCE>\n"
-                    // and "</VALUE.REFERENCE>\n" which are 18 and 19 characters
-                    // long
-                    out.append(
-                        ((char*)b[i].getData())+18,
-                        b[i].size() - 1 - 18 -19);
+
+                    if (isPullResponse)
+                    {
+                        out.append((char*)b[i].getData(),b[i].size()-1);
+                    }
+                    else
+                    {
+                        // Leave out the surrounding tags "<VALUE.REFERENCE>\n"
+                        // and "</VALUE.REFERENCE>\n" which are 18 and 19
+                        // characters long
+                        //// KS_TODO Should be able to do this by properly
+                        //// building in the CIMXmlInternalEncoder
+                        out.append(
+                            ((char*)b[i].getData())+18,
+                            b[i].size() - 1 - 18 -19);
+                    }
+
                     out << STRLIT("</INSTANCEPATH>\n");
                     // append instance body
                     out.append((char*)a[i].getData(), a[i].size() - 1);
-                    out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
+                    if (isPullResponse)
+                    {
+                        out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
+                    }
+                    else
+                    {
+                        out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
+                    }
                 }
                 break;
             }
@@ -1313,7 +1340,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                                 out,
                                 _instances[i],
                                 _includeQualifiers,
-                                // KS_TODO should not have to block this here
                                 _includeClassOrigin,
                                 _propertyList);
                         }
@@ -1348,7 +1374,8 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                     {
                         CIMInstance x = (CIMInstance)_objects[i];
                         XmlWriter::appendValueInstanceWithPathElement(
-                            out, x,
+                            out,
+                            x,
                             _includeQualifiers,
                             _includeClassOrigin,
                             _propertyList);
@@ -1371,21 +1398,22 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                 for (Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
                 {
                     // ObjectPaths come from providers for pull operations
-                    // but are encoded as instancePathElements
+                    // but are encoded as instancePathElements. If pull
+                    // only instances allowed.
                     if (isPullResponse)
-
                     {
-                        XmlWriter::appendInstancePathElement(out,
+                        XmlWriter::appendInstancePathElement(
+                            out,
                            _instanceNames[i]);
                     }
                     else
                     {
+                        //Append The path element (Class or instance)
                         out << "<OBJECTPATH>\n";
-                        XmlWriter::appendValueReferenceElement(
+                        XmlWriter::appendClassOrInstancePathElement(
                             out,
                             _instanceNames[i],
-                        _isClassOperation,
-                            false);
+                            _isClassOperation);
                         out << "</OBJECTPATH>\n";
                     }
                 }
@@ -1482,9 +1510,8 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                     else
                     {
                         out << "<OBJECTPATH>\n";
-                        SCMOXmlWriter::appendValueReferenceElement(
-                            out, _scmoInstances[i],
-                            false);
+                        SCMOXmlWriter::appendClassOrInstancePathElement(
+                            out, _scmoInstances[i]);
                         out << "</OBJECTPATH>\n";
                     }
                 }
@@ -1496,21 +1523,24 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
             }
         }
     }
-
     PEG_METHOD_EXIT();
 }
 
 // contrary to encodeXmlResponse this function encodes the Xml in a format
 // not usable by clients
-void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
+void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out,
+    Boolean isPullOperation)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeInternalXmlResponse");
 
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)",
+        "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X"
+        " isPullOperation=%s)",
         _encoding,
-        _dataType));
+        _dataType,
+        boolToString(isPullOperation)));
+
     // For mixed (CIM+SCMO) responses, we need to tell the receiver the
     // total number of instances. The totalSize variable is used to keep track
     // of this.
@@ -1569,12 +1599,25 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 out.putUint32(totalSize);
                 for (Uint32 i = 0; i < n; i++)
                 {
-                    CIMInternalXmlEncoder::_putXMLObject(
-                        out,
-                        _objects[i],
-                        _includeQualifiers,
-                        _includeClassOrigin,
-                        _propertyList);
+                    // if is pull map to instances.
+                    if (isPullOperation)
+                    {
+                        CIMInternalXmlEncoder::_putXMLNamedInstance(
+                            out,
+                            (CIMInstance)_objects[i],
+                            _includeQualifiers,
+                            _includeClassOrigin,
+                            _propertyList);
+                    }
+                    else
+                    {
+                        CIMInternalXmlEncoder::_putXMLObject(
+                            out,
+                            _objects[i],
+                            _includeQualifiers,
+                            _includeClassOrigin,
+                            _propertyList);
+                    }
                 }
                 break;
             }
@@ -1626,10 +1669,21 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
                 {
                     out.putUint32(n);
                 }
-                SCMOInternalXmlEncoder::_putXMLObject(
-                    out,
-                    _scmoInstances,
-                    _propertyList);
+                    // if is pull map to instances.
+                if (isPullOperation)
+                {
+                    SCMOInternalXmlEncoder::_putXMLNamedInstance(
+                        out,
+                        _scmoInstances,
+                        _propertyList);
+                }
+                else
+                {
+                    SCMOInternalXmlEncoder::_putXMLObject(
+                        out,
+                        _scmoInstances,
+                        _propertyList);
+                }
                 break;
             }
             // internal xml encoding of instance names and object paths not
@@ -2208,10 +2262,27 @@ void CIMResponseData::setIsClassOperation(Boolean b)
     _isClassOperation = b;
 }
 
-//// KS_TODO Remove. Diagnostic Display
+//// KS_TODO Remove. Diagnostic Displays below before commit to head
 void CIMResponseData::traceResponseData()
 {
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "%s", (const char*)toStringTraceResponseData().getCString() ));
+}
+String CIMResponseData::toStringTraceResponseData()
+{
+    int rtnSize;
+    char *p;
+
+    int allocSize = 256;
+
+    if ((p = (char*)malloc(allocSize)) == NULL)
+    {
+        return String();
+    }
+
+    do
+    {
+        rtnSize = snprintf(p, allocSize,
         "CIMResponseData::traceResponseData(encoding=%X,dataType=%X "
         " size=%u C++instNamecount=%u c++Instances=%u c++Objects=%u "
         "scomInstances=%u XMLInstData=%u binaryData=%u "
@@ -2220,7 +2291,26 @@ void CIMResponseData::traceResponseData()
         _instanceNames.size(),_instances.size(), _objects.size(),
         _scmoInstances.size(),_instanceData.size(),_binaryData.size(),
         _referencesData.size(), _instanceData.size(), _hostsData.size(),
-        _nameSpacesData.size()        ));
+        _nameSpacesData.size());
+
+        // return if successful if not negative and
+        // returns less than allocated size.
+        if (rtnSize > -1 && rtnSize < allocSize)
+        {
+            break;
+        }
+
+        // increment alloc size. Assumes that positive return is
+        // expected size and negative is error.
+        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
+
+    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
+
+    // Free allocated memory and return formatted output in String
+    String rtnStr(p);
+    free(p);
+    return(rtnStr);
 }
+
 
 PEGASUS_NAMESPACE_END

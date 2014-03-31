@@ -389,8 +389,9 @@ public:
     void encodeBinaryResponse(CIMBuffer& out);
 
     // Encode the CIMResponse data into Xml format used with Provider Agents
-    //  only in the provided CIMBuffer
-    void encodeInternalXmlResponse(CIMBuffer& out);
+    // only in the provided CIMBuffer
+    void encodeInternalXmlResponse(CIMBuffer& out,
+        Boolean isPullResponse = false);
 
     // Encode the CIMResponse data into official Xml format(CIM over Http)
     // used to communicate to clients in the provided CIMBuffer.
@@ -434,6 +435,7 @@ public:
     bool sizeValid();                   //KS_TEMP KS_TODO REMOVE
 
     void traceResponseData();           // KS_TODO Diagnostic. remove
+    String toStringTraceResponseData();  // KS_TODO Diagnostic remove
 
     void resolveBinaryToSCMO();
 

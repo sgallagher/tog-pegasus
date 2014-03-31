@@ -1049,7 +1049,8 @@ void CIMBinMsgSerializer::_putAssociatorsResponseMessage(
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        msg->getResponseData().encodeInternalXmlResponse(out,
+            msg->internalOperation);
     }
 }
 
@@ -1076,7 +1077,8 @@ void CIMBinMsgSerializer::_putReferencesResponseMessage(
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        msg->getResponseData().encodeInternalXmlResponse(out,
+            msg->internalOperation);
     }
 }
 

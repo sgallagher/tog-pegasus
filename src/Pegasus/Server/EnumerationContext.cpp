@@ -320,8 +320,8 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 
     from.traceResponseData();
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-        "Enter putCache, response isComplete %s ResponseDataType %u "
-            " cache size= %u put size= %u clientClosed %s",
+        "Enter putCache,  isComplete= %s ResponseDataType= %u "
+            " cache size= %u put size= %u clientClosed= %s",
         boolToString(providersComplete), to.getResponseDataContent(),
         to.size(), from.size(),
         boolToString(_clientClosed)));
@@ -367,7 +367,7 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
         // before waiting to be sure any cache size wait is retested.
         // May lose control at this point to CacheSizeCondition.
         //
-        signalCacheSizeCondition();
+////      signalCacheSizeCondition();
 
         // Review this for possible conflicts with context removal.
         // The _waiting is temporary and should not be required.
@@ -425,7 +425,7 @@ Boolean EnumerationContext::getCache(
     CIMResponseData& rtnData)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::getCacheResponseData");
+        "EnumerationContext::getCache");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP;
 
@@ -444,17 +444,17 @@ Boolean EnumerationContext::getCache(
     // the wait period since we expect things to be put into the
     // cache during this period. Called from a client operation and the
     // operation will hang until this completes.
-    waitCacheSizeCondition(count);
+    //// waitCacheSizeCondition(count);
 
     // Note that there is an issue here in that we should prioritize returning
     // data before returning errors.  In this case, it may leave data in the
     // cache and return error. However, have issue if error is on last
     // provider return where it drops the error.
     // KS_TODO TBD
-    if (isErrorState())
-    {
-        return false;
-    }
+////  if (isErrorState())
+////  {
+////      return false;
+////  }
 
     // Lock the cache for the move function
     AutoMutex autoMut(_responseCacheMutex);

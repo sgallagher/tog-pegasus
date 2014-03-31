@@ -737,6 +737,13 @@ inline void _completeHostNameAndNamespace(
         // Can use System::getHostName() reliably here since it was initialized
         // through the ConfigManager at start of ProviderAgent.
         CIMResponseDataMessage * rspMsg= (CIMResponseDataMessage*) response;
+//EXP_PULL_BEGIN
+        // Required to process responses for pull operations. This is really
+        // a poor place to put this but it is efficient for the moment
+        //  Set the internal vs external to the response message.
+        rspMsg->internalOperation = reqMsg->internalOperation;
+//EXP_PULL_END
+
         CIMResponseData & rspData = rspMsg->getResponseData();
 
         rspData.completeHostNameAndNamespace(

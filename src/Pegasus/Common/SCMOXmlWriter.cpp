@@ -224,7 +224,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
             if (SCMO_OK == smrc)
             {
                 SCMOInstance * ref = kbValue->extRefPtr;
-                appendValueReferenceElement(out, *ref, true);
+                appendValueReferenceElement(out, *ref);
             }
         }
         else
@@ -673,7 +673,7 @@ void SCMOXmlWriter::appendValueElement(
         SCMOInstance * ref = value.value.extRefPtr;
         if (ref)
         {
-            appendValueReferenceElement(out, *ref, true);
+            appendValueReferenceElement(out, *ref);
         }
     }
     else
@@ -698,14 +698,20 @@ void SCMOXmlWriter::appendValueElement(
 //------------------------------------------------------------------------------
 void SCMOXmlWriter::appendValueReferenceElement(
     Buffer& out,
-    const SCMOInstance& ref,
-    Boolean putValueWrapper)
+    const SCMOInstance& ref)
 {
-    if (putValueWrapper)
-    {
-        out << STRLIT("<VALUE.REFERENCE>\n");
-    }
+    out << STRLIT("<VALUE.REFERENCE>\n");
 
+    appendClassOrInstancePathElement(out, ref);
+
+    out << STRLIT("</VALUE.REFERENCE>\n");
+}
+
+// Append either a class or instance Path Element
+void SCMOXmlWriter::appendClassOrInstancePathElement(
+    Buffer& out,
+    const SCMOInstance& ref)
+{
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
 
@@ -743,10 +749,6 @@ void SCMOXmlWriter::appendValueReferenceElement(
         {
             appendInstanceNameElement(out, ref);
         }
-    }
-    if (putValueWrapper)
-    {
-        out << STRLIT("</VALUE.REFERENCE>\n");
     }
 }
 
@@ -857,7 +859,7 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
-    appendValueReferenceElement(out, objectWithPath, false);
+    appendClassOrInstancePathElement(out, objectWithPath);
     appendObjectElement(out, objectWithPath,filtered,nodes);
 
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
@@ -1369,7 +1371,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 SCMOInstance * ref = arr->extRefPtr;
                 if (ref)
                 {
-                    appendValueReferenceElement(out, *ref, true);
+                    appendValueReferenceElement(out, *ref);
                 }
                 arr++;
             }

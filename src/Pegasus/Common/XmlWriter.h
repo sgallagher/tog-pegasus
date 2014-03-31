@@ -122,8 +122,14 @@ public:
     static void appendValueReferenceElement(
         Buffer& out,
         const CIMObjectPath& reference,
-        Boolean isClassPath,
-        Boolean putValueWrapper);
+        Boolean isClassPath);
+
+    // Append either classPath or InstancePath Element depending on
+    // isClassPath value.
+    static void appendClassOrInstancePathElement(
+        Buffer& out,
+        const CIMObjectPath& reference,
+        Boolean isClassPath);
 
     static void printValueReferenceElement(
         const CIMObjectPath& reference,
@@ -331,6 +337,7 @@ public:
         const char* name,
         const String& str);
 //EXP_PULL_END
+
     static void appendClassNameIParameter(
         Buffer& out,
         const char* name,
@@ -586,11 +593,11 @@ private:
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
 
-    static void appendValueInstancePathElement(
+    static void appendInstancePath(
         Buffer& out,
         const CIMObjectPath& reference);
 
-    static void appendValueClassPathElement(
+    static void appendClassPath(
         Buffer& out,
         const CIMObjectPath& reference);
 

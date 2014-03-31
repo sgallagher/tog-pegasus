@@ -147,14 +147,17 @@ void XmlWriter::appendInstanceNameElement(
     const Array<CIMKeyBinding>& keyBindings = instanceName.getKeyBindings();
     for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
     {
+        // Append KEYBINDING ELEMENT
+        // <!ELEMENT KEYBINDING (KEYVALUE|VALUE.REFERENCE)>
+        //   <!ATTLIST KEYBINDING
         out << STRLIT("<KEYBINDING NAME=\"");
         out << keyBindings[i].getName() << STRLIT("\">\n");
 
         if (keyBindings[i].getType() == CIMKeyBinding::REFERENCE)
         {
             CIMObjectPath ref = keyBindings[i].getValue();
-            // create an instancePath (i.e. isClassPath = false)
-            appendValueReferenceElement(out, ref, false, true);
+            // isClassPath = false
+            appendValueReferenceElement(out, ref, false);
         }
         else
         {
@@ -360,8 +363,8 @@ inline void _xmlWritter_appendValue(Buffer& out, const CIMDateTime& x)
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObjectPath& x)
 {
-    // Emit Instance Path with value wrapper
-    XmlWriter::appendValueReferenceElement(out, x, false, true);
+    // Emit Instance Path with VALUE.REFERENCE wrapper element
+    XmlWriter::appendValueReferenceElement(out, x, false);
 }
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObject& x)
@@ -735,8 +738,8 @@ void XmlWriter::appendValueObjectWithPathElement(
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
-    appendValueReferenceElement(out, objectWithPath.getPath (),
-        isClassObject , false);
+    appendClassOrInstancePathElement(out, objectWithPath.getPath (),
+        isClassObject);
 
     appendObjectElement(
         out,
@@ -748,18 +751,8 @@ void XmlWriter::appendValueObjectWithPathElement(
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
 }
 
-//------------------------------------------------------------------------------
-//
-// appendValueReferenceElement()
-//
-//    <!ELEMENT VALUE.REFERENCE
-//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
-//         INSTANCENAME)>
-//
-//------------------------------------------------------------------------------
-
-// appends INSTANCEPATH | LOCALINSTANCEPATH | INSTANCENAME
-void XmlWriter::appendValueInstancePathElement(
+// Append INSTANCEPATH | LOCALINSTANCEPATH | INSTANCENAME
+void XmlWriter::appendInstancePath(
     Buffer& out,
     const CIMObjectPath& reference)
 {
@@ -778,7 +771,7 @@ void XmlWriter::appendValueInstancePathElement(
 }
 
 // appends CLASSPATH | LOCALCLASSPATH | CLASSNAME
-void XmlWriter::appendValueClassPathElement(
+void XmlWriter::appendClassPath(
     Buffer& out,
     const CIMObjectPath& reference)
 {
@@ -795,32 +788,49 @@ void XmlWriter::appendValueClassPathElement(
         appendClassNameElement(out, reference.getClassName());
     }
 }
-
+//------------------------------------------------------------------------------
+//
+// appendValueReferenceElement()
+//
+//    <!ELEMENT VALUE.REFERENCE
+//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
+//         INSTANCENAME)>
+//
+//------------------------------------------------------------------------------
 // Builds either a classPath or InstancePath based on isClassPath
 // parameter which was carried forward from, for example, the
-// request. If wrapper true, wrap output with <VALUE.REFERENCE>
+// request.
+// The caller must determine if this is a class or instance
+// path rather than trying to interpret that difference from reference arg.
 void XmlWriter::appendValueReferenceElement(
     Buffer& out,
     const CIMObjectPath& reference,
-    Boolean isClassPath,
-    Boolean addValueWrapper)
+    Boolean isClassPath)
 {
-    if (addValueWrapper)
-    {
-         out << STRLIT("<VALUE.REFERENCE>\n");
-    }
+    out << STRLIT("<VALUE.REFERENCE>\n");
+
+    appendClassOrInstancePathElement(out, reference, isClassPath);
+
+    out << STRLIT("</VALUE.REFERENCE>\n");
+}
+
+
+// Append either the classPathElement or InstancePathElement depending on
+// the isClassPath input argument.
+//  INSTANCENAME | CLASSNAME
+
+void XmlWriter::appendClassOrInstancePathElement(
+    Buffer& out,
+    const CIMObjectPath& reference,
+    Boolean isClassPath)
+{
     if (isClassPath)
     {
-        appendValueClassPathElement(out,reference);
+        appendClassPath(out,reference);
     }
     else
     {
-        appendValueInstancePathElement(out,reference);
-    }
-
-    if (addValueWrapper)
-    {
-        out << STRLIT("</VALUE.REFERENCE>\n");
+        appendInstancePath(out,reference);
     }
 }
 
@@ -830,7 +840,7 @@ void XmlWriter::printValueReferenceElement(
     PEGASUS_STD(ostream)& os)
 {
     Buffer tmp;
-    appendValueReferenceElement(tmp, reference, isClassPath, true);
+    appendValueReferenceElement(tmp, reference, isClassPath);
     indentedPrint(os, tmp.getData());
 }
 

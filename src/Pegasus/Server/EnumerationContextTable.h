@@ -197,6 +197,8 @@ public:
     */
     void removeContextTable();
 
+    void displayStatistics(Boolean clear = false);
+
 protected:
 
     // Timers for timer thread in milliseconds
@@ -248,6 +250,16 @@ private:
     // and enumeration context close.
     Uint32 _maxOperationTimeout;
 
+    // Count of enumerations Opened total
+    Uint64 _enumerationContextsOpened;
+
+    // Count of enumerations TimedOut
+    Uint32 _enumerationsTimedOut;
+
+    // maximum number of Simultaneous Contexts open.
+    Uint32 _maxSimultaneousContexts;
+
+    // magic number that acts as validator of enumerationContextTable
     Magic<0x57D11474> _magic;
 };
 

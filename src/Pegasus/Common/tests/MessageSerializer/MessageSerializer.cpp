@@ -37,6 +37,7 @@
 #include <Pegasus/Common/SCMOClassCache.h>
 #include <Pegasus/Common/CIMBinMsgSerializer.h>
 #include <Pegasus/Common/CIMBinMsgDeserializer.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -122,8 +123,6 @@ void getSCMOInstancesFromCIM(
 }
 
 
-
-
 //
 // validateCIMPropertyList
 //
@@ -151,6 +150,13 @@ void validateCIMInstance(
     }
     else
     {
+        if (!inInstance.identical(outInstance))
+        {
+            cout << "Error Instances not identical.\ninINSTANCE====" << endl;
+            XmlWriter::printInstanceElement(inInstance, cout);
+            cout << "outINSTANCE====" << endl;
+            XmlWriter::printInstanceElement(inInstance, cout);
+        }
         PEGASUS_TEST_ASSERT(inInstance.identical(outInstance));
     }
 }
@@ -480,7 +486,7 @@ void validateOperationContext(
     catch(const Exception&)
     {
     }
-    
+
     try
     {
         const UserRoleContainer inContainer =
@@ -1528,7 +1534,7 @@ void testProvAgtGetScmoClassRequestMessage(
     const CIMName& className,
     const QueueIdStack& qids)
 {
-    ProvAgtGetScmoClassRequestMessage inMessage(mid, ns, className, qids);    
+    ProvAgtGetScmoClassRequestMessage inMessage(mid, ns, className, qids);
     AutoPtr<ProvAgtGetScmoClassRequestMessage> outMessage(
         dynamic_cast<ProvAgtGetScmoClassRequestMessage*>(
             serializeDeserializeMessage(&inMessage)));
@@ -1571,14 +1577,12 @@ void testCIMGetInstanceResponseMessage(
     {
         cout << outMessage->getResponseData().size() << " " << prevSize << endl;
     }
-    //KS_TODO 0 Correct this
-    // PEGASUS_TEST_ASSERT(outMessage->getResponseData().size() == prevSize);
 
-    validateCIMInstance(
+    PEGASUS_TEST_ASSERT(outMessage->getResponseData().size() == prevSize);
+     validateCIMInstance(
         inMessage.getResponseData().getInstance(),
         outMessage->getResponseData().getInstance());
-
-    if (verbose)
+     if (verbose)
     {
         cout << "testCIMGetInstanceResponseMessage - OK" << endl;
     }
@@ -1606,18 +1610,24 @@ void testCIMGetInstanceResponseMessageSCMO(
             serializeDeserializeMessage(&inMessage)));
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
-    PEGASUS_TEMP_ASSERT(outMessage->getResponseData().size() ==
-                        inMessage.getResponseData().size());
-    if (outMessage->getResponseData().size() ==
-                      inMessage.getResponseData().size())
+    Uint32 outSize = outMessage->getResponseData().size();
+    Uint32 inSize = inMessage.getResponseData().size();
+    if (inSize != outSize)
     {
         cout << "Error in Serialized Msg Size "
-             << " in msg size " << inMessage.getResponseData().size()
-             << " out msg size " << outMessage->getResponseData().size()
-             << "content" 
+             << " in msg size= " << inSize
+             << " out msg size= " << outSize
+             << " content= "
              << outMessage->getResponseData().getResponseDataContent()
+             << endl << "trace inMessage = " << endl
+             << inMessage.getResponseData().toStringTraceResponseData()
+             << endl << "trace outMessage=" << endl
+             << outMessage->getResponseData().toStringTraceResponseData()
              << endl;
     }
+
+    PEGASUS_TEMP_ASSERT(outSize == inSize);
+
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMInstance(
         inMessage.getResponseData().getInstance(),
@@ -1719,17 +1729,18 @@ void testCIMEnumerateInstancesResponseMessage(
     CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids);
     inMessage.binaryResponse=true;
     inMessage.getResponseData().setInstances(instances);
-    if (inMessage.getResponseData().size() == instances.size())
+    if (inMessage.getResponseData().size() != instances.size())
     {
         cout << "Size err" << inMessage.getResponseData().size() << " "
              << instances.size() << endl;
     }
+
     PEGASUS_TEMP_ASSERT(inMessage.getResponseData().size() ==
-                        instances.size());
+        instances.size());
 
     inMessage.getResponseData().setSCMO(instArraySCMO);
 
-    if (inMessage.getResponseData().size() == instances.size()
+    if (inMessage.getResponseData().size() != instances.size()
         + instArraySCMO.size())
     {
         cout << "Size err" << inMessage.getResponseData().size() << " "
@@ -1753,13 +1764,14 @@ void testCIMEnumerateInstancesResponseMessage(
 
     PEGASUS_TEMP_ASSERT(outMessage->getResponseData().size() ==
         inMessage.getResponseData().size());
-    if (outMessage->getResponseData().size() ==
+
+    if (outMessage->getResponseData().size() !=
                       inMessage.getResponseData().size())
     {
         cout << "Error in Serialized Msg Size "
              << " in msg size " << inMessage.getResponseData().size()
              << " out msg size " << outMessage->getResponseData().size()
-             << "content" 
+             << "content"
              << outMessage->getResponseData().getResponseDataContent()
              << endl;
     }
@@ -1814,7 +1826,7 @@ void testCIMEnumerateInstanceNamesResponseMessage(
         cout << "Error in Serialized Msg Size "
              << " in msg size " << inMessage.getResponseData().size()
              << " out msg size " << outMessage->getResponseData().size()
-             << "content" 
+             << "content"
              << outMessage->getResponseData().getResponseDataContent()
              << endl;
     }
@@ -1860,18 +1872,19 @@ void testCIMExecQueryResponseMessage(
     // KS_TEMP temporary change to get through end-end while we sort out
     // size and move issues on binary protocol. Note that there are
     // several of these.
-    PEGASUS_TEMP_ASSERT(outMessage->getResponseData().size() ==
-                        inMessage.getResponseData().size());
     if (outMessage->getResponseData().size() ==
                       inMessage.getResponseData().size())
     {
         cout << "Error in Serialized Msg Size "
              << " in msg size " << inMessage.getResponseData().size()
              << " out msg size " << outMessage->getResponseData().size()
-             << "content" 
+             << "content"
              << outMessage->getResponseData().getResponseDataContent()
              << endl;
     }
+
+    PEGASUS_TEMP_ASSERT(outMessage->getResponseData().size() ==
+                        inMessage.getResponseData().size());
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMObjectArray(
@@ -2422,14 +2435,14 @@ void testProvAgtGetScmoClassResponseMessage(
         inc = SCMOClass(cls);
     }
 
-    ProvAgtGetScmoClassResponseMessage inMessage(mid, ex, qids, inc);    
+    ProvAgtGetScmoClassResponseMessage inMessage(mid, ex, qids, inc);
     AutoPtr<ProvAgtGetScmoClassResponseMessage> outMessage(
         dynamic_cast<ProvAgtGetScmoClassResponseMessage*>(
             serializeDeserializeMessage(&inMessage)));
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
 
-    if (!inMessage.scmoClass.isEmpty() && 
+    if (!inMessage.scmoClass.isEmpty() &&
         !outMessage->scmoClass.isEmpty())
     {
         inMessage.scmoClass.getCIMClass(inCls);
@@ -2439,7 +2452,7 @@ void testProvAgtGetScmoClassResponseMessage(
     else
     {
        PEGASUS_TEST_ASSERT(
-           inMessage.scmoClass.isEmpty() && 
+           inMessage.scmoClass.isEmpty() &&
            outMessage->scmoClass.isEmpty());
     }
 
@@ -3009,7 +3022,7 @@ void testMessageSerialization()
     testCIMGetInstanceResponseMessage(oc1, mid2, ex3, qids4, inst1);
     testCIMGetInstanceResponseMessage(oc2, mid3, ex4, qids1, inst2);
     testCIMGetInstanceResponseMessage(oc3, mid4, ex1, qids2, inst3);
-
+//// KS TODO Fix this
 //  testCIMGetInstanceResponseMessageSCMO(oc4, mid1, ex2, qids3, inst4);
     testCIMGetInstanceResponseMessageSCMO(oc1, mid2, ex3, qids4, inst1);
     testCIMGetInstanceResponseMessageSCMO(oc2, mid3, ex4, qids1, inst2);

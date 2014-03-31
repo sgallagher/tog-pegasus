@@ -149,7 +149,11 @@ EnumerationContextTable::EnumerationContextTable()
     _enumContextCounter(1),
     _responseCacheMaximumSize(0),
     _cacheHighWaterMark(0),
-    _maxOperationTimeout(0)
+    _maxOperationTimeout(0),
+    _enumerationContextsOpened(0),
+    _enumerationsTimedOut(0),
+    _maxSimultaneousContexts(0)
+
 {
 }
 /*  Create the Enumeration table and set the values for
@@ -247,14 +251,50 @@ EnumerationContext* EnumerationContextTable::createContext(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CreateContext ContextId= %s", cxtName));
 
+    _enumerationContextsOpened++;
+
+    // set new highwater marke for max contexts if necessary
+    if (ht.size() >_maxSimultaneousContexts )
+    {
+        _maxSimultaneousContexts = ht.size();
+    }
+
     PEG_METHOD_EXIT();
     return enumCtxt;
+}
+
+void EnumerationContextTable::displayStatistics(Boolean clear)
+{
+    // Show shutdown statistics for EnumerationContextTable
+    // Should add avg size of requests.
+    //  Maybe some other info.
+    if (_enumerationContextsOpened != 0)
+    {
+        cout << "EnumerationTable Statistics:"
+            << "\n  Cache High Water Mark " << _cacheHighWaterMark
+            << "\n  Max Simultaneous Enumerations " << _maxSimultaneousContexts
+            << "\n  Total Enumerations " << _enumerationContextsOpened
+            << "\n  Enumerations Aborted " << _enumerationsTimedOut
+            << endl;
+    }
+    if (clear)
+    {
+        _cacheHighWaterMark = 0;
+        _maxSimultaneousContexts = 0;
+        _enumerationContextsOpened = 0;
+        _enumerationsTimedOut = 0;
+    }
 }
 
 void EnumerationContextTable::removeContextTable()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::removeContextTable");
+
+    // Show shutdown statistics for EnumerationContextTable
+    displayStatistics();
+
+    // Clear out any existing enumerations.
     Uint32 ctr = 0;
     for (HT::Iterator i = ht.start(); i; i++)
     {
@@ -319,6 +359,7 @@ void EnumerationContextTable::removeCxt(
 void EnumerationContextTable::removeContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::removeContext");
+
     PEGASUS_ASSERT(valid());
     AutoMutex autoMut(tableLock);
 
@@ -334,8 +375,8 @@ Boolean EnumerationContextTable::_removeContext(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_removeContext");
 
-    PEGASUS_ASSERT(en->valid());            // KS_TEMP
-    tableValidate();
+    PEGASUS_ASSERT(en->valid());
+    tableValidate();                        // KS_TEMP Diagnostic
 
     // If it is valid and providers are complete, remove
     // the enumerationContext.  If providers not complete, only
@@ -385,16 +426,15 @@ Boolean EnumerationContextTable::_removeContext(
     else
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP TODO
-            "_removeContext ERRORERROR %s  _providersComplete=%s"
-                " _waitingCacheSizeCondition=%s clientClosed=%s",
+            "_removeContext ERROR %s  _providersComplete=%s"
+                "  clientClosed=%s",
             (const char *)en->getName().getCString(),
             boolToString(en->_providersComplete),
             boolToString(en->_clientClosed) ));
         //// KS_TODO remove this.  Test Diagnostic only.
         cout << "remove ignored. "
-            << " clientClosed " <<(en->_clientClosed? "true" : "false")
-            << " _providersComplete " <<
-                 (en->_providersComplete? "true" : "false")
+            << " clientClosed " << boolToString(en->_clientClosed)
+            << " providersComplete " <<boolToString(en->_providersComplete)
             << endl;
     }
     PEG_METHOD_EXIT();

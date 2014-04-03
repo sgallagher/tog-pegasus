@@ -51,9 +51,11 @@
 #include <Pegasus/Client/CIMClient.h>
 
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/System.h>     / required for sleep function
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -1108,7 +1110,7 @@ int main(int argc, char** argv)
     tc.openEnumerateInstances();
     VCOUT << "Wait for open operation to timeout. This should wait about"
              " 10 Seconds, return error, and then pass test." << endl;
-    sleep(10);
+    System::sleep(10);
 
     tc.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
     tc.pullInstancesWithPath();

@@ -114,12 +114,14 @@
 #include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/Print.h>
+#include <Pegasus/Common/System.h>    // required for sleep function
 
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdarg>
 #include <string.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -765,7 +767,7 @@ void doSleep(Uint32 seconds)
     {
         VCOUT5 << "Sleeping " << seconds << " seconds between operations"
                << endl;
-        sleep(seconds);
+        System::sleep(seconds);
     }
 }
 

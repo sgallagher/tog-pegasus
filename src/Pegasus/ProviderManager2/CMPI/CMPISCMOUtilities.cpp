@@ -266,28 +266,14 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIKeyData(
             data->value.boolean=scmoValue->simple.val.bin;
             data->type=CMPI_keyBoolean;
             break;
-
         case CMPI_real32:
-            {
-                char buffer[128];
-                Uint32 size=0;
-                Real32ToString(buffer, scmoValue->simple.val.r32, size);
-                data->value.string = reinterpret_cast<CMPIString*>(
-                    new CMPI_Object(buffer));
-                data->type=CIMKeyBinding::STRING;
-                break;
-            }
-
+            data->value.real32=(CMPIReal32)scmoValue->simple.val.r32;
+            data->type=CMPI_real32;
+            break;
         case CMPI_real64:
-            {
-                char buffer[128];
-                Uint32 size=0;
-                Real64ToString(buffer, scmoValue->simple.val.r64, size);
-                data->value.string = reinterpret_cast<CMPIString*>(
-                    new CMPI_Object(buffer));
-                data->type=CIMKeyBinding::STRING;
-                break;
-            }
+            data->value.real64=(CMPIReal64)scmoValue->simple.val.r64;
+            data->type=CMPI_real64;
+            break;
 
         case CMPI_charsptr:
         case CMPI_chars:
@@ -309,11 +295,11 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIKeyData(
 
         case CMPI_dateTime:
             {
-                char buffer[26];
-                _DateTimetoCStr(scmoValue->dateTimeValue, buffer);
-                data->value.string = reinterpret_cast<CMPIString*>(
-                    new CMPI_Object(buffer));
-                data->type=CIMKeyBinding::STRING;
+                CIMDateTime* cimdt =
+                    new CIMDateTime(&scmoValue->dateTimeValue);
+                data->value.dateTime = reinterpret_cast<CMPIDateTime*>
+                    (new CMPI_Object(cimdt));
+                data->type=CMPI_dateTime;
                 break;
             }
 

@@ -235,6 +235,12 @@ public:
     Boolean putCache(CIMResponseMessage*& response,
         Boolean providersComplete);
 
+    /*
+        Wait for the cache to drop below defined size before
+        responding to the provider.
+    */
+    void waitCacheSize();
+
     /**Get up to the number of objects defined by count from the
        CIMResponseData cache in the enumerationContext into the rtn
        CIMResponseData object. This function waits for a number of
@@ -258,6 +264,44 @@ public:
        providers encountered
      */
     Boolean getCache(Uint32 count, CIMResponseData& rtnData);
+
+    /*
+        Test cache to see if there are responses that could be used
+        for an immediate response. Returns immediatly with true or false
+        indicating that a response should be issued.  The algorithm for
+        the response is
+             if request is for zero objects
+                return true
+            If requiresAll
+               return true if
+                    cache has enough objects for response (ge count) ||
+                    the error flag is set ||
+                    the providersComplete flag is set
+            else
+                return true if
+                    Cache has some objects int (do not return zero objects) ||
+                    the error flag is set ||
+                    the providersComplete flag is set
+        @param count Uint32 count of objects that the requests set as
+        max number for response
+
+        @param return parameter indicating that the errorFlag is set for this
+        enumeration.
+        @return True if passes tests for something to send or error flag
+        set.
+    */
+    Boolean testCacheForResponses(Uint32 operationMaxObjectCount,
+                                  Boolean requiresAll);
+
+    /*
+        Setup the request and response information for a response
+        to be generated as part of putting provider info into
+        the cache. This saves the request, response, and count
+        information.
+    */
+    void setupFutureResponse(CIMOperationRequestMessage* request,
+         CIMPullResponseDataMessage* response,
+         Uint32 operationMaxObjectCount);
 
     /**
         Returns count of objects in the EnumerationContext CIMResponseData
@@ -300,7 +344,7 @@ public:
         Test if the provider processing is complete.
         @return true if provider processing is complete.
      */
-    Boolean ifProvidersComplete() const ;
+    Boolean providersComplete() const ;
 
     /**
         Called by the Dispatcher Client operation when the
@@ -344,6 +388,12 @@ public:
     void lockContext();
     void unlockContext();
     Mutex _contextLock;
+
+    // parameters for requests saved for future send.  See
+    //
+    CIMOperationRequestMessage* _savedRequest;
+    CIMPullResponseDataMessage* _savedResponse;
+    Uint32 _savedOperationMaxObjectCount;
 
 private:
     // Default constructor not used
@@ -400,28 +450,6 @@ private:
     // mutex.
     Mutex _responseCacheMutex;
     CIMResponseData _responseCache;
-
-    // Condition variable and mutex for the  cache size tests. This condition
-    // variable is used by getCache(..) to force a wait until specific
-    // conditions have been met by the EnumerationContext.
-    Condition _cacheTestCondition;
-    Mutex _cacheTestCondMutex;
-    Uint32 _conditionCounter;
-    /**
-        Tests the cache to determine if we are ready to send a response.
-        The test is two parts, a) enough objects (i.e. GE size input parameter)
-        or end-of-sequence set indicating that we have completed provider
-        processing.
-    */
-    void waitCacheSizeCondition(Uint32 size);
-
-    /**
-        Signal that the cache size condition may have been met. Normally
-        called for every putcache and when providers complete set.
-        Uses the CacheTestCondition Condition Variable and used inc
-        conjunction with waitCacheSizeCondition
-    */
-    void signalCacheSizeCondition();
 
     // Condition variable and mutex for the provider wait
     // condition.  This is a hold on returns from putcache when cache
@@ -498,7 +526,7 @@ inline Boolean EnumerationContext::isValidPullRequestType(
     return(type == _pullRequestType);
 }
 
-inline Boolean EnumerationContext::ifProvidersComplete() const
+inline Boolean EnumerationContext::providersComplete() const
 {
     return _providersComplete;
 }

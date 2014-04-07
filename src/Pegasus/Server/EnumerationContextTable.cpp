@@ -48,54 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 /************************************************************************
 //
-//      TimerClass - List entry for List of all Enumeration Contexts for
-//      which the interoperation timer is active. This uses the list class
-//      and inserts entries into the list in order of timeout. Note: There
-//      should never be more than one entry for any single context
-//      since operations on a context are NOT concurrent.
-//      NOTE: Incomplete: Consider converting the timer to a list mechanism
-//      as cheaper way to execute timeouts.
-//
-************************************************************************/
-
-// KS_TODO Remove this
-//class Timer : public Linkable
-//{
-//public:
-//    Timer(const Uint32 timeout, EnumerationContext& ec
-//          : _timeout(timeout), _ec(ec)) { }
-//    ~Timer() { }
-//    insertTimer()
-//    bool isTimedOut():
-//
-//    // Test for equality of a context name
-//    static bool equal(const Person* person, const void* ecName)
-//    {
-//        return *((String*)client_data) == ec->getContextName();
-//    }
-//private:
-//    Timer(const Timer& x);
-//    Timer& operation=(const Timer& x);
-//    Uint64 _timeout;
-//    EnumerationContext* -ec;
-//};
-//
-//Typedef List<Timer, NullLock> TimerList;
-//TimerList timerList;
-//
-//// if the head of list timer has expired return true and remove it from
-//// the list
-//bool Timer::isTimedOut()
-//{
-//    if (timerList.front(_ec->isTimedOut()))
-//    {
-//
-//    }
-//    return timerList.front(_ec->isTimedOut());
-//
-//}
-/************************************************************************
-//
 //      EnumerationContextTable Class Implementation
 //
 ************************************************************************/
@@ -104,12 +56,12 @@ PEGASUS_USING_STD;
 // for close if timed out.  This is required for those cases where a
 // pull sequence is terminated without either completing or closing the
 // sequence.
-#define PEGASUS_USE_PULL_TIMEOUT_THREAD
-#ifdef PEGASUS_USE_PULL_TIMEOUT_THREAD
+
 ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::operationContextTimerThread");
+
     Thread *my_handle = (Thread *)parm;
     EnumerationContextTable* et =
         (EnumerationContextTable *)my_handle->get_parm();
@@ -140,7 +92,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
     PEG_METHOD_EXIT();
     return ThreadReturnType(0);
 }
-#endif
 
 EnumerationContextTable::EnumerationContextTable()
     :
@@ -153,7 +104,6 @@ EnumerationContextTable::EnumerationContextTable()
     _enumerationContextsOpened(0),
     _enumerationsTimedOut(0),
     _maxSimultaneousContexts(0)
-
 {
 }
 /*  Create the Enumeration table and set the values for
@@ -174,8 +124,6 @@ void EnumerationContextTable::setContextDefaultParameters(
 */
 EnumerationContextTable::~EnumerationContextTable()
 {
-
-    // remove any existing entries
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
 
@@ -200,16 +148,22 @@ EnumerationContext* EnumerationContextTable::createContext(
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::createContext");
 
     AutoMutex autoMut(tableLock);
+
+    // Arbitrary limit. No more than 1000 simultaneous contexts
+    if (ht.size() > 1000)
+    {
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+            "Error EnumerationContext Table exceeded Max limit of 1000" ));
+        return NULL;
+    }
     // set the operation timeout to either the default or current
     // value
-    Uint32 operationTimeout =
-        (operationTimeoutParam.isNull())?
-            _maxOperationTimeout
-            :
-            operationTimeoutParam.getValue();
+    Uint32 operationTimeout = (operationTimeoutParam.isNull())?
+        _maxOperationTimeout
+        :
+        operationTimeoutParam.getValue();
 
     // Create new context, Context name is monolithically increasing counter.
-    // The interoperationTimeout is defined by either default or input value.
     EnumerationContext* enumCtxt = new EnumerationContext(nameSpace,
         operationTimeout,
         continueOnError,
@@ -219,16 +173,15 @@ EnumerationContext* EnumerationContextTable::createContext(
     // Set the maximum size for the response Cache from the default
     // value in the table. This is for future where we could adjust the
     // size dynamically for each operation depending on resource utilization.
+    // or expected response sizes (ex. paths vs instances)
     enumCtxt->_responseCacheMaximumSize = _responseCacheMaximumSize;
 
     // Create new context name
-    //
     _enumContextCounter++;
     Uint32 size;
     char t[22];
-    const char* cxtName = Uint32ToString(t,_enumContextCounter.get(),size);
+    const char* cxtName = Uint32ToString(t, _enumContextCounter.get(), size);
 
-    // Put the name into the context and return value
     enumCtxt->_enumerationContextName = cxtName;
 
     // insert new context into the table
@@ -240,20 +193,13 @@ EnumerationContext* EnumerationContextTable::createContext(
         enumCtxt = 0;
         PEGASUS_ASSERT(false);
     }
-    // If we do not use the separate thread, test for timeouts each time
-    // we create a new context.
-#ifndef PEGASUS_USE_PULL_TIMEOUT_THREAD
-    if (isTimedOut())
-    {
-        removeExpiredContexts();
-    }
-#endif
+
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CreateContext ContextId= %s", cxtName));
 
     _enumerationContextsOpened++;
 
-    // set new highwater marke for max contexts if necessary
+    // set new highwater mark for max contexts if necessary
     if (ht.size() >_maxSimultaneousContexts )
     {
         _maxSimultaneousContexts = ht.size();
@@ -329,38 +275,13 @@ void EnumerationContextTable::removeContextTable()
     PEG_METHOD_EXIT();
 }
 
-/*
-    Check for valid and in table. Remove from table if in the table
-    Delete if the delete = true;
-*/
-void EnumerationContextTable::removeCxt(
-    const String& enumerationContextName,
-    Boolean deleteContext)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContextTable::remove");
-    AutoMutex autoMut(tableLock);
-    EnumerationContext* en = find(enumerationContextName);
-
-    if (en == 0)
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-            "remove Context ERRORERROR en == 0 enName %s",
-            (const char *)enumerationContextName.getCString()));
-
-        cout << "EnumTable.remove where en = 0" << endl;
-        PEG_METHOD_EXIT();
-        return;
-    }
-    _removeContext(en, deleteContext);
-}
-
-// KS_TODO - Clean up fact that we repeat code above and here and have
-// 2 parallel functions for deletion (pointer and name)
-void EnumerationContextTable::removeContext(EnumerationContext* en)
+void EnumerationContextTable::releaseContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::removeContext");
 
     PEGASUS_ASSERT(valid());
+    PEGASUS_ASSERT(en->valid());
+
     AutoMutex autoMut(tableLock);
 
     PEG_METHOD_EXIT();
@@ -505,7 +426,7 @@ void EnumerationContextTable::removeExpiredContexts()
                 en->setClientClosed();
 
                 // If providers are complete we can remove the context
-                if (en->ifProvidersComplete())
+                if (en->providersComplete())
                 {
                     _removeContext(en, true);
                     PEG_METHOD_EXIT();
@@ -525,7 +446,7 @@ void EnumerationContextTable::removeExpiredContexts()
     return;
 }
 
-// Validate every entry in the table.
+// Validate every entry in the table. KS_TODO Diagnostic
 void EnumerationContextTable::tableValidate()
 {
     for (HT::Iterator i = ht.start(); i; i++)
@@ -561,7 +482,6 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
             _nextTimeout = nextTimeout;
         }
 
-#ifdef PEGASUS_USE_PULL_TIMEOUT_THREAD
         // Start a detached thread that executes the timeout tests.
         // This thread runs until the timer is cleared or there are
         // no more contexts.
@@ -581,11 +501,9 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
             PEG_METHOD_EXIT();
             return;
         }
-#endif
     }
     PEG_METHOD_EXIT();
 }
-
 
 void EnumerationContextTable::trace()
 {
@@ -601,14 +519,53 @@ void EnumerationContextTable::trace()
         enumeration->trace();
     }
 }
-/**
- * validate the magic object for this context
- *
- * @return Boolean True if valid Enumeration table.
- */
-Boolean EnumerationContextTable::valid()
-{
-    return _magic;
-}
+/************************************************************************
+//
+//      TimerClass - List entry for List of all Enumeration Contexts for
+//      which the interoperation timer is active. This uses the list class
+//      and inserts entries into the list in order of timeout. Note: There
+//      should never be more than one entry for any single context
+//      since operations on a context are NOT concurrent.
+//      NOTE: Incomplete: Consider converting the timer to a list mechanism
+//      as cheaper way to execute timeouts.
+//
+************************************************************************/
+
+// KS_TODO Remove this
+//class Timer : public Linkable
+//{
+//public:
+//    Timer(const Uint32 timeout, EnumerationContext& ec
+//          : _timeout(timeout), _ec(ec)) { }
+//    ~Timer() { }
+//    insertTimer()
+//    bool isTimedOut():
+//
+//    // Test for equality of a context name
+//    static bool equal(const Person* person, const void* ecName)
+//    {
+//        return *((String*)client_data) == ec->getContextName();
+//    }
+//private:
+//    Timer(const Timer& x);
+//    Timer& operation=(const Timer& x);
+//    Uint64 _timeout;
+//    EnumerationContext* -ec;
+//};
+//
+//Typedef List<Timer, NullLock> TimerList;
+//TimerList timerList;
+//
+//// if the head of list timer has expired return true and remove it from
+//// the list
+//bool Timer::isTimedOut()
+//{
+//    if (timerList.front(_ec->isTimedOut()))
+//    {
+//
+//    }
+//    return timerList.front(_ec->isTimedOut());
+//
+//}
 
 PEGASUS_NAMESPACE_END

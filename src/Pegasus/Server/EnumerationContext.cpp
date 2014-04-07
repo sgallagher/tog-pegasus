@@ -72,11 +72,11 @@ EnumerationContext::EnumerationContext(
     _processing(true),    // set true because always created during processing
     _error(false),
     _responseCache(contentType),
-    _cacheTestCondMutex(Mutex::NON_RECURSIVE),
-    _conditionCounter(0),
     _providerLimitConditionMutex(Mutex::NON_RECURSIVE),
     _pullOperationCounter(0),
     _consecutiveZeroLenMaxObjectRequestCounter(0),
+    _savedRequest(NULL),
+    _savedResponse(NULL),
     _cacheHighWaterMark(0)
 {
     _responseCache.valid();             // KS_TEMP
@@ -275,11 +275,12 @@ EnumerationContext::~EnumerationContext()
 
 /*
     Insert complete CIMResponseData entities into the cache. If the
-    cache is full (at its size limit), wait until it the size drops
-    below the full limit.
+    cache is at its max size limit, and there are more provider responses
+    wait until it the size drops below the full limit.
     If the operation is closed, we discard the response. If
     this is the last response, remove the enumerationContext
-    Return true if putCache worked, false if closed and nothing put
+    Return true if putCache worked, false if closed and nothing put into
+    the cache.
     NOTE: This is single threaded. It is based on the mutex in
     _enquueueResponse which serializes independent responses. See
     _enqueueResponseMutex.
@@ -306,13 +307,15 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     // KS_TODO Calling this for everything, not just Enum.
     // Need to work off of the poA and only for enumerateInstances.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-        "Test putCache hasBinaryData %s MsgType %s",
-               (from.hasBinaryData()? "true" : "false"),
-            MessageTypeToString(response->getType()) ));
+        "Test putCache hasBinaryData %s MsgType %s providersComplete= %s",
+            boolToString(from.hasBinaryData()),
+            MessageTypeToString(response->getType()),
+            boolToString(providersComplete) ));
     //// End of diagnostic delete
 
     // if there is any binary data, reformat it to SCMO.  There are no
-    // size counters for the binary data/
+    // size counters for the binary data so we reformat to generate
+    // counters.
     if (from.hasBinaryData())
     {
         from.resolveBinaryToSCMO();
@@ -360,14 +363,8 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "After putCache insert responseCacheSize %u. CIMResponseData"
-                " size %u. signal CacheSizeConditon",
+                " size %u",
             responseCacheSize(), to.size() ));
-
-        // Signal addition to the CIMResponseData cache. Do this
-        // before waiting to be sure any cache size wait is retested.
-        // May lose control at this point to CacheSizeCondition.
-        //
-////      signalCacheSizeCondition();
 
         // Review this for possible conflicts with context removal.
         // The _waiting is temporary and should not be required.
@@ -377,25 +374,11 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
         // completed.
         if (!_providersComplete)
         {
-            //// KS_TODO remove all these traces
-////         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-////             "After putCache providers waitProviderLimitCondition Not "
-////             "complete insert responseCacheSize %u. CIMResponseData "
-////             "size %u."
-////             " signal CacheSizeConditon responseCacheMaximumSize %u",
-////             responseCacheSize(), to.size(), _responseCacheMaximumSize));
-            // start timer to get time of wait for statistics.
-            Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
-            waitProviderLimitCondition(_responseCacheMaximumSize);
-            Uint64 interval =
-                TimeValue::getCurrentTime().toMicroseconds() - startTime;
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
                 "After putCache providers wait end ProviderLimitCondition Not "
                 "complete insert responseCacheSize %u. CIMResponseData size %u."
-                " signal CacheSizeConditon responseCacheMaximumSize %u."
-                " Wait %lu usec",
-                responseCacheSize(), to.size(), _responseCacheMaximumSize,
-                (unsigned long int)interval ));
+                " signal CacheSizeConditon responseCacheMaximumSize %u.",
+                responseCacheSize(), to.size(), _responseCacheMaximumSize));
         }
     }
 
@@ -404,12 +387,130 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     return true;
 }
 
+// Wait until cache size drops below defined limit. Saves time
+// in wait in EnumerationContext for statistics.
+void EnumerationContext::waitCacheSize()
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::waitCacheSize()");
+
+    PEGASUS_ASSERT(valid());   // KS_TEMP;
+            //// KS_TODO remove all these traces
+////         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////             "After putCache providers waitProviderLimitCondition Not "
+////             "complete insert responseCacheSize %u. CIMResponseData "
+////             "size %u."
+////             " signal CacheSizeConditon responseCacheMaximumSize %u",
+////             responseCacheSize(), to.size(), _responseCacheMaximumSize));
+    // start timer to get length of wait for statistics.
+    Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
+
+    waitProviderLimitCondition(_responseCacheMaximumSize);
+
+    Uint64 interval =
+        TimeValue::getCurrentTime().toMicroseconds() - startTime;
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+        "After putCache providers wait end ProviderLimitCondition Not "
+        "complete insert responseCacheSize %u."
+        " signal CacheSizeConditon responseCacheMaximumSize %u."
+        " Wait %lu usec",
+        responseCacheSize(), _responseCacheMaximumSize,
+        (unsigned long int)interval ));
+
+    PEG_METHOD_EXIT();
+}
+
 
 /*****************************************************************************
 **
 **     Methods to support the EnumerationContext CIMResponseData Cache
 **
 *****************************************************************************/
+
+/*
+    Test the cache to see if there is information that could be used
+    for an immediate response. Returns immediatly with true or false
+    indicating that a response should be issued.  The algorithm for
+    the response is
+         if request is for zero objects
+            return true
+        If requiresAll
+           return true if
+                cache has enough objects for response (ge count)
+        else
+            return true if
+                the cache as some objects int (Will not return zero objects)
+        if error flag is set
+           return true
+        if Providers Complete
+           return true
+
+    @param count Uint32 count of objects that the requests set as
+    max number for response
+    @return True if passes tests for something to send or error flag
+    set.
+*/
+Boolean EnumerationContext::testCacheForResponses(
+    Uint32 operationMaxObjectCount,
+    Boolean requiresAll)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+                      "EnumerationContext::testCacheForResponses()");
+    Boolean rtn = false;
+    // Always allow requests for no objects
+    if (operationMaxObjectCount == 0)
+    {
+        rtn = true;
+    }
+    // If cache has enough objects return true
+    //// FUTURE - Which should have priority, response or error.
+    //// If error, put the errorState test here.
+    else if (requiresAll && (responseCacheSize() >= operationMaxObjectCount))
+    {
+        rtn = true;
+    }
+
+    // anything in cache to return
+    else if (!requiresAll && responseCacheSize() > 0)
+    {
+        rtn = true;
+    }
+    // Nothing more from providers. Must return response
+    else if (providersComplete())
+    {
+        rtn = true;
+    }
+    // Error encountered, must send response
+    else if (isErrorState())
+    {
+        rtn = true;
+    }
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+       "testCacheForResponse returns %s", boolToString(rtn) ));
+    PEG_METHOD_EXIT();
+    return rtn;
+}
+
+void EnumerationContext::setupFutureResponse(
+    CIMOperationRequestMessage* request,
+    CIMPullResponseDataMessage* response,
+    Uint32 operationMaxObjectCount)
+{
+
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::setupFutureResponse");
+    // Since these are also flags, they MUST BE empty when this function
+    // called.  The required serialization of client rrequests should insure
+    // this.
+    PEGASUS_ASSERT(_savedRequest == NULL);
+    PEGASUS_ASSERT(_savedResponse == NULL);
+
+    _savedOperationMaxObjectCount = operationMaxObjectCount;
+    _savedRequest = request;
+    _savedResponse = response;
+
+    PEG_METHOD_EXIT();
+}
 /*
     Move the number of objects defined by count from the CIMResponseData
     cache for this EnumerationContext to theCIMResponseData object
@@ -424,8 +525,7 @@ Boolean EnumerationContext::getCache(
     Uint32 count,
     CIMResponseData& rtnData)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::getCache");
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::getCache");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP;
 
@@ -445,16 +545,6 @@ Boolean EnumerationContext::getCache(
     // cache during this period. Called from a client operation and the
     // operation will hang until this completes.
     //// waitCacheSizeCondition(count);
-
-    // Note that there is an issue here in that we should prioritize returning
-    // data before returning errors.  In this case, it may leave data in the
-    // cache and return error. However, have issue if error is on last
-    // provider return where it drops the error.
-    // KS_TODO TBD
-////  if (isErrorState())
-////  {
-////      return false;
-////  }
 
     // Lock the cache for the move function
     AutoMutex autoMut(_responseCacheMutex);
@@ -476,74 +566,14 @@ Boolean EnumerationContext::getCache(
     return true;
 }
 
-// Test the cache to determine if we are ready to send a response.
-// The test is two parts, a) enough objects (i.e. GE size input parameter)
-// or end-of-sequence set indicating that we have completed provider
-// processing.
-// The return is executed only when one of these conditions has been met.
-// This function uses a condition variable to control the return.
-
-void EnumerationContext::waitCacheSizeCondition(Uint32 size)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::waitCacheSizeCondition");
-    PEGASUS_ASSERT(valid());   // KS_TEMP
-
-    // if following conditions, we know that there are no more in cache
-    // so we just return.
-    if (_providersComplete || _clientClosed)
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    // start timer to get time of wait for statistics.
-    Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
-
-    // condition variable wait loop. waits on cache size or
-    // providers complete
-    _cacheTestCondMutex.lock();
-    while (!_providersComplete && (responseCacheSize() < size))
-    {
-        _cacheTestCondition.wait(_cacheTestCondMutex);
-    }
-    _cacheTestCondMutex.unlock();
-
-    Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "waitCacheSizeConditon return "
-        "Request Size %u complete %s result %s time %lu usec",
-        size,
-        boolToString(_providersComplete),
-        boolToString((!_providersComplete && (responseCacheSize()) < size)),
-        (unsigned long int)interval ));
-
-    PEG_METHOD_EXIT();
-}
-
-void EnumerationContext::signalCacheSizeCondition()
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::signalCacheSizeCondition");
-
-    PEGASUS_ASSERT(valid());   // KS_TEMP
-
-    AutoMutex autoMut(_cacheTestCondMutex);
-
-    _cacheTestCondition.signal();
-
-    PEG_METHOD_EXIT();
-}
-
 /*****************************************************************************
 **
 **  Provider Limit Condition Variable functions. wait, signal
 **
 *****************************************************************************/
 /*
-    Wait condition on returning to providers from putcache.  This allows
-    dispatcher to stop responses from providers while pull operations
+    Wait condition variable on returning to providers from putcache.  This
+    allows dispatcher to stop responses from providers while pull operations
     reduce the size of the cache.  The condition variable should be
     signaled when the cache size drops below a defined point OR
     if a close is received (so the responses can be discarded)
@@ -623,9 +653,6 @@ void EnumerationContext::setProvidersComplete()
 
     _providersComplete = true;
 
-    // Signal CacheSize Condition flag that providers have completed.
-    signalCacheSizeCondition();
-
     PEG_METHOD_EXIT();
 }
 
@@ -648,7 +675,7 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
 
     // Return true if client closed because of error or all responses complete,
     // else set ProcessingState false and return false
-    if ((ifProvidersComplete() && (responseCacheSize() == 0)) ||
+    if ((providersComplete() && (responseCacheSize() == 0)) ||
         (errorFound && !_continueOnError))
     {
         setClientClosed();

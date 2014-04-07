@@ -86,7 +86,6 @@ public:
        between operations of a pull sequence before Server will
        close the connection in seconds.
 
-
        @param responseCacheMaximumSize Uint32 Maximum number of
        objects in response queue before it backs up to providers
      */
@@ -119,19 +118,14 @@ public:
         MessageType pullRequestType,
         CIMResponseData::ResponseDataContent contentType);
 
-    /** Find and remove the enumeration context from the table
-    */
-    void removeCxt(const String& enumerationContextName,
-                   Boolean deleteContext);
-
-    /** Remove the enumerationContext entry from the
+    /** Release the enumerationContext entry from the
         EnumerationContext table and delete the entry. This function
         should only be called when the client is closed and
         providers complete.
 
         @param enumerationContextName context to remove
-     */
-    void removeContext(EnumerationContext* en);
+    */
+    void releaseContext(EnumerationContext* en);
 
     /** Return the number of enumeration context entries in the
        enumeration context table
@@ -230,7 +224,7 @@ private:
         EnumerationContext* en,
         Boolean deleteContext = false);
 
-    // monolithic increasing counter forms context id string
+    // Monolithic increasing counter for context id string
     AtomicInt _enumContextCounter;
 
     // Lock on EnumerationContextTable
@@ -294,6 +288,11 @@ inline Uint32 EnumerationContextTable::getMinPullDefaultTimeout() const
 inline Boolean EnumerationContextTable::isTimedOut() const
 {
     return (_nextTimeout < TimeValue::getCurrentTime().toMilliseconds() );
+}
+
+inline Boolean EnumerationContextTable::valid()
+{
+    return _magic;
 }
 
 PEGASUS_NAMESPACE_END

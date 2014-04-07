@@ -1503,7 +1503,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
     catch (CIMException& e)
     {
-        cerr << "CIMException Error: in testEnumerationWithPull "
+        cerr << "CIMException Error: in testPullEnumerateInstances. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1513,7 +1513,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
     }
     catch (Exception& e)
     {
-        cerr << "Exception Error: in testEnumerationWithPull "
+        cerr << "Exception Error: in testPullEnumerateInstances. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1613,7 +1613,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
 
     catch (CIMException& e)
     {
-        cerr << "CIMException Error: in testEnumerationPaths With Pull "
+        cerr << "CIMException Error: in testEnumerationPaths. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1623,7 +1623,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
     }
     catch (Exception& e)
     {
-        cerr << "Exception Error: in testEnumerationPaths With Pull "
+        cerr << "Exception Error: in testEnumerationPaths. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1731,7 +1731,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
     catch (CIMException& e)
     {
-        cerr << "CIMException Error: in testEnumerationWithPull "
+        cerr << "CIMException Error: in testPullReferencesWithPath. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1741,7 +1741,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
     }
     catch (Exception& e)
     {
-        cerr << "Exception Error: in testEnumerationWithPull "
+        cerr << "Exception Error: in testPullReferencesWithPath. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1839,7 +1839,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
 
     catch (CIMException& e)
     {
-        cerr << "CIMException Error: in testReferencePaths "
+        cerr << "CIMException Error: in testReferencePaths. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1849,7 +1849,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
     }
     catch (Exception& e)
     {
-        cerr << "Exception Error: in testReferencePaths "
+        cerr << "Exception Error: in testReferencePaths. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1963,7 +1963,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
     catch (CIMException& e)
     {
-        cerr << "CIMException Error: in testEnumerationWithPull "
+        cerr << "CIMException Error: in testPullAssociatorInstances. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -1973,7 +1973,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
     }
     catch (Exception& e)
     {
-        cerr << "Exception Error: in testEnumerationWithPull "
+        cerr << "Exception Error: in testPullAssociatorInstances. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -2083,7 +2083,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
 
     catch (CIMException& e)
     {
-        cerr << "CIMException Error: in testReferencePaths "
+        cerr << "CIMException Error: in testPullAssociatorInstancePaths. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {
@@ -2093,7 +2093,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
     }
     catch (Exception& e)
     {
-        cerr << "Exception Error: in testAssociatorPaths "
+        cerr << "Exception Error: in testPullAssociatorInstancePaths. "
             << e.getMessage() << endl;
         if (!reverseExitCode_opt)
         {

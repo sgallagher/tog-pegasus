@@ -1899,16 +1899,19 @@ public:
 };
 
 //EXP_PULL_BEGIN
-class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesResponseMessage
+// Extend CIMResponseDataMessage for the common elements on open and
+// pull operations. All of the Open and pull response operations
+// return endOfSequence and enumerationContext arguments
+class PEGASUS_COMMON_LINKAGE CIMPullResponseDataMessage
     : public CIMResponseDataMessage
 {
 public:
-    // Response message endOfSequence and enumerationContext arguments
-    // are conditonal.  The defaults are used in CIMOperationRequestDispatcher
-    CIMOpenEnumerateInstancesResponseMessage(
+    CIMPullResponseDataMessage(
+        MessageType type_,
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
+         const QueueIdStack& queueIds_,
+        CIMResponseData::ResponseDataContent rspContent_,
         const Boolean endOfSequence_ = false,
         const String& enumerationContext_ = String::EMPTY);
 
@@ -1916,8 +1919,23 @@ public:
     String enumerationContext;
 };
 
+class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesResponseMessage
+    : public CIMPullResponseDataMessage
+{
+public:
+    CIMOpenEnumerateInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+};
+
+// All open and pull ResponseData messages derive from CIMPullResponse
+// Data message because the response data is common (CIMResponseData,
+// endOfSequencd, and enumerationContext.
 class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancePathsResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     // Constructor with default endOfSequence and enumeration context optional
@@ -1928,13 +1946,11 @@ public:
         const Boolean endOfSequence_ = false,
         const String& enumerationContext_ = String::EMPTY);
 
-    Boolean endOfSequence;
-    String enumerationContext;
     Array<CIMObjectPath> cimInstancePaths;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancesResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     CIMOpenReferenceInstancesResponseMessage(
@@ -1943,13 +1959,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_ = false,
         const String& enumerationContext_ = String::EMPTY);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancePathsResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     CIMOpenReferenceInstancePathsResponseMessage(
@@ -1958,13 +1971,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_ = false,
         const String& enumerationContext_ = String::EMPTY);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancesResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     CIMOpenAssociatorInstancesResponseMessage(
@@ -1973,13 +1983,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_ = false,
         const String& enumerationContext_ = String::EMPTY);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancePathsResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     // Constructor with defautl endOfSequence and enumerationContext
@@ -1989,13 +1996,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_ = false,
         const String& enumerationContext_ = String::EMPTY);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMPullInstancesWithPathResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     CIMPullInstancesWithPathResponseMessage(
@@ -2004,13 +2008,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_,
         const String& enumerationContext_);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMPullInstancePathsResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     CIMPullInstancePathsResponseMessage(
@@ -2019,13 +2020,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_,
         const String& enumerationContext_);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMPullInstancesResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMPullResponseDataMessage
 {
 public:
     CIMPullInstancesResponseMessage(
@@ -2034,11 +2032,10 @@ public:
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_,
         const String& enumerationContext_);
-
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
+// CIMCloseEnumeration is not a Data message and returns
+// only an acknowledgement
 class PEGASUS_COMMON_LINKAGE CIMCloseEnumerationResponseMessage
     : public CIMResponseMessage
 {
@@ -2049,6 +2046,9 @@ public:
         const QueueIdStack& queueIds_);
 };
 
+// KS_TODO This message will be deprecated in the DMTF
+// DSP 0200 V4 specification and Pegasus will not implement
+// it any further than the Dispatcher.
 class PEGASUS_COMMON_LINKAGE CIMEnumerationCountResponseMessage
     : public CIMResponseMessage
 {

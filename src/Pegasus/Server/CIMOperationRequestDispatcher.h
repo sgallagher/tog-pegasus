@@ -51,6 +51,7 @@
     <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Server/reg_table.h>
+#include <Pegasus/Server/EnumerationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -695,7 +696,8 @@ protected:
     /*Forward the response defined for aggregation processing
       and queue for output.  Note this function is called
       when a response that should be processed through the
-      aggregator already exists. It just queues the response.
+      aggregator already exists. It just queues the response because
+      one exists.
     */
     void _forwardResponseForAggregation(
         CIMOperationRequestMessage* request,
@@ -919,7 +921,6 @@ protected:
     Boolean _checkNoProvidersOrRepository(CIMOperationRequestMessage* request,
         Uint32 providerCount, const CIMName& className);
 
-
     Boolean _forwardEnumerationToProvider(
         ProviderInfo &providerInfo,
         OperationAggregate* poA,
@@ -974,6 +975,12 @@ protected:
         OperationAggregate* poA,
         ProviderInfoList& providerInfos);
 
+    void _issueImmediateOpenOrPullResponseMessage(
+        CIMOperationRequestMessage* request,
+        CIMPullResponseDataMessage* response,
+        EnumerationContext* en,
+        Uint32 operationMaxObjectCount);
+
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
 
@@ -1003,7 +1010,8 @@ private:
 };
 
 // Forward response to Common Request Aggregator.  This is simply
-// a syntatic simplification.
+// a syntatic simplification that sends the response directly to the
+// aggregation component because a response exists.
 inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
     CIMOperationRequestMessage* request,
     OperationAggregate* poA,

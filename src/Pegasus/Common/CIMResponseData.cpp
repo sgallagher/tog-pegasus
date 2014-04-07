@@ -229,7 +229,6 @@ Array<Uint8>& CIMResponseData::getBinary()
 bool CIMResponseData::setBinary(CIMBuffer& in)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setBinary");
-    //// AutoMutex autoMut(testLock);
 
     // Append all serial data from the CIMBuffer to the local data store.
     // Returns error if input not a serialized Uint8A
@@ -247,7 +246,6 @@ bool CIMResponseData::setBinary(CIMBuffer& in)
 
 bool CIMResponseData::setRemainingBinaryData(CIMBuffer& in)
 {
-    //// AutoMutex autoMut(testLock);
     PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMResponseData::setRemainingBinaryData");
 
     // Append any data that has not been deserialized already from
@@ -743,16 +741,22 @@ Uint32 CIMResponseData::size()
         TEMPLOG;
     }
     // Test of actual count against _size variable. KS_TODO diagnostic
-    if (rtnSize != _size)
+    Uint32 lsize = _size;
+    if (rtnSize != lsize)
     {
         TEMPLOG;
         TEST_SIZE_VALID;
         PEG_TRACE((TRC_XML, Tracer::LEVEL1,
         "CIMResponseData::size ERROR. debug size mismatch."
-            "Computed = %u. variable = %u",rtnSize, _size ));
+            "Computed = %u. variable = %u inc binary %s",rtnSize, _size,
+         boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+                              ));
         // KS_TEMP
-        cout << "Size err Computed(rtnsize)=" << rtnSize << " _size=" << _size
-             << " diff=" << (rtnSize - _size) << endl;
+        cout << "Size err Computed(rtnsize)=" << rtnSize << " _size=" << lsize
+             << " diff=" << (rtnSize - lsize)
+              << " inc Binary= "  
+             << boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+             << endl;
         TEMPLOG;
     }
     PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));

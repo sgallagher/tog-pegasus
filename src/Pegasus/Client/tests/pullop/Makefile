@@ -464,7 +464,7 @@ rseipn:
 ## Test with pull operations in cimcli
 cimclipei:
 	cimcli pei $(CStressCxx) -n $(NStressCxx) -mo 1 --sum $(CIMCLIHOSTID)
-	cimcli pni $(CStressCxx) -n $(NStressCxx) -mo 1 $(CIMCLIHOSTID)
+	cimcli pni $(CStressCxx) -n $(NStressCxx) -mo 1 --sum  $(CIMCLIHOSTID)
 
 cmpigc:
 	cimcli gc $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)

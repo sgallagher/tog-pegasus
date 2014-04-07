@@ -44,11 +44,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class EnumerationContext
+class WsmEnumerationContext
 {
 public:
-    EnumerationContext() {}
-    EnumerationContext(
+    WsmEnumerationContext() {}
+    WsmEnumerationContext(
         Uint64 contextId_,
         const String& userName_,
         WsenEnumerationMode enumerationMode_,
@@ -70,26 +70,26 @@ public:
     WsenEnumerateResponse* response;
 };
 
-/** 
-    SubscriptionContextTable is a hash table containing entries of 
+/**
+    SubscriptionContextTable is a hash table containing entries of
     SubscriptionContext.The contxt ID is the subscription message ID.
-    This context is used to process create and delete instance requests 
-    for subscription, filter and handler serially.An entry is made while 
-    proceesing Subscribe or Unsubscribe request via the addReqToSubContext() 
+    This context is used to process create and delete instance requests
+    for subscription, filter and handler serially.An entry is made while
+    proceesing Subscribe or Unsubscribe request via the addReqToSubContext()
     by WsmRequestDecoder. Once all the requests are complete,
     the entry is deleted.
 
     For subscribe request, all the three create instance requests for filter,
-    handler and subscription are filled. Only filter request is first processed 
+    handler and subscription are filled. Only filter request is first processed
     and once the filter response is recieved, the handler request is processed.
-    Once handler response is recieved,only then is the subscription request 
-    processed. After subscription response is recieved,the context entry is 
-    deleted and the subscribe response is sent back to the client.If any of 
-    the requests get exeception then the cleanup function 
+    Once handler response is recieved,only then is the subscription request
+    processed. After subscription response is recieved,the context entry is
+    deleted and the subscribe response is sent back to the client.If any of
+    the requests get exeception then the cleanup function
     _cleanupFilterHandlerInstances() is called appropriatley.
 
-    For unsubscribe the subscription delete instance request is processed 
-    first. Once the response is recieved, then the delete instance requests 
+    For unsubscribe the subscription delete instance request is processed
+    first. Once the response is recieved, then the delete instance requests
     for filter and handler are processed.
 */
 class SubscriptionContext
@@ -155,9 +155,9 @@ public:
     }
 
     void cleanupExpiredContexts();
-    
+
     void addReqToSubContext(WsmRequest *, Boolean isCreateReq);
-    /** 
+    /**
         This function returns the information whether subscription is
         is created using existing filter or not.
     */
@@ -196,10 +196,10 @@ private:
         Boolean isHandlerCleanup);
 
     /**
-        This function is used to cleanup the filter, handler and 
-        subscription requests in failure scenarios. As we are processing the 
-        filter, handler and subscription requests sequentially, if filter 
-        request fails then the stored handler and subscription requests 
+        This function is used to cleanup the filter, handler and
+        subscription requests in failure scenarios. As we are processing the
+        filter, handler and subscription requests sequentially, if filter
+        request fails then the stored handler and subscription requests
         should be deleted from the subscription context manually.
     */
     void _cleanupSubContext(String & messageId,
@@ -208,13 +208,13 @@ private:
         Boolean isSubCreate=false,
         Boolean isFilterDelete=false,
         Boolean isHandlerDelete=false);
-    /** 
+    /**
         This function is used to fill the SubscriptionInfoTable.
     */
     void _fillSubscriptionInfoTable(WxfSubCreateRequest * subReq);
-    
-    /** 
-        This function is used to initialize the info table during the 
+
+    /**
+        This function is used to initialize the info table during the
         cimserver startup.
     */
     void _initializeSubInfoTable();
@@ -247,22 +247,22 @@ private:
     */
     RequestTable _requestTable;
 
-    typedef HashTable<Uint64, EnumerationContext,
-        EqualFunc<Uint64>, HashFunc<Uint64> > EnumerationContextTable;
+    typedef HashTable<Uint64, WsmEnumerationContext,
+        EqualFunc<Uint64>, HashFunc<Uint64> > WsmEnumerationContextTable;
 
-    EnumerationContextTable _enumerationContextTable;
-    Mutex _enumerationContextTableLock;
+    WsmEnumerationContextTable _WsmEnumerationContextTable;
+    Mutex _WsmEnumerationContextTableLock;
     static Uint64 _currentEnumContext;
-    
+
     typedef HashTable<String, SubscriptionContext,
         EqualFunc<String>, HashFunc<String> > SubscriptionContextTable;
     SubscriptionContextTable _subscriptionContextTable;
 
-    /** 
+    /**
         The SubscriptionInfoTable stores the subscriptions which are created
-        using an existing filter. It'll be filled by _fillSubscriptionInfoTable 
-        function. It will be accessed by WsmRequestDecoder while processing 
-        an unsubscribe request to form the subscription EPR.   
+        using an existing filter. It'll be filled by _fillSubscriptionInfoTable
+        function. It will be accessed by WsmRequestDecoder while processing
+        an unsubscribe request to form the subscription EPR.
         Entry from this table will be deleted once unsubscribe request is
         processed successfully.
     */

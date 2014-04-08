@@ -43,10 +43,6 @@
 
 #include <Pegasus/Common/AutoPtr.h>
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include "KerberosAuthenticationHandler.h"
-#endif
-
 
 PEGASUS_USING_STD;
 
@@ -149,13 +145,7 @@ AuthenticationStatus AuthenticationManager::performHttpAuthentication(
     {
         authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
     }
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if ( String::equalNoCase(authType, "Negotiate") &&
-              String::equal(_httpAuthType, "Kerberos") )
-    {
-        authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
-    }
-#endif
+
     // FUTURE: Add code to check for "Digest" when digest
     // authentication is implemented.
 
@@ -273,22 +263,12 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
 //
 // Get HTTP authentication response header
 //
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-String AuthenticationManager::getHttpAuthResponseHeader(
-    AuthenticationInfo* authInfo)
-#else
 String AuthenticationManager::getHttpAuthResponseHeader()
-#endif
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "AuthenticationManager::getHttpAuthResponseHeader()");
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    String respHeader = _httpAuthHandler->getAuthResponseHeader(
-        String::EMPTY, String::EMPTY, authInfo);
-#else
     String respHeader = _httpAuthHandler->getAuthResponseHeader();
-#endif
 
     PEG_METHOD_EXIT();
     return respHeader;
@@ -333,31 +313,7 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     {
         handler.reset((Authenticator* ) new BasicAuthenticationHandler( ));
     }
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if ( String::equal(_httpAuthType, "Kerberos") )
-    {
-        handler.reset((Authenticator*) new KerberosAuthenticationHandler());
-        AutoPtr<KerberosAuthenticationHandler> kerberosHandler(
-            (KerberosAuthenticationHandler *)handler.get());
-        int itFailed = kerberosHandler->initialize();
-        kerberosHandler.release();
-        if (itFailed)
-        {
-            if (handler.get())
-            {
-                handler.reset(0);
-            }
-            MessageLoaderParms parms(
-                "Security.Authentication.AuthenticationManager."
-                    "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
-                "CIMOM server authentication handler for Kerberos failed to "
-                    "initialize properly.");
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                parms);
-            throw Exception(parms);
-        }
-    }
-#endif
+
     // FUTURE: uncomment these line when Digest authentication
     // is implemented.
     //

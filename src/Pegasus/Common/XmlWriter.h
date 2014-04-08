@@ -253,12 +253,6 @@ public:
         const String& errorDetail,
         const String& content);
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    static void appendOKResponseHeader(
-        Buffer& out,
-        const String& content);
-#endif
-
     static void appendParamTypeAndEmbeddedObjAttrib(
         Buffer& out,
         const CIMType& type);

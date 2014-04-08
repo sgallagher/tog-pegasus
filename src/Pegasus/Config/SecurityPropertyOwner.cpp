@@ -92,9 +92,6 @@ static struct ConfigPropertyRow properties[] =
     {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
     {"sslBackwardCompatibility","false", IS_STATIC, IS_VISIBLE},
-# ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName", "cimom", IS_STATIC, IS_VISIBLE},
-# endif
     {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC,
         IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, IS_VISIBLE},
@@ -117,9 +114,6 @@ static struct ConfigPropertyRow properties[] =
     {"sslClientVerificationMode", "disabled", IS_STATIC, IS_VISIBLE},
     {"sslTrustStoreUserName", "", IS_STATIC, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName", "cimom", IS_STATIC, IS_VISIBLE},
-#endif
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableSubscriptionsForNonprivilegedUsers",
@@ -166,9 +160,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _enableSubscriptionsForNonprivilegedUsers.reset(new ConfigProperty());
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     _authorizedUserGroups.reset(new ConfigProperty());
-#endif
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    _kerberosServiceName.reset(new ConfigProperty());
 #endif
 #ifdef PEGASUS_OS_ZOS
     _enableCFZAPPLID.reset(new ConfigProperty());
@@ -369,19 +360,6 @@ void SecurityPropertyOwner::initialize()
                 properties[i].externallyVisible;
         }
 #endif
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        else if (String::equal(
-                     properties[i].propertyName, "kerberosServiceName"))
-        {
-            _kerberosServiceName->propertyName = properties[i].propertyName;
-            _kerberosServiceName->defaultValue = properties[i].defaultValue;
-            _kerberosServiceName->currentValue = properties[i].defaultValue;
-            _kerberosServiceName->plannedValue = properties[i].defaultValue;
-            _kerberosServiceName->dynamic = properties[i].dynamic;
-            _kerberosServiceName->externallyVisible =
-                properties[i].externallyVisible;
-        }
-#endif
 #ifdef PEGASUS_OS_ZOS
         else if (String::equal(
                      properties[i].propertyName, "enableCFZAPPLID"))
@@ -476,12 +454,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equal(_authorizedUserGroups->propertyName, name))
     {
         return _authorizedUserGroups.get();
-    }
-#endif
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if (String::equal(_kerberosServiceName->propertyName, name))
-    {
-        return _kerberosServiceName.get();
     }
 #endif
 #ifdef PEGASUS_OS_ZOS
@@ -628,11 +600,7 @@ Boolean SecurityPropertyOwner::isValid(
     }
     else if (String::equal(_httpAuthType->propertyName, name))
     {
-        if (String::equal(value, "Basic") || String::equal(value, "Digest")
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            || String::equal(value, "Kerberos")
-#endif
-        )
+        if (String::equal(value, "Basic") || String::equal(value, "Digest"))
         {
             retVal = true;
         }
@@ -819,24 +787,6 @@ Boolean SecurityPropertyOwner::isValid(
     else if (String::equal(_authorizedUserGroups->propertyName, name))
     {
         retVal = true;
-    }
-#endif
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if (String::equal(_kerberosServiceName->propertyName, name))
-    {
-        String serviceName(value);
-
-        //
-        // Check if the service name is empty
-        //
-        if (serviceName == String::EMPTY || serviceName== "")
-        {
-            retVal =  false;
-        }
-        else
-        {
-           retVal =  true;
-        }
     }
 #endif
     else if (String::equal(_cipherSuite->propertyName, name))

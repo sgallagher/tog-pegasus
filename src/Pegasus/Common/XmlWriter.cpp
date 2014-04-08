@@ -2019,49 +2019,6 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 //    out << "</BODY></HTML>\r\n";
 }
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-//------------------------------------------------------------------------------
-//
-// appendOKResponseHeader()
-//
-//     Build HTTP authentication response header for unauthorized requests.
-//
-//     Returns OK message in the following format:
-//
-//        HTTP/1.1 200 OK
-//        Content-Length: 0
-//        WWW-Authenticate: Negotiate "token"
-//        <HTML><HEAD>
-//        <TITLE>200 OK</TITLE>
-//        </HEAD><BODY BGCOLOR="#99cc99">
-//        <H2>TEST200 OK</H2>
-//        <HR>
-//        </BODY></HTML>
-//
-//------------------------------------------------------------------------------
-
-void XmlWriter::appendOKResponseHeader(
-    Buffer& out,
-    const String& content)
-{
-    out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
-    // Content-Length header needs to be added because 200 OK record
-    // is usually intended to have content.  But, for Kerberos this
-    // may not always be the case so we need to indicate that there
-    // is no content
-    OUTPUT_CONTENTLENGTH(out, 0);
-    out << content << STRLIT("\r\n\r\n");
-
-//ATTN: We may need to include the following line, so that the browsers
-//      can display the error message.
-//    out << "<HTML><HEAD>\r\n";
-//    out << "<TITLE>" << "200 OK" <<  "</TITLE>\r\n";
-//    out << "</HEAD><BODY BGCOLOR=\"#99cc99\">\r\n";
-//    out << "<H2>TEST" << "200 OK" << "</H2>\r\n";
-//    out << "<HR>\r\n";
-//    out << "</BODY></HTML>\r\n";
-}
-#endif
 
 //------------------------------------------------------------------------------
 //

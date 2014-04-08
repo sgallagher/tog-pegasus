@@ -39,10 +39,6 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include "HTTPAuthenticatorDelegator.h"
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-# include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif
-
 #ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
@@ -133,27 +129,6 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     PEG_METHOD_EXIT();
 }
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-void HTTPAuthenticatorDelegator::_sendSuccess(
-    Uint32 queueId,
-    const String& authResponse,
-    Boolean closeConnect)
-{
-    PEG_METHOD_ENTER(TRC_HTTP,
-        "HTTPAuthenticatorDelegator::_sendSuccess");
-
-    //
-    // build OK (200) response message
-    //
-
-    Buffer message;
-    XmlWriter::appendOKResponseHeader(message, authResponse);
-
-    _sendResponse(queueId, message,closeConnect);
-
-    PEG_METHOD_EXIT();
-}
-#endif
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
@@ -466,38 +441,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     }
         
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    CIMKerberosSecurityAssociation* sa = NULL;
-    // The presence of a Security Association indicates that Kerberos is
-    // being used.
-    // Reset flag for subsequent calls to indicate that no Authorization
-    // record was sent. If one was sent the flag will be appropriately reset
-    // later.
-    // The sa is maintained while the connection is active.
-    sa = httpMessage->authInfo->getSecurityAssociation();
-    if (sa)
-    {
-        sa->setClientSentAuthorization(false);
-    }
-#endif
-
     if (enableAuthentication)
     {
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        // If we are using Kerberos (sa pointer is set), the client has
-        // already authenticated, and the client is NOT attempting to
-        // re-authenticate (dermined by an Authorization record being sent),
-        // then we want to set the local authenticate flag to true so that
-        // the authentication logic is skipped.
-        const char* authstr;
-        if (sa && sa->getClientAuthenticated() &&
-            !HTTPMessage::lookupHeader(
-                 headers, "Authorization", authstr, false))
-        {
-            authStatus = AuthenticationStatus(AUTHSC_SUCCESS);
-        }
-#endif
         if (authStatus.isSuccess())
         {
             if (httpMessage->authInfo->getAuthType()==
@@ -1126,20 +1072,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 {
                     //ATTN: the number of challenges get sent for a
                     //      request on a connection can be pre-set.
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                    // Kerberos authentication needs access to the
-                    // AuthenticationInfo object for this session in
-                    // order to set up the reference to the
-                    // CIMKerberosSecurityAssociation object for this
-                    // session.
-
-                    String authResp =
-                        _authenticationManager->getHttpAuthResponseHeader(
-                            httpMessage->authInfo);
-#else
                     String authResp =
                         _authenticationManager->getHttpAuthResponseHeader();
-#endif
+
                     if (authResp.size() > 0)
                     {
                         if (authStatus.doChallenge())
@@ -1189,66 +1124,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         Tracer::LEVEL3,
         "HTTPAuthenticatorDelegator - Authentication processing ended");
 
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    // The pointer to the sa is created in the authenticator so we need
-    // to also assign it here.
-    sa = httpMessage->authInfo->getSecurityAssociation();
-    if (sa)
-    {
-        // 0 - continue, 1 = send success, 2 = send response
-        Uint32 sendAction = 0;
-
-        // The following is processing to unwrap (decrypt) the request
-        // from the client when using kerberos authentication.
-        sa->unwrapRequestMessage(
-            httpMessage->message,
-            contentLength,
-            isRequestAuthenticated,
-            sendAction);
-
-        if (sendAction)  // send success or send response
-        {
-            if (httpMessage->message.size() == 0)
-            {
-                MessageLoaderParms msgParms(
-                    "Pegasus.Server.HTTPAuthenticatorDelegator."
-                        "AUTHORIZATION_HEADER_ERROR",
-                    "Authorization header error");
-                String msg(MessageLoader::getMessage(msgParms));
-                _sendHttpError(
-                    queueId,
-                    HTTP_STATUS_BADREQUEST,
-                    String::EMPTY,
-                    msg,
-                    closeConnect);
-            }
-            else
-            {
-                if (sendAction == 1)  // Send success
-                {
-                    _sendSuccess(
-                        queueId,
-                        String(
-                            httpMessage->message.getData(),
-                            httpMessage->message.size()),
-                        closeConnect);
-                }
-
-                if (sendAction == 2)  // Send response
-                {
-                    _sendResponse(
-                        queueId,
-                        httpMessage->message,
-                        closeConnect);
-                }
-            }
-
-            PEG_METHOD_EXIT();
-            return;
-        }
-    }
-#endif
 
     if (authStatus.isSuccess() || !enableAuthentication)
     {
@@ -1552,14 +1427,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     } // isRequestAuthenticated and enableAuthentication check
     else
     {  // client not authenticated; send challenge
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        String authResp =
-            _authenticationManager->getHttpAuthResponseHeader(
-                httpMessage->authInfo);
-#else
         String authResp =
             _authenticationManager->getHttpAuthResponseHeader();
-#endif
 
         if (authResp.size() > 0)
         {

@@ -52,6 +52,30 @@ TODO list:
          cimcli pei CIM_ManagedElement to not complete (client timeout)
          sometimes.
 
+7 April 2104
+  MergeOut of head of tree.
+
+7 April 2014
+1. Permanently fixed issue with getting correct number of objects on response.
+   This was introduced when did a temp fix to the OOP processing, in particular
+   removed the condition variable wait in the CIMOperationDispatcher handle
+   functions for opens and pulls.  This moved the functionality to kick off
+   open and pull responses to the provider threads if there are not enough
+   objects when the handle is processed. Also added a variable to allow us to
+   test with either a) responses are required to satisfy the original 
+   request size or) b, responses are required only to return some objects.
+   We will add statistics to see which of these works best.
+2. Modified WsmProcessor EnumerationContext class since the name conflicts
+   with the pull Operation EnumerationContext class.
+3. Created a new intermediate level of CIMMessage, the CIMPullResponseData
+   Message so that all of the open and Pull responses can use common code
+   since there are only two variables (endOfSequence and EnumerationContext)
+   and they are common across all the open and pull responses.
+4. Removed a number of diagnostics.
+5. Cleaned up the Dispcatcher so that the open and pulls have common response
+   code and that code can be used from the dispatcher handle functions and
+   the provider response functions.
+
 31 March 2014 - Checkin
 1. Fixed issues in OOP processing of pull operations, in particular
    issues with cimxml output format when processed through the

@@ -629,7 +629,11 @@ struct testCalls{
         if (e.getCode() != _expectedOpenCIMExceptionCode)
         {
             cerr << "CIMException Error: " << e.getCode() << " "
-                << e.getMessage() << endl;
+                << e.getMessage() 
+                << " Expected: "
+                << _expectedOpenCIMExceptionCode << " "
+                << cimStatusCodeToString(_expectedOpenCIMExceptionCode)
+                << endl;
             PEGASUS_TEST_ASSERT(false);
         }
         else
@@ -1077,6 +1081,7 @@ int main(int argc, char** argv)
     tc3.setTestName("Open followed by Incorrect Pull operation");
     tc3._className =  "CMPI_TEST_Person";
     tc3._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+    tc3._maxObjectCount = 0;
     tc3.openEnumerateInstances();
     tc3.setCIMException(CIM_ERR_FAILED);
     tc3.pullInstancePaths();

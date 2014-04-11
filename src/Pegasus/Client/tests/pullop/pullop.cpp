@@ -799,8 +799,8 @@ bool comparePath(CIMObjectPath& p1, CIMObjectPath p2, bool ignoreHost = true)
         }
         if (p1x != p2x)
         {
-            VCOUT1 << "ERROR: pull path(NoHost)= " << p1x.toString() << endl
-                 << "Enumerate path  (NoHost)= " << p2x.toString() << endl;
+            VCOUT6 << "ERROR: pull path(NoHost)= " << p1x.toString() << endl
+                 << "\n  Enumerate path(NoHost)= " << p2x.toString() << endl;
             return false;
         }
     }
@@ -808,8 +808,8 @@ bool comparePath(CIMObjectPath& p1, CIMObjectPath p2, bool ignoreHost = true)
     {
         if (p1 != p2)
         {
-            VCOUT1 << "ERROR: pull path=" << p1.toString() <<endl
-                 << "Enumerate path  ="   << p2.toString()  << endl;
+            VCOUT6 << "ERROR: pull path=" << p1.toString() <<endl
+                 << "\n  Enumerate path  ="   << p2.toString()  << endl;
             return false;
         }
     }
@@ -1197,31 +1197,38 @@ Boolean compareObjectPaths(
         errors++;
         for (Uint32 i = 0; i < p1.size(); i++)
         {
-            cout << "Pull " << i << " " << p1[i].toString() << endl;
+            VCOUT6 << "Pull " << i << " " << p1[i].toString() << endl;
         }
-        cout << endl;
+        VCOUT6 << endl;
         for (Uint32 i = 0; i < p2.size(); i++)
         {
-            cout << "Orig " << i << " " << p2[i].toString() << endl;
+            VCOUT6 << "Orig " << i << " " << p2[i].toString() << endl;
         }
 
         rtn = false;
     }
 
-    // sort the paths to assure that same order.
+    // sort the paths to assure same order.
     _Sort(p1);
     _Sort(p2);
-
+    Uint32 errorCount = 0;
     for (Uint32 i = 0 ; i < p1.size() ; i++)
     {
         bool localRtn = comparePath(p1[i], p2[i], ignoreHost);
         if (!localRtn)
         {
+            errorCount++;
             rtn = false;
         }
     }
 
     VCOUT4 << "compare paths " << (rtn? "OK" : "Failed") << endl;
+    if (!rtn)
+    {
+        VCOUT4 << "Errors with " << errorCount << " of " << p1.size()
+            << " objectPaths that differ" << endl;
+    }
+
     if (errorsAsWarnings_opt)
     {
         if (!rtn)

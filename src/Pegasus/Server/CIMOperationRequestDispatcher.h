@@ -201,7 +201,7 @@ public:
      */
     void appendClass(ProviderInfo& x);
 
-    /** append a new Provider to the list.  Note that this function
+    /** Append a new Provider to the list.  This function
         increments the ProviderCount.  This count may be different
         than the count of items in the array
         @param x ProviderInfo to append to the list
@@ -250,6 +250,10 @@ public:
         @return Uint32
      */
     Uint32 getIndex();
+
+    // Execute the pegtrace that displays class/provider
+    void pegRoutingTrace(ProviderInfo& providerInfo, const char * reqMsgName,
+                         String& messageId);
 
 // The following are purely debug functionality and are normally not
 // compiled.  To compile them for testing of the results of the

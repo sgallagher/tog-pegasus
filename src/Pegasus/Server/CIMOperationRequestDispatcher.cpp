@@ -459,6 +459,37 @@ Boolean ProviderInfoList::hasMore(Boolean isProvider)
         return false;
     }
 
+// Commmon function to display routing info for a providerInfo element.
+void ProviderInfoList::pegRoutingTrace(ProviderInfo& providerInfo,
+                         const char * reqMsgName,
+                         String& messageId)
+{
+    if (providerInfo.controlProviderName.size() != 0)
+    {
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "%s Routing request for class %s to "
+                "service \"%s\" for control provider \"%s\".  "
+                "Class # %u of %u, messageId %s",
+            reqMsgName,
+            CSTRING(providerInfo.className.getString()),
+            _getServiceName(providerInfo.serviceId),
+            CSTRING(providerInfo.controlProviderName),
+            getIndex() + 1, size(),
+            CSTRING(messageId) ));
+    }
+    else
+    {
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "%s Routing request for class %s to "
+                "service \"%s\".  Class # %u of %u, messageId %s",
+            reqMsgName,
+            CSTRING(providerInfo.className.getString()),
+            _getServiceName(providerInfo.serviceId),
+            getIndex() + 1, size(),
+            CSTRING(messageId) ));
+    }
+}
+
 /*************************************************************************
 **
 ** Implementation of CIMOperationRequestDispatcher Class
@@ -890,6 +921,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     OperationAggregate*& poA,
     CIMResponseMessage*& response)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_enqueueResponse");
     // Obtain the _enqueueResponseMutex mutex for this chunked request.
     // This mutex serializes chunked responses from all incoming
     // provider threads. It is imperative that the sequencing done by the
@@ -1046,19 +1079,24 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             {
                 // if there are responses and there is a
                 // waiting future response, issue the response
+
                 en->lockContext();
 
                 // get any waiting open request and response
                 CIMOperationRequestMessage* openRequest = en->_savedRequest;
                 CIMPullResponseDataMessage* openResponse;
                 Uint32 count = en->_savedOperationMaxObjectCount;
+                Boolean foundCachedResponses;
 
+                // If request pending, test to see if responses exist to
+                // be sent.
                 if (openRequest != NULL)
                 {
-                    if (en->testCacheForResponses(
-                        count, requireCompleteResponses))
+                    if (foundCachedResponses = (en->testCacheForResponses(
+                        count, requireCompleteResponses) ))
                     {
                         openResponse = en->_savedResponse;
+                        PEGASUS_ASSERT(openResponse->getResponseData().valid());
                         en->_savedRequest = NULL;
                         en->_savedResponse = NULL;
                         en->_savedOperationMaxObjectCount = 0;
@@ -1066,7 +1104,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 }
                 en->unlockContext();
 
-                if (openRequest)
+                if (foundCachedResponses)
                 {
                     // Issue response. This may mark context closed.
                     _issueImmediateOpenOrPullResponseMessage(
@@ -1085,6 +1123,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 // before continuing. KS_TODO Temp hide.
 ////              if (!isComplete)
 ////              {
+////                  PEGASUS_ASSERT(en->valid()); // KS_TODO Delete
 ////                  // Wait here if the cache is too large. Sending
 ////                  // requests will reduce the size of the cache and
 ////                  // signal this wait function when size returns below
@@ -1096,6 +1135,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             {
                 // If providers complete and refused by putCache (i.e.
                 // sequence closed, we can now get rid of the context.
+
                 if (isComplete)
                 {
                     enumerationContextTable.releaseContext(en);
@@ -1113,6 +1153,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             }
             else
             {
+                PEG_METHOD_EXIT();
                 throw UninitializedObjectException();
             }
         }
@@ -1134,6 +1175,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     // after sending, the response has been deleted externally
     response = 0;
 
+    PEG_METHOD_EXIT();
     return isComplete;
 }
 
@@ -1869,7 +1911,6 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
 
     // After resequencing, this flag represents the completion status of
     // the ENTIRE response to the request.
-    PEGASUS_DEBUG_ASSERT(poA->valid());           // KS_TEMP TODO Remove this
     if (poA->_pullOperation)                      // KS_TEMP
     {
         PEGASUS_DEBUG_ASSERT(poA->_enumerationContext); //KS_TEMP
@@ -1889,10 +1930,12 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,   //// TODO temp
-        "Provider response to a request not complete.");
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   //// TODO temp
+        "Provider response not complete. isPull %s",
+            boolToString(poA->_pullOperation) ));
     }
 
+    // KS_TODO duplicated trace between here and above.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "Provider thisResponse = %s. Entire response = %s",
         (thisResponseIsComplete? "complete": "incomplete"),
@@ -3216,7 +3259,7 @@ struct ProviderRequests
         this one starts after repository responses processed.
     */
     template<class REQ>
-    static void issueEnumerationRequests(
+    static void issueEnumerationRequestsToProviders(
         CIMOperationRequestDispatcher* dispatcher,
         REQ* request,
         ProviderInfoList providerInfos,
@@ -3227,30 +3270,10 @@ struct ProviderRequests
         while (providerInfos.hasMore(true))
         {
             ProviderInfo& providerInfo = providerInfos.getNext();
-            if (providerInfo.controlProviderName.size() != 0)
-            {
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "%s Routing request for class %s to "
-                        "service \"%s\" for control provider \"%s\".  "
-                        "Class # %u of %u, messageId %s",
-                    reqMsgName,
-                    CSTRING(providerInfo.className.getString()),
-                    _getServiceName(providerInfo.serviceId),
-                    CSTRING(providerInfo.controlProviderName),
-                    providerInfos.getIndex() + 1,
-                    providerInfos.size(), CSTRING(request->messageId) ));
-            }
-            else
-            {
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "%s Routing request for class %s to "
-                        "service \"%s\".  Class # %u of %u, messageId %s",
-                    reqMsgName,
-                    CSTRING(providerInfo.className.getString()),
-                    _getServiceName(providerInfo.serviceId),
-                    providerInfos.getIndex() + 1,
-                    providerInfos.size(), CSTRING(request->messageId) ));
-            }
+
+            // issue peg trace of routing info if required
+            providerInfos.pegRoutingTrace(providerInfo, reqMsgName,
+                request->messageId);
 
             // set this className into the new request
             REQ* requestCopy = new REQ(*request);
@@ -3322,6 +3345,8 @@ struct ProviderRequests
             PEG_METHOD_EXIT();
             return;
         }
+        enumContext->incrementRequestCount();
+
         // lock the context until we have set processing state to avoid
         // conflict with timer thread.
         {
@@ -3532,9 +3557,11 @@ struct ProviderRequests
 
         PEGASUS_ASSERT(en->valid());
 
+        en->lockContext();
         if (en->testCacheForResponses(operationMaxObjectCount,
             requireCompleteResponses))
         {
+            en->unlockContext();
             // Issue response immediatly
             dispatcher->_issueImmediateOpenOrPullResponseMessage(
                 openRequest,
@@ -3555,6 +3582,7 @@ struct ProviderRequests
                 new REQ(*openRequest),
                 openResponse,
                 operationMaxObjectCount);
+            en->unlockContext();
         }
         PEG_METHOD_EXIT();
     }
@@ -3579,7 +3607,8 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     Uint32 operationMaxObjectCount)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage");
+        "CIMOperationRequestDispatcher::"
+            "_issueImmediateOpenOrPullResponseMessage");
 
     PEGASUS_ASSERT(en->valid());
 
@@ -4216,6 +4245,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
 
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+        "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest - "
+            "Namespace: %s  Class name: %s MessageId: %s",
+        CSTRING(request->nameSpace.getString()),
+        CSTRING(request->className.getString()),
+        CSTRING(request->messageId)));
+
     //
     // Validate the class in the request and get the target class to
     // be used later in the operation.
@@ -4284,7 +4320,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             new CIMEnumerateInstancesRequestMessage(*request),
             poA, response);
     }
-    ProviderRequests::issueEnumerationRequests(
+    ProviderRequests::issueEnumerationRequestsToProviders(
         this,
         request,
         providerInfos,
@@ -4375,7 +4411,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     }
 
     // Template to issue EnumerationRequest messages to Providers.
-    ProviderRequests::issueEnumerationRequests(
+    ProviderRequests::issueEnumerationRequestsToProviders(
         this,
         request,
         providerInfos,
@@ -4397,9 +4433,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociators - "
-            "Namespace: %s  Class name: %s",
+            "Namespace: %s  Class name: %s MessageId: %s",
         CSTRING(request->nameSpace.getString()),
-        CSTRING(request->objectName.toString())));
+        CSTRING(request->objectName.toString()),
+        CSTRING(request->messageId)));
 
     //// KS_TODO Remove once validated.
     PEGASUS_ASSERT(request->className == request->objectName.getClassName());
@@ -5371,7 +5408,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             "filterQuery=%s "
             "operationTimeout=%s "
             "continueOnError=%s "
-            "maxObjectCount=%u ",
+            "maxObjectCount=%u "
+            "messageId=%s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->className.getString()),
         boolToString(request->deepInheritance),
@@ -5381,7 +5419,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         CSTRING(request->filterQuery),
         CSTRING(request->operationTimeout.toString()),
         boolToString(request->continueOnError),
-        request->maxObjectCount ));
+        request->maxObjectCount,
+        CSTRING(request->messageId) ));
 
     // get the class name or generate error if class not found for target
     // namespace.
@@ -5531,7 +5570,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // Issue requests to providers before we send open response to get
     // provider responses before we build response.  This required to allow
     // building initial response of max requested size
-    ProviderRequests::issueEnumerationRequests(
+    ProviderRequests::issueEnumerationRequestsToProviders(
         this,
         internalRequest,
         providerInfos,
@@ -5718,7 +5757,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
             poA, response);
     }
 
-    ProviderRequests::issueEnumerationRequests(
+    ProviderRequests::issueEnumerationRequestsToProviders(
         this,
         internalRequest,
         providerInfos,
@@ -6557,7 +6596,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::"
-        "handleOpenAssociatorInstancePathssRequest");
+        "handleOpenAssociatorInstancePathsRequest");
 
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -7074,6 +7113,9 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         PEG_METHOD_EXIT();
         return;
     }
+
+    en->incrementRequestCount();
+
     // lock the context until we have set processing state to avoid
     // conflict with timer thread and conducted all tests.
     Boolean providersComplete;
@@ -7165,13 +7207,15 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         (CIMResponseDataMessage*) poA->getResponse(0);
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher - "
-            "Request Type %s Response Type %s"
-            "Namespace: %s  Class name: %s Response Count: %u",
+            "RequestType=%s ResponseType=%s"
+            "Namespace=%s Class name=%s Response Count=%u "
+            "messageId=%s",
         MessageTypeToString(poA->_msgRequestType),
         MessageTypeToString(toResponse->getType()),
         CSTRING(poA->_nameSpace.getString()),
         CSTRING(poA->_className.getString()),
-        poA->numberResponses()));
+        poA->numberResponses(),
+        CSTRING(toResponse->messageId) ));
 
 //// KS_TODO temporary while we finish pull testing
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
@@ -7240,13 +7284,12 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     if (poA->_requiresHostnameCompletion)
     {
         // fill in host, namespace on all instances on all elements of array
-        // if they have been left out. This is required because XML reader
+        // if they have been left out. Required because XML reader
         // will fail without them populated
         to.completeHostNameAndNamespace(System::getHostName(),
             poA->_nameSpace, poA->_pullOperation);
     }
-    //// KS_TODO delete this as diagnostic
-    to.traceResponseData();
+
     PEG_METHOD_EXIT();
 }
 
@@ -7318,7 +7361,7 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                 // the WQL..., CQL, ... etc Class
                 //
                 // NULLness check is done as getFunctPtr may reurn NULL in case
-                // of when querry language is not CQL, WQL
+                // of when query language is not CQL, WQL
                 if ( applyQueryToEnumeration)
                 {
                     applyQueryToEnumeration(response, poA->_query);

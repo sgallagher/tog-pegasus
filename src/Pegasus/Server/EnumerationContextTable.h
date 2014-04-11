@@ -224,9 +224,6 @@ private:
         EnumerationContext* en,
         Boolean deleteContext = false);
 
-    // Monolithic increasing counter for context id string
-    AtomicInt _enumContextCounter;
-
     // Lock on EnumerationContextTable
     Mutex tableLock;
 

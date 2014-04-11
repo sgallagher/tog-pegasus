@@ -62,6 +62,7 @@ EnumerationContext::EnumerationContext(
     )
     :
     _cimException(CIMException()),
+    _savedRequest(NULL),             // Clear because used as a flag
     _nameSpace(nameSpace),
     _operationTimeoutSec(interOperationTimeoutValue),
     _continueOnError(continueOnError_),
@@ -75,8 +76,10 @@ EnumerationContext::EnumerationContext(
     _providerLimitConditionMutex(Mutex::NON_RECURSIVE),
     _pullOperationCounter(0),
     _consecutiveZeroLenMaxObjectRequestCounter(0),
-    _savedRequest(NULL),
-    _savedResponse(NULL),
+    _responseCacheMaximumSize(0),
+    _requestCount(1),
+    _responseObjectsCount(0),
+    _requestedResponseObjectsCount(0),
     _cacheHighWaterMark(0)
 {
     _responseCache.valid();             // KS_TEMP
@@ -92,18 +95,6 @@ EnumerationContext::EnumerationContext(
                _operationTimeoutSec,
                _responseCache.getResponseDataContent(),
                (unsigned long int)_startTime));
-}
-
-EnumerationContext::EnumerationContext(const EnumerationContext& x)
-     :
-    _responseCache(CIMResponseData::RESP_INSTANCE)
-{
-    _providersComplete = x._providersComplete;
-    _nameSpace = x._nameSpace;
-    _continueOnError = x._continueOnError;
-    _processing = x._processing;
-    _clientClosed = x._clientClosed;
-    _error = x._error;
 }
 
 void EnumerationContext::setRequestProperties(
@@ -240,7 +231,10 @@ void EnumerationContext::trace()
         "providers complete=%s "
         "closed=%s "
         "timeOpen %lu millisec totalPullCount=%u "
-        "cache highWaterMark=%u ",
+        "cache highWaterMark=%u "
+        "Request count=%u "
+        "Returned Object Count=%u"
+        "RequestedReturnedObjectCount=%u",
         (const char *)_enumerationContextName.getCString(),
         (const char *)_nameSpace.getString().getCString(),
         (long unsigned int)_operationTimeoutSec,
@@ -252,7 +246,10 @@ void EnumerationContext::trace()
         (long unsigned int)
             (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
         _pullOperationCounter,
-        _cacheHighWaterMark));
+        _cacheHighWaterMark,
+        _requestCount,
+        _responseObjectsCount,
+        _requestedResponseObjectsCount));
 }
 
 /**
@@ -497,17 +494,14 @@ void EnumerationContext::setupFutureResponse(
     CIMPullResponseDataMessage* response,
     Uint32 operationMaxObjectCount)
 {
-
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::setupFutureResponse");
-    // Since these are also flags, they MUST BE empty when this function
-    // called.  The required serialization of client rrequests should insure
-    // this.
+    // Since thisare also flag, it MUST BE empty when this function
+    // called.
     PEGASUS_ASSERT(_savedRequest == NULL);
-    PEGASUS_ASSERT(_savedResponse == NULL);
 
     _savedOperationMaxObjectCount = operationMaxObjectCount;
-    _savedRequest = request;
     _savedResponse = response;
+    _savedRequest = request;
 
     PEG_METHOD_EXIT();
 }
@@ -527,7 +521,7 @@ Boolean EnumerationContext::getCache(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::getCache");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_ASSERT(valid());
 
     // Move attributes from Cache to new CIMResponseData object
     // sets the attributes for propertyList, includeQualifiers,
@@ -539,18 +533,16 @@ Boolean EnumerationContext::getCache(
     {
         return false;
     }
-    // Wait for cache size to match count or providers to complete
-    // set mutex only for the move objects. We don't want to mutex for
-    // the wait period since we expect things to be put into the
-    // cache during this period. Called from a client operation and the
-    // operation will hang until this completes.
-    //// waitCacheSizeCondition(count);
 
     // Lock the cache for the move function
     AutoMutex autoMut(_responseCacheMutex);
 
     // Move the defined number of objects from the cache to the return object.
     rtnData.moveObjects(_responseCache, count);
+
+    // add to statistics for this enumerationContext
+    _responseObjectsCount += rtnData.size();
+    _requestedResponseObjectsCount += count;
 
     // KS_TODO_DIAG_DELETETHIS
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,

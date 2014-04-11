@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Server/EnumerationContext.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/IDFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,7 +98,6 @@ EnumerationContextTable::EnumerationContextTable()
     :
     _timeoutInterval(0),
     _nextTimeout(0),
-    _enumContextCounter(1),
     _responseCacheMaximumSize(0),
     _cacheHighWaterMark(0),
     _maxOperationTimeout(0),
@@ -138,6 +138,9 @@ EnumerationContextTable::~EnumerationContextTable()
     sequence controlled by this context. The context instance will remain
     active for the life of the enumeration sequence.
 */
+
+static IDFactory _enumerationContextIDFactory(4123);
+
 EnumerationContext* EnumerationContextTable::createContext(
     const CIMNamespaceName& nameSpace,
     Uint32Arg&  operationTimeoutParam,
@@ -177,10 +180,10 @@ EnumerationContext* EnumerationContextTable::createContext(
     enumCtxt->_responseCacheMaximumSize = _responseCacheMaximumSize;
 
     // Create new context name
-    _enumContextCounter++;
-    Uint32 size;
-    char t[22];
-    const char* cxtName = Uint32ToString(t, _enumContextCounter.get(), size);
+    Uint32 rtnSize;
+    char scratchBuffer[22];
+    const char* cxtName = Uint32ToString(scratchBuffer,
+        _enumerationContextIDFactory.getID(), rtnSize);
 
     enumCtxt->_enumerationContextName = cxtName;
 
@@ -217,10 +220,10 @@ void EnumerationContextTable::displayStatistics(Boolean clear)
     if (_enumerationContextsOpened != 0)
     {
         cout << "EnumerationTable Statistics:"
-            << "\n  Cache High Water Mark " << _cacheHighWaterMark
-            << "\n  Max Simultaneous Enumerations " << _maxSimultaneousContexts
-            << "\n  Total Enumerations " << _enumerationContextsOpened
-            << "\n  Enumerations Aborted " << _enumerationsTimedOut
+            << "\n  Cache High Water Mark: " << _cacheHighWaterMark
+            << "\n  Max Simultaneous Enumerations: " << _maxSimultaneousContexts
+            << "\n  Total Enumerations: " << _enumerationContextsOpened
+            << "\n  Enumerations Aborted: " << _enumerationsTimedOut
             << endl;
     }
     if (clear)
@@ -277,15 +280,15 @@ void EnumerationContextTable::removeContextTable()
 
 void EnumerationContextTable::releaseContext(EnumerationContext* en)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::removeContext");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::releaseContext");
 
     PEGASUS_ASSERT(valid());
     PEGASUS_ASSERT(en->valid());
 
     AutoMutex autoMut(tableLock);
 
-    PEG_METHOD_EXIT();
     _removeContext(en, true);
+    PEG_METHOD_EXIT();
 }
 
 // Private remove function with no lock protection. The tableLock must
@@ -309,8 +312,9 @@ Boolean EnumerationContextTable::_removeContext(
     if (en->_clientClosed && en->_providersComplete)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-            "EnumerationContext Remove. ContextId= %s",
-            (const char *)en->getName().getCString() ));
+            "EnumerationContext Remove. ContextId= %s. delete= %s",
+            (const char *)en->getName().getCString(),
+            boolToString(deleteContext) ));
 
         // test/set the highwater mark for the table
         if (en->_cacheHighWaterMark > _cacheHighWaterMark)
@@ -335,6 +339,9 @@ Boolean EnumerationContextTable::_removeContext(
         // Delete the enumerationContext object
         if (deleteContext)
         {
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+                "Deleting Context. id=%s",
+                (const char *)en->getName().getCString() ));
             delete en;
         }
 
@@ -454,8 +461,8 @@ void EnumerationContextTable::tableValidate()
         EnumerationContext* en = i.value();
         if (!en->valid())
         {
-            trace();
-            PEGASUS_ASSERT(en->valid());             // diagnostic. KS_TEMP
+            en->trace();             // diagnostic. KS_TEMP
+            PEGASUS_ASSERT(en->valid());
         }
     }
 }
@@ -508,13 +515,15 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
 void EnumerationContextTable::trace()
 {
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "Context Table Trace. size = %u", ht.size()));
+        "EnumerationContextTable Trace. size=%u", ht.size()));
 
     AutoMutex autoMut(tableLock);
+
     for (HT::Iterator i = ht.start(); i; i++)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "key [%s]", (const char*)i.key().getCString() ));
+            "ContextTable Entry: key [%s]",
+                   (const char*)i.key().getCString() ));
         EnumerationContext* enumeration = i.value();
         enumeration->trace();
     }

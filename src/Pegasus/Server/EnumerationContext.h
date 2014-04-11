@@ -389,6 +389,8 @@ public:
     void unlockContext();
     Mutex _contextLock;
 
+    void incrementRequestCount();
+
     // parameters for requests saved for future send.  See
     //
     CIMOperationRequestMessage* _savedRequest;
@@ -404,8 +406,7 @@ private:
 
     friend class EnumerationContextTable;
 
-    // Name of this EnumerationContext. Used to find the context by
-    // pull and close operations.
+    // Name(Id) of this EnumerationContext.
     String _enumerationContextName;
 
     // Namespace for this pull sequence.  Set by open and used by
@@ -425,7 +426,7 @@ private:
     Uint64 _interOperationTimer;
 
     // Request Type for pull operations for this pull sequence.
-    // Set by open and all pulls must match this type.
+    // Set by open. All pulls must match this type.
     MessageType _pullRequestType;
 
     // status flags.
@@ -459,12 +460,11 @@ private:
     Condition _providerLimitCondition;
     Mutex _providerLimitConditionMutex;
 
-    // Functions for using providerLimitCondition.  Wait executes a wait
-    // until the conditions of the condition variable are met.
+    // Executes a wait  until the conditions of the condition variable are met.
     // @param size defines the limit at which wait occurs.
     void waitProviderLimitCondition(Uint32 limit);
 
-    // signalProviderLimitCondition signals the condition variable that
+    // Signal the condition variable that
     // it should test the _providerLimitCondition wait conditions.
     void signalProviderLimitCondition();
 
@@ -480,6 +480,12 @@ private:
     // before blocking providers.
     Uint32 _responseCacheMaximumSize;
 
+    // number of requests for this EnumerationContext.
+    Uint32 _requestCount;
+    // Number of objects returned and sum of all request counts
+    Uint32 _responseObjectsCount;
+    Uint32 _requestedResponseObjectsCount;
+
     Uint64 _startTime;
     // Max number of objects in the cache.
     Uint32 _cacheHighWaterMark;
@@ -492,6 +498,11 @@ private:
 inline String& EnumerationContext::getName()
 {
     return _enumerationContextName;
+}
+
+inline void EnumerationContext::incrementRequestCount()
+{
+    _requestCount++;
 }
 
 // KS_TODO Should be able to eliminate this

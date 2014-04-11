@@ -52,6 +52,10 @@ TODO list:
          cimcli pei CIM_ManagedElement to not complete (client timeout)
          sometimes.
 
+10 April 2014
+1. Fix issues causing failure with repeated pull operations.
+2. Consolidate some of the CIMOperationRequestDispatcher.cpp template code
+
 7 April 2104
   MergeOut of head of tree.
 

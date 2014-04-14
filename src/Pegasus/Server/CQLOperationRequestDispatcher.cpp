@@ -205,7 +205,6 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
         poA->setPullOperation((void *)enumerationContext);
     }
 
-
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
 

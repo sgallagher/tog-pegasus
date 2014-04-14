@@ -32,18 +32,44 @@
 /*
     These tests are part of a test program rather than a fixed test because
     a great number of them depend on sequences of operations in the server
-    rather than single operations and cannot be tested with fixed comparison
-    tests.
+    rather than single operations and cannot easily be tested with fixed
+    comparison tests.
 
-    Tests the error responses for pull operations.  This tests the various
-    requests that will generate exception error including:
+    Tests many error responses for pull operations.  This tests the various
+    requests that will generate exception errors including:
+
     1. Inclusion of Filter and Filter Language parameters - We do not expect
        use of these parameters today and so block them in the server
     2. Execute Pull or Close operations when there is no Open context.
-    3. Bad context on Pull for an open enumeration.  We change the context ID.
-    TBD.
-    4. Null max object count
-    5. Continue on error set - We do not allow this today
+       Because of the way the client code operates we cannot perform this
+       test. It generates a namespace error in the client code. Note that
+       we can do some of this with item 3 below.
+    4. Incorrect pull type after open.
+    3. Bad context on Pull after an open enumeration.
+       We cannot do this test in this program because we do not have access to
+       the context to change ID.  This may have to be done with static tests
+       and wbex.  Note: One way to do it here would be to establish a context
+       and then time it out leaving a context object that should be invalid.
+       Then use this one for the pull, producing a bad context response.
+       KS_TODO build the above
+    4. Null max object count exception. Exececute repeated pulls with
+       0 objects until the exception is returned.
+    5. Continue on error set - Pegasus does not allow this today so should
+       always generate an exception
+    6. Not closing or finishing an enumeration sequence. We have
+       no way to confirm that the timeout, etc. really occurs because client
+       does not have access to the server context.
+       KS_TODO - Proposal.  Establish max number of contexts in the server.
+       Start new ones until we get to the max.  Wait for the timeout and
+       try again, indicating that the timeout cleaned out the open sequences.
+
+   TODO:
+   1  Execute an operation on a closed enumeration context.
+   2. EnumerationContextError on close - Execute Close after open
+      with changed context.
+   3. More error on input of invalid interoperation times and
+      maxobjectCounts.
+   4. Invalid roles, etc. on association requests.
 */
 
 #include <Pegasus/Common/Config.h>
@@ -51,7 +77,7 @@
 #include <Pegasus/Client/CIMClient.h>
 
 #include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Common/System.h>     / required for sleep function
+#include <Pegasus/Common/System.h>     // required for sleep function
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,517 +90,321 @@ static Boolean verbose;
 
 #define ENTRY VCOUT << "Enter "
 
-/*
-    Simple pattern match. Pattern may include *
-*/
+/*  glob pattern matcher.
+ *  The pattern expressions are:
+ *    *             match zero or more characters
+ *    ?             match any single character
+ *    [charSet]     match any character in the character set
+ *    [^charSet]    match any character NOT in the character set
+ *                   A character set is a group of characters or ranges.
+ *                   A range is written as two characters seperated with a
+ *                   hyphen:
+ *                      a-z denotes all characters between a to z inclusive.
+ *    [-charSet]    set matches a literal hypen and any character in the set
+ *    []charSet]    match a literal close bracket and any character in the set
+ *
+ *    char          match itself except where char is '*' or '?' or '['
+ *    \char         match char, including any pattern character
+ *
+ * examples:
+ *    a*c        ac abc abbc ...
+ *    a?c        acc abc aXc ...
+ *    a[a-z]c        aac abc acc ...
+ *    a[-a-z]c    a-c aac abc ...
+ */
 
-static int _match(const char* pattern, const char* str)
+bool _globMatch(const char* pattern, const char* str)
 {
-    const char* p;
-    const char* q;
+    bool negate;
+    //bool match;
+    char patChar;
 
-    /* Now match expression to str. */
-
-    for (p = pattern, q = str; *p && *q; )
+    while (*pattern)
     {
-        if (*p == '*')
+        // if not end of str and pattern not any, close false
+        if (!*str && *pattern != '*')
         {
-            const char* r;
-
-            p++;
-
-            /* Recursively call to find the shortest match. */
-
-            for (r = q; *r; r++)
-            {
-                if (_match(p, r) == 0)
-                    break;
-            }
-
-            q = r;
-
-        }
-        else if (*p == *q)
-        {
-            p++;
-            q++;
-        }
-        else
-            return -1;
-    }
-
-    /* If src was exhausted but pattern has a single '*' remaining charcters,
-     * then match the result.
-     */
-
-    if (p[0] == '*' && p[1] == '\0')
-        return 0;
-
-    /* If anything left over, then they do not match. */
-
-    if (*p || *q)
-        return -1;
-
-    return 0;
-}
-
-static int _Match(const String& pattern, const String& str)
-{
-    return _match(pattern.getCString(), str.getCString());
-}
-
-/* Test filterQuery and filterQueryLanguage error responses.
-   Should return CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED CIMException
-*/
-void testFilterErrorResponse(CIMClient& client)
-{
-    ENTRY << "testFilterErrorResponse" << endl;
-    CIMNamespaceName nameSpace = "test/TestProvider";
-    CIMName className = "TST_Person";
-    CIMObjectPath  cimObjectName("TST_Person.name=\"Mike\"");
-    Boolean deepInheritance = true;
-    Boolean includeClassOrigin = false;
-    Boolean endOfSequence = false;
-    Uint32 operationTimeout = 0;
-    Boolean continueOnError = false;
-    Uint32 maxObjectCount = 9;
-    String filterQueryLanguage = "SomeString";
-    String filterQuery = "SomeString";
-    Array<CIMInstance> cimInstances;
-    Array<CIMObjectPath> cimInstancePaths;
-
-    try
-    {
-        CIMEnumerationContext enumerationContext;
-        cimInstances = client.openEnumerateInstances(
-            enumerationContext,
-            endOfSequence,
-            nameSpace,
-            className,
-            deepInheritance,
-            includeClassOrigin,
-            CIMPropertyList(),
-            filterQueryLanguage,
-            filterQuery,
-            operationTimeout,
-            continueOnError,
-            maxObjectCount
-            );
-        PEGASUS_TEST_ASSERT(false);
-    }
-
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED )
-        {
-            cerr << "CIMException Error: filterErrorResponse "
-                << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-        else
-        {
-            VCOUT << "filterParameter Error test. Correct exception received"
-                  << endl;
-        }
-    }
-
-    try
-    {
-        CIMEnumerationContext enumerationContext;
-        cimInstancePaths = client.openEnumerateInstancePaths(
-            enumerationContext,
-            endOfSequence,
-            nameSpace,
-            className,
-            filterQueryLanguage,
-            filterQuery,
-            operationTimeout,
-            continueOnError,
-            maxObjectCount
-            );
-        PEGASUS_TEST_ASSERT(false);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED )
-        {
-            cerr << "CIMException Error: filterErrorResponse "
-                << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-        else
-        {
-            VCOUT << "filterParameter Error test. Correct exception received"
-                << endl;
-        }
-    }
-
-    // Test Filter parameters on openReferenceInstances
-    String role = "";
-    CIMName resultClass = CIMName();
-    try
-    {
-        Boolean includeClassOrigin = false;
-        Boolean endOfSequence = false;
-        Uint32Arg operationTimeout(0);
-        Boolean continueOnError = false;
-
-        CIMEnumerationContext enumerationContext;
-        cimInstances = client.openReferenceInstances(
-            enumerationContext,
-            endOfSequence,
-            nameSpace,
-            cimObjectName,
-            resultClass,
-            role,
-            includeClassOrigin,
-            CIMPropertyList(),
-            filterQueryLanguage,
-            filterQuery,
-            operationTimeout,
-            continueOnError,
-            maxObjectCount
-            );
-        PEGASUS_TEST_ASSERT(false);
-        }
-        catch (CIMException& e)
-        {
-            if (e.getCode() != CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED )
-            {
-                cerr << "CIMException Error: filterErrorResponse "
-                    << e.getMessage() << " code = " << e.getCode() << endl;
-                PEGASUS_TEST_ASSERT(false);
-            }
+            return false;
         }
 
-        try
+        // Switch for current character in the pattern
+        switch (patChar = *pattern++)
         {
-            Boolean endOfSequence = false;
-            Uint32Arg operationTimeout(0);
-            Boolean continueOnError = false;
-
-            CIMEnumerationContext enumerationContext;
-            cimInstancePaths = client.openReferenceInstancePaths(
-                enumerationContext,
-                endOfSequence,
-                nameSpace,
-                cimObjectName,
-                resultClass,
-                role,
-                filterQueryLanguage,
-                filterQuery,
-                operationTimeout,
-                continueOnError,
-                maxObjectCount
-                );
-            PEGASUS_TEST_ASSERT(false);
-        }
-        catch (CIMException& e)
-        {
-            if (e.getCode() != CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED )
-            {
-                cerr << "CIMException Error: filterErrorResponse "
-                    << e.getMessage() << " code = " << e.getCode() << endl;
-                PEGASUS_TEST_ASSERT(false);
-            }
-        }
-
-        String resultRole = "";
-        CIMName assocClass = CIMName();
-
-        try
-        {
-            Boolean includeClassOrigin = false;
-            Boolean endOfSequence = false;
-            Uint32Arg operationTimeout(0);
-            Boolean continueOnError = false;
-
-            CIMEnumerationContext enumerationContext;
-            cimInstances = client.openAssociatorInstances(
-                enumerationContext,
-                endOfSequence,
-                nameSpace,
-                cimObjectName,
-                assocClass,
-                resultClass,
-                role,
-                resultRole,
-                includeClassOrigin,
-                CIMPropertyList(),
-                filterQueryLanguage,
-                filterQuery,
-                operationTimeout,
-                continueOnError,
-                maxObjectCount
-            );
-            PEGASUS_TEST_ASSERT(false);
-            }
-            catch (CIMException& e)
-            {
-                if (e.getCode() != CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED )
+            // "Any" patterh character found
+            case '*':
+                // ignore repeated * characters in pattern
+                while (*pattern == '*')
                 {
-                    cerr << "CIMException Error: filterErrorResponse "
-                        << e.getMessage() << " code = " << e.getCode() << endl;
-                    PEGASUS_TEST_ASSERT(false);
+                    pattern++;
                 }
-            }
-
-            try
-            {
-                Boolean endOfSequence = false;
-                Uint32Arg operationTimeout(0);
-                Boolean continueOnError = false;
-
-                CIMEnumerationContext enumerationContext;
-                cimInstancePaths = client.openAssociatorInstancePaths(
-                    enumerationContext,
-                    endOfSequence,
-                    nameSpace,
-                    cimObjectName,
-                    assocClass,
-                    resultClass,
-                    role,
-                    resultRole,
-                    filterQueryLanguage,
-                    filterQuery,
-                    operationTimeout,
-                    continueOnError,
-                    maxObjectCount
-                    );
-                PEGASUS_TEST_ASSERT(false);
-                }
-                catch (CIMException& e)
+                // close successful if end of pattern
+                if (!*pattern)
                 {
-                    if (e.getCode() !=
-                        CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED )
+                    return true;
+                }
+
+                // if no escape characters match char by char
+                if ((*pattern != '?')
+                    && (*pattern != '[')
+                    && (*pattern != '\\'))
+                {
+                    while (*str && *pattern != *str)
                     {
-                        cerr << "CIMException Error: filterErrorResponse "
-                            << e.getMessage() << " code = "
-                            << e.getCode() << endl;
-                        PEGASUS_TEST_ASSERT(false);
+                        str++;
                     }
                 }
+                // recursive call to find shortest match
+                while (*str)
+                {
+                    if (_globMatch(str, pattern))
+                    {
+                        return true;
+                    }
+                    str++;
+                }
+                return false;
+
+            // Single char escape found. Test only that there is
+            // a character in the string
+            case '?':
+                if (*str)
+                {
+                    break;
+                }
+                return false;
+
+            // process character set. Character set is inclusive
+            // and includes possibility of negation for first character
+            case '[':
+            {
+                // test for character set negate flag (first after '['
+                if (*pattern != '^')
+                {
+                    negate = false;
+                }
+                else
+                {
+                    negate = true;
+                    pattern++;
+                }
+
+                bool match = false;
+                while (!match && (patChar = *pattern++))
+                {
+                    if (!*pattern)
+                    {
+                        return false;
+                    }
+                    // if found char-range char (-)
+                    if (*pattern == '-')
+                    {
+                        if (!*++pattern)
+                        {
+                            return false;
+                        }
+
+                        // if not end of pattern
+                        if (*pattern != ']')
+                        {
+                            if (*str == patChar || *str == *pattern ||
+                                (*str > patChar && *str < *pattern))
+                            {
+                                match = true;
+                            }
+                        }
+                        else
+                        {
+                            if (*str >= patChar)
+                            {
+                                match = true;
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (patChar == *str)
+                        {
+                            match = true;
+                        }
+                        if (*pattern != ']')
+                        {
+                            if (*pattern == *str)
+                            {
+                                match = true;
+                            }
+                        }
+                        else
+                            break;
+                    }
+                }
+
+                if (negate == match)
+                {
+                    return false;
+                }
+
+                // If there is a match, skip past the character set and
+                // continue
+                while (*pattern && *pattern != ']')
+                {
+                    pattern++;
+                }
+                if (!*pattern++)
+                {
+                    return false;
+                }
+                break;
+            }
+            // escape character found
+            case '\\':
+                if (*pattern)
+                {
+                    patChar = *pattern++;
+                }
+            // default, test current character
+            default:
+                if (patChar != *str)
+                {
+                    return false;
+                }
+                break;
+        }
+        str++;
+    }
+    return !*str;
 }
-/* Test Error responses for the pull, and close operations with no open
-*/
-void testEnumContextError(CIMClient& client)
+
+static int _globMatch(const String& pattern, const String& str)
 {
-    ENTRY << "testEnumContextError" << endl;
-    try
-    {
-        Boolean endOfSequence = false;
-        Uint32Arg operationTimeout = 0;
-        Uint32 maxObjectCount = 9;
-        String filterQueryLanguage = String::EMPTY;
-        String filterQuery = String::EMPTY;
-        Array<CIMInstance> cimInstances;
-        Array<CIMObjectPath> cimInstancePaths;
-
-        CIMEnumerationContext enumerationContext;
-
-        // test for invalid context responses.
-        // In our case, we normally get invalid namespace.
-
-        try
-        {
-            CIMEnumerationContext enumerationContext;
-            cimInstances = client.pullInstancesWithPath(
-                enumerationContext,
-                endOfSequence,
-                maxObjectCount);
-            VCOUT << "OK: CIMException Error Expected for this operation"
-                << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-        catch (CIMException& e)
-        {
-                cerr << "CIMException Error:"
-                        " testEnumContextError PullInstancesWithPath "
-                    << e.getMessage() << endl;
-                PEGASUS_TEST_ASSERT(false);
-        }
-
-        // KS_TODO - Currently the error generated is HTTP ERROR 400
-        // Temporarily blocked assert
-        catch (Exception& e)
-        {
-            if (e.getMessage() != "Invalid Enumeration Context, unitilialized")
-            {
-                cerr << "Exception Error: in testEnumContextError Test "
-                    << e.getMessage() << endl;
-                //// KS_TODO PEGASUS_TEST_ASSERT(false);
-            }
-        }
-        VCOUT << "PullInstancesWithPath context err OK" << endl;
-
-        // test pull with no open. Should return CIMException
-        try
-        {
-            CIMEnumerationContext enumerationContext;
-            Array<CIMObjectPath> xx = client.pullInstancePaths(
-                enumerationContext,
-                endOfSequence,
-                maxObjectCount);
-
-            VCOUT << "CIMException Error Expected for this operation" << endl;
-            //// KS_TODO PEGASUS_TEST_ASSERT(false);
-        }
-
-        catch (CIMException& e)
-        {
-            cerr << "CIMException Error: " << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-
-        catch (Exception& e)
-        {
-            cerr << "Exception: " << e.getMessage() << endl;
-            if (e.getMessage() != "Invalid Enumeration Context, unitilialized")
-            {
-                cerr << "Error: in testEnumContextError Test "
-                    << e.getMessage() << endl;
-                //// KS_TODO PEGASUS_TEST_ASSERT(false);
-            }
-        }
-        VCOUT << "PullInstancePaths context err OK" << endl;
-
-        // Test close operation with no open
-        try
-        {
-            CIMEnumerationContext enumerationContext;
-            client.closeEnumeration(
-                enumerationContext);
-            cerr << "CIMException Error Expected for this operation" << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-
-        catch (CIMException& e)
-        {
-            cerr << "CIMException Error: " << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-
-        catch (Exception& e)
-        {
-            if (e.getMessage() != "Invalid Enumeration Context, unitilialized" )
-            {
-                cerr << "Error: in testEnumContextError Test "
-                     << e.getMessage() << endl;
-                //// KS_TODO PEGASUS_TEST_ASSERT(false);
-            }
-        }
-
-        VCOUT << "CloseEnumeration context err OK" << endl;
-        /**
-         *     Test EnumerationCount
-         */
-        try
-        {
-            CIMEnumerationContext enumerationContext;
-            Uint64Arg x = client.enumerationCount(
-                enumerationContext );
-            PEGASUS_TEST_ASSERT(false);
-        }
-        catch (CIMException& e)
-        {
-            cerr << "CIMException Error: " << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-
-        catch (Exception& e)
-        {
-            if (e.getMessage() != "Invalid Enumeration Context, unitilialized")
-            {
-                cerr << "Error: in testEnumContextError Test "
-                     << e.getMessage() << endl;
-                //// KS_TODO PEGASUS_TEST_ASSERT(false);
-            }
-        }
-
-        VCOUT << "enumerationCount context err OK" << endl;
-    }
-    catch (CIMException& e)
-    {
-        cerr << "CIMException Error: in testEnumContextError "
-             << e.getMessage() << endl;
-        PEGASUS_TEST_ASSERT(false);
-    }
-    catch (Exception& e)
-    {
-        cerr << "Error: in testEnumContextError Test "
-             << e.getMessage() << endl;
-        //// KS_TODO PEGASUS_TEST_ASSERT(false);
-    }
-
-    VCOUT << "testPullAndCloseEnumContextError passed" << endl;
+    return _globMatch(pattern.getCString(), str.getCString());
 }
 
-/*
-    General class to test all of the different operations with various
+////// Original match.  However, this one appears to have problems
+////static int _match(const char* pattern, const char* str)
+////{
+////    const char* p;
+////    const char* q;
+////
+////    /* Now match expression to str. */
+////
+////    for (p = pattern, q = str; *p && *q; )
+////    {
+////        if (*p == '*')
+////        {
+////            const char* r;
+////
+////            p++;
+////
+////            /* Recursively call to find the shortest match. */
+////
+////            for (r = q; *r; r++)
+////            {
+////                if (_match(p, r) == 0)
+////                    break;
+////            }
+////
+////            q = r;
+////
+////        }
+////        else if (*p == *q)
+////        {
+////            p++;
+////            q++;
+////        }
+////        else
+////            return -1;
+////    }
+////
+////    /* If src was exhausted but pattern has a single '*'remaining charcters,
+////     * then match the result.
+////     */
+////
+////    if (p[0] == '*' && p[1] == '\0')
+////        return 0;
+////
+////    /* If anything left over, then they do not match. */
+////
+////    if (*p || *q)
+////        return -1;
+////
+////    return 0;
+////}
+////
+////static int _Match(const String& pattern, const String& str)
+////{
+////    return _match(pattern.getCString(), str.getCString());
+////}
+
+/***************************************************************************
+    Class to test all of the different operations with various
     error scenarios.  The parameters are supplied once and each of the
     various opens can then be tested with the same set of parmeters.
     This avoids the duplicated test code for each open operation and
     each error scenario.
-*/
-struct testCalls{
+    There are several types of function:
+       - set functions that set parameters for the tests
+       - functions that execute particular operations (enumerateInstanceNames)
+       - Functions that display information
+       - functions that test results (test...())
+*****************************************************************************/
+class testEnumSequence{
+public:
+    //
+    // The following are the arguments for calls
     CIMEnumerationContext _enumerationContext;
     CIMNamespaceName _nameSpace;
     CIMName _className;
     CIMObjectPath _cimObjectName;
     Boolean _deepInheritance;
     Boolean _includeClassOrigin;
+
+    // Standard open... Arguments
     Boolean _endOfSequence;
     Uint32 _operationTimeout;
     Boolean _continueOnError;
     Uint32 _maxObjectCount;
 
+    // the query parameters for open calls. Note that for
+    // the openQueryInstances, this is wql
     String _filterQueryLanguage;
     String _filterQuery;
 
+    // Argument for openQueryInstances
+    CIMClass _queryResultClass;
+
+    // Arguments for associator and reference calls
     String _role;
     String _resultRole;
     CIMName _assocClass;
     CIMName _resultClass;
+
     CIMPropertyList _cimPropertyList;
 
-    // Parameters associated with Pulls
-    Boolean _expectPullReturnGood;
     CIMClient& _client;
 
     // Flags on tests for returns
-    Boolean _expectOpenReturnGood;
-    CIMStatusCode _expectedOpenCIMExceptionCode;
-    String _expectedOpenCIMExceptionMessage;
+
+    // set true if expect good return on open/pull. Default in constructor
+    // is true.  Must set to false if expect error response on execution
+    // of any operation.
+    Boolean _expectGoodReturn;
+
+    // Expected error code on response. Used in conjuction with the
+    // binary messages above to evaluate responses
+    CIMStatusCode _expectedCIMExceptionCode;
+    String _expectedCIMExceptionMessage;
+
+    // The status code returned by the last request operation if
+    // it resulted in an exception
+    CIMStatusCode _returnedCIMExceptionCode;
 
     // Names for the test and the operation being tested
     String _testName;
     String _operationName;
 
     //  Constructor sets up defaults for all parameters.
-    testCalls(CIMClient& client, const char*nameSpace):
-        _nameSpace(nameSpace),
-        _className(),
-        _cimObjectName(),
-        _deepInheritance(true),
-        _includeClassOrigin(false),
-        _operationTimeout(0),
-        _continueOnError(false),
-        _maxObjectCount(100),
-        _filterQueryLanguage(""),
-        _filterQuery(""),
-        _role(""),
-        _resultRole(""),
-        _assocClass(CIMName()),
-        _resultClass(CIMName()),
-        _cimPropertyList(CIMPropertyList()),
-        _expectPullReturnGood(true),
-        _client(client),
-        _expectOpenReturnGood(true),
-        _expectedOpenCIMExceptionCode(CIM_ERR_SUCCESS),
-        _expectedOpenCIMExceptionMessage(""),
-        _testName("unknown"),
-        _operationName("unknown")
-    {}
+    testEnumSequence(CIMClient& client, const char*nameSpace);
 
     void setClientParams(CIMObjectPath& path,
                     Boolean deepInheritance,
@@ -584,340 +414,470 @@ struct testCalls{
         _deepInheritance = deepInheritance;
         _includeClassOrigin = includeClassOrigin;
     }
+
     void setTestName(String testName)
     {
         _testName = testName;
     }
 
+    void setExpectErrorResponseOnly()
+    {
+        _expectGoodReturn = false;
+    }
+
+    void setExpectGoodResponse()
+    {
+        _expectGoodReturn = true;
+    }
+
     void setCIMException(CIMStatusCode code)
     {
-        _expectedOpenCIMExceptionCode = code;
+        _expectedCIMExceptionCode = code;
     }
     void setCIMExceptionMessage(const char * msg)
     {
-        _expectedOpenCIMExceptionMessage = msg;
+        _expectedCIMExceptionMessage = msg;
     }
 
-    // KS_TODo this can be deleted as not used.
-    void setDefaultTarget()
-    {
-        _nameSpace =  "test/TestProvider";
-        _className = "TST_Person";
-    }
+    // Execute Client Operation functions
 
-    void startOperationTest(const char* operationName)
+
+    // Execution of  defined Client request Operations
+    // Returns true if successful or matches defined CIMException
+    Boolean openEnumerateInstances();
+    Boolean openEnumerateInstancePaths();
+    Boolean openReferenceInstances();
+    Boolean openReferenceInstancePaths();
+    Boolean openAssociatorInstances();
+    Boolean openAssociatorInstancePaths();
+    Boolean openQueryInstances();
+
+    Boolean pullInstancesWithPath();
+    Boolean pullInstancePaths();
+    Boolean pullInstances();
+
+    // execute the open functions for both enumerateInstances and
+    // enumerate instance names. These call simply aggregate
+    // the above opens into a larger group to allow executing
+    // a test on multiple open message types in a single call.
+    Boolean executeEnumerateCalls();
+    Boolean executeAssociationCalls();
+    Boolean executeAllOpenCalls();
+
+private:
+    // default constructor and copy
+    testEnumSequence();
+    testEnumSequence(const testEnumSequence& that);
+
+    // Test the execution for defined exceptions
+    Boolean _testCIMException(CIMException& e);
+    // Internal functions to display for the execution methods
+
+    void _startOperationTest(const char* operationName)
     {
         _operationName = operationName;
         VCOUT << "Start " << _testName << " test. Operation "
             << _operationName << endl;
     }
 
-    void continueOperationTest(const char* operationName)
+    void _continueOperationTest(const char* operationName)
     {
         _operationName = operationName;
-        VCOUT << "Start " << _testName << " test. Operation "
+        VCOUT << "Continue " << _testName << " test. Operation "
             << _operationName << endl;
     }
 
-    void displayEnd()
+    void _displayEndTest()
     {
         VCOUT << "End " << _testName << " test. Operation"
             << _operationName << endl;
     }
-    void testCIMException(CIMException& e)
+}; // End of Class testEnumSequence
+
+// Constructor
+testEnumSequence::testEnumSequence(CIMClient& client, const char*nameSpace):
+    _nameSpace(nameSpace),
+    _className(),
+    _cimObjectName(),
+    _deepInheritance(true),
+    _includeClassOrigin(false),
+    _operationTimeout(0),
+    _continueOnError(false),
+    _maxObjectCount(100),
+
+    _filterQueryLanguage(""),
+    _filterQuery(""),
+
+    _role(""),
+    _resultRole(""),
+    _assocClass(CIMName()),
+    _resultClass(CIMName()),
+
+    _cimPropertyList(CIMPropertyList()),
+    _client(client),
+    _expectGoodReturn(true),
+    _expectedCIMExceptionCode(CIM_ERR_SUCCESS),
+    _expectedCIMExceptionMessage(""),
+    _returnedCIMExceptionCode(CIM_ERR_SUCCESS),
+    _testName("unknown"),
+    _operationName("unknown")
+{}
+
+// Test against the CIMException defined by the one
+// defined for the test. If not equal, generate error
+// and return false.  If the message variable is set,
+// also test the message against the one defined.
+Boolean testEnumSequence::_testCIMException(CIMException& e)
+{
+    _returnedCIMExceptionCode = e.getCode();
+    if (e.getCode() != _expectedCIMExceptionCode)
     {
-        if (e.getCode() != _expectedOpenCIMExceptionCode)
-        {
-            cerr << "CIMException Error: " << e.getCode() << " "
-                << e.getMessage() 
-                << " Expected: "
-                << _expectedOpenCIMExceptionCode << " "
-                << cimStatusCodeToString(_expectedOpenCIMExceptionCode)
-                << endl;
-            PEGASUS_TEST_ASSERT(false);
-        }
-        else
-        {
-            VCOUT << "Correct Exception Code received." << _testName
-                  << " " << _operationName << " Exception "
-                  << e.getCode() << " " << e.getMessage() << endl;
+        cerr << "CIMException Error: " << e.getCode() << " "
+            << e.getMessage()
+            << " Expected: "
+            << _expectedCIMExceptionCode << " "
+            << cimStatusCodeToString(_expectedCIMExceptionCode)
+            << endl;
+        return false;
 
-            // test for correct message if required (i.e. test string not
-            // empty
+    }
+    else
+    {
+        VCOUT << "Correct Exception Code received." << _testName
+              << " " << _operationName << " Exception "
+              << e.getCode() << " " << e.getMessage() << endl;
 
-            if (_expectedOpenCIMExceptionMessage != "")
+        // test for correct message if required (i.e. test string not
+        // empty
+
+        if (_expectedCIMExceptionMessage != "")
+        {
+            if (_globMatch(_expectedCIMExceptionMessage,
+                       e.getMessage()) != 0 )
             {
-                if (_Match(_expectedOpenCIMExceptionMessage,
-                           e.getMessage()) != 0 )
-                {
-                    cerr << "Received CIMException Message Error: |"
-                         << e.getMessage()
-                         << "| does not match expected CIMException |"
-                         << _expectedOpenCIMExceptionMessage << "|" << endl;
-                    PEGASUS_TEST_ASSERT(false);
-                }
+                cerr << "Received CIMException Message Error: |"
+                     << e.getMessage()
+                     << "| does not match expected CIMException |"
+                     << _expectedCIMExceptionMessage << "|" << endl;
+                return false;
             }
-
         }
     }
+    return true;
+}
 
-    Boolean openEnumerateInstances()
+// Execute the OpenEnumerateInstances with the arguments defined
+Boolean testEnumSequence::openEnumerateInstances()
+{
+    _startOperationTest("openEnumerateInstances");
+
+    try
     {
-        startOperationTest("openEnumerateInstances");
+        Array<CIMInstance> cimInstances = _client.openEnumerateInstances(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _className,
+            _deepInheritance,
+            _includeClassOrigin,
+            _cimPropertyList,
+            _filterQueryLanguage,
+            _filterQuery,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount
+            );
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
 
-        try
-        {
-            Array<CIMInstance> cimInstances = _client.openEnumerateInstances(
-                _enumerationContext,
-                _endOfSequence,
-                _nameSpace,
-                _className,
-                _deepInheritance,
-                _includeClassOrigin,
-                _cimPropertyList,
-                _filterQueryLanguage,
-                _filterQuery,
-                _operationTimeout,
-                _continueOnError,
-                _maxObjectCount
-                );
-            PEGASUS_TEST_ASSERT(_expectOpenReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
+Boolean testEnumSequence::openEnumerateInstancePaths()
+{
+    _startOperationTest("openEnumerateInstancePaths");
+    CIMEnumerationContext enumerationContext;
+    try
+    {
+        Array<CIMObjectPath> cimPaths =
+            _client.openEnumerateInstancePaths(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _className,
+            _filterQueryLanguage,
+            _filterQuery,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount);
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::openReferenceInstances()
+{
+    _startOperationTest("openReferenceInstances");
+
+    Array<CIMInstance> cimInstances;
+    try
+    {
+        cimInstances = _client.openReferenceInstances(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _cimObjectName,
+            _resultClass,
+            _role,
+            _includeClassOrigin,
+            _cimPropertyList,
+            _filterQueryLanguage,
+            _filterQuery,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount);
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::openReferenceInstancePaths()
+{
+    _startOperationTest("openReferenceInstancePaths");
+
+    Array<CIMObjectPath> cimInstancePaths;
+    try
+    {
+        cimInstancePaths = _client.openReferenceInstancePaths(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _cimObjectName,
+            _resultClass,
+            _role,
+            _filterQueryLanguage,
+            _filterQuery,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount);
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::openAssociatorInstances()
+{
+    _startOperationTest("openAssociatorInstances");
+
+    try
+    {
+        Array<CIMInstance> cimInstances = _client.openAssociatorInstances(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _cimObjectName,
+            _assocClass,
+            _resultClass,
+            _role,
+            _resultRole,
+            _includeClassOrigin,
+            _cimPropertyList,
+            _filterQueryLanguage,
+            _filterQuery,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount);
+            PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::openAssociatorInstancePaths()
+{
+    _startOperationTest("openAssociatorInstancePaths");
+
+    Array<CIMObjectPath> cimInstancePaths;
+    try
+    {
+        cimInstancePaths = _client.openAssociatorInstancePaths(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _cimObjectName,
+            _assocClass,
+            _resultClass,
+            _role,
+            _resultRole,
+            _filterQueryLanguage,
+            _filterQuery,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount);
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+// Note that for this operation, the filterQueryLanguage and
+// _filterQuery are actually WQL or CQL, not FQL
+Boolean testEnumSequence::openQueryInstances()
+{
+    _startOperationTest("openQueryInstances");
+
+    Array<CIMInstance> cimInstances;
+    try
+    {
+        cimInstances = _client.openQueryInstances(
+            _enumerationContext,
+            _endOfSequence,
+            _nameSpace,
+            _filterQueryLanguage,
+            _filterQuery,
+            _queryResultClass,
+            _operationTimeout,
+            _continueOnError,
+            _maxObjectCount);
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::pullInstancesWithPath()
+{
+    _continueOperationTest("pullInstancesWithPath");
+    try
+    {
+        Array<CIMInstance> cimInstances = _client.pullInstancesWithPath(
+            _enumerationContext,
+            _endOfSequence,
+            _maxObjectCount);
+
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::pullInstancePaths()
+{
+    _continueOperationTest("pullInstancePaths");
+    try
+    {
+        Array<CIMObjectPath> cimPaths = _client.pullInstancePaths(
+            _enumerationContext,
+            _endOfSequence,
+            _maxObjectCount);
+
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        return _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::pullInstances()
+{
+    _continueOperationTest("pullInstances");
+    try
+    {
+        Array<CIMInstance> cimInstances = _client.pullInstances(
+            _enumerationContext,
+            _endOfSequence,
+            _maxObjectCount);
+
+        PEGASUS_TEST_ASSERT(_expectGoodReturn);
+    }
+    catch (CIMException& e)
+    {
+        _testCIMException(e);
+    }
+    _displayEndTest();
+    return true;
+}
+
+Boolean testEnumSequence::executeEnumerateCalls()
+{
+    VCOUT << "execute tests for EnumerateFunctions" << endl;
+    Boolean rtn1 = openEnumerateInstances();
+    Boolean rtn2 = openEnumerateInstancePaths();
+    if (rtn1 && rtn2)
+    {
         return true;
     }
-
-
-    Boolean openEnumerateInstancePaths()
+    else
     {
-
-        startOperationTest("openEnumerateInstancePaths");
-        CIMEnumerationContext enumerationContext;
-        try
-        {
-            Array<CIMObjectPath> cimPaths =
-                _client.openEnumerateInstancePaths(
-                _enumerationContext,
-                _endOfSequence,
-                _nameSpace,
-                _className,
-                _filterQueryLanguage,
-                _filterQuery,
-                _operationTimeout,
-                _continueOnError,
-                _maxObjectCount);
-            PEGASUS_TEST_ASSERT(_expectOpenReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
+        return false;
     }
+}
 
-    Boolean openReferenceInstances()
-    {
-        startOperationTest("openReferenceInstances");
+Boolean testEnumSequence::executeAssociationCalls()
+{
+    VCOUT << "execute tests for AssociateFunctions" << endl;
+    Boolean rtn1 = openReferenceInstances();
+    Boolean rtn2 = openReferenceInstancePaths();
+    Boolean rtn3 = openAssociatorInstances();
+    Boolean rtn4 = openAssociatorInstancePaths();
+    return (rtn1 && rtn2 && rtn3 && rtn4)?true: false;
+}
 
-        Array<CIMInstance> cimInstances;
-        try
-        {
-            cimInstances = _client.openReferenceInstances(
-                _enumerationContext,
-                _endOfSequence,
-                _nameSpace,
-                _cimObjectName,
-                _resultClass,
-                _role,
-                _includeClassOrigin,
-                _cimPropertyList,
-                _filterQueryLanguage,
-                _filterQuery,
-                _operationTimeout,
-                _continueOnError,
-                _maxObjectCount);
-            PEGASUS_TEST_ASSERT(_expectOpenReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
-    }
+Boolean testEnumSequence::executeAllOpenCalls()
+{
+    VCOUT << "Execute tests for all open functions" << endl;
+    Boolean rtn1 = executeEnumerateCalls();
+    Boolean rtn2 = executeAssociationCalls();
+    return (rtn1 && rtn2)? true : false;
+}
 
-    Boolean openReferenceInstancePaths()
-    {
-        startOperationTest("openReferenceInstancePaths");
-
-        Array<CIMObjectPath> cimInstancePaths;
-        try
-        {
-            cimInstancePaths = _client.openReferenceInstancePaths(
-                _enumerationContext,
-                _endOfSequence,
-                _nameSpace,
-                _cimObjectName,
-                _resultClass,
-                _role,
-                _filterQueryLanguage,
-                _filterQuery,
-                _operationTimeout,
-                _continueOnError,
-                _maxObjectCount);
-            PEGASUS_TEST_ASSERT(_expectOpenReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
-    }
-
-    Boolean openAssociatorInstances()
-    {
-        startOperationTest("openAssociatorInstances");
-
-        try
-        {
-            Array<CIMInstance> cimInstances = _client.openAssociatorInstances(
-                _enumerationContext,
-                _endOfSequence,
-                _nameSpace,
-                _cimObjectName,
-                _assocClass,
-                _resultClass,
-                _role,
-                _resultRole,
-                _includeClassOrigin,
-                _cimPropertyList,
-                _filterQueryLanguage,
-                _filterQuery,
-                _operationTimeout,
-                _continueOnError,
-                _maxObjectCount);
-                PEGASUS_TEST_ASSERT(_expectOpenReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
-    }
-
-    Boolean openAssociatorInstancePaths()
-    {
-        startOperationTest("openAssociatorInstancePaths");
-
-        Array<CIMObjectPath> cimInstancePaths;
-        try
-        {
-            cimInstancePaths = _client.openAssociatorInstancePaths(
-                _enumerationContext,
-                _endOfSequence,
-                _nameSpace,
-                _cimObjectName,
-                _assocClass,
-                _resultClass,
-                _role,
-                _resultRole,
-                _filterQueryLanguage,
-                _filterQuery,
-                _operationTimeout,
-                _continueOnError,
-                _maxObjectCount);
-            PEGASUS_TEST_ASSERT(_expectOpenReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
-    }
-
-    Boolean pullInstancesWithPath()
-    {
-        continueOperationTest("pullInstancesWithPath");
-        try
-        {
-            Array<CIMInstance> cimInstances = _client.pullInstancesWithPath(
-                _enumerationContext,
-                _endOfSequence,
-                _maxObjectCount);
-
-            PEGASUS_TEST_ASSERT(_expectPullReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
-    }
-
-    Boolean pullInstancePaths()
-    {
-        continueOperationTest("pullInstancePaths");
-        try
-        {
-            Array<CIMObjectPath> cimInstances = _client.pullInstancePaths(
-                _enumerationContext,
-                _endOfSequence,
-                _maxObjectCount);
-
-            PEGASUS_TEST_ASSERT(_expectPullReturnGood);
-        }
-        catch (CIMException& e)
-        {
-            testCIMException(e);
-        }
-        displayEnd();
-        return true;
-    }
-
-    void executeEnumerateCalls()
-    {
-        VCOUT << "execute tests for EnumerateFunctions" << endl;
-        openEnumerateInstances();
-        openEnumerateInstancePaths();
-    }
-
-    void executeAssociationCalls()
-    {
-        VCOUT << "execute tests for AssociateFunctions" << endl;
-        openReferenceInstances();
-        openReferenceInstancePaths();
-
-        openAssociatorInstances();
-        openAssociatorInstancePaths();
-    }
-
-    void executeAllOpenCalls()
-    {
-        VCOUT << "Execute tests for all open functions" << endl;
-        executeEnumerateCalls();
-        executeAssociationCalls();
-    }
-
-}; // End of Class testCalls
 
 // Parse Hostname input into name and port number
-Boolean parseHostName(char* arg, String& hostName, Uint32& port)
+Boolean parseHostName(const String& inputName, String& hostName, Uint32& port)
 {
     port = 5988;
-    String argv = arg;
-    hostName = argv;
+    hostName = inputName;
 
     Uint32 pos;
-    if (!((pos = argv.reverseFind(':')) == PEG_NOT_FOUND))
+    if (!((pos = inputName.reverseFind(':')) == PEG_NOT_FOUND))
     {
         Uint64 temp;
         if (StringConversion::decimalStringToUint64(
@@ -936,22 +896,22 @@ Boolean parseHostName(char* arg, String& hostName, Uint32& port)
     return true;
 }
 
-int main(int argc, char** argv)
+// Create a connection to the host. defined by the
+// argument host.  If the argument is empty, do a
+// connect local
+Boolean connectToHost(CIMClient& client, const String& inputName)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
-    CIMClient client;
-
     // Try to connect.  If there is an optional argument use it as the
     // hostname, optional(port) to connect.
     try
     {
-        if (argc == 2)
+        if (inputName != "")
         {
             Uint32 port;
             String hostName;
-            if (!parseHostName(argv[1], hostName, port))
+            if (!parseHostName(inputName, hostName, port))
             {
-                cerr << "Invalid hostName input " << argv[1]
+                cerr << "Invalid hostName input " << inputName
                      << "format is hostname[:port]" << endl;
                 return 1;
             }
@@ -965,58 +925,188 @@ int main(int argc, char** argv)
             VCOUT << "connectLocal" << endl;
             client.connectLocal();
         }
+        return true;
     }
 
     catch (CIMException& e)
     {
-            cerr << "CIMException Error: in connect " << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
+            cerr << "CIMException Error: in connect: CIMException "
+                 << e.getMessage() << endl;
     }
     catch (Exception& e)
     {
-        cerr << "Error: in connect " << e.getMessage() << endl;
-        PEGASUS_TEST_ASSERT(false);
+        cerr << "Error: in connect: Exception " << e.getMessage() << endl;
+    }
+    return false;
+}
+/* Test for the globMatch function we put into this code.
+   For the moment, this is disabled since the function was tested.
+   Included the test since this is new code.  If we move it to more general
+   location, we will have the test.
+   The test is enabled only if the define TEST_GLOBMATCH is enabled
+   */
+#define TEST_GLOBMATCH
+#ifdef TEST_GLOBMATCH
+// test a single glob match call.
+void tx(const char * pattern, const char * str, bool matches = true)
+{
+    VCOUT << "test pattern=" << pattern << " string=" << str
+        << " " << (matches? "Should match" : "Should NOT match") << endl;
+    if (matches)
+    {
+        PEGASUS_ASSERT(_globMatch(pattern, str));
+    }
+    else
+    {
+        PEGASUS_ASSERT(!_globMatch(pattern, str));
     }
 
-    testCalls tc(client, "test/TestProvider");
+}
+
+// Test the glob match function
+void testGlobMatch()
+{
+    tx("*","a");
+    tx("*","abc");
+    tx("?","a");
+    tx("?ac","aac");
+    tx("ac?","acx");
+    tx("ac?","acxx", false);
+    tx("a?c","abcx", false);
+    tx("[","x", false);
+    tx("[--z]","-");
+    tx("???","abc");
+    tx("???","abcd", false);
+    tx("[--z]","z");
+    tx("[-]abc","-abc");
+    tx("[-a-]?","zd");
+    tx("[-abc]?","dd", false);
+    tx("[a-c][a-c][a-c]","abc");
+    tx("[]","a",false);
+    tx("[]-z]abc","^abc");
+    tx("[]]abc","]abc");
+    tx("[]abc[a]","a");
+    tx("[]abc[de]","[");
+    tx("[]abc[de]","]");
+    tx("[]abc[de]","d");
+    tx("[^a-z]","a", false);
+    tx("[a-z]","A", false);
+    tx("[a-z]","a");
+    tx("[ab","a", false);
+    tx("[abc]??[def]","abca", false);
+    tx("[abc]??[def]","abcg",false);
+    tx("[abc]??[def]","abcd");
+    tx("[b-","a", false);
+    tx("[z-a]","a");
+    tx("[z-a]","z");
+    tx("\\?\\?\\*!\\[abc\\]","??*![abc]");
+    tx("ab[a-z]?a*b","abCdaxxxxb", false);
+    tx("ab[a-z]?a*b","abc", false);
+    tx("ab[a-z]?a*b","abcdab");
+    tx("ab[a-z]?a*b","abcdaxxxxb");
+    tx("xxxxxx","xxxxxx");
+    tx("xxxxxx","xxxxxy", false);
+    tx("x","xx", false);
+    tx("","abc", false);
+    tx("","");
+    tx("","");
+    cout << "Test of _globMatch passed" << endl;
+}
+#endif
+    /**************************************************************************
+    **
+    **              Main. Starts client and executes each test.
+    **
+    ***************************************************************************/
+int main(int argc, char** argv)
+{
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    CIMClient client;
+
+#ifdef TEST_GLOBMATCH
+    testGlobMatch();
+#endif
+
+    String hostName = "";
+
+    if (argc == 2)
+    {
+        hostName = argv[1];
+    }
+
+    if (!connectToHost(client, hostName))
+    {
+        cerr << "Error connection to host " << hostName << " failed." << endl;
+        PEGASUS_ASSERT(false);
+    }
+
+////  // Test for maximum simultaneous 0 object requests.
+////  // KS_TODO this test drops through to repeated do not abandon for
+////  // some reason.  It should NOT.  Retest this
+////  testEnumSequence tczerotest(client, "test/TestProvider");
+////  tczerotest.setTestName("excessive consecutive zero length responses ");
+////  tczerotest._className =  "CMPI_TEST_Person";
+////  tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+////  tczerotest._maxObjectCount = 0;
+////
+////  // This one drops through to repeat do not abandon.  That
+////  tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+////  PEGASUS_ASSERT(tczerotest.openEnumerateInstances());
+////  while((tczerotest._endOfSequence == false))
+////  {
+////      if (!tczerotest.pullInstancesWithPath())
+////      {
+////          break;
+////      }
+////  }
+
+    /**********************************************************************
+    **
+    **          Execute each individual test.  Each test is a single
+    **          testEnumSequence instance where the paremeters are first
+    **          set with calls to particular functions and then
+    **          the test is executed with a call for each operation
+    **          to be executed. As an option, test parameters
+    **          can be reset and a testEnumSequence instance reused.
+    **
+    **********************************************************************/
+
+    testEnumSequence tc(client, "test/TestProvider");
     tc.setTestName("Invalid Classname test");
     tc.setCIMException(CIM_ERR_INVALID_CLASS);
     tc._className =  "junk";
-    tc.executeEnumerateCalls();
-    VCOUT << "InvalidTargetClass test passed" << endl;
+    PEGASUS_ASSERT(tc.executeEnumerateCalls());
 
-    // Test invalid Object Path
-    tc.setTestName("Invalid Classname in associator call");
+    // Test invalid Object Path tests
+    tc.setTestName("Invalid Classname in open associator/reference call");
     tc._cimObjectName = "junk.id=1";
     tc.setCIMException(CIM_ERR_INVALID_PARAMETER);
-    tc.executeAssociationCalls();
-
+    PEGASUS_ASSERT(tc.executeAssociationCalls());
 
     // test Filter parameters on all operations
-
     tc.setTestName("Filter Parameter test- Using filterQuery");
     tc._className =  "CMPI_TEST_Person";
     tc._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
     tc._filterQuery="abc";
     tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
-    tc.executeAllOpenCalls();
+    PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
     tc.setTestName("Filter Parameter test- Using filter and Language");
     tc._filterQueryLanguage="WQL";
     tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
-    tc.executeAllOpenCalls();
+    PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
     tc.setTestName("Filter Parameter test- Using filterQuery Language Only");
     tc._filterQuery="";
     tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
-    tc.executeAllOpenCalls();
+    PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
     tc.setTestName("MaxObjectCount GT max allowed by Server");
     tc._filterQuery="";
     tc._filterQueryLanguage="";
     tc._maxObjectCount = 1000000;
     tc.setCIMException(CIM_ERR_INVALID_PARAMETER);
-    tc.executeAllOpenCalls();
+    PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
     // ContinueOnError test. Should always error out
     tc.setTestName("ContinueOnError should always return exception");
@@ -1024,86 +1114,71 @@ int main(int argc, char** argv)
     tc._continueOnError = true;
     tc.setCIMException(CIM_ERR_NOT_SUPPORTED);
     tc.setCIMExceptionMessage("*ContinueOnError Not supported");
-    tc.executeAllOpenCalls();
+    PEGASUS_ASSERT(tc.executeAllOpenCalls());
     tc.setCIMExceptionMessage("");
 
-    // Pull with no open. NOTE: This does not really work for us becuase
-    // the client generates Pegasus::InvalidNamespaceNameException since
-    // there is no namespace from an open operation.  Probably the only way
-    // to really test this is with the wbemexec tool.
-    // KS_TODO - Create a corresponding test with static tests.
+    //
+    // Test invalid pull type not in accord with open type
+    //
+    {
+        testEnumSequence tc3(client, "test/TestProvider");
+        tc3.setTestName("OpenEnumerate followed by Incorrect Pull operation");
+        tc3._className =  "CMPI_TEST_Person";
+        tc3._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tc3._maxObjectCount = 0;
+        PEGASUS_ASSERT(tc3.openEnumerateInstances());
+        tc3.setCIMException(CIM_ERR_FAILED);
+        // expecting either data or CIM_ERR_FAILED
+        // NOTE: Here we should set the nodata allowed flag.
+        // KS_TODO. setExpectErrorResponse.
+        tc3.setExpectErrorResponseOnly();
+        PEGASUS_ASSERT(tc3.pullInstancePaths());
+        tc3.setExpectGoodResponse();
 
-//  testCalls tc1(client, "test/TestProvider");
-//  tc1.setTestName("Pull with no open");
-//  tc1._className =  "CMPI_TEST_Person";
-//  tc1._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
-//  tc1.pullInstancesWithPath();
+        // Now request the corect response
+        // KS_TODO decision. Should we close if we get the wrong request??
+        PEGASUS_ASSERT(tc3.pullInstancesWithPath());
+    }
+    {
+        testEnumSequence tc3(client, "test/TestProvider");
+        tc3.setTestName(
+            "OpenEnumeratePaths followed by Incorrect Pull operation");
+        tc3._className =  "CMPI_TEST_Person";
+        tc3._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tc3._maxObjectCount = 0;
+        PEGASUS_ASSERT(tc3.openEnumerateInstancePaths());
+        tc3.setCIMException(CIM_ERR_FAILED);
+        // expecting either data or CIM_ERR_FAILED
+        // NOTE: Here we should set the nodata allowed flag.
+        // KS_TODO. setExpectErrorResponse.
+        tc3.setExpectErrorResponseOnly();
+        PEGASUS_ASSERT(tc3.pullInstancesWithPath());
+        tc3.setExpectGoodResponse();
 
-//// KS_TODO MOve all of these tests to static test so we just do pull with
-///  invalid context.
-//  // KS_TODO - The following is incorrect in that I am using what should
-//  // be a private function to mess with the EnumerationContext. Need
-//  // to fix this and also clean up the CIMEnumerationContext.h file.
-//  testCalls tc2(client, "test/TestProvider");
-//  tc2.setTestName("Pull with invalid Enumeration Context");
-//  tc2._className =  "CMPI_TEST_Person";
-//  tc2._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
-//  tc2.openEnumerateInstances();
-//  tc2.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
-//  tc2._enumerationContext.clearEnumeration();
-//  tc2.pullInstancesWithPath();
-//
-//  // repeat test for EnumerateInstancePaths
-//  tc2.openEnumerateInstancePaths();
-//  tc2._enumerationContext.clearEnumeration();
-//  tc2.pullInstancePaths();
-//
-//  tc2.openReferenceInstances();
-//  tc2._enumerationContext.clearEnumeration();
-//  tc2.pullInstancesWithPath();
-//
-//  tc2.openReferenceInstancePaths();
-//  tc2._enumerationContext.clearEnumeration();
-//  tc2.pullInstancePaths();
-//
-//  tc2.openAssociatorInstances();
-//  tc2._enumerationContext.clearEnumeration();
-//  tc2.pullInstancesWithPath();
-//
-//  tc2.openAssociatorInstancePaths();
-//  tc2._enumerationContext.clearEnumeration();
-//  tc2.pullInstancePaths();
-
-    // Test invalid pull type for enumeration.
-    // KS_TODO - This one is incorrect I think.  Check to see if it
-    // is correct that we are returning the Enum Context error.
-    testCalls tc3(client, "test/TestProvider");
-    tc3.setTestName("Open followed by Incorrect Pull operation");
-    tc3._className =  "CMPI_TEST_Person";
-    tc3._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
-    tc3._maxObjectCount = 0;
-    tc3.openEnumerateInstances();
-    tc3.setCIMException(CIM_ERR_FAILED);
-    tc3.pullInstancePaths();
+        // Now request the corect response
+        // KS_TODO decision. Should we close if we get the wrong request??
+        PEGASUS_ASSERT(tc3.pullInstancePaths());
+    }
 
     // Test for a complete sequence that works.
-    testCalls tcgood(client, "test/TestProvider");
+    testEnumSequence tcgood(client, "test/TestProvider");
     tcgood.setTestName("Good complete open/pull response");
     tcgood._className =  "CMPI_TEST_Person";
     tcgood._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
-    tcgood.openEnumerateInstances();
+    PEGASUS_ASSERT(tcgood.openEnumerateInstances());
     while(tcgood._endOfSequence == false)
     {
-        tcgood.pullInstancesWithPath();
+        PEGASUS_ASSERT(tcgood.pullInstancesWithPath());
     }
 
     // test for exception returns on pull and close where there is no open
     //// TODO Problems with this Gens wrong error and dies in
     //// linkable testEnumContextError(client);
 
-    /*  Interoperation Timeout tests.  Note that these tests cannot
-        completely test since we have no way to test if the EnumerationContext
-        is actually released.
+    /*  Interoperation Timeout tests.  Note that these tests cannot be
+        completely confirmed since we have no way to test if the
+        EnumerationContext is actually released, just that we get the
+        error back
     */
     // test openEnumerateInstances and pull after timeout.
     tc.setTestName("Interoperation Timeout upon Pull");
@@ -1112,28 +1187,154 @@ int main(int argc, char** argv)
     tc._operationTimeout = 7;
 
     // execute the open call and then wait past timer to test for timeout
-    tc.openEnumerateInstances();
+    PEGASUS_ASSERT(tc.openEnumerateInstances());
     VCOUT << "Wait for open operation to timeout. This should wait about"
              " 10 Seconds, return error, and then pass test." << endl;
     System::sleep(10);
 
     tc.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
-    tc.pullInstancesWithPath();
+    PEGASUS_ASSERT(tc.pullInstancesWithPath());
     VCOUT << "Interoperation Timeout test passed. Note that we"
              " cannot do complete test without enum context table inspsection"
           << endl;
 
-    // KS_TODO - Extend this to other test options
-    // KS_TODO - FInd some way to get info on the Number of Enumeration
-    //           context entries to complete test.
+    //
+    // Test for maximum simultaneous 0 object requests before reject
+    //
+    // Tests for enumerateInstancesWithPath and enumerateInstancePaths
+    {
+        testEnumSequence tczerotest(client, "test/TestProvider");
+        tczerotest.setTestName("excessive consecutive zero length responses ");
+        tczerotest._className =  "CMPI_TEST_Person";
+        tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tczerotest._maxObjectCount = 0;
+
+        tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+        PEGASUS_ASSERT(tczerotest.openEnumerateInstances());
+        while((tczerotest._endOfSequence == false))
+        {
+            if (!tczerotest.pullInstancesWithPath())
+            {
+                break;
+            }
+            if (tczerotest._returnedCIMExceptionCode != CIM_ERR_SUCCESS)
+            {
+                break;
+            }
+        }
+
+    }
+
+    {
+        testEnumSequence tczerotest(client, "test/TestProvider");
+        tczerotest.setTestName("excessive consecutive zero length responses ");
+        tczerotest._className =  "CMPI_TEST_Person";
+        tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tczerotest._maxObjectCount = 0;
+
+        tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+        PEGASUS_ASSERT(tczerotest.openEnumerateInstancePaths());
+        while((tczerotest._endOfSequence == false))
+        {
+            if (!tczerotest.pullInstancePaths())
+            {
+                break;
+            }
+            if (tczerotest._returnedCIMExceptionCode != CIM_ERR_SUCCESS)
+            {
+                break;
+            }
+        }
+    }
+
+    // Tests for associatorInstances and associatorPaths
+    {
+        testEnumSequence tczerotest(client, "test/TestProvider");
+        tczerotest.setTestName("excessive consecutive zero length responses ");
+        tczerotest._className =  "CMPI_TEST_Person";
+        tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tczerotest._maxObjectCount = 0;
+
+        tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+        PEGASUS_ASSERT(tczerotest.openAssociatorInstances());
+        while((tczerotest._endOfSequence == false))
+        {
+            if (!tczerotest.pullInstancesWithPath())
+            {
+                break;
+            }
+            if (tczerotest._returnedCIMExceptionCode != CIM_ERR_SUCCESS)
+            {
+                break;
+            }
+        }
+    }
+    {
+        testEnumSequence tczerotest(client, "test/TestProvider");
+        tczerotest.setTestName("excessive consecutive zero length responses ");
+        tczerotest._className =  "CMPI_TEST_Person";
+        tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tczerotest._maxObjectCount = 0;
+
+        tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+        PEGASUS_ASSERT(tczerotest.openAssociatorInstancePaths());
+        while((tczerotest._endOfSequence == false))
+        {
+            if (!tczerotest.pullInstancePaths())
+            {
+                break;
+            }
+            if (tczerotest._returnedCIMExceptionCode != CIM_ERR_SUCCESS)
+            {
+                break;
+            }
+        }
+    }
 
 
-    // KS_TODO tests we have not yet built
-    // 2. EnumerationContextError on close - Execute Close after open
-    //    with changed context.
-    // 3. More error on input of invalid interoperation times and
-    //    maxobjectCounts.
-    // 4. Invalid roles, etc. on association requests.
+    // Tests for associatorInstances and associatorPaths
+    {
+        testEnumSequence tczerotest(client, "test/TestProvider");
+        tczerotest.setTestName("excessive consecutive zero length responses ");
+        tczerotest._className =  "CMPI_TEST_Person";
+        tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tczerotest._maxObjectCount = 0;
+
+        tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+        PEGASUS_ASSERT(tczerotest.openReferenceInstances());
+        while((tczerotest._endOfSequence == false))
+        {
+            if (!tczerotest.pullInstancesWithPath())
+            {
+                break;
+            }
+            if (tczerotest._returnedCIMExceptionCode != CIM_ERR_SUCCESS)
+            {
+                break;
+            }
+        }
+    }
+    {
+        testEnumSequence tczerotest(client, "test/TestProvider");
+        tczerotest.setTestName("excessive consecutive zero length responses ");
+        tczerotest._className =  "CMPI_TEST_Person";
+        tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
+        tczerotest._maxObjectCount = 0;
+
+        tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
+        PEGASUS_ASSERT(tczerotest.openReferenceInstancePaths());
+        while((tczerotest._endOfSequence == false))
+        {
+            if (!tczerotest.pullInstancePaths())
+            {
+                break;
+            }
+            if (tczerotest._returnedCIMExceptionCode != CIM_ERR_SUCCESS)
+            {
+                break;
+            }
+        }
+    }
 
     cout << argv[0] <<" +++++ passed all tests" << endl;
     return 0;

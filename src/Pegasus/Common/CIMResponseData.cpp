@@ -754,7 +754,7 @@ Uint32 CIMResponseData::size()
         // KS_TEMP
         cout << "Size err Computed(rtnsize)=" << rtnSize << " _size=" << lsize
              << " diff=" << (rtnSize - lsize)
-              << " inc Binary= "  
+              << " inc Binary= "
              << boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
              << endl;
         TEMPLOG;
@@ -828,8 +828,6 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     // KS_TODO
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
-        PEGASUS_ASSERT(false);   // KS_TEMP
-
         // Binary does NOT need a marker as it consists of C++ and SCMO
         const Array<Uint8>& data = _binaryData;
         out.putBytes(data.getData(), data.size());

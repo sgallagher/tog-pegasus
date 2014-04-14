@@ -604,6 +604,9 @@ public:
     void handlePullInstancePaths(
         CIMPullInstancePathsRequestMessage* request);
 
+    void handlePullInstances(
+        CIMPullInstancesRequestMessage* request);
+
     void handleCloseEnumeration(
         CIMCloseEnumerationRequestMessage* request);
 
@@ -817,9 +820,9 @@ protected:
     Boolean _rejectInvalidOperationTimeout(CIMOperationRequestMessage* request,
         const Uint32Arg& operationTimeout);
 
-    Boolean _rejectInValidEnumerationContext(
+    Boolean _rejectInvalidEnumerationContext(
         CIMOperationRequestMessage* request,
-        void* enumerationContext);
+        EnumerationContext* enumerationContext);
 
     Boolean _rejectIfContextTimedOut(CIMOperationRequestMessage* request,
         Boolean isTimedOut);

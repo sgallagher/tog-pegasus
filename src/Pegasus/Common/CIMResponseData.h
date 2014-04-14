@@ -61,13 +61,7 @@ typedef Array<Sint8> ArraySint8;
 //// With development of pull extensions that use the size() function
 #define TEST_SIZE_VALID PEGASUS_ASSERT(sizeValid());
 ////#define TEST_SIZE_VALID
-/*
-#define TEST_SIZE_VALID {printf("TEST_SIZE_VALID Error line %u\n",__LINE__); \
- PEGASUS_ASSERT(sizeValid());}
-#define TEST_SIZE_VALID {if(!sizeValid(){
-printf("TEST_SIZE_VALID Error line %u\n",__LINE__);
-PEGASUS_ASSERT(false);}}
-*/
+
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
 public:

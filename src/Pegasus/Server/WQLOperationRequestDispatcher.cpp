@@ -86,6 +86,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
     Boolean exception=false;
     AutoPtr<WQLSelectStatement> selectStatement(new WQLSelectStatement());
+
     AutoPtr<WQLQueryExpressionRep> qx;
     CIMException cimException;
     CIMName className;
@@ -187,6 +188,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     {
         poA->setPullOperation((void *)enumerationContext);
     }
+
     // Set the number of expected responses in the OperationAggregate
     Uint32 numClasses = providerInfos.size();
 
@@ -232,7 +234,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             providerInfo.providerIdContainer.get();
 
         // if not a provider with Query capability, execute
-        // EnumerateInstances for on the provider.
+        // EnumerateInstances for the provider.
         if (providerInfo.hasNoQuery)
         {
             OperationContext* context = &request->operationContext;

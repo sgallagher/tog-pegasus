@@ -363,12 +363,6 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
                 " size %u",
             responseCacheSize(), to.size() ));
 
-        // Review this for possible conflicts with context removal.
-        // The _waiting is temporary and should not be required.
-
-        // Wait for the cache size to drop below the limit requested here
-        // before returning to caller. This blocks providers until wait
-        // completed.
         if (!_providersComplete)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP

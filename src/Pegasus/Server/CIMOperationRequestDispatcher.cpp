@@ -1069,7 +1069,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             {
                 // if there are responses and there is a
                 // waiting future response, issue the response
-                PEGASUS_DEBUG_ASSERT(en->valid())
+                PEGASUS_DEBUG_ASSERT(en->valid());
                 en->lockContext();
 
                 // get any waiting open request and response

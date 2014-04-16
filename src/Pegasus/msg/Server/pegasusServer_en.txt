@@ -2867,7 +2867,32 @@ en:table {
         * @note  PGS05604:
         *    Substitution {0} is the request class
         */
-        Server.CIMOperationRequestDispatcher.REQUEST_CLASS_NOT_SUPPORTED:string {"PGS05604: No provider or Repository defined for class {1}."}
+        Server.CIMOperationRequestDispatcher.REQUEST_CLASS_NOT_SUPPORTED:string {"PGS05604: No provider or Repository defined for class {0}."}
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_TIMED_OUT:string {"PGS05605: Enumeration Context Timed out."}
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_CLOSED:string {"PGS05606: Enumeration context closed."}
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_UNDEFINED:string {"PGS05607: Enumeration context undefined."}
+
+        * @note  PGS05608:
+        *    Substitution {0} is the maximum size allowed (integer)
+        */
+        Server.CIMOperationRequestDispatcher.ENUMERATION_TIMEOUT_TO_LARGE:string {"PGS05608: Operation timeout too large. Maximum allowed: {0}"}
+
+        Server.CIMOperationRequestDispatcher.TIMEOUT_ZERO_NOT_ALLOWED:string {"PGS05609: Operation timeout value of 0 not allowed."}
+
+        * @note  PGS05610:
+        *    Substitution {0} is the maxObjectCount supplied (integer)
+	*    Substitution {1} is the system maxObjectCount limit(integer) 
+        */
+        Server.CIMOperationRequestDispatcher.MAXOBJECTCOUNT_OUT_OF_RANGE:string {"PGS05610: Operation maximum mbject count argument %u too large. Maximum allowed: %u."}
+
+        Server.CIMOperationRequestDispatcher.CONTINUE_ON_ERROR_NOT_SUPPORTED:string {"PGS05611: ContinueOnError = true argument not supported."}
+
+        Server.CIMOperationRequestDispatcher.INVALID_MODEL_PATH:string {"PGS05612: Full Model Path with keys required."}
+
+        Server.CIMOperationRequestDispatcher.PULL_OPERATION_TYPE_ERR:string {"PGS05613: Open and Pull Message types do not match."}
         // ==========================================================
         // Messages for ProviderMessageFacade
         //  Please use message prefix "PGS05800"
@@ -7668,7 +7693,7 @@ CIM server listening on HTTPS port {0}."}
 
 
         // ==========================================================
-        // Messages for CIMOperationRequestDispatcher
+        // Messages for WQLOperationRequestDispatcher
         //  Please use message prefix "PGS19400 - PGS19599"
         // ==========================================================
 

@@ -1115,7 +1115,7 @@ int main(int argc, char** argv)
     tc._maxObjectCount = 100;
     tc._continueOnError = true;
     tc.setCIMException(CIM_ERR_NOT_SUPPORTED);
-    tc.setCIMExceptionMessage("ContinueOnError Not supported");
+    tc.setCIMExceptionMessage("ContinueOnError = true argument not supported");
     PEGASUS_ASSERT(tc.executeAllOpenCalls());
     tc.setCIMExceptionMessage("");
 

@@ -411,30 +411,42 @@ void EnumerationContextTable::removeExpiredContexts()
 
         // Lock the context to assure that no client
         // operation interacts with possible timeout and removal.
-        en->lockContext();
-        // test if entry is active (timer not zero)
-        if (en->_interOperationTimer != 0)
+        if (en->tryLockContext())
         {
-            if (en->isTimedOut(currentTime))
+            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                "EnumerationContextLock lock %s",
+                       (const char*)en->getName().getCString() ));
+            // test if entry is active (timer not zero)
+            if (en->_interOperationTimer != 0)
             {
-                en->stopTimer();
-                // Force the client closed so nothing more accepted.
-                en->setClientClosed();
-
-                // If providers are complete we can remove the context
-                // Otherwise depend on provider completion to
-                // clean up the enumeration
-                if (en->providersComplete())
+                if (en->isTimedOut(currentTime))
                 {
-                    _enumerationsTimedOut++;
-                    en->unlockContext();
-                    _removeContext(en, true);
+                    en->stopTimer();
+                    // Force the client closed so nothing more accepted.
+                    en->setClientClosed();
+
+                    // If providers are complete we can remove the context
+                    // Otherwise depend on provider completion to
+                    // clean up the enumeration
+                    if (en->providersComplete())
+                    {
+                        _enumerationsTimedOut++;
+
+                        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                            "EnumerationContextLock unlock %s",
+                                    (const char*)en->getName().getCString()));
+                        en->unlockContext();
+                        _removeContext(en, true);
+                    }
                 }
             }
-        }
-        else
-        {
-            en->unlockContext();
+            else
+            {
+                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                    "EnumerationContextLock unlock %s",
+                            (const char*)en->getName().getCString()));
+                en->unlockContext();
+            }
         }
     }
     PEG_METHOD_EXIT();

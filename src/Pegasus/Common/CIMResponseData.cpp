@@ -666,8 +666,8 @@ void CIMResponseData::setSize()
 
 Uint32 CIMResponseData::size()
 {
-    AutoMutex autoMut(testLock);
     PEG_METHOD_ENTER(TRC_XML,"CIMResponseData::size()");
+    AutoMutex autoMut(testLock);
     TEST_SIZE_VALID;
 // If debug mode, add up all the individual size components to
 // determine overall size of this object.  Then compare this with
@@ -752,11 +752,11 @@ Uint32 CIMResponseData::size()
          boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
                               ));
         // KS_TEMP
-        cout << "Size err Computed(rtnsize)=" << rtnSize << " _size=" << lsize
-             << " diff=" << (rtnSize - lsize)
-              << " inc Binary= "
-             << boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
-             << endl;
+////      cout << "Size err Computed(rtnsize)=" << rtnSize << " _size=" << lsize
+////           << " diff=" << (rtnSize - lsize)
+////            << " inc Binary= "
+////           << boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+////           << endl;
         TEMPLOG;
     }
     PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));

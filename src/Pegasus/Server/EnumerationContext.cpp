@@ -254,14 +254,11 @@ EnumerationContext::~EnumerationContext()
     Insert complete CIMResponseData entities into the cache. If the
     cache is at its max size limit, and there are more provider responses
     wait until it the size drops below the full limit.
-    If the operation is closed, we discard the response. If
-    this is the last response, remove the enumerationContext
+    If the operation is closed, ignore the response.
     Return true if putCache worked, false if closed and nothing put into
     the cache.
-    NOTE: This is single threaded. It is based on the mutex in
-    _enquueueResponse which serializes independent responses. See
-    _enqueueResponseMutex.
-
+    NOTE: This function assumes that responses for a request are serialized
+    in _enqueueResponse See _enqueueResponseMutex.
 */
 Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     Boolean providersComplete)
@@ -311,21 +308,20 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     // and then remove the Context.
     if (_clientClosed)
     {
-        // If providers are complete, do not queue this response. If providers
-        // are not complete, the providers will continue to generate
-        // responses but they are discarded above here.
-        if (providersComplete)
-        {
-            _providersComplete = providersComplete;
-            return false;
-        }
+        return false;
+////      // If providers are complete, do not queue this response. If providers
+////      // are not complete, the providers will continue to generate
+////      // responses but they are discarded above here.
+////      if (providersComplete)
+////      {
+////      }
     }
     else  // client not closed
     {
         // put the current response into the cache. Lock cache for this
         // operation
 
-        _responseCacheMutex.lock();
+////      _responseCacheMutex.lock();
         to.appendResponseData(from);
 
         // set providersComplete flag from flag in call parameter.
@@ -336,7 +332,7 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
         {
             _cacheHighWaterMark = responseCacheSize();
         }
-        _responseCacheMutex.unlock();
+////      _responseCacheMutex.unlock();
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "After putCache insert responseCacheSize %u. CIMResponseData"
@@ -359,19 +355,19 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 }
 
 // Wait until cache size drops below defined limit. Saves time
-// in wait in EnumerationContext for statistics.
+// in wait in EnumerationContext for statistics and uses
+// waitProviderLimitCondition condition variable.
 void EnumerationContext::waitCacheSize()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::waitCacheSize()");
 
     PEGASUS_ASSERT(valid());   // KS_TEMP;
             //// KS_TODO remove all these traces
-////         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-////             "After putCache providers waitProviderLimitCondition Not "
-////             "complete insert responseCacheSize %u. CIMResponseData "
-////             "size %u."
-////             " signal CacheSizeConditon responseCacheMaximumSize %u",
-////             responseCacheSize(), to.size(), _responseCacheMaximumSize));
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+        "After putCache providers waitProviderLimitCondition Not "
+        "complete insert responseCacheSize %u. "
+        " signal ProviderLimitCondition responseCacheMaximumSize %u",
+        responseCacheSize(), _responseCacheMaximumSize));
     // start timer to get length of wait for statistics.
     Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
 
@@ -383,7 +379,7 @@ void EnumerationContext::waitCacheSize()
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "After putCache providers wait end ProviderLimitCondition Not "
         "complete insert responseCacheSize %u."
-        " signal CacheSizeConditon responseCacheMaximumSize %u."
+        " signalProviderLimitCondition responseCacheMaximumSize %u."
         " Wait %lu usec",
         responseCacheSize(), _responseCacheMaximumSize,
         (unsigned long int)interval ));
@@ -463,13 +459,13 @@ Boolean EnumerationContext::testCacheForResponses(
     return rtn;
 }
 
-void EnumerationContext::setupFutureResponse(
+void EnumerationContext::saveNextResponse(
     CIMOperationRequestMessage* request,
     CIMPullResponseDataMessage* response,
     Uint32 operationMaxObjectCount)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::setupFutureResponse");
-    // Since thisare also flag, it MUST BE empty when this function
+    // Since this also flag, it MUST BE empty when this function
     // called.
     PEGASUS_ASSERT(_savedRequest == NULL);
 
@@ -483,11 +479,12 @@ void EnumerationContext::setupFutureResponse(
     Move the number of objects defined by count from the CIMResponseData
     cache for this EnumerationContext to theCIMResponseData object
     defined by the input parameter.
-    The wait function is called before removing items from the cache and
-    only completes when a. there are sufficient objects, b. the providers
-    have completed, c. an error has occurred.
+////  The wait function is called before removing items from the cache and
+////  only completes when a. there are sufficient objects, b. the providers
+////  have completed, c. an error has occurred.
     Returns true if data acquired from cache. Returns false if CIMException
     found (i.e. returned an error).
+    KS_TODO - Cover issue of nothing in the cache or document it
 */
 Boolean EnumerationContext::getCache(
     Uint32 count,
@@ -509,7 +506,7 @@ Boolean EnumerationContext::getCache(
     }
 
     // Lock the cache for the move function
-    AutoMutex autoMut(_responseCacheMutex);
+////  AutoMutex autoMut(_responseCacheMutex);
 
     // Move the defined number of objects from the cache to the return object.
     rtnData.moveObjects(_responseCache, count);

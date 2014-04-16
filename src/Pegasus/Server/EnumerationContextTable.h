@@ -139,10 +139,6 @@ public:
 
     EnumerationContext* find(const String& enumerationContextName);
 
-    /** Diagnostic to output info on all entries in table to trace log
-    */
-    void trace();
-
     /** Dispatch the Timer thread if it is not already dispatched.
 
        @param interval Uint32 interval defines the interval for this context
@@ -186,6 +182,10 @@ public:
     // KS_TEMP TODO REMOVE This diagnostic should be removed. It  validates
     // every entry in the table.
     void tableValidate();
+
+    /** Diagnostic to output info on all entries in table to trace log
+    */
+    void trace();
 
     /**Clear the Context Table.  This is part of system shutdown
     */

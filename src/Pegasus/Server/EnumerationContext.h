@@ -177,7 +177,7 @@ public:
     // Diagnostic tool only.
     Boolean valid() const;
 
-    Boolean isClosed();
+    Boolean isClientClosed();
 
     Boolean isErrorState();
 
@@ -284,11 +284,11 @@ public:
 
     /*
         Setup the request and response information for a response
-        to be generated as part of putting provider info into
+        to be issued later as part of putting provider info into
         the cache. This saves the request, response, and count
         information.
     */
-    void setupFutureResponse(CIMOperationRequestMessage* request,
+    void saveNextResponse(CIMOperationRequestMessage* request,
          CIMPullResponseDataMessage* response,
          Uint32 operationMaxObjectCount);
 
@@ -374,6 +374,7 @@ public:
     // This mutex locks the entire context for some critical sections.
     void lockContext();
     void unlockContext();
+    Boolean tryLockContext();
     Mutex _contextLock;
 
     void incrementRequestCount();
@@ -506,7 +507,7 @@ inline Boolean EnumerationContext::isProcessing()
     return _processing;
 }
 
-inline Boolean EnumerationContext::isClosed()
+inline Boolean EnumerationContext::isClientClosed()
 {
     return _clientClosed;
 }
@@ -546,7 +547,10 @@ inline void EnumerationContext::lockContext()
 {
     _contextLock.lock();
 }
-
+inline Boolean EnumerationContext::tryLockContext()
+{
+    return _contextLock.try_lock();
+}
 inline void EnumerationContext::unlockContext()
 {
     _contextLock.unlock();

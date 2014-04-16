@@ -2875,6 +2875,7 @@ en:table {
 
         Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_UNDEFINED:string {"PGS05607: Enumeration context undefined."}
 
+	/*
         * @note  PGS05608:
         *    Substitution {0} is the maximum size allowed (integer)
         */
@@ -2882,11 +2883,12 @@ en:table {
 
         Server.CIMOperationRequestDispatcher.TIMEOUT_ZERO_NOT_ALLOWED:string {"PGS05609: Operation timeout value of 0 not allowed."}
 
+	/*
         * @note  PGS05610:
         *    Substitution {0} is the maxObjectCount supplied (integer)
 	*    Substitution {1} is the system maxObjectCount limit(integer) 
         */
-        Server.CIMOperationRequestDispatcher.MAXOBJECTCOUNT_OUT_OF_RANGE:string {"PGS05610: Operation maximum mbject count argument %u too large. Maximum allowed: %u."}
+        Server.CIMOperationRequestDispatcher.MAXOBJECTCOUNT_OUT_OF_RANGE:string {"PGS05610: Operation maximum mbject count argument {0} too large. Maximum allowed: {1}."}
 
         Server.CIMOperationRequestDispatcher.CONTINUE_ON_ERROR_NOT_SUPPORTED:string {"PGS05611: ContinueOnError = true argument not supported."}
 

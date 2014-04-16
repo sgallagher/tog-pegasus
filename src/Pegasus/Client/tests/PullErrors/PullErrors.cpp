@@ -82,6 +82,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -945,7 +947,7 @@ Boolean connectToHost(CIMClient& client, const String& inputName)
    location, we will have the test.
    The test is enabled only if the define TEST_GLOBMATCH is enabled
    */
-#define TEST_GLOBMATCH
+// #define TEST_GLOBMATCH
 #ifdef TEST_GLOBMATCH
 // test a single glob match call.
 void tx(const char * pattern, const char * str, bool matches = true)
@@ -1113,7 +1115,7 @@ int main(int argc, char** argv)
     tc._maxObjectCount = 100;
     tc._continueOnError = true;
     tc.setCIMException(CIM_ERR_NOT_SUPPORTED);
-    tc.setCIMExceptionMessage("*ContinueOnError Not supported");
+    tc.setCIMExceptionMessage("ContinueOnError Not supported");
     PEGASUS_ASSERT(tc.executeAllOpenCalls());
     tc.setCIMExceptionMessage("");
 
@@ -1170,10 +1172,6 @@ int main(int argc, char** argv)
     {
         PEGASUS_ASSERT(tcgood.pullInstancesWithPath());
     }
-
-    // test for exception returns on pull and close where there is no open
-    //// TODO Problems with this Gens wrong error and dies in
-    //// linkable testEnumContextError(client);
 
     /*  Interoperation Timeout tests.  Note that these tests cannot be
         completely confirmed since we have no way to test if the
@@ -1291,7 +1289,6 @@ int main(int argc, char** argv)
         }
     }
 
-
     // Tests for associatorInstances and associatorPaths
     {
         testEnumSequence tczerotest(client, "test/TestProvider");
@@ -1334,6 +1331,17 @@ int main(int argc, char** argv)
                 break;
             }
         }
+    }
+
+    for (Uint32 i = 0; i < 10; i++)
+    {
+        testEnumSequence tc(client, "test/TestProvider");
+        tc.setTestName("Interoperation Timeout after Open");
+        tc._className =  "CMPI_TEST_Person";
+        tc._maxObjectCount = 0;
+        tc._operationTimeout = 7;
+        // execute the open call and then wait past timer to test for timeout
+        PEGASUS_ASSERT(tc.openEnumerateInstances());
     }
 
     cout << argv[0] <<" +++++ passed all tests" << endl;

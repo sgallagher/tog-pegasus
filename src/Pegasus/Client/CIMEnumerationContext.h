@@ -64,12 +64,12 @@ class PEGASUS_CLIENT_LINKAGE CIMEnumerationContext
 public:
     /**
         Constructs an empty CIMEnumerationContext object.
-     */
+    */
     CIMEnumerationContext();
 
     /**
         Destructor.
-     */
+    */
     ~CIMEnumerationContext();
 
     void clear();
@@ -77,11 +77,13 @@ public:
     // Used to support error tests only. Clears only the enumeration
     // context parameter
     void clearEnumeration();
+
 protected:
     CIMNamespaceName& getNameSpace();
 
     void setNameSpace(const CIMNamespaceName& n);
 
+    // This is just a diagnostic tool
     String& getContextString();
 
     void setContextString(const String& s);

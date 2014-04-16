@@ -193,6 +193,11 @@ public:
 
     void displayStatistics(Boolean clear = false);
 
+    void setRequestSizeStatistics(Uint32 requestSize)
+    {
+        _requestCount++;
+        _requestedSize += requestSize;
+    }
 protected:
 
     // Timers for timer thread in milliseconds
@@ -250,6 +255,17 @@ private:
     // maximum number of Simultaneous Contexts open.
     Uint32 _maxSimultaneousContexts;
 
+    Uint64 _requestsPerEnumerationSequence;
+
+    // Statistic to keep track of average size requested for all
+    // operations.
+    Uint64 _requestedSize;
+    Uint64 _requestCount;
+    Uint32 _getAvgRequestSize()
+    {
+        return ((_requestCount != 0)? (_requestedSize / _requestCount) : 0);
+    }
+
     // magic number that acts as validator of enumerationContextTable
     Magic<0x57D11474> _magic;
 };
@@ -259,7 +275,7 @@ private:
 //
 inline Boolean EnumerationContextTable::timerThreadIdle() const
 {
-    return _nextTimeout == 0;
+    return (_nextTimeout == 0);
 }
 
 inline void EnumerationContextTable::setTimerThreadIdle()

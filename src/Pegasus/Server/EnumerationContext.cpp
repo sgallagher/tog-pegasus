@@ -125,12 +125,7 @@ void EnumerationContext::startTimer()
     _interOperationTimer = (_operationTimeoutSec == 0) ?
         0 : currentTime + (_operationTimeoutSec * 1000000);
 
-#ifdef PEGASUS_USE_PULL_TIMEOUT_THREAD
-// KS_TODO - Temporarily disabled the timer test thread to determine if this
-// is causing the problem with crashes.  Right not it appears not because
-// the problem occurred in testing 16 Jan.  Will leave this in for one day.
-//    _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
-#endif
+    _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
         "Start Timer. timeout = %lu Operation Timer %u sec."
@@ -155,7 +150,7 @@ void EnumerationContext::stopTimer()
 /*
     Test interoperation timer against current time. Return true if timed out
     or timer set 0 zero indicating that the timer is not active.
-    Returns boolean true if timer not zero and is Interoperation timer
+    Returns boolean true if timer not zero and Interoperation timer
     is greater than interoperation timeout (i.e timed out).
 */
 Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
@@ -163,25 +158,10 @@ Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
     PEGASUS_ASSERT(valid());            // KS_TEMP
     if (_interOperationTimer == 0)
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-            "Context Timer _interoperationTimer == 0."));
             return false;
     }
-    Boolean timedOut = (_interOperationTimer < currentTime)? true : false;
 
-    // KS_TODO all of the following is diagnostic.
-    Uint64 diff;
-    String sign;
-    if (currentTime < _interOperationTimer)
-    {
-        sign = "+";
-        diff = currentTime - _interOperationTimer;
-    }
-    else
-    {
-        sign = "-";
-        diff = _interOperationTimer - currentTime;
-    }
+    Boolean timedOut = (_interOperationTimer < currentTime)? true : false;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,      // KS_TEMP
         "Context Timer. timer(sec) %lu"
@@ -694,7 +674,7 @@ void EnumerationContext::setClientClosed()
     actively handling a request. The dispatcher sets processing = true
     at the start of processing and false at the completion of processing.
 */
-Boolean EnumerationContext::setProcessingState(Boolean state)
+void EnumerationContext::setProcessingState(Boolean state)
 {
     // Diagnostic to confirm we are changing state
     PEGASUS_ASSERT(_processing != state);
@@ -708,8 +688,6 @@ Boolean EnumerationContext::setProcessingState(Boolean state)
     {
         startTimer();
     }
-
-    return _processing;
 }
 
 PEGASUS_NAMESPACE_END

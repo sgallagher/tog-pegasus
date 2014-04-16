@@ -1082,8 +1082,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 // be sent.
                 if (openRequest != NULL)
                 {
-                    if (foundCachedResponses = (en->testCacheForResponses(
-                        count, requireCompleteResponses)) )
+                    if ((foundCachedResponses = (en->testCacheForResponses(
+                        count, requireCompleteResponses))) )
                     {
                         openResponse = en->_savedResponse;
                         PEGASUS_ASSERT(openResponse->getResponseData().valid());
@@ -2551,6 +2551,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidRoleParameter(
 {
     if (roleParameter != String::EMPTY && (!CIMName::legal(roleParameter)))
     {
+        //KS_TODO internationalize This
         _enqueueExceptionResponse(request,
             CIM_ERR_INVALID_PARAMETER, roleParameter);
 
@@ -2707,7 +2708,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
     if (!valid)
     {
         CIMResponseMessage* response = request->buildResponse();
-
+//// KS_TODO Internationalize
         CIMException x = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED, "Pull and Open Types do not match.");
         response->cimException = x;
@@ -2735,6 +2736,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
         ////_enqueueExceptionResponse(request,
         ////   PEGASUS_CIM_EXCEPTION(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED,
         ////       String::EMPTY));
+        //// KS_TODO Internationalize
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(
@@ -2758,9 +2760,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidObjectPathParameter(
 {
     if (path.getKeyBindings().size() == 0)
     {
-        ////_enqueueExceptionResponse(request,
-        ////   PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
-        ////       "Full Model Path required."));
+        //// KS_TODO Internationalize
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(
@@ -2784,7 +2784,7 @@ Boolean CIMOperationRequestDispatcher::_rejectIfContinueOnError(
     if (continueOnError)
     {
         CIMResponseMessage* response = request->buildResponse();
-
+        //// KS_TODO_ internationalize
         response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
                                    "ContinueOnError Not supported");
@@ -2831,6 +2831,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidMaxObjectCountParam(
         if (maxObjectCountParam > _systemMaxPullOperationObjectCount)
         {
             // KS_TODO - Would be more helpful if it supplied numbers
+            //// KS_TODO Internationalize
             CIMException x = CIMException(CIM_ERR_INVALID_PARAMETER,
                 "maxObjectCount parameter is outside OpenPegasus size limit");
             _enqueueExceptionResponse(request, x);
@@ -2869,6 +2870,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidOperationTimeout(
         if (_rejectZeroOperationTimeoutValue)
         {
             CIMResponseMessage* response = request->buildResponse();
+//// KS_TODO internationalize
             response->cimException =
                 PEGASUS_CIM_EXCEPTION(
                     CIM_ERR_INVALID_OPERATION_TIMEOUT,
@@ -2918,7 +2920,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidEnumerationContext(
              MessageTypeToString(request->getType()) ));
 
         CIMResponseMessage* response = request->buildResponse();
-
+//// KS_TODO Internationalize
         CIMException x = PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_ENUMERATION_CONTEXT, "Context undefined");
         response->cimException = x;
@@ -2955,7 +2957,7 @@ Boolean CIMOperationRequestDispatcher::_rejectIfContextTimedOut(
     if (isTimedOut)
     {
         CIMResponseMessage* response = request->buildResponse();
-
+//// KS_TODO internationalize
         CIMException cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_ENUMERATION_CONTEXT,
             "Enumeration Context Timed out");
@@ -2976,6 +2978,7 @@ Boolean CIMOperationRequestDispatcher::_rejectIfEnumerationContextProcessing(
     {
         CIMResponseMessage* response = request->buildResponse();
 //// KS_TODO think this may be wrong error message.
+//// KS_TODO Internationalize
         CIMException x = PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_PULL_CANNOT_BE_ABANDONED, String::EMPTY);
         response->cimException = x;
@@ -3651,6 +3654,8 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
           to.getResponseDataContent(),
           to.size(), en->responseCacheSize()));
     }
+
+    enumerationContextTable.setRequestSizeStatistics(operationMaxObjectCount);
 
     // Do check here after processing the results of the get.
     // The function either closes the operation if providers are complete

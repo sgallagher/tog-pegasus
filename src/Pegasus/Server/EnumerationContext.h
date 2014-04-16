@@ -48,20 +48,9 @@
 #include <Pegasus/Common/Magic.h>
 #include <Pegasus/Common/Condition.h>
 #include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Server/EnumerationContextTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-// Conditional compiles for EnumerationContext and table Classes
-// If the following define is set, the enumeration context interoperation
-// timeout is tested with a separate thread.  If not, it is simply tested
-// with each new operation context creation eliminating the extra thread.
-// This means, however, that a context that times out will not be cleaned
-// up until another operation sequence begins and another context created
-
-//#define PEGASUS_USE_PULL_TIMEOUT_THREAD
-
-// End of conditional compile variables for EnumerationContext and Table
-// Classes
 
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 
@@ -335,10 +324,8 @@ public:
         Otherwise the interoperation timer is started
         @param state Boolean defines whether to set processing or
         !processing. Processing means request being processed.
-        @return - NOT USED TODAY
-
      */
-    Boolean setProcessingState(Boolean state);
+    void setProcessingState(Boolean state);
 
     /**
         Test if the provider processing is complete.
@@ -396,6 +383,8 @@ public:
     CIMOperationRequestMessage* _savedRequest;
     CIMPullResponseDataMessage* _savedResponse;
     Uint32 _savedOperationMaxObjectCount;
+
+    EnumerationContextTable* _enumerationContextTable;
 
 private:
     // Default constructor not used

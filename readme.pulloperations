@@ -52,6 +52,15 @@ TODO list:
          cimcli pei CIM_ManagedElement to not complete (client timeout)
          sometimes.
 
+17 April 2014
+1. Reorganized the lock/unlock for handling the EnumerationContext because
+   there were thread windows (i.e. using the context after it was released
+   by other thread).
+2. Modified code for the InteroperationTimerThread and deleted old code that
+   allowed this whole thread to by bypassed.
+3. Internationalized a number of CIMOperationRequestDispatcher CIMException
+   response messages.
+
 10 April 2014
 1. Fix issues causing failure with repeated pull operations.
 2. Consolidate some of the CIMOperationRequestDispatcher.cpp template code

@@ -2875,7 +2875,7 @@ en:table {
 
         Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_UNDEFINED:string {"PGS05607: Enumeration context undefined."}
 
-	/*
+	/**
         * @note  PGS05608:
         *    Substitution {0} is the maximum size allowed (integer)
         */
@@ -2883,7 +2883,7 @@ en:table {
 
         Server.CIMOperationRequestDispatcher.TIMEOUT_ZERO_NOT_ALLOWED:string {"PGS05609: Operation timeout value of 0 not allowed."}
 
-	/*
+	/**
         * @note  PGS05610:
         *    Substitution {0} is the maxObjectCount supplied (integer)
 	*    Substitution {1} is the system maxObjectCount limit(integer) 

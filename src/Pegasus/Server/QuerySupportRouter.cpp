@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 Boolean QuerySupportRouter::routeHandleExecQueryRequest(
     CIMOperationRequestDispatcher* opThis,
     CIMExecQueryRequestMessage* msg,
-    void* enumerationContext)
+    EnumerationContext* enumerationContext)
 {
     if (msg->queryLanguage=="WQL")
     {

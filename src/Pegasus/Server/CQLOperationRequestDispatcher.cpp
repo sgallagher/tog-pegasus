@@ -85,7 +85,7 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
 
 void CQLOperationRequestDispatcher::handleQueryRequest(
     CIMExecQueryRequestMessage* request,
-    void * enumerationContext)
+    EnumerationContext* enumerationContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CQLOperationRequestDispatcher::handleQueryRequest");
@@ -202,7 +202,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
     if (enumerationContext != NULL)
     {
-        poA->setPullOperation((void *)enumerationContext);
+        poA->setPullOperation(enumerationContext);
     }
 
     // Set the number of expected responses in the OperationAggregate

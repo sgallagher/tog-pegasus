@@ -78,19 +78,17 @@
            - Expand classname to array (i.e. multiple use of option) with
              for loop for processing of the list.
            - Modify input form to drop -c and simply put the target(s) on
-             the command line.  easier to input, similar to cimcli and
+             the command line. Easier to input, similar to cimcli and
              not as error prone.
            - Drop the existing defaults in favor of namespace = root/cimv2
              and no target default.
            - Expand object compare to more details (maybe)
-           - Finish connect code so we can connect to other systems.  Needs
-             to be tested and determine if we need security.
+           - Finish connect code so we can connect to other systems.  Add
+             connect security parameters.
            - Combine verbose and verbose_opt.  i.e. Use a particular level
              of verbose_opt for verbose. Better just delete the old
              verbose option.  Not of real value here or use it to set
              a particular level of display output.
-           - Review the other options for other parameters. I think we now have
-             almost all operations defined.
            - Add concurrent repeat operation test mode (while loop around)
              whole setup and thread for each open, do, close with inner loop
              for repeat of particular open-pull sequence.
@@ -786,7 +784,9 @@ void clearHostAndNamespace(CIMObjectPath& p)
 }
 
 // KS-TODO - See other detailed compare above.  Should have only one
-bool comparePath(CIMObjectPath& p1, CIMObjectPath p2, bool ignoreHost = true)
+bool comparePath(const CIMObjectPath& p1,
+    const CIMObjectPath& p2,
+    bool ignoreHost = true)
 {
     if (ignoreHost)
     {
@@ -1175,50 +1175,82 @@ Boolean compareInstances(const String& s1, const String s2,
     return rtn;
 }
 
-
+bool _contains(const Array<CIMObjectPath>& arr,
+    const CIMObjectPath& path,
+    bool ignoreHost)
+{
+    Uint32 n = arr.size();
+    for (Uint32 i = 0; i < n; i++)
+    {
+        if (comparePath(arr[i], path, ignoreHost))
+        {
+            return true;
+        }
+    }
+}
 // Compare instances between two arrays and display any differences.
 // return false if differences exist.
 
 Boolean compareObjectPaths(
     const String& s1,
-    const String s2,
+    const String& s2,
     Array<CIMObjectPath>& p1,
     Array<CIMObjectPath>& p2,
     bool ignoreHost = true)
 {
     VCOUT6 << "Comparing ObjectPaths" << endl;
     Boolean rtn = true;
+    Uint32 errorCount = 0;
+
     if (p1.size() != p2.size())
     {
-        VCOUT1 << s1 << " ERROR: count mismatch of ObjectPaths "
-            << s2 << ". Pull sequence rtnd " <<  p1.size()
-            << " " << ". Old Operation rtnd " << p2.size()
+        Uint32 errorCount = 0;
+
+        VCOUT1 << "ERROR: count mismatch of ObjectPaths "
+            << s1 << " rtnd " <<  p1.size()
+            << s2 << " " << p2.size()
             << endl;
-        errors++;
-        for (Uint32 i = 0; i < p1.size(); i++)
+
+        _Sort(p1);
+        _Sort(p2);
+
+        if (p1.size() > p2.size())
         {
-            VCOUT6 << "Pull " << i << " " << p1[i].toString() << endl;
+            for (Uint32 i = 0; i < p1.size(); i++)
+            {
+                if (!_contains(p2, p1[i],ignoreHost))
+                {
+                    errorCount++;
+                }
+            }
         }
-        VCOUT6 << endl;
-        for (Uint32 i = 0; i < p2.size(); i++)
+        else
         {
-            VCOUT6 << "Orig " << i << " " << p2[i].toString() << endl;
+            for (Uint32 i = 0; i < p2.size(); i++)
+            {
+                if (!_contains(p1, p2[i], ignoreHost))
+                {
+                    errorCount++;
+                }
+            }
         }
 
         rtn = false;
     }
-
-    // sort the paths to assure same order.
-    _Sort(p1);
-    _Sort(p2);
-    Uint32 errorCount = 0;
-    for (Uint32 i = 0 ; i < p1.size() ; i++)
+    else
     {
-        bool localRtn = comparePath(p1[i], p2[i], ignoreHost);
-        if (!localRtn)
+        // sort the paths to assure same order.
+        _Sort(p1);
+        _Sort(p2);
+
+        for (Uint32 i = 0 ; i < p1.size() ; i++)
         {
-            errorCount++;
-            rtn = false;
+            bool localRtn = comparePath(p1[i], p2[i], ignoreHost);
+            if (!localRtn)
+            {
+                errorCount++;
+                rtn = false;
+            }
         }
     }
 
@@ -2280,8 +2312,8 @@ int main(int argc, char** argv)
         {
             case 'c':           // set objecName
             {
-            objectName_opt = optarg;
-            break;
+                objectName_opt = optarg;
+                break;
             }
 
             case 'h':           // -h option. Print usage
@@ -2486,6 +2518,22 @@ int main(int argc, char** argv)
 
     String operation = argv[0];
 
+    if (argc == 2)
+    {
+        objectName_opt = argv[1];
+    }
+
+    if (argc > 2)
+    {
+        fprintf(stderr, "ERROR: Extra Arguments supplied: ");
+        for (int i = 2; i < argc; i++)
+        {
+            fprintf(stderr, "%s ", argv[i]);
+        }
+        fprintf(stderr, "\n");
+        fprintf(stderr, (char *)USAGE, arg0);
+        exit(1);
+    }
     // conditional display of input parameters
     VCOUT1 << "START " << arg0 << " " << argvParams << endl;
 
@@ -2516,9 +2564,9 @@ int main(int argc, char** argv)
     }
 
     catch (CIMException& e)
-    { // -1 means ignore the count field)
-            cerr << "CIMException Error: in connect " << e.getMessage() << endl;
-            PEGASUS_TEST_ASSERT(false);
+    {
+        cerr << "CIMException Error: in connect " << e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(false);
     }
     catch (Exception& e)
     {
@@ -2534,7 +2582,7 @@ int main(int argc, char** argv)
     }
 
     // Default class, object, and namespace for this test tool.
-    // LS_TODO- These are not really logical options for defaults in the
+    // KS_TODO- These are not really logical options for defaults in the
     // long term.
     CIMNamespaceName nameSpace = "test/TestProvider";
     String ClassName = "Test_Person";
@@ -2587,12 +2635,12 @@ int main(int argc, char** argv)
     }
     catch (CIMException& e)
     {
-            cerr << "CIMException Error: " << e.getMessage() << endl;
-            if (!reverseExitCode_opt)
-            {
-                PEGASUS_TEST_ASSERT(false);
-            }
-            exitCode = 1;
+        cerr << "CIMException Error: " << e.getMessage() << endl;
+        if (!reverseExitCode_opt)
+        {
+            PEGASUS_TEST_ASSERT(false);
+        }
+        exitCode = 1;
     }
     catch (Exception& e)
     {

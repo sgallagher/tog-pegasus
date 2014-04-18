@@ -79,7 +79,7 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
 
 void WQLOperationRequestDispatcher::handleQueryRequest(
     CIMExecQueryRequestMessage* request,
-    void* enumerationContext)
+    EnumerationContext* enumerationContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "WQLOperationRequestDispatcher::handleQueryRequest");
@@ -186,7 +186,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
     if (enumerationContext != NULL)
     {
-        poA->setPullOperation((void *)enumerationContext);
+        poA->setPullOperation(enumerationContext);
     }
 
     // Set the number of expected responses in the OperationAggregate

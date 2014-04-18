@@ -422,7 +422,7 @@ public:
      * @param contextString String representing the operation
      *      Context defined for this sequence
      */
-    void setPullOperation(const void* enContext);
+    void setPullOperation(EnumerationContext* enContext);
 
     String _messageId;
     MessageType _msgRequestType;
@@ -440,8 +440,7 @@ public:
     Boolean _pullOperation;
     Boolean _enumerationFinished;
     Boolean _closeReceived;
-    // KS_PULL extensions KS_TODO - Do not need to maintain both name & ptr
-    void* _enumerationContext;
+    EnumerationContext* _enumerationContext;
 
 private:
     /** Hidden (unimplemented) copy and assignment constructors */

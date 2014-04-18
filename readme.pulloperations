@@ -60,6 +60,16 @@ TODO list:
    allowed this whole thread to by bypassed.
 3. Internationalized a number of CIMOperationRequestDispatcher CIMException
    response messages.
+4. Fixed stress tests in Client/tests/pullop that were getting timeout. The
+   issue was not the pull code but that fact that the idle client timeout
+   appears to be measureing to the end of the operation and the operation
+   was taking more than 40 seconds which is the default timeout. The idle
+   timeout takes no account of the fact that chunks are being regularly
+   delivered.
+5. Several minor code changes.
+NOTE: At this point the code passes extensive tests of the pull operations
+   both in OOP and none OOP mode (but with lots of diagnostics that may
+   be affecting timing).
 
 10 April 2014
 1. Fix issues causing failure with repeated pull operations.

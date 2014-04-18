@@ -57,7 +57,7 @@ public:
 
     void handleQueryRequest(
         CIMExecQueryRequestMessage* request,
-        void* enumerationContext = NULL);
+        EnumerationContext* enumerationContext = NULL);
 
     static void applyQueryToEnumeration(
         CIMResponseMessage* msg,

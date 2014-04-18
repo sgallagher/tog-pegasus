@@ -119,7 +119,7 @@ void EnumerationContext::setRequestProperties(
 void EnumerationContext::startTimer()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::startTimer");
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
     _interOperationTimer = (_operationTimeoutSec == 0) ?
@@ -141,7 +141,7 @@ void EnumerationContext::startTimer()
 void EnumerationContext::stopTimer()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::stopTimer");
-    PEGASUS_ASSERT(valid());              // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     _interOperationTimer = 0;
     PEG_METHOD_EXIT();
@@ -189,7 +189,7 @@ Boolean EnumerationContext::isTimedOut()
 // multiples.
 void EnumerationContext::setErrorState(CIMException x)
 {
-    PEGASUS_ASSERT(valid());
+    PEGASUS_DEBUG_ASSERT(valid());
     // Until we handle multiple errors, return only the first error
     if (_error)
     {
@@ -203,7 +203,7 @@ void EnumerationContext::setErrorState(CIMException x)
 // Diagnostic display of data in the enumeration context object
 void EnumerationContext::trace()
 {
-    PEGASUS_ASSERT(valid());
+    PEGASUS_DEBUG_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "EnumerationContext.ContextId=%s "
         "namespace %s timeOut %lu operationTimer=%lu "
@@ -265,10 +265,10 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());
 
     // Design error if we ever get here with providers already set complete
-    PEGASUS_ASSERT(!_providersComplete);
+    PEGASUS_DEBUG_ASSERT(!_providersComplete);
 
     //// KS_TODO Delete before checkin all this diagnostic
     CIMResponseData& to = _responseCache;
@@ -361,8 +361,9 @@ void EnumerationContext::waitCacheSize()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::waitCacheSize()");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());
             //// KS_TODO remove all these traces
+
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "After putCache providers waitProviderLimitCondition Not "
         "complete insert responseCacheSize %u. "
@@ -492,7 +493,7 @@ Boolean EnumerationContext::getCache(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::getCache");
 
-    PEGASUS_ASSERT(valid());
+    PEGASUS_DEBUG_ASSERT(valid());
 
     // Move attributes from Cache to new CIMResponseData object
     // sets the attributes for propertyList, includeQualifiers,
@@ -524,7 +525,6 @@ Boolean EnumerationContext::getCache(
     // have changed.
     signalProviderLimitCondition();
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP diagnostic.
     PEG_METHOD_EXIT();
     return true;
 }
@@ -575,7 +575,7 @@ void EnumerationContext::signalProviderLimitCondition()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::signalProviderLimitCondition");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     AutoMutex autoMut(_providerLimitConditionMutex);
 
@@ -588,7 +588,7 @@ Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::incAndTestPullCounters");
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
     _pullOperationCounter++;
 
     if (isZeroLength)
@@ -612,7 +612,7 @@ void EnumerationContext::setProvidersComplete()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::setProvidersComplete");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     _providersComplete = true;
 
@@ -634,7 +634,7 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::setNextEnumerationState");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     // Return true if client closed because of error or all responses complete,
     // else set ProcessingState false and return false
@@ -655,7 +655,7 @@ void EnumerationContext::setClientClosed()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::setClientClosed");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     _clientClosed = true;
 

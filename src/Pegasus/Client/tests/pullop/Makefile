@@ -119,49 +119,49 @@ poststarttests:
 ## Normally returns about 3 instances
 smallTestEnumerateInstances:
 ## Return all with initial request
-	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P Message
-	$(PROGRAM) e -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
+	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID) -P Message
+	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID) -P ""
 ## Return with probably one pull
-	$(PROGRAM) e -M 1 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 1 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P Message
-	$(PROGRAM) e -M 1 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID) -P ""
+	$(PROGRAM) e -c $(CxxCL) -M 1 -N 5 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 1 -N 5 -n $(CxxNS) -C -T $(HOSTID) -P Message
+	$(PROGRAM) e -c $(CxxCL) -M 1 -N 5 -n $(CxxNS) -C -T $(HOSTID) -P ""
 
 ## test variations of open max object count and pull max object count
 enumerateMaxObjectSizeVariations:
-	$(PROGRAM) e -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 1 -N 1 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 2 -N 2 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 0 -N 3 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 0 -N 100 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
 
 enumeratePathsMaxObjectSizeVariations:
-	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 2 -N 2 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 3 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 0 -N 3 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 0 -N 100 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 100 -N 10 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1 n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 2 -N 2 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 0 -N 3 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 0 -N 100 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
 
 ## enumerate instance names of a class in a C++ provider
 smallTestEnumerateInstanceNames:
-	$(PROGRAM) en -M 1 -N 1 -c $(CxxCL) -n $(CxxNS) -C $(HOSTID)
-	$(PROGRAM) en -M 5 -N 5 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -M 0 -N 1 -c $(CxxCL) -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1  -n $(CxxNS) -C $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 0 -N 1  -n $(CxxNS) -C -T $(HOSTID)
 
 ## enumerate from cmpi providers. There are 3 tests here to include
 ## property list variations
 cmpiEnumerate1:
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P Message
-	$(PROGRAM) e -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID) -P ""
+	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID) -P Message
+	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID) -P ""
 
 ## enumerate from cmpi providers
 cmpiEnumerateNames1:
-	$(PROGRAM) en -M 1 -N 1 -c $(CMPICL) -n root/SampleProvider -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CMPICL) -M 1 -N 1 -n root/SampleProvider -C -T $(HOSTID)
 
 ## Simple pull ref and assoc operations.
 SimpleRefAndAssoc:
@@ -175,26 +175,26 @@ SimpleRefAndAssoc:
 SimpleAssociatorTest1:
 ## this test confirms that we are getting one object
 	cimcli a $(CxxAssocOB) -n $(CxxAssocNS) --sum -count 1
-	$(PROGRAM) a  -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) an -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) r  -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) rn -M 1 -N 1 -C -T -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) a -c $(CxxAssocOB)  -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) an -c $(CxxAssocOB) -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) r -c $(CxxAssocOB)  -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) rn -c $(CxxAssocOB) -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
 
 ## Request class that returns a single object but ask for more than one in
 ## response
 
 SimpleAssociatorTest2: pa2 pan2 pr2 prn2
 pa2:
-	$(PROGRAM) a -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
 
 pan2:
-	$(PROGRAM) an -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
 
 pr2:
-	$(PROGRAM) rn -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
 
 prn2:
-	$(PROGRAM) rn -C -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
 
 
 ## Request class that returns objects with some in repository
@@ -212,40 +212,23 @@ prn3:
 peManagedElement: peManagedElementcimv2
 
 peManagedElementcimv2:
-	$(PROGRAM) e -M 100 -N 100 -c CIM_ManagedElement -v 5 -n root/cimv2 $(HOSTID)
+	$(PROGRAM) e -c CIM_ManagedElement -M 100 -N 100 -v 5 -n root/cimv2 $(HOSTID)
 
 ## generates error because of qualifier data and classorigin data from PG_Namespace
 peManagedElementInterop:
-	$(PROGRAM) e -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
+	$(PROGRAM) e -c CIM_ManagedElement -M 9 -N 1 -C -n root/PG_InterOp $(HOSTID)
 
 penManagedElement:
-	$(PROGRAM) en -M 50 -N 9 -C -c CIM_ManagedElement -n root/cimv2 $(HOSTID)
+	$(PROGRAM) en -c CIM_ManagedElement -M 50 -N 9 -C -n root/cimv2 $(HOSTID)
 
 #########################################################
 penManagedElement: penManagedElementcimv2
 
 penManagedElementcimv2:
-	$(PROGRAM) en -M 9 -N 4 -C -c CIM_ManagedElement $(HOSTID)
+	$(PROGRAM) en -c CIM_ManagedElement -M 9 -N 4 -C $(HOSTID)
 
 penManagedElementInterop:
-	$(PROGRAM) en -M 9 -N 1 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
-
-
-enumerateAll2:
-	$(PROGRAM) e -M 9 -N 9 -C -c CIM_ManagedElement -n root/PG_InterOp $(HOSTID)
-
-## Enumerate all objects in the test/TestProvider namespace
-enumerateAllErr1:
-        ## The cimcli initializes the providers.  This bypasses an error
-	## where we get timeout on a getClass from Initialize in one of the
-	## test providers for this namespace only.
-	###cimcli ni CIM_ManagedElement -n test/TestProvider $(CIMCLIHOSTID)
-	$(PROGRAM) e -M 9 -N 9 -C -y 90 -c CIM_ManagedElement -n test/TestProvider $(HOSTID)
-
-## The following generates the error when it calls Test_StorageSystem.  Same
-## problem for Test_MCSStorageSystem
-enumerateErrorRequest1:
-	$(PROGRAM) e -M 9 -N 9 -C -y 90 -c Test_StorageSystem -n test/TestProvider $(HOSTID)
+	$(PROGRAM) en -c CIM_ManagedElement -M 9 -N 1 -C -n root/PG_InterOp $(HOSTID)
 
 ## Test Empty response.
 enumerateEmptyResponse:
@@ -272,7 +255,7 @@ stresse1:
 ## test with object size 1000 and 100,000 returned objects
 stresse2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 60\
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
 
@@ -282,7 +265,7 @@ stressen1:
 
 stressen2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -T -v 3 $(HOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 60 -T -v 3 $(HOSTID)
 
 ## test of variation of response  max size form very small to large
 stressVariation:
@@ -300,9 +283,13 @@ pullClassParamError:
 	$(PROGRAM) e -c blah -R $(HOSTID)
 	$(PROGRAM) en -c blah -R $(HOSTID)
 
-## Generates an error because reqested object count too large
+## Generates an error because reqested object count too large. Currently
+## maximum is fixed at 1000
+## FUTURE: When we implement runtime setting of maximum, we may have an
+## issue with this test.
 maxPullObjectCountError:
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9999 -N 9999 -C -R -T -v 3 $(HOSTID)
+
 # the following tests should pass Makefile exit error tests.
 filterParamError:
 	$(PROGRAM) e Test_Person -f abc -R $(HOSTID)

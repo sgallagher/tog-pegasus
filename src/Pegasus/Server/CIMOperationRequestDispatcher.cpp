@@ -140,7 +140,7 @@ Boolean OperationAggregate::valid() const
 */
 void OperationAggregate::appendResponse(CIMResponseMessage* response)
 {
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
     AutoMutex autoMut(_appendResponseMutex);
     PEGASUS_ASSERT(response != 0);       /// KS_TEMP
     _responseList.append(response);
@@ -165,7 +165,7 @@ Uint32 OperationAggregate::numberResponses() const
 
 CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
 {
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
     AutoMutex autoMut(_appendResponseMutex);
     CIMResponseMessage* tmp = _responseList[pos];
     //// TODO remove this diagnostic trace.
@@ -178,7 +178,7 @@ CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
 
 CIMResponseMessage* OperationAggregate::removeResponse(const Uint32& pos)
 {
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
     AutoMutex autoMut(_appendResponseMutex);
     Uint32 tmpsize = _responseList.size();
     CIMResponseMessage* tmp = _responseList[pos];
@@ -391,10 +391,10 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     _enumerationContext - Pointer to the Enumeration Context
     _EnumerationContextName - Name property for this context
 */
-void OperationAggregate::setPullOperation(const void* enContext)
+void OperationAggregate::setPullOperation(EnumerationContext* enContext)
 {
     _pullOperation = true;
-    _enumerationContext = (void *) enContext;
+    _enumerationContext = enContext;
 }
 
 /*
@@ -1029,13 +1029,12 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             // pull operation. Put CIMResponseData into Enum Context unless
             // enum context closed.
 
-            EnumerationContext* en =
-                (EnumerationContext*)poA->_enumerationContext;
+            EnumerationContext* en = poA->_enumerationContext;
 
             // The following is test and validation code
             // KS_TODO remove all of this before release
-            PEGASUS_ASSERT(en);          // KS_TEMP
-            PEGASUS_ASSERT(en->valid()); // KS_TEMP
+            PEGASUS_DEBUG_ASSERT(en);          // KS_TEMP
+            PEGASUS_DEBUG_ASSERT(en->valid()); // KS_TEMP
             enumerationContextTable.valid();    // KS_TEMP
             enumerationContextTable.tableValidate();    // KS_TEMP
 
@@ -1877,7 +1876,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     PEGASUS_ASSERT(asyncReply != 0);
 
     PEGASUS_ASSERT(poA != 0);
-    PEGASUS_ASSERT(poA->valid());
+    PEGASUS_DEBUG_ASSERT(poA->valid());
 
     CIMResponseMessage* response = 0;
 
@@ -4489,7 +4488,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         CSTRING(request->messageId)));
 
     //// KS_TODO Remove once validated.
-    PEGASUS_ASSERT(request->className == request->objectName.getClassName());
+    PEGASUS_DEBUG_ASSERT(
+        request->className == request->objectName.getClassName());
 
     if (_rejectAssociationTraversalDisabled(request, "Associators"))
     {
@@ -4637,7 +4637,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         CSTRING(request->objectName.toString())));
 
     //// KS_TODO Remove once validated.
-    PEGASUS_ASSERT(request->className == request->objectName.getClassName());
+    PEGASUS_DEBUG_ASSERT(
+        request->className == request->objectName.getClassName());
 
     if (_rejectAssociationTraversalDisabled(request,"AssociatorNames"))
     {
@@ -4772,7 +4773,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         CSTRING(request->objectName.toString())));
 
     //// KS_TODO Remove once validated.
-    PEGASUS_ASSERT(request->className == request->objectName.getClassName());
+    PEGASUS_DEBUG_ASSERT(
+        request->className == request->objectName.getClassName());
 
     if (_rejectAssociationTraversalDisabled(request,"References"))
     {
@@ -4906,7 +4908,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         CSTRING(request->objectName.toString())));
 
     //// KS_TODO Remove once validated.
-    PEGASUS_ASSERT(request->className == request->objectName.getClassName());
+    PEGASUS_DEBUG_ASSERT(
+        request->className == request->objectName.getClassName());
 
     if (_rejectAssociationTraversalDisabled(request,"ReferenceNames"))
     {
@@ -5598,9 +5601,9 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     //
     // Set Open... operation parameters into the operationAggregate
     //
-    poA->setPullOperation((void *)enumerationContext);
+    poA->setPullOperation(enumerationContext);
 
-    PEGASUS_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
+    PEGASUS_DEBUG_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
 
     //
     // If repository as instance provider is enabled, get instances
@@ -5793,9 +5796,9 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     // Includes setting namespace that is used to complete host and naespace
     // in responses
     //
-    poA->setPullOperation((void *)enumerationContext);
+    poA->setPullOperation(enumerationContext);
 
-    PEGASUS_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
+    PEGASUS_DEBUG_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
 
     // gather up the repository responses and send it to out as one response
     // with many instances
@@ -6064,7 +6067,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // Set Open... operation parameters into the operationAggregate
     // since operationAggregate is what is  returned from providers.
     //
-    poA->setPullOperation((void *)enumerationContext);
+    poA->setPullOperation(enumerationContext);
 
     // If response from repository not empty, forward for aggregation.
     if (cimObjects.size() != 0)
@@ -6301,7 +6304,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     //
     // Set Open... operation parameters into the operationAggregate
     //
-    poA->setPullOperation((void *)enumerationContext);
+    poA->setPullOperation(enumerationContext);
 
     // If any return from repository, send it to aggregator.
     // Send repository response for aggregation
@@ -6579,7 +6582,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     //
     // Set Open... operation parameters into the operationAggregate
     //
-    poA->setPullOperation((void *)enumerationContext);
+    poA->setPullOperation(enumerationContext);
 
     // Send repository response for aggregation
 
@@ -6847,7 +6850,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     //
     // Set Open... operation parameters into the operationAggregate
     //
-    poA->setPullOperation((void *)enumerationContext);
+    poA->setPullOperation(enumerationContext);
 
     // If any return from repository, send it to aggregator.
     if (objectNames.size() != 0)
@@ -7016,7 +7019,7 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     PEGASUS_ASSERT(enumerationContext->responseCacheSize() == 0);  // KS_TEMP
     // KS_TODO clean up the void* below
     if (QuerySupportRouter::routeHandleExecQueryRequest(
-       this, internalRequest, (void*)enumerationContext) == false)
+       this, internalRequest, enumerationContext) == false)
     {
         if (internalRequest->operationContext.contains(
                 SubscriptionFilterConditionContainer::NAME))

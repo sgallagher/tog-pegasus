@@ -139,13 +139,6 @@ public:
     String& getName();
 
     /**
-       Get the Type of the CIMResponseData object in the enumeration
-       context.
-       @param return Type
-    */
-    CIMResponseData::ResponseDataContent getCIMResponseDataType();
-
-    /**
         Set the request properties that must be moved to subsequent
         pull operations.
     */
@@ -174,11 +167,19 @@ public:
     Boolean isTimedOut();
 
     // diagnostic tests magic number in context to see if valid
-    // Diagnostic tool only.
     Boolean valid() const;
 
+    /** Test if client is closed for this enumeration.
+       @return Boolean true if closed
+
+    */
     Boolean isClientClosed();
 
+    /** Test if this enumeration context has received an error response
+       from providers, etc.
+       @return true if errors received and not processed.
+
+    */
     Boolean isErrorState();
 
     /**Set the error state flag and set the current cimException
@@ -224,8 +225,7 @@ public:
     Boolean putCache(CIMResponseMessage*& response,
         Boolean providersComplete);
 
-    /*
-        Wait for the cache to drop below defined size before
+    /** Wait for the cache to drop below defined size before
         responding to the provider.
     */
     void waitCacheSize();
@@ -254,8 +254,7 @@ public:
      */
     Boolean getCache(Uint32 count, CIMResponseData& rtnData);
 
-    /*
-        Test cache to see if there are responses that could be used
+    /** Test cache to see if there are responses that could be used
         for an immediate response. Returns immediatly with true or false
         indicating that a response should be issued.  The algorithm for
         the response is
@@ -282,18 +281,16 @@ public:
     Boolean testCacheForResponses(Uint32 operationMaxObjectCount,
                                   Boolean requiresAll);
 
-    /*
-        Setup the request and response information for a response
-        to be issued later as part of putting provider info into
-        the cache. This saves the request, response, and count
+    /** Setup the request and response information for a response to
+        be issued later as part of putting provider info into the
+        cache. This saves the request, response, and count
         information.
     */
     void saveNextResponse(CIMOperationRequestMessage* request,
          CIMPullResponseDataMessage* response,
          Uint32 operationMaxObjectCount);
 
-    /**
-        Returns count of objects in the EnumerationContext CIMResponseData
+    /** Returns count of objects in the EnumerationContext CIMResponseData
         cache.
         @return  Uint32 count of objects currently in the cache
     */
@@ -371,20 +368,25 @@ public:
 
     CIMNamespaceName getNamespace() const;
 
-    // This mutex locks the entire context for some critical sections.
+    // This mutex locks the entire Enumeration context for some
+    // critical sections.
     void lockContext();
     void unlockContext();
     Boolean tryLockContext();
     Mutex _contextLock;
 
+    /* Increment count of requests processed for this enumeration
+    */
     void incrementRequestCount();
 
-    // parameters for requests saved for future send.  See
+    // Parameters for requests saved for future send.
     //
     CIMOperationRequestMessage* _savedRequest;
     CIMPullResponseDataMessage* _savedResponse;
     Uint32 _savedOperationMaxObjectCount;
 
+    // Pointer to Enumeration Table. Set during Create of enumeration
+    // context
     EnumerationContextTable* _enumerationContextTable;
 
 private:
@@ -495,13 +497,6 @@ inline void EnumerationContext::incrementRequestCount()
     _requestCount++;
 }
 
-// KS_TODO Should be able to eliminate this
-inline CIMResponseData::ResponseDataContent
-    EnumerationContext::getCIMResponseDataType()
-{
-    return _responseCache.getResponseDataContent();
-}
-
 inline Boolean EnumerationContext::isProcessing()
 {
     return _processing;
@@ -534,7 +529,6 @@ inline Boolean EnumerationContext::providersComplete() const
 
 inline Uint32 EnumerationContext::responseCacheSize()
 {
-    PEGASUS_ASSERT(valid());   // KS_TEMP
     return _responseCache.size();
 }
 

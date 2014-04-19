@@ -71,8 +71,7 @@ PEGASUS_NAMESPACE_BEGIN
 **            number of throws to reduce code size.
 **
 ******************************************************************************/
-//
-//
+
 //
 // throw CIM_ERR_NOT_SUPPORTED with optional added text
 void _throwCIMExceptionCIMErrNotSupported(const String& param = String::EMPTY)
@@ -127,6 +126,42 @@ void _throwCIMExceptionEnumerationContextRequired()
         "The EnumerationContext input parameter is required."));
 }
 
+// test if Required parameters exist (i.e. the got variable is
+// true. Generates exception if exist == false
+
+void _throwCIMExceptionRequiredDoesNotExist(const String& name)
+{
+    _throwCIMExceptionInvalidParameter(MessageLoaderParms(
+    "Server.CIMOperationRequestDecoder."
+        "REQUIRED_PARAMATER_MISSING",
+    "Required parameter \"$0\" missing from request.", name));
+}
+
+// KS_TODO - Original function. Issues message with no name attached.
+// We want to get rid of this one completely
+void _testRequiredParametersExist(Boolean exist)
+{
+    if (!exist)
+    {
+        _throwCIMExceptionInvalidParameter();
+    }
+}
+
+void _testRequiredParametersExist(const char* name, Boolean exist)
+{
+    if (!exist)
+    {
+        _throwCIMExceptionRequiredDoesNotExist(String(name));
+    }
+}
+
+void _testRequiredParametersExist(const String& name, Boolean exist)
+{
+    if (!exist)
+    {
+        _throwCIMExceptionRequiredDoesNotExist(name);
+    }
+}
 /******************************************************************************
 **
 **            CIMOperationRequestDecoder Class
@@ -268,9 +303,6 @@ void CIMOperationRequestDecoder::_updateExpiredPassword(
     }
 }
 #endif
-
-
-
 
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     MessageQueue* outputQueue,
@@ -1812,7 +1844,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 **  Each struct defines:
 **      got - Boolean defines whether this parameter has been found
 **      value - The value container for this type
-**      iParamFound(...) - function sets the duplicate flag and the got flag
+**      found(...) - function sets the duplicate flag and the got flag
 **      get - Function to get the defined parameter from the
 **            parser
 **      NOTE: at least one has multiple get.. functions.
@@ -1822,6 +1854,59 @@ void CIMOperationRequestDecoder::handleMethodCall(
 **      String,ClassName etc.) so the attribute name is defined as part
 **      of the constructor.
 ***************************************************************************/
+
+/* base class for common elements of all of the IParam classes
+*/
+class baseIParam
+{
+public:
+
+    // Constructor with defaulted Name. Name set by subclass
+    baseIParam():
+        got(false) {}
+
+    // Constructor with Name.
+    baseIParam(const char* name):
+        got(false),
+        iParamName(name) {}
+
+    // Set the flag to indicate that this IParam has been gotten and also
+    // set the flag defined by the duplicate parameter
+    // @param duplicate Boolean that is set to previous value of the got
+    // variable indicating whether this is second call to this IParam
+    void found(Boolean& duplicate)
+    {
+        duplicate = got;
+        got = true;
+    }
+
+    String& name()
+    {
+        return iParamName;
+    }
+
+    // Tests if the parameter exists in the request
+    // and if it does not, issues an exception
+    void rejectIfNotExist()
+    {
+        if (!got)
+        {
+            _throwCIMExceptionRequiredDoesNotExist(iParamName);
+        }
+    }
+
+    // Initial false.  Set true by found function.
+    Boolean got;
+
+protected:
+    String iParamName;
+
+private:
+        // hide unused default constructor and assign, copy constructors
+    baseIParam(const baseIParam&);
+    baseIParam& operator = (const baseIParam&);
+};
+
 // Common xml attribute accessor for all boolean attributes.   The
 // attribute name is defined in the constructor.
 // The usage pattern is:
@@ -1830,26 +1915,20 @@ void CIMOperationRequestDecoder::handleMethodCall(
 //    booleanIParam xyz("xyz"); default is false for attribute xyz
 //
 //    if(xyz.get(parser, name, emptyTag)   // parses to test if name == xyz
-//        iParamFound(duplicate);          // set flag to indicate exists etc.
-class booleanIParam
+//        found(duplicate);          // set flag to indicate exists etc.
+class booleanIParam : public baseIParam
 {
 public:
-    Boolean got;
     Boolean value;
 
     // constructor with default value = false
-    booleanIParam(const char* name): got(false),value(false),iParamName(name){}
+    booleanIParam(const char* name): baseIParam(name), value(false) {}
 
     // constructor with initial value specifically set from the input
-    booleanIParam(const char* name, Boolean _value):
-        got(false),value(_value),iParamName(name){}
 
-    ~booleanIParam(){}
-
-    void iParamFound(Boolean& duplicate)
+    booleanIParam(const char* name, Boolean _value): baseIParam(name),
+        value(_value)
     {
-        duplicate = got;
-        got = true;
     }
 
     // get the value of the parameter if the parameter if it exists.
@@ -1863,14 +1942,14 @@ public:
         if (System::strcasecmp(iParamName.getCString(), testName) == 0)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag,
-                                             iParamName.getCString());
+                iParamName.getCString());
             XmlReader::getBooleanValueElement(parser, value, true);
             return true;
         }
         return false;
     }
-    private:
-    String iParamName;
+
+private:
     // hide unused default constructor and assign, copy constructors
     booleanIParam();
     booleanIParam(const booleanIParam&);
@@ -1882,28 +1961,16 @@ public:
 //     get - parse where the parameter value is required
 //     getOptional - parse where the parameter value is optional
 
-class classNameIParam
+class classNameIParam : public baseIParam
 {
 public:
-    Boolean got;
     CIMName value;
-
-    // Set the flag to inidcate that this IParam has been gotten and also
-    // set the flag defined by the duplicate parameter
-    // @param duplicate Boolean that is set to previous value of the got
-    // variable indicating whether this is second call to this IParam
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
 
     // construct an IParam definition with name.
     // @param name const char* defining name of IParam to match
     // @return true if IParam found with _attrName
-    classNameIParam(const char* name): got(false), iParamName(name){}
 
-    ~classNameIParam(){}
+    classNameIParam(const char* name): baseIParam(name), value(CIMName()) {}
 
     // Get Required value element.Test for name parameter as IParam with
     // name and if found, if value not NULL, parse the className and
@@ -1933,12 +2000,7 @@ public:
         }
         return false;
     }
-    String& name()
-    {
-        return iParamName;
-    }
 private:
-    String iParamName;
     // hide unused default constructor and assign, copy constructors
     classNameIParam();
     classNameIParam(const classNameIParam&);
@@ -1947,20 +2009,15 @@ private:
 
 // test for "InstanceName" iParam and if found, return CIMObjectPath
 // in value
-class instanceNameIParam
+class instanceNameIParam : public baseIParam
 {
 public:
-    Boolean got;
     CIMObjectPath value;
 
-    void iParamFound(Boolean& duplicate)
+    instanceNameIParam(const char* name): baseIParam(name),
+        value(CIMObjectPath())
     {
-        duplicate = got;
-        got = true;
     }
-    instanceNameIParam(): got(false), iParamName("InstanceName"){}
-
-    ~instanceNameIParam(){}
 
     Boolean get(XmlParser& parser, const char * name, Boolean& emptyTag)
     {
@@ -1972,13 +2029,9 @@ public:
         }
         return false;
     }
-    String& name()
-    {
-        return iParamName;
-    }
 private:
-    String iParamName;
     // hide unused assign, copy constructors
+    instanceNameIParam();
     instanceNameIParam(const instanceNameIParam&);
     instanceNameIParam& operator = (const instanceNameIParam&);
 };
@@ -1992,28 +2045,22 @@ private:
 //  message (ex. objectName.isClassElement)
 // @param (Optional) Name of IParam.  Default is ObjectName.  Note
 // that pull operations use InstanceName as IParamName.
-class objectNameIParam
+class objectNameIParam: public baseIParam
 {
 public:
-    Boolean got;
     CIMObjectPath value;
-    Boolean isClassNameElement;
+    bool isClassNameElement;
 
-    void iParamFound(Boolean& duplicate)
+    // Constructor with default parameter name = "ObjectName"
+    objectNameIParam(): baseIParam("ObjectName"),
+        value(CIMObjectPath()), isClassNameElement(false)
     {
-        duplicate = got;
-        got = true;
     }
 
-    // Constructor using default IParam name
-    objectNameIParam(): got(false), isClassNameElement(false),
-        iParamName("ObjectName"){}
-
-    // Constructor with IParam name included
-    objectNameIParam(const char* name): got(false), isClassNameElement(false),
-        iParamName(name){}
-
-    ~objectNameIParam(){}
+    objectNameIParam(const char* name): baseIParam(name),
+        value(CIMObjectPath()), isClassNameElement(false)
+    {
+    }
 
     Boolean get(XmlParser& parser, const char * name, Boolean& emptyTag)
     {
@@ -2026,12 +2073,7 @@ public:
         }
         return false;
     }
-    String& name()
-    {
-        return iParamName;
-    }
 private:
-    String iParamName;
     // hide unused assign, copy constructors
     objectNameIParam(const objectNameIParam&);
     objectNameIParam& operator = (const objectNameIParam&);
@@ -2039,20 +2081,13 @@ private:
 
 // test for "PropertyList" attribute and, if found, return property list
 // in the value element.
-class propertyListIParam
+class propertyListIParam : public baseIParam
 {
 public:
-    Boolean got;
     CIMPropertyList value;
 
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-
     // construct a propertyListIParam object
-    propertyListIParam(): got(false){}
+    propertyListIParam(): baseIParam(){}
 
     ~propertyListIParam(){}
 
@@ -2118,25 +2153,20 @@ private:
 // The constructor MUST include the attribute name.
 // The second defines whether a value is required.
 // If true and there is no value, the XmlReader does an exception.
-class stringIParam
+
+class stringIParam : public baseIParam
 {
 public:
-    Boolean got;
     String value;
 
     // constructor with definition of attribute and  required flag.
     // @param name const char* with name of IParam to match
     // @param valueRequired Boolean that defines whether value is required
-    stringIParam(const char* name, Boolean _valueRequired):
-        got(false), iParamName(name), valueRequired(_valueRequired){}
+
+    stringIParam(const char* name, Boolean valueRequired): baseIParam(name),
+        _valueRequired(valueRequired) {}
 
     ~stringIParam(){}
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
 
     // get the attribute if it exists. The attribute name is defined in
     // the constructor
@@ -2151,20 +2181,15 @@ public:
         {
             if (!emptyTag)
             {
-                XmlReader::getStringValueElement(parser, value, valueRequired);
+                XmlReader::getStringValueElement(parser, value, _valueRequired);
             }
             return true;
         }
         return false;
     }
 
-    String& name()
-    {
-        return iParamName;
-    }
 private:
-    String iParamName;
-    Boolean valueRequired;
+    Boolean _valueRequired;
     stringIParam();
     stringIParam(const stringIParam&);
     stringIParam& operator = (const stringIParam&);
@@ -2177,33 +2202,30 @@ private:
 // If true and there is no value, the XmlReader does an exception.
 //
 //// KS_TODO NEED REVIEW ON THIS ONE
-class uint32ArgIParam
+//// In particular the default value of value.
+class uint32ArgIParam : public baseIParam
 {
 public:
-    Boolean got;
     Uint32Arg value;
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is NULL if
     // no value is supplied.
     // @param name const char* with name of IParam to match
-    uint32ArgIParam(const char* name):
-        got(false), iParamName(name), valueRequired(false){}
+
+    uint32ArgIParam(const char* name): baseIParam(name),
+        value(0), _valueRequired(false) {}
+
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is integer defined
     // by supplied value.
     // @param name const char* with name of IParam to match
-    uint32ArgIParam(const char* name, Uint32 _int):
-        got(false), value(_int), iParamName(name), valueRequired(false){}
+
+    uint32ArgIParam(const char* name, Uint32 _value): baseIParam(name),
+        value(0), _valueRequired(false) {}
 
     ~uint32ArgIParam(){}
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
 
     // get the attribute if it exists. The attribute name is defined in
     // the constructor
@@ -2214,7 +2236,7 @@ public:
     // position in the parser
     Boolean get(XmlParser& parser, const char * testName,  Boolean& emptyTag)
     {
-        if (valueRequired)
+        if (_valueRequired)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag, testName);
         }
@@ -2226,8 +2248,7 @@ public:
         return false;
     }
 private:
-    String iParamName;
-    Boolean valueRequired;
+    Boolean _valueRequired;
     uint32ArgIParam();
     uint32ArgIParam(const uint32ArgIParam&);
     uint32ArgIParam& operator = (const uint32ArgIParam&);
@@ -2237,10 +2258,10 @@ private:
 // The constructor MUST include the attribute name.
 // The second defines whether a value is required.
 // If true and there is no value, the XmlReader does an exception.
-class uint32IParam
+
+class uint32IParam : public baseIParam
 {
 public:
-    Boolean got;
     Uint32 value;
 
     // constructor with definition of iParam name and default for the
@@ -2248,8 +2269,12 @@ public:
     // no value is supplied. This is for paramaters that are not required but
     // where the default value is NULL.
     // @param name const char* with name of IParam to match
-    uint32IParam(const char* name):
-        got(false), iParamName(name), valueRequired(false){}
+    uint32IParam(const char* name)
+        : baseIParam(name),
+        value(0),
+        _valueRequired(false)
+    {
+    }
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is integer defined
@@ -2261,27 +2286,9 @@ public:
     // is not  found.
     // @param rqd Boolean (optional) that defines whether the parameter is
     // required on input.  If it is required, the iomt32Value is not used
-    uint32IParam(const char* name, Uint32 uint32Value, Boolean rqd = false):
-        got(false), value(uint32Value), iParamName(name), valueRequired(rqd){}
 
-//  // constructor with definition of iParam name and required flag.
-//  //
-//  // @param name const char* with name of IParam to match
-//  // @param required. Boolean indicating whether parameter required.
-//  // NOTE: It might be better to combine this and the default into a single
-//  // constructor since the required=false of this one makes no sense and
-//  // does not allow a default.
-//  uint32IParam(const char* name, Boolean required):
-//      got(false), value(0), iParamName(name), valueRequired(required)
-//  {}
-
-    ~uint32IParam(){}
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
+    uint32IParam(const char* name, Uint32 _value, Boolean rqd = false)
+        : baseIParam(name), value(0), _valueRequired(rqd) {}
 
     // get the attribute if it exists. The attribute name is defined in
     // the constructor
@@ -2292,7 +2299,7 @@ public:
     // position in the parser
     Boolean get(XmlParser& parser, const char * testName,  Boolean& emptyTag)
     {
-        if (valueRequired)
+        if (_valueRequired)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag, testName);
         }
@@ -2303,13 +2310,9 @@ public:
         }
         return false;
     }
-    String& name()
-    {
-        return iParamName;
-    }
+
 private:
-    String iParamName;
-    Boolean valueRequired;
+    Boolean _valueRequired;
     uint32IParam();
     uint32IParam(const uint32IParam&);
     uint32IParam& operator = (const uint32IParam&);
@@ -2336,37 +2339,6 @@ void _checkMissingEndTagOrDuplicateParamValue(
     if (duplicateParameter)
     {
         _throwCIMExceptionDuplicateParameter();
-    }
-}
-
-// test if Required parameters exist (i.e. the got variable is
-// true. Generates exception if exist == false
-void _testRequiredParametersExist(Boolean exist)
-{
-    if (!exist)
-    {
-        _throwCIMExceptionInvalidParameter();
-    }
-}
-void _testRequiredParametersExist(const char* name, Boolean exist)
-{
-    if (!exist)
-    {
-        _throwCIMExceptionInvalidParameter(MessageLoaderParms(
-        "Server.CIMOperationRequestDecoder."
-            "REQUIRED_PARAMATER_MISSING",
-        "Required parameter \"$0\" missing from request.", name));
-    }
-}
-
-void _testRequiredParametersExist(const String& name, Boolean exist)
-{
-    if (!exist)
-    {
-        _throwCIMExceptionInvalidParameter(MessageLoaderParms(
-        "Server.CIMOperationRequestDecoder."
-            "REQUIRED_PARAMATER_MISSING",
-        "Required parameter \"$0\" missing from request.", name));
     }
 }
 
@@ -2453,23 +2425,23 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     {
         if(className.get(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else if(localOnly.get(parser, name, emptyTag))
         {
-            localOnly.iParamFound(duplicateParameter);
+            localOnly.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.getSpecial(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -2480,8 +2452,8 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
             parser, duplicateParameter, emptyTag);
     }
 
-    // test for required parameters
-    _testRequiredParametersExist(className.name(),className.got);
+    // reject if required parameter does not exist
+    className.rejectIfNotExist();
 
     // Build message
     AutoPtr<CIMGetClassRequestMessage> request(new CIMGetClassRequestMessage(
@@ -2571,11 +2543,11 @@ CIMEnumerateClassNamesRequestMessage*
     {
         if(className.getOptional(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else if(deepInheritance.get(parser, name, emptyTag))
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            deepInheritance.found(duplicateParameter);
         }
         else
         {
@@ -2626,23 +2598,23 @@ CIMEnumerateClassesRequestMessage*
     {
         if(className.getOptional(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else if(deepInheritance.get(parser, name, emptyTag))
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            deepInheritance.found(duplicateParameter);
         }
         else if(localOnly.get(parser, name, emptyTag))
         {
-            localOnly.iParamFound(duplicateParameter);
+            localOnly.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else
         {
@@ -2691,7 +2663,7 @@ CIMDeleteClassRequestMessage*
     {
         if(className.get(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else
         {
@@ -2775,7 +2747,7 @@ CIMGetInstanceRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    instanceNameIParam instanceName;
+    instanceNameIParam instanceName("InstanceName");
     // This attribute is accepted for compatibility reasons, but is
     // not honored because it is deprecated.
     booleanIParam localOnly("localOnly",true);
@@ -2791,25 +2763,25 @@ CIMGetInstanceRequestMessage*
     {
         if(instanceName.get(parser, name, emptyTag))
         {
-            instanceName.iParamFound(duplicateParameter);
+            instanceName.found(duplicateParameter);
         }
         // localOnly is accepted for compatibility reasons, but is
         // not honored because it is deprecated.
         else if(localOnly.get(parser, name, emptyTag))
         {
-            localOnly.iParamFound(duplicateParameter);
+            localOnly.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -2873,11 +2845,11 @@ CIMModifyInstanceRequestMessage*
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(propertyList.getSpecial(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -2931,29 +2903,29 @@ CIMEnumerateInstancesRequestMessage*
     {
         if(className.get(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else if(deepInheritance.get(parser, name, emptyTag))
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            deepInheritance.found(duplicateParameter);
         }
         // This attribute is accepted for compatibility reasons, but is
         // not honored because it is deprecated.
         else if(localOnly.get(parser, name, emptyTag))
         {
-            localOnly.iParamFound(duplicateParameter);
+            localOnly.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -2965,7 +2937,8 @@ CIMEnumerateInstancesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(className.name(), className.got);
+    // Reject if required parameter does not exist in request
+    className.rejectIfNotExist();
 
     AutoPtr<CIMEnumerateInstancesRequestMessage> request(
         new CIMEnumerateInstancesRequestMessage(
@@ -3006,7 +2979,7 @@ CIMEnumerateInstanceNamesRequestMessage*
     {
         if(className.get(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else
         {
@@ -3018,7 +2991,8 @@ CIMEnumerateInstanceNamesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(className.name(), className.got);
+    // Reject if required parameter does not exist in request
+    className.rejectIfNotExist();
 
     AutoPtr<CIMEnumerateInstanceNamesRequestMessage> request(
         new CIMEnumerateInstanceNamesRequestMessage(
@@ -3041,7 +3015,7 @@ CIMDeleteInstanceRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    instanceNameIParam instanceName;
+    instanceNameIParam instanceName("InstanceName");
 
     Boolean duplicateParameter = false;
     Boolean emptyTag;
@@ -3051,7 +3025,7 @@ CIMDeleteInstanceRequestMessage*
     {
         if(instanceName.get(parser, name, emptyTag))
         {
-            instanceName.iParamFound(duplicateParameter);
+            instanceName.found(duplicateParameter);
         }
         else
         {
@@ -3275,15 +3249,15 @@ CIMReferenceNamesRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else
         {
@@ -3295,7 +3269,8 @@ CIMReferenceNamesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(), objectName.got);
+    // Reject if required parameter does not exist in request
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMReferenceNamesRequestMessage> request(
         new CIMReferenceNamesRequestMessage(
@@ -3336,27 +3311,27 @@ CIMReferencesRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -3368,7 +3343,8 @@ CIMReferencesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    // Reject if required parameter does not exist in request
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMReferencesRequestMessage> request(
         new CIMReferencesRequestMessage(
@@ -3411,23 +3387,23 @@ CIMAssociatorNamesRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if (assocClass.getOptional(parser, name, emptyTag))
         {
-            assocClass.iParamFound(duplicateParameter);
+            assocClass.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if(resultRole.get(parser, name, emptyTag))
         {
-            resultRole.iParamFound(duplicateParameter);
+            resultRole.found(duplicateParameter);
         }
         else
         {
@@ -3440,7 +3416,8 @@ CIMAssociatorNamesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    // Reject if required parameter does not exist in request
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMAssociatorNamesRequestMessage> request(
         new CIMAssociatorNamesRequestMessage(
@@ -3468,7 +3445,7 @@ CIMAssociatorsRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    // Associator Operation Parameters
+    // Associator Operation Parameter Declarations
     objectNameIParam objectName;
     classNameIParam assocClass("AssocClass");
     classNameIParam resultClass("ResultClass");
@@ -3486,35 +3463,35 @@ CIMAssociatorsRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if (assocClass.getOptional(parser, name, emptyTag))
         {
-            assocClass.iParamFound(duplicateParameter);
+            assocClass.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if(resultRole.get(parser, name, emptyTag))
         {
-            resultRole.iParamFound(duplicateParameter);
+            resultRole.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -3526,7 +3503,8 @@ CIMAssociatorsRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    // Reject if required parameter does not exist in request
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMAssociatorsRequestMessage> request(
         new CIMAssociatorsRequestMessage(
@@ -3696,11 +3674,11 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
     {
         if(queryLanguage.get(parser, name, emptyTag))
         {
-            queryLanguage.iParamFound(duplicateParameter);
+            queryLanguage.found(duplicateParameter);
         }
         else if(query.get(parser, name, emptyTag))
         {
-            query.iParamFound(duplicateParameter);
+            query.found(duplicateParameter);
         }
         else
         {
@@ -3793,48 +3771,48 @@ CIMOpenEnumerateInstancesRequestMessage*
     {
         if(className.get(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         else if(deepInheritance.get(parser, name, emptyTag))
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            deepInheritance.found(duplicateParameter);
         }
         else if(includeQualifiers.get(parser, name, emptyTag))
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            includeQualifiers.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQueryLanguage = NULL,
         else if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQuery = NULL,
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         // [IN,OPTIONAL] Boolean ContinueOnError = false,
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         // [IN,OPTIONAL] uint32 MaxObjectCount = 0
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else
         {
@@ -3847,7 +3825,8 @@ CIMOpenEnumerateInstancesRequestMessage*
 
     }
 
-    _testRequiredParametersExist(className.name(),className.got);
+    // Reject if required parameter does not exist in request
+    className.rejectIfNotExist();
 
     AutoPtr<CIMOpenEnumerateInstancesRequestMessage> request(
         new CIMOpenEnumerateInstancesRequestMessage(
@@ -3898,32 +3877,32 @@ CIMOpenEnumerateInstancePathsRequestMessage*
     {
         if(className.get(parser, name, emptyTag))
         {
-            className.iParamFound(duplicateParameter);
+            className.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQueryLanguage = NULL,
         else if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQuery = NULL,
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         // [IN,OPTIONAL] Boolean ContinueOnError = false,
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         // [IN,OPTIONAL] uint32 MaxObjectCount = 0
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -3935,7 +3914,8 @@ CIMOpenEnumerateInstancePathsRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(className.name(),className.got);
+    // Reject if required parameter does not exist in request
+    className.rejectIfNotExist();
 
     AutoPtr<CIMOpenEnumerateInstancePathsRequestMessage> request(
         new CIMOpenEnumerateInstancePathsRequestMessage(
@@ -3985,48 +3965,48 @@ CIMOpenReferenceInstancesRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQueryLanguage = NULL,
         else if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQuery = NULL,
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         // [IN,OPTIONAL] Boolean ContinueOnError = false,
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         // [IN,OPTIONAL] uint32 MaxObjectCount = 0
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4038,7 +4018,7 @@ CIMOpenReferenceInstancesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMOpenReferenceInstancesRequestMessage> request(
         new CIMOpenReferenceInstancesRequestMessage(
@@ -4090,35 +4070,35 @@ CIMOpenReferenceInstancePathsRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4130,7 +4110,7 @@ CIMOpenReferenceInstancePathsRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMOpenReferenceInstancePathsRequestMessage> request(
         new CIMOpenReferenceInstancePathsRequestMessage(
@@ -4183,51 +4163,51 @@ CIMOpenAssociatorInstancesRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if (assocClass.getOptional(parser, name, emptyTag))
         {
-            assocClass.iParamFound(duplicateParameter);
+            assocClass.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if(resultRole.get(parser, name, emptyTag))
         {
-            resultRole.iParamFound(duplicateParameter);
+            resultRole.found(duplicateParameter);
         }
         else if(includeClassOrigin.get(parser, name,  emptyTag))
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            includeClassOrigin.found(duplicateParameter);
         }
         else if(propertyList.get(parser, name, emptyTag))
         {
-            propertyList.iParamFound(duplicateParameter);
+            propertyList.found(duplicateParameter);
         }
         else if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4239,7 +4219,7 @@ CIMOpenAssociatorInstancesRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMOpenAssociatorInstancesRequestMessage> request(
         new CIMOpenAssociatorInstancesRequestMessage(
@@ -4294,43 +4274,43 @@ CIMOpenAssociatorInstancePathsRequestMessage*
     {
         if(objectName.get(parser, name, emptyTag))
         {
-            objectName.iParamFound(duplicateParameter);
+            objectName.found(duplicateParameter);
         }
         else if (assocClass.getOptional(parser, name, emptyTag))
         {
-            assocClass.iParamFound(duplicateParameter);
+            assocClass.found(duplicateParameter);
         }
         else if (resultClass.getOptional(parser, name, emptyTag))
         {
-            resultClass.iParamFound(duplicateParameter);
+            resultClass.found(duplicateParameter);
         }
         else if(role.get(parser, name, emptyTag))
         {
-            role.iParamFound(duplicateParameter);
+            role.found(duplicateParameter);
         }
         else if(resultRole.get(parser, name, emptyTag))
         {
-            resultRole.iParamFound(duplicateParameter);
+            resultRole.found(duplicateParameter);
         }
         else if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4342,7 +4322,7 @@ CIMOpenAssociatorInstancePathsRequestMessage*
             parser, duplicateParameter, emptyTag);
     }
 
-    _testRequiredParametersExist(objectName.name(),objectName.got);
+    objectName.rejectIfNotExist();
 
     AutoPtr<CIMOpenAssociatorInstancePathsRequestMessage> request(
         new CIMOpenAssociatorInstancePathsRequestMessage(
@@ -4390,11 +4370,11 @@ CIMPullInstancesWithPathRequestMessage*
     {
        if(enumerationContext.get(parser, name, emptyTag))
         {
-            enumerationContext.iParamFound(duplicateParameter);
+            enumerationContext.found(duplicateParameter);
         }
         else if(maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4407,10 +4387,8 @@ CIMPullInstancesWithPathRequestMessage*
     }
 
     // test to be sure required parameters exist.
-    _testRequiredParametersExist(enumerationContext.name(),
-                                 enumerationContext.got);
-    _testRequiredParametersExist(maxObjectCount.name(),
-                                 maxObjectCount.got);
+    enumerationContext.rejectIfNotExist();
+    maxObjectCount.rejectIfNotExist();
 
     AutoPtr<CIMPullInstancesWithPathRequestMessage> request(
         new CIMPullInstancesWithPathRequestMessage(
@@ -4450,11 +4428,11 @@ CIMPullInstancePathsRequestMessage*
     {
        if(enumerationContext.get(parser, name, emptyTag))
         {
-            enumerationContext.iParamFound(duplicateParameter);
+            enumerationContext.found(duplicateParameter);
         }
         else if(maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4467,10 +4445,8 @@ CIMPullInstancePathsRequestMessage*
     }
 
     // test to be sure required parameters exist.
-    _testRequiredParametersExist(enumerationContext.name(),
-                                 enumerationContext.got);
-    _testRequiredParametersExist(maxObjectCount.name(),
-                                 maxObjectCount.got);
+    enumerationContext.rejectIfNotExist();
+    maxObjectCount.rejectIfNotExist();
 
     AutoPtr<CIMPullInstancePathsRequestMessage> request(
         new CIMPullInstancePathsRequestMessage(
@@ -4509,11 +4485,11 @@ CIMPullInstancesRequestMessage*
     {
        if(enumerationContext.get(parser, name, emptyTag))
         {
-            enumerationContext.iParamFound(duplicateParameter);
+            enumerationContext.found(duplicateParameter);
         }
         else if(maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {
@@ -4526,9 +4502,8 @@ CIMPullInstancesRequestMessage*
     }
 
     // test to be sure required parameters exist.
-    _testRequiredParametersExist(enumerationContext.name(),
-                                 enumerationContext.got);
-    _testRequiredParametersExist(maxObjectCount.name(),maxObjectCount.got);
+    enumerationContext.rejectIfNotExist();
+    maxObjectCount.rejectIfNotExist();
 
     AutoPtr<CIMPullInstancesRequestMessage> request(
         new CIMPullInstancesRequestMessage(
@@ -4677,31 +4652,31 @@ CIMOpenQueryInstancesRequestMessage*
         // [IN,OPTIONAL,NULL] string FilterQueryLanguage = NULL,
         if(filterQueryLanguage.get(parser, name, emptyTag))
         {
-            filterQueryLanguage.iParamFound(duplicateParameter);
+            filterQueryLanguage.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] string FilterQuery = NULL,
         else if(filterQuery.get(parser, name, emptyTag))
         {
-            filterQuery.iParamFound(duplicateParameter);
+            filterQuery.found(duplicateParameter);
         }
         else if (returnQueryResultClass.get(parser, name, emptyTag))
         {
-            returnQueryResultClass.iParamFound(duplicateParameter);
+            returnQueryResultClass.found(duplicateParameter);
         }
         // [IN,OPTIONAL] Boolean ContinueOnError = false,
         else if (continueOnError.get(parser, name, emptyTag))
         {
-            continueOnError.iParamFound(duplicateParameter);
+            continueOnError.found(duplicateParameter);
         }
         // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
         else if (operationTimeout.get(parser, name, emptyTag))
         {
-            operationTimeout.iParamFound(duplicateParameter);
+            operationTimeout.found(duplicateParameter);
         }
         // [IN,OPTIONAL] uint32 MaxObjectCount = 0
         else if (maxObjectCount.get(parser, name, emptyTag))
         {
-            maxObjectCount.iParamFound(duplicateParameter);
+            maxObjectCount.found(duplicateParameter);
         }
         else
         {

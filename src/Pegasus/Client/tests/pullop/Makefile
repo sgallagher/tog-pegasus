@@ -138,7 +138,7 @@ enumerateMaxObjectSizeVariations:
 	$(PROGRAM) e -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
 
 enumeratePathsMaxObjectSizeVariations:
-	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1 n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 2 -N 2 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)

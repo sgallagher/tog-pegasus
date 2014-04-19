@@ -2839,7 +2839,20 @@ en:table {
         */
         Server.CIMOperationRequestDecoder.MISSING_HOST_HEADER:string {"PGS05422: HTTP request message lacks a Host header field."}
 
+        /**
+        * @note  PGS05423:
+        *    Substitution {0} is the name of the missing required parameter(string)
+        */
+        Server.CIMOperationRequestDecoder.REQUIRED_PARAMATER_MISSING:string {"PGS05423: Required parameter \"{$0}\" missing from request."}
 
+
+        Server.CIMOperationRequestDecoder.DUPLICATE_PARAMETER:string {"PGS05424: Duplicated request input parameter."}
+
+        /**
+        * @note  PGS05425:
+        *    Substitution {0} is the name of the invalid parameter(string)
+        */
+        Server.CIMOperationRequestDecoder.INVALID_PARAMETER:string {"PGS05425: Unrecognized or invalid request input parameter \"{$0}\"."}
         // ==========================================================
         // Messages for CIMOperationRequestDispatcher
         //  Please use message prefix "PGS05600"

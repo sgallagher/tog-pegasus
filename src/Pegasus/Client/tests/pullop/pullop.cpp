@@ -1046,9 +1046,10 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
     // KS_TODO - Account for NULL expectedCount.
     if (!endOfSequence && (returnedCount < expectedCount))
     {
-        VCOUT2 << "WARN: Delivered less than requested instances. "
-             << " Expected " << expectedCount
-             << ". Delivered " << returnedCount << endl;
+        VCOUT2 << "WARN: This operation delivered less than requested"
+                  " instances. "
+             << " Expected: " << expectedCount
+             << ". Delivered: " << returnedCount << endl;
         warnings++;
         return false;
     }

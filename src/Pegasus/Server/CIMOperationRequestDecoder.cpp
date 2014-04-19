@@ -2447,6 +2447,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
         {
             _throwCIMExceptionInvalidIParamName(name);
         }
+
         // generate exception if endtag error or duplicate attributes
         _checkMissingEndTagOrDuplicateParamValue(
             parser, duplicateParameter, emptyTag);

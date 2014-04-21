@@ -2201,29 +2201,31 @@ private:
 // The second defines whether a value is required.
 // If true and there is no value, the XmlReader does an exception.
 //
-//// KS_TODO NEED REVIEW ON THIS ONE
-//// In particular the default value of value.
 class uint32ArgIParam : public baseIParam
 {
 public:
+    // Initally set to NULL. (Server sets timeout time)
     Uint32Arg value;
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is NULL if
     // no value is supplied.
     // @param name const char* with name of IParam to match
+    // The default for Uint32Args in general is NULL. If you want
+    // anything else, set it specifically
 
     uint32ArgIParam(const char* name): baseIParam(name),
-        value(0), _valueRequired(false) {}
-
+        _valueRequired(false) {}
 
     // constructor with definition of iParam name and default for the
     // required flag (false). Default value of parameter is integer defined
     // by supplied value.
     // @param name const char* with name of IParam to match
+    // @param valueArg Uint32 value to to which the uint32ArgIParam is
+    // set.
 
-    uint32ArgIParam(const char* name, Uint32 _value): baseIParam(name),
-        value(0), _valueRequired(false) {}
+    uint32ArgIParam(const char* name, Uint32 valueArg): baseIParam(name),
+        value(valueArg), _valueRequired(false) {}
 
     ~uint32ArgIParam(){}
 

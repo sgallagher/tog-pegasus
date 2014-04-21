@@ -571,28 +571,33 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // the maximum value for operationTimeout that will be accepted by
     // Pegasus. Anything larger than this will be rejected with the
     // error CIM_ERR_INVALID_OPERATION_TIMEOUT.
-    // This sets the time in seconds between
-    // the completion of one operation of an enumeration sequence and the
-    // recipt of another.  The server must maintain the context for at least
-    // the time defined in this value.
+    // This sets the time in seconds between  the completion of one operation
+    // of an enumeration sequence and the  recipt of the next request.
+    // The server must maintain the context for at least the time defined in
+    // this value.
     #ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
       _pullOperationMaxTimeout =
           PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
     #else
-      _pullOperationMaxTimeout = 15;
+      _pullOperationMaxTimeout = 30;
     #endif
 
+// Define the default value for timeout if the operationtimeout value received
+// in a request is NULL.  This is the server defined default.
+#define PULL_OPERATION_DEFAULT_TIMEOUT 15
+
     enumerationContextTable.setContextDefaultParameters(
-        _pullOperationMaxTimeout,
+        PULL_OPERATION_DEFAULT_TIMEOUT,
         responseCacheDefaultMaximumSize);
 
-    // Define the variable that controls whether we allow 0 as a pull
+    // Define  variable that controls whether we allow 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
     // that the server maintains no timer for the context, it may be the
-    // decision of some implementors to not allow this value.
+    // decision of most implementors to not allow this value.
 
+#define PEGASUS_PULL_OPERATION_REJECT_ZERO_TIMEOUT_VALUE
 #ifdef PEGASUS_PULL_OPERATION_REJECT_ZERO_TIMEOUT_VALUE
-    _rejectZeroOperationTimeoutValue = true
+    _rejectZeroOperationTimeoutValue = true;
 #else
     // Default setting if nothing supplied externally
     _rejectZeroOperationTimeoutValue = false;

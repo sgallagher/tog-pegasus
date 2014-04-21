@@ -12,7 +12,7 @@ TODO list:
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
       OOP right now.  Corrected by converting to XML. 
-   2. OpenExecQuery - Code is incorrect in that it does not include the
+   2. OpenExecQuery - Code is incomplete in that it does not include the
       return from the exec query function to the aggregator yet.
    3. Code for Pull part of OpenQueryInstancesRequest a) should be part of
       the common CIMOperationRequestDispatcher execCommon code.
@@ -23,34 +23,54 @@ TODO list:
    4. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration.  This should be discussed.  Am making
       this a separate bug.  See bug 9819 for the changes to cover this.
-   5. Decision on EnumerationContext timeout (separate thread or just
-      checks during other operations). Can we, in fact really keep the 
-      enumeration context table and queue under control without monitoring
-      with a separate thread. We must monitor for:
-      a. Client operation that stop requesting (i.e. inter operation time
-          exceeds operationTimeout). Note that if it simply exceeds the time
-          the next operation does the cleanup.  The issue is those clients that
-          simply stop and do not either close or go to completion.
-      b. We should protect against providers that no not every finish delivering
-          or take to long between deliveries.  This does not exist in Pegasus
-          today
-   6. Consider moving some of the code in dispatcher from templates to common
-      functions which would mean adding intermediate classes in CIMMessage but
-      would reduce code size.
-   7. Extension to avoid double move of objects in CIMResponseData (one
+   5. Consider moving some moreof the code in dispatcher from templates to
+      common functions which would mean adding intermediate classes in
+      CIMMessage but would reduce code size. Currently the change that
+      we should make for this is to create a new message CIMPullRequestData...
+      between CIMRequestDataMessage and the Pull requests since they all
+      have exactly the same input and output pararameters (The
+      CIMResponseData hides the response object differences)
+   6. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
       messages to include count and CIMResponse data to count objects out
-      of queue when converting (avoids the second move).  Big issue here
-      with binary data since need to extend format to count it.
-   8. NEXT TASKS: 
-      a. test the enumeration timeout thread
-      b. finish and test the OpenQueryInstances
+      of queue when converting (avoids the second move). This would mean
+      extending the output writers to allow the count field to be supplied
+      so they would only create output for up to the count supplied.
+   7. Add test for the 0 operationtimeout in PullErrors.
+   8. Add more static tests (currently only OpenEnumerateInstances is covered).
+   9. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
+      further since there is some overlap.  That is low priority.
+   10.Add exception for to many entries in EnumerationContextTable. The
+      test exists but is ignored right now.
+   7. NEXT TASKS: 
+      b. Finish and test the OpenQueryInstances
       c. Clean up TODOs
-      d. Find issue when we run makepoststarttests in pullop client with
-         forceProviderProcesses = true.  This causes an operation like
-         cimcli pei CIM_ManagedElement to not complete (client timeout)
-         sometimes.
+      d. Find issue that is causing occasional failures under load.  It
+         is probably a threading issue between the 3 possible threads
+	 that use the EnumerationContext (request thread, provider thread,
+	 timeout thread) and a place where not mutuxed.
+
+21 April 2014
+1. Reorganizzed code in CIMOperationRequestDecoder.cpp ...Iparam classes.
+   Cleaned up the rejectCIMException code.
+2. Cleanup some issues in the EnumerationContextTimeout Thread.
+3. Fixed issue in pullop where it was using zero as default for default
+   operation timeout where it should have been NULL, the DMTF specified
+   default.
+4. Enabled the test to reject 0 as operation timeout on a request and but
+   controled by a #define in CIMOperationRequestDispatcher.cpp
+5. Added test for excessive new OperationContext entries in table.
+
+18 April 2014
+1. Internationalize remaining messages in CIMOperationRequestDecoder.cpp and
+   clean up the decoders for some of the messages so they use the
+   ...Iparam classes.  Note that we did not clean up all of the old message
+   decoders, just the new ones and we did not clean up the Count message
+   since it is deprecated. TODO clean these up so the decoder is really
+   consistent.
+2. Enabled the EnumerationContext Timer and removed code for alternate
+   non-thread solution.
 
 17 April 2014
 1. Reorganized the lock/unlock for handling the EnumerationContext because

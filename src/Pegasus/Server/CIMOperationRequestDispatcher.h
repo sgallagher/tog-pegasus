@@ -965,6 +965,8 @@ protected:
     // a configuration parameter
     Boolean _rejectZeroOperationTimeoutValue;
 
+    // Value for maximum timeout for pull operations.  If this value is
+    // exceeded, the operation request will be rejected.
     Uint32 _pullOperationMaxTimeout;
 
     Uint32 _providerManagerServiceId;

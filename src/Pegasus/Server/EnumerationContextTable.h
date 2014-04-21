@@ -82,14 +82,15 @@ public:
     /**
        Set the default parameter values for Pull Operationsl.
 
-       @param  maxInteroperationTimeoutValue Uint32 Maximum time
-       between operations of a pull sequence before Server will
-       close the connection in seconds.
+       @param  defaultInteroperationTimeoutValue Uint32 default time
+       between operations of a pull sequence if the request has
+       this argument = NULL.
 
        @param responseCacheMaximumSize Uint32 Maximum number of
        objects in response queue before it backs up to providers
      */
-    void setContextDefaultParameters(Uint32 maxInteroperationTimeoutValue,
+    void setContextDefaultParameters(
+        Uint32 defaultInteroperationTimeoutValue,
         Uint32 reponseCacheMaximumSize);
 
     ~EnumerationContextTable();
@@ -145,12 +146,6 @@ public:
               in seconds.
     */
     void dispatchTimerThread(Uint32 interval);
-
-    /** Get the default value of the Pull minimum timeout.
-        @return Uint32 the minimum default pull timeout value.
-        TODO define units.
-     */
-    Uint32 getMinPullDefaultTimeout() const;
 
     /** Return true if the Timer Thread is idle (i.e. not running)
     */
@@ -241,10 +236,9 @@ private:
     // Systemwide highwater mark of number of objects in context cache
     Uint32 _cacheHighWaterMark;
 
-    // Maximum time interval allowed for interoperation timeout in seconds.
-    // Any interoperation times greater than this can cause exception returns
-    // and enumeration context close.
-    Uint32 _maxOperationTimeout;
+    // Default time interval allowed for interoperation timeout in seconds
+    // when NULL is specified in the request.
+    Uint32 _defaultOperationTimeout;
 
     // Count of enumerations Opened total
     Uint64 _enumerationContextsOpened;
@@ -291,11 +285,6 @@ inline void EnumerationContextTable::updateNextTimeout()
 inline Uint32 EnumerationContextTable::timoutInterval() const
 {
     return _timeoutInterval;
-}
-
-inline Uint32 EnumerationContextTable::getMinPullDefaultTimeout() const
-{
-    return _maxOperationTimeout;
 }
 
 inline Boolean EnumerationContextTable::isTimedOut() const

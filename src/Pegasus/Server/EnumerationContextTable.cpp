@@ -97,7 +97,7 @@ EnumerationContextTable::EnumerationContextTable()
     _nextTimeout(0),
     _responseCacheMaximumSize(0),
     _cacheHighWaterMark(0),
-    _maxOperationTimeout(0),
+    _defaultOperationTimeout(0),
     _enumerationContextsOpened(0),
     _enumerationsTimedOut(0),
     _maxSimultaneousContexts(0)
@@ -105,17 +105,17 @@ EnumerationContextTable::EnumerationContextTable()
     localEnumerationContextTable = this;
 }
 /*  Create the Enumeration table and set the values for
-    maximum InteroperationTimeOut and maximum size of the
+    InteroperationTimeOut and maximum size of the
     response Cache where objects are gathered from the
     providers to be distributed as pull client operations
     are processed.
 */
 void EnumerationContextTable::setContextDefaultParameters(
-    Uint32 maxInteroperationTimeoutValue,
+    Uint32 defaultInteroperationTimeoutValue,
     Uint32 reponseCacheMaximumSize)
 {
     _responseCacheMaximumSize = reponseCacheMaximumSize;
-    _maxOperationTimeout = maxInteroperationTimeoutValue;
+    _defaultOperationTimeout = defaultInteroperationTimeoutValue;
 }
 
 /* Remove all contexts and delete them. Only used on system shutdown.
@@ -150,17 +150,18 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     AutoMutex autoMut(tableLock);
 
-    // Arbitrary limit. No more than 1000 simultaneous contexts
-    if (ht.size() > 1000)
+    // Test for Max Number of simultaneous contexts.
+    if (ht.size() > _responseCacheMaximumSize)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "Error EnumerationContext Table exceeded Max limit of 1000" ));
+            "Error EnumerationContext Table exceeded Max limit of %u",
+             _responseCacheMaximumSize));
         return NULL;
     }
     // set the operation timeout to either the default or current
     // value
     Uint32 operationTimeout = (operationTimeoutParam.isNull())?
-        _maxOperationTimeout
+        _defaultOperationTimeout
         :
         operationTimeoutParam.getValue();
 
@@ -187,7 +188,8 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     enumCtxt->_enumerationContextName = cxtName;
 
-    // insert new context into the table
+    // insert new context into the table. Failure to insert is a
+    // system failure
     if(!ht.insert(cxtName, enumCtxt))
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
@@ -198,7 +200,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     }
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "CreateContext ContextId= %s", cxtName));
+        "CreateContext created ContextId= %s", cxtName));
 
     _enumerationContextsOpened++;
 
@@ -332,13 +334,10 @@ Boolean EnumerationContextTable::_removeContext(
         if (deleteContext)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "Deleting Context. id=%s",
+                "Delete Context. ContextId=%s",
                 (const char *)en->getName().getCString() ));
             delete en;
         }
-
-////      // KS_TODO - Diagnostic Temporary
-////      tableValidate();
 
         PEG_METHOD_EXIT();
         return true;
@@ -399,6 +398,8 @@ void EnumerationContextTable::removeExpiredContexts()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::removeExpiredContexts");
 
+    PEGASUS_DEBUG_ASSERT(valid());
+
     // Lock the EnumerationContextTable so no operations can be accepted
     // during this process
     AutoMutex autoMut(tableLock);
@@ -416,7 +417,8 @@ void EnumerationContextTable::removeExpiredContexts()
         if (en->_interOperationTimer != 0)
         {
             // Only set lock if there is a chance the timer is active.
-            // redoes the above test after setting lock
+            // redoes the above test after setting lock. Bypass if
+            // locked
             if (en->tryLockContext())
             {
                 PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,

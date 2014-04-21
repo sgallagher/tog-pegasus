@@ -241,11 +241,16 @@ String host_opt = "";
 String user_opt = "";
 String password_opt = "";
 
-// Spec default is null. We are using 0 for the moment.
-// should be without the (0) which would get null state.
-Uint32Arg timeout_opt(0);
+// DMTF Spec default for operationTimeout is NULL.
+// Definiton without the (0) defines the NULL state.
+// When the request argument is NULL, the  server selects the timeout
+// value.
+Uint32Arg interOperationTimeout_opt;
+
+// Defaults for max objects on open and pull when input options not set
 Uint32 maxObjectsOnOpen_opt = 16;
-Uint32 maxObjectsOnPull_opt =16;
+Uint32 maxObjectsOnPull_opt =20;
+
 String objectName_opt = "";
 bool compare_opt = false;
 Uint32 sleep_opt = 0;
@@ -1208,8 +1213,8 @@ Boolean compareObjectPaths(
         Uint32 errorCount = 0;
 
         VCOUT1 << "ERROR: count mismatch of ObjectPaths "
-            << s1 << " rtnd " <<  p1.size()
-            << s2 << " " << p2.size()
+            << s1 << " rtnd " <<  p1.size() << " "
+            << s2 << " rtnd " << p2.size()
             << endl;
 
         _Sort(p1);
@@ -1455,7 +1460,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                << " deepInheritance=" << _toString(deepInheritance)
                << " classOrigin=" << _toString(includeClassOrigin)
                << " propertyList=" << _toString(propertyList)
-               << " timeout=" << timeout_opt.toString()
+               << " operationTimeout=" << interOperationTimeout_opt.toString()
                << " filterQueryLanguage=" << filterQuery_opt
                << " filterQuery_opt=" << filterQuery_opt
                << " continueOnError=" << _toString(continueOnError_opt)
@@ -1481,7 +1486,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
             propertyList,
             filterQueryLanguage_opt,
             filterQuery_opt,
-            timeout_opt,
+            interOperationTimeout_opt,
             continueOnError_opt,
             maxObjectsOnOpen_opt);
 
@@ -1579,7 +1584,6 @@ void testPullEnumerationInstancePaths(CIMClient& client,
     {
         Uint32 maxObjectCount = maxObjectsOnOpen_opt;
         Boolean endOfSequence = false;
-        Uint32Arg operationTimeout(timeout_opt);
         String filterQueryLanguage = String::EMPTY;
         String filterQuery = String::EMPTY;
         Array<CIMObjectPath> cimObjectPaths;
@@ -1587,7 +1591,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
 
         VCOUT4 << "Issue openEnumerateInstancesPaths. maxObjectCount = "
             << maxObjectCount
-            << ". timeout = " << operationTimeout.toString()
+            << " operationTimeout = " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
                 << maxOperationsBeforeCloseCounter.toString()
             << endl;
@@ -1606,7 +1610,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
             ClassName,
             filterQueryLanguage_opt,
             filterQuery_opt,
-            operationTimeout,
+            interOperationTimeout_opt,
             continueOnError_opt,
             maxObjectCount);
 
@@ -1696,7 +1700,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         VCOUT4 << "Issue openReferencesInstances for " << objectPath
             << " maxObjects " << maxObjectsOnOpen_opt
             << " Instances."
-            << " timeout " << timeout_opt.toString()
+            << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
                 << maxOperationsBeforeCloseCounter.toString()
         << endl;
@@ -1719,7 +1723,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             cimPropertyList,
             filterQueryLanguage_opt,
             filterQuery_opt,
-            timeout_opt,
+            interOperationTimeout_opt,
             continueOnError_opt,
             maxObjectsOnOpen_opt
             );
@@ -1811,7 +1815,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
 
         VCOUT4 << "Issue openReferencePaths for instance paths. "
             << " maxObjectCount = " << maxObjectsOnOpen_opt
-            << " timeout " << timeout_opt.toString()
+            << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
                 << maxOperationsBeforeCloseCounter.toString()
             << endl;
@@ -1832,7 +1836,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
             role,
             filterQueryLanguage_opt,
             filterQuery_opt,
-            timeout_opt,
+            interOperationTimeout_opt,
             continueOnError_opt,
             maxObjectsOnOpen_opt
             );
@@ -1925,7 +1929,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         VCOUT4 << "Issue openAssociationInstances for " << objectPath
             << maxObjectCount << " Instances."
-            << " timeout " << timeout_opt.toString()
+            << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
                 << maxOperationsBeforeCloseCounter.toString()
             << endl;
@@ -1950,7 +1954,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
             cimPropertyList,
             filterQueryLanguage_opt,
             filterQuery_opt,
-            timeout_opt,
+            interOperationTimeout_opt,
             continueOnError_opt,
             maxObjectsOnOpen_opt
             );
@@ -2048,7 +2052,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
 
         VCOUT4 << "Issue openAssociatorInstancePaths for instance paths. "
             << " maxObjectCount = " << maxObjectsOnOpen_opt
-            << " timeout " << timeout_opt.toString()
+            << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
                 << maxOperationsBeforeCloseCounter.toString()
             << endl;
@@ -2071,7 +2075,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
             resultRole,
             filterQueryLanguage_opt,
             filterQuery_opt,
-            timeout_opt,
+            interOperationTimeout_opt,
             continueOnError_opt,
             maxObjectsOnOpen_opt
             );
@@ -2405,7 +2409,6 @@ int main(int argc, char** argv)
             }
             case 'M':           // set maxObjectsOnOpen operation parameter
             {
-                //// TODO Use the string conversion to get this right
                 maxObjectsOnOpen_opt = stringToUint32(optarg);
                 break;
             }
@@ -2419,19 +2422,19 @@ int main(int argc, char** argv)
                 compare_opt = true;
                 break;
             }
-            case 't':           // set pull timeout parameter
+            case 't':           // set interoperation timeout parameter
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
-                    timeout_opt.setNullValue();
+                    interOperationTimeout_opt.setNullValue();
                 }
                 else
                 {
-                    timeout_opt.setValue(stringToUint32(optarg));
+                    interOperationTimeout_opt.setValue(stringToUint32(optarg));
                 }
                 break;
             }
-            case 'T':
+            case 'T':           // flag to tell pullop to display timing of op
             {
                 timeOperation_opt = true;
                 break;

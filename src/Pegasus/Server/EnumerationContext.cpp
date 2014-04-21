@@ -121,20 +121,23 @@ void EnumerationContext::startTimer()
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::startTimer");
     PEGASUS_DEBUG_ASSERT(valid());
 
-    Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
-    _interOperationTimer = (_operationTimeoutSec == 0) ?
-        0 : currentTime + (_operationTimeoutSec * 1000000);
+    // Request operation timeout = 0 means do not start timer
+    if (_operationTimeoutSec != 0)
+    {
+        Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
 
-    _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
+        _interOperationTimer =  currentTime + (_operationTimeoutSec * 1000000);
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
-        "Start Timer. timeout = %lu Operation Timer %u sec."
-           " diff %ld Context %s",
-        (long unsigned int)_interOperationTimer,
-        _operationTimeoutSec,
-        (long signed int)(_interOperationTimer - currentTime),
-        (const char*)getName().getCString()));
+        _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
 
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
+            "Start Timer, ContextId= %s,"
+               " OperationTimeout= %u sec,"
+               " next timeout in %ld sec,",
+           (const char*)getName().getCString(),
+           _operationTimeoutSec,
+           (long signed int)(_interOperationTimer - currentTime)/1000000 ));
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -164,12 +167,13 @@ Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
     Boolean timedOut = (_interOperationTimer < currentTime)? true : false;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,      // KS_TEMP
-        "Context Timer. timer(sec) %lu"
-           "current set %lu diff %ld isTimedOut %s",
+        "Context Timer. ContextId= %s timer(sec)= %lu"
+           " current(sec)= %lu diff(sec)= %ld isTimedOut= %s",
+        (const char*)_enumerationContextName.getCString(),
         (long unsigned int)((_interOperationTimer / 1000000)),
         (long unsigned int)currentTime / 1000000,
         (long signed int)(_interOperationTimer - currentTime) / 1000000,
-        (timedOut? "true" : "false") ));
+        boolToString(timedOut) ));
 
     // If it is timed out, set it inactive.
     if (timedOut)
@@ -206,18 +210,18 @@ void EnumerationContext::trace()
     PEGASUS_DEBUG_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "EnumerationContext.ContextId=%s "
-        "namespace %s timeOut %lu operationTimer=%lu "
+        "namespace= %s requestOperationTimeOut= %lu operationTimer=%u sec "
         "continueOnError=%s pull msg Type=%s "
         "providers complete=%s "
         "closed=%s "
-        "timeOpen %lu millisec totalPullCount=%u "
+        "timeOpen= %lu millisec totalPullCount=%u "
         "cache highWaterMark=%u "
         "Request count=%u "
         "Returned Object Count=%u"
         "RequestedReturnedObjectCount=%u",
         (const char *)_enumerationContextName.getCString(),
         (const char *)_nameSpace.getString().getCString(),
-        (long unsigned int)_operationTimeoutSec,
+        _operationTimeoutSec,
         (long unsigned int)_interOperationTimer,
         boolToString(_continueOnError),
         MessageTypeToString(_pullRequestType),

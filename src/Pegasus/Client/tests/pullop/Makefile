@@ -78,7 +78,7 @@ errortests:
 	make maxPullObjectCountError
 
 poststarttests:
-	@$(ECHO)  Enumerate and EnumerateNames tests - get to Completion
+	@$(ECHO)  Enumerate and EnumerateNames tests go to Completion
 	make smallTestEnumerateInstances
 	make smallTestEnumerateInstanceNames
 	make peManagedElement
@@ -93,7 +93,7 @@ poststarttests:
 	make stressen1
 	make stressen2
 
-	@$(ECHO)  Associator and Reference tests - get to completion
+	@$(ECHO)  Associator and Reference tests got to completion
 	make SimpleRefAndAssoc
 	make SimpleAssociatorTest1
 	make SimpleAssociatorTest2

@@ -113,6 +113,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/Print.h>
 #include <Pegasus/Common/System.h>    // required for sleep function
+#include <Pegasus/Common/ArrayIterator.h>
 
 #include <execinfo.h>
 #include <stdio.h>
@@ -130,39 +131,7 @@ PEGASUS_USING_STD;
 //#define TRACE cout << "Line " << __LINE__ << endl;
 #define TRACE
 
-static const char * _toCharP(Boolean x)
-{
-    return (x? "true" : "false");
-}
-
-String _toString(Boolean x)
-{
-    return (x? "true" : "false");
-}
-
-// Convert a CIMPropertyList parameter to CIM String
-String _toString(const CIMPropertyList& pl)
-{
-    String rtn;
-    Array<CIMName> pls = pl.getPropertyNameArray();
-    if (pl.isNull())
-        return("NULL");
-
-    if (pl.size() == 0)
-        return("EMPTY");
-
-    for (Uint32 i = 0 ; i < pls.size() ; i++)
-    {
-        if (i != 0)
-        {
-            rtn.append(", ");
-        }
-        rtn.append(pls[i].getString());
-    }
-    return(rtn);
-}
-
-// Convert a CIMPropertyList parameter to CIM String
+// Convert the properties an instance to CIM String of properties
 String _toStringProperties(const CIMInstance& inst)
 {
     String rtn;
@@ -326,7 +295,8 @@ OPTIONS:\n\
                     If hostName specified witout port(default is 5988)\n\
     -u USER         String. Connect as this USER.\n\
     -p PASSWORD     String. Connect with this PASSWORD.\n\
-    -t TIMEOUT      Integer interoperation timeout. (Default 0)\n\
+    -t TIMEOUT      Integer interoperation timeout. (Default: NULL, set\n\
+                    by server)\n\
     -s seconds      Time to sleep between operations. Used to test timeouts\n\
     -T              Show results of detailed timing of the operations\n\
     -x              ContinueOnError flag set to true.\n\
@@ -1045,7 +1015,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
     // Display the returned counters and msg type
     VCOUT4 <<  op << " Requested = " << expectedCount
         << " Returned = " << returnedCount
-        << " endOfSequence = " << _toCharP(endOfSequence)
+        << " endOfSequence = " << boolToString(endOfSequence)
         << endl;
 
     // KS_TODO - Account for NULL expectedCount.
@@ -1072,18 +1042,20 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
 
 void displayInstances(const Array<CIMInstance>& instances)
 {
-    for (Uint32 i = 0; i < instances.size(); i++)
+    ConstArrayIterator<CIMInstance> iterator(instances);
+    for (Uint32 i = 0; i < iterator.size(); i++)
     {
-        cout << i << ". " << instances[i].getPath().toString()
+        cout << i << ". " << iterator[i].getPath().toString()
              << endl;
     }
 }
 
 void displayObjectPaths(const Array<CIMObjectPath>& paths)
 {
-    for (Uint32 i = 0; i < paths.size(); i++)
+    ConstArrayIterator<CIMObjectPath> iterator(paths);
+    for (Uint32 i = 0; i < iterator.size(); i++)
     {
-        cout << i << ". " << paths[i].toString()
+        cout << i << ". " << iterator[i].toString()
              << endl;
     }
 }
@@ -1115,10 +1087,12 @@ Boolean compareInstances(const String& s1, const String s2,
     //// TODO. We need to account that if there was a size difference
     //// above inst1 may not be the largest and that we may not have
     //// equal paths.
-    for (Uint32 i = 0 ; i < inst1.size() ; i++)
+
+    ConstArrayIterator<CIMInstance> iterator(inst1);
+    for (Uint32 i = 0 ; i < iterator.size() ; i++)
     {
         bool localRtn = compareInstance(s1, s2,
-            inst1[i], inst2[i], true, verbose);
+            iterator[i], inst2[i], true, verbose);
 
         if (!localRtn)
         {
@@ -1130,6 +1104,71 @@ Boolean compareInstances(const String& s1, const String s2,
     return rtn;
 }
 
+Boolean testForCorrectProperties(const CIMInstance inst)
+{
+    Uint32 foundCount = 0;
+    for (Uint32 i = 0; i < propertyList_opt.size(); i++)
+    {
+        if (!inst.findProperty(propertyList_opt[i]))
+        {
+            cerr << "WARNING: Property " << propertyList_opt[i].getString()
+                 << " expected but not found" << endl;
+            warnings++;
+        }
+        else
+        {
+            foundCount++;
+        }
+    }
+    if (foundCount != inst.getPropertyCount())
+    {
+        cerr << "WARNING: mismatch between property list and"
+            << "instance properties" << endl;
+        warnings++;
+        return false;
+    }
+    return true;
+}
+Boolean testForCorrectProperties(Array<CIMInstance> instances)
+{
+    Uint32 localErrors = 0;
+    if (propertyList_opt.isNull())
+    {
+        return true;
+    }
+    if (propertyList_opt.size() == 0)
+    {
+        ConstArrayIterator<CIMInstance> iterator(instances);
+        for (Uint32 i = 0; i < iterator.size(); i++)
+        {
+            if (iterator[i].getPropertyCount() != 0)
+            {
+                cerr << "ERROR: Instance " << instances[i].getPath().toString()
+                    << " contains properties when none requested."
+                    << endl;
+                errors++;
+                localErrors++;
+            }
+        }
+    }
+    else
+    {
+        ConstArrayIterator<CIMInstance> iterator(instances);
+        for (Uint32 i = 0; i < iterator.size(); i++)
+        {
+            if (iterator[i].getPropertyCount() != propertyList_opt.size())
+            {
+                cerr << "ERROR: Instance " << iterator[i].getPath().toString()
+                     << " and propertyList do not match"
+                     << endl;
+                errors++;
+                localErrors++;
+                testForCorrectProperties(instances[i]);
+            }
+        }
+    }
+    return (localErrors=0? true: false);
+}
 /*
     Alternate compare between an instance array and object array.
     Required because the original operations returned objects and the
@@ -1222,9 +1261,11 @@ Boolean compareObjectPaths(
 
         if (p1.size() > p2.size())
         {
-            for (Uint32 i = 0; i < p1.size(); i++)
+
+            ConstArrayIterator<CIMObjectPath> iterator(p1);
+            for (Uint32 i = 0; i < iterator.size(); i++)
             {
-                if (!_contains(p2, p1[i],ignoreHost))
+                if (!_contains(p2, iterator[i],ignoreHost))
                 {
                     errorCount++;
                 }
@@ -1232,9 +1273,11 @@ Boolean compareObjectPaths(
         }
         else
         {
-            for (Uint32 i = 0; i < p2.size(); i++)
+
+            ConstArrayIterator<CIMObjectPath> iterator(p2);
+            for (Uint32 i = 0; i < iterator.size(); i++)
             {
-                if (!_contains(p1, p2[i], ignoreHost))
+                if (!_contains(p1, iterator[i], ignoreHost))
                 {
                     errorCount++;
                 }
@@ -1282,7 +1325,7 @@ void displayRtnSizes(const char * op, Uint32Arg& maxObjectCount,
 {
     VCOUT4 <<  op << " Requested " << maxObjectCount.toString()
         << " Returned " << returnedSize
-        << " endOfSequence = " << _toCharP(endOfSequence)
+        << " endOfSequence = " << boolToString(endOfSequence)
         << endl;
 }
 /******************************************************************************
@@ -1338,7 +1381,7 @@ bool pullInstancePaths(CIMClient& client,
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
              << openOpName << ". Total Received count " << resultArray.size()
-             << " endOfSequence before close=" << _toCharP(endOfSequence)
+             << " endOfSequence before close=" << boolToString(endOfSequence)
              << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
@@ -1347,7 +1390,7 @@ bool pullInstancePaths(CIMClient& client,
     else
     {
         VCOUT4 << "Total ObjectPaths count=" << resultArray.size()
-             << "endOfSequence=" << _toCharP(endOfSequence) << endl;
+             << "endOfSequence=" << boolToString(endOfSequence) << endl;
         if (verbose_opt >= 7)
         {
             displayObjectPaths(resultArray);
@@ -1387,7 +1430,7 @@ bool pullInstancesWithPath(CIMClient& client,
     {
         VCOUT4 << "Issue closeEnumeration Operation for "
              << openOpName << ". Total Received count " << resultArray.size()
-             << " endOfSequence before close=" << _toCharP(endOfSequence)
+             << " endOfSequence before close=" << boolToString(endOfSequence)
              << endl;
         timer.start();
         client.closeEnumeration(enumerationContext);
@@ -1396,7 +1439,7 @@ bool pullInstancesWithPath(CIMClient& client,
     else
     {
         VCOUT4 << "Total Instances count= " << resultArray.size()
-          << " endOfSequence= " << _toCharP(endOfSequence)<< endl;
+          << " endOfSequence= " << boolToString(endOfSequence)<< endl;
         if (verbose_opt >= 7)
         {
             displayInstances(resultArray);
@@ -1457,13 +1500,13 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
 
         VCOUT4 << "Issue openEnumerateInstances " << ClassName
                << " namespace=" << nameSpace.getString()
-               << " deepInheritance=" << _toString(deepInheritance)
-               << " classOrigin=" << _toString(includeClassOrigin)
-               << " propertyList=" << _toString(propertyList)
+               << " deepInheritance=" << boolToString(deepInheritance)
+               << " classOrigin=" << boolToString(includeClassOrigin)
+               << " propertyList=" << propertyList.toString()
                << " operationTimeout=" << interOperationTimeout_opt.toString()
                << " filterQueryLanguage=" << filterQuery_opt
                << " filterQuery_opt=" << filterQuery_opt
-               << " continueOnError=" << _toString(continueOnError_opt)
+               << " continueOnError=" << boolToString(continueOnError_opt)
                << " maxObjectsOnOpen=" << maxObjectsOnOpen_opt
                << " maxCountBeforeClose for Operation "
                    << maxOperationsBeforeCloseCounter.toString()
@@ -1533,6 +1576,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                    << enumeratedInstances.size()
                    << " instances" << endl;
 
+            testForCorrectProperties(pulledInstances);
             compareInstances("PullnstancesWithPath",
                              "EnumerateInstances  ",
                              pulledInstances, enumeratedInstances);
@@ -2302,7 +2346,7 @@ int main(int argc, char** argv)
         array of property names that is applied at the
         propertylist for the operation.
     */
-    Array<CIMName> propertyList_builder;
+    Array<CIMName> propertyListBuilder;
 
     /*
         Analyze and set all input options. uses getopt so, by definition
@@ -2378,13 +2422,12 @@ int main(int argc, char** argv)
             {
                 if (strlen(optarg) == 0)
                 {
-                    propertyList_builder.clear();
+                    propertyListBuilder.clear();
                 }
                 else
                 {
-                    propertyList_builder.append(optarg);
+                    propertyListBuilder.append(optarg);
                 }
-                propertyList_opt.set(propertyList_builder);
                 break;
             }
             case 'n':               // set namespace
@@ -2538,6 +2581,14 @@ int main(int argc, char** argv)
         fprintf(stderr, (char *)USAGE, arg0);
         exit(1);
     }
+
+        propertyList_opt.set(propertyListBuilder);
+
+    if (propertyList_opt.size() != 0)
+    {
+        VCOUT1 << "PropertyList= " << propertyList_opt.toString() << endl;
+    }
+
     // conditional display of input parameters
     VCOUT1 << "START " << arg0 << " " << argvParams << endl;
 
@@ -2601,6 +2652,7 @@ int main(int argc, char** argv)
         nameSpace = namespace_opt;
     }
 
+    // Execute the operation defined by the operation input argument
     try
     {
         if (operation == "e")

@@ -306,7 +306,7 @@ Boolean EnumerationContextTable::_removeContext(
     if (en->_clientClosed && en->_providersComplete)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-            "EnumerationContext Remove. ContextId= %s. delete= %s",
+            "EnumerationContext Remove. ContextId=%s. delete=%s",
             (const char *)en->getName().getCString(),
             boolToString(deleteContext) ));
 
@@ -324,8 +324,8 @@ Boolean EnumerationContextTable::_removeContext(
         if (en->responseCacheSize() != 0)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "ERROR. Cache != 0 EnumerationContext Remove. ContextId= %s "
-                " size = %u",
+                "ERROR. Cache != 0 EnumerationContext Remove. ContextId=%s "
+                " size =%u",
                 (const char *)en->getName().getCString(),
                 en->responseCacheSize() ));
         }
@@ -486,6 +486,7 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
 
     AutoMutex autoMut(tableLock);
 
+    // If the timer thread is idle, start it.
     if (timerThreadIdle())
     {
         // convert second timer to milliseconds and set it for double
@@ -512,8 +513,6 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 parms);
             PEGASUS_ASSERT(false);
-            PEG_METHOD_EXIT();
-            return;
         }
     }
     PEG_METHOD_EXIT();

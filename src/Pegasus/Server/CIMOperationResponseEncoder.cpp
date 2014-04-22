@@ -776,6 +776,10 @@ void CIMOperationResponseEncoder::encodeOpenEnumerateInstancesResponse(
         // operation.
         response->getResponseData().encodeXmlResponse(body, true);
     }
+    else
+    {
+        response->endOfSequence = true;
+    }
 
     // Add return elements, endOfSequence and context
     _appendPullResponseParameters(rtnParamBody,

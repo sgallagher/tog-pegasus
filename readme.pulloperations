@@ -23,7 +23,7 @@ TODO list:
    4. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration.  This should be discussed.  Am making
       this a separate bug.  See bug 9819 for the changes to cover this.
-   5. Consider moving some moreof the code in dispatcher from templates to
+   5. Consider moving some more of the code in dispatcher from templates to
       common functions which would mean adding intermediate classes in
       CIMMessage but would reduce code size. Currently the change that
       we should make for this is to create a new message CIMPullRequestData...
@@ -37,7 +37,7 @@ TODO list:
       of queue when converting (avoids the second move). This would mean
       extending the output writers to allow the count field to be supplied
       so they would only create output for up to the count supplied.
-   7. Add test for the 0 operationtimeout in PullErrors.
+   7. Add test for the 0 operation timeout in PullErrors.
    8. Add more static tests (currently only OpenEnumerateInstances is covered).
    9. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
       further since there is some overlap.  That is low priority.
@@ -49,8 +49,13 @@ TODO list:
       d. Find issue that is causing occasional failures under load.  It
          is probably a threading issue between the 3 possible threads
 	 that use the EnumerationContext (request thread, provider thread,
-	 timeout thread) and a place where not mutuxed.
+	 timeout thread) and a place where not mutuxed, primarily the
+	 timeout thread.
 
+22 April 2014
+1. Clean up some messages.
+2. Still trying to find issue that randomly keeps messages in timeout
+   queue long after they have been closed and returned.
 21 April 2014
 1. Reorganizzed code in CIMOperationRequestDecoder.cpp ...Iparam classes.
    Cleaned up the rejectCIMException code.

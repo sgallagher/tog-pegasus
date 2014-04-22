@@ -131,8 +131,8 @@ void EnumerationContext::startTimer()
         _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
-            "Start Timer, ContextId= %s,"
-               " OperationTimeout= %u sec,"
+            "StartTimer, ContextId=%s,"
+               " OperationTimeout=%u sec,"
                " next timeout in %ld sec,",
            (const char*)getName().getCString(),
            _operationTimeoutSec,
@@ -145,6 +145,15 @@ void EnumerationContext::stopTimer()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::stopTimer");
     PEGASUS_DEBUG_ASSERT(valid());
+
+    Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP
+        "StopTimer, ContextId=%s,"
+           " OperationTimeout= %u sec,"
+           " next timeout in %ld sec,",
+       (const char*)getName().getCString(),
+       _operationTimeoutSec,
+       (long signed int)(_interOperationTimer - currentTime)/1000000 ));
 
     _interOperationTimer = 0;
     PEG_METHOD_EXIT();
@@ -190,7 +199,7 @@ Boolean EnumerationContext::isTimedOut()
 }
 
 // FUTURE: In future consider list of exceptions since there may be
-// multiples.
+// multiples.  For the moment, last error wins.
 void EnumerationContext::setErrorState(CIMException x)
 {
     PEGASUS_DEBUG_ASSERT(valid());
@@ -210,15 +219,19 @@ void EnumerationContext::trace()
     PEGASUS_DEBUG_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "EnumerationContext.ContextId=%s "
-        "namespace= %s requestOperationTimeOut= %lu operationTimer=%u sec "
-        "continueOnError=%s pull msg Type=%s "
+        "namespace= %s "
+        "requestOperationTimeOut= %u "
+        "operationTimer=%lu sec "
+        "continueOnError=%s "
+        "pull msg Type=%s "
         "providers complete=%s "
         "closed=%s "
-        "timeOpen= %lu millisec totalPullCount=%u "
-        "cache highWaterMark=%u "
+        "timeOpen=%lu millisec "
+        "totalPullCount=%u "
+        "cacheHighWaterMark=%u "
         "Request count=%u "
-        "Returned Object Count=%u"
-        "RequestedReturnedObjectCount=%u",
+        "ResponseObjectCount=%u "
+        "RequestedResponseObjectCount=%u",
         (const char *)_enumerationContextName.getCString(),
         (const char *)_nameSpace.getString().getCString(),
         _operationTimeoutSec,
@@ -227,13 +240,13 @@ void EnumerationContext::trace()
         MessageTypeToString(_pullRequestType),
         boolToString(_providersComplete),
         boolToString(_clientClosed),
-        (long unsigned int)
-            (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
+       (long unsigned int)
+           (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
         _pullOperationCounter,
         _cacheHighWaterMark,
         _requestCount,
         _responseObjectsCount,
-        _requestedResponseObjectsCount));
+        _requestedResponseObjectsCount ));
 }
 
 /**
@@ -301,8 +314,9 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 
     from.traceResponseData();
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-        "Enter putCache,  isComplete= %s ResponseDataType= %u "
+        "Before putCache, ContextId=%s  isComplete= %s ResponseDataType= %u "
             " cache size= %u put size= %u clientClosed= %s",
+        (const char*)getName().getCString(),
         boolToString(providersComplete), to.getResponseDataContent(),
         to.size(), from.size(),
         boolToString(_clientClosed)));
@@ -313,19 +327,12 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     if (_clientClosed)
     {
         return false;
-////      // If providers are complete, do not queue this response. If providers
-////      // are not complete, the providers will continue to generate
-////      // responses but they are discarded above here.
-////      if (providersComplete)
-////      {
-////      }
     }
     else  // client not closed
     {
         // put the current response into the cache. Lock cache for this
         // operation
 
-////      _responseCacheMutex.lock();
         to.appendResponseData(from);
 
         // set providersComplete flag from flag in call parameter.
@@ -336,21 +343,10 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
         {
             _cacheHighWaterMark = responseCacheSize();
         }
-////      _responseCacheMutex.unlock();
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "After putCache insert responseCacheSize %u. CIMResponseData"
-                " size %u",
-            responseCacheSize(), to.size() ));
-
-        if (!_providersComplete)
-        {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-                "After putCache providers wait end ProviderLimitCondition Not "
-                "complete insert responseCacheSize %u. CIMResponseData size %u."
-                " signal CacheSizeConditon responseCacheMaximumSize %u.",
-                responseCacheSize(), to.size(), _responseCacheMaximumSize));
-        }
+            "putCache ContextId=%s inserted. responseCache size=%u",
+             (const char*)getName().getCString(), responseCacheSize()  ));
     }
 
     // Return true indicating that input added to cache and cache is still open
@@ -435,8 +431,8 @@ Boolean EnumerationContext::testCacheForResponses(
         rtn = true;
     }
     // If cache has enough objects return true
-    //// FUTURE - Which should have priority, response or error.
-    //// If error, put the errorState test here.
+    // FUTURE - Which should have priority, response or error.
+    // If error, put the errorState test here. Priority not Documented in Spec.
     else if (requiresAll && (responseCacheSize() >= operationMaxObjectCount))
     {
         rtn = true;
@@ -470,9 +466,9 @@ void EnumerationContext::saveNextResponse(
     Uint32 operationMaxObjectCount)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::setupFutureResponse");
-    // Since this also flag, it MUST BE empty when this function
+    // Since _savedRequest is also flag, it MUST BE empty when this function
     // called.
-    PEGASUS_ASSERT(_savedRequest == NULL);
+    PEGASUS_DEBUG_ASSERT(_savedRequest == NULL);
 
     _savedOperationMaxObjectCount = operationMaxObjectCount;
     _savedResponse = response;
@@ -484,9 +480,7 @@ void EnumerationContext::saveNextResponse(
     Move the number of objects defined by count from the CIMResponseData
     cache for this EnumerationContext to theCIMResponseData object
     defined by the input parameter.
-////  The wait function is called before removing items from the cache and
-////  only completes when a. there are sufficient objects, b. the providers
-////  have completed, c. an error has occurred.
+
     Returns true if data acquired from cache. Returns false if CIMException
     found (i.e. returned an error).
     KS_TODO - Cover issue of nothing in the cache or document it
@@ -509,9 +503,6 @@ Boolean EnumerationContext::getCache(
     {
         return false;
     }
-
-    // Lock the cache for the move function
-////  AutoMutex autoMut(_responseCacheMutex);
 
     // Move the defined number of objects from the cache to the return object.
     rtnData.moveObjects(_responseCache, count);
@@ -593,6 +584,7 @@ Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::incAndTestPullCounters");
     PEGASUS_DEBUG_ASSERT(valid());
+
     _pullOperationCounter++;
 
     if (isZeroLength)
@@ -649,6 +641,8 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
         return true;
     }
 
+    // Otherwise, set processing state to inactive and start operation
+    // timer
     setProcessingState(false);
 
     return false;
@@ -662,6 +656,12 @@ void EnumerationContext::setClientClosed()
     PEGASUS_DEBUG_ASSERT(valid());
 
     _clientClosed = true;
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+        "setClientClosed. ContextId=%s ",
+        (const char*)getName().getCString() ));
+
+    trace(); // KS_TODO Delete this and above temp diagnostic only
 
     if (!_providersComplete)
     {
@@ -679,6 +679,11 @@ void EnumerationContext::setProcessingState(Boolean state)
 {
     // Diagnostic to confirm we are changing state
     PEGASUS_ASSERT(_processing != state);
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+        "setProcessingState. ContextId=%s nextProcessingStat=%s",
+        (const char*)getName().getCString(),
+        (state? "active" : "not active") ));
 
     _processing = state;
     if (_processing)

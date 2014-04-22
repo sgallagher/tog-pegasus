@@ -503,7 +503,7 @@ testEnumSequence::testEnumSequence(CIMClient& client, const char*nameSpace):
     _cimObjectName(),
     _deepInheritance(true),
     _includeClassOrigin(false),
-    _operationTimeout(0),
+    _operationTimeout(25),
     _continueOnError(false),
     _maxObjectCount(100),
 

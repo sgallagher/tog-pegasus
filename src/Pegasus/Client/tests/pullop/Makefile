@@ -246,9 +246,12 @@ enumerateEmptyResponse:
 ## Calling the invoke method before starting each test forces
 ## the provider to be loaded which eliminates startup differences.
 ## stresse1 object size 10,000, response coutn 10,000
+## Do not include interval as a property in the response because it
+## can differ between requests.
 stresse1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
+	    -y 120 \
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
 
@@ -345,7 +348,7 @@ testtimeout:
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -s 10 -R $(HOSTID)
 
 #################################
-#### timeout test. Set count on maxObjectCount for pull operations to zero
+#### zeroRequest test. Set count on maxObjectCount for pull operations to zero
 #### Should get exception after about 1000 pull requests.
 testexceedMaxObjectCountLimit:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)

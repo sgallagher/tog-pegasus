@@ -2882,9 +2882,9 @@ en:table {
         */
         Server.CIMOperationRequestDispatcher.REQUEST_CLASS_NOT_SUPPORTED:string {"PGS05604: No provider or Repository defined for class {0}."}
 
-        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_TIMED_OUT:string {"PGS05605: Enumeration Context Timed out."}
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_TIMED_OUT:string {"PGS05605: Enumeration Context timed out before request received."}
 
-        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_CLOSED:string {"PGS05606: Enumeration context closed."}
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_CLOSED:string {"PGS05606: Enumeration context closed when request received."}
 
         Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_UNDEFINED:string {"PGS05607: Enumeration context undefined."}
 

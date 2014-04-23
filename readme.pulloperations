@@ -37,13 +37,19 @@ TODO list:
       of queue when converting (avoids the second move). This would mean
       extending the output writers to allow the count field to be supplied
       so they would only create output for up to the count supplied.
-   7. Add test for the 0 operation timeout in PullErrors.
-   8. Add more static tests (currently only OpenEnumerateInstances is covered).
-   9. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
+   9. Add more static tests (currently only OpenEnumerateInstances is covered).
+      Low priority because most of this except exact XML covered in other
+      tests.
+   10. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
       further since there is some overlap.  That is low priority.
-   10.Add exception for to many entries in EnumerationContextTable. The
+   12.Add exception for to many entries in EnumerationContextTable. The
       test exists but is ignored right now.
-   7. NEXT TASKS: 
+   12. Correct issue between operations and HTTP where we are sending
+      trailers with exceptions.  Also correct issue where we are
+      sending endOfSequence and EnumerationContext in response when
+      we send CIMException.
+
+   NEXT TASKS: 
       b. Finish and test the OpenQueryInstances
       c. Clean up TODOs
       d. Find issue that is causing occasional failures under load.  It
@@ -57,6 +63,11 @@ TODO list:
 2. Still trying to find issue that randomly keeps messages in timeout
    queue long after they have been closed and returned.
 3. Fixed memory loss error.
+4. Added zero reject for OperationTimeout because that effectively disables
+   the whole timeout mechanism so that enumerations could be started, never
+   completed by the client and would just hang around in memory. That
+   would be a significant DDOS attack (start very large enum with no
+   timeout) and never do pulls after open.
 
 21 April 2014
 1. Reorganizzed code in CIMOperationRequestDecoder.cpp ...Iparam classes.

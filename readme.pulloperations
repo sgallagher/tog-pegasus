@@ -56,6 +56,8 @@ TODO list:
 1. Clean up some messages.
 2. Still trying to find issue that randomly keeps messages in timeout
    queue long after they have been closed and returned.
+3. Fixed memory loss error.
+
 21 April 2014
 1. Reorganizzed code in CIMOperationRequestDecoder.cpp ...Iparam classes.
    Cleaned up the rejectCIMException code.

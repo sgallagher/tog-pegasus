@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Test with ContinueOnError True - Returns Error -->
+<!-- Test with ContinueOnError False, no OperationTimeout.. Expected good response No data -->
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="61005" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="62004" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="OpenEnumerateInstances">
+      <IMETHODCALL NAME="OpenEnumerateInstancePaths">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="test"/>
           <NAMESPACE NAME="static"/>
@@ -13,7 +13,12 @@
         </IPARAMVALUE>
         <IPARAMVALUE NAME="ContinueOnError">
           <VALUE>
-            true
+            false
+          </VALUE>
+        </IPARAMVALUE>
+        <IPARAMVALUE NAME="MaxObjectCount">
+          <VALUE>
+            1
           </VALUE>
         </IPARAMVALUE>
       </IMETHODCALL>

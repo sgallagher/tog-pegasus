@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Test with ContinueOnError True - Returns Error -->
+<!-- Test Error OperationTimeout no value  Element -->
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="61005" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="62001" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="OpenEnumerateInstances">
+      <IMETHODCALL NAME="OpenEnumerateInstancePaths">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="test"/>
           <NAMESPACE NAME="static"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ClassName">
-          <CLASSNAME NAME="CIM_ConcreteJob"/>
+          <CLASSNAME NAME="PG_TestPropertyTypes"/>
         </IPARAMVALUE>
-        <IPARAMVALUE NAME="ContinueOnError">
+        <IPARAMVALUE NAME="MaxObjectCount">
           <VALUE>
-            true
+            12
           </VALUE>
+        </IPARAMVALUE>
+        <IPARAMVALUE NAME="OperationTimeout">
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>
   </MESSAGE>
 </CIM>
+

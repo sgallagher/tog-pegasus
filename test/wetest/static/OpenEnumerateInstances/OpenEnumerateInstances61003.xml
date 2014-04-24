@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Test Simple Single Object Response with MaxObjectCout and Timeout. Successful return empty -->
+<!-- Test Simple  Response with MaxObjectCount and Timeout. Successful return empty -->
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="61000" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="61003" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="OpenEnumerateInstances">
         <LOCALNAMESPACEPATH>

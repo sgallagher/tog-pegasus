@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Test with ContinueOnError False -->
+<!-- Test with ContinueOnError False, no OperationTimeout.. Expected good response No data -->
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="61000" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="61004" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="OpenEnumerateInstances">
         <LOCALNAMESPACEPATH>

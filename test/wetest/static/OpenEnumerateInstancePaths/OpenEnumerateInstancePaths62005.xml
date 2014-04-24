@@ -3,7 +3,7 @@
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
   <MESSAGE ID="61005" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="OpenEnumerateInstances">
+      <IMETHODCALL NAME="OpenEnumerateInstancePaths">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="test"/>
           <NAMESPACE NAME="static"/>

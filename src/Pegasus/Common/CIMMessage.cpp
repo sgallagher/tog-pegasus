@@ -2116,7 +2116,7 @@ CIMNotifyListenerNotActiveResponseMessage::
 }
 
 // EXP_PULL_BEGIN
-CIMPullResponseDataMessage::CIMPullResponseDataMessage(
+CIMOpenOrPullResponseDataMessage::CIMOpenOrPullResponseDataMessage(
     MessageType type_,
     const String& messageId_,
     const CIMException& cimException_,
@@ -2140,7 +2140,8 @@ CIMOpenEnumerateInstancesResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+    : CIMOpenOrPullResponseDataMessage(
+        CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCES,
         endOfSequence_, enumerationContext_)
 
@@ -2155,7 +2156,7 @@ CIMOpenEnumerateInstancePathsResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(
+    : CIMOpenOrPullResponseDataMessage(
         CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTNAMES,
         endOfSequence_, enumerationContext_)
@@ -2170,7 +2171,8 @@ CIMOpenReferenceInstancesResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE,
+    : CIMOpenOrPullResponseDataMessage(
+        CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_, CIMResponseData::RESP_OBJECTS,
         endOfSequence_, enumerationContext_)
     {
@@ -2184,7 +2186,7 @@ CIMOpenReferenceInstancePathsResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(
+    : CIMOpenOrPullResponseDataMessage(
         CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS,
         endOfSequence_, enumerationContext_)
@@ -2199,7 +2201,8 @@ CIMOpenAssociatorInstancesResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE,
+    : CIMOpenOrPullResponseDataMessage(
+        CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTS,
         endOfSequence_, enumerationContext_)
     {
@@ -2213,7 +2216,7 @@ CIMOpenAssociatorInstancePathsResponseMessage::
         const Boolean endOfSequence_ ,
         const String& enumerationContext_
         )
-    :CIMPullResponseDataMessage(
+    :CIMOpenOrPullResponseDataMessage(
         CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS,
         endOfSequence_, enumerationContext_)
@@ -2228,7 +2231,8 @@ CIMPullInstancesWithPathResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE,
+    : CIMOpenOrPullResponseDataMessage(
+        CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES,
         endOfSequence_, enumerationContext_)
     {
@@ -2241,7 +2245,7 @@ CIMPullInstancePathsResponseMessage::
         const QueueIdStack& queueIds_,
         const Boolean endOfSequence_,
         const String& enumerationContext_)
-    : CIMPullResponseDataMessage(CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE,
+    : CIMOpenOrPullResponseDataMessage(CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_OBJECTPATHS,
         endOfSequence_, enumerationContext_)
     {
@@ -2255,7 +2259,7 @@ CIMPullInstancesResponseMessage::
         const Boolean endOfSequence_,
         const String& enumerationContext_
         )
-    : CIMPullResponseDataMessage(CIM_PULL_INSTANCES_RESPONSE_MESSAGE,
+    : CIMOpenOrPullResponseDataMessage(CIM_PULL_INSTANCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES,
         endOfSequence_, enumerationContext_)
     {

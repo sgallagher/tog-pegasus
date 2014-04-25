@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Test with ContinueOnError True - Returns Error -->
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="61005" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="62005" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="OpenEnumerateInstancePaths">
         <LOCALNAMESPACEPATH>

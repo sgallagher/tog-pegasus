@@ -167,7 +167,8 @@ void EnumerationContext::stopTimer()
 */
 Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
 {
-    PEGASUS_ASSERT(valid());            // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
+
     if (_interOperationTimer == 0)
     {
             return false;
@@ -218,13 +219,13 @@ void EnumerationContext::trace()
 {
     PEGASUS_DEBUG_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "EnumerationContext.ContextId=%s "
+        "EnumerationContextTrace ContextId=%s "
         "namespace= %s "
         "requestOperationTimeOut= %u "
         "operationTimer=%lu sec "
         "continueOnError=%s "
-        "pull msg Type=%s "
-        "providers complete=%s "
+        "pullMsgType=%s "
+        "providersComplete=%s "
         "closed=%s "
         "timeOpen=%lu millisec "
         "totalPullCount=%u "
@@ -462,10 +463,11 @@ Boolean EnumerationContext::testCacheForResponses(
 
 void EnumerationContext::saveNextResponse(
     CIMOperationRequestMessage* request,
-    CIMPullResponseDataMessage* response,
+    CIMOpenOrPullResponseDataMessage* response,
     Uint32 operationMaxObjectCount)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::setupFutureResponse");
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::saveNextResponse");
+
     // Since _savedRequest is also flag, it MUST BE empty when this function
     // called.
     PEGASUS_DEBUG_ASSERT(_savedRequest == NULL);
@@ -541,7 +543,7 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::waitProviderLimitCondition");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     _providerLimitConditionMutex.lock();
 
@@ -597,6 +599,7 @@ Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
         return false;
     }
 
+    PEG_METHOD_EXIT();
     return (_consecutiveZeroLenMaxObjectRequestCounter <=
              MAX_ZERO_PULL_OPERATIONS);
 }
@@ -619,8 +622,6 @@ void EnumerationContext::setProvidersComplete()
 // If providers Complete and  cache = 0. We can now close the enumeration.
 // If no more from providers and no more in cache, we set the client closed
 //
-// TODO Is the responseCacheSize sufficient or could something be stuck between
-// providers complete, etc.
 // Returns true if there is no more to process (providers are complete and
 // responseCacheSize = 0). Returns false if providers not complete or
 // there is data in the cache
@@ -631,6 +632,22 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
         "EnumerationContext::setNextEnumerationState");
 
     PEGASUS_DEBUG_ASSERT(valid());
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP DELETE
+    "setNextEnumerationState. "
+    "ContextId=%s "
+    "Complete test=%s "
+    "providersComplete=%s "
+    "responseCacheSize=%u "
+    "errorFound=%s "
+    "continueOnError=%s",
+    (const char*)getName().getCString(),
+    boolToString(((providersComplete() && (responseCacheSize() == 0)) ||
+        (errorFound && !_continueOnError))),
+    boolToString(providersComplete()),
+    responseCacheSize(),
+    boolToString(errorFound),
+    boolToString(_continueOnError)  ));
 
     // Return true if client closed because of error or all responses complete,
     // else set ProcessingState false and return false
@@ -645,14 +662,12 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
     // timer
     setProcessingState(false);
 
+    PEG_METHOD_EXIT();
     return false;
 }
 
 void EnumerationContext::setClientClosed()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::setClientClosed");
-
     PEGASUS_DEBUG_ASSERT(valid());
 
     _clientClosed = true;
@@ -678,7 +693,8 @@ void EnumerationContext::setClientClosed()
 void EnumerationContext::setProcessingState(Boolean state)
 {
     // Diagnostic to confirm we are changing state
-    PEGASUS_ASSERT(_processing != state);
+    PEGASUS_DEBUG_ASSERT(valid());
+    PEGASUS_DEBUG_ASSERT(_processing != state);
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "setProcessingState. ContextId=%s nextProcessingStat=%s",

@@ -307,7 +307,7 @@ OPTIONS:\n\
     -M MAXOBJECTS   Integer Max objects for open operation.\n\
                     (Default 16).\n\
     -N MAXOBJECTS   Integer Max objects per pull operation.\n\
-                    (Default 16).\n\
+                    (Default 20).\n\
     -P PROPERTY     Property to include in propertyFilter.  May be repeated\n\
                     to create a multiproperty property list.\n\
                     Use \"\" to represent an empty property list\n\
@@ -319,7 +319,7 @@ OPTIONS:\n\
                     Default \"\" which tells server no value.\n\
     -r REPEAT       Integer count of number of times to repeat pull sequence.\n\
                     This is support for stress testing. Repeats are\n\
-                    serial today, not concurrent.\n\
+                    serial, not concurrent.(NOT IMPLEMENTED)\n\
     -R              Reverse Exit code. Useful to add error tests to\n\
                     Makefiles where we can conduct tests that expect\n\
                     exception returns. If return code is zero this option\n\
@@ -1232,6 +1232,7 @@ bool _contains(const Array<CIMObjectPath>& arr,
             return true;
         }
     }
+    return false;
 }
 // Compare instances between two arrays and display any differences.
 // return false if differences exist.
@@ -2359,7 +2360,7 @@ int main(int argc, char** argv)
     {
         switch (opt)
         {
-            case 'c':           // set objecName
+            case 'c':           // set objectName or className argument
             {
                 objectName_opt = optarg;
                 break;
@@ -2395,7 +2396,7 @@ int main(int argc, char** argv)
                 deepInheritance_opt = false;
                 break;
             }
-            case 'o':               // set deepInheritance = false;
+            case 'o':               // set classOrigin argument to true
             {
                 requestClassOrigin_opt = true;
                 break;
@@ -2418,7 +2419,7 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'P':               // set property list
+            case 'P':               // set property list argument
             {
                 if (strlen(optarg) == 0)
                 {
@@ -2430,22 +2431,22 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'n':               // set namespace
+            case 'n':               // set request namespace
             {
                 namespace_opt = optarg;
                 break;
             }
-            case 'H':           // set hostname
+            case 'H':           // set connect hostname
             {
                 host_opt = optarg;
                 break;
             }
-             case 'u':          // set user name
+             case 'u':          // set connect user name
             {
                 user_opt = optarg;
                 break;
             }
-            case 'p':           // set password
+            case 'p':           // set connect password
             {
                 password_opt = optarg;
                 break;
@@ -2455,7 +2456,7 @@ int main(int argc, char** argv)
                 maxObjectsOnOpen_opt = stringToUint32(optarg);
                 break;
             }
-            case 'N':           // set maxObjectsOnPull parameter
+            case 'N':           // set maxObjectsOnPull argument
             {
                 maxObjectsOnPull_opt = stringToUint32(optarg);
                 break;
@@ -2465,7 +2466,7 @@ int main(int argc, char** argv)
                 compare_opt = true;
                 break;
             }
-            case 't':           // set interoperation timeout parameter
+            case 't':           // set interoperation timeout argument
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
@@ -2482,12 +2483,12 @@ int main(int argc, char** argv)
                 timeOperation_opt = true;
                 break;
             }
-            case 'f':               // filterQuery parameter
+            case 'f':               // filterQuery argument
             {
                 filterQuery_opt = optarg;
                 break;
             }
-            case 'l':
+            case 'l':           // define filterQueryLanguage argument
             {
                 filterQueryLanguage_opt = optarg;
                 break;
@@ -2509,18 +2510,18 @@ int main(int argc, char** argv)
                 break;
 
             }
-            case 'W':           // Tread Errors as Warnings
+            case 'W':           // Treat Errors as Warnings
             {
                 errorsAsWarnings_opt = !errorsAsWarnings_opt;
                 break;
 
             }
-            case 's':
+            case 's':   // sleep between request operations
             {
                 sleep_opt = stringToUint32(optarg);
                 break;
             }
-            case 'X':
+            case 'X':    // define maximum requests before issue close
             {
                 if (strcasecmp("null", optarg) == 0)
                 {
@@ -2535,8 +2536,8 @@ int main(int argc, char** argv)
                     if (maxOperationsBeforeCloseCount_opt.getValue() == 0)
                     {
                         printf("ERROR: option %c. parameter value = 0"
-                                   " not allowed: %u",
-                              opt,maxOperationsBeforeCloseCount_opt.getValue());
+                                " not allowed: %u",
+                            opt,maxOperationsBeforeCloseCount_opt.getValue());
                         exit(1);
                     }
                 }
@@ -2707,7 +2708,6 @@ int main(int argc, char** argv)
         }
         exitCode = 1;
     }
-
 
     // generate final output message with indication of any warnings, exitCodes
     // or warnings generated

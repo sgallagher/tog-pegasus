@@ -883,7 +883,7 @@ protected:
         const ProviderInfoList&);
 
     /**
-        Checks whether the number of providers required to complete an
+        Reject if the number of providers required to complete an
         operation is greater than the maximum allowed.
         @param nameSpace The target namespace of the operation.
         @param className The name of the class specified in the request.
@@ -985,7 +985,7 @@ protected:
 
     void _issueImmediateOpenOrPullResponseMessage(
         CIMOperationRequestMessage* request,
-        CIMPullResponseDataMessage* response,
+        CIMOpenOrPullResponseDataMessage* response,
         EnumerationContext* en,
         Uint32 operationMaxObjectCount);
 

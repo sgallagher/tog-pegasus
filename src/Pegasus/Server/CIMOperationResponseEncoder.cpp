@@ -749,8 +749,11 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
     Apply the EndOfSequence and EnumerationContext parameters to the
     supplied buffer. These parameters are standard on most open
     and pull responses.
+    // FUTURE TODO: Since the common response message is
+    // CIMOpenOrPullResponseDataMessage we could change this to just
+    // pass the response message.
 */
-void _appendPullResponseParameters(Buffer& rtnParamBody,
+void _appendOpenOrPullResponseParameters(Buffer& rtnParamBody,
     Boolean endOfSequence, String& enumerationContext)
 {
     // Insert EndOfSequence. PerDSP0200 this is required output
@@ -775,15 +778,11 @@ void CIMOperationResponseEncoder::encodeOpenEnumerateInstancesResponse(
         // Encode response objects with indication that this is pull
         // operation.
         response->getResponseData().encodeXmlResponse(body, true);
-    }
-    else
-    {
-        response->endOfSequence = true;
-    }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "OpenEnumerateInstances",
         true, &rtnParamBody, &body);
@@ -798,11 +797,11 @@ void CIMOperationResponseEncoder::encodeOpenEnumerateInstancePathsResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
-    }
 
-    // Add return elements, endOfSequence and Enumerationontext
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and Enumerationontext
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "OpenEnumerateInstancePaths",
         true, &rtnParamBody, &body);
@@ -817,11 +816,12 @@ void CIMOperationResponseEncoder::encodeOpenReferenceInstancesResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
     }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenReferenceInstances", true,
         &rtnParamBody, &body);
@@ -836,11 +836,11 @@ void CIMOperationResponseEncoder::encodeOpenReferenceInstancePathsResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
-    }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "OpenReferenceInstancePaths", true,
         &rtnParamBody, &body);
@@ -855,11 +855,11 @@ void CIMOperationResponseEncoder::encodeOpenAssociatorInstancesResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
-    }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "OpenAssociatorInstances", true,
                      &rtnParamBody, &body);
@@ -874,11 +874,11 @@ void CIMOperationResponseEncoder::encodeOpenAssociatorInstancePathsResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
-    }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "OpenAssociatorInstancePaths", true,
                      &rtnParamBody, &body);
@@ -893,11 +893,11 @@ void CIMOperationResponseEncoder::encodePullInstancesWithPathResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
-    }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "PullInstancesWithPath", true,
                      &rtnParamBody, &body);
@@ -912,11 +912,11 @@ void CIMOperationResponseEncoder::encodePullInstancePathsResponse(
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
         response->getResponseData().encodeXmlResponse(body, true);
-    }
 
-    // Add return parameters-endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return parameters-endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "PullInstancePaths", true, &rtnParamBody,
                      &body);
@@ -932,11 +932,11 @@ void CIMOperationResponseEncoder::encodePullInstancesResponse(
     {
         // encode as pull and also encode only the instance
         response->getResponseData().encodeXmlResponse(body, true, true);
-    }
 
-    // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
-        response->endOfSequence, response->enumerationContext);
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
 
     sendResponsePull(response, "PullInstances", true,
                      &rtnParamBody, &body);
@@ -979,7 +979,7 @@ void CIMOperationResponseEncoder::encodeOpenQueryInstancesResponse(
 
     // KS_TODO implement the addition of the queryClassResult
     // Add return elements, endOfSequence and context
-    _appendPullResponseParameters(rtnParamBody,
+    _appendOpenOrPullResponseParameters(rtnParamBody,
         response->endOfSequence, response->enumerationContext);
 
     sendResponsePull(response, "OpenQueryInstances",

@@ -2843,7 +2843,7 @@ en:table {
         * @note  PGS05423:
         *    Substitution {0} is the name of the missing required parameter(string)
         */
-        Server.CIMOperationRequestDecoder.REQUIRED_PARAMATER_MISSING:string {"PGS05423: Required parameter \"{$0}\" missing from request."}
+        Server.CIMOperationRequestDecoder.REQUIRED_PARAMETER_MISSING:string {"PGS05423: Required parameter \"{$0}\" missing from request."}
 
 
         Server.CIMOperationRequestDecoder.DUPLICATE_PARAMETER:string {"PGS05424: Duplicated request input parameter."}

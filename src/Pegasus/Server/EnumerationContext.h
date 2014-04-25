@@ -287,7 +287,7 @@ public:
         information.
     */
     void saveNextResponse(CIMOperationRequestMessage* request,
-         CIMPullResponseDataMessage* response,
+         CIMOpenOrPullResponseDataMessage* response,
          Uint32 operationMaxObjectCount);
 
     /** Returns count of objects in the EnumerationContext CIMResponseData
@@ -382,7 +382,7 @@ public:
     // Parameters for requests saved for future send.
     //
     CIMOperationRequestMessage* _savedRequest;
-    CIMPullResponseDataMessage* _savedResponse;
+    CIMOpenOrPullResponseDataMessage* _savedResponse;
     Uint32 _savedOperationMaxObjectCount;
 
     // Pointer to Enumeration Table. Set during Create of enumeration

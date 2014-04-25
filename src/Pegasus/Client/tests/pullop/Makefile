@@ -248,6 +248,8 @@ enumerateEmptyResponse:
 ## stresse1 object size 10,000, response coutn 10,000
 ## Do not include interval as a property in the response because it
 ## can differ between requests.
+## Set large client timeout here because with the stress test sizes, they
+## fail in valgrind with smaller client timeout.
 stresse1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
@@ -258,17 +260,17 @@ stresse1:
 ## test with object size 1000 and 100,000 returned objects
 stresse2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 60\
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 120\
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
 
 stressen1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -T -v 3 $(HOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T -v 3 $(HOSTID)
 
 stressen2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 60 -T -v 3 $(HOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T -v 3 $(HOSTID)
 
 ## test of variation of response  max size form very small to large
 stressVariation:
@@ -329,23 +331,22 @@ invalidAssocObjectPath:
 #### Close tests
 ### Set the the size and value of responses to get large number of
 ### responses. Then call pullop to get small set of objects and then
-### close
+### close (the -X option which issues a close after 4 pull operations)
 testenumclose:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
 
 testenumpathsclose:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 50 -X 4 $(HOSTID)
-
-pr: pr1 pr2
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
 
 #################################
 #### timeout test. Set interoptime to 2 sec and sleep to 10 sec. This
-#### test should timeout after the first pull.
+#### test should timeout after the first pull. (-s defines time to sleep
+#### between operations)
 testtimeout:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=100 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -s 10 -R $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
 
 #################################
 #### zeroRequest test. Set count on maxObjectCount for pull operations to zero

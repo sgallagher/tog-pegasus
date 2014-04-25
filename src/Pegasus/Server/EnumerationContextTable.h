@@ -159,15 +159,17 @@ public:
     */
     void updateNextTimeout();
 
+    bool stopThread();
+
     // KS_TODO think some of these are overkill
     Uint32 timoutInterval() const;
 
-    /** isTimedOut tests if the next defined timeout for the context monitor
-        is less than the current time meaning that the timer has
-        timed out.
+    /** isNextScanTime tests if the next defined timeout for the
+        context monitor is less than the current time meaning that
+        the timer has timed out.
         @return Boolean returns true if timed out.
      */
-    Boolean isTimedOut() const;
+    Boolean isNextScanTime() const;
 
     // Diagnostic tests magic number in context to see if valid
     // This is a Diagnostic tool and is enabled only when PEGASUS_DEBUG
@@ -281,13 +283,17 @@ inline void EnumerationContextTable::updateNextTimeout()
 {
     _nextTimeout += _timeoutInterval;
 }
+inline bool EnumerationContextTable::stopThread()
+{
+    return (_nextTimeout == 0);
+}
 
 inline Uint32 EnumerationContextTable::timoutInterval() const
 {
     return _timeoutInterval;
 }
 
-inline Boolean EnumerationContextTable::isTimedOut() const
+inline Boolean EnumerationContextTable::isNextScanTime() const
 {
     return (_nextTimeout < TimeValue::getCurrentTime().toMilliseconds() );
 }

@@ -49,6 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 static EnumerationContextTable* localEnumerationContextTable;
+
 /************************************************************************
 //
 //      EnumerationContextTable Class Implementation
@@ -65,17 +66,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::operationContextTimerThread");
 
-    PEGASUS_ASSERT(localEnumerationContextTable->valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(localEnumerationContextTable->valid());   // KS_TEMP
 
     // execute loop at regular intervals until there are no more contexts
     // KS_TODO - The choice of existence of contexts as the loop controller
     // means that we will look through many inactive contexts to find any
-    // that are both active and timed out (much search for a very unusual
-    // condition). This algorithm not optimum.
-    while (localEnumerationContextTable->size() != 0)
+    // that are timed out (much search for a very unusual condition).
+    // This algorithm not optimum. Problem is that we are starting and
+    // stopping thread timers many times a second so list does not make sense.
+    while ((localEnumerationContextTable->size() != 0) &&
+        (!localEnumerationContextTable->stopThread()))
     {
-        // Test to determine if we are ready for next loop.
-        while (!localEnumerationContextTable->isTimedOut())
+        // Sleep loop until time for next scan or thread quit requested
+        while (!localEnumerationContextTable->isNextScanTime() &&
+               (!localEnumerationContextTable->stopThread()))
         {
             Threads::sleep(localEnumerationContextTable->timoutInterval());
         }
@@ -125,6 +129,7 @@ EnumerationContextTable::~EnumerationContextTable()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
 
+    localEnumerationContextTable->setTimerThreadIdle();
     removeContextTable();
 
     PEG_METHOD_EXIT();
@@ -196,11 +201,11 @@ EnumerationContext* EnumerationContextTable::createContext(
             "Error Creating Enumeration Context %s. System Failed",
             cxtName ));
         enumCtxt = 0;
-        PEGASUS_ASSERT(false);
+        PEGASUS_ASSERT(false);  // This is a system failure
     }
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "CreateContext created ContextId= %s", cxtName));
+        "CreateContext created ContextId=%s", cxtName));
 
     _enumerationContextsOpened++;
 
@@ -249,6 +254,7 @@ void EnumerationContextTable::removeContextTable()
     // Show shutdown statistics for EnumerationContextTable
     displayStatistics();
 
+    AutoMutex autoMut(tableLock);
     // Clear out any existing enumerations.
     if (ht.size() != 0)
     {
@@ -380,7 +386,7 @@ EnumerationContext* EnumerationContextTable::find(
     // lookup enumeration. Boolean true if found
     if(ht.lookup(enumerationContextName, en))
     {
-        PEGASUS_ASSERT(en != 0);
+        PEGASUS_DEBUG_ASSERT(en != 0);
         PEGASUS_DEBUG_ASSERT(en->valid());
         PEG_METHOD_EXIT();
         return en;
@@ -399,9 +405,16 @@ void EnumerationContextTable::removeExpiredContexts()
         "EnumerationContextTable::removeExpiredContexts");
 
     PEGASUS_DEBUG_ASSERT(valid());
+    if (stopThread())
+    {
+         return;
+    }
 
     // Lock the EnumerationContextTable so no operations can be accepted
     // during this process
+    trace(); // KS_TODO delete this.
+    tableValidate(); // KS_TODO delete this.
+
     AutoMutex autoMut(tableLock);
 
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
@@ -410,50 +423,57 @@ void EnumerationContextTable::removeExpiredContexts()
     for (HT::Iterator i = ht.start(); i; i++)
     {
         EnumerationContext* en = i.value();
-        PEGASUS_ASSERT(en->valid());             // diagnostic. KS_TEMP
-
-        // Lock the context to assure that no client
-        // operation interacts with possible timeout and removal.
-        if (en->_interOperationTimer != 0)
+        if (en->valid())
         {
-            // Only set lock if there is a chance the timer is active.
-            // redoes the above test after setting lock. Bypass if
-            // locked
-            if (en->tryLockContext())
+            PEGASUS_DEBUG_ASSERT(en->valid());     // diagnostic. KS_TEMP
+
+            if (en->_interOperationTimer != 0)
             {
-                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                    "EnumerationContextLock lock %s",
-                           (const char*)en->getName().getCString() ));
-                // test if entry is active (timer not zero)
-                if (en->isTimedOut(currentTime))
-                {
-                    en->stopTimer();
-                    // Force the client closed so nothing more accepted.
-                    en->setClientClosed();
-
-                    // If providers are complete we can remove the context
-                    // Otherwise depend on provider completion to
-                    // clean up the enumeration
-                    if (en->providersComplete())
-                    {
-                        _enumerationsTimedOut++;
-
-                        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                            "EnumerationContextLock unlock %s",
-                                    (const char*)en->getName().getCString()));
-                        // unlock before removing the context
-                        en->unlockContext();
-                        _removeContext(en, true);
-                    }
-                }
-                else
+                // Only set lock if there is a chance the timer is active.
+                // redoes the above test after setting lock. Bypass if
+                // locked
+                if (en->tryLockContext())
                 {
                     PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                        "EnumerationContextLock unlock %s",
+                        "EnumerationContextLock lock %s",
+                               (const char*)en->getName().getCString() ));
+                    // test if entry is active (timer not zero)
+                    if (en->isTimedOut(currentTime))
+                    {
+                        en->stopTimer();
+                        // Force the client closed so nothing more accepted.
+                        en->setClientClosed();
+
+                        // If providers are complete we can remove the context
+                        // Otherwise depend on provider completion to
+                        // clean up the enumeration
+                        if (en->providersComplete())
+                        {
+                            _enumerationsTimedOut++;
+
+                            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                                "EnumerationContextLock unlock %s",
                                 (const char*)en->getName().getCString()));
-                    en->unlockContext();
+                            // unlock before removing the context
+                            en->unlockContext();
+                            _removeContext(en, true);
+                        }
+                    }
+                    else
+                    {
+                        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                            "EnumerationContextLock ERROR unlock %s",
+                                    (const char*)en->getName().getCString()));
+                        en->unlockContext();
+                    }
                 }
             }
+        }
+        // KS_TODO- DELETE - Following test code only - REMOVE
+        else
+        {
+            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                "removeExpiredContexts ERROR, invalid context"));
         }
     }
     PEG_METHOD_EXIT();
@@ -463,6 +483,7 @@ void EnumerationContextTable::removeExpiredContexts()
 // Validate every entry in the table. KS_TODO Diagnostic
 void EnumerationContextTable::tableValidate()
 {
+    AutoMutex autoMut(tableLock);
     for (HT::Iterator i = ht.start(); i; i++)
     {
         EnumerationContext* en = i.value();
@@ -482,7 +503,7 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "EnumerationContextTable::dispatchTimerThread");
 
-    PEGASUS_ASSERT(valid());   // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
     AutoMutex autoMut(tableLock);
 
@@ -493,7 +514,7 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
         // the input defined interval. Set for the timer thread to
         // loop through the table every 30 seconds.
 
-        _timeoutInterval = 30*1000;
+        _timeoutInterval = 5*1000;
 
         _nextTimeout = _timeoutInterval +
             TimeValue::getCurrentTime().toMilliseconds();
@@ -512,7 +533,7 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 parms);
-            PEGASUS_ASSERT(false);
+            PEGASUS_DEBUG_ASSERT(false); // This is system failure
         }
     }
     PEG_METHOD_EXIT();
@@ -534,6 +555,7 @@ void EnumerationContextTable::trace()
         enumeration->trace();
     }
 }
+
 /************************************************************************
 //
 //      TimerClass - List entry for List of all Enumeration Contexts for
@@ -546,7 +568,7 @@ void EnumerationContextTable::trace()
 //
 ************************************************************************/
 
-// KS_TODO Remove this
+// KS_TODO Remove this or finish it.
 //class Timer : public Linkable
 //{
 //public:

@@ -1038,17 +1038,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
 
             // The following is test and validation code
             // KS_TODO remove all of this before release
-            PEGASUS_DEBUG_ASSERT(en);          // KS_TEMP
             PEGASUS_DEBUG_ASSERT(en->valid()); // KS_TEMP
             enumerationContextTable.valid();    // KS_TEMP
-            enumerationContextTable.tableValidate();    // KS_TEMP
-
-            //// KS_TODO DELETE the following is test code just to be sure
-            //// the context is still in the table
-            EnumerationContext* enTest = enumerationContextTable.find(
-                en->getName());
-
-            PEGASUS_ASSERT(enTest != 0); // KS_Validity test temp TODO
 
             // If this is an exception set the error in EnumerationContext
             if (response->cimException.getCode())
@@ -1080,7 +1071,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
 
                 // get any waiting open request and response
                 CIMOperationRequestMessage* openRequest = en->_savedRequest;
-                CIMPullResponseDataMessage* openResponse;
+                CIMOpenOrPullResponseDataMessage* openResponse;
                 Uint32 count = en->_savedOperationMaxObjectCount;
                 Boolean foundCachedResponses = false;
 
@@ -1147,17 +1138,6 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             {
                 enumerationContextTable.releaseContext(en);
             }
-////          else
-////          {
-////              // If providers complete and refused by putCache (i.e.
-////              // sequence closed, we can now get rid of the context.
-////
-////              en->unlockContext();
-////              if (isComplete)
-////              {
-////                  enumerationContextTable.releaseContext(en);
-////              }
-////          }
 
             delete response;
         }
@@ -3587,7 +3567,7 @@ struct ProviderRequests
 
 void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     CIMOperationRequestMessage* request,
-    CIMPullResponseDataMessage* response,
+    CIMOpenOrPullResponseDataMessage* response,
     EnumerationContext* en,
     Uint32 operationMaxObjectCount)
 {
@@ -3597,14 +3577,14 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
 
     PEGASUS_ASSERT(en->valid());
 
-    AutoPtr<CIMPullResponseDataMessage> responseDestroyer(response);
+    AutoPtr<CIMOpenOrPullResponseDataMessage> responseDestroyer(response);
 
     // KS TODO diagnostic. Remove before release.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "%s issueResponseMessage ContextId=%s"
         " maxObjectCount=%u isComplete=%s, cacheSize=%u  errorState=%s",
         MessageTypeToString(request->getType()),
-        (const char *)en->getName().getCString(),
+        CSTRING(en->getName()),
         operationMaxObjectCount,
         boolToString(en->providersComplete()),
         en->responseCacheSize(),
@@ -3618,8 +3598,9 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
         response->cimException = en->_cimException;
         // KS_TEMP TODO remove this diagnostic trace
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "%s Response Error found. cimException = %s",
+            "%s Response Error found. ContextId=%s cimException = %s",
             MessageTypeToString(request->getType()),
+            CSTRING(en->getName()),
             cimStatusCodeToString(response->cimException.getCode())
             ));
     }
@@ -3627,9 +3608,10 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     {
         //// KS_TODO Delete this code when we are confident
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-          "%s AppendedResponseData. to type %u from "
+          "%s AppendedResponseData. ContextId=%s  to type %u from "
               "toSize %u fromSize %u",
           MessageTypeToString(request->getType()),
+          CSTRING(en->getName()),
           to.getResponseDataContent(),
           to.size(), en->responseCacheSize()));
     }

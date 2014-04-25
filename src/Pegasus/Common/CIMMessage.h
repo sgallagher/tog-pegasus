@@ -1902,11 +1902,11 @@ public:
 // Extend CIMResponseDataMessage for the common elements on open and
 // pull operations. All of the Open and pull response operations
 // return endOfSequence and enumerationContext arguments
-class PEGASUS_COMMON_LINKAGE CIMPullResponseDataMessage
+class PEGASUS_COMMON_LINKAGE CIMOpenOrPullResponseDataMessage
     : public CIMResponseDataMessage
 {
 public:
-    CIMPullResponseDataMessage(
+    CIMOpenOrPullResponseDataMessage(
         MessageType type_,
         const String& messageId_,
         const CIMException& cimException_,
@@ -1920,7 +1920,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMOpenEnumerateInstancesResponseMessage(
@@ -1935,7 +1935,7 @@ public:
 // Data message because the response data is common (CIMResponseData,
 // endOfSequencd, and enumerationContext.
 class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancePathsResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     // Constructor with default endOfSequence and enumeration context optional
@@ -1950,7 +1950,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancesResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMOpenReferenceInstancesResponseMessage(
@@ -1962,7 +1962,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancePathsResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMOpenReferenceInstancePathsResponseMessage(
@@ -1974,7 +1974,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancesResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMOpenAssociatorInstancesResponseMessage(
@@ -1986,7 +1986,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancePathsResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     // Constructor with defautl endOfSequence and enumerationContext
@@ -1999,7 +1999,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMPullInstancesWithPathResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMPullInstancesWithPathResponseMessage(
@@ -2011,7 +2011,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMPullInstancePathsResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMPullInstancePathsResponseMessage(
@@ -2023,7 +2023,7 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMPullInstancesResponseMessage
-    : public CIMPullResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMPullInstancesResponseMessage(

@@ -117,7 +117,7 @@ void _throwCIMExceptionInvalidIParamName(const String& name)
         "Unrecognized or invalid request input parameter \"$0\"", name));
 }
 
-// Throw CIM_ERR_INVALID_PARAMETER with optional parameter name(s)
+// Throw CIM_ERR_ENUMERATION_CONTEXT_REQUIRED
 void _throwCIMExceptionEnumerationContextRequired()
 {
     _throwCIMExceptionInvalidParameter(MessageLoaderParms(
@@ -133,7 +133,7 @@ void _throwCIMExceptionRequiredDoesNotExist(const String& name)
 {
     _throwCIMExceptionInvalidParameter(MessageLoaderParms(
     "Server.CIMOperationRequestDecoder."
-        "REQUIRED_PARAMATER_MISSING",
+        "REQUIRED_PARAMETER_MISSING",
     "Required parameter \"$0\" missing from request.", name));
 }
 
@@ -3756,13 +3756,17 @@ CIMOpenEnumerateInstancesRequestMessage*
     booleanIParam includeQualifiers("IncludeQualifiers");
     booleanIParam includeClassOrigin("IncludeClassOrigin");
     propertyListIParam propertyList;
-    //// TODO confirm the false here
+    // the following are optional parameters for all of the Open requests
+    // [IN,OPTIONAL,NULL] string FilterQueryLanguage = NULL,
+    // [IN,OPTIONAL,NULL] string FilterQuery = NULL,
     stringIParam filterQueryLanguage("FilterQueryLanguage",false);
     stringIParam filterQuery("FilterQuery", false);
+    //[IN,OPTIONAL] Boolean ContinueOnError = false,
     booleanIParam continueOnError("ContinueOnError");
     // [IN,OPTIONAL] uint32 MaxObjectCount = 0
     uint32IParam maxObjectCount("MaxObjectCount", 0);
-    // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL,
+    // [IN,OPTIONAL,NULL] uint32 OperationTimeout = NULL
+    // The default for this parameter is NULL (Server; server sets timeout)
     uint32ArgIParam operationTimeout("OperationTimeout");
 
     Boolean duplicateParameter = false;
@@ -3825,7 +3829,6 @@ CIMOpenEnumerateInstancesRequestMessage*
         // generate exception if endtag error or duplicate attributes
         _checkMissingEndTagOrDuplicateParamValue(
             parser, duplicateParameter, emptyTag);
-
     }
 
     // Reject if required parameter does not exist in request
@@ -3863,7 +3866,6 @@ CIMOpenEnumerateInstancePathsRequestMessage*
 
     // EnumerateInstance Parameters
     classNameIParam className("ClassName");
-    //// TODO confirm the false here
     stringIParam filterQueryLanguage("FilterQueryLanguage",false);
     stringIParam filterQuery("FilterQuery", false);
     booleanIParam continueOnError("ContinueOnError");

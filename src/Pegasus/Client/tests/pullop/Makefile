@@ -50,14 +50,17 @@ CMPIASSOCOBJ2 = CMPI_TEST_Vehicle.vehiclename="\Ferrari\"
 ## ResponseStressTest provider class and namespace
 NStressCxx = test/testProvider
 CStressCxx = TST_ResponseStressTestCxx
+STRESSCXX_CLASS_ID = TST_ResponseStressTestCxx -n test/testProvider
 
 ## Simple C++ Provider classes and namespaces
 CxxNS = root/SampleProvider
 CxxCL = Sample_InstanceProviderClass
 
-## C++ association Provider Object and Namespace
-CxxAssocOB = Test_CLITestProviderClass.Id=\"Mike\"
-CxxAssocNS = test/TestProvider
+## C++ association Provider Object and Namespace identification
+##CxxAssocOB = Test_CLITestProviderClass.Id=\"Mike\"
+##CxxAssocNS = test/TestProvider
+## Combined instance and namespace. 
+CXXASSOC_INST_ID = Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider
 
 HOSTID = -H localhost
 CIMCLIHOSTID = -l localhost
@@ -68,23 +71,28 @@ tests:
 	pullop -h
 	$(PROGRAM) --help
 
-## KS_TODO - Redo this list to actually put in the pullop code for each
-## Will make it more understandable and also can work with options easier.
+########################################################################
+## Error tests. Each test is for a single CIMException type and
+## returns that error.
 errortests:
 	make filterParamError
 	make pullClassParamError
 	make continueOnErrorError
 	make invalidAssocObjectPath
 	make maxPullObjectCountError
+	make testexceedMaxObjectCountLimit
+	@$(ECHO) +++++ pullop errottests Passed.
 
 poststarttests:
-	@$(ECHO)  Enumerate and EnumerateNames tests go to Completion
+	@$(ECHO)  Enumerate and EnumerateNames tests that go to Completion
 	make smallTestEnumerateInstances
 	make smallTestEnumerateInstanceNames
-	make peManagedElement
-	make penManagedElement
-	make cmpiEnumerate1
-	make cmpiEnumerateNames1
+	make smallCmpiEnumerate
+	make smallCmpiEnumerateNames
+	make peManagedElementcimv2
+	make penManagedElementcimv2
+	make peManagedElementInterop
+	make penManagedElementInterop
 	make enumerateMaxObjectSizeVariations
 	make enumeratePathsMaxObjectSizeVariations
 	make enumerateEmptyResponse
@@ -93,7 +101,7 @@ poststarttests:
 	make stressen1
 	make stressen2
 
-	@$(ECHO)  Associator and Reference tests got to completion
+	@$(ECHO)  Associator and Reference tests that go to completion
 	make SimpleRefAndAssoc
 	make SimpleAssociatorTest1
 	make SimpleAssociatorTest2
@@ -106,17 +114,18 @@ poststarttests:
 	@$(ECHO)  Test close in process of delivery
 	make testenumclose
 	make testenumpathsclose
-##
-##       @$(ECHO)  Test timeout in process of delivery
-##       make testtimeout
-##
+
+	@$(ECHO)  Test timeout in process of delivery
+	make testtimeout
+
 	@$(ECHO) Error tests. Tests simple parameter errors.
 	make errortests
 
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
 ## Enumerate a class that is a C++ Provider. Very small enumerate
-## Normally returns about 3 instances
+## Normally returns about 3 instances. Also tests returning with property
+## variations.
 smallTestEnumerateInstances:
 ## Return all with initial request
 	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID)
@@ -134,8 +143,10 @@ enumerateMaxObjectSizeVariations:
 	$(PROGRAM) e -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -c $(CxxCL) -M 0 -N 3 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 0 -N 10 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -c $(CxxCL) -M 0 -N 100 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) e -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e -c $(CxxCL) -M 500 -N 100 -n $(CxxNS) -C -T $(HOSTID)
 
 enumeratePathsMaxObjectSizeVariations:
 	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1 -n $(CxxNS) -C -T $(HOSTID)
@@ -143,8 +154,10 @@ enumeratePathsMaxObjectSizeVariations:
 	$(PROGRAM) en -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 0 -N 3 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 0 -N 10 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 0 -N 100 -n $(CxxNS) -C -T $(HOSTID)
 	$(PROGRAM) en -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en -c $(CxxCL) -M 500 -N 100 -n $(CxxNS) -C -T $(HOSTID)
 
 ## enumerate instance names of a class in a C++ provider
 smallTestEnumerateInstanceNames:
@@ -154,90 +167,90 @@ smallTestEnumerateInstanceNames:
 
 ## enumerate from cmpi providers. There are 3 tests here to include
 ## property list variations
-cmpiEnumerate1:
+smallCmpiEnumerate:
 	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID)
 	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID) -P Message
 	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID) -P ""
 
 ## enumerate from cmpi providers
-cmpiEnumerateNames1:
+smallCmpiEnumerateNames:
 	$(PROGRAM) en -c $(CMPICL) -M 1 -N 1 -n root/SampleProvider -C -T $(HOSTID)
 
 ## Simple pull ref and assoc operations.
 SimpleRefAndAssoc:
-	$(PROGRAM) r -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) rn -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) a -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) an -c $(CxxAssocOB) -n $(CxxAssocNS) -C $(HOSTID)
+	$(PROGRAM) r $(CXXASSOC_INST_ID) -C $(HOSTID)
+	$(PROGRAM) rn $(CXXASSOC_INST_ID) -C $(HOSTID)
+	$(PROGRAM) a $(CXXASSOC_INST_ID) -C $(HOSTID)
+	$(PROGRAM) an $(CXXASSOC_INST_ID) -C $(HOSTID)
 
 ## returns a single association object and asks for one object per request
 ## compares results with assoc request so counts should match.  This
 SimpleAssociatorTest1:
 ## this test confirms that we are getting one object
-	cimcli a $(CxxAssocOB) -n $(CxxAssocNS) --sum -count 1
-	$(PROGRAM) a -c $(CxxAssocOB)  -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) an -c $(CxxAssocOB) -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) r -c $(CxxAssocOB)  -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
-	$(PROGRAM) rn -c $(CxxAssocOB) -M 1 -N 1 -C -T -n $(CxxAssocNS) -C $(HOSTID)
+	cimcli a $(CXXASSOC_INST_ID) --sum -count 1
+	$(PROGRAM) a $(CXXASSOC_INST_ID) -M 1 -N 1 -T  -C $(HOSTID)
+	$(PROGRAM) an $(CXXASSOC_INST_ID) -M 1 -N 1 -T  -C $(HOSTID)
+	$(PROGRAM) r $(CXXASSOC_INST_ID) -M 1 -N 1 -T  -C $(HOSTID)
+	$(PROGRAM) rn $(CXXASSOC_INST_ID) -M 1 -N 1 -T  -C $(HOSTID)
 
 ## Request class that returns a single object but ask for more than one in
 ## response
-
 SimpleAssociatorTest2: pa2 pan2 pr2 prn2
 pa2:
-	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) a $(CXXASSOC_INST_ID) -C $(HOSTID)
 
 pan2:
-	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) an $(CXXASSOC_INST_ID) -C $(HOSTID)
 
 pr2:
-	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
+	$(PROGRAM) rn $(CXXASSOC_INST_ID) -C $(HOSTID)
 
 prn2:
-	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -C -n test/TestProvider -C $(HOSTID)
-
+	$(PROGRAM) rn $(CXXASSOC_INST_ID) -C $(HOSTID)
 
 ## Request class that returns objects with some in repository
 SimpleAssociatorTest3: pa3 pan3 pr3 prn3
 pa3:
-	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+	$(PROGRAM) a -c Person.name=\"Mike\" -n root/SampleProvider -N 1 -N 1 -C $(HOSTID)
 pan3:
-	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+	$(PROGRAM) an -c Person.name=\"Mike\" -n root/SampleProvider -N 1 -N 1  -C $(HOSTID)
 pr3:
-	$(PROGRAM) a -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+	$(PROGRAM) a -c Person.name=\"Mike\" -n root/SampleProvider -N 1 -N 1  -C $(HOSTID)
 prn3:
-	$(PROGRAM) an -N 1 -N 1 -c Person.name=\"Mike\" -n root/SampleProvider -C $(HOSTID)
+	$(PROGRAM) an -c Person.name=\"Mike\" -n root/SampleProvider -N 1 -N 1  -C $(HOSTID)
 
 ######################################################################
+## Tests that enumerate through a complete namespace from top level
+## Some of the other namespaces generate errors because they have providers
+## that generate specific errors on response.
+
 peManagedElement: peManagedElementcimv2
 
 peManagedElementcimv2:
 	$(PROGRAM) e -c CIM_ManagedElement -M 100 -N 100 -v 5 -n root/cimv2 $(HOSTID)
 
-## generates error because of qualifier data and classorigin data from PG_Namespace
 peManagedElementInterop:
 	$(PROGRAM) e -c CIM_ManagedElement -M 9 -N 1 -C -n root/PG_InterOp $(HOSTID)
-
-penManagedElement:
-	$(PROGRAM) en -c CIM_ManagedElement -M 50 -N 9 -C -n root/cimv2 $(HOSTID)
 
 #########################################################
 penManagedElement: penManagedElementcimv2
 
 penManagedElementcimv2:
-	$(PROGRAM) en -c CIM_ManagedElement -M 9 -N 4 -C $(HOSTID)
+	$(PROGRAM) en -c CIM_ManagedElement -M 10 -N 10 -C $(HOSTID)
 
 penManagedElementInterop:
 	$(PROGRAM) en -c CIM_ManagedElement -M 9 -N 1 -C -n root/PG_InterOp $(HOSTID)
 
-## Test Empty response.
+######################################################################
+## Test Empty response, returns nothing.
 enumerateEmptyResponse:
 	$(PROGRAM) e -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 	$(PROGRAM) en -c CIM_ConcreteIdentity -n root/cimv2 $(HOSTID)
 
-## test with large scale response provider
-## Execute the large scale test with just one property in response.
-## issue because there is one property that may differ between instances
+####################################################################
+## tests with large scale response provider
+## Execute the large scale test with selected properties in response.
+## issue because there is one property that may differ between instances,
 ## the interval property that defines intervals between the delivery
 ## of subsequent instances to the CIMOM and therefore is not constant.
 ## Included list of properties to return to make this test valid.
@@ -245,13 +258,11 @@ enumerateEmptyResponse:
 ## of responses requested
 ## Calling the invoke method before starting each test forces
 ## the provider to be loaded which eliminates startup differences.
-## stresse1 object size 10,000, response coutn 10,000
-## Do not include interval as a property in the response because it
-## can differ between requests.
 ## Set large client timeout here because with the stress test sizes, they
 ## fail in valgrind with smaller client timeout.
 stresse1:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	    ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
 	    -y 120 \
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
@@ -259,17 +270,20 @@ stresse1:
 
 ## test with object size 1000 and 100,000 returned objects
 stresse2:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	    ResponseCount=100000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 120\
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
 
 stressen1:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	    ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T -v 3 $(HOSTID)
 
 stressen2:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=100000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	    ResponseCount=100000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T -v 3 $(HOSTID)
 
 ## test of variation of response  max size form very small to large
@@ -279,6 +293,7 @@ stressVariation:
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 100 -N 100 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1000 -N 1000 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T -v 3 $(HOSTID)
 
+########################################################################
 ### Error Tests
 ## These tests actually return exit 0 because the -R option reverses the
 ## exit codes so the following should actually return positive exits for
@@ -295,7 +310,7 @@ pullClassParamError:
 maxPullObjectCountError:
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9999 -N 9999 -C -R -T -v 3 $(HOSTID)
 
-# the following tests should pass Makefile exit error tests.
+# Test for invalid filter query language definitions
 filterParamError:
 	$(PROGRAM) e Test_Person -f abc -R $(HOSTID)
 	$(PROGRAM) e Test_Person -l WQL -R $(HOSTID)
@@ -315,32 +330,20 @@ filterParamError:
 continueOnErrorError:
 	$(PROGRAM) e Test_Person  -R -x $(HOSTID)
 	$(PROGRAM) en Test_Person  -R -x $(HOSTID)
-	$(PROGRAM) r -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
-	$(PROGRAM) rn -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
-	$(PROGRAM) a -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
-	$(PROGRAM) an -c Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider -R -x $(HOSTID)
+	$(PROGRAM) r $(CXXASSOC_INST_ID) -R -x $(HOSTID)
+	$(PROGRAM) rn $(CXXASSOC_INST_ID) -R -x $(HOSTID)
+	$(PROGRAM) a $(CXXASSOC_INST_ID) -R -x $(HOSTID)
+	$(PROGRAM) an $(CXXASSOC_INST_ID) -R -x $(HOSTID)
 
-# test for invalid objecPath (class only) on associaton requests
+# test for invalid objectPath (class only) on associaton requests
+# The pull operations only handle instance paths
 invalidAssocObjectPath:
 	$(PROGRAM) r -c Test_Person -R $(HOSTID)
 	$(PROGRAM) rn -c Test_Person -R $(HOSTID)
 	$(PROGRAM) a -c Test_Person -R $(HOSTID)
 	$(PROGRAM) an -c Test_Person -R $(HOSTID)
 
-################################
-#### Close tests
-### Set the the size and value of responses to get large number of
-### responses. Then call pullop to get small set of objects and then
-### close (the -X option which issues a close after 4 pull operations)
-testenumclose:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
-
-testenumpathsclose:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
-
-#################################
+#########################################################################
 #### timeout test. Set interoptime to 2 sec and sleep to 10 sec. This
 #### test should timeout after the first pull. (-s defines time to sleep
 #### between operations)
@@ -363,13 +366,30 @@ pcmpia1:
 pcmpian1:
 	$(PROGRAM) an -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
 
+
+#######################################################################
+#### Close tests
+### Set the the size and value of responses to get large number of
+### responses. Then call pullop to get small set of objects and then
+### close (the -X option which issues a close after 4 pull operations)
+testenumclose:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	    ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
+
+testenumpathsclose:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	    ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
+
 ####################################################
 ##
 ##     Manual Test targets used during development
-##nstanceWithPath
+##
 ###################################################
 
 ## test all operations against all classes in namespace root/cimv2
+## kept manual because generates extensive output.
 allOperationsCIMV2:
 	$(PROGRAM) all -n root/cimv2 -C -T -v 3 $(HOSTID)
 
@@ -391,39 +411,46 @@ e2:
 	cimcli ei Test_Person -n test/TestProvider $(CIMCLIHOSTID)
 
 r2:
-	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
+	cimcli r $(CXXASSOC_INST_ID) $(CIMCLIHOSTID)
 
 pe: pullOneEnumerateInstances pe2
 
 ## Tests for reference names and pull referencenames.
 r1:
-	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
+	cimcli r $(CXXASSOC_INST_ID) $(CIMCLIHOSTID)
 rn1:
-	cimcli rn Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
+	cimcli rn $(CXXASSOC_INST_ID) $(CIMCLIHOSTID)
 an1:
-	cimcli an Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider $(CIMCLIHOSTID)
+	cimcli an $(CXXASSOC_INST_ID) $(CIMCLIHOSTID)
 
 ##########################
 ##
 ## manual check only since we do not have way to negate return value for
-## cimcli calls.
+## cimcli calls. NOTE: classes that do not exist should not generate error,
+## only classes that are considered invalid CIMNames (characters that cannot
+## be in a CIMName
 checkinvalidroleparam:
 	cimcli a CIM_Door -r help
-	- cimcli a CIM_Door -r ====
+	cimcli a CIM_Door -r ==== --expExit 4
 	cimcli a CIM_Door -rr help
-	- cimcli a CIM_Door -rr ====
+	cimcli a CIM_Door -rr ==== --expExit 4
 	cimcli an CIM_Door -r help
-	- cimcli an CIM_Door -r ====
+	cimcli an CIM_Door -r ==== --expExit 4
 	cimcli an CIM_Door -rr help
-	- cimcli an CIM_Door -rr ====
+	cimcli an CIM_Door -rr ==== --expExit 4
 	cimcli r CIM_Door -r help
-	- cimcli r CIM_Door -r ====
+	cimcli r CIM_Door -r ==== --expExit 4
 	cimcli rn CIM_Door -r help
-	- cimcli rn CIM_Door -r ====
-
+	cimcli rn CIM_Door -r ==== --expExit 4
+###Corresponding tests for instances
+#### KS_TODO the following tests do return exception.  There is a
+#### difference in the server in testing role for classes and instances
+#### which applies to the pull operations also
+####	cimcli rn Test_CLITestProviderClass.Id=\"Mike\" -r help
+####	cimcli prn Test_CLITestProviderClass.Id=\"Mike\" -r help
 
 ################################
-## Tests with StressTestProvider
+## Manual cimcli tests used during development
 
 rsgc:
 	cimcli gc $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
@@ -432,7 +459,8 @@ rsget:
 	cimcli im $(CStressCxx) get -n $(NStressCxx) $(CIMCLIHOSTID)
 
 rsset:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	     ResponseCount=10000 $(CIMCLIHOSTID)
 
 rsset1:
 	cimcli im set $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
@@ -467,7 +495,6 @@ cmpie1:
 	cimcli pei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID) -pl Message
 	cimcli pei $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID) -pl ""
 
-
 ## reference tests
 clicmpir1:
 	cimcli pr $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
@@ -488,8 +515,6 @@ clicmpipr1:
 
 clicmpiprn1:
 	cimcli rn $(CMPIASSOCOBJ) -n test/TestProvider $(CIMCLIHOSTID)
-
-### Known error conditions
 
 clicmpir2:
 	cimcli r CMPI_TEST_Person.name=\"Melvin\" -rc CMPI_TEST_Racing -n test/TestProvider $(CIMCLIHOSTID)

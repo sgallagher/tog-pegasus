@@ -79,7 +79,8 @@
              for loop for processing of the list.
            - Modify input form to drop -c and simply put the target(s) on
              the command line. Easier to input, similar to cimcli and
-             not as error prone.
+             not as error prone. DONE- Kept the -c but also allow
+             class/instance name as second parameter without -c
            - Drop the existing defaults in favor of namespace = root/cimv2
              and no target default.
            - Expand object compare to more details (maybe)
@@ -265,15 +266,18 @@ Uint32 exitCode = 0;
 const char USAGE[] = " \
 \n\
 Test client for Pegasus Pull operations.\n\
-Usage: %s [OPERATION_TYPE] [OPTIONS]\n\
+Usage: %s [OPERATION_TYPE] [OBJECT_NAME] [OPTIONS]\n\
 \n\
-WHERE OPERATION_TYPE is one of the following pull operation sequences types:\n\
+WHERE:\n\
+  OPERATION_TYPE is one of the following pull operation sequences types:\n\
     e    enumerateInstances,\n\
     en   enumerate instance names,\n\
     r    reference, rn - referenceNames,\n\
     a    associators\n\
     an   assocatornames\n\
     all  test of all classes in one namespace\n\
+  OBJECT_NAME is the class name or instance name for the target.  This is\n\
+    alternative to using the -c option to input this information\n\
 \n\
 Example:\n\
     $ pullop e -c Sample_InstanceProviderClass -C \n\
@@ -290,6 +294,8 @@ OPTIONS:\n\
     --help          Print this help message.\n\
     -n NAMESPACE    The operation namespace(default is \"root/cimv2\").\n\
     -c OBJECTNAME   Name of class or object instance to process.\n\
+                    Alternate is to provide as second parameter\n\
+                    ex. pullop a Test_CLITestProviderClass.Id=\"Mike\"\n\
     -H HOST         Connect to this HOST where format for host is \n\
                     hostName [:port]. Default is to use connectLocal.\n\
                     If hostName specified witout port(default is 5988)\n\

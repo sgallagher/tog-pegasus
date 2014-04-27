@@ -39,15 +39,163 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Common/Pegasus_inl.h> // used for stringPrintf
+#include <cstdarg>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+#define VCOUT if (verbose) cout
 
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
 
 static const CIMName TEST_CLASS = CIMName("TST_ResponseStressTestCxx");
 
 static Boolean verbose;
+
+
+/***************************************************************************
+**
+**  String formatting functions.  These are helper functions to allow
+**  use of C++ standard printf formatting concepts but that return
+**  Pegasus String results rather than char* and handle all memory
+**  issues internally.
+**
+***************************************************************************/
+//  Function to return a formatted char*  from a va_list.
+//  Allocates space for the returned char* and repeats the
+//  build process until the allocated space is large enough
+//  to hold the result.  This is internal only and the core function
+//  used by stringPrintf and stringVPrintf
+
+static char* charVPrintf(const char* format, va_list ap)
+{
+    // Iniitial allocation size.  This is a guess assuming that
+    // most printfs are one or two lines long
+    int allocSize = 256;
+
+    int rtnSize;
+    char *p;
+
+    // initial allocate for output
+    if ((p = (char*)malloc(allocSize)) == NULL)
+    {
+        return 0;
+    }
+
+    // repeat formatting  with increased realloc until it works.
+    do
+    {
+        rtnSize = vsnprintf(p, allocSize, format, ap);
+
+        // return if successful if not negative and
+        // returns less than allocated size.
+        if (rtnSize > -1 && rtnSize < allocSize)
+        {
+            return p;
+        }
+
+        // increment alloc size. Assumes that positive return is
+        // expected size and negative is error.
+        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
+
+    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
+
+    // return error code if realloc failed
+    return 0;
+}
+// Formatting function that returns a Pegasus String object.
+String stringPrintf(const char* format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+
+    // Format into allocated memory
+    char* rtnCharPtr = charVPrintf(format, ap);
+    va_end(ap);
+
+    // Free allocated memory and return formatted output in String
+    String rtnString(rtnCharPtr);
+    free(rtnCharPtr);
+
+    return(rtnString);
+}
+
+/*
+    This structure encapsulates all of the parameters for the get and
+    set methods for the ResponseStressTest Class with functions for
+    setting, getting, displaying  and comparing them.
+*/
+typedef struct MethodParameters{
+    MethodParameters() :  _responseCount(0),_instanceSize(0),
+        _countToFail(0), _failureStatusCode(CIM_ERR_SUCCESS)
+    {}
+
+    MethodParameters(Uint64 responseCount, Uint64 instanceSize,
+        Uint64 countToFail = 0, Uint32 failureStatusCode = 0)
+       :  _responseCount(responseCount), _instanceSize(instanceSize),
+        _countToFail(countToFail),
+        _failureStatusCode((CIMStatusCode)failureStatusCode) {}
+
+    MethodParameters(Uint64 responseCount, Uint64 instanceSize,
+        Uint64 countToFail, CIMStatusCode failureStatusCode)
+       :  _responseCount(responseCount), _instanceSize(instanceSize),
+        _countToFail(countToFail),
+        _failureStatusCode(failureStatusCode) {}
+
+    bool equal(const MethodParameters& mp)
+    {
+        if (_responseCount != mp._responseCount)
+        {
+            VCOUT << "Compare fail responseCount" << endl;
+            return false;
+        }
+        else if(_instanceSize != mp._instanceSize)
+        {
+            VCOUT << "Compare fail instanceSize" << endl;
+            return false;
+        }
+        else if(_countToFail != mp._countToFail)
+        {
+            VCOUT << "Compare fail countToFail" << endl;
+            return false;
+        }
+        else if(_failureStatusCode != mp._failureStatusCode)
+        {
+            VCOUT << "Compare fail failureStatusCode" << endl;
+            return false;
+        }
+        return true;
+    }
+    void setCountToFail(Uint64 x)
+    {
+        _countToFail = x;
+    }
+    void setFailureStatusCode(CIMStatusCode x)
+    {
+        _failureStatusCode = x;
+    }
+    void setFailureStatusCode(Uint32 x)
+    {
+        _failureStatusCode = (CIMStatusCode)x;
+    }
+    String toString()
+    {
+        return stringPrintf("responseCount=%lu instanceSize=%lu "
+            "countToFail=%lu _failureStatusCond=%u (%s)",
+            _responseCount, _instanceSize, _countToFail,
+            (Uint32)_failureStatusCode,
+            cimStatusCodeToString(_failureStatusCode));
+    }
+
+    Uint64 _responseCount;
+    Uint64 _instanceSize;
+    Uint64 _countToFail;
+    CIMStatusCode _failureStatusCode;
+
+} methodParameters;
+
+
 
 ClientOpPerformanceData returnedPerformanceData;
 class ClientStatistics : public ClientOpPerformanceDataHandler
@@ -127,97 +275,80 @@ void _displayTimes( Uint32 objCount, Uint32 objSize, Uint64 elapsed,
            (long unsigned int) perfData.requestSize,
            (long unsigned int) perfData.responseSize,
            objSize, objCount);
-
-
 }
 // Enumerate the instance names for the defined
-void enumerateInstances(CIMClient& client, Uint64 responseCount,
-        Uint32 responseSize)
+void enumerateInstances(CIMClient& client, const methodParameters& mp)
 {
-    try
-    {
-        Stopwatch sw;
-        sw.start();
-        Array<CIMInstance> instances =
-            client.enumerateInstances(NAMESPACE, TEST_CLASS);
+    Stopwatch sw;
+    sw.start();
+    Array<CIMInstance> instances =
+        client.enumerateInstances(NAMESPACE, TEST_CLASS);
 
-        sw.stop();
-        Uint64 elapsed = sw.getElapsedUsec();
+    sw.stop();
+    Uint64 elapsed = sw.getElapsedUsec();
 
-        _displayTimes(responseSize, instances.size(), elapsed,
-                      returnedPerformanceData);
-        //sw.printElapsed();
+    _displayTimes(mp._responseCount, instances.size(), elapsed,
+                  returnedPerformanceData);
+    //sw.printElapsed();
 //      Uint64 rtTotalTime = 0;
 //      rtTotalTime = (returnedPerformanceData.roundTripTime);
 //      Uint64 serverTime = returnedPerformanceData.serverTime;
-        PEGASUS_TEST_ASSERT(instances.size() == responseCount);
+    PEGASUS_TEST_ASSERT(instances.size() == mp._responseCount);
 
-        // Confirm that the sequence numbers are monolithic increasing
-        //
-        Uint64 prevSequenceNumber = 0;
-        for (Uint64 i = 0, n = instances.size() ;  i < n ; i++)
-        {
-            Uint32 pos;
-            if ((pos = instances[i].findProperty("SequenceNumber"))
-                 != PEG_NOT_FOUND )
-            {
-                CIMProperty p = instances[i].getProperty(pos);
-                CIMValue v = p.getValue();
-                Uint64 sequenceNumber;
-                v.get(sequenceNumber);
-                //cout << "SequenceNumber = " << sequenceNumber
-                //    << " prevSequenceNumber " << prevSequenceNumber << endl;
-
-                PEGASUS_TEST_ASSERT(sequenceNumber == (prevSequenceNumber));
-                prevSequenceNumber++;
-            }
-        }
-    }
-    catch (Exception& e)
+    // Confirm that the sequence numbers are monolithic increasing
+    //
+    Uint64 prevSequenceNumber = 0;
+    for (Uint64 i = 0, n = instances.size() ;  i < n ; i++)
     {
-        cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
+        Uint32 pos;
+        if ((pos = instances[i].findProperty("SequenceNumber"))
+             != PEG_NOT_FOUND )
+        {
+            CIMProperty p = instances[i].getProperty(pos);
+            CIMValue v = p.getValue();
+            Uint64 sequenceNumber;
+            v.get(sequenceNumber);
+            //cout << "SequenceNumber = " << sequenceNumber
+            //    << " prevSequenceNumber " << prevSequenceNumber << endl;
+
+            PEGASUS_TEST_ASSERT(sequenceNumber == (prevSequenceNumber));
+            prevSequenceNumber++;
+        }
     }
 }
 
 // Test to validate instance names. Executes the enumerate and tests the
 // number of responses against the expected response count
-void enumerateInstanceNames(CIMClient& client, Uint64 responseCount,
-                            Uint32 InstanceSize)
+void enumerateInstanceNames(CIMClient& client, const methodParameters& mp)
 {
-    try
-    {
-        Array<CIMObjectPath> paths =
-            client.enumerateInstanceNames(NAMESPACE, TEST_CLASS);
+    Array<CIMObjectPath> paths =
+        client.enumerateInstanceNames(NAMESPACE, TEST_CLASS);
 
-        cout << "count = " << paths.size() << endl;
-        if (verbose)
-        {
-            cout << endl;
-            for (Uint32 i = 0; i < paths.size() ; i++)
-            {
-                cout << paths[i].toString() << endl;
-            }
-        }
-        PEGASUS_TEST_ASSERT(paths.size() == responseCount);
-    }
-    catch (Exception& e)
+    VCOUT << "count = " << paths.size() << endl;
+    if (verbose)
     {
-        cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
+        cout << endl;
+        for (Uint32 i = 0; i < paths.size() ; i++)
+        {
+            cout << paths[i].toString() << endl;
+        }
     }
+    PEGASUS_TEST_ASSERT(paths.size() == mp._responseCount);
 }
 
 // set the instanceSize and response count parameters in the
 // client
-void set(CIMClient& client, Uint64 instanceSize, Uint64 responseCount)
+void set(CIMClient& client, const methodParameters& mp)
 {
     Array<CIMParamValue> InParams;
 
     Array<CIMParamValue> outParams;
 
-    InParams.append(CIMParamValue("ResponseCount", responseCount));
-    InParams.append(CIMParamValue("Size", instanceSize));
+    InParams.append(CIMParamValue("ResponseCount", mp._responseCount));
+    InParams.append(CIMParamValue("Size", mp._instanceSize));
+    InParams.append(CIMParamValue("CountToFail", mp._countToFail));
+    InParams.append(CIMParamValue("FailureStatusCode",
+        (Uint32)mp._failureStatusCode));
     CIMValue returnValue = client.invokeMethod(
         NAMESPACE,
         CIMObjectPath(String::EMPTY,
@@ -235,21 +366,39 @@ void set(CIMClient& client, Uint64 instanceSize, Uint64 responseCount)
     PEGASUS_TEST_ASSERT(rc == 0);
 }
 
-// get the current provider test parameters.
-void get(CIMClient& client, Uint64& instanceSize, Uint64& responseCount)
+// Issue the reset invoke method operation and wait for good response.
+void reset(CIMClient& client)
 {
     Array<CIMParamValue> InParams;
-
     Array<CIMParamValue> outParams;
-
-    InParams.append(CIMParamValue("Size", instanceSize));
-    InParams.append(CIMParamValue("ResponseCount", responseCount));
 
     CIMValue returnValue = client.invokeMethod(
         NAMESPACE,
         CIMObjectPath(String::EMPTY,
-                      CIMNamespaceName(),
-                      CIMName(TEST_CLASS)),
+            CIMNamespaceName(),
+            CIMName(TEST_CLASS)),
+        CIMName("reset"),
+        InParams,
+        outParams);
+
+    Uint32 rc;
+    returnValue.get(rc);
+    PEGASUS_TEST_ASSERT(rc == 0);
+}
+// get the current provider test parameters.
+void get(CIMClient& client, methodParameters& mp)
+{
+    Array<CIMParamValue> InParams;
+    Array<CIMParamValue> outParams;
+
+//  InParams.append(CIMParamValue("Size", instanceSize));
+//  InParams.append(CIMParamValue("ResponseCount", responseCount));
+
+    CIMValue returnValue = client.invokeMethod(
+        NAMESPACE,
+        CIMObjectPath(String::EMPTY,
+            CIMNamespaceName(),
+            CIMName(TEST_CLASS)),
         CIMName("get"),
         InParams,
         outParams);
@@ -265,11 +414,21 @@ void get(CIMClient& client, Uint64& instanceSize, Uint64& responseCount)
 
         if(paramName =="ResponseCount")
         {
-            v.get(responseCount);
+            v.get(mp._responseCount);
         }
         else if(paramName =="Size")
         {
-            v.get(instanceSize);
+            v.get(mp._instanceSize);
+        }
+        else if(paramName =="CountToFail")
+        {
+            v.get(mp._countToFail);
+        }
+               else if(paramName =="FailureStatusCode")
+        {
+            Uint32 x;
+            v.get(x);
+            mp._failureStatusCode = (CIMStatusCode)x;
         }
         else
         {
@@ -283,38 +442,52 @@ void get(CIMClient& client, Uint64& instanceSize, Uint64& responseCount)
 // parameters to their original condition.
 void testSetAndGetMethods(CIMClient& client)
 {
-    Uint64 instanceSizeOrig = 0;
-    Uint64 responseCountOrig = 0;
-    Uint64 instanceSize = 0;
-    Uint64 responseCount = 0;
-    get(client,instanceSizeOrig, responseCountOrig);
-    set(client, 1500, 2000);
+    // This should match the definition in the provider
+    methodParameters orig(5, 100, 0,0);
+    VCOUT << "orig = " << orig.toString() << endl;
 
-    get(client,instanceSize, responseCount);
-    PEGASUS_TEST_ASSERT(instanceSize == 1500);
-    PEGASUS_TEST_ASSERT(responseCount = 2000);
+    methodParameters rtn;
+    get(client, rtn);
+    VCOUT << "getRtn = " << rtn.toString() << endl;
 
-    set(client, instanceSizeOrig, responseCountOrig);
+    // This confirms that our orig is really the provider defaults.
+    PEGASUS_TEST_ASSERT(rtn.equal(orig));
 
-    get(client,instanceSize, responseCount);
-    PEGASUS_TEST_ASSERT(instanceSize == instanceSizeOrig);
-    PEGASUS_TEST_ASSERT(responseCount = responseCountOrig);
+    methodParameters test1(1500, 2000);
+    set(client, test1);
+
+    methodParameters test1Rtn = test1;
+    get(client, test1Rtn);
+    PEGASUS_TEST_ASSERT(test1.equal(test1Rtn));
+
+    set(client, orig);
+
+    methodParameters test2Rtn;
+    get(client, test2Rtn);
+    PEGASUS_TEST_ASSERT(test2Rtn.equal(orig));
+
+    // assumes provider set to orig.
+    methodParameters testFailureParams = orig;
+    testFailureParams.setFailureStatusCode(CIM_ERR_FAILED);
+    testFailureParams.setCountToFail(4);
+
+    set(client, testFailureParams);
+    methodParameters testFailureParamsRtn = testFailureParams;
+    get(client, testFailureParamsRtn);
+    PEGASUS_TEST_ASSERT(testFailureParams.equal(testFailureParamsRtn));
+
+    // reset to the original parameters.
+    set(client, orig);
+
+    get(client, rtn);
+    VCOUT << "getRtn = " << rtn.toString() << endl;
+
+    // This confirms that our orig is really the provider defaults.
+    PEGASUS_TEST_ASSERT(rtn.equal(orig));
+
+    VCOUT << "Passed testSetAndGetMethods." << endl;
+
 }
-
-//CIMClient connectServer()
-//{
-//    CIMClient client;
-//    try
-//    {
-//        client.connectLocal();
-//    }
-//    catch (Exception& e)
-//    {
-//        cerr << "Error: Connect Failure " << e.getMessage() << endl;
-//        exit(1);
-//    }
-//    return(client);
-//}
 
 int main(int argc, char** argv)
 {
@@ -348,15 +521,16 @@ int main(int argc, char** argv)
             testSetAndGetMethods(client);
 
             // set test parameters to 150 = size, 20 = response count
-            Uint64 responseCount = 20;
-            Uint64 instanceSize = 150;
+            methodParameters mp(20,150);
 
-            set(client, instanceSize, responseCount);
+            set(client, mp);
 
-            enumerateInstanceNames(client, responseCount, instanceSize);
+            enumerateInstanceNames(client, mp);
 
-            enumerateInstances(client, responseCount, instanceSize);
+            enumerateInstances(client, mp);
         }
+        // This is a real stress test and should be only used for manual
+        // test, not the nightly tests.
         else if (strcmp(argv[1],"test") == 0)
         {
             Array<Uint64> objSize;
@@ -364,6 +538,7 @@ int main(int argc, char** argv)
             objSize.append(1000);
             objSize.append(10000);
             objSize.append(50000);
+
             Array<Uint64> objCount;
             objCount.append(100);
             objCount.append(1000);
@@ -376,20 +551,73 @@ int main(int argc, char** argv)
             {
                 for(Uint32 y = 0; y < objCount.size(); y++)
                 {
-                    set(client, objSize[x], objCount[y]);
+                    methodParameters mp(objSize[x], objCount[y]);
+                    set(client, mp);
 
-                    enumerateInstances(client, objCount[y],
-                                           objSize[x]);
+                    enumerateInstances(client, mp);
                 }
             }
         }
+
     }
     catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << endl;
+        cerr << "Error: Connect or standard tests " << e.getMessage() << endl;
         exit(1);
     }
 
+    VCOUT << "Start Error reponse Tests. " << endl;
+    // test to confirm that the countToFailure and failureStatusCode
+    // work. This definition should fail after 30 objects returned.
+    methodParameters mpFail(20,150,10, CIM_ERR_FAILED);
+
+    set(client, mpFail);
+    try
+    {
+        enumerateInstances(client, mpFail);
+        PEGASUS_TEST_ASSERT(false);    // should not reach here.
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() != CIM_ERR_FAILED)
+        {
+            cout << "ERROR: expected CIM_ERR_FAILED. got " << e.getCode()
+                << e.getMessage() << endl;
+            PEGASUS_TEST_ASSERT(false);
+        }
+    }
+
+    try
+    {
+        enumerateInstanceNames(client, mpFail);
+        PEGASUS_TEST_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() != CIM_ERR_FAILED)
+        {
+            cout << "ERROR: expected CIM_ERR_FAILED. got " << e.getCode()
+                << e.getMessage() << endl;
+            PEGASUS_TEST_ASSERT(false);
+        }
+    }
+
+    mpFail.setCountToFail(155);    // Should not fail
+    set(client, mpFail);
+
+    try
+    {
+        enumerateInstanceNames(client, mpFail);
+    }
+    catch (CIMException& e)
+    {
+        cout << "ERROR: Count should be greater than number of resposnes.got "
+             << e.getCode() << e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(false);
+    }
+
+    // reset provider to default in case another test.
+    reset(client);
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

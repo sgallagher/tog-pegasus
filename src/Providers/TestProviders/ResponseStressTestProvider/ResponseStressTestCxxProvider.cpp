@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/Exception.h>
 
 #include "ResponseStressTestCxxProvider.h"
 
@@ -125,15 +126,23 @@ ResponseStressTestCxxProvider::~ResponseStressTestCxxProvider()
 {
 }
 
+// Reset all of the behavior parameters to a defined default.
+void ResponseStressTestCxxProvider::resetParameters()
+{
+        // set default  instance size and response count
+    _responseCount = 5;
+    _instanceSize = 100;
+    _continue = true;
+    _countToFail = 0;
+    _failureStatusCode = 0;
+}
 void ResponseStressTestCxxProvider::initialize(CIMOMHandle& cimom)
 {
     // save cimom handle
     _cimom = cimom;
 
-    // set default  instance size and response count
-    _instanceSize = 100;
-    _responseCount = 5;
-    _continue = true;
+    resetParameters();
+
 }
 
 void ResponseStressTestCxxProvider::terminate()
@@ -183,6 +192,10 @@ void ResponseStressTestCxxProvider::enumerateInstances(
 {
     handler.processing();
 
+    // if _countToFail != 0 count number of objects to deliver before
+    // we issue the defined CIMException status code
+    Uint32 countToFail = (_countToFail == 0)? 0 : _countToFail;
+
     Uint64 prevTime = TimeValue::getCurrentTime().toMicroseconds();
 
     for (Uint32 i = 0, n = _responseCount ; i < n; i++)
@@ -204,6 +217,15 @@ void ResponseStressTestCxxProvider::enumerateInstances(
         {
             // suppress error
         }
+
+        if (_countToFail != 0)
+        {
+            if ((--countToFail) == 0)
+            {
+                throw CIMException((CIMStatusCode)_failureStatusCode,
+                                            "Reached failure count");
+            }
+        }
     }
 
     handler.complete();
@@ -216,6 +238,8 @@ void ResponseStressTestCxxProvider::enumerateInstanceNames(
 {
     handler.processing();
 
+    Uint32 countToFail = (_countToFail == 0)? 0: _countToFail;
+
     for (Uint32 i = 0, n = _responseCount ; i < n; i++)
     {
 
@@ -227,6 +251,14 @@ void ResponseStressTestCxxProvider::enumerateInstanceNames(
         catch (CIMException&)
         {
             // suppress error
+        }
+        if (_countToFail != 0)
+        {
+            if ((--countToFail) == 0)
+            {
+                throw CIMException((CIMStatusCode)_failureStatusCode,
+                    "Reached failure count Limit");
+            }
         }
     }
 
@@ -306,6 +338,18 @@ void ResponseStressTestCxxProvider::invokeMethod(
                     v.get(instanceSize);
                     _instanceSize = instanceSize;
                 }
+                else if(paramName =="CountToFail")
+                {
+                    Uint64 countToFail;
+                    v.get(countToFail);
+                    _countToFail = countToFail;
+                }
+                else if(paramName =="FailureStatusCode")
+                {
+                    Uint32 failureStatusCode;
+                    v.get(failureStatusCode);
+                    _failureStatusCode = failureStatusCode;
+                }
                 else
                 {
                     rtnCode = 1;
@@ -322,8 +366,18 @@ void ResponseStressTestCxxProvider::invokeMethod(
 
             OutParams.append(CIMParamValue("ResponseCount", _responseCount));
             OutParams.append(CIMParamValue("Size", (Uint64)_instanceSize));
+            OutParams.append(CIMParamValue("CountToFail",
+                                           (Uint64)_countToFail));
+            OutParams.append(CIMParamValue("FailureStatusCode",
+                                           (Uint32)_failureStatusCode));
 
             handler.deliverParamValue(OutParams);
+            handler.deliver(Uint32(0));
+        }
+        // Resets all of the method behavior parameters and returns OK
+        else if (methodName.equal("reset"))
+        {
+            resetParameters();
             handler.deliver(Uint32(0));
         }
 

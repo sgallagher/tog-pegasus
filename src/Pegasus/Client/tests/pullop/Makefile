@@ -81,7 +81,7 @@ errortests:
 	make invalidAssocObjectPath
 	make maxPullObjectCountError
 	make testexceedMaxObjectCountLimit
-	@$(ECHO) +++++ pullop errottests Passed.
+	@$(ECHO) +++++ pullop errortests Passed.
 
 poststarttests:
 	@$(ECHO)  Enumerate and EnumerateNames tests that go to Completion

@@ -105,8 +105,13 @@ protected:
 private:
     Uint64 _instanceSize;
     Uint64 _responseCount;
+    Uint64 _countToFail;
+    Uint32 _failureStatusCode;
+
     CIMOMHandle _cimom;
     Boolean _continue;
+
+    void resetParameters();
 };
 
 PEGASUS_NAMESPACE_END

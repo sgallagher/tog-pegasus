@@ -57,11 +57,6 @@ typedef Array<Sint8> ArraySint8;
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-//// KS_TODO REMOVE THIS _Temp test for size validity DELETE when done
-//// With development of pull extensions that use the size() function
-#define TEST_SIZE_VALID PEGASUS_ASSERT(sizeValid());
-////#define TEST_SIZE_VALID
-
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
 public:
@@ -228,7 +223,6 @@ public:
 
     void setInstanceNames(const Array<CIMObjectPath>& x)
     {
-        ////  AutoMutex autoMut(testLock);
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
@@ -244,14 +238,10 @@ public:
 
     void setInstance(const CIMInstance& x)
     {
-        //// AutoMutex autoMut(testLock);
-        TEST_SIZE_VALID;
         _instances.clear();
         _instances.append(x);
         _size++;
         _encoding |= RESP_ENC_CIM;
-
-        TEST_SIZE_VALID;
     }
 
     // Instances handling
@@ -270,12 +260,9 @@ public:
 
     void setInstances(const Array<CIMInstance>& x)
     {
-        //// AutoMutex autoMut(testLock);
-        TEST_SIZE_VALID;
         _instances=x;
         _encoding |= RESP_ENC_CIM;
         _size += x.size();
-        TEST_SIZE_VALID;
     }
 
     void appendInstance(const CIMInstance& x)
@@ -425,8 +412,6 @@ public:
     {
         return _propertyList;
     }
-
-    bool sizeValid();                   //KS_TEMP KS_TODO REMOVE
 
     void traceResponseData();           // KS_TODO Diagnostic. remove
     String toStringTraceResponseData();  // KS_TODO Diagnostic remove

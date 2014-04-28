@@ -147,10 +147,6 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslTrustStoreUserName",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#endif
 #ifdef PEGASUS_OS_ZOS
     {"enableCFZAPPLID",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner},

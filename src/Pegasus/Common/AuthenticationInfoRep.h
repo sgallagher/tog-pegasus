@@ -40,9 +40,6 @@
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/AuthHandle.h>
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -138,15 +135,6 @@ public:
         return _ipAddress;
     }
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    CIMKerberosSecurityAssociation* getSecurityAssociation() const
-    {
-        return _securityAssoc.get();
-    }
-
-    void setSecurityAssociation();
-#endif
-
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {
         return _clientCertificate;
@@ -211,9 +199,7 @@ private:
     String  _authType;
     Boolean _connectionAuthenticated;
     String  _ipAddress;
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
-#endif
+
     Boolean _wasRemotePrivilegedUserAccessChecked;
 
     Array<SSLCertificateInfo*> _clientCertificate;

@@ -557,7 +557,7 @@ else
     echo "icu: No"
 fi
 
-if [ "$icuYes" == "1" ]; then
+if [ "$icuYes" = "1" ]; then
    icuversion=$(icu-config --version)
 
    echo $icuversion
@@ -948,9 +948,7 @@ if [ -f $options ]; then
     cp -f $options $options.bak
 fi
 
-
-
-source ./$options
+. ./$options
 ##==============================================================================
 ##
 ## Create GNUmakefile

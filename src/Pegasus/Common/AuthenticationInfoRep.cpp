@@ -162,21 +162,6 @@ void AuthenticationInfoRep::setAuthType(const String& authType)
     PEG_METHOD_EXIT();
 }
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-void AuthenticationInfoRep::setSecurityAssociation()
-{
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setSecurityAssociation");
-
-    if ( !_securityAssoc.get() )
-    {
-        _securityAssoc.reset(new CIMKerberosSecurityAssociation);
-    }
-
-    PEG_METHOD_EXIT();
-}
-#endif
-
 void AuthenticationInfoRep::setClientCertificateChain(
     Array<SSLCertificateInfo*> clientCertificate)
 {

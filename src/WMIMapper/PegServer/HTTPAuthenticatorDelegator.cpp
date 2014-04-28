@@ -36,20 +36,10 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include "HTTPAuthenticatorDelegator.h"
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-/**
-    Constant representing the Kerberos authentication challenge header.
-*/
-static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
-#endif
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 cimOperationMessageQueueId,
@@ -104,27 +94,6 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     PEG_METHOD_EXIT();
 }
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-void HTTPAuthenticatorDelegator::_sendSuccess(
-    Uint32 queueId,
-    const String& authResponse,
-    Boolean closeConnect)
-{
-    PEG_METHOD_ENTER(TRC_HTTP,
-        "HTTPAuthenticatorDelegator::_sendSuccess");
-
-    //
-    // build OK (200) response message
-    //
-
-    Array<Sint8> message;
-    XmlWriter::appendOKResponseHeader(message, authResponse);
-
-    _sendResponse(queueId, message);
-
-    PEG_METHOD_EXIT();
-}
-#endif
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
@@ -372,16 +341,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
              enableAuthentication
            )
         {
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            // The presence of a Security Association indicates that Kerberos
-            // is being used.
-            CIMKerberosSecurityAssociation *sa =
-                httpMessage->authInfo->getSecurityAssociation();
-            if (sa)
-            {
-                sa->setClientSentAuthorization(true);
-            }
-#endif
             //
             // Do http authentication if not authenticated already
             //
@@ -396,19 +355,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 {
                     //ATTN: the number of challenges get sent for a
                     //      request on a connection can be pre-set.
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                    // Kerberos authentication needs access to the
-                    // AuthenticationInfo object for this session in order
-                    // to set up the reference to the
-                    // CIMKerberosSecurityAssociation object for this session.
-
-                    String authResp =
-                        _authenticationManager->getHttpAuthResponseHeader(
-                            httpMessage->authInfo);
-#else
                     String authResp =
                         _authenticationManager->getHttpAuthResponseHeader();
-#endif
+
                     if (!String::equal(authResp, String::EMPTY))
                     {
                         _sendChallenge(queueId, authResp, false);
@@ -427,193 +376,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }  // first not authenticated check
         }  // "Authorization" header check
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        // The presence of a Security Association indicates that Kerberos is
-        // being used.
-        CIMKerberosSecurityAssociation *sa =
-            httpMessage->authInfo->getSecurityAssociation();
-
-        // This will process a request with no content.
-        if (sa && authenticated)
-        {
-            if (sa->getServerToken().size())
-            {
-                // This will handle the scenario where client did not send
-                // data (content) but is authenticated.  After the client
-                // receives the success it should will send the request.
-                // For mutual authentication the client may choose not to
-                // send request data until the context is fully established.
-                // Note:  if mutual authentication wass not requested by the
-                // client then no server token will be available.
-                if (contentLength == 0)
-                {
-                    String authResp =
-                        _authenticationManager->getHttpAuthResponseHeader(
-                            httpMessage->authInfo);
-                    if (!String::equal(authResp, String::EMPTY))
-                    {
-                        _sendSuccess(queueId, authResp);
-                    }
-                    else
-                    {
-                        _sendHttpError(queueId,
-                                       HTTP_STATUS_BADREQUEST,
-                                       String::EMPTY,
-                                       "Authorization header error");
-                    }
-
-                    PEG_METHOD_EXIT();
-                    return;
-                }
-            }
-        }
-
-        // This will process a request without an authorization record.
-        if (sa && !authenticated)
-        {
-            // Not authenticated can result from the client not sending an
-            // authorization record due to a previous authentication.  In
-            // this scenario the client was previous authenticated but
-            // chose not to send an authorization record.  The Security
-            // Association maintains state so a request will not be
-            // processed unless the Security association thinks the client
-            // is authenticated.
-
-            // This will handle the scenario where the client was
-            // authenticated in the previous request but choose not to
-            // send an authorization record.
-            if (sa->getClientAuthenticated())
-            {
-                authenticated = true;
-            }
-        }
-
-        // The following is processing to unwrap (unencrypt) the message
-        // received from the client when using kerberos authentication.
-        // For Kerberos there should always be an "Authorization" record
-        // sent with the request so the authenticated flag in the method
-        // should always be checked to verify that the client is actually
-        // authenticated.  If no "Authoriztion" was sent then the client
-        // can't be authenticated.  The "Authorization" record was
-        // processed above and if the "Authorization" record was
-        // successfully processed then the client is authenticated.
-        if (sa  &&  authenticated)
-        {
-            Uint32 rc;  // return code for the wrap
-            Array<Sint8> final_buffer;
-            final_buffer.clear();
-            Array<Sint8> header_buffer;
-            header_buffer.clear();
-            Array<Sint8> inWrappedMessage;
-            inWrappedMessage.clear();
-            Array<Sint8> outUnwrappedMessage;
-            outUnwrappedMessage.clear();
-
-            // The message needs to be parsed in order to distinguish
-            // between the headers and content. The message was parsed
-            // earlier in this method so we can use the contentLength set
-            // during that parse. When parsing the code breaks out of the
-            // loop as soon as it finds the double separator that
-            // terminates the headers so the headers and content can be
-            // easily separated.
-
-            // Extract the unwrapped headers
-            for (Uint32 i = 0; i < httpMessage->message.size() - contentLength;
-                 i++)
-            {
-                header_buffer.append(httpMessage->message[i]);
-            }
-
-            // Extract the wrapped content
-            for (Uint32 i = httpMessage->message.size() - contentLength;
-                 i < httpMessage->message.size(); i++)
-            {
-                inWrappedMessage.append(httpMessage->message[i]);
-            }
-
-            rc = sa->unwrap_message(inWrappedMessage,
-                                    outUnwrappedMessage);  // ASCII
-
-            if (rc)
-            {
-                // clear out the outUnwrappedMessage; if unwrapping is required
-                // and it fails we need to send back a bad request.  A message
-                // left in an wrapped state will be a severe failue later.
-                // Reason for unwrap failing may be due to a problem with the
-                // credentials or context or some other failure may have
-                // occurred.
-                outUnwrappedMessage.clear();
-                // build a bad request.  We do not want to risk sending back
-                // data that can't be authenticated.
-                final_buffer =
-                  XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-                //remove the last separater; the authentication record still
-                // needs to be added.
-                final_buffer.remove(final_buffer.size());  // "\n"
-                final_buffer.remove(final_buffer.size());  // "\r"
-
-                // Build the WWW_Authenticate record with token.
-                String authResp =
-                  _authenticationManager->getHttpAuthResponseHeader(
-                                httpMessage->authInfo);
-                // error occurred on wrap so the final_buffer needs to be built
-                // differently
-                final_buffer << authResp;
-                // add double separaters to end
-                final_buffer << "\r\n";
-                final_buffer << "\r\n";
-
-                _sendResponse(queueId, final_buffer);
-                PEG_METHOD_EXIT();
-                return;
-            }
-
-            // If outUnwrappedMessage does not have any content data this
-            // is a result of no data available.  This could be a result
-            // of the client not sending any content data.  This is not
-            // unique to Kerberos so this will not be handled here but it
-            // will be handled when the content is processed. Or, the
-            // client did not wrap message...this is okay.  If the unwrap
-            // resulted in no data when there should have been data then
-            // this should have been caught above when the unwrap returned
-            // a bad return code
-            if (final_buffer.size() == 0)
-            {
-                // if outUnwrappedMessage is empty that indicates client did
-                // not wrap the message.  The original message will be used.
-                if (outUnwrappedMessage.size())
-                {
-                    final_buffer.appendArray(header_buffer);
-                    final_buffer.appendArray(outUnwrappedMessage);
-                    // add back char that was appended earlier
-                    final_buffer.append('\0');
-                    // Note: if additional characters added
-                    // in future add back here
-                }
-            }
-            else
-            {
-                // The final buffer should not have any data at this point.
-                // If it does end the server because something bad happened.
-                PEG_TRACE_CSTRING(
-                    TRC_HTTP,
-                    Tracer::LEVEL2,
-                    "HTTPAuthenticatorDelegator - the final buffer should "
-                        "not have data");
-                PEGASUS_ASSERT(0);
-            }
-
-            // replace the existing httpMessage with the headers and
-            // unwrapped message
-            // If the final buffer has not been set then the original
-            // httpMessage will be used.
-            if (final_buffer.size())
-            {
-                    httpMessage->message.clear();
-                    httpMessage->message = final_buffer;
-            }
-        } // if not kerberos and client not authenticated
-#endif
 
         if ( authenticated || !enableAuthentication )
         {
@@ -708,14 +470,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         } // authenticated and enableAuthentication check
         else
         {  // client not authenticated; send challenge
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            String authResp =
-                _authenticationManager->getHttpAuthResponseHeader(
-                    httpMessage->authInfo);
-#else
             String authResp =
                 _authenticationManager->getHttpAuthResponseHeader();
-#endif
 
             if (!String::equal(authResp, String::EMPTY))
             {

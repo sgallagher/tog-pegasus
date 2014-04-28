@@ -47,9 +47,6 @@
     {"sslClientVerificationMode",             "disabled"},
     {"sslTrustStoreUserName",                         ""},
     {"enableNamespaceAuthorization",             "false"},
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName",                      "cimom"},
-#endif
     {"enableSubscriptionsForNonprivilegedUsers",  "true"},
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups",                          ""},

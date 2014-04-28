@@ -42,11 +42,6 @@ DEFINES += -DPEGASUS_OS_ZOS
 
 DEFINES += -DPEGASUS_USE_SYSLOGS
 
-ifdef PEGASUS_KERBEROS_AUTHENTICATION
-  DEFINES += -DPEGASUS_KERBEROS_AUTHENTICATION
-endif
-
-
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
 FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamiccast),float(ieee),goff"

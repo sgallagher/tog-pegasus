@@ -101,13 +101,6 @@ private:
         Buffer& message,
         Boolean closeConnect);
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    void _sendSuccess(
-        Uint32 queueId,
-        const String& authResponse,
-        Boolean closeConnect);
-#endif
-
     void _sendChallenge(
         Uint32 queueId,
         const String& errorDetail,

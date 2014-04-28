@@ -38,10 +38,6 @@
 
 #include <Pegasus/Security/Authentication/Linkage.h>
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/AuthenticationInfo.h>
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class implements the HTTP authentication and Pegasus Local
@@ -103,12 +99,7 @@ public:
     /** Constructs the HTTP authentication challenge header.
         @return String containing the authentication challenge
     */
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    String AuthenticationManager::getHttpAuthResponseHeader(
-        AuthenticationInfo* authInfo = 0);
-#else
     String getHttpAuthResponseHeader();
-#endif
 
     static Boolean isRemotePrivilegedUserAccessAllowed( String & userName);
 

@@ -39,9 +39,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SSLContext.h>
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -300,27 +297,6 @@ public:
         return _rep->getIpAddress();
     }
 
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    /** Get the CIM Security Association
-        @return a pointer to the CIM Security Association
-    */
-    CIMKerberosSecurityAssociation* getSecurityAssociation() const
-    {
-        CheckRep(_rep);
-        return _rep->getSecurityAssociation();
-    }
-
-    /** Set the CIM Security Association
-        The pointer will only be set once. If it is already set it will
-        not reset it.
-    */
-    void setSecurityAssociation()
-    {
-        CheckRep(_rep);
-        _rep->setSecurityAssociation();
-    }
-#endif
 
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {

@@ -19,7 +19,7 @@ TODO list:
    4. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
       pull not completed so we feed the responses back to the EnmerationContext
       queues
-   3. Lots of minor TODOs, diagnostics, etc. still in the code
+   3. Minor TODOs, diagnostics, etc. still in the code
    4. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration.  This should be discussed.  Am making
       this a separate bug.  See bug 9819 for the changes to cover this.
@@ -39,7 +39,7 @@ TODO list:
       so they would only create output for up to the count supplied.
    9. Add more static tests (currently only OpenEnumerateInstances is covered).
       Low priority because most of this except exact XML covered in other
-      tests.
+      tests.  ADDED OpenEnumerateInstanceNames
    10. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
       further since there is some overlap.  That is low priority.
    12.Add exception for to many entries in EnumerationContextTable. The
@@ -47,7 +47,7 @@ TODO list:
    12. Correct issue between operations and HTTP where we are sending
       trailers with exceptions.  Also correct issue where we are
       sending endOfSequence and EnumerationContext in response when
-      we send CIMException.
+      we send CIMException.  DONE
 
    NEXT TASKS: 
       b. Finish and test the OpenQueryInstances
@@ -57,6 +57,28 @@ TODO list:
 	 that use the EnumerationContext (request thread, provider thread,
 	 timeout thread) and a place where not mutuxed, primarily the
 	 timeout thread.
+
+27 April - mergeout to head of tree
+1. Mergeout of the code to the head of tree. Documented that mergeout in
+   the bug
+
+27 April 2014
+1. Clean up in a number of areas, mostly just code without changing
+   functionality.
+2. Modified CIMMessage.h slightly to clarify names of the pull intermediate
+   messages (the common open and pull response);
+3. Removed a number of diagnostics from CIMResponseData
+4. Added new function to ResponseStressTestProvider to be able to terminate
+   output after a defined number of objects with a CIMException.
+5. Removed a number of other TODOs
+6. Corrected a couple of errors in the server message bundle.
+7. Modified ResponseEncoder to only output the error for pull errors.
+   It was errounously outputting the EndOfSequence, EnumerationContext and
+   the error.  This way, only the error is sent which is spec.
+8. Removed number of TODOs and cleaned up a couple of others.
+9. Added static tests for OpenEnumerateInstanceNames.
+10. Modified a number of the temporary diagnostics to be permanent by
+    changing them to PEGASUS_DEBUG_ASSERTs
 
 22 April 2014
 1. Clean up some messages.
@@ -70,7 +92,7 @@ TODO list:
    timeout) and never do pulls after open.
 
 21 April 2014
-1. Reorganizzed code in CIMOperationRequestDecoder.cpp ...Iparam classes.
+1. Reorganized code in CIMOperationRequestDecoder.cpp ...Iparam classes.
    Cleaned up the rejectCIMException code.
 2. Cleanup some issues in the EnumerationContextTimeout Thread.
 3. Fixed issue in pullop where it was using zero as default for default

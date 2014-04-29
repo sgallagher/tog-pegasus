@@ -78,17 +78,24 @@ class TST_ResponseStress
 	 "CountToFail - if not zero, issue this many objects and then "
 	 "the CIMException defined by FailureStatusCode."),
     static] Uint32 set(
-        [IN] uint64 ResponseCount,
-        [IN] uint64 Size,
-	[IN] uint64 CountToFail,
-	[IN] uint32 FailureStatusCode);
+        [IN, Description("Number of objects to send in response.")]
+	    uint64 ResponseCount,
+        [IN, Description("Approximate size of response object for Instances. "
+	" Does not apply to path responses.")]
+	    uint64 Size,
+	[IN, Description("Number of object to return before executing "
+	"CIMException defined by FailureStatusCode. If zero, ignore.")]
+	    uint64 CountToFail,
+	[IN, Description("CIMException code to return when CountToFail parameter "
+	" is non-zero.")]
+	    uint32 FailureStatusCode);
 
     [ Description ("Method returns the current control parameters. "),
     static] Uint32 get(
-        [OUT] uint64 ResponseCount,
-        [OUT] uint64 Size,
-	[OUT] uint64 CountToFail,
-	[OUT] uint32 FailureStatusCode);
+        [IN ( false ), OUT] uint64 ResponseCount,
+        [IN ( false ), OUT] uint64 Size,
+	[IN ( false ), OUT] uint64 CountToFail,
+	[IN ( false ), OUT] uint32 FailureStatusCode);
 
     [ Description ("Reset method parameters to provider default. "),
     static] Uint32 reset();

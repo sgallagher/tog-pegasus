@@ -37,17 +37,21 @@ TODO list:
       of queue when converting (avoids the second move). This would mean
       extending the output writers to allow the count field to be supplied
       so they would only create output for up to the count supplied.
-   9. Add more static tests (currently only OpenEnumerateInstances is covered).
+   9. Add more static tests (currently only OpenEnumerateInstances and
+      OpenEnumerateInstanceNames covered).
       Low priority because most of this except exact XML covered in other
-      tests.  ADDED OpenEnumerateInstanceNames
+      tests. note that we can only add very limited tests since a) no
+      way to test multiple opertions in sequence(i.e. open/pull) and
+      cannot be sure how many responses will come back in all cases even
+      for open.
    10. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
       further since there is some overlap.  That is low priority.
-   12.Add exception for to many entries in EnumerationContextTable. The
-      test exists but is ignored right now.
-   12. Correct issue between operations and HTTP where we are sending
+   11. Correct issue between operations and HTTP where we are sending
       trailers with exceptions.  Also correct issue where we are
       sending endOfSequence and EnumerationContext in response when
-      we send CIMException.  DONE
+      we send CIMException.  DONE Except that we really need to get
+      rid of the trailers completely for pull operations.  Need to
+      have flag to send as non trailer (probably non_chunked flag)
 
    NEXT TASKS: 
       b. Finish and test the OpenQueryInstances
@@ -57,6 +61,24 @@ TODO list:
 	 that use the EnumerationContext (request thread, provider thread,
 	 timeout thread) and a place where not mutuxed, primarily the
 	 timeout thread.
+
+1 May 2014
+1. Cleanup of code and variable names.
+2. Removed namespace variable from EnumerationContext.  It was never used.
+3. Added test for max number of open enumerations.  Right now it is fixed
+   and set about 100. Note that this is tied to the size of hash table
+   so that there is a issue with more dynamic setting of max and the
+   hash table size.
+4. Removed several unused functions.
+5. Found one possible issue causing thread conflict but not the core one
+   yet.  
+
+30 April
+1. Added exception response to dispatcher for Limits exceeded on
+   CreateEnumerationContext. Returns Exceeded server limits CIMException.
+2. Fixed possible deadlock where we were not unlocking EnumerationContext
+   under error condition
+
 
 27 April - mergeout to head of tree
 1. Mergeout of the code to the head of tree. Documented that mergeout in

@@ -809,10 +809,10 @@ protected:
         const String& filterQueryLanguageParam,
         const String& filterQueryParam);
 
-    Boolean _rejectInvalidMaxObjectCountParam(
+    bool _rejectInvalidMaxObjectCountParam(
         CIMOperationRequestMessage* request,
         const Uint32 maxObjectCountParam,
-        Boolean requiredParameter,
+        bool requiredParameter,
         Uint32& value,
         const Uint32 defaultValue);
 
@@ -862,6 +862,8 @@ protected:
 
     Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         CIMConstClass& targetClass);
+
+    void _rejectCreateContextFailed(CIMOperationRequestMessage* request);
 
     /**Equivalent to _rejectInvalidClassParameter above except that
        it included objecName parameter

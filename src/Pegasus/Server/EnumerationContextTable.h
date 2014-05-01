@@ -72,15 +72,22 @@ class EnumerationContext;
 class PEGASUS_SERVER_LINKAGE EnumerationContextTable
 {
 public:
-
+    // KS_TODO regularize relation between max simultaneous and sice of
+    // hash table. Issue is that hash table becomes less efficient the
+    // more entries it gets so should be somewhere near max open size
+    // Now they are set completely separately. Hashtable default is 32
     /**
         Create a new Enumeration Table Object and clear parameters.
-        Note that this is really a singleton.
+        Note that this is a singleton.
+        @param maxOpenContexts Uint32 sets limit on maximum number
+            of contexts that may be open simultaneously. Note that this number
+            may have effect on the Hashtable size which is also set in
+            This header file.
     */
-    EnumerationContextTable();
+    EnumerationContextTable(Uint32 maxOpenContexts = 100);
 
     /**
-       Set the default parameter values for Pull Operationsl.
+       Set the default parameter values for Pull Operations.
 
        @param  defaultInteroperationTimeoutValue Uint32 default time
        between operations of a pull sequence if the request has
@@ -100,7 +107,6 @@ public:
         required to process the pull and close operations for the enumeration
         sequence controlled by this context. The context instance will remain
         active for the life of the enumeration sequence.
-        @param nameSpace - Namespace for this sequence.
         @param operationTimeOutParam Uint32Arg value of operation
         timeout in seconds.
         @param continueOnError Boolean containing the continueOnError flag for
@@ -113,7 +119,6 @@ public:
         @return EnumerationContext*
      */
     EnumerationContext* createContext(
-        const CIMNamespaceName& nameSpace,
         Uint32Arg&  operationTimeOutParam,
         Boolean continueOnError,
         MessageType pullRequestType,
@@ -161,7 +166,6 @@ public:
 
     bool stopThread();
 
-    // KS_TODO think some of these are overkill
     Uint32 timoutInterval() const;
 
     /** isNextScanTime tests if the next defined timeout for the
@@ -242,14 +246,18 @@ private:
     // when NULL is specified in the request.
     Uint32 _defaultOperationTimeout;
 
-    // Count of enumerations Opened total
+    // Count of enumerations Opened total since last statistics reset
     Uint64 _enumerationContextsOpened;
 
     // Count of enumerations TimedOut
     Uint32 _enumerationsTimedOut;
 
-    // maximum number of Simultaneous Contexts open.
-    Uint32 _maxSimultaneousContexts;
+    // maximum number of Simultaneous Contexts open since last statistics
+    // reset
+    Uint32 _maxOpenContexts;
+
+    // Maximum limit on number of open contexts. Tested on each create
+    Uint32 _maxOpenContextsLimit;
 
     Uint64 _requestsPerEnumerationSequence;
 

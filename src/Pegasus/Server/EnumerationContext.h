@@ -97,23 +97,24 @@ private:
     Controls the EnumerationContext for pull operations.  An instance
     of this class is the controller for the sequence of operations representing
     a pull sequence from open to completion. This instance provides the
-    tools for maintaining interoperation information including the cache
-    of objects to be returned, request information that is used by pull and
-    close operations (timers, open request parameters, etc.), and the state
-    of the pull operation sequence.
-    nameSpace - Namespace in which this context defined. Used to confirm
-    that pulls and closes are operating on the same namespace.
-    operationTimeoutSec - Number of seconds for the interoperation
-    timeout for this pull sequence.  Set with the open and
-    used by the startTimer to set the timeout value between operations
-    pOperationAggregate - pointer to the operation aggregate
-    that this enumeration controls
-    interoperationTimeout - microsecond timer that defines
-    the next timeout.  If zero,there is no timeout in process
-    magicNumber - Diagnostic to be sure that the structure
-    is valid.
-    processing - If true, a request operation is active on this context.
-    Any pull or close operation request will be refused.
+    tools for maintaining interoperation information including:
+      - the cache of objects to be returned as received from providers,
+      - request information that is used by pull and close operations
+        (timers, open request parameters, etc.),
+      - and the state of the pull operation sequence.
+
+    The key variables are:
+     - client state(clientClosed)  - whether the client is open or has been
+       closed
+     - providersComplete - Set true when last provider response received.
+     - The responseData cache where responses are stored when received
+       from providers.
+     - contextID - The name for this context which is the client
+       and EnumerationContextTable identification for the sequence.
+     - Processing which is the active.inactive state where the context
+       is active any time it is processing a client response
+     - interoperationTimer - set non-zero with a timeout value when the
+       processing state is inactive.
 */
 
 class EnumerationContextTable;
@@ -121,22 +122,44 @@ class EnumerationContextTable;
 class PEGASUS_SERVER_LINKAGE EnumerationContext
 {
 public:
-    // KS_TODO want this to be protected and available only to its friend
-    // class.  We do not want others to create contexts.
-    EnumerationContext(const CIMNamespaceName& nameSpace,
+
+    /** Construct a single instance of Enumeration Context. This is
+        to be used only from the EnumerationContextTable
+        CreateContext function.
+
+    @param contextId String identifier for this context. These must
+    be unique.
+
+    @param operationTimeoutSec - Number of seconds for the interoperation
+    timeout for this pull sequence.  Set with the open and
+    used by the startTimer to set the timeout value between operations
+
+    @param continueOnError - Boolean Flag from open request
+
+    @param interoperationTimeout - microsecond timer that defines
+    the next timeout.  If zero,there is no timeout in process
+
+    pullRequestType MessageType for all pull requests for this sequence
+
+    contentType ResponseDataContent Type used to define the responseData
+    cache for this context.
+
+    */
+    EnumerationContext(const String& contextId,
         Uint32 interOperationTimeoutValue,
-        Boolean continueOnError_,
-        MessageType originatingOpenRequestType,
+        Boolean continueOnError,
+        MessageType pullRequestType,
         CIMResponseData::ResponseDataContent contentType);
 
     ~EnumerationContext();
 
     /**
-       Get the name of this enumeration context. The Name is the key
-       to access the context entry in the enumeration context table.
-       @return Context name String.
+       Get the ContextId of this enumeration context. The ContextId
+       is the key to access the context entry in the enumeration
+       context table.
+       @return String containing the contextId.
      */
-    String& getName();
+    String& getContextId();
 
     /**
         Set the request properties that must be moved to subsequent
@@ -146,51 +169,49 @@ public:
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    // Start the interOperation timer for this context
+    /** Start the interOperation timer for this context
+    */
     void startTimer();
 
-    // Stop the interOperation timer for this context
+    /** Stop the interOperation timer for this context
+    */
     void stopTimer();
 
-    /**
-        Test if this context timed out given the current time
+    /** Test if this context timed out given the current time
         @param currentTime
         @return true if interoperation timer timed out
     */
-    Boolean isTimedOut(Uint64 currentTime);
-    /**
-        Test if this context timed out. Gets current time and tests
+    bool isTimedOut(Uint64 currentTime);
+
+    /** Test if this context timed out. Gets current time and tests
         against the timeout in the enumeration context entry
 
         @return true if interoperation timer timed out
     */
-    Boolean isTimedOut();
+    bool isTimedOut();
 
-    // diagnostic tests magic number in context to see if valid
-    Boolean valid() const;
+    // diagnostic tests magic number in context to see if context valid
+    bool valid() const;
 
     /** Test if client is closed for this enumeration.
        @return Boolean true if closed
-
     */
-    Boolean isClientClosed();
+    bool isClientClosed();
 
     /** Test if this enumeration context has received an error response
        from providers, etc.
        @return true if errors received and not processed.
-
     */
-    Boolean isErrorState();
+    bool isErrorState();
 
     /**Set the error state flag and set the current cimException
        into the context object. This indicates that an exception
-       was received from the provider side.
+       was received side.
         @param cimException
      */
     void setErrorState(CIMException cimException);
 
-    /**
-        Test the Message type for the open message saved in the
+    /** Test the Message type for the open message saved in the
         context against the type parameter.  This provides a test
         that insures that Pull message types match the open type.
         Ex. PullPaths can only be used with OpenPath contexts
@@ -198,16 +219,12 @@ public:
         @return Returns true if type match is correct. Returns false
         if not correct type.
      */
-    Boolean isValidPullRequestType(MessageType type) const;
+    bool isValidPullRequestType(MessageType type) const;
 
     /** Test context to determine if it is active (i.e an operation
         is in process in the CIMOperationRequestDispatcher.
     */
-    Boolean isProcessing();
-
-    // Diagnostic to display the current context into the
-    // trace file  KS_TODO eliminate this diagnostic
-    void trace();
+    bool isProcessing();
 
     /**Put the CIMResponseData from the response message into the
        enumerationContext cache and if providersComplete is true,
@@ -222,7 +239,7 @@ public:
        @return true if data set into cache, false if enumeration
                closed this is last response from providers.
      */
-    Boolean putCache(CIMResponseMessage*& response,
+    bool putCache(CIMResponseMessage*& response,
         Boolean providersComplete);
 
     /** Wait for the cache to drop below defined size before
@@ -252,7 +269,7 @@ public:
        @return true if data acquired from cache. False if error from
        providers encountered
      */
-    Boolean getCache(Uint32 count, CIMResponseData& rtnData);
+    bool getCache(Uint32 count, CIMResponseData& rtnData);
 
     /** Test cache to see if there are responses that could be used
         for an immediate response. Returns immediatly with true or false
@@ -278,7 +295,7 @@ public:
         @return True if passes tests for something to send or error flag
         set.
     */
-    Boolean testCacheForResponses(Uint32 operationMaxObjectCount,
+    bool testCacheForResponses(Uint32 operationMaxObjectCount,
                                   Boolean requiresAll);
 
     /** Setup the request and response information for a response to
@@ -328,7 +345,7 @@ public:
         Test if the provider processing is complete.
         @return true if provider processing is complete.
      */
-    Boolean providersComplete() const ;
+    bool providersComplete() const ;
 
     /**
         Called by the Dispatcher Client operation when the
@@ -340,7 +357,7 @@ public:
          the operation to be closed and the true response returned.
         @return Boolean true if the enumeration is complete.
     */
-    Boolean setNextEnumerationState(Boolean errorFound);
+    bool setNextEnumerationState(Boolean errorFound);
 
     /**
         Increment the count of the number of pull operations executed
@@ -357,7 +374,16 @@ public:
         @return true if the count of consecutive zero length pull operations
         exceeds a predefined maximum.
     */
-    Boolean incAndTestPullCounters(Boolean isZeroLength);
+    bool incAndTestPullCounters(Boolean isZeroLength);
+
+
+    // Diagnostic to display the current context into the
+    // trace file  KS_TODO eliminate this diagnostic
+    void trace();
+
+    //
+    //  EnumeratonContext Data
+    //
 
     // Exception placed here in case of error. This is set by the operation
     // aggregate with any CIMException recieved from providers.  Note that
@@ -365,8 +391,6 @@ public:
     // NO  multiple errors until we get continueOnError
     // or really get way to return multiple  errors.
     CIMException _cimException;
-
-    CIMNamespaceName getNamespace() const;
 
     // This mutex locks the entire Enumeration context for some
     // critical sections.
@@ -378,6 +402,8 @@ public:
     /* Increment count of requests processed for this enumeration
     */
     void incrementRequestCount();
+
+    void setContinueOnError(bool x);
 
     // Parameters for requests saved for future send.
     //
@@ -399,7 +425,7 @@ private:
     friend class EnumerationContextTable;
 
     // Name(Id) of this EnumerationContext.
-    String _enumerationContextName;
+    String _contextId;
 
     // Namespace for this pull sequence.  Set by open and used by
     // pull and close.
@@ -423,18 +449,18 @@ private:
 
     // status flags.
     // Set true when context closed from client side
-    Boolean _clientClosed;
+    bool _clientClosed;
 
     // Set to true when input from providers complete. The context
     // cannot be removed while this is false
-    Boolean _providersComplete;
+    bool _providersComplete;
 
     // set true when CIMServer is processing a request within the
     // enumeration context
-    Boolean _processing;
+    bool _processing;
 
     // Set true when error received from Providers.
-    Boolean _error;
+    bool _error;
 
     // Object cache for this context.  All pull responses feed their
     // CIMResponseData into this cache using putCache(..) and all
@@ -487,9 +513,9 @@ private:
 
 // Inline functions
 
-inline String& EnumerationContext::getName()
+inline String& EnumerationContext::getContextId()
 {
-    return _enumerationContextName;
+    return _contextId;
 }
 
 inline void EnumerationContext::incrementRequestCount()
@@ -497,17 +523,17 @@ inline void EnumerationContext::incrementRequestCount()
     _requestCount++;
 }
 
-inline Boolean EnumerationContext::isProcessing()
+inline bool EnumerationContext::isProcessing()
 {
     return _processing;
 }
 
-inline Boolean EnumerationContext::isClientClosed()
+inline bool EnumerationContext::isClientClosed()
 {
     return _clientClosed;
 }
 
-inline Boolean EnumerationContext::isErrorState()
+inline bool EnumerationContext::isErrorState()
 {
     return _error;
 }
@@ -516,13 +542,13 @@ inline Boolean EnumerationContext::isErrorState()
     Test the current pull message against the type set on the create
     context. they must match
 */
-inline Boolean EnumerationContext::isValidPullRequestType(
+inline bool EnumerationContext::isValidPullRequestType(
    MessageType type) const
 {
     return(type == _pullRequestType);
 }
 
-inline Boolean EnumerationContext::providersComplete() const
+inline bool EnumerationContext::providersComplete() const
 {
     return _providersComplete;
 }
@@ -532,22 +558,16 @@ inline Uint32 EnumerationContext::responseCacheSize()
     return _responseCache.size();
 }
 
-inline CIMNamespaceName EnumerationContext::getNamespace() const
-{
-    return _nameSpace;
-}
+inline void EnumerationContext::lockContext() { _contextLock.lock(); }
 
-inline void EnumerationContext::lockContext()
-{
-    _contextLock.lock();
-}
-inline Boolean EnumerationContext::tryLockContext()
+inline bool EnumerationContext::tryLockContext()
 {
     return _contextLock.try_lock();
 }
-inline void EnumerationContext::unlockContext()
+inline void EnumerationContext::unlockContext() { _contextLock.unlock(); }
+inline void EnumerationContext::setContinueOnError(Boolean x)
 {
-    _contextLock.unlock();
+    _continueOnError = x;
 }
 
 PEGASUS_NAMESPACE_END

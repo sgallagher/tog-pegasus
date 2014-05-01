@@ -53,21 +53,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 // Create a new context. This is called only from the enumerationTable
 // createContext function.
-EnumerationContext::EnumerationContext(
-    const CIMNamespaceName& nameSpace,
+EnumerationContext::EnumerationContext(const String& contextId,
     Uint32 interOperationTimeoutValue,
-    const Boolean continueOnError_,
-    MessageType pullRequestType_,
-    CIMResponseData::ResponseDataContent contentType
-    )
+    const Boolean continueOnError,
+    MessageType pullRequestType,
+    CIMResponseData::ResponseDataContent contentType )
     :
     _cimException(CIMException()),
     _savedRequest(NULL),             // Clear because used as a flag
-    _nameSpace(nameSpace),
+    _contextId(contextId),
     _operationTimeoutSec(interOperationTimeoutValue),
-    _continueOnError(continueOnError_),
+    _continueOnError(continueOnError),
     _interOperationTimer(0),
-    _pullRequestType(pullRequestType_),
+    _pullRequestType(pullRequestType),
     _clientClosed(false),
     _providersComplete(false),
     _processing(true),    // set true because always created during processing
@@ -87,14 +85,13 @@ EnumerationContext::EnumerationContext(
     // set start time for this enumeration sequence
     _startTime = TimeValue::getCurrentTime().toMicroseconds();
 
-    // KS_TODO Consider this one a temporary diagnostic. Delete before
-    // checkin
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TEMP TODO Delete
-               "Create EnumerationContext operationTimeoutSec %u"
-               " responseCacheDataType %u StartTime %lu",
-               _operationTimeoutSec,
-               _responseCache.getResponseDataContent(),
-               (unsigned long int)_startTime));
+        "Create EnumerationContext ContextId=%s operationTimeoutSec %u"
+        " responseCacheDataType %u StartTime %lu",
+        (const char *)getContextId().getCString(),
+        _operationTimeoutSec,
+        _responseCache.getResponseDataContent(),
+        (unsigned long int)_startTime));
 }
 
 void EnumerationContext::setRequestProperties(
@@ -105,7 +102,7 @@ void EnumerationContext::setRequestProperties(
     // later for pull operations. Not required for names operations
     // since the attributes defined characteristics of objects returned
     // (qualifiers, classorigin, propertylists).
-    // Always sets includeQualifiers == false since this attribute
+    // Sets includeQualifiers == false since this attribute
     // not supported for pull operations.
     _responseCache.setRequestProperties(
         false, includeClassOrigin, propertyList);
@@ -134,7 +131,7 @@ void EnumerationContext::startTimer()
             "StartTimer, ContextId=%s,"
                " OperationTimeout=%u sec,"
                " next timeout in %ld sec,",
-           (const char*)getName().getCString(),
+           (const char*)getContextId().getCString(),
            _operationTimeoutSec,
            (long signed int)(_interOperationTimer - currentTime)/1000000 ));
     }
@@ -151,7 +148,7 @@ void EnumerationContext::stopTimer()
         "StopTimer, ContextId=%s,"
            " OperationTimeout= %u sec,"
            " next timeout in %ld sec,",
-       (const char*)getName().getCString(),
+       (const char*)getContextId().getCString(),
        _operationTimeoutSec,
        (long signed int)(_interOperationTimer - currentTime)/1000000 ));
 
@@ -162,10 +159,10 @@ void EnumerationContext::stopTimer()
 /*
     Test interoperation timer against current time. Return true if timed out
     or timer set 0 zero indicating that the timer is not active.
-    Returns boolean true if timer not zero and Interoperation timer
+    Returns bool true if timer not zero and Interoperation timer
     is greater than interoperation timeout (i.e timed out).
 */
-Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
+bool EnumerationContext::isTimedOut(Uint64 currentTime)
 {
     PEGASUS_DEBUG_ASSERT(valid());
 
@@ -174,12 +171,12 @@ Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
             return false;
     }
 
-    Boolean timedOut = (_interOperationTimer < currentTime)? true : false;
+    bool timedOut = (_interOperationTimer < currentTime)? true : false;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,      // KS_TEMP
         "Context Timer. ContextId= %s timer(sec)= %lu"
            " current(sec)= %lu diff(sec)= %ld isTimedOut= %s",
-        (const char*)_enumerationContextName.getCString(),
+        (const char*)_contextId.getCString(),
         (long unsigned int)((_interOperationTimer / 1000000)),
         (long unsigned int)currentTime / 1000000,
         (long signed int)(_interOperationTimer - currentTime) / 1000000,
@@ -193,7 +190,7 @@ Boolean EnumerationContext::isTimedOut(Uint64 currentTime)
     return(timedOut);
 }
 
-Boolean EnumerationContext::isTimedOut()
+bool EnumerationContext::isTimedOut()
 {
     Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
     return isTimedOut(currentTime);
@@ -220,7 +217,6 @@ void EnumerationContext::trace()
     PEGASUS_DEBUG_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "EnumerationContextTrace ContextId=%s "
-        "namespace= %s "
         "requestOperationTimeOut= %u "
         "operationTimer=%lu sec "
         "continueOnError=%s "
@@ -233,8 +229,7 @@ void EnumerationContext::trace()
         "Request count=%u "
         "ResponseObjectCount=%u "
         "RequestedResponseObjectCount=%u",
-        (const char *)_enumerationContextName.getCString(),
-        (const char *)_nameSpace.getString().getCString(),
+        (const char *)_contextId.getCString(),
         _operationTimeoutSec,
         (long unsigned int)_interOperationTimer,
         boolToString(_continueOnError),
@@ -253,9 +248,9 @@ void EnumerationContext::trace()
 /**
  * validate the magic object for this context
  *
- * @return Boolean True if valid object.
+ * @return bool True if valid object.
  */
-Boolean EnumerationContext::valid() const
+bool EnumerationContext::valid() const
 {
     _responseCache.valid(); // KS_TEMP TODO DELETE
     return _magic;
@@ -278,8 +273,8 @@ EnumerationContext::~EnumerationContext()
     NOTE: This function assumes that responses for a request are serialized
     in _enqueueResponse See _enqueueResponseMutex.
 */
-Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
-    Boolean providersComplete)
+bool EnumerationContext::putCache(CIMResponseMessage*& response,
+    bool providersComplete)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
 
@@ -317,7 +312,7 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
         "Before putCache, ContextId=%s  isComplete= %s ResponseDataType= %u "
             " cache size= %u put size= %u clientClosed= %s",
-        (const char*)getName().getCString(),
+        (const char*)getContextId().getCString(),
         boolToString(providersComplete), to.getResponseDataContent(),
         to.size(), from.size(),
         boolToString(_clientClosed)));
@@ -347,7 +342,7 @@ Boolean EnumerationContext::putCache(CIMResponseMessage*& response,
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "putCache ContextId=%s inserted. responseCache size=%u",
-             (const char*)getName().getCString(), responseCacheSize()  ));
+             (const char*)getContextId().getCString(), responseCacheSize()  ));
     }
 
     // Return true indicating that input added to cache and cache is still open
@@ -363,7 +358,6 @@ void EnumerationContext::waitCacheSize()
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::waitCacheSize()");
 
     PEGASUS_DEBUG_ASSERT(valid());
-            //// KS_TODO remove all these traces
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "After putCache providers waitProviderLimitCondition Not "
@@ -399,46 +393,36 @@ void EnumerationContext::waitCacheSize()
 /*
     Test the cache to see if there is information that could be used
     for an immediate response. Returns immediatly with true or false
-    indicating that a response should be issued.  The algorithm for
-    the response is
-         if request is for zero objects
-            return true
-        If requiresAll
-           return true if
-                cache has enough objects for response (ge count)
-        else
-            return true if
-                the cache as some objects int (Will not return zero objects)
-        if error flag is set
-           return true
-        if Providers Complete
-           return true
-
+    indicating that a response should be issued.
     @param count Uint32 count of objects that the requests set as
     max number for response
     @return True if passes tests for something to send or error flag
     set.
 */
-Boolean EnumerationContext::testCacheForResponses(
+bool EnumerationContext::testCacheForResponses(
     Uint32 operationMaxObjectCount,
-    Boolean requiresAll)
+    bool requiresAll)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                       "EnumerationContext::testCacheForResponses()");
-    Boolean rtn = false;
+    bool rtn = false;
+
+    // Error encountered, must send response. This makes error highest
+    // priority.
+    if (isErrorState())
+    {
+        rtn = true;
+    }
     // Always allow requests for no objects
-    if (operationMaxObjectCount == 0)
+    else if (operationMaxObjectCount == 0)
     {
         rtn = true;
     }
     // If cache has enough objects return true
-    // FUTURE - Which should have priority, response or error.
-    // If error, put the errorState test here. Priority not Documented in Spec.
     else if (requiresAll && (responseCacheSize() >= operationMaxObjectCount))
     {
         rtn = true;
     }
-
     // anything in cache to return
     else if (!requiresAll && responseCacheSize() > 0)
     {
@@ -446,11 +430,6 @@ Boolean EnumerationContext::testCacheForResponses(
     }
     // Nothing more from providers. Must return response
     else if (providersComplete())
-    {
-        rtn = true;
-    }
-    // Error encountered, must send response
-    else if (isErrorState())
     {
         rtn = true;
     }
@@ -487,7 +466,7 @@ void EnumerationContext::saveNextResponse(
     found (i.e. returned an error).
     KS_TODO - Cover issue of nothing in the cache or document it
 */
-Boolean EnumerationContext::getCache(
+bool EnumerationContext::getCache(
     Uint32 count,
     CIMResponseData& rtnData)
 {
@@ -500,7 +479,7 @@ Boolean EnumerationContext::getCache(
     // classOrigin
     rtnData.setResponseAttributes(_responseCache);
 
-    // if Error set, honor this.
+    // if Error set, return false to signal the error to caller.
     if (isErrorState())
     {
         return false;
@@ -549,7 +528,8 @@ void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
 
     Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
 
-    while (!_clientClosed && (responseCacheSize() > limit))
+    while (!_clientClosed && (responseCacheSize() > limit)
+           && !_providersComplete)
     {
         _providerLimitCondition.wait(_providerLimitConditionMutex);
     }
@@ -581,7 +561,10 @@ void EnumerationContext::signalProviderLimitCondition()
     PEG_METHOD_EXIT();
 }
 
-Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
+// Update counters for Pull and test for too many consecutive zero
+// length requests.
+// return true if too many. Else return false.
+bool EnumerationContext::incAndTestPullCounters(bool isZeroLength)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::incAndTestPullCounters");
@@ -596,11 +579,10 @@ Boolean EnumerationContext::incAndTestPullCounters(Boolean isZeroLength)
     else
     {
         _consecutiveZeroLenMaxObjectRequestCounter = 0;
-        return false;
     }
 
     PEG_METHOD_EXIT();
-    return (_consecutiveZeroLenMaxObjectRequestCounter <=
+    return (_consecutiveZeroLenMaxObjectRequestCounter >
              MAX_ZERO_PULL_OPERATIONS);
 }
 
@@ -626,7 +608,7 @@ void EnumerationContext::setProvidersComplete()
 // responseCacheSize = 0). Returns false if providers not complete or
 // there is data in the cache
 
-Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
+bool EnumerationContext::setNextEnumerationState(bool errorFound)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::setNextEnumerationState");
@@ -641,7 +623,7 @@ Boolean EnumerationContext::setNextEnumerationState(Boolean errorFound)
     "responseCacheSize=%u "
     "errorFound=%s "
     "continueOnError=%s",
-    (const char*)getName().getCString(),
+    (const char*)getContextId().getCString(),
     boolToString(((providersComplete() && (responseCacheSize() == 0)) ||
         (errorFound && !_continueOnError))),
     boolToString(providersComplete()),
@@ -674,7 +656,7 @@ void EnumerationContext::setClientClosed()
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "setClientClosed. ContextId=%s ",
-        (const char*)getName().getCString() ));
+        (const char*)getContextId().getCString() ));
 
     trace(); // KS_TODO Delete this and above temp diagnostic only
 
@@ -690,7 +672,7 @@ void EnumerationContext::setClientClosed()
     actively handling a request. The dispatcher sets processing = true
     at the start of processing and false at the completion of processing.
 */
-void EnumerationContext::setProcessingState(Boolean state)
+void EnumerationContext::setProcessingState(bool state)
 {
     // Diagnostic to confirm we are changing state
     PEGASUS_DEBUG_ASSERT(valid());
@@ -698,7 +680,7 @@ void EnumerationContext::setProcessingState(Boolean state)
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "setProcessingState. ContextId=%s nextProcessingStat=%s",
-        (const char*)getName().getCString(),
+        (const char*)getContextId().getCString(),
         (state? "active" : "not active") ));
 
     _processing = state;

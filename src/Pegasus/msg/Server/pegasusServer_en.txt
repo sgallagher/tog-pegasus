@@ -2908,6 +2908,11 @@ en:table {
         Server.CIMOperationRequestDispatcher.INVALID_MODEL_PATH:string {"PGS05612: Full Model Path with keys required."}
 
         Server.CIMOperationRequestDispatcher.PULL_OPERATION_TYPE_ERR:string {"PGS05613: Open and Pull Message types do not match."}
+
+        Server.CIMOperationRequestDispatcher.ZERO_LEN_PULL_EXCEEDED_LIMIT:string {"PGS05614: "Maximum consecutive zero maxObjectCount pull requests exceeded."}
+
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_EXCEEDED_LIMIT:string {"PGS05615: Exceeded maximum number of simultaneous open Enumerations."}
         // ==========================================================
         // Messages for ProviderMessageFacade
         //  Please use message prefix "PGS05800"

@@ -82,8 +82,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -1042,33 +1040,17 @@ int main(int argc, char** argv)
         PEGASUS_ASSERT(false);
     }
 
-////  // Test for maximum simultaneous 0 object requests.
-////  // KS_TODO this test drops through to repeated do not abandon for
-////  // some reason.  It should NOT.  Retest this
-////  testEnumSequence tczerotest(client, "test/TestProvider");
-////  tczerotest.setTestName("excessive consecutive zero length responses ");
-////  tczerotest._className =  "CMPI_TEST_Person";
-////  tczerotest._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
-////  tczerotest._maxObjectCount = 0;
-////
-////  // This one drops through to repeat do not abandon.  That
-////  tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
-////  PEGASUS_ASSERT(tczerotest.openEnumerateInstances());
-////  while((tczerotest._endOfSequence == false))
-////  {
-////      if (!tczerotest.pullInstancesWithPath())
-////      {
-////          break;
-////      }
-////  }
-
     /**********************************************************************
     **
     **          Execute each individual test.  Each test is a single
     **          testEnumSequence instance where the paremeters are first
     **          set with calls to particular functions and then
     **          the test is executed with a call for each operation
-    **          to be executed. As an option, test parameters
+    **          to be executed.  Multiple steps may be executed by
+    **          calling, the various pull operations after the
+    **          open has been executed.
+    **
+    **          As an option, test parameters
     **          can be reset and a testEnumSequence instance reused.
     **
     **********************************************************************/

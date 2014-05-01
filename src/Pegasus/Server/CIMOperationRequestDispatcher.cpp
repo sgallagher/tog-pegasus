@@ -1061,54 +1061,54 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             // the enumerationContext (if the client had timed out )
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,  // KS_TODO DELETE
                 "EnumerationContextLock lock %s",
-                       (const char*)en->getName().getCString()));
+                       CSTRING(en->getContextId())));
+
+            // KS_TODO This means that context is locked for full time
+            // to send response.
             en->lockContext();
             if (en->putCache(response, isComplete))
             {
                 // if there are responses and there is a
                 // waiting future response, issue the response
-                PEGASUS_DEBUG_ASSERT(en->valid());
 
                 // get any waiting open request and response
-                CIMOperationRequestMessage* openRequest = en->_savedRequest;
-                CIMOpenOrPullResponseDataMessage* openResponse;
-                Uint32 count = en->_savedOperationMaxObjectCount;
-                Boolean foundCachedResponses = false;
 
                 // If request pending, test to see if responses exist to
-                // be sent.
-                if (openRequest != NULL)
+                // be sent. No issue with providers but it does lock out
+                // next request input.
+                if (en->_savedRequest != NULL)
                 {
-                    if ((foundCachedResponses = (en->testCacheForResponses(
-                        count, requireCompleteResponses))) )
+                    // If there are responses or error to send, recover them
+                    if ( ((en->testCacheForResponses(
+                        en->_savedOperationMaxObjectCount,
+                        requireCompleteResponses))) )
                     {
-                        openResponse = en->_savedResponse;
-                        PEGASUS_ASSERT(openResponse->getResponseData().valid());
+                        // KS_TODO temp test to confirm that response data good
+                        PEGASUS_ASSERT(
+                            en->_savedResponse->getResponseData().valid());
+
+                        // Issue response. This may mark context closed.
+                        _issueImmediateOpenOrPullResponseMessage(
+                            en->_savedRequest,
+                            en->_savedResponse,
+                            en,
+                            en->_savedOperationMaxObjectCount);
+
+                        // Delete the request; it was allocated for
+                        // this delayed response.
+                        delete en->_savedRequest;
+
+                        // clear the saved request to indicate it was used
                         en->_savedRequest = NULL;
                         en->_savedResponse = NULL;
                         en->_savedOperationMaxObjectCount = 0;
-                        foundCachedResponses = true;
                     }
-                }
-
-                if (foundCachedResponses)
-                {
-                    // Issue response. This may mark context closed.
-                    _issueImmediateOpenOrPullResponseMessage(
-                        openRequest,
-                        openResponse,
-                        en,
-                        count);
-
-                    // Delete the request because it was allocated for
-                    // this delayed response.
-                    delete openRequest;
                 }
             }
 
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                 "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                       (const char*)en->getName().getCString()));
+                       CSTRING(en->getContextId())));
             en->unlockContext();
 
             // If providers not complete and client open, test for cache
@@ -2827,10 +2827,10 @@ Boolean CIMOperationRequestDispatcher::_rejectIfContinueOnError(
 // this operation is placed in rtnValue. If false return, rtnValue is
 // not changed.
 // KS_TODO - We duplicate default value and _systemMaxPullOperationObjectCount
-Boolean CIMOperationRequestDispatcher::_rejectInvalidMaxObjectCountParam(
+bool CIMOperationRequestDispatcher::_rejectInvalidMaxObjectCountParam(
     CIMOperationRequestMessage* request,
     Uint32 maxObjectCountParam,
-    Boolean requiredParameter,
+    bool requiredParameter,
     Uint32& rtnValue,
     const Uint32 defaultValue)
 {
@@ -3008,6 +3008,20 @@ Boolean CIMOperationRequestDispatcher::_rejectIfEnumerationContextProcessing(
         _enqueueResponse(request, response);
     }
     return processing;
+}
+
+void CIMOperationRequestDispatcher::_rejectCreateContextFailed(
+    CIMOperationRequestMessage* request)
+{
+    CIMResponseMessage* response = request->buildResponse();
+
+    CIMException cimException = PEGASUS_CIM_EXCEPTION_L(
+        CIM_ERR_SERVER_LIMITS_EXCEEDED, MessageLoaderParms(
+            "Server.CIMOperationRequestDispatcher."
+                "ENUMERATION_CONTEXT_EXCEEDED_LIMIT",
+            "Exceeded maximum number of simultaneous open Enumerations."));
+
+    _enqueueResponse(request, response);
 }
 // EXP_PULL_END
 
@@ -3351,27 +3365,26 @@ struct ProviderRequests
     static void processPullRequest(
         CIMOperationRequestDispatcher* dispatcher,
         REQ* request,
-        AutoPtr<RSP>&  pullResponse,
-        const char* reqSeqName) // PullInstancePaths or PullInstancesWithPath
+        AutoPtr<RSP>&  pullResponse)
     {
         PEG_METHOD_ENTER(TRC_DISPATCHER,
             "CIMOperationRequestDispatcher::processPullRequest");
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
             "%s request for  "
                 "maxObjectCount = \"%u\" .  "
-                "enumerationContext = \"%s\" .  ", reqSeqName,
+                "enumerationContext = \"%s\" .  ",
+            MessageTypeToString(request->getType()),
             request->maxObjectCount,
             CSTRING(request->enumerationContext) ));
 
         // Find the enumerationContext object from the request parameter
-        EnumerationContext* enumContext = enumerationContextTable.find(
+        EnumerationContext* en = enumerationContextTable.find(
             request->enumerationContext);
 
         // If enumeration Context,value is zero, or is already in closed status
         // return Invalid Context exception with explanation.
-        if (dispatcher->_rejectInvalidEnumerationContext(request,
-            enumContext))
+        if (dispatcher->_rejectInvalidEnumerationContext(request, en))
         {
             PEG_METHOD_EXIT();
             return;
@@ -3379,20 +3392,20 @@ struct ProviderRequests
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TODO DELETE
             "processPullRequest ContextId=%s request ID=%s",
-            CSTRING(enumContext->getName()),
+            CSTRING(en->getContextId()),
             CSTRING(request->enumerationContext) ));
 
-        enumContext->incrementRequestCount();
+        en->incrementRequestCount();
 
         // lock the context until we have set processing state to avoid
         // conflict with timer thread. Do not need to lock earlier
         // because not closed (if closed, it would be invalid).
         {
-            AutoMutex contextLock(enumContext->_contextLock);
+            AutoMutex contextLock(en->_contextLock);
             // reject if this is a not valid request for the originating
             // operation
             if (dispatcher->_rejectInvalidPullRequest(request,
-                enumContext->isValidPullRequestType(request->getType())))
+                en->isValidPullRequestType(request->getType())))
             {
                 PEG_METHOD_EXIT();
                 return;
@@ -3400,78 +3413,52 @@ struct ProviderRequests
             // reject if an operation is already active on this enumeration
             // context
             if (dispatcher->_rejectIfEnumerationContextProcessing(request,
-                enumContext->isProcessing()))
+                en->isProcessing()))
             {
                 PEG_METHOD_EXIT();
                 return;
             }
 
             if (dispatcher->_rejectIfContextTimedOut(request,
-                enumContext->isTimedOut()))
+                en->isTimedOut()))
             {
+                en->setClientClosed();
                 PEG_METHOD_EXIT();
                 return;
             }
 
             // Set active and stop interOperation timer
-            enumContext->setProcessingState(true);
+            en->setProcessingState(true);
         }
 
-        // If maxObjectCount = 0, Respond with empty response unless
-        // consecutive requests with maxObjectCount = 0 exceeds limit.
-        //// KS_TODO - The following code is essentially duplicated. We can
-        //// use the standard response and just set the CIMException
-        //// in this code.
-        if (request->maxObjectCount == 0)
+        // Test limit of the maxObjectCount consecutive zero counter
+        // The return is true if the limit is exceeded in which case
+        // close client and generate exception.
+        if (en->incAndTestPullCounters((request->maxObjectCount == 0)))
         {
-            // test limit of the maxObjectCount consecutive zero counter
-            // The parameter indicates that this operation has maxObjectCount
-            // zero. TheincAndTestPullCounters function also increments the
-            // count of pull operations total for the enumeration sequence
-            if (enumContext->incAndTestPullCounters(true))
-            {
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "%s Generating 0 object requested response", reqSeqName));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "%s Exceeded maxObjectCount consecutive zero limit",
+                MessageTypeToString(request->getType()) ));
 
-                pullResponse->endOfSequence = false;
-                pullResponse->cimException = CIMException();
+            // Force continueOnError to false.
+            en->setContinueOnError(false);
 
-                // set operation inactive and start interoperation timer
-
-                enumContext->setProcessingState(false);
-            }
-            else  // Limit reached, kill the whole pull sequence
-            {
-                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "%s Exceeded maxObjectCount consecutive zero limit",
-                    reqSeqName));
-                pullResponse->endOfSequence = true;
-                pullResponse->cimException = CIMException(
-                    CIM_ERR_SERVER_LIMITS_EXCEEDED,
+            CIMException cimException = PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_SERVER_LIMITS_EXCEEDED, MessageLoaderParms(
+                    "Server.CIMOperationRequestDispatcher."
+                        "ZERO_LEN_PULL_EXCEEDED_LIMIT",
                     "Maximum consecutive zero maxObjectCount pull requests"
-                        " exceeded");
+                    " exceeded."));
 
-                enumContext->setClientClosed();
-            }
-
-            // Send a zero object or exception response
-            dispatcher->_enqueueResponse(request, pullResponse.release());
-            PEG_METHOD_EXIT();
-            return;
-        }
-        else
-        {
-            // Ignore return from increment because this is just
-            // resetting the consecutive zero length response counter
-            enumContext->incAndTestPullCounters(false);
+            en->setErrorState(cimException);
         }
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s get from cache. isComplete: %s cacheSize: %u errorState: %s",
-            reqSeqName,
-            boolToString(enumContext->providersComplete()),
-            enumContext->responseCacheSize(),
-            boolToString(enumContext->isErrorState())  ));
+            MessageTypeToString(request->getType()),
+            boolToString(en->providersComplete()),
+            en->responseCacheSize(),
+            boolToString(en->isErrorState())  ));
 
         // Issue the Response to the Request. This may be issued immediatly
         // or delayed by setting information into the enumeration context
@@ -3483,17 +3470,22 @@ struct ProviderRequests
             dispatcher,
             request,
             pullResponse.release(),
-            enumContext,
+            en,
             request->maxObjectCount,
             requireCompleteResponses);
 
     } // end issuePullResponse
 
-// Issue the response to an open or pull.  This function may issue the response
-// immediatly if there are objects to send or may push the task off to the
-// aggregrator if there is nothing to send immediatly.
-// It is a template because there is one line that is message type dependent,
-// the requirement to build a new request object.
+    /**************************************************************************
+    **
+    ** issueOpenOrPullResponseMessage - Issue immediate or delayed response
+    **
+    **************************************************************************/
+    // Issue the response to an open or pull.  This function may issue the
+    // response immediatly if there are objects to send or may push the task
+    // off to the aggregrator if there is nothing to send immediatly.
+    // It is a template because there is one line that is message type
+    // dependent, the requirement to build a new request object.
 
     template<class REQ, class RSP >
     static void issueOpenOrPullResponseMessage(
@@ -3510,7 +3502,7 @@ struct ProviderRequests
         PEGASUS_ASSERT(en->valid());
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
             "EnumerationContextLock lock %s",  // KS_TODO DELETE
-                   (const char*)en->getName().getCString()));
+                   CSTRING(en->getContextId())));
         en->lockContext();
         // Determine if there are any responses to send. Returns
         // immediatly if operationMaxObjectCount satisfies what is in cache
@@ -3527,7 +3519,7 @@ struct ProviderRequests
 
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                 "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                (const char*)en->getName().getCString()));
+                (const char*)en->getContextId().getCString()));
 
             en->unlockContext();
             if (en->isClientClosed() && en->providersComplete())
@@ -3546,7 +3538,7 @@ struct ProviderRequests
                 operationMaxObjectCount);
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                 "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                       (const char*)en->getName().getCString()));
+                       CSTRING(en->getContextId()) ));
             en->unlockContext();
         }
         PEG_METHOD_EXIT();
@@ -3584,13 +3576,15 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
         "%s issueResponseMessage ContextId=%s"
         " maxObjectCount=%u isComplete=%s, cacheSize=%u  errorState=%s",
         MessageTypeToString(request->getType()),
-        CSTRING(en->getName()),
+        CSTRING(en->getContextId()),
         operationMaxObjectCount,
         boolToString(en->providersComplete()),
         en->responseCacheSize(),
         boolToString(en->isErrorState()) ));
 
     CIMResponseData & to = response->getResponseData();
+
+    // Returns false if error flag set.
     Boolean errorFound = !en->getCache(operationMaxObjectCount, to);
 
     if (errorFound)
@@ -3600,7 +3594,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s Response Error found. ContextId=%s cimException = %s",
             MessageTypeToString(request->getType()),
-            CSTRING(en->getName()),
+            CSTRING(en->getContextId()),
             cimStatusCodeToString(response->cimException.getCode())
             ));
     }
@@ -3611,7 +3605,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
           "%s AppendedResponseData. ContextId=%s  to type %u from "
               "toSize %u fromSize %u",
           MessageTypeToString(request->getType()),
-          CSTRING(en->getName()),
+          CSTRING(en->getContextId()),
           to.getResponseDataContent(),
           to.size(), en->responseCacheSize()));
     }
@@ -3633,7 +3627,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     }
     else
     {
-        response->enumerationContext = en->getName();
+        response->enumerationContext = en->getContextId();
     }
 
     _enqueueResponse(request, responseDestroyer.release());
@@ -5465,6 +5459,27 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         return;
     }
 
+    //
+    // Setup the EnumerationContext. Returns pointer to object and context ID
+    // string
+    //
+
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_INSTANCES);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
+    // Set properties from request into the context
+    enumerationContext->setRequestProperties(
+        request->includeClassOrigin, request->propertyList);
+
     // Build a corresponding EnumerateInstancesRequest to send to
     // providers. Do not pass the Pull operations request
     // on to Providers; create EnumerateInstancesRequest message to
@@ -5490,23 +5505,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
 
     // AutoPtr to delete internalRequest at end of handler
     AutoPtr<CIMEnumerateInstancesRequestMessage> dummy(internalRequest);
-
-    //
-    // Setup the EnumerationContext. Returns pointer to object and context ID
-    // string
-    //
-
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-            CIMResponseData::RESP_INSTANCES);
-
-    // Set properties from request into the context
-    enumerationContext->setRequestProperties(
-        request->includeClassOrigin, request->propertyList);
 
     // Set up an aggregate object and save a copy of the original request.
     // NOTE: Build the poA for the EnumerateRequest, not the corresponding
@@ -5664,6 +5662,23 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
         return;
     }
 
+    //
+    // Setup the EnumerationContext. Returns pointer to object and context ID
+    // string
+    //
+
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
+            CIMResponseData::RESP_INSTNAMES);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
    // Build a corresponding EnumerateInstancesNamesRequest to send to
     // providers. We do not pass the Pull operations request
     // on to Providers but use the EnumerateInstancesRequest message to
@@ -5685,19 +5700,6 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
 
     // AutoPtr to delete at end of handler
     AutoPtr<CIMEnumerateInstanceNamesRequestMessage> dummy(internalRequest);
-
-    //
-    // Setup the EnumerationContext. Returns pointer to object and context ID
-    // string
-    //
-
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
-            CIMResponseData::RESP_INSTNAMES);
 
     //
     // Set up op aggregate object and save a copy of the original request.
@@ -5936,6 +5938,22 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // response.
     //
 
+    // Create new context object.
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTS);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
+    enumerationContext->setRequestProperties(
+        request->includeClassOrigin, request->propertyList);
+
     // Build corresponding CIMReferencesRequestMessage to issue to
     // providers. We do not pass the Open operations request
     // on to Providers but use the EnumerateInstancesRequest message to
@@ -5961,18 +5979,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     // AutoPtr to delete at end of handler
     AutoPtr<CIMReferencesRequestMessage> dummy(internalRequest);
-
-    // Create new context object.
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-            CIMResponseData::RESP_OBJECTS);
-
-    enumerationContext->setRequestProperties(
-        request->includeClassOrigin, request->propertyList);
 
     //
     // Set up an aggregate object and save the original request message
@@ -6175,6 +6181,21 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         return;
     }
 
+    //
+    // Create new enumerationContext and enumerationContextString.
+    //
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTPATHS);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
     // Build corresponding EnumerateInstancePathsRequest to send to
     // providers. We do not pass the Pull operations request
     // on to Providers but use the EnumerateInstancesRequest message to
@@ -6198,17 +6219,6 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     // AutoPtr to delete at end of handler
     AutoPtr<CIMReferenceNamesRequestMessage> dummy(internalRequest);
-
-    //
-    // Create new enumerationContext and enumerationContextString.
-    //
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
-            CIMResponseData::RESP_OBJECTPATHS);
 
     //
     // Set up an aggregate object and save the created internalRequest
@@ -6445,6 +6455,21 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // response, get current objects (with wait) and enqueue open
     // response.
     //
+    // Create a new enumeration context
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTS);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
+    enumerationContext->setRequestProperties(
+        request->includeClassOrigin, request->propertyList);
 
     // Build corresponding CIMReferencesRequestMessage to issue to
     // providers. We do not pass the Pull operations request
@@ -6475,19 +6500,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // AutoPtr to delete at end of handler
     // KS_TODO Clean this one up
     AutoPtr<CIMAssociatorsRequestMessage> dummy(internalRequest);
-
-
-    // Create a new enumeration context
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-            CIMResponseData::RESP_OBJECTS);
-
-    enumerationContext->setRequestProperties(
-        request->includeClassOrigin, request->propertyList);
 
     //
     // Set up an aggregate object and save the original request message
@@ -6722,6 +6734,21 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // response, get current objects (with wait) and enqueue open
     // response.
     //
+    // Create new enumerationContext and enumerationContextString.
+    //
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+////          request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTPATHS);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
     // Build corresponding EnumerateInstancePathsRequest to send to
     // providers. We do not pass the Pull operations request
     // on to Providers but use the EnumerateInstancesRequest message to
@@ -6745,17 +6772,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     internalRequest->internalOperation = true;
 
     AutoPtr<CIMAssociatorNamesRequestMessage> dummy(internalRequest);
-
-    //
-    // Create new enumerationContext and enumerationContextString.
-    //
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
-            CIMResponseData::RESP_OBJECTPATHS);
 
     //
     // Set up an aggregate object and save the created internalRequest
@@ -6884,9 +6900,6 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     // KS_TODO this operation currently not supported. It requires extending
     // The WQL and CQL dispatch support functions to interface with the
     // pull operations.
-////  response->cimException =
-////      PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-////  exception=true;
 
     if (exception)
     {
@@ -6894,6 +6907,30 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
         PEG_METHOD_EXIT();
         return;
     }
+
+    //
+    // Setup the EnumerationContext. Returns pointer to object and context ID
+    // string
+    //
+
+    EnumerationContext* enumerationContext =
+        enumerationContextTable.createContext(
+            request->operationTimeout,
+            request->continueOnError,
+            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
+            CIMResponseData::RESP_INSTANCES);
+
+    if (enumerationContext == NULL)
+    {
+        _rejectCreateContextFailed(request);
+    }
+
+      //// KS TODO check this since not sure whether required.
+////  enumerationContext->setRequestProperties(
+////      request->includeClassOrigin, request->propertyList);
+      //// This moved to query processor
+////  poA->setPullOperation((void *)enumerationContext);
+
     // Create the corresponding CIMExecQueryRequestMessage
     CIMExecQueryRequestMessage* internalRequest =
         new CIMExecQueryRequestMessage(
@@ -6910,25 +6947,6 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
 
     // AutoPtr to delete enumRequest at end of handler
     AutoPtr<CIMExecQueryRequestMessage> dummy(internalRequest);
-
-    //
-    // Setup the EnumerationContext. Returns pointer to object and context ID
-    // string
-    //
-
-    EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-            CIMResponseData::RESP_INSTANCES);
-
-      //// KS TODO check this since not sure whether required.
-////  enumerationContext->setRequestProperties(
-////      request->includeClassOrigin, request->propertyList);
-      //// This moved to query processor
-////  poA->setPullOperation((void *)enumerationContext);
 
     //// KS_TEMP KS_TODO REMOVE debugging code. Delete. OCT2013
     if (enumerationContext->responseCacheSize() != 0)
@@ -6967,15 +6985,6 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     AutoPtr<CIMOpenQueryInstancesRequestMessage> openResponse(
         dynamic_cast<CIMOpenQueryInstancesRequestMessage*>(
             request->buildResponse()));
-////  Generates error for missing cimException, getResponseData endOfSequence
-//// enumerationContext not partof Pegasus::CIMOpenQueryInstancesRequestMessage
-////  ProviderRequests::issueOpenResponseMessageTemplate(
-////     this,
-////     request,
-////     openResponse,
-////     enumerationContext,
-////     "OpenExecQuery",
-////     operationMaxObjectCount);
 
     PEG_METHOD_EXIT();
     return;
@@ -7031,8 +7040,7 @@ void CIMOperationRequestDispatcher::handlePullInstancesWithPath(
         dynamic_cast<CIMPullInstancesWithPathResponseMessage*>(
             request->buildResponse()));
 
-    ProviderRequests::processPullRequest(this, request, response,
-        "PullInstancesWithPath");
+    ProviderRequests::processPullRequest(this, request, response);
     PEG_METHOD_EXIT();
     return;
 }
@@ -7054,8 +7062,7 @@ void CIMOperationRequestDispatcher::handlePullInstancePaths(
         dynamic_cast<CIMPullInstancePathsResponseMessage*>(
             request->buildResponse()));
 
-    ProviderRequests::processPullRequest(this, request, response,
-    "PullInstancePaths");
+    ProviderRequests::processPullRequest(this, request, response);
 
     PEG_METHOD_EXIT();
     return;
@@ -7080,8 +7087,7 @@ void CIMOperationRequestDispatcher::handlePullInstances(
         dynamic_cast<CIMPullInstancesResponseMessage*>(
             request->buildResponse()));
 
-    ProviderRequests::processPullRequest(this, request, response,
-    "PullInstances");
+    ProviderRequests::processPullRequest(this, request, response);
 
     PEG_METHOD_EXIT();
     return;
@@ -7135,23 +7141,16 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
             PEG_METHOD_EXIT();
             return;
         }
-        if (_rejectIfContextTimedOut(request, en->isTimedOut()))
-        {
-            PEG_METHOD_EXIT();
-            return;
-        }
-        // Stop interoperation timer. Turns off the
-        // interoperation timeout thread for this context.
+
+        // Stop interoperation timer thread from reviewing this context.
         en->stopTimer();
 
-        // Set the Enumeration Closed. No more requests will be accepted
-        // for this enumerationContext
+        // Set the EnumerationnCoontext Closed. No more requests will be
+        // accepted for this enumerationContext
         en->setClientClosed();
 
-        // Confirm that the providers are complete and if not
-        // to force process when they are complete.
-        providersComplete = en->providersComplete();
-        if (providersComplete)
+        // If providers complete, we can release this context
+        if (providersComplete = en->providersComplete())
         {
             enumerationContextTable.releaseContext(en);
         }
@@ -7168,6 +7167,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
        "Close Operation executed Providers Complete= %s",
        boolToString(providersComplete) ));
+
     PEG_METHOD_EXIT();
     return;
 }

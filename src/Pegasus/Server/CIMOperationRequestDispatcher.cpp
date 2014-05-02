@@ -68,7 +68,13 @@ PEGASUS_USING_STD;
 // Close, and countEnumeration operations.  The default interoperation
 // timeout and max cache size are set as part of creating the table.
 //
-static EnumerationContextTable enumerationContextTable;
+//// KS_TODO - The whole setup of the enumContextTable should be
+////           dynamic, not static so we can set the size at system
+////           startup, not at build.
+#define OpenEnumerateContextsMaxLimit 150
+
+static EnumerationContextTable enumerationContextTable(
+    OpenEnumerateContextsMaxLimit);
 
 // Variable to determine the performance if we wait for pull
 // response size to match request or simply for response objects to exist.
@@ -7150,7 +7156,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         en->setClientClosed();
 
         // If providers complete, we can release this context
-        if (providersComplete = en->providersComplete())
+        if ((providersComplete = en->providersComplete()))
         {
             enumerationContextTable.releaseContext(en);
         }

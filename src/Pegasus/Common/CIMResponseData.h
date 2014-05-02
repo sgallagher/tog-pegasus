@@ -88,11 +88,7 @@ public:
         _includeClassOrigin(true),
         _isClassOperation(false),
         _propertyList(CIMPropertyList())
-    {
-        /// KS_TODO the following two lines are test code.
-        PEGASUS_DEBUG_ASSERT(valid()); // KS_TEMP KS_TODO DELETE THIS
-        size();
-    }
+    {}
 
     CIMResponseData(const CIMResponseData & x):
         _encoding(x._encoding),
@@ -116,7 +112,7 @@ public:
         _propertyList(x._propertyList),
         _magic(x._magic)
     {
-        PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
+        PEGASUS_DEBUG_ASSERT(valid());
     }
 
     /**Construct an empty object.  Issue here in that we would like
@@ -132,7 +128,7 @@ public:
         _includeQualifiers(true), _includeClassOrigin(true),
         _propertyList(CIMPropertyList())
     {
-        PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
+        PEGASUS_DEBUG_ASSERT(valid());
     }
 
     /**
@@ -170,8 +166,7 @@ public:
     Boolean hasBinaryData() const;
 
     ~CIMResponseData()
-    {
-    }
+    { }
 
     /** Issue with pull and other operations
        in that the other assoc operations return objects and objectPaths
@@ -183,7 +178,7 @@ public:
         PEGASUS_DEBUG_ASSERT(valid());
         // This assert is temp test since the object should be zero
         // size when data type set.
-        PEGASUS_ASSERT(_size == 0);      // KS_TODO_TEMP or debug mode.
+        PEGASUS_ASSERT(_size == 0);
         _dataType = content;
     }
 
@@ -209,7 +204,7 @@ public:
     */
     ResponseDataContent getResponseDataContent()
     {
-        PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP KS_TODO
+        PEGASUS_DEBUG_ASSERT(valid());
         return _dataType;
     }
     /*******************************************************************
@@ -267,7 +262,6 @@ public:
 
     void appendInstance(const CIMInstance& x)
     {
-        //// AutoMutex autoMut(testLock);
         PEGASUS_DEBUG_ASSERT(valid());
         _instances.append(x);
         _encoding |= RESP_ENC_CIM;
@@ -276,7 +270,6 @@ public:
 
     void appendInstances(const Array<CIMInstance>& x)
     {
-        //// AutoMutex autoMut(testLock);
         PEGASUS_DEBUG_ASSERT(valid());
         _instances.appendArray(x);
         _encoding |= RESP_ENC_CIM;
@@ -288,7 +281,6 @@ public:
 
     void setObjects(const Array<CIMObject>& x)
     {
-        //// AutoMutex autoMut(testLock);
         PEGASUS_DEBUG_ASSERT(valid());
         _objects=x;
         _encoding |= RESP_ENC_CIM;
@@ -327,7 +319,6 @@ public:
 
     void appendSCMO(const Array<SCMOInstance>& x)
     {
-        //// AutoMutex autoMut(testLock);
         PEGASUS_DEBUG_ASSERT(valid());
         _scmoInstances.appendArray(x);
         _encoding |= RESP_ENC_SCMO;

@@ -23,13 +23,11 @@ TODO list:
    4. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration.  This should be discussed.  Am making
       this a separate bug.  See bug 9819 for the changes to cover this.
-   5. Consider moving some more of the code in dispatcher from templates to
-      common functions which would mean adding intermediate classes in
-      CIMMessage but would reduce code size. Currently the change that
-      we should make for this is to create a new message CIMPullRequestData...
-      between CIMRequestDataMessage and the Pull requests since they all
-      have exactly the same input and output pararameters (The
-      CIMResponseData hides the response object differences)
+   5. Move processPull code in dispatcher from template to
+      common function which would mean adding intermediate classes in
+      CIMMessage but would reduce code size. This createsCIMmessage
+      CIMPullRequestData... between CIMRequestDataMessage and the Pull requests
+      since they all have exactly the same input and output pararameters.
    6. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
@@ -45,13 +43,15 @@ TODO list:
       cannot be sure how many responses will come back in all cases even
       for open.
    10. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
-      further since there is some overlap.  That is low priority.
-   11. Correct issue between operations and HTTP where we are sending
+      further since there is some overlap.  Low priority.
+   11.Correct issue between operations and HTTP where we are sending
       trailers with exceptions.  Also correct issue where we are
       sending endOfSequence and EnumerationContext in response when
       we send CIMException.  DONE Except that we really need to get
       rid of the trailers completely for pull operations.  Need to
       have flag to send as non trailer (probably non_chunked flag)
+   12.Make enumContextTable hashtable dynamicand create entirely within
+      CIMOperationRequestDispatcher.cpp. Today it has a static size 
 
    NEXT TASKS: 
       b. Finish and test the OpenQueryInstances
@@ -62,6 +62,13 @@ TODO list:
 	 timeout thread) and a place where not mutuxed, primarily the
 	 timeout thread.
 
+2 May 2014
+1. Remove Diagnostics from ResponseData.cpp
+2. Correct setup and start of EnumerationContextTimerThread
+3. Change limit on max number of enum contexts to be set from Dispatcher.
+4. Increase size of hashtable for enum contexts.
+5. Corrected issue causing failures in removeContext. Now runs through nightly
+   tests most of the time.
 1 May 2014
 1. Cleanup of code and variable names.
 2. Removed namespace variable from EnumerationContext.  It was never used.

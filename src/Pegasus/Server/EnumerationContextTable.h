@@ -84,7 +84,7 @@ public:
             may have effect on the Hashtable size which is also set in
             This header file.
     */
-    EnumerationContextTable(Uint32 maxOpenContexts = 100);
+    EnumerationContextTable(Uint32 maxOpenContexts);
 
     /**
        Set the default parameter values for Pull Operations.
@@ -216,22 +216,14 @@ private:
     EnumerationContextTable(const EnumerationContextTable& x);
     EnumerationContextTable& operator=(const EnumerationContextTable&);
 
-    // Enumeration Context objects are maintained in the following
-    // Pegasus hash table
-    typedef HashTable<String,
-        EnumerationContext* ,
-        EqualFunc<String>,
-        HashFunc<String> > HT;
-    HT ht;
-
     // Private remove.  This is function that actually executes the remove
     // Not protected by mutex.
-    Boolean _removeContext(
-        EnumerationContext* en,
-        Boolean deleteContext = false);
+    Boolean _removeContext(EnumerationContext* en);
 
     // Lock on EnumerationContextTable
     Mutex tableLock;
+
+    Thread _operationContextTimerThread;
 
     // Maximum number of objects allowed in the ResponseData cache in
     // any enumerationContext object. This sets the maximum number of

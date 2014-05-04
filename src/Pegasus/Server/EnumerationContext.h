@@ -194,7 +194,7 @@ public:
     bool valid() const;
 
     /** Test if client is closed for this enumeration.
-       @return Boolean true if closed
+       @return bool true if closed
     */
     bool isClientClosed();
 
@@ -234,7 +234,7 @@ public:
 
        @param response CIMResponseMessage containing CIMResponseData
           to be inserted into the cache.
-       @param providersComplete Boolean indicating that this is the
+       @param providersComplete bool indicating that this is the
           last response from providers.
        @return true if data set into cache, false if enumeration
                closed this is last response from providers.
@@ -336,10 +336,10 @@ public:
         Sets the active state (i.e. Request being processed).
         Setting processing = true stops the interOperation timer.
         Otherwise the interoperation timer is started
-        @param state Boolean defines whether to set processing or
+        @param state bool defines whether to set processing or
         !processing. Processing means request being processed.
      */
-    void setProcessingState(Boolean state);
+    void setProcessingState(bool state);
 
     /**
         Test if the provider processing is complete.
@@ -352,12 +352,12 @@ public:
         processing of a Request is complete, this function
         determines sets the next state for the operation,
         either back to wait for the next operation or complete.
-         @param errorFound Boolean indicating that an error was
+         @param errorFound bool indicating that an error was
          encountered which, if continueOnError = false, forces
          the operation to be closed and the true response returned.
         @return Boolean true if the enumeration is complete.
     */
-    bool setNextEnumerationState(Boolean errorFound);
+    bool setNextEnumerationState(bool errorFound);
 
     /**
         Increment the count of the number of pull operations executed
@@ -368,13 +368,13 @@ public:
         operations and also counts consecutive maxObjectCount zero
         length requests.
 
-        @param isZeroLength Boolean indicating if this operation is a request
-        for zero objects which is used to count consecutive zero length
-        pull operations.
+        @param isZeroLength bool indicating if this operation is a
+        request for zero objects which is used to count consecutive
+        zero length pull operations.
         @return true if the count of consecutive zero length pull operations
         exceeds a predefined maximum.
     */
-    bool incAndTestPullCounters(Boolean isZeroLength);
+    bool incAndTestPullCounters(bool isZeroLength);
 
 
     // Diagnostic to display the current context into the
@@ -396,7 +396,7 @@ public:
     // critical sections.
     void lockContext();
     void unlockContext();
-    Boolean tryLockContext();
+    bool tryLockContext();
     Mutex _contextLock;
 
     /* Increment count of requests processed for this enumeration
@@ -427,21 +427,16 @@ private:
     // Name(Id) of this EnumerationContext.
     String _contextId;
 
-    // Namespace for this pull sequence.  Set by open and used by
-    // pull and close.
-    CIMNamespaceName _nameSpace;
-
-    // Interoperation timeout value in seconds.  From operation request
+    // Interoperation timeout value in seconds.  From open request operation
     // parameters.
     Uint32 _operationTimeoutSec;
 
     // ContinueOnError request flag.Set by open...
     Boolean _continueOnError;
 
-    // Timeout absolute time value in seconds for interoperation timeout.
-    // 0 indicates  timer not active. Contains timeout time for
-    // this sequence in microseconds.
-    Uint64 _interOperationTimer;
+    // Timeout absolute time value microseconds) for interoperation timeout.
+    // 0 indicates  timer not active.
+    Uint64 _interOperationTimerUsec;
 
     // Request Type for pull operations for this pull sequence.
     // Set by open. All pulls must match this type.

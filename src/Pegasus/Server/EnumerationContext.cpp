@@ -64,7 +64,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _contextId(contextId),
     _operationTimeoutSec(interOperationTimeoutValue),
     _continueOnError(continueOnError),
-    _interOperationTimer(0),
+    _interOperationTimerUsecUsec(0),
     _pullRequestType(pullRequestType),
     _clientClosed(false),
     _providersComplete(false),
@@ -123,7 +123,8 @@ void EnumerationContext::startTimer()
     {
         Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
 
-        _interOperationTimer =  currentTime + (_operationTimeoutSec * 1000000);
+        _interOperationTimerUsecUsec =  currentTime +
+            (_operationTimeoutSec * 1000000);
 
         _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
 
@@ -133,7 +134,8 @@ void EnumerationContext::startTimer()
                " next timeout in %ld sec,",
            (const char*)getContextId().getCString(),
            _operationTimeoutSec,
-           (long signed int)(_interOperationTimer - currentTime)/1000000 ));
+           (long signed int)
+                   (_interOperationTimerUsecUsec - currentTime)/1000000 ));
     }
     PEG_METHOD_EXIT();
 }
@@ -150,9 +152,9 @@ void EnumerationContext::stopTimer()
            " next timeout in %ld sec,",
        (const char*)getContextId().getCString(),
        _operationTimeoutSec,
-       (long signed int)(_interOperationTimer - currentTime)/1000000 ));
+       (long signed int)(_interOperationTimerUsecUsec - currentTime)/1000000 ));
 
-    _interOperationTimer = 0;
+    _interOperationTimerUsecUsec = 0;
     PEG_METHOD_EXIT();
 }
 
@@ -166,26 +168,26 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
 {
     PEGASUS_DEBUG_ASSERT(valid());
 
-    if (_interOperationTimer == 0)
+    if (_interOperationTimerUsecUsec == 0)
     {
             return false;
     }
 
-    bool timedOut = (_interOperationTimer < currentTime)? true : false;
+    bool timedOut = (_interOperationTimerUsecUsec < currentTime)? true : false;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,      // KS_TEMP
         "Context Timer. ContextId= %s timer(sec)= %lu"
            " current(sec)= %lu diff(sec)= %ld isTimedOut= %s",
         (const char*)_contextId.getCString(),
-        (long unsigned int)((_interOperationTimer / 1000000)),
+        (long unsigned int)((_interOperationTimerUsecUsec / 1000000)),
         (long unsigned int)currentTime / 1000000,
-        (long signed int)(_interOperationTimer - currentTime) / 1000000,
+        (long signed int)(_interOperationTimerUsecUsec - currentTime) / 1000000,
         boolToString(timedOut) ));
 
     // If it is timed out, set it inactive.
     if (timedOut)
     {
-        _interOperationTimer = 0;
+        _interOperationTimerUsecUsec = 0;
     }
     return(timedOut);
 }
@@ -231,7 +233,7 @@ void EnumerationContext::trace()
         "RequestedResponseObjectCount=%u",
         (const char *)_contextId.getCString(),
         _operationTimeoutSec,
-        (long unsigned int)_interOperationTimer,
+        (long unsigned int)_interOperationTimerUsecUsec,
         boolToString(_continueOnError),
         MessageTypeToString(_pullRequestType),
         boolToString(_providersComplete),
@@ -340,9 +342,9 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
             _cacheHighWaterMark = responseCacheSize();
         }
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "putCache ContextId=%s inserted. responseCache size=%u",
-             (const char*)getContextId().getCString(), responseCacheSize()  ));
+////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////          "putCache ContextId=%s inserted. responseCache size=%u",
+////           (const char*)getContextId().getCString(), responseCacheSize()));
     }
 
     // Return true indicating that input added to cache and cache is still open

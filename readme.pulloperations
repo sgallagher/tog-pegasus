@@ -11,7 +11,7 @@ TODO list:
    1. Binary operation from OOP.  Need to add counter to binary
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
-      OOP right now.  Corrected by converting to XML. 
+      OOP right now.  Fixed by converting to XML. 
    2. OpenExecQuery - Code is incomplete in that it does not include the
       return from the exec query function to the aggregator yet.
    3. Code for Pull part of OpenQueryInstancesRequest a) should be part of
@@ -34,9 +34,10 @@ TODO list:
       messages to include count and CIMResponse data to count objects out
       of queue when converting (avoids the second move). This would mean
       extending the output writers to allow the count field to be supplied
-      so they would only create output for up to the count supplied.
+      so they would only create output for up to the count supplied.(Make
+      this future beyond bug 9676)
    9. Add more static tests (currently only OpenEnumerateInstances and
-      OpenEnumerateInstanceNames covered).
+      OpenEnumerateInstanceNames covered). 
       Low priority because most of this except exact XML covered in other
       tests. note that we can only add very limited tests since a) no
       way to test multiple opertions in sequence(i.e. open/pull) and
@@ -50,8 +51,8 @@ TODO list:
       we send CIMException.  DONE Except that we really need to get
       rid of the trailers completely for pull operations.  Need to
       have flag to send as non trailer (probably non_chunked flag)
-   12.Make enumContextTable hashtable dynamicand create entirely within
-      CIMOperationRequestDispatcher.cpp. Today it has a static size 
+   12.Make enumContextTable hashtable dynamic and create entirely within
+      CIMOperationRequestDispatcher.cpp. Today it has a static size
 
    NEXT TASKS: 
       b. Finish and test the OpenQueryInstances
@@ -61,6 +62,12 @@ TODO list:
 	 that use the EnumerationContext (request thread, provider thread,
 	 timeout thread) and a place where not mutuxed, primarily the
 	 timeout thread.
+
+4 May 2014
+1. Clean interface with EnumerationContext timeout thread
+2. Remove more diagnostics
+3. Correct issue with enumerationContext Release that was causing
+   failures during nightly tests.
 
 2 May 2014
 1. Remove Diagnostics from ResponseData.cpp

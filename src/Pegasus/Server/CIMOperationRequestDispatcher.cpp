@@ -1112,40 +1112,43 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 }
             }
 
-            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                       CSTRING(en->getContextId())));
-            en->unlockContext();
-
-            // If providers not complete and client open, test for cache
-            // overload  before continuing. Do not wait if client is
-            // closed since goal is to remove any existing
-            // provider responses
-            if (!isComplete && !en->isClientClosed())
-            {
-                PEGASUS_ASSERT(en->valid()); // KS_TODO Delete
-                // Wait here if the cache is too large. Sending
-                // requests will reduce the size of the cache and
-                // signal this wait function when size returns below
-                // limit.
-////              en->waitCacheSize();
-            }
-
             if (isComplete)
             {
                 en->setProvidersComplete();
             }
+
+            delete response;
+
             // If closed  on client side, we can release
             // This MUST BE last operation on the en since
             // the en could be removed by one of the other threads
             // if conditions are correct.
-
             if (en->isClientClosed() && isComplete)
             {
+                // en may be deleted after this call
                 enumerationContextTable.releaseContext(en);
             }
+            else
+            {
+                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                    "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+                           CSTRING(en->getContextId())));
+                en->unlockContext();
 
-            delete response;
+                // If providers not complete and client open, test for cache
+                // overload  before continuing. Do not wait if client is
+                // closed since goal is to remove any existing
+                // provider responses
+                if (!isComplete && !en->isClientClosed())
+                {
+                    PEGASUS_ASSERT(en->valid()); // KS_TODO Delete
+                    // Wait here if the cache is too large. Sending
+                    // requests will reduce the size of the cache and
+                    // signal this wait function when size returns below
+                    // limit.
+    ////              en->waitCacheSize();
+                }
+            }
         }
         // Otherwise not a pull operation; queue response
         else
@@ -3523,14 +3526,19 @@ struct ProviderRequests
                 en,
                 operationMaxObjectCount);
 
-            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                (const char*)en->getContextId().getCString()));
-
-            en->unlockContext();
             if (en->isClientClosed() && en->providersComplete())
             {
+                // en may be deleted in this call. Do not use
+                // after this call
                 enumerationContextTable.releaseContext(en);
+            }
+            else
+            {
+                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                    "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+                    (const char*)en->getContextId().getCString()));
+
+                en->unlockContext();
             }
         }
         else
@@ -7111,7 +7119,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CloseEnumeration request for  "
-            "enumerationContext = \"%s\" .  ",
+            "contextId=%s .  ",
         (const char*)request->enumerationContext.getCString() ));
 
     EnumerationContext* en = enumerationContextTable.find(
@@ -7161,7 +7169,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
             enumerationContextTable.releaseContext(en);
         }
     }
-    // KS_TODO no need for AutoPtr here.
+
     AutoPtr<CIMCloseEnumerationResponseMessage> response(
         dynamic_cast<CIMCloseEnumerationResponseMessage*>(
             request->buildResponse()));

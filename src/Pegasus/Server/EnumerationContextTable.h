@@ -131,7 +131,7 @@ public:
 
         @param enumerationContextName context to remove
     */
-    void releaseContext(EnumerationContext* en);
+    bool releaseContext(EnumerationContext* en);
 
     /** Return the number of enumeration context entries in the
        enumeration context table
@@ -140,90 +140,68 @@ public:
     Uint32 size();
 
     /** Remove any contexts that have expired inteoperation timers
+     *  @return returns false if the table is empty.
     */
-    void removeExpiredContexts();
+    bool removeExpiredContexts();
 
-    EnumerationContext* find(const String& enumerationContextName);
+    /* Find the EnumerationContext defined by the input parameter.
+       @param contextId String defining Id for the context to be located
+       @return EnumerationContext* containing context or NULL if
+       no context found.
+    */
+    EnumerationContext* find(const String& contextId);
 
     /** Dispatch the Timer thread if it is not already dispatched.
 
        @param interval Uint32 interval defines the interval for this context
               in seconds.
     */
-    void dispatchTimerThread(Uint32 interval);
-
-    /** Return true if the Timer Thread is idle (i.e. not running)
-    */
-    Boolean timerThreadIdle() const;
-
-    /** Set the Timer Thread Idle (i.e. Not running)
-    */
-    void setTimerThreadIdle();
-
-    /** Update table timeout timer to next timeout
-    */
-    void updateNextTimeout();
-
-    bool stopThread();
-
-    Uint32 timoutInterval() const;
-
-    /** isNextScanTime tests if the next defined timeout for the
-        context monitor is less than the current time meaning that
-        the timer has timed out.
-        @return Boolean returns true if timed out.
-     */
-    Boolean isNextScanTime() const;
+    void dispatchTimerThread(Uint32 intervalSec);
 
     // Diagnostic tests magic number in context to see if valid
-    // This is a Diagnostic tool and is enabled only when PEGASUS_DEBUG
-    // set
-    Boolean valid();
+    bool valid();
 
     // KS_TEMP TODO REMOVE This diagnostic should be removed. It  validates
     // every entry in the table.
     void tableValidate();
 
-    /** Diagnostic to output info on all entries in table to trace log
-    */
-    void trace();
+    // Diagnostic to output info on all entries in table to trace
+      void trace();
 
     /**Clear the Context Table.  This is part of system shutdown
     */
     void removeContextTable();
 
-    void displayStatistics(Boolean clear = false);
+    void displayStatistics(bool clear = false);
 
     void setRequestSizeStatistics(Uint32 requestSize)
     {
         _requestCount++;
         _requestedSize += requestSize;
     }
-protected:
+    Uint32 getTimeoutIntervalMsec();
 
-    // Timers for timer thread in milliseconds
-    // Current minimum timeout time for active pull sequences
-    Uint32 _timeoutInterval;
-
-    // next time the test for timed out pull sequences will be activated.
-    // Absolute time in milliseconds
-    // KS_TODO - This is incorrect since it will be the minimum for all
-    // time.  How can we keep minimum for the active ones?
-    Uint64 _nextTimeout;
+    AtomicInt _timeoutThreadRunningFlag;
+    AtomicInt _stopTimeoutThreadFlag;
+    Semaphore _timeoutThreadWaitSemaphore;
 
 private:
     // hide default assignment and copy constructor
     EnumerationContextTable(const EnumerationContextTable& x);
+
     EnumerationContextTable& operator=(const EnumerationContextTable&);
+    // Scan interval timeout for timeout thread scans
+    Uint32 _timeoutIntervalMsec;
+
+    void _stopTimeoutThread();
 
     // Private remove.  This is function that actually executes the remove
     // Not protected by mutex.
-    Boolean _removeContext(EnumerationContext* en);
+    bool _removeContext(EnumerationContext* en);
 
-    // Lock on EnumerationContextTable
-    Mutex tableLock;
+    Mutex _tableLock;
 
-    Thread _operationContextTimerThread;
+    Thread _operationContextTimeoutThread;
 
     // Maximum number of objects allowed in the ResponseData cache in
     // any enumerationContext object. This sets the maximum number of
@@ -234,9 +212,11 @@ private:
     // Systemwide highwater mark of number of objects in context cache
     Uint32 _cacheHighWaterMark;
 
-    // Default time interval allowed for interoperation timeout in seconds
+    Uint32 _requestObjectCountHighWaterMark;
+
+    // Default time interval allowed for interoperation timeout
     // when NULL is specified in the request.
-    Uint32 _defaultOperationTimeout;
+    Uint32 _defaultOperationTimeoutSec;
 
     // Count of enumerations Opened total since last statistics reset
     Uint64 _enumerationContextsOpened;
@@ -269,36 +249,13 @@ private:
 //
 //  inline EnumerationContextTable functions
 //
-inline Boolean EnumerationContextTable::timerThreadIdle() const
+
+inline Uint32 EnumerationContextTable::getTimeoutIntervalMsec()
 {
-    return (_nextTimeout == 0);
+    return _timeoutIntervalMsec;
 }
 
-inline void EnumerationContextTable::setTimerThreadIdle()
-{
-    _nextTimeout = 0;
-}
-
-inline void EnumerationContextTable::updateNextTimeout()
-{
-    _nextTimeout += _timeoutInterval;
-}
-inline bool EnumerationContextTable::stopThread()
-{
-    return (_nextTimeout == 0);
-}
-
-inline Uint32 EnumerationContextTable::timoutInterval() const
-{
-    return _timeoutInterval;
-}
-
-inline Boolean EnumerationContextTable::isNextScanTime() const
-{
-    return (_nextTimeout < TimeValue::getCurrentTime().toMilliseconds() );
-}
-
-inline Boolean EnumerationContextTable::valid()
+inline bool EnumerationContextTable::valid()
 {
     return _magic;
 }

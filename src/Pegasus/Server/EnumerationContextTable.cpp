@@ -56,13 +56,13 @@ typedef HashTable<String, EnumerationContext* , EqualFunc<String>,
 static EnumContextTable enumContextTable(128);
 
 
-// Thread execution function for timerThread(). This thread executes
+// Thread execution function for timeoutThread(). This thread executes
 // regular timeout tests on active contexts and closes them or marks them
 // for close if timed out.  This is required for those cases where a
 // pull sequence is terminated without either completing or closing the
 // sequence.
 
-ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
+ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimeoutThread(void* parm)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::operationContextTimerThread");
@@ -73,28 +73,23 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 
     PEGASUS_DEBUG_ASSERT(et->valid());
 
-    // execute loop at regular intervals until there are no more contexts
-    // KS_TODO - The choice of existence of contexts as the loop controller
-    // means that we will look through many inactive contexts to find any
-    // that are timed out (much search for a very unusual condition).
-    // This algorithm not optimum. Problem is that we are starting and
-    // stopping thread timers many times a second so list does not make sense.
-    while ((et->size() != 0) &&
-        (!et->stopThread()))
-    {
-        // Sleep loop until time for next scan or thread quit requested
-        while (!et->isNextScanTime() &&
-               (!et->stopThread()))
-        {
-            Threads::sleep(et->timoutInterval());
-        }
+    Uint32 nextTimeoutMsec = et->getTimeoutIntervalMsec();
 
-        et->removeExpiredContexts();
-        et->updateNextTimeout();
+    // execute loop at regular intervals until no more contexts or
+    // stop flag set
+    while (!et->_stopTimeoutThreadFlag.get() )
+    {
+        et->_timeoutThreadWaitSemaphore.time_wait(nextTimeoutMsec);
+
+        // false return indicates table empty.
+        if (!et->removeExpiredContexts())
+        {
+            break;
+        }
     }
 
     // reset the timeout value to indicate that the thread is quiting
-    et->setTimerThreadIdle();
+    et->_timeoutThreadRunningFlag = 0;
 
     PEG_METHOD_EXIT();
     return ThreadReturnType(0);
@@ -108,12 +103,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimerThread(void* parm)
 
 EnumerationContextTable::EnumerationContextTable(Uint32 maxOpenContextsLimit)
     :
-    _timeoutInterval(0),
-    _nextTimeout(0),
-    _operationContextTimerThread(operationContextTimerThread, this, true),
+    _timeoutIntervalMsec(0),
+    _operationContextTimeoutThread(operationContextTimeoutThread, this, true),
     _responseCacheMaximumSize(0),
     _cacheHighWaterMark(0),
-    _defaultOperationTimeout(0),
+    _requestObjectCountHighWaterMark(0),
+    _defaultOperationTimeoutSec(0),
     _enumerationContextsOpened(0),
     _enumerationsTimedOut(0),
     _maxOpenContexts(0),
@@ -131,7 +126,7 @@ void EnumerationContextTable::setContextDefaultParameters(
     Uint32 reponseCacheMaximumSize)
 {
     _responseCacheMaximumSize = reponseCacheMaximumSize;
-    _defaultOperationTimeout = defaultInteroperationTimeoutValue;
+    _defaultOperationTimeoutSec = defaultInteroperationTimeoutValue;
 }
 
 /* Remove all contexts and delete them. Only used on system shutdown.
@@ -141,7 +136,11 @@ EnumerationContextTable::~EnumerationContextTable()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::~EnumerationContextTable");
 
-    setTimerThreadIdle();
+    _stopTimeoutThread();
+
+    // Show shutdown statistics for EnumerationContextTable
+    displayStatistics();
+
     removeContextTable();
 
     PEG_METHOD_EXIT();
@@ -166,7 +165,7 @@ EnumerationContext* EnumerationContextTable::createContext(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::createContext");
 
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
 
     // Test for Max Number of simultaneous contexts.
     if (enumContextTable.size() > _maxOpenContextsLimit)
@@ -179,7 +178,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     // set the operation timeout to either the default or current
     // value
     Uint32 operationTimeout = (operationTimeoutParam.isNull())?
-        _defaultOperationTimeout
+        _defaultOperationTimeoutSec
         :
         operationTimeoutParam.getValue();
 
@@ -232,21 +231,22 @@ EnumerationContext* EnumerationContextTable::createContext(
     return en;
 }
 
-void EnumerationContextTable::displayStatistics(Boolean clearStats)
+void EnumerationContextTable::displayStatistics(bool clearStats)
 {
     // Show shutdown statistics for EnumerationContextTable
     // Should add avg size of requests.  Maybe some other info.
 
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
     if (_enumerationContextsOpened != 0)
     {
         cout << "EnumerationTable Statistics:"
-            << "\n  EnumerationCache High Water Mark: " << _cacheHighWaterMark
-            << "\n  Max Simultaneous Enumerations: " << _maxOpenContexts
-            << "\n  Total Enumerations Opened: " << _enumerationContextsOpened
-            << "\n  Enumerations Aborted: " << _enumerationsTimedOut
-            << "\n  Current Open Enumerations: " << size()
-            << "\n  Average Request Size: " << _getAvgRequestSize()
+            << "\n  EnumerationCache high water mark: " << _cacheHighWaterMark
+            << "\n  Max simultaneous enumerations: " << _maxOpenContexts
+            << "\n  Total enumerations opened: " << _enumerationContextsOpened
+            << "\n  Enumerations aborted: " << _enumerationsTimedOut
+            << "\n  Current open enumerations: " << size()
+            << "\n  Average request Size: " << _getAvgRequestSize()
+            << "\n  Max request size" << _requestObjectCountHighWaterMark
             << "\n  max Open Contexts limit " << _maxOpenContextsLimit
             // KS_TODO avg requests per enum. Should do by en, not total
             << endl;
@@ -259,6 +259,7 @@ void EnumerationContextTable::displayStatistics(Boolean clearStats)
         _enumerationsTimedOut = 0;
         _requestCount = 0;
         _requestedSize = 0;
+        _requestObjectCountHighWaterMark = 0;
     }
 }
 
@@ -267,49 +268,57 @@ void EnumerationContextTable::removeContextTable()
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::removeContextTable");
 
-    // Show shutdown statistics for EnumerationContextTable
-    displayStatistics();
-
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
     // Clear out any existing enumerations.
-    if (enumContextTable.size() != 0)
+    for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
     {
-        for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
-        {
-            EnumerationContext* enumeration = i.value();
+        EnumerationContext* en = i.value();
 
-            PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
-                "EnumerationTable Close. Entry Found "
-                    " name %s, started %llu milliseconds before,",
-                 (const char *)enumeration->getContextId().getCString(),
-                 ((TimeValue::getCurrentTime().toMilliseconds()
-                   - enumeration->_startTime)/1000) ));
-
-            enumContextTable.remove(i.key());
-            delete enumeration;
-        }
+        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
+            "EnumerationTable Close. Entry Found "
+                " name %s, started %llu milliseconds before,",
+             (const char *)en->getContextId().getCString(),
+             ((TimeValue::getCurrentTime().toMilliseconds()
+               - en->_startTime)/1000) ));
+        delete en;
     }
+    enumContextTable.clear();
     PEG_METHOD_EXIT();
 }
 
-void EnumerationContextTable::releaseContext(EnumerationContext* en)
+bool EnumerationContextTable::releaseContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::releaseContext");
 
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
 
     PEGASUS_DEBUG_ASSERT(valid());
     PEGASUS_DEBUG_ASSERT(en->valid());
 
+    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+        "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+        (const char*)en->getContextId().getCString()));
+
+    String contextId = en->getContextId();
+
+    en->unlockContext();
+
+    // Check to assure that the context ID is in the table.
+    if (!find(contextId))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
     _removeContext(en);
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
-// Private remove function with no lock protection. The tableLock must
+// Private remove function with no lock protection. The _tableLock must
 // be set before this function is called to protect the table. This simply
 // removes the context from the context table.
-Boolean EnumerationContextTable::_removeContext(EnumerationContext* en)
+bool EnumerationContextTable::_removeContext(EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_removeContext");
 
@@ -323,7 +332,7 @@ Boolean EnumerationContextTable::_removeContext(EnumerationContext* en)
     // This function assumes that the sequence is really complete and
     // provider returns complete.  If that is not true, it just generates
     // an error and returns.
-    // NOTE: Any functions that set _ClientClosed and _ProvidersComplete
+    // Any functions that set _ClientClosed and _ProvidersComplete
     // must insure that they block until finished with context.
     if (en->_clientClosed && en->_providersComplete)
     {
@@ -335,6 +344,11 @@ Boolean EnumerationContextTable::_removeContext(EnumerationContext* en)
         if (en->_cacheHighWaterMark > _cacheHighWaterMark)
         {
             _cacheHighWaterMark = en->_cacheHighWaterMark;
+        }
+
+        if (en->_responseObjectsCount > _requestObjectCountHighWaterMark)
+        {
+            _requestObjectCountHighWaterMark = en->_responseObjectsCount;
         }
         // KS_TODO Temporary diagnostic trace of enumerateContext internal info
         en->trace();
@@ -357,6 +371,7 @@ Boolean EnumerationContextTable::_removeContext(EnumerationContext* en)
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "Delete Context. ContextId=%s",
             (const char *)en->getContextId().getCString() ));
+
         delete en;
 
         PEG_METHOD_EXIT();
@@ -370,11 +385,6 @@ Boolean EnumerationContextTable::_removeContext(EnumerationContext* en)
             (const char *)en->getContextId().getCString(),
             boolToString(en->_providersComplete),
             boolToString(en->_clientClosed) ));
-        //// KS_TODO remove this.  Test Diagnostic only.
-        cout << "remove ignored. "
-            << " clientClosed " << boolToString(en->_clientClosed)
-            << " providersComplete " <<boolToString(en->_providersComplete)
-            << endl;
     }
     PEG_METHOD_EXIT();
     return false;
@@ -382,22 +392,21 @@ Boolean EnumerationContextTable::_removeContext(EnumerationContext* en)
 
 Uint32 EnumerationContextTable::size()
 {
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
     return(enumContextTable.size());
 }
 
 // If context name found, return pointer to that context.  Otherwise
 // return 0
-EnumerationContext* EnumerationContextTable::find(
-    const String& enumerationContextName)
+EnumerationContext* EnumerationContextTable::find(const String& contextId)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContextTable::find");
 
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
 
     EnumerationContext* en = 0;
 
-    if(enumContextTable.lookup(enumerationContextName, en))
+    if(enumContextTable.lookup(contextId, en))
     {
         PEGASUS_DEBUG_ASSERT(en->valid());
     }
@@ -409,30 +418,31 @@ EnumerationContext* EnumerationContextTable::find(
 /** Test all table entries and remove the ones timed out.
 
 */
-void EnumerationContextTable::removeExpiredContexts()
+bool EnumerationContextTable::removeExpiredContexts()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContextTable::removeExpiredContexts");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-    if (stopThread())
-    {
-         return;
-    }
-
     tableValidate(); // KS_TODO delete this.
     trace(); // KS_TODO delete this.
 
     // Lock the EnumerationContextTable so no operations can be accepted
     // during this process
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
+
+    if (size() == 0)
+    {
+        return false;
+    }
+
     Array<String> removeList;
 
-    Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
+    Uint64 currentTimeUsec = System::getCurrentTimeUsec();
     // KS_TODO Remove this variable.  Used to help find crash.
     Uint32 ctr = 0;
-    //// cout << "Expired test. Table size = " << size() << endl;
+////   cout << "Expired test. Table size = " << size() << endl;
     // Search enumeration table for entries timed out
     for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
     {
@@ -452,11 +462,11 @@ void EnumerationContextTable::removeExpiredContexts()
                     PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                         "EnumerationContextLock lock %s",
                                (const char*)en->getContextId().getCString() ));
-                    //// cout << "locked " << en->getContextId() << endl;
+////                  cout << "locked " << en->getContextId() << endl;
                     // test if entry is active (timer not zero)
-                    if (en->isTimedOut(currentTime))
+                    if (en->isTimedOut(currentTimeUsec))
                     {
-                        //// cout << "timed out " << en->getContextId() << endl;
+////                       cout << "timed out " << en->getContextId() << endl;
                         en->stopTimer();
                         // Force the client closed so nothing more accepted.
                         en->setClientClosed();
@@ -477,22 +487,26 @@ void EnumerationContextTable::removeExpiredContexts()
                         }
                         else
                         {
-                            //// cout << "Not timed out" << en->getContextId()
-                            ////       << endl;
+////                           cout << "Not timed out" << en->getContextId()
+////                                 << endl;
                             // depend on provider completion to close
                             // context.
                             // FUTURE Could use this to find cases
                             // where providers never complete
                             // KS-TODO
+                            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                            "EnumerationContextLock unlock %s Providers not"
+                                " Complete",
+                                (const char*)en->getContextId().getCString()));
                             en->unlockContext();
                         }
                     }
                     else
                     {
-                        //// cout << "not timed out " <<en->getContextId()
-                        ///       << endl;
+////                       cout << "not timed out " <<en->getContextId()
+////                            << endl;
                         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                            "EnumerationContextLock ERROR unlock %s",
+                            "EnumerationContextLock unlock %s Not Timed Out",
                                 (const char*)en->getContextId().getCString()));
                         en->unlockContext();
                     }
@@ -519,13 +533,14 @@ void EnumerationContextTable::removeExpiredContexts()
     }
 
     PEG_METHOD_EXIT();
-    return;
+
+    return (size() == 0)? true : false;
 }
 
 // Validate every entry in the table. KS_TODO Diagnostic
 void EnumerationContextTable::tableValidate()
 {
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
     for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
     {
         EnumerationContext* en = i.value();
@@ -540,31 +555,28 @@ void EnumerationContextTable::tableValidate()
 // interval is the timeout for the current operation that
 // initiated this call.  It helps the timer thread decide how often
 // to scan for timeouts.
-void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
+void EnumerationContextTable::dispatchTimerThread(Uint32 intervalSec)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "EnumerationContextTable::dispatchTimerThread");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
 
-    // If the timer thread is idle, start it.
-    if (timerThreadIdle())
+    // If timeout thread not running, start it
+    if (_timeoutThreadRunningFlag.get() == 0)
     {
         // convert second timer to milliseconds and set it for double
         // the input defined interval. Set for the timer thread to
         // loop through the table every 30 seconds.
 
-        _timeoutInterval = 5*1000;
+        _timeoutIntervalMsec = 30*1000;
 
-        _nextTimeout = _timeoutInterval +
-            TimeValue::getCurrentTime().toMilliseconds();
-
-        // Start a detached thread to execute the timeout tests.
+        // Start the detached thread to execute the timeout tests.
         // Thread runs until the timer is cleared or there are
         // no more contexts.
-        if (_operationContextTimerThread.run() != PEGASUS_THREAD_OK)
+        if (_operationContextTimeoutThread.run() != PEGASUS_THREAD_OK)
         {
             MessageLoaderParms parms(
                 "Server.EnumerationContextTable.THREAD_ERROR",
@@ -575,7 +587,32 @@ void EnumerationContextTable::dispatchTimerThread(Uint32 interval)
                 parms);
             PEGASUS_DEBUG_ASSERT(false); // This is system failure
         }
+
+        _timeoutThreadRunningFlag++;
     }
+    PEG_METHOD_EXIT();
+}
+
+void EnumerationContextTable::_stopTimeoutThread()
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "EnumerationContextTable::_stopTimeoutThread");
+
+    PEGASUS_DEBUG_ASSERT(valid());
+
+    if (_timeoutThreadRunningFlag.get() != 0)
+    {
+        _stopTimeoutThreadFlag++;
+        _timeoutThreadWaitSemaphore.signal();
+
+        while (_timeoutThreadRunningFlag.get())
+        {
+            Threads::yield();
+            Threads::sleep(50);
+        }
+    }
+    PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+        "EnumerationContextTable timeout thread stopped");
     PEG_METHOD_EXIT();
 }
 
@@ -584,7 +621,7 @@ void EnumerationContextTable::trace()
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "EnumerationContextTable Trace. size=%u", enumContextTable.size()));
 
-    AutoMutex autoMut(tableLock);
+    AutoMutex autoMut(_tableLock);
 
     for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
     {
@@ -595,54 +632,5 @@ void EnumerationContextTable::trace()
         enumeration->trace();
     }
 }
-
-/************************************************************************
-//
-//      TimerClass - List entry for List of all Enumeration Contexts for
-//      which the interoperation timer is active. This uses the list class
-//      and inserts entries into the list in order of timeout. Note: There
-//      should never be more than one entry for any single context
-//      since operations on a context are NOT concurrent.
-//      NOTE: Incomplete: Consider converting the timer to a list mechanism
-//      as cheaper way to execute timeouts.
-//
-************************************************************************/
-
-// KS_TODO Remove this or finish it.
-//class Timer : public Linkable
-//{
-//public:
-//    Timer(const Uint32 timeout, EnumerationContext& ec
-//          : _timeout(timeout), _ec(ec)) { }
-//    ~Timer() { }
-//    insertTimer()
-//    bool isTimedOut():
-//
-//    // Test for equality of a context name
-//    static bool equal(const Person* person, const void* ecName)
-//    {
-//        return *((String*)client_data) == ec->getContextName();
-//    }
-//private:
-//    Timer(const Timer& x);
-//    Timer& operation=(const Timer& x);
-//    Uint64 _timeout;
-//    EnumerationContext* -ec;
-//};
-//
-//Typedef List<Timer, NullLock> TimerList;
-//TimerList timerList;
-//
-//// if the head of list timer has expired return true and remove it from
-//// the list
-//bool Timer::isTimedOut()
-//{
-//    if (timerList.front(_ec->isTimedOut()))
-//    {
-//
-//    }
-//    return timerList.front(_ec->isTimedOut());
-//
-//}
 
 PEGASUS_NAMESPACE_END

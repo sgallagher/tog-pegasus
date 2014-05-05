@@ -1059,29 +1059,24 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 en->setErrorState(response->cimException);
             }
 
-            // Send to the EnumerationContext cache along with the
-            // isComplete indicator. Return indicates cache is closed
-            // and providers complete so clean up.
-            // The enumerationContext could be cleaned up by the
+            // Send to the EnumerationContext cache with the
+            // isComplete indicator. Return indicates whether cache is closed
+            // and providers complete for cleanup.
+            // The enumerationContext could also be cleaned up by the
             // timer thread once the providers are marked complete in
             // the enumerationContext (if the client had timed out )
-            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,  // KS_TODO DELETE
-                "EnumerationContextLock lock %s",
-                       CSTRING(en->getContextId())));
+////          PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,  // KS_TODO DELETE
+////              "EnumerationContextLock lock %s",
+////                     CSTRING(en->getContextId())));
 
-            // KS_TODO This means that context is locked for full time
-            // to send response.
             en->lockContext();
+
             if (en->putCache(response, isComplete))
             {
                 // if there are responses and there is a
                 // waiting future response, issue the response
-
-                // get any waiting open request and response
-
                 // If request pending, test to see if responses exist to
-                // be sent. No issue with providers but it does lock out
-                // next request input.
+                // be sent.
                 if (en->_savedRequest != NULL)
                 {
                     // If there are responses or error to send, recover them
@@ -1130,9 +1125,9 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             }
             else
             {
-                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                    "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                           CSTRING(en->getContextId())));
+////              PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////                  "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+////                         CSTRING(en->getContextId())));
                 en->unlockContext();
 
                 // If providers not complete and client open, test for cache
@@ -3509,9 +3504,9 @@ struct ProviderRequests
             "CIMOperationRequestDispatcher::_issueOpenOrPullResponseMessage");
 
         PEGASUS_ASSERT(en->valid());
-        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-            "EnumerationContextLock lock %s",  // KS_TODO DELETE
-                   CSTRING(en->getContextId())));
+////      PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////          "EnumerationContextLock lock %s",  // KS_TODO DELETE
+////                 CSTRING(en->getContextId())));
         en->lockContext();
         // Determine if there are any responses to send. Returns
         // immediatly if operationMaxObjectCount satisfies what is in cache
@@ -3534,9 +3529,9 @@ struct ProviderRequests
             }
             else
             {
-                PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                    "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                    (const char*)en->getContextId().getCString()));
+////              PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////                  "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+////                  (const char*)en->getContextId().getCString()));
 
                 en->unlockContext();
             }

@@ -413,7 +413,7 @@ Sint32 SSLSocket::accept()
        PEG_METHOD_EXIT();
        return -1;
     }
-    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Accepted");
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Accepted");
 
     //
     // If peer certificate verification is enabled or request received on
@@ -461,7 +461,7 @@ Sint32 SSLSocket::accept()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "---> SSL: Client certificate verification disabled");
     }
 

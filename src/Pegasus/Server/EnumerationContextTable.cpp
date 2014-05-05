@@ -295,9 +295,9 @@ bool EnumerationContextTable::releaseContext(EnumerationContext* en)
     PEGASUS_DEBUG_ASSERT(valid());
     PEGASUS_DEBUG_ASSERT(en->valid());
 
-    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-        "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-        (const char*)en->getContextId().getCString()));
+////  PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////      "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+////      (const char*)en->getContextId().getCString()));
 
     String contextId = en->getContextId();
 
@@ -441,12 +441,10 @@ bool EnumerationContextTable::removeExpiredContexts()
 
     Uint64 currentTimeUsec = System::getCurrentTimeUsec();
     // KS_TODO Remove this variable.  Used to help find crash.
-    Uint32 ctr = 0;
 ////   cout << "Expired test. Table size = " << size() << endl;
     // Search enumeration table for entries timed out
     for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
     {
-        ctr++;
         EnumerationContext* en = i.value();
         if (en->valid())
         {
@@ -459,9 +457,9 @@ bool EnumerationContextTable::removeExpiredContexts()
                 // locked
                 if (en->tryLockContext())
                 {
-                    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                        "EnumerationContextLock lock %s",
-                               (const char*)en->getContextId().getCString() ));
+////                  PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////                      "EnumerationContextLock lock %s",
+////                             (const char*)en->getContextId().getCString()));
 ////                  cout << "locked " << en->getContextId() << endl;
                     // test if entry is active (timer not zero)
                     if (en->isTimedOut(currentTimeUsec))
@@ -470,17 +468,16 @@ bool EnumerationContextTable::removeExpiredContexts()
                         en->stopTimer();
                         // Force the client closed so nothing more accepted.
                         en->setClientClosed();
+                        _enumerationsTimedOut++;
 
                         // If providers are complete we can remove the context
                         // Otherwise depend on provider completion to
                         // clean up the enumeration
                         if (en->providersComplete())
                         {
-                            _enumerationsTimedOut++;
-
-                            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                                "EnumerationContextLock unlock %s",
-                                (const char*)en->getContextId().getCString()));
+////                          PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////                              "EnumerationContextLock unlock %s",
+////                             (const char*)en->getContextId().getCString()));
 
                             // Insert in list to remove after this loop
                             removeList.append(en->getContextId());
@@ -489,15 +486,11 @@ bool EnumerationContextTable::removeExpiredContexts()
                         {
 ////                           cout << "Not timed out" << en->getContextId()
 ////                                 << endl;
-                            // depend on provider completion to close
-                            // context.
-                            // FUTURE Could use this to find cases
-                            // where providers never complete
-                            // KS-TODO
-                            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                            "EnumerationContextLock unlock %s Providers not"
-                                " Complete",
-                                (const char*)en->getContextId().getCString()));
+                            // depend on provider completion to close context.
+////                          PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////                          "EnumerationContextLock unlock %s Providers"
+////                              " not Complete",
+////                          (const char*)en->getContextId().getCString()));
                             en->unlockContext();
                         }
                     }
@@ -505,9 +498,10 @@ bool EnumerationContextTable::removeExpiredContexts()
                     {
 ////                       cout << "not timed out " <<en->getContextId()
 ////                            << endl;
-                        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                            "EnumerationContextLock unlock %s Not Timed Out",
-                                (const char*)en->getContextId().getCString()));
+////                      PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+////                          "EnumerationContextLock unlock %s Not"
+////                          " Timed Out",
+////                          (const char*)en->getContextId().getCString()));
                         en->unlockContext();
                     }
                 }
@@ -517,8 +511,7 @@ bool EnumerationContextTable::removeExpiredContexts()
         else
         {
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                "removeExpiredContexts ERROR, invalid context ctr=%u",
-                 ctr));
+                "removeExpiredContexts ERROR, invalid context"));
         }
     }
 
@@ -528,6 +521,7 @@ bool EnumerationContextTable::removeExpiredContexts()
         // unlock before removing the context
         EnumerationContext* en = find(removeList[i]);
         PEGASUS_DEBUG_ASSERT(en->valid());
+
         en->unlockContext();
         _removeContext(en);
     }

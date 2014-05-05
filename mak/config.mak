@@ -33,9 +33,17 @@
 ##
 ################################################################################
 
-ifndef ROOT
-    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+#PEGASUS_ROOT is mandatory currently
+ifdef PEGASUS_ROOT
+  ifeq ($(wildcard $(PEGASUS_ROOT)),)
+    $(error PEGASUS_ROOT = $(PEGASUS_ROOT) is incorrect, \
+      Did you meant to set it to $(CURDIR)?)
+  endif
+  ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+else
+  $(error PEGASUS_ROOT environment variable undefined)
 endif
+
 
 ifdef PEGASUS_ENVVAR_FILE
     include $(PEGASUS_ENVVAR_FILE)
@@ -49,11 +57,6 @@ else
     $(error PEGASUS_HOME environment variable undefined)
 endif
 
-ifdef PEGASUS_ROOT
-    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
-else
-    $(error PEGASUS_ROOT environment variable undefined)
-endif
 
 ifdef PEGASUS_TMP
     TMP_DIR = $(subst \,/,$(PEGASUS_TMP))

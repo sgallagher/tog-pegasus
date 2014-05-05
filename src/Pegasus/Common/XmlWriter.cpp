@@ -799,9 +799,7 @@ void XmlWriter::appendClassPath(
 //------------------------------------------------------------------------------
 // Builds either a classPath or InstancePath based on isClassPath
 // parameter which was carried forward from, for example, the
-// request.
-// The caller must determine if this is a class or instance
-// path rather than trying to interpret that difference from reference arg.
+// request. The caller must define if this is a class or instance path
 void XmlWriter::appendValueReferenceElement(
     Buffer& out,
     const CIMObjectPath& reference,

@@ -155,7 +155,7 @@ public:
     Boolean binaryResponse;
 // EXP_PULL_BEGIN
     // Defines Request Operations that were created internally rather than
-    // from a client.  For the moment that is the internal provider
+    // from a client.  For version 2.14 that is the internal provider
     // requests for the Pull Operations (ex. EnumerateInstances when
     // OpenEnumerateInstances is received). This allows the internal
     // code (ex. OOP) to discriminate between external operations and

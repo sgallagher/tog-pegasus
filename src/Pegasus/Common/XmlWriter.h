@@ -292,7 +292,7 @@ public:
         const char* name,
         Boolean flag);
 
-    //// TODO what about the idea of optional Value as well as optional
+    //// KS_TODO what about the idea of optional Value as well as optional
     //// parameter.
     static void appendUint32IParameter(
         Buffer& out,

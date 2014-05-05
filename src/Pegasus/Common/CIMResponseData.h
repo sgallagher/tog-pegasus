@@ -299,7 +299,6 @@ public:
     }
     void appendObject(const CIMObject& x)
     {
-        //// AutoMutex autoMut(testLock);
         PEGASUS_DEBUG_ASSERT(valid());
         _objects.append(x);
         _encoding |= RESP_ENC_CIM;
@@ -348,7 +347,7 @@ public:
 
     // Function primarily used by CIMOperationRequestDispatcher to complete
     // namespace and hostname on a,an,r and rn operations in the
-    // OperationAggregator. Note that behavior is different for pull operations
+    // OperationAggregator. Behavior is different for pull operations
     void completeHostNameAndNamespace(
         const String & hn,
         const CIMNamespaceName & ns,
@@ -494,7 +493,7 @@ private:
     // Function lock used for debugging cases where there might have been an
     //  issue  with multithreading and CIMResponseData.
     //// KS_TODO remove before pull checkin
-    Mutex testLock;
+    //// Mutex testLock;
 
     // magic number to use with valid function to confirm validity
     // of response data.

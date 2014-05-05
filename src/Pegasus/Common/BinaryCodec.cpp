@@ -5179,14 +5179,15 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
 //
 //==============================================================================
 
-CIMResponseMessage* BinaryCodec::decodeResponse(
-    const Buffer& in)
-{
-    CIMBuffer buf((char*)in.getData(), in.size());
-    CIMBufferReleaser buf_(buf);
-
-    return decodeResponse(buf);
-}
+// KS_TODO apparently we do not need this any more.
+////CIMResponseMessage* BinaryCodec::decodeResponse(
+////    const Buffer& in)
+////{
+////    CIMBuffer buf((char*)in.getData(), in.size());
+////    CIMBufferReleaser buf_(buf);
+////
+////    return decodeResponse(buf);
+////}
 
 CIMResponseMessage* BinaryCodec::decodeResponse(
     CIMBuffer& buf)

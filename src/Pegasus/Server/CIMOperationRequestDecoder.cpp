@@ -67,7 +67,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /******************************************************************************
 **
-**            Common Exception Messages. We try to reduce the
+**            Common Exception Messages. Reduce the
 **            number of throws to reduce code size.
 **
 ******************************************************************************/

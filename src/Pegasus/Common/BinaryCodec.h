@@ -78,8 +78,8 @@ public:
         Uint32 returnQueueId);
 
     // KS_TODO - Do we need this any more???
-    CIMResponseMessage* decodeResponse(
-        const Buffer& in);
+////  CIMResponseMessage* decodeResponse(
+////      const Buffer& in);
     /**
        Decode an input CIMBuffer containing a serialized message stream
        into a singe CIMResponseMessage.

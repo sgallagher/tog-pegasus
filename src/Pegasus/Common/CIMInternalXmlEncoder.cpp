@@ -44,7 +44,7 @@
     does the same as the internal function
     KS 28 March 2014.  I am not touching this until we sort out all the
     paths and get pull running correctly.  This goes through to many
-    paths adding and removing the value.reference entity.
+    paths adding and removing the value.reference entity. KS April 2014
 */
 
 
@@ -57,8 +57,8 @@ void CIMInternalXmlEncoder::_putXMLInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "_putXMLInstance");
+
     if (ci.isUninitialized())
     {
         out.putUint32(0);
@@ -120,6 +120,7 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "_putXMLNamedInstance");
+
     if (ci.isUninitialized())
     {
         out.putUint32(0);
@@ -178,6 +179,7 @@ void CIMInternalXmlEncoder::_putXMLObject(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "_putXMLObject");
+
     if (co.isUninitialized())
     {
         out.putUint32(0);

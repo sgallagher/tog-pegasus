@@ -452,7 +452,7 @@ bool EnumerationContextTable::removeExpiredContexts()
         {
             PEGASUS_DEBUG_ASSERT(en->valid());     // diagnostic. KS_TEMP
 
-            if (en->_interOperationTimer != 0)
+            if (en->_interOperationTimerUsec != 0)
             {
                 // Only set lock if there is a chance the timer is active.
                 // redoes the above test after setting lock. Bypass if

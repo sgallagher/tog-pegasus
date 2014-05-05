@@ -64,7 +64,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _contextId(contextId),
     _operationTimeoutSec(interOperationTimeoutValue),
     _continueOnError(continueOnError),
-    _interOperationTimerUsecUsec(0),
+    _interOperationTimerUsec(0),
     _pullRequestType(pullRequestType),
     _clientClosed(false),
     _providersComplete(false),
@@ -123,7 +123,7 @@ void EnumerationContext::startTimer()
     {
         Uint64 currentTime = TimeValue::getCurrentTime().toMicroseconds();
 
-        _interOperationTimerUsecUsec =  currentTime +
+        _interOperationTimerUsec =  currentTime +
             (_operationTimeoutSec * 1000000);
 
         _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
@@ -135,7 +135,7 @@ void EnumerationContext::startTimer()
            (const char*)getContextId().getCString(),
            _operationTimeoutSec,
            (long signed int)
-                   (_interOperationTimerUsecUsec - currentTime)/1000000 ));
+                   (_interOperationTimerUsec - currentTime)/1000000 ));
     }
     PEG_METHOD_EXIT();
 }
@@ -152,9 +152,9 @@ void EnumerationContext::stopTimer()
            " next timeout in %ld sec,",
        (const char*)getContextId().getCString(),
        _operationTimeoutSec,
-       (long signed int)(_interOperationTimerUsecUsec - currentTime)/1000000 ));
+       (long signed int)(_interOperationTimerUsec - currentTime)/1000000 ));
 
-    _interOperationTimerUsecUsec = 0;
+    _interOperationTimerUsec = 0;
     PEG_METHOD_EXIT();
 }
 
@@ -168,26 +168,26 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
 {
     PEGASUS_DEBUG_ASSERT(valid());
 
-    if (_interOperationTimerUsecUsec == 0)
+    if (_interOperationTimerUsec == 0)
     {
             return false;
     }
 
-    bool timedOut = (_interOperationTimerUsecUsec < currentTime)? true : false;
+    bool timedOut = (_interOperationTimerUsec < currentTime)? true : false;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,      // KS_TEMP
         "Context Timer. ContextId= %s timer(sec)= %lu"
            " current(sec)= %lu diff(sec)= %ld isTimedOut= %s",
         (const char*)_contextId.getCString(),
-        (long unsigned int)((_interOperationTimerUsecUsec / 1000000)),
+        (long unsigned int)((_interOperationTimerUsec / 1000000)),
         (long unsigned int)currentTime / 1000000,
-        (long signed int)(_interOperationTimerUsecUsec - currentTime) / 1000000,
+        (long signed int)(_interOperationTimerUsec - currentTime) / 1000000,
         boolToString(timedOut) ));
 
     // If it is timed out, set it inactive.
     if (timedOut)
     {
-        _interOperationTimerUsecUsec = 0;
+        _interOperationTimerUsec = 0;
     }
     return(timedOut);
 }
@@ -233,7 +233,7 @@ void EnumerationContext::trace()
         "RequestedResponseObjectCount=%u",
         (const char *)_contextId.getCString(),
         _operationTimeoutSec,
-        (long unsigned int)_interOperationTimerUsecUsec,
+        (long unsigned int)_interOperationTimerUsec,
         boolToString(_continueOnError),
         MessageTypeToString(_pullRequestType),
         boolToString(_providersComplete),

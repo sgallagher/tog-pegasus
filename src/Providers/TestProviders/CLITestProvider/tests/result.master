@@ -60,8 +60,9 @@ class Test_CLITestProviderClass
     real64 arrayReal64[];
     string arrayString[];
     datetime arrayDateTime[];
-    uint32 ReferenceParamTest([in] reference InParam1, [in] reference 
-        InParam2[], [out] reference OutParam1, [out] reference OutParam2[]);
+    uint32 ReferenceParamTest([in] Test_CLITestProviderClass REF InParam1, 
+        [in] Test_CLITestProviderClass REF InParam2[], [out] Test_CLITestProviderClass 
+        REF OutParam1, [out] Test_CLITestProviderClass REF OutParam2[]);
     
         [Description ( "Method to test input and output of all parameter "
             "types except REF and embedded entity. Provider is expected "
@@ -2337,8 +2338,9 @@ class Test_CLITestProviderClass
     real64 arrayReal64[];
     string arrayString[];
     datetime arrayDateTime[];
-    uint32 ReferenceParamTest(reference InParam1, reference InParam2[], 
-        reference OutParam1, reference OutParam2[]);
+    uint32 ReferenceParamTest(Test_CLITestProviderClass REF InParam1, 
+        Test_CLITestProviderClass REF InParam2[], Test_CLITestProviderClass 
+        REF OutParam1, Test_CLITestProviderClass REF OutParam2[]);
     uint32 InOutParamTest(boolean scalBool, uint8 scalUint8, sint8 
         scalSint8, uint16 scalUint16, sint16 scalSint16, uint32 scalUint32, 
         sint32 scalSint32, uint64 scalUint64, real32 scalReal32, real64 

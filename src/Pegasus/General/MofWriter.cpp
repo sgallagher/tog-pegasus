@@ -222,7 +222,7 @@ template<class T>
 
 void _mofWriter_appendValueArrayMof(Buffer& out, const T* p, Uint32 size)
 {
-    Boolean isFirstEntry = true;
+    bool isFirstEntry = true;
     // if there are any entries in the array output them
     if (size)
     {
@@ -589,7 +589,9 @@ void MofWriter::appendClassElement(
         for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
         {
             if (i > 0)
+            {
                 out << STRLIT(", \n");
+            }
             MofWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
         out << STRLIT("]\n");
@@ -603,7 +605,9 @@ void MofWriter::appendClassElement(
     out << STRLIT("class ") << rep->getClassName();
 
     if (!rep->getSuperClassName().isNull())
+    {
         out << STRLIT(" : ") << rep->getSuperClassName();
+    }
 
     out << STRLIT("\n{");
 
@@ -616,14 +620,18 @@ void MofWriter::appendClassElement(
         // test the localOnly flag
         // The initial "false" indicates to format as property declaration.
         if (!rep->getProperty(i).getPropagated())
+        {
             MofWriter::appendPropertyElement(true, out, rep->getProperty(i));
+        }
     }
 
     // Format the Methods:  for non-propagated methods
     for (Uint32 i = 0, n = rep->getMethodCount(); i < n; i++)
     {
         if (!rep->getMethod(i).getPropagated())
+        {
             MofWriter::appendMethodElement(out, rep->getMethod(i));
+        }
     }
 
     // Class closing element:
@@ -661,7 +669,9 @@ void MofWriter::appendInstanceElement(
         for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
         {
             if (i > 0)
+            {
                 out << STRLIT(", \n");
+            }
             MofWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
         out.append(']');
@@ -685,7 +695,9 @@ void MofWriter::appendInstanceElement(
         // The false identifies this as value initializer, not
         // property definition.
         if (!rep->getProperty(i).getPropagated())
+        {
             MofWriter::appendPropertyElement(false, out, rep->getProperty(i));
+        }
     }
 
     // Class closing element:
@@ -720,7 +732,7 @@ void MofWriter::appendInstanceElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendPropertyElement(
-    Boolean isClassDeclaration,
+    bool isClassDeclaration,
     Buffer& out,
     const CIMConstProperty& property)
 {
@@ -735,7 +747,9 @@ void MofWriter::appendPropertyElement(
         for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
         {
             if (i > 0)
+            {
                 out << STRLIT(", \n");
+            }
             MofWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
         out.append(']');
@@ -825,7 +839,9 @@ void MofWriter::appendMethodElement(
         for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
         {
             if (i > 0)
+            {
                 out << STRLIT(", \n");
+            }
             MofWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
         out.append(']');
@@ -844,7 +860,9 @@ void MofWriter::appendMethodElement(
     {
         // If not first, output comma separator
         if (i)
+        {
             out << STRLIT(", ");
+        }
 
         MofWriter::appendParameterElement(out, rep->getParameter(i));
     }
@@ -884,17 +902,30 @@ void MofWriter::appendParameterElement(
         for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
         {
             if (i > 0)
+            {
                 out << STRLIT(", \n");
+            }
             MofWriter::appendQualifierElement(out, rep->getQualifier(i));
         }
         out.append(']');
     }
 
     if (rep->getQualifierCount())
+    {
         out.append(' ');
+    }
 
     // Output the data type and name
-    out << cimTypeToString(rep->getType());
+    if (rep->getType() == CIMTYPE_REFERENCE)
+    {
+        out << rep->getReferenceClassName().getString();
+        out << " REF";
+    }
+    else
+    {
+        out << cimTypeToString(rep->getType());
+    }
+
     out.append(' ');
     out << rep->getName();
 
@@ -1098,25 +1129,39 @@ String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
     }
 
     if ((flavor.hasFlavor (CIMFlavor::ENABLEOVERRIDE)))
+    {
         flavorStr.append("EnableOverride, ");
+    }
 
     if (((flavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE))))
+    {
         flavorStr.append("DisableOverride, ");
+    }
 
     if ((flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
+    {
         flavorStr.append("ToSubclass, ");
+    }
 
     if (flavor.hasFlavor (CIMFlavor::RESTRICTED))
+    {
         flavorStr.append("Restricted, ");
+    }
 
     if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
+    {
         flavorStr.append("Translatable, ");
+    }
 
     if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
+    {
         flavorStr.append("ToInstance, ");
+    }
 
     if (flavorStr.size())
+    {
         flavorStr.remove(flavorStr.size() - 2);
+    }
 
     return flavorStr;
 }

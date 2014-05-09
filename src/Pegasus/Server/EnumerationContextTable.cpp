@@ -55,7 +55,6 @@ typedef HashTable<String, EnumerationContext* , EqualFunc<String>,
 
 static EnumContextTable enumContextTable(128);
 
-
 // Thread execution function for timeoutThread(). This thread executes
 // regular timeout tests on active contexts and closes them or marks them
 // for close if timed out.  This is required for those cases where a
@@ -158,6 +157,7 @@ EnumerationContextTable::~EnumerationContextTable()
 static IDFactory _enumerationContextIDFactory(6000);
 
 EnumerationContext* EnumerationContextTable::createContext(
+    const CIMNamespaceName& nameSpace,
     Uint32Arg&  operationTimeoutParam,
     Boolean continueOnError,
     MessageType pullRequestType,
@@ -190,6 +190,7 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     // Create new context, Context name is monolithically increasing counter.
     EnumerationContext* en = new EnumerationContext(contextId,
+        nameSpace,
         operationTimeout,
         continueOnError,
         pullRequestType,

@@ -164,7 +164,7 @@ void OperationAggregate::appendResponse(CIMResponseMessage* response)
 
 Uint32 OperationAggregate::numberResponses() const
 {
-    PEGASUS_ASSERT(valid());   // KS_TEMP TODO
+    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP TODO
 
     return _responseList.size();
 }
@@ -173,13 +173,12 @@ CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
 {
     PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
     AutoMutex autoMut(_appendResponseMutex);
-    CIMResponseMessage* tmp = _responseList[pos];
+    CIMResponseMessage* msg = _responseList[pos];
     //// TODO remove this diagnostic trace.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses = %u get # %u", _responseList.size(),
-                pos ));
+        "numberResponses = %u get # %u", _responseList.size(), pos ));
 
-    return tmp;
+    return msg;
 }
 
 CIMResponseMessage* OperationAggregate::removeResponse(const Uint32& pos)
@@ -195,11 +194,6 @@ CIMResponseMessage* OperationAggregate::removeResponse(const Uint32& pos)
         _responseList.size(),
         pos, tmpsize));
     return tmp;
-}
-
-void OperationAggregate::setRequest(CIMOperationRequestMessage* request)
-{
-    _request = request;
 }
 
 void OperationAggregate::deleteResponse(const Uint32&pos)
@@ -1065,9 +1059,6 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             // The enumerationContext could also be cleaned up by the
             // timer thread once the providers are marked complete in
             // the enumerationContext (if the client had timed out )
-////          PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,  // KS_TODO DELETE
-////              "EnumerationContextLock lock %s",
-////                     CSTRING(en->getContextId())));
 
             en->lockContext();
 
@@ -1125,9 +1116,6 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             }
             else
             {
-////              PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////                  "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-////                         CSTRING(en->getContextId())));
                 en->unlockContext();
 
                 // If providers not complete and client open, test for cache
@@ -2287,6 +2275,9 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
 
     CIMException cimException;
 
+    // Flag to indicate that we should delete request when  handler
+    // complete
+    bool del = true;
     try
     {
         // Set the client's requested language into this service thread.
@@ -2412,46 +2403,46 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
 
 // KS_PULL_BEGIN
         case CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-            handleOpenEnumerateInstancesRequest(
+            del = handleOpenEnumerateInstancesRequest(
                 (CIMOpenEnumerateInstancesRequestMessage*)opRequest);
             break;
 
         case CIM_OPEN_ENUMERATE_INSTANCE_PATHS_REQUEST_MESSAGE:
-            handleOpenEnumerateInstancePathsRequest(
+            del = handleOpenEnumerateInstancePathsRequest(
                 (CIMOpenEnumerateInstancePathsRequestMessage*)opRequest);
             break;
 
         case CIM_OPEN_REFERENCE_INSTANCES_REQUEST_MESSAGE:
-            handleOpenReferenceInstancesRequest(
+            del = handleOpenReferenceInstancesRequest(
                 (CIMOpenReferenceInstancesRequestMessage*)opRequest);
             break;
 
         case CIM_OPEN_REFERENCE_INSTANCE_PATHS_REQUEST_MESSAGE:
-            handleOpenReferenceInstancePathsRequest(
+            del = handleOpenReferenceInstancePathsRequest(
                 (CIMOpenReferenceInstancePathsRequestMessage*)opRequest);
             break;
 
         case CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE:
-            handleOpenAssociatorInstancesRequest(
+            del = handleOpenAssociatorInstancesRequest(
                 (CIMOpenAssociatorInstancesRequestMessage*)opRequest);
             break;
 
         case CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_REQUEST_MESSAGE:
-            handleOpenAssociatorInstancePathsRequest(
+            del = handleOpenAssociatorInstancePathsRequest(
                 (CIMOpenAssociatorInstancePathsRequestMessage*)opRequest);
             break;
         case CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE:
-            handlePullInstancesWithPath(
+            del = handlePullInstancesWithPath(
                 (CIMPullInstancesWithPathRequestMessage*) opRequest);
             break;
 
         case CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE:
-            handlePullInstancePaths(
+            del = handlePullInstancePaths(
                 (CIMPullInstancePathsRequestMessage*) opRequest);
             break;
 
         case CIM_PULL_INSTANCES_REQUEST_MESSAGE:
-            handlePullInstances(
+            del = handlePullInstances(
                 (CIMPullInstancesRequestMessage*) opRequest);
             break;
 
@@ -2495,8 +2486,10 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
         response->cimException = cimException;
         _enqueueResponse(opRequest, response.release());
     }
-
-    delete request;
+    if (del)
+    {
+        delete request;
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -2521,7 +2514,7 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 
 /****************************************************************************
 **
-**     Request Parameter Test and reject functions
+**     Request Input Parameter Test and reject functions
 **     Each function tests a particular possible reason for reject.
 **     If the test fails, the reject message is generated and
 **     a true response returned.  If the test passes, true returned.
@@ -2663,6 +2656,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidClassParameter(
     }
     return false;
 }
+
 /*
     Test the validity of the class name parameter and get the corresponding
     class. If not found, generates exception INVALID_PARAMETER response
@@ -2706,14 +2700,47 @@ void _buildPropertyListFromClass(CIMConstClass& thisClass,
 }
 
 //EXP_PULL_BEGIN
+
+// Test of the common input parameters for CIMOpen... messages.
+// tests filter, filterLanguage, continueOnError, MaxObjectCount
+// and Operation timeout
+bool CIMOperationRequestDispatcher::_rejectIfPullParametersFailTests(
+    CIMOpenOperationRequestMessage* request,
+    Uint32& operationMaxObjectCount)
+{
+    if (_rejectInvalidFilterParameters(request,
+          request->filterQueryLanguage,
+                              request->filterQuery))
+    {
+        return true;
+    }
+
+    if (_rejectIfContinueOnError(request, request->continueOnError))
+    {
+        return true;
+    }
+
+    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
+            false, operationMaxObjectCount, Uint32(0)))
+    {
+        return true;
+    }
+
+    // Test for valid values in OperationTimeout
+    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
+    {
+        return true ;
+    }
+    return false;
+}
 /*
     Test if this is a valid Pull message corresponding to the type
-     of the open. If not valid, put out error message and return false
+    of the open. If not valid, put out error message and return false
     @param request
     @param valid Boolean = true if it is valid
-    Return true if valid = true, false if valid = false
+    Return true if !valid, false if valid
 */
-Boolean CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
+bool CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
     CIMOperationRequestMessage* request, Boolean valid)
 {
     if (!valid)
@@ -2721,7 +2748,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
         CIMResponseMessage* response = request->buildResponse();
 
         response->cimException = PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,MessageLoaderParms(
+                CIM_ERR_FAILED, MessageLoaderParms(
                     "Server.CIMOperationRequestDispatcher."
                     "PULL_OPERATION_TYPE_ERR",
                 "Open and Pull Message types do not match."));
@@ -2736,21 +2763,45 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
    accord with DSP0200 version 1.3.  This will change when the spec and
    Pegasus support these parameters.
 */
-Boolean CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
+bool CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
     CIMOperationRequestMessage* request,
     const String& filterQueryLanguageParam,
     const String& filterQueryParam)
 {
-    if (filterQueryLanguageParam.size() != 0 ||
+    CIMResponseMessage* response = NULL;
+    if (filterQueryLanguageParam.size() != 0 &&
+            filterQueryParam.size() == 0)
+    {
+        // KS-TODO internationalize
+        response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED,
+                "filterQueryLanguage parameter without filterQuery parameter");
+    }
+    else if (filterQueryLanguageParam.size() == 0 &&
+            filterQueryParam.size() != 0)
+    {
+        // KS-TODO internationalize
+        response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED,
+                "filterQuery parameter without filterQueryLanguage parameter");
+    }
+    else if(filterQueryLanguageParam.size() != 0 ||
             filterQueryParam.size() != 0)
     {
         // KS_TODO - This code is temporary until we add FQL
-        CIMResponseMessage* response = request->buildResponse();
+        response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED,
-                "Pegasus does not support Pull Filter parameters");
+                "Pegasus does not support FilterQuery parameters");
+    }
 
+    if (response != NULL)
+    {
         _enqueueResponse(request, response);
         return true;
     }
@@ -2762,7 +2813,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
    valid.  The ObjecPath must be a full instance name to assure that we
    do not try to follow the path for class based operations.
    */
-Boolean CIMOperationRequestDispatcher::_rejectInvalidObjectPathParameter(
+bool CIMOperationRequestDispatcher::_rejectInvalidObjectPathParameter(
     CIMOperationRequestMessage* request,
     const CIMObjectPath& path)
 {
@@ -2786,7 +2837,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidObjectPathParameter(
 // Pegasus does not allow continueOnError parameter. Return Error
 // if it exists.
 //
-Boolean CIMOperationRequestDispatcher::_rejectIfContinueOnError(
+bool CIMOperationRequestDispatcher::_rejectIfContinueOnError(
     CIMOperationRequestMessage* request,
     Boolean continueOnError)
 {
@@ -2804,7 +2855,6 @@ Boolean CIMOperationRequestDispatcher::_rejectIfContinueOnError(
         return true;
     }
     return false;
-
 }
 
 // test and set maxObjectCount for this operation.
@@ -2866,7 +2916,7 @@ bool CIMOperationRequestDispatcher::_rejectInvalidMaxObjectCountParam(
 // this decision. Some systems implementations may allow this value. Others
 // may elect to reject 0 (which means no timeout).
 
-Boolean CIMOperationRequestDispatcher::_rejectInvalidOperationTimeout(
+bool CIMOperationRequestDispatcher::_rejectInvalidOperationTimeout(
     CIMOperationRequestMessage* request,
     const Uint32Arg& operationTimeout)
 {
@@ -2922,7 +2972,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidOperationTimeout(
    @param valid Boolean = true if valid
    @return true if valid=true, false if valid=false.
 */
-Boolean CIMOperationRequestDispatcher::_rejectInvalidEnumerationContext(
+bool CIMOperationRequestDispatcher::_rejectInvalidEnumerationContext(
     CIMOperationRequestMessage* request,
     EnumerationContext* en)
 {
@@ -2972,7 +3022,7 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidEnumerationContext(
    @return true if timed out.
 */
 
-Boolean CIMOperationRequestDispatcher::_rejectIfContextTimedOut(
+bool CIMOperationRequestDispatcher::_rejectIfContextTimedOut(
     CIMOperationRequestMessage* request,
     Boolean isTimedOut)
 {
@@ -2992,11 +3042,10 @@ Boolean CIMOperationRequestDispatcher::_rejectIfContextTimedOut(
 
         return true;
     }
-
     return false;
 }
 
-Boolean CIMOperationRequestDispatcher::_rejectIfEnumerationContextProcessing(
+bool CIMOperationRequestDispatcher::_rejectIfEnumerationContextProcessing(
     CIMOperationRequestMessage* request, Boolean processing)
 {
     if (processing)
@@ -3125,7 +3174,7 @@ struct ProviderRequests
 
     /**************************************************************************
     **
-    ** issueAssocRequests - Template method to issue requests for
+    ** issueAssocRequestsToProviders - Template method to issue requests for
     **     association/refernece operations.
     **
     **************************************************************************/
@@ -3137,7 +3186,7 @@ struct ProviderRequests
         request.
     */
     template<class REQ, class RSP>
-    static void issueAssocRequests(
+    static void issueAssocRequestsToProviders(
         CIMOperationRequestDispatcher* dispatcher,
         REQ* request,
         AutoPtr<RSP>& response,
@@ -3194,8 +3243,10 @@ struct ProviderRequests
                 }
 
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                    "%s Forwarding to provider for class %s", reqMsgName,
-                    CSTRING(providerInfo.className.getString()) ));
+                    "%s Forwarding to provider for class %s, messageId %s",
+                   reqMsgName,
+                   CSTRING(providerInfo.className.getString()),
+                   CSTRING(request->messageId)        ));
 
                 dispatcher->_forwardAggregatingRequestToProvider(
                     providerInfo,
@@ -3220,8 +3271,6 @@ struct ProviderRequests
         It differs from the issueAssocRequests in that this builds the
         enumerationContext for the operations.
     */
-    //template<class REQ, class IREQ, class RSP, class IRSP, class OBJTYPE>
-
     template<class IREQ>
     static void issueOpenAssocRequestMsgsToProviders(
        CIMOperationRequestDispatcher* dispatcher,
@@ -3345,215 +3394,242 @@ struct ProviderRequests
             }
         }
     }
+};    // End Of ProviderRequests Struct
+
 // EXP_PULL_BEGIN
-    /**************************************************************************
-    **
-    ** processPullRequest - Handles pullInstancesWithPath and pullInstancePaths
-    **
-    **************************************************************************/
-    /**
-        Complete processing for the pull operations, pullInstancesWithPath
-       and Pull InstancePaths.  This template replaces all the code in both
-       pull functions including the input checking code because both operations
-       are exactly the same except for the object type.
-       @param this -  Pointer to the CIMOperationRequestDispatcher object.
-              Required to execute dispatcher methods
-       @param REQ = Operation Request Template. Defines the message type
-       @param RSP - Operation Response message (Template) defines the
-                    response message for this pull response
-       @param name - String with the request name. Used internally for
-                    traces, etc.
-    */
+/**************************************************************************
+**
+** processPullRequest - Handles pullInstancesWithPath,pullInstancePaths
+**                      and pullInstances with a single function
+**
+**************************************************************************/
+/**
+   Complete processing for the pull operations, pullInstancesWithPath
+   and Pull InstancePaths.  This function replaces all the code in the
+   pull functions including the input checking code because the pull operations
+   are exactly the same except for the response object type.
+   @param this -  Pointer to the CIMOperationRequestDispatcher object.
+          Required to execute dispatcher methods
+   @param request CIMPullOperationRequestMessage* Defines the pull
+                request message pointer
+   @param pullResponse - AutoPtr<CIMOpenOrPullResponseDataMessage>& defines the
+                response message for this pull response
+   @param requestName - String with the request name. Used internally for
+                traces, etc.
+*/
 
-    template<class REQ, class RSP >
-    static void processPullRequest(
-        CIMOperationRequestDispatcher* dispatcher,
-        REQ* request,
-        AutoPtr<RSP>&  pullResponse)
+bool CIMOperationRequestDispatcher::processPullRequest(
+    CIMPullOperationRequestMessage* request,
+    CIMOpenOrPullResponseDataMessage*  pullResponse,
+    const char* requestName)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::processPullRequest");
+
+    AutoPtr<CIMOpenOrPullResponseDataMessage> responseDestroyer(pullResponse);
+
+    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
+        "%s request for "
+            "namespace: %s"
+            "maxObjectCount: \"%u\" .  "
+            "enumerationContext: \"%s\" .  ",
+        requestName,
+        CSTRING(request->nameSpace.getString()),
+        request->maxObjectCount,
+        CSTRING(request->enumerationContext) ));
+
+    // Find the enumerationContext object from the request parameter
+    EnumerationContext* en = enumerationContextTable.find(
+        request->enumerationContext);
+
+    // If enumeration Context,value is zero, or is already in closed status
+    // return Invalid Context exception with explanation.
+    if (_rejectInvalidEnumerationContext(request, en))
     {
-        PEG_METHOD_ENTER(TRC_DISPATCHER,
-            "CIMOperationRequestDispatcher::processPullRequest");
+        PEG_METHOD_EXIT();
+        return true;
+    }
 
-        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
-            "%s request for  "
-                "maxObjectCount = \"%u\" .  "
-                "enumerationContext = \"%s\" .  ",
-            MessageTypeToString(request->getType()),
-            request->maxObjectCount,
-            CSTRING(request->enumerationContext) ));
+    if (request->nameSpace != en->getNamespace())
+    {
+        CIMResponseMessage* response = request->buildResponse();
 
-        // Find the enumerationContext object from the request parameter
-        EnumerationContext* en = enumerationContextTable.find(
-            request->enumerationContext);
+        response->cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.CIMOperationRequestDispatcher."
+                "PULL_NAMESPACE_ERR",
+            "Incorrect namespace (%s) in pull operation. Expected: %s.",
+            CSTRING(request->nameSpace.getString()),
+            CSTRING(en->getNamespace().getString()) ));
 
-        // If enumeration Context,value is zero, or is already in closed status
-        // return Invalid Context exception with explanation.
-        if (dispatcher->_rejectInvalidEnumerationContext(request, en))
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return true;
+    }
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TODO DELETE
+        "%s processPullRequest ContextId=%s request ID=%s",
+        requestName, CSTRING(en->getContextId()),
+        CSTRING(request->enumerationContext) ));
+
+    en->incrementRequestCount();
+
+    // lock the context until we have set processing state to avoid
+    // conflict with timer thread. Do not need to lock earlier
+    // because not closed (if closed, it would be invalid).
+    {
+        AutoMutex contextLock(en->_contextLock);
+        // reject  and set closed if this is a not valid request for the
+        // originating  operation
+        if (_rejectInvalidPullRequest(request,
+            en->isValidPullRequestType(request->getType())))
+        {
+            en->setClientClosed();
+            PEG_METHOD_EXIT();
+            return true;
+        }
+        // reject if an operation is already active on this enumeration
+        // context
+        if (_rejectIfEnumerationContextProcessing(request,
+            en->isProcessing()))
         {
             PEG_METHOD_EXIT();
-            return;
+            return true;
         }
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TODO DELETE
-            "processPullRequest ContextId=%s request ID=%s",
-            CSTRING(en->getContextId()),
-            CSTRING(request->enumerationContext) ));
-
-        en->incrementRequestCount();
-
-        // lock the context until we have set processing state to avoid
-        // conflict with timer thread. Do not need to lock earlier
-        // because not closed (if closed, it would be invalid).
+        // reject and set client closed if context timed out
+        if (_rejectIfContextTimedOut(request,
+            en->isTimedOut()))
         {
-            AutoMutex contextLock(en->_contextLock);
-            // reject if this is a not valid request for the originating
-            // operation
-            if (dispatcher->_rejectInvalidPullRequest(request,
-                en->isValidPullRequestType(request->getType())))
-            {
-                PEG_METHOD_EXIT();
-                return;
-            }
-            // reject if an operation is already active on this enumeration
-            // context
-            if (dispatcher->_rejectIfEnumerationContextProcessing(request,
-                en->isProcessing()))
-            {
-                PEG_METHOD_EXIT();
-                return;
-            }
-
-            if (dispatcher->_rejectIfContextTimedOut(request,
-                en->isTimedOut()))
-            {
-                en->setClientClosed();
-                PEG_METHOD_EXIT();
-                return;
-            }
-
-            // Set active and stop interOperation timer
-            en->setProcessingState(true);
+            en->setClientClosed();
+            PEG_METHOD_EXIT();
+            return true;
         }
 
-        // Test limit of the maxObjectCount consecutive zero counter
-        // The return is true if the limit is exceeded in which case
-        // close client and generate exception.
-        if (en->incAndTestPullCounters((request->maxObjectCount == 0)))
-        {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "%s Exceeded maxObjectCount consecutive zero limit",
-                MessageTypeToString(request->getType()) ));
+        // Set active and stop interOperation timer
+        en->setProcessingState(true);
+    }
 
-            // Force continueOnError to false.
-            en->setContinueOnError(false);
-
-            CIMException cimException = PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_SERVER_LIMITS_EXCEEDED, MessageLoaderParms(
-                    "Server.CIMOperationRequestDispatcher."
-                        "ZERO_LEN_PULL_EXCEEDED_LIMIT",
-                    "Maximum consecutive zero maxObjectCount pull requests"
-                    " exceeded."));
-
-            en->setErrorState(cimException);
-        }
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "%s get from cache. isComplete: %s cacheSize: %u errorState: %s",
-            MessageTypeToString(request->getType()),
-            boolToString(en->providersComplete()),
-            en->responseCacheSize(),
-            boolToString(en->isErrorState())  ));
-
-        // Issue the Response to the Request. This may be issued immediatly
-        // or delayed by setting information into the enumeration context
-        // if there are no responses from providers ready
-        // to avoid issuing empty responses. Enumeration Context must not
-        // be used after this call
-
-        ProviderRequests::issueOpenOrPullResponseMessage(
-            dispatcher,
-            request,
-            pullResponse.release(),
-            en,
-            request->maxObjectCount,
-            requireCompleteResponses);
-
-    } // end issuePullResponse
-
-    /**************************************************************************
-    **
-    ** issueOpenOrPullResponseMessage - Issue immediate or delayed response
-    **
-    **************************************************************************/
-    // Issue the response to an open or pull.  This function may issue the
-    // response immediatly if there are objects to send or may push the task
-    // off to the aggregrator if there is nothing to send immediatly.
-    // It is a template because there is one line that is message type
-    // dependent, the requirement to build a new request object.
-
-    template<class REQ, class RSP >
-    static void issueOpenOrPullResponseMessage(
-        CIMOperationRequestDispatcher* dispatcher,
-        REQ* openRequest,
-        RSP* openResponse,
-        EnumerationContext* en,
-        Uint32 operationMaxObjectCount,
-        Boolean requireCompleteResponses)
+    // Test limit of the maxObjectCount consecutive zero counter
+    // The return is true if the limit is exceeded in which case
+    // close client and generate exception.
+    if (en->incAndTestPullCounters((request->maxObjectCount == 0)))
     {
-        PEG_METHOD_ENTER(TRC_DISPATCHER,
-            "CIMOperationRequestDispatcher::_issueOpenOrPullResponseMessage");
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "%s Exceeded maxObjectCount consecutive zero limit",
+            requestName ));
 
-        PEGASUS_ASSERT(en->valid());
-////      PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////          "EnumerationContextLock lock %s",  // KS_TODO DELETE
-////                 CSTRING(en->getContextId())));
-        en->lockContext();
-        // Determine if there are any responses to send. Returns
-        // immediatly if operationMaxObjectCount satisfies what is in cache
-        // or maxObjectCount == 0
-        if (en->testCacheForResponses(operationMaxObjectCount,
-            requireCompleteResponses))
+        // Force continueOnError to false.
+        en->setContinueOnError(false);
+
+        CIMException cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_SERVER_LIMITS_EXCEEDED, MessageLoaderParms(
+                "Server.CIMOperationRequestDispatcher."
+                    "ZERO_LEN_PULL_EXCEEDED_LIMIT",
+                "Maximum consecutive zero maxObjectCount pull requests"
+                " exceeded."));
+
+        en->setErrorState(cimException);
+    }
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+        "%s get from cache. isComplete: %s cacheSize: %u errorState: %s",
+       requestName,
+        boolToString(en->providersComplete()),
+        en->responseCacheSize(),
+        boolToString(en->isErrorState())  ));
+
+    // Issue the Response to the Request. This may be issued immediatly
+    // or delayed by setting information into the enumeration context
+    // if there are no responses from providers ready
+    // to avoid issuing empty responses. Enumeration Context must not
+    // be used after this call
+
+    bool releaseRequest = issueOpenOrPullResponseMessage(
+        request,
+        responseDestroyer.release(),
+        en,
+        request->maxObjectCount,
+        requireCompleteResponses);
+
+    return releaseRequest;
+} // end issuePullResponse
+
+// EXP_PULL_BEGIN
+/**************************************************************************
+**
+** issueOpenOrPullResponseMessage - Issue immediate or delayed response
+**
+**************************************************************************/
+// Issue the response to an open or pull.  This function may issue the
+// response immediatly if there are objects to send or may push the task
+// off to the aggregrator if there is nothing to send immediatly.
+// It is a template because there is one line that is message type
+// dependent, the requirement to build a new request object.
+
+
+bool CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage(
+    CIMOperationRequestMessage* openRequest,
+    CIMOpenOrPullResponseDataMessage* openResponse,
+    EnumerationContext* en,
+    Uint32 operationMaxObjectCount,
+    Boolean requireCompleteResponses)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_issueOpenOrPullResponseMessage");
+
+    PEGASUS_ASSERT(en->valid());
+
+    bool releaseRequest = true;
+    en->lockContext();
+    // Determine if there are any responses to send. Returns
+    // immediatly if operationMaxObjectCount satisfies what is in cache
+    // or maxObjectCount == 0
+    if (en->testCacheForResponses(operationMaxObjectCount,
+        requireCompleteResponses))
+    {
+        // Issue response immediatly
+        _issueImmediateOpenOrPullResponseMessage(
+            openRequest,
+            openResponse,
+            en,
+            operationMaxObjectCount);
+
+        if (en->isClientClosed() && en->providersComplete())
         {
-            // Issue response immediatly
-            dispatcher->_issueImmediateOpenOrPullResponseMessage(
-                openRequest,
-                openResponse,
-                en,
-                operationMaxObjectCount);
-
-            if (en->isClientClosed() && en->providersComplete())
-            {
-                // en may be deleted in this call. Do not use
-                // after this call
-                enumerationContextTable.releaseContext(en);
-            }
-            else
-            {
-////              PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////                  "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-////                  (const char*)en->getContextId().getCString()));
-
-                en->unlockContext();
-            }
+            // en may be deleted in this call. Do not use
+            // after this call
+            enumerationContextTable.releaseContext(en);
         }
         else
         {
-            // Set up to issue upon provider response. Copy required
-            // because CIMOperationRequestDispatcher handler removes
-            // request after handle call.
-            en->saveNextResponse(
-                new REQ(*openRequest),
-                openResponse,
-                operationMaxObjectCount);
-            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-                       CSTRING(en->getContextId()) ));
             en->unlockContext();
         }
-        PEG_METHOD_EXIT();
     }
-};    // End Of ProviderRequests Struct
+    else
+    {
+        // Set up to issue upon provider response. Request passed
+        // to the delay variable so mark to not release.
+        en->saveNextResponse(
+            openRequest,
+            openResponse,
+            operationMaxObjectCount);
+        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+            "EnumerationContextLock unlock %s",  // KS_TODO DELETE
+                   CSTRING(en->getContextId()) ));
+        en->unlockContext();
+        releaseRequest = false;
+    }
+    PEG_METHOD_EXIT();
+    return releaseRequest;
+}
 
+// EXP_PULL_END
+
+/**************************************************************************
+**
+** _issueImmediateOpenOrPullResponseMessage - issues the response define
+**                      on the current thread
+**
+**************************************************************************/
 // Issue the Open or Pull response immediatly.
 // This function:
 //    1 Checks for error responses and if found issues the next
@@ -3604,8 +3680,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
             "%s Response Error found. ContextId=%s cimException = %s",
             MessageTypeToString(request->getType()),
             CSTRING(en->getContextId()),
-            cimStatusCodeToString(response->cimException.getCode())
-            ));
+            cimStatusCodeToString(response->cimException.getCode()) ));
     }
     else
     {
@@ -3616,7 +3691,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
           MessageTypeToString(request->getType()),
           CSTRING(en->getContextId()),
           to.getResponseDataContent(),
-          to.size(), en->responseCacheSize()));
+          to.size(), en->responseCacheSize() ));
     }
 
     enumerationContextTable.setRequestSizeStatistics(operationMaxObjectCount);
@@ -3643,7 +3718,6 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
 
     PEG_METHOD_EXIT();
 }
-
 // EXP_PULL_END
 
 /****************************************************************************
@@ -4412,7 +4486,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         CSTRING(request->objectName.toString()),
         CSTRING(request->messageId)));
 
-    //// KS_TODO Remove once validated.
+    //  validate className and objectClassName same.  This is
+    //  an invariant for the handleAssoc, etc functions.
     PEGASUS_DEBUG_ASSERT(
         request->className == request->objectName.getClassName());
 
@@ -4534,7 +4609,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     response->getResponseData().getObjects().size()));
         }
         // Issue Provider requests and process the respository responseData
-        ProviderRequests::issueAssocRequests(
+        ProviderRequests::issueAssocRequestsToProviders(
             this,
             request,
             response,
@@ -4561,7 +4636,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //// KS_TODO Remove once validated.
     PEGASUS_DEBUG_ASSERT(
         request->className == request->objectName.getClassName());
 
@@ -4669,7 +4743,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 objectNames.size()));
         }
         // Issue Provider requests and process the respository responseData
-        ProviderRequests::issueAssocRequests(
+        ProviderRequests::issueAssocRequestsToProviders(
             this,
             request,
             response,
@@ -4697,7 +4771,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //// KS_TODO Remove once validated.
+    // KS_TODO add this test for all assoc calls
     PEGASUS_DEBUG_ASSERT(
         request->className == request->objectName.getClassName());
 
@@ -4804,7 +4878,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         }
 
         // Issue Provider requests and process the respository responseData
-        ProviderRequests::issueAssocRequests(
+        ProviderRequests::issueAssocRequestsToProviders(
             this,
             request,
             response,
@@ -4832,7 +4906,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
 
-    //// KS_TODO Remove once validated.
     PEGASUS_DEBUG_ASSERT(
         request->className == request->objectName.getClassName());
 
@@ -4931,7 +5004,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         // Issue Provider requests and process the respository responseData
         // NOTE: This is a template
-        ProviderRequests::issueAssocRequests(
+        ProviderRequests::issueAssocRequestsToProviders(
             this,
             request,
             response,
@@ -5371,7 +5444,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 **
 *****************************************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
+bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     CIMOpenEnumerateInstancesRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -5407,35 +5480,17 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     if (_rejectInvalidClassParameter(request, cimClass))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
-    if (_rejectInvalidFilterParameters(request, request->filterQueryLanguage,
-                              request->filterQuery))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectIfContinueOnError(request, request->continueOnError))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
+    // Test the common open request input parameters and reject if any
+    // are incorrect. Tests filterQuery, continueOnError, operationTimeout
+    // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
-            false, operationMaxObjectCount, Uint32(0)))
+    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
     {
         PEG_METHOD_EXIT();
-        return;
-    }
-
-    // Test for valid values in OperationTimeout
-    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     // If DeepInheritance==false and no PropertyList was specified by the
@@ -5460,21 +5515,20 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // KS_PULL_QUESTION The following say if no provider and no
     // repository return error. Aggregation(
     //            providerInfo.se
-    //Should we not just return nothing.
+    // KS_TODO Should we not just return nothing. See bug 9893
 
     if (_rejectNoProvidersOrRepository(request, providerInfos))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
-    // Setup the EnumerationContext. Returns pointer to object and context ID
-    // string
+    // Setup the EnumerationContext. Returns pointer to object
     //
-
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
@@ -5483,6 +5537,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        return true;
     }
 
     // Set properties from request into the context
@@ -5513,7 +5568,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     internalRequest->internalOperation = true;
 
     // AutoPtr to delete internalRequest at end of handler
-    AutoPtr<CIMEnumerateInstancesRequestMessage> dummy(internalRequest);
+    AutoPtr<CIMEnumerateInstancesRequestMessage>
+         requestDestroyer(internalRequest);
 
     // Set up an aggregate object and save a copy of the original request.
     // NOTE: Build the poA for the EnumerateRequest, not the corresponding
@@ -5573,8 +5629,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
             request->buildResponse()));
 
     // Enumeration Context must not be used after this call
-    ProviderRequests::issueOpenOrPullResponseMessage(
-       this,
+    bool releaseRequest = issueOpenOrPullResponseMessage(
        request,
        openResponse,
        enumerationContext,
@@ -5582,6 +5637,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
        requireCompleteResponses);
 
     PEG_METHOD_EXIT();
+    return releaseRequest;
 }
 
 /**$**************************************************************************
@@ -5590,7 +5646,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
 **
 *****************************************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
+bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     CIMOpenEnumerateInstancePathsRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -5619,35 +5675,17 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     if (_rejectInvalidClassParameter(request, cimClass))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
-    if (_rejectInvalidFilterParameters(request, request->filterQueryLanguage,
-                              request->filterQuery))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectIfContinueOnError(request, request->continueOnError))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
+    // Test the common open request input parameters and reject if any
+    // are incorrect. Tests filterQuery, continueOnError, operationTimeout
+    // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
-            false, operationMaxObjectCount, Uint32(0)))
+    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
     {
         PEG_METHOD_EXIT();
-        return;
-    }
-
-    // Test for valid values in OperationTimeout
-    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
@@ -5668,16 +5706,15 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     if (_rejectNoProvidersOrRepository(request, providerInfos))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
-    // Setup the EnumerationContext. Returns pointer to object and context ID
-    // string
+    // Setup the EnumerationContext. Returns pointer to object
     //
-
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
@@ -5686,6 +5723,8 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        PEG_METHOD_EXIT();
+        return true;
     }
 
    // Build a corresponding EnumerateInstancesNamesRequest to send to
@@ -5765,8 +5804,7 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
             request->buildResponse()));
 
     // Enumeration Context must not be used after this call
-    ProviderRequests::issueOpenOrPullResponseMessage(
-       this,
+    bool releaseRequest = issueOpenOrPullResponseMessage(
        request,
        openResponse,
        enumerationContext,
@@ -5774,13 +5812,14 @@ void CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
        requireCompleteResponses);
 
     PEG_METHOD_EXIT();
+    return releaseRequest;
 }
 
 /**$*******************************************************
     handleOpenReferenceInstancesRequest
 **********************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
+bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     CIMOpenReferenceInstancesRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -5812,46 +5851,29 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     if (_rejectAssociationTraversalDisabled(request,"OpenReferenceInstances"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidRoleParameter(request, request->role, "role"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidObjectPathParameter(request, request->objectName))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
-    if (_rejectInvalidFilterParameters(request, request->filterQueryLanguage,
-                              request->filterQuery))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectIfContinueOnError(request, request->continueOnError))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
+    // Test the common open request input parameters and reject if any
+    // are incorrect. Tests filterQuery, continueOnError, operationTimeout
+    // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
-            false, operationMaxObjectCount, Uint32(0)))
+    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
     {
         PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     // KS_TODO - Should we use checkClassParameter here in place of
@@ -5878,7 +5900,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     if (_rejectNoProvidersOrRepository(request, providerInfos))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TEMP
@@ -5937,7 +5959,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         _enqueueResponse(request, openResponse.release());
 
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
@@ -5950,6 +5972,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // Create new context object.
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
@@ -5958,6 +5981,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        PEG_METHOD_EXIT();
+        return true;
     }
 
     enumerationContext->setRequestProperties(
@@ -5987,7 +6012,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     internalRequest->internalOperation = true;
 
     // AutoPtr to delete at end of handler
-    AutoPtr<CIMReferencesRequestMessage> dummy(internalRequest);
+    AutoPtr<CIMReferencesRequestMessage> requestDesroyer(internalRequest);
 
     //
     // Set up an aggregate object and save the original request message
@@ -6039,10 +6064,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         "OpenReferenceInstances"
         );
 
-
     // Enumeration Context must not be used after this call
-    ProviderRequests::issueOpenOrPullResponseMessage(
-       this,
+    bool releaseRequest = issueOpenOrPullResponseMessage(
        request,
        openResponse.release(),
        enumerationContext,
@@ -6050,13 +6073,14 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
        requireCompleteResponses);
 
     PEG_METHOD_EXIT();
+    return releaseRequest;
 }
 
 /**$*******************************************************
     handleOpenReferenceInstancePathsRequest
 **********************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
+bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     CIMOpenReferenceInstancePathsRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -6085,46 +6109,29 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         "OpenReferenceInstancePaths"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidRoleParameter(request, request->role, "role"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidObjectPathParameter(request, request->objectName))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
-    if (_rejectInvalidFilterParameters(request, request->filterQueryLanguage,
-                              request->filterQuery))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-    if (_rejectIfContinueOnError(request, request->continueOnError))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
+    // Test the common open request input parameters and reject if any
+    // are incorrect. Tests filterQuery, continueOnError, operationTimeout
+    // and maxObjectCount
     Uint32 operationMaxObjectCount;
-
-    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
-            false, operationMaxObjectCount, Uint32(0)))
+    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
     {
         PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (!_checkExistenceOfClass(request->nameSpace,
@@ -6187,14 +6194,15 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         _enqueueResponse(request, openResponse.release());
 
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
-    // Create new enumerationContext and enumerationContextString.
+    // Create new enumerationContext
     //
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
@@ -6203,6 +6211,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        PEG_METHOD_EXIT();
+        return true;
     }
 
     // Build corresponding EnumerateInstancePathsRequest to send to
@@ -6227,7 +6237,8 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     internalRequest->internalOperation = true;
 
     // AutoPtr to delete at end of handler
-    AutoPtr<CIMReferenceNamesRequestMessage> dummy(internalRequest);
+    AutoPtr<CIMReferenceNamesRequestMessage>
+        requestDestroyer(internalRequest);
 
     //
     // Set up an aggregate object and save the created internalRequest
@@ -6281,8 +6292,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     // to avoid issuing empty responses.
     // Enumeration Context must not be used after this call
 
-    ProviderRequests::issueOpenOrPullResponseMessage(
-       this,
+    bool releaseRequest = issueOpenOrPullResponseMessage(
        request,
        openResponse.release(),
        enumerationContext,
@@ -6290,6 +6300,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
        requireCompleteResponses);
 
     PEG_METHOD_EXIT();
+    return releaseRequest;
 }
 
 
@@ -6297,7 +6308,7 @@ void CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     handleOpenAssociatorInstancesRequest
 **********************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
+bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     CIMOpenAssociatorInstancesRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -6333,51 +6344,35 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     if (_rejectAssociationTraversalDisabled(request, "OpenAssociatorInstances"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidRoleParameter(request, request->role, "role"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidRoleParameter(request, request->resultRole, "resultRole"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidObjectPathParameter(request, request->objectName))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
-    if (_rejectInvalidFilterParameters(request, request->filterQueryLanguage,
-                              request->filterQuery))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-    if (_rejectIfContinueOnError(request, request->continueOnError))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
+    // Test the common open request input parameters and reject if any
+    // are incorrect. Tests filterQuery, continueOnError, operationTimeout
+    // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
-            false, operationMaxObjectCount, Uint32(0)))
+    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
     {
         PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (!_checkExistenceOfClass(
@@ -6400,7 +6395,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     if (_rejectNoProvidersOrRepository(request, providerInfos))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
@@ -6411,17 +6406,16 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     Array<CIMObject> cimObjects;
     if (_repository->isDefaultInstanceProvider())
     {
-
         cimObjects = _repository->associators(
-                request->nameSpace,
-                request->objectName,
-                request->assocClass,
-                request->resultClass,
-                request->role,
-                request->resultRole,
-                false,                      // force includeQualifiers to false
-                request->includeClassOrigin,
-                request->propertyList);
+            request->nameSpace,
+            request->objectName,
+            request->assocClass,
+            request->resultClass,
+            request->role,
+            request->resultRole,
+            false,                      // force includeQualifiers to false
+            request->includeClassOrigin,
+            request->propertyList);
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "OpenAssociatorInstances repository access: class = %s,"
@@ -6455,7 +6449,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         _enqueueResponse(request, openResponse.release());
 
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
@@ -6467,6 +6461,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // Create a new enumeration context
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
@@ -6475,6 +6470,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        PEG_METHOD_EXIT();
+        return true;
     }
 
     enumerationContext->setRequestProperties(
@@ -6508,7 +6505,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
 
     // AutoPtr to delete at end of handler
     // KS_TODO Clean this one up
-    AutoPtr<CIMAssociatorsRequestMessage> dummy(internalRequest);
+    AutoPtr<CIMAssociatorsRequestMessage> requestDestroyer(internalRequest);
 
     //
     // Set up an aggregate object and save the original request message
@@ -6568,8 +6565,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // to avoid issuing empty responses.
 
     // Enumeration Context must not be used after this call
-    ProviderRequests::issueOpenOrPullResponseMessage(
-       this,
+    bool releaseRequest = issueOpenOrPullResponseMessage(
        request,
        openResponse.release(),
        enumerationContext,
@@ -6577,19 +6573,19 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
        requireCompleteResponses);
 
     PEG_METHOD_EXIT();
+    return releaseRequest;
 }
 
 /**$*******************************************************
     handleOpenAssociatorInstancePathsRequest
 **********************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
+bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     CIMOpenAssociatorInstancePathsRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::"
         "handleOpenAssociatorInstancePathsRequest");
-
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "OpenAssociatorInstancePaths request namespace=%s object=%s "
@@ -6614,59 +6610,41 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         boolToString(request->continueOnError),
         request->maxObjectCount ));
 
-    //// KS_TODO Remove once validated.
     PEGASUS_ASSERT(request->className == request->objectName.getClassName());
 
     if (_rejectAssociationTraversalDisabled(request,
         "OpenAssociatorInstancePaths"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidRoleParameter(request, request->role, "role"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidRoleParameter(request, request->resultRole, "roleRole"))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (_rejectInvalidObjectPathParameter(request, request->objectName))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
-    if (_rejectInvalidFilterParameters(request, request->filterQueryLanguage,
-                              request->filterQuery))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectIfContinueOnError(request, request->continueOnError))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
+    // Test the common open request input parameters and reject if any
+    // are incorrect. Tests filterQuery, continueOnError, operationTimeout
+    // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectInvalidMaxObjectCountParam(request, request->maxObjectCount,
-            false, operationMaxObjectCount, Uint32(0)))
+    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
     {
         PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
-    {
-        PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     if (!_checkExistenceOfClass(request->nameSpace,
@@ -6719,7 +6697,6 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         dynamic_cast<CIMOpenAssociatorInstancePathsResponseMessage*>(
             request->buildResponse()));
 
-
     if (providerInfos.providerCount == 0 && objectNames.size() == 0)
     {
         //
@@ -6735,7 +6712,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         _enqueueResponse(request, openResponse.release());
 
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
     //
     // Process as multi operation enumeration. 1. Build context, build
@@ -6744,10 +6721,9 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // response.
     //
     // Create new enumerationContext and enumerationContextString.
-    //
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
-////          request->nameSpace,
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
@@ -6756,6 +6732,8 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        PEG_METHOD_EXIT();
+        return true;
     }
 
     // Build corresponding EnumerateInstancePathsRequest to send to
@@ -6780,7 +6758,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     internalRequest->operationContext = request->operationContext;
     internalRequest->internalOperation = true;
 
-    AutoPtr<CIMAssociatorNamesRequestMessage> dummy(internalRequest);
+    AutoPtr<CIMAssociatorNamesRequestMessage> requestDestroyer(internalRequest);
 
     //
     // Set up an aggregate object and save the created internalRequest
@@ -6835,8 +6813,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // to avoid issuing empty responses.
 
     // Enumeration Context must not be used after this call
-    ProviderRequests::issueOpenOrPullResponseMessage(
-       this,
+    bool releaseRequest = issueOpenOrPullResponseMessage(
        request,
        openResponse.release(),
        enumerationContext,
@@ -6844,6 +6821,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
        requireCompleteResponses);
 
     PEG_METHOD_EXIT();
+    return releaseRequest;
 }
 
 /**$**************************************************************************
@@ -6852,7 +6830,7 @@ void CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 **
 *****************************************************************************/
 
-void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
+bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     CIMOpenQueryInstancesRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -6877,7 +6855,7 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     if (_rejectIfContinueOnError(request, request->continueOnError))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     Uint32 operationMaxObjectCount;
@@ -6885,14 +6863,14 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
             false, operationMaxObjectCount, Uint32(0)))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     // Test for valid values in OperationTimeout
     if (_rejectInvalidOperationTimeout(request, request->operationTimeout))
     {
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     AutoPtr<CIMOpenQueryInstancesResponseMessage> response(
@@ -6910,20 +6888,25 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     // The WQL and CQL dispatch support functions to interface with the
     // pull operations.
 
+    //// KS_TODO temporary code until we finish support for this operation
+    response->cimException =
+    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+    exception=true;
+    //// End of temporary code
+
     if (exception)
     {
         _enqueueResponse(request, response.release());
         PEG_METHOD_EXIT();
-        return;
+        return true;
     }
 
     //
-    // Setup the EnumerationContext. Returns pointer to object and context ID
-    // string
+    // Setup the EnumerationContext. Returns pointer to object
     //
-
     EnumerationContext* enumerationContext =
         enumerationContextTable.createContext(
+            request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
@@ -6932,6 +6915,8 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     if (enumerationContext == NULL)
     {
         _rejectCreateContextFailed(request);
+        PEG_METHOD_EXIT();
+        return true;
     }
 
       //// KS TODO check this since not sure whether required.
@@ -6955,15 +6940,7 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     internalRequest->internalOperation = true;
 
     // AutoPtr to delete enumRequest at end of handler
-    AutoPtr<CIMExecQueryRequestMessage> dummy(internalRequest);
-
-    //// KS_TEMP KS_TODO REMOVE debugging code. Delete. OCT2013
-    if (enumerationContext->responseCacheSize() != 0)
-    {
-        enumerationContext->valid();
-        enumerationContext->trace();
-        enumerationContextTable.trace();
-    }
+    AutoPtr<CIMExecQueryRequestMessage> requestDestroyer(internalRequest);
 
     PEGASUS_ASSERT(enumerationContext->responseCacheSize() == 0);  // KS_TEMP
     // KS_TODO clean up the void* below
@@ -6996,7 +6973,7 @@ void CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
             request->buildResponse()));
 
     PEG_METHOD_EXIT();
-    return;
+    return true;
 }
 
 void CIMOperationRequestDispatcher::handleEnumerationCount(
@@ -7037,7 +7014,7 @@ void CIMOperationRequestDispatcher::handleEnumerationCount(
     handlePullInstancesWithPath
 ************************************************************/
 
-void CIMOperationRequestDispatcher::handlePullInstancesWithPath(
+bool CIMOperationRequestDispatcher::handlePullInstancesWithPath(
     CIMPullInstancesWithPathRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -7045,21 +7022,22 @@ void CIMOperationRequestDispatcher::handlePullInstancesWithPath(
 
     // Both pull operations execute off of a single templated function.
     // Build and send response.  getCache used to wait for objects
-    AutoPtr<CIMPullInstancesWithPathResponseMessage> response(
+    CIMPullInstancesWithPathResponseMessage* response(
         dynamic_cast<CIMPullInstancesWithPathResponseMessage*>(
             request->buildResponse()));
 
-    ProviderRequests::processPullRequest(this, request, response);
+    bool releaseRequest = processPullRequest(request,
+                          response, "pullInstancesWithPath");
+
     PEG_METHOD_EXIT();
-    return;
+    return releaseRequest;
 }
 /**$********************************************************
     handlePullInstancesPaths
 ************************************************************/
 
-void CIMOperationRequestDispatcher::handlePullInstancePaths(
+bool CIMOperationRequestDispatcher::handlePullInstancePaths(
     CIMPullInstancePathsRequestMessage* request)
-
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handlePullInstancePaths");
@@ -7067,14 +7045,15 @@ void CIMOperationRequestDispatcher::handlePullInstancePaths(
     // Both pull operations execute off of a single templated
     // function.
     // Build and send response.  getCache used to wait for objects
-    AutoPtr<CIMPullInstancePathsResponseMessage> response(
+    CIMPullInstancePathsResponseMessage* response(
         dynamic_cast<CIMPullInstancePathsResponseMessage*>(
             request->buildResponse()));
 
-    ProviderRequests::processPullRequest(this, request, response);
+    bool releaseRequest = processPullRequest(request, response,
+                          "pullInstancePaths");
 
     PEG_METHOD_EXIT();
-    return;
+    return releaseRequest;
 }
 
 /**$********************************************************
@@ -7082,7 +7061,7 @@ void CIMOperationRequestDispatcher::handlePullInstancePaths(
           enumerationSequence
 ************************************************************/
 
-void CIMOperationRequestDispatcher::handlePullInstances(
+bool CIMOperationRequestDispatcher::handlePullInstances(
     CIMPullInstancesRequestMessage* request)
 
 {
@@ -7092,14 +7071,15 @@ void CIMOperationRequestDispatcher::handlePullInstances(
     // All pull operations execute off of a single templated
     // function.
     // Build and send response.  getCache used to wait for objects
-    AutoPtr<CIMPullInstancesResponseMessage> response(
+    CIMPullInstancesResponseMessage* response(
         dynamic_cast<CIMPullInstancesResponseMessage*>(
             request->buildResponse()));
 
-    ProviderRequests::processPullRequest(this, request, response);
+    bool releaseRequest = processPullRequest(request, response,
+                                             "pullInstances");
 
     PEG_METHOD_EXIT();
-    return;
+    return releaseRequest;
 }
 
 /**$********************************************************
@@ -7125,6 +7105,8 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         PEG_METHOD_EXIT();
         return;
     }
+
+    // KS_TODO should we test for received namespace here?
 
     en->incrementRequestCount();
 

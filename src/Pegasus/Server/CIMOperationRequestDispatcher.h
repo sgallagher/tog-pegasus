@@ -399,8 +399,6 @@ public:
 
     CIMOperationRequestMessage* getRequest();
 
-    void setRequest(CIMOperationRequestMessage* request);
-
     CIMResponseMessage* getResponse(const Uint32& pos);
 
     // allow dispatcher to remove the response so it doesn't become
@@ -579,31 +577,34 @@ public:
         CIMInvokeMethodRequestMessage* request);
 
  // EXP_PULL_BEGIN
-    void handleOpenEnumerateInstancesRequest(
+    bool handleOpenEnumerateInstancesRequest(
         CIMOpenEnumerateInstancesRequestMessage* request);
 
-    void handleOpenEnumerateInstancePathsRequest(
+    bool handleOpenEnumerateInstancePathsRequest(
         CIMOpenEnumerateInstancePathsRequestMessage* request);
 
-    void handleOpenReferenceInstancesRequest(
+    bool handleOpenReferenceInstancesRequest(
         CIMOpenReferenceInstancesRequestMessage* request);
 
-    void handleOpenReferenceInstancePathsRequest(
+    bool handleOpenReferenceInstancePathsRequest(
         CIMOpenReferenceInstancePathsRequestMessage* request);
 
-    void handleOpenAssociatorInstancesRequest(
+    bool handleOpenAssociatorInstancesRequest(
         CIMOpenAssociatorInstancesRequestMessage* request);
 
-    void handleOpenAssociatorInstancePathsRequest(
+    bool handleOpenAssociatorInstancePathsRequest(
         CIMOpenAssociatorInstancePathsRequestMessage* request);
 
-    void handlePullInstancesWithPath(
+    bool handleOpenQueryInstancesRequest(
+        CIMOpenQueryInstancesRequestMessage* request);
+
+    bool handlePullInstancesWithPath(
         CIMPullInstancesWithPathRequestMessage* request);
 
-    void handlePullInstancePaths(
+    bool handlePullInstancePaths(
         CIMPullInstancePathsRequestMessage* request);
 
-    void handlePullInstances(
+    bool handlePullInstances(
         CIMPullInstancesRequestMessage* request);
 
     void handleCloseEnumeration(
@@ -612,8 +613,6 @@ public:
     void handleEnumerationCount(
         CIMEnumerationCountRequestMessage* request);
 
-    void handleOpenQueryInstancesRequest(
-        CIMOpenQueryInstancesRequestMessage* request);
 // EXP_PULL END
 
     /** Callback from Providers, etc. This callback is used for
@@ -802,10 +801,15 @@ protected:
     // the trace method return into the CIMOperationRequestDispatcher main.
     //
 // EXP_PULL_BEGIN
-    Boolean _rejectIfContinueOnError(CIMOperationRequestMessage* request,
+
+    bool _rejectIfPullParametersFailTests(
+        CIMOpenOperationRequestMessage* request,
+        Uint32& operationMaxObjectCount);
+
+    bool _rejectIfContinueOnError(CIMOperationRequestMessage* request,
         Boolean continueOnError);
 
-    Boolean _rejectInvalidFilterParameters(CIMOperationRequestMessage* request,
+    bool _rejectInvalidFilterParameters(CIMOperationRequestMessage* request,
         const String& filterQueryLanguageParam,
         const String& filterQueryParam);
 
@@ -816,20 +820,20 @@ protected:
         Uint32& value,
         const Uint32 defaultValue);
 
-    Boolean _rejectInvalidOperationTimeout(CIMOperationRequestMessage* request,
+    bool _rejectInvalidOperationTimeout(CIMOperationRequestMessage* request,
         const Uint32Arg& operationTimeout);
 
-    Boolean _rejectInvalidEnumerationContext(
+    bool _rejectInvalidEnumerationContext(
         CIMOperationRequestMessage* request,
         EnumerationContext* enumerationContext);
 
-    Boolean _rejectIfContextTimedOut(CIMOperationRequestMessage* request,
+    bool _rejectIfContextTimedOut(CIMOperationRequestMessage* request,
         Boolean isTimedOut);
 
-    Boolean _rejectInvalidPullRequest(CIMOperationRequestMessage* request,
+    bool _rejectInvalidPullRequest(CIMOperationRequestMessage* request,
         Boolean valid);
 
-    Boolean _rejectIfEnumerationContextProcessing(
+    bool _rejectIfEnumerationContextProcessing(
         CIMOperationRequestMessage* request,
         Boolean processing);
 // EXP_PULL_END
@@ -1015,8 +1019,27 @@ private:
         ProviderInfoList& providerInfos,
         CIMResponseMessage* response);
 
+// EXP_PULL_BEGIN
+    bool processPullRequest(
+        CIMPullOperationRequestMessage* request,
+        CIMOpenOrPullResponseDataMessage*  pullResponse,
+        const char * requestName);
+
+    bool issueOpenOrPullResponseMessage(
+        CIMOperationRequestMessage* openRequest,
+        CIMOpenOrPullResponseDataMessage* openResponse,
+        EnumerationContext* en,
+        Uint32 operationMaxObjectCount,
+        Boolean requireCompleteResponses);
+// EXP_PULL END
+
     // Pointer to internal RoutingTable for Control Providers and Services
     DynamicRoutingTable *_routing_table;
+
+    // internal bool that defines whether handleEnqueue will delete
+    // the original request.  Used because in some cases the handler
+    // retains the request beyond the life of the handleEnqueue call.
+    bool _deleteRequestRequired;
 };
 
 // Forward response to Common Request Aggregator.  This is simply

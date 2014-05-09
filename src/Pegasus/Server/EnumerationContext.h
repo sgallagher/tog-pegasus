@@ -130,6 +130,9 @@ public:
     @param contextId String identifier for this context. These must
     be unique.
 
+    @param nameSpace CIMNamespaceName for this operation and
+    therefore or this enumeration sequence.
+
     @param operationTimeoutSec - Number of seconds for the interoperation
     timeout for this pull sequence.  Set with the open and
     used by the startTimer to set the timeout value between operations
@@ -146,6 +149,7 @@ public:
 
     */
     EnumerationContext(const String& contextId,
+        const CIMNamespaceName& nameSpace,
         Uint32 interOperationTimeoutValue,
         Boolean continueOnError,
         MessageType pullRequestType,
@@ -405,6 +409,9 @@ public:
 
     void setContinueOnError(bool x);
 
+    // get the namespace stored during the consruction
+    CIMNamespaceName& getNamespace();
+
     // Parameters for requests saved for future send.
     //
     CIMOperationRequestMessage* _savedRequest;
@@ -426,6 +433,10 @@ private:
 
     // Name(Id) of this EnumerationContext.
     String _contextId;
+
+    // Namespace for this pull sequence.  Set by open and used by
+    // pull and close.
+    CIMNamespaceName _nameSpace;
 
     // Interoperation timeout value in seconds.  From open request operation
     // parameters.
@@ -507,6 +518,10 @@ private:
 };
 
 // Inline functions
+inline  CIMNamespaceName& EnumerationContext::getNamespace()
+{
+    return _nameSpace;
+}
 
 inline String& EnumerationContext::getContextId()
 {

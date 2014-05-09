@@ -54,6 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 // Create a new context. This is called only from the enumerationTable
 // createContext function.
 EnumerationContext::EnumerationContext(const String& contextId,
+    const CIMNamespaceName& nameSpace,
     Uint32 interOperationTimeoutValue,
     const Boolean continueOnError,
     MessageType pullRequestType,
@@ -62,6 +63,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _cimException(CIMException()),
     _savedRequest(NULL),             // Clear because used as a flag
     _contextId(contextId),
+    _nameSpace(nameSpace),
     _operationTimeoutSec(interOperationTimeoutValue),
     _continueOnError(continueOnError),
     _interOperationTimerUsec(0),

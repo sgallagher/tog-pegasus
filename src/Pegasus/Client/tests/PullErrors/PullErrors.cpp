@@ -1072,7 +1072,7 @@ int main(int argc, char** argv)
     tc._className =  "CMPI_TEST_Person";
     tc._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
     tc._filterQuery="abc";
-    tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
+    tc.setCIMException(CIM_ERR_FAILED);
     PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
     tc.setTestName("Filter Parameter test- Using filter and Language");
@@ -1082,7 +1082,7 @@ int main(int argc, char** argv)
 
     tc.setTestName("Filter Parameter test- Using filterQuery Language Only");
     tc._filterQuery="";
-    tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
+    tc.setCIMException(CIM_ERR_FAILED);
     PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
     tc.setTestName("MaxObjectCount GT max allowed by Server");
@@ -1112,16 +1112,14 @@ int main(int argc, char** argv)
         tc3._maxObjectCount = 0;
         PEGASUS_ASSERT(tc3.openEnumerateInstances());
         tc3.setCIMException(CIM_ERR_FAILED);
-        // expecting either data or CIM_ERR_FAILED
-        // NOTE: Here we should set the nodata allowed flag.
-        // KS_TODO. setExpectErrorResponse.
         tc3.setExpectErrorResponseOnly();
         PEGASUS_ASSERT(tc3.pullInstancePaths());
-        tc3.setExpectGoodResponse();
 
         // Now request the corect response
-        // KS_TODO decision. Should we close if we get the wrong request??
+        tc3.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
+        tc3.setExpectErrorResponseOnly();
         PEGASUS_ASSERT(tc3.pullInstancesWithPath());
+        tc3.setExpectGoodResponse();
     }
     {
         testEnumSequence tc3(client, "test/TestProvider");
@@ -1132,16 +1130,14 @@ int main(int argc, char** argv)
         tc3._maxObjectCount = 0;
         PEGASUS_ASSERT(tc3.openEnumerateInstancePaths());
         tc3.setCIMException(CIM_ERR_FAILED);
-        // expecting either data or CIM_ERR_FAILED
-        // NOTE: Here we should set the nodata allowed flag.
-        // KS_TODO. setExpectErrorResponse.
         tc3.setExpectErrorResponseOnly();
         PEGASUS_ASSERT(tc3.pullInstancesWithPath());
-        tc3.setExpectGoodResponse();
 
-        // Now request the corect response
-        // KS_TODO decision. Should we close if we get the wrong request??
+        // Now request the corect response and expect error response
+        tc3.setCIMException(CIM_ERR_INVALID_ENUMERATION_CONTEXT);
+        tc3.setExpectErrorResponseOnly();
         PEGASUS_ASSERT(tc3.pullInstancePaths());
+        tc3.setExpectGoodResponse();
     }
 
     // Test for a complete sequence that works.

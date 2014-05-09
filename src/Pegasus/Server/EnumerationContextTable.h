@@ -107,6 +107,7 @@ public:
         required to process the pull and close operations for the enumeration
         sequence controlled by this context. The context instance will remain
         active for the life of the enumeration sequence.
+        @param nameSpace CIMNamespaceName for this request
         @param operationTimeOutParam Uint32Arg value of operation
         timeout in seconds.
         @param continueOnError Boolean containing the continueOnError flag for
@@ -119,6 +120,7 @@ public:
         @return EnumerationContext*
      */
     EnumerationContext* createContext(
+        const CIMNamespaceName& nameSpace,
         Uint32Arg&  operationTimeOutParam,
         Boolean continueOnError,
         MessageType pullRequestType,

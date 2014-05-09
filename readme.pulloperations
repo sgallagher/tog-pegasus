@@ -11,24 +11,19 @@ TODO list:
    1. Binary operation from OOP.  Need to add counter to binary
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
-      OOP right now.  Fixed by converting to XML. 
+      OOP right now.  Fixed by converting to XML. Concluded that we do not
+      need to do this. The binary response is not really used often
+      in the current environment So double mapping it is not a major issue.
+      Leave this as FUTURE
    2. OpenExecQuery - Code is incomplete in that it does not include the
-      return from the exec query function to the aggregator yet.
-   3. Code for Pull part of OpenQueryInstancesRequest a) should be part of
+      return from the exec query function to the aggregator yet. Code for Pull
+      part of OpenQueryInstancesRequest a) should be part of
       the common CIMOperationRequestDispatcher execCommon code.
-   4. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
+   3. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
       pull not completed so we feed the responses back to the EnmerationContext
       queues
-   3. Minor TODOs, diagnostics, etc. still in the code
-   4. External runtime variables. Proposing that they be fixed for this release
-      rather than set by configuration.  This should be discussed.  Am making
-      this a separate bug.  See bug 9819 for the changes to cover this.
-   5. Move processPull code in dispatcher from template to
-      common function which would mean adding intermediate classes in
-      CIMMessage but would reduce code size. This createsCIMmessage
-      CIMPullRequestData... between CIMRequestDataMessage and the Pull requests
-      since they all have exactly the same input and output pararameters.
-   6. Extension to avoid double move of objects in CIMResponseData (one
+   4. Minor TODOs, diagnostics, etc. still in the code
+   5. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
       messages to include count and CIMResponse data to count objects out
@@ -36,32 +31,82 @@ TODO list:
       extending the output writers to allow the count field to be supplied
       so they would only create output for up to the count supplied.(Make
       this future beyond bug 9676)
-   9. Add more static tests (currently only OpenEnumerateInstances and
+   6. Add more static tests (currently only OpenEnumerateInstances and
       OpenEnumerateInstanceNames covered). 
       Low priority because most of this except exact XML covered in other
       tests. note that we can only add very limited tests since a) no
-      way to test multiple opertions in sequence(i.e. open/pull) and
+      way to test multiple operations in sequence(i.e. open/pull) and
       cannot be sure how many responses will come back in all cases even
       for open.
-   10. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
-      further since there is some overlap.  Low priority.
-   11.Correct issue between operations and HTTP where we are sending
-      trailers with exceptions.  Also correct issue where we are
-      sending endOfSequence and EnumerationContext in response when
-      we send CIMException.  DONE Except that we really need to get
-      rid of the trailers completely for pull operations.  Need to
-      have flag to send as non trailer (probably non_chunked flag)
-   12.Make enumContextTable hashtable dynamic and create entirely within
+   7. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
+      further since there is some overlap.  VERY Low priority.
+   8. Make enumContextTable hashtable dynamic and create entirely within
       CIMOperationRequestDispatcher.cpp. Today it has a static size
+   9. Correct issue between operations and HTTP where we are sending
+      trailers with exceptions. Modify response mechanisms so that we
+      set non-chunked for all responses where we send error responses to
+      avoid the trailers.
+   10. It would be more efficient in dispatcher to always use exception for
+       rejects and change the _reject functions so that they never return
+       when they reject. This is VERY LOW PRIORITY and primarily saves
+       a few lines of code in the reject functions and their calls.  Means we
+       would code.
+       _rejectIfEnumerationToBroad(...)
+       _rejectIfThisParameterIncorrect(...)
+
+       instead of
+       if (_rejectIfEnum...)
+       {
+           return true
+       }
+       It would mean that the method trace for the handlers would not return
+       an exit if we rejected. LOW PRIORITY
+    11. We have reduced the number of template function greatly.  However there
+       are still several around the task of distributing requests to the
+       multiple providers. In fact there are two similiar but different for
+       the associators(i.e. assoc, ref, etc.) functions and the parallel
+       openAssoc functions.  It would be nice to consolidate that logic and
+       further to try to create a non-template form for those functions. LOW
+       PRIORITY.
+    13. External runtime variables. Proposing that they be fixed for this release
+      rather than set by configuration. Making this a separate bug.
+      See bug 9819 for the changes to cover this.
 
    NEXT TASKS: 
-      b. Finish and test the OpenQueryInstances
-      c. Clean up TODOs
-      d. Find issue that is causing occasional failures under load.  It
-         is probably a threading issue between the 3 possible threads
-	 that use the EnumerationContext (request thread, provider thread,
-	 timeout thread) and a place where not mutuxed, primarily the
-	 timeout thread.
+      a. finish 8, 9 3 above
+
+9 May 2104
+1. Converted several  template functions in CIMOperationRequestDispatcher
+   to real functions
+2. Added intermediate CIMMessage for CIMPullOperationRequestMessage since
+   all of the pulls have exactly the same data. This allowed us to
+   convert the template function processPullRequest from template to
+   real function
+3. Added intermediate CIMMessage for CIMOpenOperationRequestMessage betweeh\n
+   all of the Opens and the  CIMRequestData message.  This will allow
+   common code to test all of these variables in all 6
+   CIMOperationRequestDispatcher handleOpen... functions
+3. Added variable in  CIMOperationRequestDispatcher handleEnqueue to make
+   releasing the original request conditional on return from the handle... 
+   for open... and pull... handlers.
+   This allowed us to drop one place where we were creating a new request msg
+   for the delayed response and use the original request.  This meant that
+   we could convert the issueOpenOrPullResponse from template function to
+   real function.
+4. Moved open and pull constructors in CIMMessage.h to CIMMessage.cpp. NOTE:
+   openQueryInstances not moved.  Will do when we get this funciton running.
+5. Added test for correct namespace in pull operations.  Note that it is
+   never really used but since supplied with request, we test to be sure it is
+   same as open request namespace.  added internationalized exception for this.
+6. We should probably add same test to close just as an input parameter
+   validation.  
+6. Modified processPullRequest to close the enumeration context if
+   incorrect response type received.  Before we just returned exception and
+   left context open for next request.  Closing is much more logical since the
+   client really did send an erronous request.
+7. Modified PullErrors to correctly test above changed in behavior.
+8. Removed a significant number of diagnostic messages.
+
 
 4 May 2014
 1. Clean interface with EnumerationContext timeout thread

@@ -1129,7 +1129,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                     // requests will reduce the size of the cache and
                     // signal this wait function when size returns below
                     // limit.
-    ////              en->waitCacheSize();
+                    en->waitCacheSize();
                 }
             }
         }
@@ -1917,12 +1917,12 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
         delete poA;
         poA = 0;
     }
-    else
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   //// TODO temp
-        "Provider response not complete. isPull %s",
-            boolToString(poA->_pullOperation) ));
-    }
+////  else
+////  {
+////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   //// TODO temp
+////      "Provider response not complete. isPull %s",
+////          boolToString(poA->_pullOperation) ));
+////  }
 
     // KS_TODO duplicated trace between here and above.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -3682,17 +3682,17 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
             CSTRING(en->getContextId()),
             cimStatusCodeToString(response->cimException.getCode()) ));
     }
-    else
-    {
-        //// KS_TODO Delete this code when we are confident
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-          "%s AppendedResponseData. ContextId=%s  to type %u from "
-              "toSize %u fromSize %u",
-          MessageTypeToString(request->getType()),
-          CSTRING(en->getContextId()),
-          to.getResponseDataContent(),
-          to.size(), en->responseCacheSize() ));
-    }
+////  else
+////  {
+////      //// KS_TODO Delete this code when we are confident
+////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////        "%s AppendedResponseData. ContextId=%s  to type %u from "
+////            "toSize %u fromSize %u",
+////        MessageTypeToString(request->getType()),
+////        CSTRING(en->getContextId()),
+////        to.getResponseDataContent(),
+////        to.size(), en->responseCacheSize() ));
+////  }
 
     enumerationContextTable.setRequestSizeStatistics(operationMaxObjectCount);
 
@@ -4510,7 +4510,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         return;
     }
 
-    //// TODO THIS is ClassParameter, open is ObjectPathParameter
     if (_rejectInvalidClassParameter(request, request->nameSpace,
                                 request->objectName))
     {

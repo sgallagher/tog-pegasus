@@ -479,18 +479,21 @@ private:
     // Condition variable and mutex for the provider wait
     // condition.  This is a hold on returns from putcache when cache
     // reaches a defined limit that is cleared when the cache level drops
-    // to below the defined level (See functions waitProviderLimitCondition and
-    // signalProviderLimitCondition)
-    Condition _providerLimitCondition;
-    Mutex _providerLimitConditionMutex;
+    // to below the defined level
+    Condition _providerWaitCondition;
+    Mutex _providerWaitConditionMutex;
 
     // Executes a wait  until the conditions of the condition variable are met.
     // @param size defines the limit at which wait occurs.
-    void waitProviderLimitCondition(Uint32 limit);
+////  void waitProviderWaitCondition(Uint32 limit);
 
-    // Signal the condition variable that
-    // it should test the _providerLimitCondition wait conditions.
-    void signalProviderLimitCondition();
+    // Signal the condition variable that it should test the
+    // providerWaitCondition condition variable.
+    void signalProviderWaitCondition();
+
+    // Statistics for waiting.  Total for this context and max for wait
+    Uint64 _totalWaitTimeUsec;
+    Uint64 _maxWaitTimeUsec;
 
     // Count Of pull operations executed in this context.  Used for statistics
     Uint32 _pullOperationCounter;

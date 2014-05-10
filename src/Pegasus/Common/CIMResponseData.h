@@ -207,6 +207,10 @@ public:
         PEGASUS_DEBUG_ASSERT(valid());
         return _dataType;
     }
+
+    /* Clear all data out of the CIMResponse Object
+    */
+    void clear();
     /*******************************************************************
     **
     **     C++ objects interface handling
@@ -355,12 +359,12 @@ public:
 
     // Encoding responses
 
-    // Encode the CIMResponse data into binary format used with Provider Agents
-    // and OP Clients in the provider CIMBuffer
+    // Encode the CIMResponse data into binary format in the provided
+    // CIMBuffer.  used with Provider Agents and OP Clients
     void encodeBinaryResponse(CIMBuffer& out);
 
-    // Encode the CIMResponse data into Xml format used with Provider Agents
-    // only in the provided CIMBuffer
+    // Encode the CIMResponse data into Xml format in the provided CIMBuffer
+    // Used with Provider Agents only.
     void encodeInternalXmlResponse(CIMBuffer& out,
         Boolean isPullResponse = false);
 
@@ -375,9 +379,6 @@ public:
 
     // diagnostic tests magic number in context to see if valid object
     Boolean valid() const;
-
-    // official Xml format(CIM over Http) used to communicate to clients
-    void encodeXmlResponse(Buffer& out);
 
     //This function is called from buildResponce to set CIMResponcedata
     //with respective values of IncludeQualifiers,IncludeClassOrigin and

@@ -73,7 +73,9 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _processing(true),    // set true because always created during processing
     _error(false),
     _responseCache(contentType),
-    _providerLimitConditionMutex(Mutex::NON_RECURSIVE),
+    _providerWaitConditionMutex(Mutex::NON_RECURSIVE),
+    _totalWaitTimeUsec(0),
+    _maxWaitTimeUsec(0),
     _pullOperationCounter(0),
     _consecutiveZeroLenMaxObjectRequestCounter(0),
     _responseCacheMaximumSize(0),
@@ -232,6 +234,8 @@ void EnumerationContext::trace()
         "cacheHighWaterMark=%u "
         "Request count=%u "
         "ResponseObjectCount=%u "
+        "totalWaitTimeUsec=%llu"
+        "maxWaitTimeUsec=%llu"
         "RequestedResponseObjectCount=%u",
         (const char *)_contextId.getCString(),
         _operationTimeoutSec,
@@ -240,12 +244,14 @@ void EnumerationContext::trace()
         MessageTypeToString(_pullRequestType),
         boolToString(_providersComplete),
         boolToString(_clientClosed),
-       (long unsigned int)
-           (TimeValue::getCurrentTime().toMicroseconds() - _startTime)/1000,
+        (long unsigned int)
+               (System::getCurrentTimeUsec() - _startTime)/1000,
         _pullOperationCounter,
         _cacheHighWaterMark,
         _requestCount,
         _responseObjectsCount,
+        _totalWaitTimeUsec,
+        _maxWaitTimeUsec,
         _requestedResponseObjectsCount ));
 }
 
@@ -343,10 +349,6 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
         {
             _cacheHighWaterMark = responseCacheSize();
         }
-
-////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-////          "putCache ContextId=%s inserted. responseCache size=%u",
-////           (const char*)getContextId().getCString(), responseCacheSize()));
     }
 
     // Return true indicating that input added to cache and cache is still open
@@ -363,27 +365,30 @@ void EnumerationContext::waitCacheSize()
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "After putCache providers waitProviderLimitCondition Not "
-        "complete insert responseCacheSize %u. "
-        " signal ProviderLimitCondition responseCacheMaximumSize %u",
-        responseCacheSize(), _responseCacheMaximumSize));
-    // start timer to get length of wait for statistics.
-    Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
+    _providerWaitConditionMutex.lock();
 
-    waitProviderLimitCondition(_responseCacheMaximumSize);
+    Uint64 startTime = System::getCurrentTimeUsec();
 
-    Uint64 interval =
-        TimeValue::getCurrentTime().toMicroseconds() - startTime;
+    while ((!_clientClosed) && (responseCacheSize() > _responseCacheMaximumSize)
+           && !_providersComplete)
+    {
+        _providerWaitCondition.wait(_providerWaitConditionMutex);
+    }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "After putCache providers wait end ProviderLimitCondition Not "
-        "complete insert responseCacheSize %u."
-        " signalProviderLimitCondition responseCacheMaximumSize %u."
-        " Wait %lu usec",
-        responseCacheSize(), _responseCacheMaximumSize,
-        (unsigned long int)interval ));
+    _providerWaitConditionMutex.unlock();
 
+    Uint64 interval = System::getCurrentTimeUsec() - startTime;
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TODO EXP_PULL_TEMP
+        "waitCacheSize  ContextId=%s Wait %lu usec",
+               (const char *)_contextId.getCString(),
+               (unsigned long int)interval ));
+
+    _totalWaitTimeUsec += interval;
+    if (interval > _maxWaitTimeUsec)
+    {
+        _maxWaitTimeUsec = interval;
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -438,7 +443,7 @@ bool EnumerationContext::testCacheForResponses(
         rtn = true;
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TODO EXP_PULL_TEMP
        "testCacheForResponse returns %s", boolToString(rtn) ));
     PEG_METHOD_EXIT();
     return rtn;
@@ -503,64 +508,22 @@ bool EnumerationContext::getCache(
 
     // Signal the ProviderLimitCondition that the cache size may
     // have changed.
-    signalProviderLimitCondition();
+    signalProviderWaitCondition();
 
     PEG_METHOD_EXIT();
     return true;
 }
 
-/*****************************************************************************
-**
-**  Provider Limit Condition Variable functions. wait, signal
-**
-*****************************************************************************/
-/*
-    Wait condition variable on returning to providers from putcache.  This
-    allows dispatcher to stop responses from providers while pull operations
-    reduce the size of the cache.  The condition variable should be
-    signaled when the cache size drops below a defined point OR
-    if a close is received (so the responses can be discarded)
-*/
-void EnumerationContext::waitProviderLimitCondition(Uint32 limit)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "EnumerationContext::waitProviderLimitCondition");
-
-    PEGASUS_DEBUG_ASSERT(valid());
-
-    _providerLimitConditionMutex.lock();
-
-    Uint64 startTime = TimeValue::getCurrentTime().toMicroseconds();
-
-    while (!_clientClosed && (responseCacheSize() > limit)
-           && !_providersComplete)
-    {
-        _providerLimitCondition.wait(_providerLimitConditionMutex);
-    }
-
-    Uint64 interval = TimeValue::getCurrentTime().toMicroseconds() - startTime;
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-       "waitproviderLimitCondition exit state: %s responseCacheSize: %u "
-       "size: %u client closed: %s wait time: %lu us",
-         boolToString((!_clientClosed && (responseCacheSize() < limit))),
-         responseCacheSize(), limit, boolToString(_clientClosed),
-         (long unsigned int)interval ));
-
-    _providerLimitConditionMutex.unlock();
-    PEG_METHOD_EXIT();
-}
-
-void EnumerationContext::signalProviderLimitCondition()
+void EnumerationContext::signalProviderWaitCondition()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::signalProviderLimitCondition");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-    AutoMutex autoMut(_providerLimitConditionMutex);
+    AutoMutex autoMut(_providerWaitConditionMutex);
 
-    _providerLimitCondition.signal();
+    _providerWaitCondition.signal();
 
     PEG_METHOD_EXIT();
 }
@@ -619,7 +582,7 @@ bool EnumerationContext::setNextEnumerationState(bool errorFound)
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP DELETE
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TODO EXP_PULL_TEMP DELETE
     "setNextEnumerationState. "
     "ContextId=%s "
     "Complete test=%s "
@@ -658,16 +621,19 @@ void EnumerationContext::setClientClosed()
 
     _clientClosed = true;
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TODO EXP_PULL_TEMP
         "setClientClosed. ContextId=%s ",
         (const char*)getContextId().getCString() ));
 
-    trace(); // KS_TODO Delete this and above temp diagnostic only
+    //// trace(); // KS_TODO Delete this and above temp diagnostic only
+    // Clear any existing responses out of the cache.  The will never
+    // be used.
+    _responseCache.clear();
 
     if (!_providersComplete)
     {
-        // Signal the limit on provider responses in case it is in wait
-        signalProviderLimitCondition();
+        // Signal that cache size has dropped.
+        signalProviderWaitCondition();
     }
 }
 
@@ -682,10 +648,10 @@ void EnumerationContext::setProcessingState(bool state)
     PEGASUS_DEBUG_ASSERT(valid());
     PEGASUS_DEBUG_ASSERT(_processing != state);
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TODO EXP_PULL_TEMP
         "setProcessingState. ContextId=%s nextProcessingStat=%s",
         (const char*)getContextId().getCString(),
-        (state? "active" : "not active") ));
+        (state? "active" : "inactive") ));
 
     _processing = state;
     if (_processing)

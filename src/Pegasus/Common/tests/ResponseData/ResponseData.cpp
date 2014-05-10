@@ -37,6 +37,7 @@
 #include <Pegasus/Common/SCMOClassCache.h>
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/Buffer.h>
 
 
 PEGASUS_USING_PEGASUS;
@@ -130,17 +131,17 @@ void test02()
     crd1.appendInstances(CIMInstArray);
 
     PEGASUS_TEST_ASSERT(crd1.valid());
-    cout << crd1.size() << endl;
+    VCOUT << crd1.size() << endl;
     PEGASUS_TEST_ASSERT(crd1.size() == 5);
 
     CIMResponseData crdTo = CIMResponseData(CIMResponseData::RESP_INSTANCES);
 
-    cout << "Before from =  " << crd1.size() << ", to = "
+    VCOUT << "Before from =  " << crd1.size() << ", to = "
         << crdTo.size() << endl;
 
     PEGASUS_TEST_ASSERT(crdTo.valid());
     Uint32 rtn = crdTo.moveObjects(crd1, 3);
-    cout << "After from = " <<  crd1.size() << ", to = "
+    VCOUT << "After from = " <<  crd1.size() << ", to = "
         << crdTo.size() << endl;
 
     PEGASUS_TEST_ASSERT(crdTo.valid());
@@ -151,10 +152,10 @@ void test02()
     PEGASUS_TEST_ASSERT(crdTo.size() == 3);
 
     CIMResponseData crdTo2 = CIMResponseData(CIMResponseData::RESP_INSTANCES);
-    cout << "Before from =  " << crd1.size() << ", to = "
+    VCOUT << "Before from =  " << crd1.size() << ", to = "
         << crdTo2.size() << endl;
     Uint32 rtn2 = crdTo2.moveObjects(crd1, 9);
-    cout << "After from = " <<  crd1.size() << ", to = "
+    VCOUT << "After from = " <<  crd1.size() << ", to = "
         << crdTo2.size() << endl;
     PEGASUS_TEST_ASSERT(rtn2 ==2);
     PEGASUS_TEST_ASSERT(crd1.size() == 0);
@@ -174,53 +175,56 @@ void test02()
 
     crd2.appendInstance(CIMInst1);
 
-    cout << crd2.size() << endl;
+    VCOUT << crd2.size() << endl;
     PEGASUS_TEST_ASSERT(crd2.size() == 3);
 
     crd2.appendSCMO(SCMOInstArray);
     PEGASUS_TEST_ASSERT(crd2.valid());
 
-    cout << crd2.size() << endl;
+    VCOUT << crd2.size() << endl;
     PEGASUS_TEST_ASSERT(crd2.size() == 5);
 
-    // Redo starting with setXML
+    // Test XML formatting.
 
-//    CIMResponseData crd3 = CIMResponseData(CIMResponseData::RESP_INSTANCES);
-//const String
-//   TESTCSINSTXML("/src/Pegasus/Common/tests/SCMO/CIMComputerSystemInst.xml");
-//    Buffer text;
-//    String TestCSInstXML (getenv("PEGASUS_ROOT"));
-//
-//    TestCSInstXML.append(TESTCSINSTXML);
-//
-//    FileSystem::loadFileToMemory(
-//        text,(const char*)TestCSInstXML.getCString());
-//
-//
-//    CIMInstance CIM_CSInstance;
-//    XmlParser theParser2((char*)text.getData());
-//    XmlReader::getObject(theParser2,CIM_CSInstance);
-//
-//    CIMBuffer b((char*)text.getData(),text.size());
-//
-//    PEGASUS_TEST_ASSERT(crd3.setXml(b));
-//    PEGASUS_TEST_ASSERT(crd3.size() == 1);
+    CIMResponseData crd3 = CIMResponseData(CIMResponseData::RESP_INSTANCES);
 
-// local method to execute move method and test results.
+    // set CIM instances into the responseData.
+    crd3.appendInstances(CIMInstArray);
+
+    VCOUT << "crd3 size " << crd3.size() << endl;
+    PEGASUS_TEST_ASSERT(crd3.size() == 2);
+
+    // KS_TODO the following causes a segmentation error. Not sure why
+////  Buffer buf1;
+////  crd3.encodeXmlResponse(buf1, true);
+////  The following does not
+////  Buffer buf1;
+////  crd3.encodeXmlResponse(buf1, true);
+
+    CIMBuffer bufa;
+    crd3.encodeInternalXmlResponse(bufa, true);
+    CIMBuffer bufb;
+    crd3.encodeInternalXmlResponse(bufb, false);
+////
+////  CIMResponseData crd4 = CIMResponseData(CIMResponseData::RESP_INSTANCES);
+////  PEGASUS_TEST_ASSERT(crd4.setXml(bufa));
+////  cout << "crd4 size: " << crd4.size() << endl;
+////  PEGASUS_TEST_ASSERT(crd4.size() == 4);
+
 }
 bool testMoveObjects(CIMResponseData& crdTo,
     CIMResponseData& crdFrom, Uint32 count)
 {
     Uint32 origFromSize = crdFrom.size();
     Uint32 origToSize = crdTo.size();
-    cout << "Before Move from = " << crdFrom.size() << ", to = "
+    VCOUT << "Before Move from = " << crdFrom.size() << ", to = "
         << crdTo.size() << " count =" << count << endl;
 
     Uint32 rtn = crdTo.moveObjects(crdFrom, count);
 
     PEGASUS_TEST_ASSERT(crdTo.valid());
 
-    cout << "After Move  from.size() = " <<  crdFrom.size()
+    VCOUT << "After Move  from.size() = " <<  crdFrom.size()
          << ", to.size() = " << crdTo.size()
          << " count =" << count
          << "rtn count = " << rtn << endl;
@@ -313,12 +317,11 @@ void testMoveMethod01()
         PEGASUS_TEST_ASSERT(crdFrom.size() == 2);
         PEGASUS_TEST_ASSERT(crdTo.size() == 2);
 
-        // request move of more that exists.  Moves all r
+        // request move of more that exists.  Moves all
         CIMResponseData crdTo1 = CIMResponseData(
             CIMResponseData::RESP_INSTANCES);
         PEGASUS_TEST_ASSERT(testMoveObjects(crdTo1, crdFrom, 8));
         PEGASUS_TEST_ASSERT(crdFrom.size() == 0);
-        cout << "Error: bad size() = " << crdTo1.size() << endl;
         PEGASUS_TEST_ASSERT(crdTo1.size() == 2);
     }
 
@@ -345,7 +348,7 @@ void testMoveMethod01()
             CIMResponseData::RESP_INSTANCES);
         PEGASUS_TEST_ASSERT(testMoveObjects(crdTo1, crdFrom, 8));
         PEGASUS_TEST_ASSERT(crdFrom.size() == 0);
-        cout << "Error: bad size() = " << crdTo1.size() << endl;
+        VCOUT << "Error: bad size() = " << crdTo1.size() << endl;
         PEGASUS_TEST_ASSERT(crdTo1.size() == 0);
     }
 
@@ -506,6 +509,61 @@ void testSizeMethod()
     }
 
 }
+void testClearMethod()
+{
+    // Test with a variety of object types in the From ResponseData
+    // Build the class
+    CIMClass CIMclass1 = buildClass();
+
+    // Build a CIM Instance. NOTE: key is defaulted in class
+
+    CIMInstance CIMInst1 = CIMclass1.buildInstance(true, true,
+                                                   CIMPropertyList());
+
+        // Clone the instance and change key
+    CIMInstance CIMInst2 = CIMInst1.clone();
+    setPropertyValue(CIMInst2, "id", 2);
+
+    CIMInstance CIMInst3 = CIMInst1.clone();
+    setPropertyValue(CIMInst3, "id", 3);
+    CIMInstance CIMInst4 = CIMInst1.clone();
+    setPropertyValue(CIMInst4, "id", 4);
+
+    // build CIMInstance array
+    Array<CIMInstance> CIMInstArray;
+    CIMInstArray.append(CIMInst1);
+    CIMInstArray.append(CIMInst2);
+    CIMInstArray.append(CIMInst3);
+    CIMInstArray.append(CIMInst4);
+
+    // Create CIMReponseData object
+    CIMResponseData crd = CIMResponseData(CIMResponseData::RESP_INSTANCES);
+
+    // Append an array of CIMInstances
+    crd.appendInstances(CIMInstArray);
+    PEGASUS_TEST_ASSERT(crd.size() == 4);
+
+    // Build SCMO instances
+    SCMOClass SCMO_CSClass(CIMclass1);
+
+    VCOUT << "Creating SCMOInstance from CIMInstance" << endl;
+    SCMOInstance SCMO_CSInstance3(SCMO_CSClass,CIMInst3);
+    SCMOInstance SCMO_CSInstance4(SCMO_CSClass,CIMInst4);
+
+    // Create array of 2 SCMO Instances
+    Array<SCMOInstance> SCMOInstArray;
+    SCMOInstArray.append(SCMO_CSInstance3);
+    SCMOInstArray.append(SCMO_CSInstance4);
+    crd.appendSCMO(SCMOInstArray);
+
+    PEGASUS_TEST_ASSERT(crd.size() == 6);
+
+    crd.clear();
+
+    PEGASUS_TEST_ASSERT(crd.size() == 0);
+}
+
+
 int main (int argc, char *argv[])
 {
 
@@ -517,20 +575,21 @@ int main (int argc, char *argv[])
     {
         testSizeMethod();
         testMoveMethod01();
+        testClearMethod();
         test02();
 
     }
     catch (CIMException& e)
     {
-        cout << endl << "CIMException: " ;
-        cout << e.getMessage() << endl << endl ;
+        cerr << endl << "CIMException: "
+             << e.getMessage() << endl << endl ;
         exit(-1);
     }
 
     catch (Exception& e)
     {
-        cout << endl << "Exception: " ;
-        cout << e.getMessage() << endl << endl ;
+        cout << endl << "Exception: "
+             << e.getMessage() << endl << endl ;
         exit(-1);
     }
     catch (...)

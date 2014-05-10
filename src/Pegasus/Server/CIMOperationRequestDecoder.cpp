@@ -137,8 +137,8 @@ void _throwCIMExceptionRequiredDoesNotExist(const String& name)
     "Required parameter \"$0\" missing from request.", name));
 }
 
-// KS_TODO - Original function. Issues message with no name attached.
-// We want to get rid of this one completely
+// FUTURE - Issues message with no name attached.
+// We want to get rid of this one completely but there are some calls
 void _testRequiredParametersExist(Boolean exist)
 {
     if (!exist)

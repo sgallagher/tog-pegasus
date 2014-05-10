@@ -2206,6 +2206,31 @@ void CIMResponseData::setIsClassOperation(Boolean b)
     _isClassOperation = b;
 }
 
+// Clear all of the input encodings by clearing their arrays and
+// unsetting the encoding flag.
+void CIMResponseData::clear()
+{
+    // Clear the xml data area
+    _referencesData.clear();
+    _hostsData.clear();
+    _nameSpacesData.clear();
+    _instanceData.clear();
+
+    // Clear the binary data area
+    _binaryData.clear();
+
+    // Clear the SCMO data
+    _scmoInstances.clear();
+
+    //Clear the C++ Data areaa
+    _instanceNames.clear();
+    _instances.clear();
+    _objects.clear();
+
+    _encoding = 0;
+    _size = 0;
+}
+
 //// KS_TODO Remove. Diagnostic Displays below before commit to head
 void CIMResponseData::traceResponseData()
 {

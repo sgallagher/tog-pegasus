@@ -215,11 +215,6 @@ EnumerationContext* EnumerationContextTable::createContext(
         PEGASUS_ASSERT(false);  // This is a system failure
     }
 
-    // KS_TODO DELETE. Delete this trace before checkin.  There is
-    // a better trace on the enumerationContext constructor.
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "CreateContext created ContextId=%s", contextId));
-
     _enumerationContextsOpened++;
 
     // set new highwater mark for max contexts if necessary
@@ -296,10 +291,6 @@ bool EnumerationContextTable::releaseContext(EnumerationContext* en)
     PEGASUS_DEBUG_ASSERT(valid());
     PEGASUS_DEBUG_ASSERT(en->valid());
 
-////  PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////      "EnumerationContextLock unlock %s",  // KS_TODO DELETE
-////      (const char*)en->getContextId().getCString()));
-
     String contextId = en->getContextId();
 
     en->unlockContext();
@@ -356,17 +347,17 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
 
         enumContextTable.remove(en->getContextId());
 
-        // KS_TODO - Confirm no reason to clear cache.  Responses should
-        // be cleared since they are smart pointers and cach is in
-        // the enum context.
-        if (en->responseCacheSize() != 0)
-        {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-                "WARNING. Cache != 0 EnumerationContext Remove. ContextId=%s "
-                " items in cache =%u",
-                (const char *)en->getContextId().getCString(),
-                en->responseCacheSize() ));
-        }
+////      // KS_TODO - Confirm no reason to clear cache.  Responses should
+////      // be cleared since they are smart pointers and cach is in
+////      // the enum context.
+////      if (en->responseCacheSize() != 0)
+////      {
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+////              "WARNING. Cache != 0 EnumerationContext Remove. ContextId=%s "
+////              " items in cache =%u",
+////              (const char *)en->getContextId().getCString(),
+////              en->responseCacheSize() ));
+////      }
 
         // Delete the enumerationContext object
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
@@ -378,15 +369,15 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
         PEG_METHOD_EXIT();
         return true;
     }
-    else
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP TODO
-            "_removeContext ERROR %s  _providersComplete=%s"
-                "  clientClosed=%s",
-            (const char *)en->getContextId().getCString(),
-            boolToString(en->_providersComplete),
-            boolToString(en->_clientClosed) ));
-    }
+////  else
+////  {
+////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP TODO
+////          "_removeContext ERROR %s  _providersComplete=%s"
+////              "  clientClosed=%s",
+////          (const char *)en->getContextId().getCString(),
+////          boolToString(en->_providersComplete),
+////          boolToString(en->_clientClosed) ));
+////  }
     PEG_METHOD_EXIT();
     return false;
 }
@@ -441,8 +432,7 @@ bool EnumerationContextTable::removeExpiredContexts()
     Array<String> removeList;
 
     Uint64 currentTimeUsec = System::getCurrentTimeUsec();
-    // KS_TODO Remove this variable.  Used to help find crash.
-////   cout << "Expired test. Table size = " << size() << endl;
+
     // Search enumeration table for entries timed out
     for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
     {
@@ -458,16 +448,10 @@ bool EnumerationContextTable::removeExpiredContexts()
                 // locked
                 if (en->tryLockContext())
                 {
-////                  PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////                      "EnumerationContextLock lock %s",
-////                             (const char*)en->getContextId().getCString()));
-////                  cout << "locked " << en->getContextId() << endl;
                     // test if entry is active (timer not zero)
                     if (en->isTimedOut(currentTimeUsec))
                     {
-////                       cout << "timed out " << en->getContextId() << endl;
                         en->stopTimer();
-                        // Force the client closed so nothing more accepted.
                         en->setClientClosed();
                         _enumerationsTimedOut++;
 
@@ -476,33 +460,16 @@ bool EnumerationContextTable::removeExpiredContexts()
                         // clean up the enumeration
                         if (en->providersComplete())
                         {
-////                          PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////                              "EnumerationContextLock unlock %s",
-////                             (const char*)en->getContextId().getCString()));
-
-                            // Insert in list to remove after this loop
                             removeList.append(en->getContextId());
                         }
                         else
                         {
-////                           cout << "Not timed out" << en->getContextId()
-////                                 << endl;
                             // depend on provider completion to close context.
-////                          PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////                          "EnumerationContextLock unlock %s Providers"
-////                              " not Complete",
-////                          (const char*)en->getContextId().getCString()));
                             en->unlockContext();
                         }
                     }
                     else
                     {
-////                       cout << "not timed out " <<en->getContextId()
-////                            << endl;
-////                      PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-////                          "EnumerationContextLock unlock %s Not"
-////                          " Timed Out",
-////                          (const char*)en->getContextId().getCString()));
                         en->unlockContext();
                     }
                 }

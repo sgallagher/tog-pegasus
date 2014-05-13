@@ -1090,15 +1090,14 @@ Boolean compareInstances(const String& s1, const String s2,
 
     _Sort(inst1);
     _Sort(inst2);
-    //// TODO. We need to account that if there was a size difference
-    //// above inst1 may not be the largest and that we may not have
-    //// equal paths.
 
-    ConstArrayIterator<CIMInstance> iterator(inst1);
-    for (Uint32 i = 0 ; i < iterator.size() ; i++)
+    // Compare based on size of smallest array
+    Uint32 loopSize = (inst1.size() > inst2.size())?inst1.size() : inst2.size();
+
+    for (Uint32 i = 0 ; i < loopSize ; i++)
     {
         bool localRtn = compareInstance(s1, s2,
-            iterator[i], inst2[i], true, verbose);
+            inst1[i], inst2[i], true, verbose);
 
         if (!localRtn)
         {
@@ -1202,7 +1201,11 @@ Boolean compareInstances(const String& s1, const String s2,
     // returned with same ordering.
     _Sort(instances);
     _Sort(objects);
-    for (Uint32 i = 0 ; i < instances.size() ; i++)
+
+    Uint32 loopSize = instances.size() > objects.size()?
+        instances.size() : objects.size();
+
+    for (Uint32 i = 0; i < loopSize; i++)
     {
         CIMInstance instLocal = (CIMInstance)objects[i];
         bool localRtn = compareInstance(s1, s2,

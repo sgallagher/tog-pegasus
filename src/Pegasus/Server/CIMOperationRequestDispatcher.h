@@ -928,7 +928,7 @@ protected:
     things like this, simply return no objects.  On the other hand
     This is a real boundary condition for the server where the
     repository is not to be used and there are NO providers registered.
-    TODO - Check if this is really valid
+    KS_TODO - Check if this is really valid
 */
     Boolean _checkNoProvidersOrRepository(CIMOperationRequestMessage* request,
         Uint32 providerCount, const CIMName& className);

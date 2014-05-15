@@ -146,14 +146,10 @@ Boolean OperationAggregate::valid() const
 */
 void OperationAggregate::appendResponse(CIMResponseMessage* response)
 {
-    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());
     AutoMutex autoMut(_appendResponseMutex);
-    PEGASUS_ASSERT(response != 0);       /// KS_TEMP
+    PEGASUS_DEBUG_ASSERT(response != 0);
     _responseList.append(response);
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses = %u append. Size before = %u",
-        (Uint32)_responseList.size(), _responseList.size() ));
 }
 
 
@@ -164,45 +160,38 @@ void OperationAggregate::appendResponse(CIMResponseMessage* response)
 
 Uint32 OperationAggregate::numberResponses() const
 {
-    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP TODO
+    PEGASUS_DEBUG_ASSERT(valid());
 
     return _responseList.size();
 }
 
 CIMResponseMessage* OperationAggregate::getResponse(const Uint32& pos)
 {
-    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());
     AutoMutex autoMut(_appendResponseMutex);
     CIMResponseMessage* msg = _responseList[pos];
-    //// TODO remove this diagnostic trace.
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses = %u get # %u", _responseList.size(), pos ));
 
     return msg;
 }
 
 CIMResponseMessage* OperationAggregate::removeResponse(const Uint32& pos)
 {
-    PEGASUS_DEBUG_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_DEBUG_ASSERT(valid());
     AutoMutex autoMut(_appendResponseMutex);
-    Uint32 tmpsize = _responseList.size();
-    CIMResponseMessage* tmp = _responseList[pos];
+    CIMResponseMessage* msg = _responseList[pos];
     _responseList.remove(pos);
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "numberResponses = %u remove # %u size before %u",
-        _responseList.size(),
-        pos, tmpsize));
-    return tmp;
+    return msg;
 }
 
 void OperationAggregate::deleteResponse(const Uint32&pos)
 {
-    PEGASUS_ASSERT(valid());   // KS_TEMP;
+    PEGASUS_ASSERT(valid());
     AutoMutex autoMut(_appendResponseMutex);
     delete _responseList[pos];
     _responseList.remove(pos);
 
+    // KS_TODO Remove this diagnostic
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "numberResponses == %u delete # %u", _responseList.size(), pos ));
 }
@@ -219,13 +208,12 @@ void OperationAggregate::deleteResponse(const Uint32&pos)
 
 void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 {
-    static const char* func = "OperationAggregate::resequenceResponse";
+//  static const char* func = "OperationAggregate::resequenceResponse";
 
     //// KS_TODO_ This trace is temporary. TEMP
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "%s: response MsgType = %s StatusCode = %s. "
+        "Response MsgType= %s StatusCode = %s. "
         "Namespace: %s, Class name: %s, ",
-        func,
         MessageTypeToString(response.getType()),
         cimStatusCodeToString(response.cimException.getCode()),
         CSTRING(_nameSpace.getString()),
@@ -247,23 +235,23 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
         // trace the error including the provider name
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "%s: Response has error.  Namespace: %s, Class name: %s, "
+            "Response has error.  Namespace: %s, Class name: %s, "
                 "Response Sequence: %u",
-            func,
             CSTRING(_nameSpace.getString()),
             CSTRING(_className.getString()),
             _totalReceived ));
     }
 
     Boolean isComplete = response.isComplete();
-// KS_PULLOP_TEMP TRACE
+
+    // KS_TODO PULLOP_TEMP TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "%s resequenceinfo index %u "
         "totalResponsesReceivedComplete = %u. _totalReceivedExpected = %u "
         "provider isComplete %s "
         "_totalIssued %u "
         "response.getIndex() %u",
-        func,response.getIndex(),
+        response.getIndex(),
         _totalReceivedComplete,
         _totalReceivedExpected,
         boolToString(isComplete),
@@ -276,10 +264,11 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         _totalReceivedComplete++;
         _totalReceivedExpected += response.getIndex() + 1;
 
+        //// KS_TODO Remove this trace diagnostic
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "%s resequence isComplete."
+            "resequence isComplete."
             "totalResponsesReceivedComplete = %u. _totalReceivedExpected = %u",
-            func, _totalReceivedComplete, _totalReceivedExpected ));
+            _totalReceivedComplete, _totalReceivedExpected ));
     }
 
     response.setIndex(_totalReceived++);
@@ -303,7 +292,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         if (_totalReceivedExpected == _totalReceived)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "%s: Message is complete.  Total responses: %u, "
+                "Message is complete.  Total responses: %u, "
                     "total chunks: %u, total errors: %u",
                 "OperationAggregate::resequenceResponse",
                 _totalReceivedComplete,
@@ -332,12 +321,12 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         if ((_totalReceivedErrors != _totalReceivedNotSupported ||
             _totalReceivedErrors != _totalReceived) && notSupportedReceived)
         {
-            //// KS TEMP TODO this trace is diagnostic.  Remove before release
+            //// KS_TODO this trace is diagnostic.  Remove before release
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // TODO KS_TEMP
-                "%s: set CIMException  isComplete: %s Total responses: %u, "
+                "Set CIMException  isComplete: %s Total responses: %u, "
                     "total chunks: %u, total errors: %u totalIssued: %u "
                     "totalReceivedNotSupported: %u notSupportedReceived %s",
-                func, boolToString(isComplete),
+                boolToString(isComplete),
                 _totalReceivedComplete,
                 _totalReceived,
                 _totalReceivedErrors,
@@ -347,14 +336,14 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
             response.cimException = CIMException();
         }
-        //// KS_TODO TBD - This else and display is all very temporary
+        //// KS_TODO - This else and display is all temporary
         else
         {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // TODO KS_TEMP
-                "%s: set CIMException  isComplete: %s Total responses: %u, "
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Set CIMException  isComplete: %s Total responses: %u, "
                     "total chunks: %u, total errors: %u totalIssued: %u "
                     "totalReceivedNotSupported: %u notSupportedReceived %s",
-                func, boolToString(isComplete),
+                boolToString(isComplete),
                 _totalReceivedComplete,
                 _totalReceived,
                 _totalReceivedErrors,
@@ -501,15 +490,17 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
         "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
 
     //
-    // Setup enable AssociationTraversal parameter.  Determines whether
-    // Association operations are allowed.
+    // Setup enable AssociationTraversal parameter from runtime configuration.
+    // Determines whether association operations are allowed.
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
     _enableAssociationTraversal = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableAssociationTraversal"));
 
-    //  Set up maximum breadth of Enums parameter.  Determines maximum
+    //
+    //  Set up maximum breadth of Enums parameter from define.
+    //  Determines maximum
     //  classes that can particpate in an enumeration.  Can be used to
     //  limit size of enumerations, associations, etc. to a maximum number
     //  of providers
@@ -539,7 +530,8 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // As part of disabling the test for now, we set to very large number.
     _maximumEnumerateBreadth = 1000;
 #endif
-
+    // setup PULL_OPERATION_MAXIMUM_OBJECT_COUNT from define
+    // TODO bug 98xx will make the a config parameter
     // Define the maximum number of objects that the server will return for a
     // single pull... or open... operation. (Objects can be instances or
     // CIMObjectPaths  depending on the operation.
@@ -550,7 +542,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // Default setting if nothing supplied externally
     _systemMaxPullOperationObjectCount = 1000;
 #endif
-
+    // setup responseSizeMaximumSize from internal define
     // Define the maximum size for the response cache in each
     // enumerationContext.  As responses are returned from providers this is the
     // maximum number that can be placed in the CIMResponseData cache waiting
@@ -564,9 +556,14 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // responses because they are probably much smaller.
     // This variable is not externalized because we are not sure
     // if that is logical.
+#define RESPONSE_CACHE_DEFAULT_MAXIMUM_SIZE 1000
 
-    Uint32 responseCacheDefaultMaximumSize = 1000;
+    Uint32 responseCacheDefaultMaximumSize =
+        RESPONSE_CACHE_DEFAULT_MAXIMUM_SIZE;
 
+    //
+    // setup PullOperationMaxTimeout, System limit on maximum interoperation
+    // time.
     // Define maximum pull interoperation timeout value.  This defines
     // the maximum value for operationTimeout that will be accepted by
     // Pegasus. Anything larger than this will be rejected with the
@@ -575,21 +572,22 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // of an enumeration sequence and the  recipt of the next request.
     // The server must maintain the context for at least the time defined in
     // this value.
-    #ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
+#ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
       _pullOperationMaxTimeout =
           PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
-    #else
+#else
       _pullOperationMaxTimeout = 90;
-    #endif
+#endif
 
-// Define the default value for timeout if the operationtimeout value received
-// in a request is NULL.  This is the server defined default.
+    //
+    // setup Default Pull Operation interoperation timeout
+    // Define the default value for timeout if the operationtimeout value
+    // received  in a request is NULL.  This is the server defined default.
+    //
 #define PULL_OPERATION_DEFAULT_TIMEOUT 30
 
-    enumerationContextTable.setContextDefaultParameters(
-        PULL_OPERATION_DEFAULT_TIMEOUT,
-        responseCacheDefaultMaximumSize);
-
+    // setup definition of whether server will accept Open operations
+    // that have zero as timeout value
     // Define  variable that controls whether we allow 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
     // that the server maintains no timer for the context, it may be the
@@ -602,6 +600,11 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // Default setting if nothing supplied externally
     _rejectZeroOperationTimeoutValue = false;
 #endif
+
+    // set the configuration parameters into the enumerationContextTable
+    enumerationContextTable.setContextDefaultParameters(
+        PULL_OPERATION_DEFAULT_TIMEOUT,
+        responseCacheDefaultMaximumSize);
 
     //
     // Setup list of provider modules that will be excluded from normalization
@@ -1036,15 +1039,10 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
 
             EnumerationContext* en = poA->_enumerationContext;
 
-            // The following is test and validation code
-            // KS_TODO remove all of this before release
-            PEGASUS_DEBUG_ASSERT(en->valid()); // KS_TEMP
-            enumerationContextTable.valid();    // KS_TEMP
-
             // If this is an exception set the error in EnumerationContext
             if (response->cimException.getCode())
             {
-                // KS TEMP TODO remove this diagnostic
+                // KS_TODO remove this diagnostic
                 PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                     "Enumeration Set Error  msg = %s exception = %s ",
                     MessageTypeToString(response->getType()),
@@ -1900,16 +1898,18 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
 
     // After resequencing, this flag represents the completion status of
     // the ENTIRE response to the request.
-    if (poA->_pullOperation)                      // KS_TEMP
+    // KS_TODO this is a temporary diagnostic. Remove before release
+    if (poA->_pullOperation)
     {
-        PEGASUS_DEBUG_ASSERT(poA->_enumerationContext); //KS_TEMP
+        PEGASUS_DEBUG_ASSERT(poA->_enumerationContext);
     }
 
     Boolean entireResponseIsComplete = service->_enqueueResponse(poA, response);
 
     if (entireResponseIsComplete)
     {
-        // also deletes the copied request attached to it //// TODO temp
+        // KS_TODO remove diagnostic
+        // delete the copied request attached to it
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "Provider response complete. isPull %s",
             boolToString(poA->_pullOperation)));
@@ -1917,14 +1917,8 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
         delete poA;
         poA = 0;
     }
-////  else
-////  {
-////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,   //// TODO temp
-////      "Provider response not complete. isPull %s",
-////          boolToString(poA->_pullOperation) ));
-////  }
 
-    // KS_TODO duplicated trace between here and above.
+    // KS_TODO Probably Delete duplicated trace between here and above.
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "Provider thisResponse = %s. Entire response = %s",
         (thisResponseIsComplete? "complete": "incomplete"),
@@ -2772,7 +2766,7 @@ bool CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
     if (filterQueryLanguageParam.size() != 0 &&
             filterQueryParam.size() == 0)
     {
-        // KS-TODO internationalize
+        // KS_TODO internationalize
         response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(
@@ -2782,7 +2776,7 @@ bool CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
     else if (filterQueryLanguageParam.size() == 0 &&
             filterQueryParam.size() != 0)
     {
-        // KS-TODO internationalize
+        // KS_TODO internationalize
         response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(
@@ -2793,6 +2787,8 @@ bool CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
             filterQueryParam.size() != 0)
     {
         // KS_TODO - This code is temporary until we add FQL
+        //  Then we test for existence of FQL and let FQL test for
+        // valid query language and query
         response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION(
@@ -3530,6 +3526,7 @@ bool CIMOperationRequestDispatcher::processPullRequest(
         en->setErrorState(cimException);
     }
 
+    // KS_TODO determine if this is worthwhile trace
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
         "%s get from cache. isComplete: %s cacheSize: %u errorState: %s",
        requestName,
@@ -3675,24 +3672,13 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     if (errorFound)
     {
         response->cimException = en->_cimException;
-        // KS_TEMP TODO remove this diagnostic trace
+        // KS_TODO remove this diagnostic trace
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
             "%s Response Error found. ContextId=%s cimException = %s",
             MessageTypeToString(request->getType()),
             CSTRING(en->getContextId()),
             cimStatusCodeToString(response->cimException.getCode()) ));
     }
-////  else
-////  {
-////      //// KS_TODO Delete this code when we are confident
-////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-////        "%s AppendedResponseData. ContextId=%s  to type %u from "
-////            "toSize %u fromSize %u",
-////        MessageTypeToString(request->getType()),
-////        CSTRING(en->getContextId()),
-////        to.getResponseDataContent(),
-////        to.size(), en->responseCacheSize() ));
-////  }
 
     enumerationContextTable.setRequestSizeStatistics(operationMaxObjectCount);
 
@@ -5587,8 +5573,6 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     //
     poA->setPullOperation(enumerationContext);
 
-    PEGASUS_DEBUG_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
-
     //
     // If repository as instance provider is enabled, get instances
     // from the repository
@@ -5769,8 +5753,6 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     //
     poA->setPullOperation(enumerationContext);
 
-    PEGASUS_DEBUG_ASSERT(enumerationContext->valid());  // EXP_PULL_TEMP
-
     // gather up the repository responses and send it to out as one response
     // with many instances
     //
@@ -5902,9 +5884,10 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         return true;
     }
 
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TEMP
-        "OpenReferenceInstances "
-        "providerCount = %u.", providerInfos.providerCount));
+////  // KS_TODO want single source for this info.
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TEMP
+////      "OpenReferenceInstances "
+////      "providerCount = %u.", providerInfos.providerCount));
 
     //
     // Request the instances from the repository, as necessary.
@@ -6047,7 +6030,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
             new CIMReferencesRequestMessage(*internalRequest),
             poA,
             internalResponse.release());
-
+        // KS_TODO should we eliminate this trace?
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
         "OpenReferenceInstances repository _forwardForAggregation."
         " ProviderCount= %u total issued = %u",
@@ -6153,6 +6136,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
             request->resultClass,
             String::EMPTY);
 
+    // KS_TODO should we eliminate this trace?
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TEMP
         "OpenReferenceInstancePaths "
         "providerCount = %u.", providerInfos.providerCount));
@@ -6186,8 +6170,8 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         // No provider is registered and the repository isn't the
         // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-            "OpenReferenceInstancePaths Rtn Empty."));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "OpenReferenceInstancePaths Return Empty."));
 
         openResponse->endOfSequence = true;
         _enqueueResponse(request, openResponse.release());
@@ -6249,8 +6233,6 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         providerInfos.providerCount,
         true,          // completeHostAndNamespace = false
         false);        // No property list for this operation
-
-    (enumerationContext->valid());  // EXP_PULL_TEMP KS_TODO
 
     //
     // Set Open... operation parameters into the operationAggregate
@@ -6542,7 +6524,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
             new CIMAssociatorsRequestMessage(*internalRequest),
             poA,
             internalResponse.release());
-
+        // KS_TODO should we delete this trace?
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
         "OpenAssociatorInstances repository _forwardForAggregation."
         " ProviderCount= %u total issued = %u",
@@ -6666,6 +6648,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
             request->resultClass,
             String::EMPTY);
 
+    // KS_TODO should we delete this trace?
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TEMP
         "OpenAssociatorInstancePaths "
         "providerCount = %u.", providerInfos.providerCount));
@@ -6703,7 +6686,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         // default.  Return CIM_ERR_NOT_SUPPORTED.
         //
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "OpenAssociatorInstancePaths. No Objects found for %s",
             CSTRING(request->className.getString()) ));
 
@@ -6791,10 +6774,6 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
             new CIMAssociatorNamesRequestMessage(*internalRequest),
             poA,
             internalResponse.release());
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-        "OpenAssociatorInstancePaths 8. ProviderCount = %u",
-        providerInfos.providerCount));
     }
 
     ProviderRequests::issueOpenAssocRequestMsgsToProviders(
@@ -6938,11 +6917,8 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     internalRequest->operationContext = request->operationContext;
     internalRequest->internalOperation = true;
 
-    // AutoPtr to delete enumRequest at end of handler
     AutoPtr<CIMExecQueryRequestMessage> requestDestroyer(internalRequest);
 
-    PEGASUS_ASSERT(enumerationContext->responseCacheSize() == 0);  // KS_TEMP
-    // KS_TODO clean up the void* below
     if (QuerySupportRouter::routeHandleExecQueryRequest(
        this, internalRequest, enumerationContext) == false)
     {
@@ -7153,10 +7129,6 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
     response->cimException = CIMException();
 
     _enqueueResponse(request, response.release());
-
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-       "Close Operation executed Providers Complete= %s",
-       boolToString(providersComplete) ));
 
     PEG_METHOD_EXIT();
     return;

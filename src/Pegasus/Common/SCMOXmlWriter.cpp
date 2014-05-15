@@ -174,7 +174,6 @@ void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
 }
 //EXP_PULL_END
 
-// KS_TODO - Show the XML statement for this function
 void SCMOXmlWriter::appendValueSCMOInstanceElement(
     Buffer& out,
     const SCMOInstance& scmoInstance,

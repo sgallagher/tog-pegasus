@@ -120,8 +120,7 @@ public:
        parameter it must be a valid one.  The alternative would be
        to define an invalid enum but that would cost us in all
        case/if statements. Therefore up to the user to create and
-       then use correctly. KS_TODO fix this so that the empty state
-       is somehow protected.
+       then use correctly.
     */
     CIMResponseData():
         _encoding(0),_mapObjectsToIntances(false), _size(0),
@@ -192,7 +191,8 @@ public:
     void setResponseAttributes(CIMResponseData& from)
     {
         PEGASUS_DEBUG_ASSERT(valid());
-        PEGASUS_ASSERT(_size == 0);      // KS_TODO_TEMP or debug mode.
+        PEGASUS_DEBUG_ASSERT(_size == 0);
+
         _dataType = from._dataType;
         _includeQualifiers = from._includeQualifiers;
         _includeClassOrigin = from._includeClassOrigin;
@@ -292,9 +292,7 @@ public:
     }
 
     // Sets array of CIMObjects into the CIMResponseData
-    //// TODO. We could make this name the common function for
-    //// setObjects.
-    //   NOTE: This was added to provider overloaded
+    // NOTE: This was added to provider overloaded
     //     function for setting arrays of both CIMObject and
     //   CIMObjectPaths from CIMOperationRequestDispatcher
     void setArrayData(const Array<CIMObject>& x)
@@ -490,11 +488,6 @@ private:
     // instances or classes) when the operation is to return class information.
     Boolean _isClassOperation;
     CIMPropertyList _propertyList;
-
-    // Function lock used for debugging cases where there might have been an
-    //  issue  with multithreading and CIMResponseData.
-    //// KS_TODO remove before pull checkin
-    //// Mutex testLock;
 
     // magic number to use with valid function to confirm validity
     // of response data.

@@ -2010,7 +2010,7 @@ void _decodeOpenResponseParamValues(XmlParser& parser,
 
     // KS_TODO -Should the error be INVALID_PARAMETER or XmlValidation since
     // it is really MISSING but this is response so we have generally
-    // used XmlValidationError. Not sure so ignore issue for now. Nov 2013, KS
+    // used XmlValidationError.
     if (!gotEndOfSequence)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
@@ -2143,7 +2143,7 @@ CIMOpenReferenceInstancesResponseMessage*
 {
     XmlEntry entry;
     CIMException cimException;
-    // KS_TODO KS_PULL _CHANGE NAME TO MATCH XML TAG
+
     Array<CIMInstance> namedInstances;
     Boolean endOfSequence = true;
     String enumerationContext = String::EMPTY;
@@ -2613,7 +2613,6 @@ CIMOpenQueryInstancesResponseMessage*
     //// KS_TODO this should be instance without path. We do not have
     //// function for that in XmlReader so we are not compliant.
     ///  KS_TODO modify whole OpenQuery operation for instance w/o path
-    //// NOTE that this impacts the pull also I think.
     _decodeGetInstancesWithPathElement(parser, instances);
 
     // Get the OUT parameters (endOfSequence and enumerationContext)
@@ -2624,7 +2623,7 @@ CIMOpenQueryInstancesResponseMessage*
     msg = new CIMOpenQueryInstancesResponseMessage(
         messageId,
         cimException,
-        CIMClass(),            // Note. KS_TODO not returning queryResultClass
+        CIMClass(),
         endOfSequence,
         enumerationContext,
         QueueIdStack());

@@ -557,10 +557,6 @@ Uint32 CIMResponseData::moveObjects(CIMResponseData & from, Uint32 count)
     else
     {
         from._size = 0;
-        //// KS_TODO Diagnostic since this should never occur
-        PEG_TRACE((TRC_XML, Tracer::LEVEL1,
-            "Size in from set to zero from= %u rtnSize= %u",
-                from._size, rtnSize));
     }
 
     //// KS_TODO diagnostic that we should be able to remove
@@ -580,7 +576,7 @@ Boolean CIMResponseData::hasBinaryData() const
 // Sets the _size variable based on the internal size counts.
 void CIMResponseData::setSize()
 {
-    PEGASUS_DEBUG_ASSERT(valid());            //KS_TEMP KS_TODO
+    PEGASUS_DEBUG_ASSERT(valid());
 
     Uint32 rtnSize = 0;
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
@@ -670,7 +666,6 @@ Uint32 CIMResponseData::size()
         // Cannot resolve this one without actually processing
         // the data since it is a stream.
         rtnSize += 0;
-        //  KS_TODO flag on this one
     }
 
     if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
@@ -705,7 +700,7 @@ Uint32 CIMResponseData::size()
          boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
                               ));
     }
-    PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));
+////  PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));
 #endif
     return _size;
 }
@@ -727,7 +722,6 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
 
     // add all binary data
     _binaryData.appendArray(x._binaryData);
-    // KS_TBD TODO PULL Add the counter incrementer for binary
 
     // add all the C++ stuff
     _instanceNames.appendArray(x._instanceNames);
@@ -741,11 +735,11 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
     _scmoInstances.appendArray(x._scmoInstances);
     _size += x._scmoInstances.size();
 
-    // add Xml encodings
-    // KS_TODO these are temporary. delete before release
-    PEGASUS_ASSERT(x._referencesData.size() == x._instanceData.size());
-    PEGASUS_ASSERT(x._instanceData.size() == x._hostsData.size());
-    PEGASUS_ASSERT(x._instanceData.size() == x._nameSpacesData.size());
+////  // add Xml encodings
+////  // KS_TODO these are temporary. delete before release
+////  PEGASUS_ASSERT(x._referencesData.size() == x._instanceData.size());
+////  PEGASUS_ASSERT(x._instanceData.size() == x._hostsData.size());
+////  PEGASUS_ASSERT(x._instanceData.size() == x._nameSpacesData.size());
 
     _referencesData.appendArray(x._referencesData);
     _instanceData.appendArray(x._instanceData);
@@ -928,16 +922,14 @@ void CIMResponseData::completeHostNameAndNamespace(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::completeHostNameAndNamespace");
 
-    PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(valid());
 
-    Uint32 count = 0;      //// KS_TODO this counter is just diagnostic
-
-        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TODO TEMP
-          "completeHostNameAndNamespace Setting hostName, etc "
-          "host %s ns %s set for dataType=%u encoding=%u isPull=%s",
-              (const char *)hn.getCString(),
-              (const char *)ns.getString().getCString(),
-              _dataType, _encoding, boolToString(isPullOperation) ));
+////  PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TODO TEMP
+////    "completeHostNameAndNamespace Setting hostName, etc "
+////    "host %s ns %s set for dataType=%u encoding=%u isPull=%s",
+////        (const char *)hn.getCString(),
+////        (const char *)ns.getString().getCString(),
+////        _dataType, _encoding, boolToString(isPullOperation) ));
 
     if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
@@ -946,7 +938,6 @@ void CIMResponseData::completeHostNameAndNamespace(
         // -> usage: See resolveBinary()
         _defaultNamespace=ns;
         _defaultHostname=hn;
-        count++;
     }
     // InternalXml does not support objectPath calls
     if ((RESP_ENC_XML == (_encoding & RESP_ENC_XML)) &&
@@ -957,7 +948,6 @@ void CIMResponseData::completeHostNameAndNamespace(
             if (0 == _hostsData[j].size())
             {
                 _hostsData[j]=hn;
-                count++;
             }
             if (_nameSpacesData[j].isNull())
             {
@@ -973,7 +963,6 @@ void CIMResponseData::completeHostNameAndNamespace(
         {
             if (0 == _hostsData[j].size())
             {
-                count++;
                 _hostsData[j]=hn;
             }
             if (_nameSpacesData[j].isNull())
@@ -1006,7 +995,6 @@ void CIMResponseData::completeHostNameAndNamespace(
                         const_cast<CIMObjectPath&>(instance.getPath());
                     if (p.getHost().size()==0)
                     {
-                        count++;
                         p.setHost(hn);
                     }
                     if (p.getNameSpace().isNull())
@@ -1023,7 +1011,6 @@ void CIMResponseData::completeHostNameAndNamespace(
                         const_cast<CIMObjectPath&>(object.getPath());
                     if (p.getHost().size()==0)
                     {
-                        count++;
                         p.setHost(hn);
                     }
                     if (p.getNameSpace().isNull())
@@ -1043,7 +1030,6 @@ void CIMResponseData::completeHostNameAndNamespace(
                     CIMObjectPath& p = _instanceNames[j];
                     if (p.getHost().size() == 0)
                     {
-                        count++;
                         p.setHost(hn);
                     }
                     if (p.getNameSpace().isNull())
@@ -1078,7 +1064,6 @@ void CIMResponseData::completeHostNameAndNamespace(
             {
                 for (Uint32 j = 0, n = _scmoInstances.size(); j < n; j++)
                 {
-                    count++;
                     SCMOInstance & scmoInst=_scmoInstances[j];
                     scmoInst.completeHostNameAndNamespace(
                         hnChars,
@@ -1094,13 +1079,12 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
         }
     }
-    PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TODO TEMP
-      "completeHostNameAndNamespace Set hostName, etc count %u "
-      "host %s ns %s set for dataType=%u encoding=%u isPull=%s",
-          count,
-          (const char *)hn.getCString(),
-          (const char *)ns.getString().getCString(),
-          _dataType, _encoding, boolToString(isPullOperation) ));
+////  PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TODO TEMP
+////    "completeHostNameAndNamespace Set hostName, etc "
+////    "host %s ns %s set for dataType=%u encoding=%u isPull=%s",
+////        (const char *)hn.getCString(),
+////        (const char *)ns.getString().getCString(),
+////        _dataType, _encoding, boolToString(isPullOperation) ));
 
 
     PEG_METHOD_EXIT();
@@ -1150,11 +1134,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                 {
                     if (isPullResponse)
                     {
-                        // KS_TODO these are temporary. delete before release
-                        PEGASUS_ASSERT(a.size() == b.size());
-                        PEGASUS_ASSERT(a.size() == _hostsData.size());
-                        PEGASUS_ASSERT(a.size() == _nameSpacesData.size());
-
                         out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
                         out << STRLIT("<INSTANCEPATH>\n");
                         XmlWriter::appendNameSpacePathElement(out,
@@ -2231,7 +2210,7 @@ void CIMResponseData::clear()
     _size = 0;
 }
 
-//// KS_TODO Remove. Diagnostic Displays below before commit to head
+//// KS_TODO Remove. Diagnostic Displays below before commit to CVS
 void CIMResponseData::traceResponseData()
 {
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,

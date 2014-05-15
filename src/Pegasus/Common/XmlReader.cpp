@@ -1378,7 +1378,6 @@ Boolean XmlReader::getUint64ValueElement(
             "Invalid unsigned integer value");
         throw XmlSemanticError(parser.getLine(), mlParms);
     }
-    //EXP_PULL_QUESTION- Is there even a check for 64 bit too large
 
     if (!StringConversion::checkUintBounds(x, CIMTYPE_UINT64))
     {
@@ -3565,7 +3564,6 @@ Boolean XmlReader::getInstanceWithPathElement(
     CIMObjectPath instanceName;
 
     // Get INSTANCENAME elements:
-//EXP_PULL_Question Should we have new getInstancePathElement??? KS_TODO
     if (!getInstancePathElement(parser, instanceName))
     {
         MessageLoaderParms mlParms(
@@ -3816,7 +3814,7 @@ Boolean XmlReader::getParamValueTag(
 // getIReturnValueTag()
 //
 //------------------------------------------------------------------------------
-////EXP_PULL Think we can get rid of this KS_TODO
+
 Boolean XmlReader::getIReturnValueTag(
     XmlParser& parser,
     const char*& name,
@@ -3894,7 +3892,7 @@ void XmlReader::rejectNullParamValue(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
-// EXP_PULL_TODO_TBD add above message to bundle KS_TODO
+// EXP_PULL_KS_TODO add above message to bundle KS_TODO
 // EXP_PULL_END
 //------------------------------------------------------------------------------
 //

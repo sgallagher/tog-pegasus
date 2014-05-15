@@ -342,22 +342,10 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
         {
             _requestObjectCountHighWaterMark = en->_responseObjectsCount;
         }
-        // KS_TODO Temporary diagnostic trace of enumerateContext internal info
-        en->trace();
+////      // KS_TODO Temp diagnostic trace of enumerateContext internal info
+////      en->trace();
 
         enumContextTable.remove(en->getContextId());
-
-////      // KS_TODO - Confirm no reason to clear cache.  Responses should
-////      // be cleared since they are smart pointers and cach is in
-////      // the enum context.
-////      if (en->responseCacheSize() != 0)
-////      {
-////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
-////              "WARNING. Cache != 0 EnumerationContext Remove. ContextId=%s "
-////              " items in cache =%u",
-////              (const char *)en->getContextId().getCString(),
-////              en->responseCacheSize() ));
-////      }
 
         // Delete the enumerationContext object
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
@@ -369,15 +357,7 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
         PEG_METHOD_EXIT();
         return true;
     }
-////  else
-////  {
-////      PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP TODO
-////          "_removeContext ERROR %s  _providersComplete=%s"
-////              "  clientClosed=%s",
-////          (const char *)en->getContextId().getCString(),
-////          boolToString(en->_providersComplete),
-////          boolToString(en->_clientClosed) ));
-////  }
+
     PEG_METHOD_EXIT();
     return false;
 }
@@ -417,8 +397,8 @@ bool EnumerationContextTable::removeExpiredContexts()
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-    tableValidate(); // KS_TODO delete this.
-    trace(); // KS_TODO delete this.
+////  tableValidate(); // KS_TODO delete this.
+////  trace(); // KS_TODO delete this.
 
     // Lock the EnumerationContextTable so no operations can be accepted
     // during this process
@@ -475,12 +455,6 @@ bool EnumerationContextTable::removeExpiredContexts()
                 }
             }
         }
-        // KS_TODO- DELETE - Following test code only - REMOVE
-        else
-        {
-            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-                "removeExpiredContexts ERROR, invalid context"));
-        }
     }
 
     // Release all EnumerationContexts in list
@@ -499,7 +473,8 @@ bool EnumerationContextTable::removeExpiredContexts()
     return (size() == 0)? true : false;
 }
 
-// Validate every entry in the table. KS_TODO Diagnostic
+// Validate every entry in the table.This is a diagnostic that should only
+// be used in testing changes during development.
 void EnumerationContextTable::tableValidate()
 {
     AutoMutex autoMut(_tableLock);
@@ -508,7 +483,7 @@ void EnumerationContextTable::tableValidate()
         EnumerationContext* en = i.value();
         if (!en->valid())
         {
-            en->trace();             // diagnostic. KS_TEMP
+            en->trace();
             PEGASUS_ASSERT(en->valid());
         }
     }

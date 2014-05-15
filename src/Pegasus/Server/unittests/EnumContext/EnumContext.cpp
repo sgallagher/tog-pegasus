@@ -32,6 +32,7 @@
 #include <iostream>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Server/EnumerationContext.h>
+#include <Pegasus/Server/EnumerationContextTable.h>
 #include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 #include <Pegasus/General/Guid.h>
 #include <Pegasus/Common/Thread.h>
@@ -44,40 +45,40 @@ static Boolean verbose;
 #define VCOUT if (verbose) cout
 
 // Reduce creation of simple context to one line for these tests.
-EnumerationContext* createSimpleContext(EnumerationTable& enumTable,
+EnumerationContext* createSimpleContext(EnumerationContextTable& enumTable,
                                         String& name)
 {
     const CIMNamespaceName ns = "/test/namespace";
     Boolean continueOnError = false;
-    Uint32Arg x = 50;
+    Uint32Arg timeOut = 50;
     EnumerationContext* en = enumTable.createContext(
         ns,
-        x,
+        timeOut,
         continueOnError,
         CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-        CIMResponseData::RESP_INSTANCES,
-        name);
-
+        CIMResponseData::RESP_INSTANCES);
+    name = en->getContextId();
     return en;
 }
 // Create
 void test01()
 {
     VCOUT << "Start test01" << endl;
-    EnumerationTable enumTable(1000);
-
+    EnumerationContextTable enumTable(1000);
+    cout << "line " << __LINE__ << endl;
     String createdContextName1;
-    EnumerationContext* enContext1 = createSimpleContext(enumTable,
+    EnumerationContext* en1 = createSimpleContext(enumTable,
                                                      createdContextName1);
 
-    PEGASUS_TEST_ASSERT(enContext1->cacheSize() == 0);
+    PEGASUS_TEST_ASSERT(en1->responseCacheSize() == 0);
 
     //String createdContextName1 = et.createContext(enContext1);
 
     String createdContextName2;
-    EnumerationContext* enContext2 = createSimpleContext(enumTable,
+    EnumerationContext* en2 = createSimpleContext(enumTable,
                                              createdContextName2);
 
+    cout << "line " << __LINE__ << endl;
     EnumerationContext* enFound2 = enumTable.find(createdContextName2);
 
     PEGASUS_TEST_ASSERT(enFound2->valid());
@@ -89,12 +90,22 @@ void test01()
 
     PEGASUS_TEST_ASSERT(enumTable.size() == 2);
 
-    enumTable.remove(createdContextName1);
-    enumTable.remove(createdContextName2);
+    cout << "line " << __LINE__ << endl;
+    en1->setClientClosed();
+    en1->setProvidersComplete();
 
-    // Does not remove because providers not complete
-    PEGASUS_TEST_ASSERT(enumTable.size() == 2);
+    en2->setClientClosed();
+    en2->setProvidersComplete();
+    en1->lockContext();
+    en2->lockContext();
+    cout << "line " << __LINE__ << endl;
+    enumTable.releaseContext(en1);
+    enumTable.releaseContext(en2);
 
+    cout << "line " << __LINE__ << endl;
+    PEGASUS_TEST_ASSERT(enumTable.size() == 0);
+
+    //enumTable.removeContextTable();
     VCOUT << "EnumTest End test01 successful" << endl;
 }
 
@@ -103,7 +114,7 @@ void test02()
 {
     VCOUT << "Start test02" << endl;
     // Create the enumeration table
-    EnumerationTable enumTable(1000);
+    EnumerationContextTable enumTable(1000);
 
     // Build a large set of contexts
     Uint32 testSize = 1000;
@@ -115,8 +126,7 @@ void test02()
     for (Uint32 i = 0 ; i < testSize ; i++)
     {
         String createdContextName;
-        EnumerationContext* en = createSimpleContext(enumTable,
-                                                 createdContextName);
+        PEGASUS_TEST_ASSERT(createSimpleContext(enumTable,createdContextName));
 
         rtndContextNames.append(createdContextName);
         PEGASUS_TEST_ASSERT(rtndContextNames[i].size() != 0);
@@ -141,12 +151,14 @@ void test02()
     {
         EnumerationContext* en = enumTable.find(rtndContextNames[i]);
         en->setProvidersComplete();
-        enumTable.remove(rtndContextNames[i]);
+        en->setClientClosed();
+        en->lockContext();
+        enumTable.releaseContext(en);
     }
 
     PEGASUS_TEST_ASSERT(enumTable.size() == 0);
 
-    enumTable.clear();
+    enumTable.removeContextTable();
 
     VCOUT << "test02 Complete success" << endl;
 }
@@ -155,7 +167,7 @@ void test02()
 //void test03()
 //{
 //    VCOUT << "Start test03, Test Enumeration Timeouts" << endl;
-//    EnumerationTable enumTable(1000);
+//    EnumerationContextTable enumTable(1000);
 //
 //    String createdContextName;
 //
@@ -230,7 +242,7 @@ void test02()
 //    VCOUT << "Start test03a" << endl;
 //    VCOUT << "Start test03a, Test Multiple Enumeration Timeouts" << endl;
 //
-//    EnumerationTable enumTable(1000);
+//    EnumerationContextTable enumTable(1000);
 //
 //    // Insert multiple context entries into the enumeration table.
 //
@@ -346,56 +358,39 @@ void test04()
     // Create an entry for the cache
 
     // define an EnumerationContext
-    EnumerationTable enumTable(1000);
+    EnumerationContextTable enumTable(1000);
 
     String createdContextName;
     EnumerationContext* en = createSimpleContext(enumTable,
                                                  createdContextName);
 
+    PEGASUS_TEST_ASSERT(createdContextName == en->getContextId());
 
-    // Create an OperationAggregate
-
-    // Create a Response Message
-
-    // Create a set of objects
-
-    Array<CIMInstance> objects;
 
     // Put them into the cache
-
-    //
-
-}
-
-/*
-    Test the guid just to see what it generates and insure that it is unique.
-*/
-
-void test05()
-{
-    VCOUT << "Start test05" << endl;
-
-    Boolean error = false;
-    Array<String> guidArray;
-    for (Uint32 i = 0 ; i < 1000 ; i++)
+    VCOUT << "add response instance to cache" << endl;
+    // Add one instance to cache.  Should not cause wait to end.
+    for (Uint32 i = 0; i < 12; i++)
     {
-        String x = Guid::getGuid();
-        // test for duplicate guid
-        for (Uint32 i = 0 ; i < guidArray.size() ; i++)
         {
-            if (x == guidArray[i])
-            {
-                cout <<"Error, Found duplicate Guid " << x
-                    << " at count " << i << endl;
-                error = true;
-            }
+            QueueIdStack x;
+            CIMEnumerateInstancesResponseMessage* response
+                =  new CIMEnumerateInstancesResponseMessage(
+                    "",
+                    CIMException(),
+                    x);
+
+            en->putCache((CIMResponseMessage*&)response, false);
         }
-        guidArray.append(x);
-//      cout << x << " " << i <<endl;
     }
-    PEGASUS_TEST_ASSERT(!error);
-    VCOUT << "End test05" << endl;
+    //  get from the cache
+    VCOUT << "getCacheResponseData" << endl;
+    CIMResponseData from(CIMResponseData::RESP_INSTANCES);
+    en->getCache(10, from);
+    PEGASUS_TEST_ASSERT(from.size() == 10);
+    enumTable.removeContextTable();
 }
+
 
 // test the cache condition variable functions. This includes thread functions
 // and the test function.
@@ -426,33 +421,33 @@ ThreadReturnType PEGASUS_THREAD_CDECL setProvidersComplete(void * parm)
 // Test ProvidersComplete flag setting and getCacheResponseData
 void test06()
 {
-    EnumerationTable enumTable(1000);
+    VCOUT << "Test06 Started" << endl;
+    EnumerationContextTable enumTable(1000);
 
     // Create an enumeration context
     String enContextIdStr;
     EnumerationContext* en = createSimpleContext(enumTable,
                                                  enContextIdStr);
 
-    PEGASUS_TEST_ASSERT(en->cacheSize() == 0);
+    PEGASUS_TEST_ASSERT(en->responseCacheSize() == 0);
     threadComplete = false;
-    // Create a thread with Enumeration Context as parameter
-    char * param;
+
     Thread * th = new Thread(setProvidersComplete, (void *)en, false);
 
     th->run();
 
-    // call the testCacheSize Condition. Should return only when the
+    // call the testresponseCacheSize Condition. Should return only when the
     // thread has signaled.
-    VCOUT << "getCacheResponseData Wait" << endl;
+    VCOUT << "getCacheResponseData" << endl;
     CIMResponseData from(CIMResponseData::RESP_INSTANCES);
-    en->getCacheResponseData(10, from);
-    VCOUT << "getCacheResponseData Wait return" << endl;
-    PEGASUS_TEST_ASSERT(threadComplete);
+    en->getCache(10, from);
 
     th->join();
     delete th;
+    en->lockContext();
+    enumTable.releaseContext(en);
 }
-ThreadReturnType PEGASUS_THREAD_CDECL setCacheSize(void * parm)
+ThreadReturnType PEGASUS_THREAD_CDECL setresponseCacheSize(void * parm)
 {
     VCOUT << "Thread Start" << endl;
     Thread* my_thread = (Thread *)parm;
@@ -461,20 +456,19 @@ ThreadReturnType PEGASUS_THREAD_CDECL setCacheSize(void * parm)
 
     PEGASUS_ASSERT(enumerationContext->valid());
     QueueIdStack x;
-    VCOUT << "create request" << endl;
-    CIMEnumerateInstancesRequestMessage* request =
-        new CIMEnumerateInstancesRequestMessage(
-            "", CIMNamespaceName(), CIMName(), true, true,
-            true, CIMPropertyList(),x);
+//  VCOUT << "create request" << endl;
+//  CIMEnumerateInstancesRequestMessage* request =
+//      new CIMEnumerateInstancesRequestMessage(
+//          "", CIMNamespaceName(), CIMName(), true, true,
+//          true, CIMPropertyList(),x);
 
-    VCOUT << "Create poA" << endl;
-    OperationAggregate* poA = new OperationAggregate(
-        new CIMEnumerateInstancesRequestMessage(*request),
-            request->getType(),
-            request->messageId,
-            //request->queueIds.top(),
-        0,
-            request->className);
+//  VCOUT << "Create poA" << endl;
+//  OperationAggregate* poA = new OperationAggregate(
+//      new CIMEnumerateInstancesRequestMessage(*request),
+//          request->className,
+//          request->nameSpace,
+//          0,
+//          false, true);
 
     VCOUT << "add response instance to cache" << endl;
     // Add one instance to cache.  Should not cause wait to end.
@@ -485,7 +479,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL setCacheSize(void * parm)
                 CIMException(),
                 x);
 
-        enumerationContext->putCache(poA,(CIMResponseMessage*&)response, false);
+        enumerationContext->putCache((CIMResponseMessage*&)response, false);
     }
     // signal again after setting providersComplete.
     // This one should wake up the condition.
@@ -500,36 +494,36 @@ ThreadReturnType PEGASUS_THREAD_CDECL setCacheSize(void * parm)
                 CIMException(),
                 x);
 
-        enumerationContext->putCache(poA,(CIMResponseMessage*&)response, false);
+        enumerationContext->putCache((CIMResponseMessage*&)response, false);
     }
-    VCOUT << "setCacheSize to 2 items ThreadComplete" << endl;
+    VCOUT << "setresponseCacheSize to 2 items ThreadComplete" << endl;
     return ThreadReturnType(0);
 }
 
 // Test cache size  setting and getCacheResponseData
 void test07()
 {
-    EnumerationTable enumTable(1000);
+    EnumerationContextTable enumTable(1000);
 
     // Create an enumeration context
     String enContextIdStr;
     EnumerationContext* en = createSimpleContext(enumTable,
                                                  enContextIdStr);
 
-    PEGASUS_TEST_ASSERT(en->cacheSize() == 0);
+    PEGASUS_TEST_ASSERT(en->responseCacheSize() == 0);
     threadComplete = false;
     // Create a thread with Enumeration Context as parameter
-    char * param;
-    Thread * th = new Thread(setCacheSize, (void *)en, false);
+//  char * param;
+    Thread * th = new Thread(setresponseCacheSize, (void *)en, false);
 
     th->run();
 
-    // call the testCacheSize Condition. Should return only when the
+    // call the testresponseCacheSize Condition. Should return only when the
     // thread has signaled.
     VCOUT << "getCacheResponseData Wait" << endl;
     CIMResponseData from(CIMResponseData::RESP_INSTANCES);
-    cout << en->cacheSize();
-    en->getCacheResponseData(1, from);
+    cout << en->responseCacheSize();
+    en->getCache(1, from);
     VCOUT << "getCacheResponseData Wait return" << endl;
     PEGASUS_TEST_ASSERT(threadComplete);
 
@@ -537,43 +531,16 @@ void test07()
     delete th;
 }
 
-void testStats()
-{
-    uint32Stats x;
-    for (Uint32 i = 1 ; i <= 100 ; i++)
-    {
-        x.add(i);
-    }
-
-    PEGASUS_ASSERT(x.getHighWaterMark() == 100);
-    PEGASUS_ASSERT(x.getAverage() == 50);
-    PEGASUS_ASSERT(x.getCounter() == 100);
-
-    x.reset();
-    for (Uint32 i = 1 ; i <= 10000 ; i++)
-    {
-        x.add(i);
-    }
-
-    PEGASUS_ASSERT(x.getHighWaterMark() == 10000);
-    PEGASUS_ASSERT(x.getAverage() == 5000);
-    PEGASUS_ASSERT(x.getCounter() == 10000);
-}
 
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    testStats();
     test01();
     test02();
     // Removed because we modified whole timer concept and these no
     // longer work.
 //  test03();
 //  test03a();
-    ////test04();
-    // KS_TBD - For the moment this test always fails because the
-    // guids are all duplicates. Problem with guid generator.
-    ////test05();
 
     // putcache and getResponseCache test functions.  Text the condition
     // variable wait logic.

@@ -1335,6 +1335,8 @@ int pullEnumerateInstances(Options& opts)
             << ", includeClassOrigin = "
                 << boolToString(opts.includeClassOrigin)
             << ", PropertyList = " << opts.propertyList.toString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1344,8 +1346,6 @@ int pullEnumerateInstances(Options& opts)
     _startCommandTimer(opts);
 
     Boolean endOfSequence = false;
-    String filterQueryLanguage = String::EMPTY;
-    String filterQuery = String::EMPTY;
 
     // insure that we do not request more than limit on open
     if (opts.maxObjectsToReceive != 0)
@@ -1367,8 +1367,8 @@ int pullEnumerateInstances(Options& opts)
         opts.deepInheritance,
         opts.includeClassOrigin,
         opts.propertyList,
-        filterQueryLanguage,
-        filterQuery,
+        opts.queryLanguage,
+        opts.query,
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
@@ -1400,6 +1400,8 @@ int pullEnumerateInstancePaths(Options& opts)
         cout << "PullEnumerateInstances "
             << "Namespace = " << opts.nameSpace
             << ", Class = " << opts.className.getString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1409,8 +1411,6 @@ int pullEnumerateInstancePaths(Options& opts)
     _startCommandTimer(opts);
 
     Boolean endOfSequence = false;
-    String filterQueryLanguage = String::EMPTY;
-    String filterQuery = String::EMPTY;
 
     // insure that we do not request more than limit on open
     if (opts.maxObjectsToReceive != 0)
@@ -1427,8 +1427,8 @@ int pullEnumerateInstancePaths(Options& opts)
         endOfSequence,
         opts.nameSpace,
         opts.className,
-        filterQueryLanguage,
-        filterQuery,
+        opts.queryLanguage,
+        opts.query,
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
@@ -1461,6 +1461,8 @@ int pullReferenceInstancePaths(Options& opts)
             << ", ObjectPath= " << opts.getTargetObjectNameStr()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1474,8 +1476,6 @@ int pullReferenceInstancePaths(Options& opts)
     _startCommandTimer(opts);
 
     Boolean endOfSequence = false;
-    String filterQueryLanguage = String::EMPTY;
-    String filterQuery = String::EMPTY;
 
     CIMEnumerationContext enumerationContext;
     Array<CIMObjectPath> paths =
@@ -1485,8 +1485,8 @@ int pullReferenceInstancePaths(Options& opts)
                                 thisObjectPath,
                                 opts.resultClass,
                                 opts.role,
-                                filterQueryLanguage,
-                                filterQuery,
+                                opts.queryLanguage,
+                                opts.query,
                                 opts.pullOperationTimeout,
                                 opts.continueOnError,
                                 opts.maxObjectCount
@@ -1526,6 +1526,8 @@ int pullReferenceInstances(Options& opts)
             << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
             << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
             << ", CIMPropertyList= " << opts.propertyList.toString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1538,8 +1540,6 @@ int pullReferenceInstances(Options& opts)
     _startCommandTimer(opts);
 
     Boolean endOfSequence = false;
-    String filterQueryLanguage = String::EMPTY;
-    String filterQuery = String::EMPTY;
 
     CIMEnumerationContext enumerationContext;
 
@@ -1554,8 +1554,8 @@ int pullReferenceInstances(Options& opts)
         opts.role,
         opts.includeClassOrigin,
         opts.propertyList,
-        filterQueryLanguage,
-        filterQuery,
+        opts.queryLanguage,
+        opts.query,
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
@@ -1591,6 +1591,8 @@ int pullAssociatorInstancePaths(Options& opts)
             << ", assocClass= " << opts.assocClass.getString()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1656,6 +1658,8 @@ int pullAssociatorInstances(Options& opts)
             << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
             << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
             << ", CIMPropertyList= " << opts.propertyList.toString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1669,8 +1673,6 @@ int pullAssociatorInstances(Options& opts)
     _startCommandTimer(opts);
 
     Boolean endOfSequence = false;
-    String filterQueryLanguage = String::EMPTY;
-    String filterQuery = String::EMPTY;
 
     CIMEnumerationContext enumerationContext;
 
@@ -1686,8 +1688,8 @@ int pullAssociatorInstances(Options& opts)
         opts.resultRole,
         opts.includeClassOrigin,
         opts.propertyList,
-        filterQueryLanguage,
-        filterQuery,
+        opts.queryLanguage,
+        opts.query,
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);

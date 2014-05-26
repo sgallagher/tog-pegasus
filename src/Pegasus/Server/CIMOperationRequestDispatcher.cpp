@@ -246,7 +246,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
     // KS_TODO PULLOP_TEMP TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "%s resequenceinfo index %u "
+        "Resequenceinfo index %u "
         "totalResponsesReceivedComplete = %u. _totalReceivedExpected = %u "
         "provider isComplete %s "
         "_totalIssued %u "

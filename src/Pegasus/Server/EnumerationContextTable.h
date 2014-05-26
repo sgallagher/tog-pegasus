@@ -72,31 +72,22 @@ class EnumerationContext;
 class PEGASUS_SERVER_LINKAGE EnumerationContextTable
 {
 public:
-    // KS_TODO regularize relation between max simultaneous and sice of
-    // hash table. Issue is that hash table becomes less efficient the
-    // more entries it gets so should be somewhere near max open size
-    // Now they are set completely separately. Hashtable default is 32
     /**
         Create a new Enumeration Table Object and clear parameters.
         Note that this is a singleton.
         @param maxOpenContexts Uint32 sets limit on maximum number
             of contexts that may be open simultaneously. Note that this number
             may have effect on the Hashtable size which is also set in
-            This header file.
+            this header file.
+        @param  defaultInteroperationTimeoutValue Uint32 default time
+            between operations of a pull sequence if the request has
+            this argument = NULL.
+
+        @param responseCacheMaximumSize Uint32 Maximum number of
+            objects in response queue before it backs up to
+            providers
     */
-    EnumerationContextTable(Uint32 maxOpenContexts);
-
-    /**
-       Set the default parameter values for Pull Operations.
-
-       @param  defaultInteroperationTimeoutValue Uint32 default time
-       between operations of a pull sequence if the request has
-       this argument = NULL.
-
-       @param responseCacheMaximumSize Uint32 Maximum number of
-       objects in response queue before it backs up to providers
-     */
-    void setContextDefaultParameters(
+    EnumerationContextTable(Uint32 maxOpenContexts,
         Uint32 defaultInteroperationTimeoutValue,
         Uint32 reponseCacheMaximumSize);
 
@@ -164,7 +155,7 @@ public:
     bool valid();
 
     // KS_TEMP TODO REMOVE This diagnostic should be removed. It  validates
-    // every entry in the table.
+    // every entry in the table. This was just a diagnostic during development
     void tableValidate();
 
     // Diagnostic to output info on all entries in table to trace
@@ -201,6 +192,13 @@ private:
     // Not protected by mutex.
     bool _removeContext(EnumerationContext* en);
 
+    // Enumeration Context objects are maintained in the following
+    // Pegasus hash table.
+    typedef HashTable<String, EnumerationContext* , EqualFunc<String>,
+        HashFunc<String> > EnumContextTableType;
+
+    EnumContextTableType _enumContextTable;
+
     Mutex _tableLock;
 
     Thread _operationContextTimeoutThread;
@@ -214,7 +212,7 @@ private:
     // Systemwide highwater mark of number of objects in context cache
     Uint32 _cacheHighWaterMark;
 
-    Uint32 _requestObjectCountHighWaterMark;
+    Uint32 _responseObjectCountHighWaterMark;
 
     // Default time interval allowed for interoperation timeout
     // when NULL is specified in the request.

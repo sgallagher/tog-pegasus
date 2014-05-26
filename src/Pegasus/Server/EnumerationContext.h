@@ -483,10 +483,6 @@ private:
     Condition _providerWaitCondition;
     Mutex _providerWaitConditionMutex;
 
-    // Executes a wait  until the conditions of the condition variable are met.
-    // @param size defines the limit at which wait occurs.
-////  void waitProviderWaitCondition(Uint32 limit);
-
     // Signal the condition variable that it should test the
     // providerWaitCondition condition variable.
     void signalProviderWaitCondition();
@@ -513,7 +509,8 @@ private:
     Uint32 _responseObjectsCount;
     Uint32 _requestedResponseObjectsCount;
 
-    Uint64 _startTime;
+    // Enumeration startTime in microseconds
+    Uint64 _startTimeUsec;
     // Max number of objects in the cache.
     Uint32 _cacheHighWaterMark;
 

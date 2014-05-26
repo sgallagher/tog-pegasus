@@ -48,13 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-// Enumeration Context objects are maintained in the following
-// Pegasus hash table.
-typedef HashTable<String, EnumerationContext* , EqualFunc<String>,
-    HashFunc<String> > EnumContextTable;
-
-static EnumContextTable enumContextTable(128);
-
 // Thread execution function for timeoutThread(). This thread executes
 // regular timeout tests on active contexts and closes them or marks them
 // for close if timed out.  This is required for those cases where a
@@ -99,34 +92,31 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimeoutThread(void* parm)
 **  Implementation of EnumerationContextTable Class
 **
 ************************************************************************/
-
-EnumerationContextTable::EnumerationContextTable(Uint32 maxOpenContextsLimit)
+/*
+    Constructor.  Note that the hashtable size is 1/2 the maximum number
+    of simultaneous open contexts.  This was a guess based on notes in
+    the Hashtable code indicating that 1/3 might be logical choice.
+*/
+EnumerationContextTable::EnumerationContextTable(
+    Uint32 maxOpenContextsLimit,
+    Uint32 defaultInteroperationTimeoutValue,
+    Uint32 reponseCacheMaximumSize)
     :
     _timeoutIntervalMsec(0),
+    _enumContextTable(maxOpenContextsLimit / 2),
     _operationContextTimeoutThread(operationContextTimeoutThread, this, true),
-    _responseCacheMaximumSize(0),
+    _responseCacheMaximumSize(reponseCacheMaximumSize),
     _cacheHighWaterMark(0),
-    _requestObjectCountHighWaterMark(0),
-    _defaultOperationTimeoutSec(0),
+    _responseObjectCountHighWaterMark(0),
+    _defaultOperationTimeoutSec(defaultInteroperationTimeoutValue),
     _enumerationContextsOpened(0),
     _enumerationsTimedOut(0),
     _maxOpenContexts(0),
-    _maxOpenContextsLimit(maxOpenContextsLimit)
+    _maxOpenContextsLimit(maxOpenContextsLimit),
+    _requestedSize(0),
+    _requestCount(0)
 {}
 
-/*  Create the Enumeration table and set the values for
-    InteroperationTimeOut and maximum size of the
-    response Cache where objects are gathered from the
-    providers to be distributed as pull client operations
-    are processed.
-*/
-void EnumerationContextTable::setContextDefaultParameters(
-    Uint32 defaultInteroperationTimeoutValue,
-    Uint32 reponseCacheMaximumSize)
-{
-    _responseCacheMaximumSize = reponseCacheMaximumSize;
-    _defaultOperationTimeoutSec = defaultInteroperationTimeoutValue;
-}
 
 /* Remove all contexts and delete them. Only used on system shutdown.
 */
@@ -168,7 +158,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     AutoMutex autoMut(_tableLock);
 
     // Test for Max Number of simultaneous contexts.
-    if (enumContextTable.size() > _maxOpenContextsLimit)
+    if (_enumContextTable.size() > _maxOpenContextsLimit)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "Error EnumerationContext Table exceeded Max limit of %u",
@@ -207,7 +197,7 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     // insert new context into the table. Failure to insert is a
     // system failure
-    if(!enumContextTable.insert(contextId, en))
+    if(!_enumContextTable.insert(contextId, en))
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "Error Creating Enumeration Context %s. System Failed",
@@ -218,9 +208,9 @@ EnumerationContext* EnumerationContextTable::createContext(
     _enumerationContextsOpened++;
 
     // set new highwater mark for max contexts if necessary
-    if (enumContextTable.size() >_maxOpenContexts )
+    if (_enumContextTable.size() >_maxOpenContexts )
     {
-        _maxOpenContexts = enumContextTable.size();
+        _maxOpenContexts = _enumContextTable.size();
     }
 
     PEG_METHOD_EXIT();
@@ -241,9 +231,9 @@ void EnumerationContextTable::displayStatistics(bool clearStats)
             << "\n  Total enumerations opened: " << _enumerationContextsOpened
             << "\n  Enumerations aborted: " << _enumerationsTimedOut
             << "\n  Current open enumerations: " << size()
-            << "\n  Average request Size: " << _getAvgRequestSize()
-            << "\n  Max request size" << _requestObjectCountHighWaterMark
-            << "\n  max Open Contexts limit " << _maxOpenContextsLimit
+            << "\n  Average request size: " << _getAvgRequestSize()
+            << "\n  Response size max: " << _responseObjectCountHighWaterMark
+            << "\n  Simultaneous Open Contexts limit " << _maxOpenContextsLimit
             // KS_TODO avg requests per enum. Should do by en, not total
             << endl;
     }
@@ -255,7 +245,7 @@ void EnumerationContextTable::displayStatistics(bool clearStats)
         _enumerationsTimedOut = 0;
         _requestCount = 0;
         _requestedSize = 0;
-        _requestObjectCountHighWaterMark = 0;
+        _responseObjectCountHighWaterMark = 0;
     }
 }
 
@@ -266,7 +256,7 @@ void EnumerationContextTable::removeContextTable()
 
     AutoMutex autoMut(_tableLock);
     // Clear out any existing enumerations.
-    for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
+    for (EnumContextTableType::Iterator i = _enumContextTable.start(); i; i++)
     {
         EnumerationContext* en = i.value();
 
@@ -275,10 +265,10 @@ void EnumerationContextTable::removeContextTable()
                 " name %s, started %llu milliseconds before,",
              (const char *)en->getContextId().getCString(),
              ((TimeValue::getCurrentTime().toMilliseconds()
-               - en->_startTime)/1000) ));
+               - en->_startTimeUsec)/1000) ));
         delete en;
     }
-    enumContextTable.clear();
+    _enumContextTable.clear();
     PEG_METHOD_EXIT();
 }
 
@@ -338,14 +328,12 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
             _cacheHighWaterMark = en->_cacheHighWaterMark;
         }
 
-        if (en->_responseObjectsCount > _requestObjectCountHighWaterMark)
+        if (en->_responseObjectsCount > _responseObjectCountHighWaterMark)
         {
-            _requestObjectCountHighWaterMark = en->_responseObjectsCount;
+            _responseObjectCountHighWaterMark = en->_responseObjectsCount;
         }
-////      // KS_TODO Temp diagnostic trace of enumerateContext internal info
-////      en->trace();
 
-        enumContextTable.remove(en->getContextId());
+        _enumContextTable.remove(en->getContextId());
 
         // Delete the enumerationContext object
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
@@ -365,7 +353,7 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
 Uint32 EnumerationContextTable::size()
 {
     AutoMutex autoMut(_tableLock);
-    return(enumContextTable.size());
+    return(_enumContextTable.size());
 }
 
 // If context name found, return pointer to that context.  Otherwise
@@ -378,7 +366,7 @@ EnumerationContext* EnumerationContextTable::find(const String& contextId)
 
     EnumerationContext* en = 0;
 
-    if(enumContextTable.lookup(contextId, en))
+    if(_enumContextTable.lookup(contextId, en))
     {
         PEGASUS_DEBUG_ASSERT(en->valid());
     }
@@ -397,9 +385,6 @@ bool EnumerationContextTable::removeExpiredContexts()
 
     PEGASUS_DEBUG_ASSERT(valid());
 
-////  tableValidate(); // KS_TODO delete this.
-////  trace(); // KS_TODO delete this.
-
     // Lock the EnumerationContextTable so no operations can be accepted
     // during this process
     AutoMutex autoMut(_tableLock);
@@ -414,7 +399,7 @@ bool EnumerationContextTable::removeExpiredContexts()
     Uint64 currentTimeUsec = System::getCurrentTimeUsec();
 
     // Search enumeration table for entries timed out
-    for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
+    for (EnumContextTableType::Iterator i = _enumContextTable.start(); i; i++)
     {
         EnumerationContext* en = i.value();
         if (en->valid())
@@ -478,7 +463,7 @@ bool EnumerationContextTable::removeExpiredContexts()
 void EnumerationContextTable::tableValidate()
 {
     AutoMutex autoMut(_tableLock);
-    for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
+    for (EnumContextTableType::Iterator i = _enumContextTable.start(); i; i++)
     {
         EnumerationContext* en = i.value();
         if (!en->valid())
@@ -556,11 +541,11 @@ void EnumerationContextTable::_stopTimeoutThread()
 void EnumerationContextTable::trace()
 {
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "EnumerationContextTable Trace. size=%u", enumContextTable.size()));
+        "EnumerationContextTable Trace. size=%u", _enumContextTable.size()));
 
     AutoMutex autoMut(_tableLock);
 
-    for (EnumContextTable::Iterator i = enumContextTable.start(); i; i++)
+    for (EnumContextTableType::Iterator i = _enumContextTable.start(); i; i++)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "ContextTable Entry: key [%s]",

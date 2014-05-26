@@ -38,15 +38,13 @@ TODO list:
       way to test multiple operations in sequence(i.e. open/pull) and
       cannot be sure how many responses will come back in all cases even
       for open.
-   7. Could clean up the CIMOperationRequestDecoder.cpp rejectCIMException
+   7. Clean up the CIMOperationRequestDecoder.cpp rejectCIMException
       further since there is some overlap.  VERY Low priority.
-   8. Make enumContextTable hashtable dynamic and create entirely within
-      CIMOperationRequestDispatcher.cpp. Today it has a static size
-   9. Correct issue between operations and HTTP where we are sending
+   8. Correct issue between operations and HTTP where we are sending
       trailers with exceptions. Modify response mechanisms so that we
       set non-chunked for all responses where we send error responses to
       avoid the trailers.
-   10. It would be more efficient in dispatcher to always use exception for
+   9. It would be more efficient in dispatcher to always use exception for
        rejects and change the _reject functions so that they never return
        when they reject. This is VERY LOW PRIORITY and primarily saves
        a few lines of code in the reject functions and their calls.  Means we
@@ -61,19 +59,28 @@ TODO list:
        }
        It would mean that the method trace for the handlers would not return
        an exit if we rejected. LOW PRIORITY
-    11. We have reduced the number of template function greatly.  However there
-       are still several around the task of distributing requests to the
-       multiple providers. In fact there are two similiar but different for
+    10. There are still a couple of template functionsaround the task of
+       distributing requests to the multiple providers.
+       In fact there are two similiar but different templates for
        the associators(i.e. assoc, ref, etc.) functions and the parallel
        openAssoc functions.  It would be nice to consolidate that logic and
        further to try to create a non-template form for those functions. LOW
        PRIORITY.
-    13. External runtime variables. Proposing that they be fixed for this release
+    11. External runtime variables. Proposing that they be fixed for this release
       rather than set by configuration. Making this a separate bug.
       See bug 9819 for the changes to cover this.
 
    NEXT TASKS: 
-      a. finish 8, 9 3 above
+      a. finish 8, 11 3 above
+
+26 May 2014
+1. Remove a number of diagnostics.
+2. Make cache size in EnumerationContextTable dynamic and remove function
+   to set default values. MaximumEnums set from Dispatcher on constructor for
+   EnumerationContextTable and table size set to 1/2 of maximum number of
+   open contexts.
+3. Clean up some statistics in EnumerationContextTable
+
 
 9 May 2104
 1. Converted several  template functions in CIMOperationRequestDispatcher

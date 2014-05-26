@@ -64,18 +64,6 @@ PEGASUS_USING_STD;
 **
 ******************************************************************************/
 
-// Define the table that will contain enumeration contexts for Open, Pull,
-// Close, and countEnumeration operations.  The default interoperation
-// timeout and max cache size are set as part of creating the table.
-//
-//// KS_TODO - The whole setup of the enumContextTable should be
-////           dynamic, not static so we can set the size at system
-////           startup, not at build.
-#define OpenEnumerateContextsMaxLimit 150
-
-static EnumerationContextTable enumerationContextTable(
-    OpenEnumerateContextsMaxLimit);
-
 // Variable to determine the performance if we wait for pull
 // response size to match request or simply for response objects to exist.
 // This variable is primarily test for the advantages of each of these
@@ -294,7 +282,6 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Message is complete.  Total responses: %u, "
                     "total chunks: %u, total errors: %u",
-                "OperationAggregate::resequenceResponse",
                 _totalReceivedComplete,
                 _totalReceived,
                 _totalReceivedErrors));
@@ -601,8 +588,14 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     _rejectZeroOperationTimeoutValue = false;
 #endif
 
-    // set the configuration parameters into the enumerationContextTable
-    enumerationContextTable.setContextDefaultParameters(
+// Define the table instance that will contain enumeration contexts for Open,
+// Pull, Close, and countEnumeration operations.  The default interoperation
+// timeout and max cache size are set as part of creating the table.
+//
+#define OpenEnumerateContextsMaxLimit 128
+
+    _enumerationContextTable = new EnumerationContextTable(
+        OpenEnumerateContextsMaxLimit,
         PULL_OPERATION_DEFAULT_TIMEOUT,
         responseCacheDefaultMaximumSize);
 
@@ -648,7 +641,9 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
         "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher");
 
     // Delete EnumerationContextTable
-    enumerationContextTable.removeContextTable();
+    _enumerationContextTable->removeContextTable();
+    delete _enumerationContextTable;
+
     PEG_METHOD_EXIT();
 }
 
@@ -1110,7 +1105,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             if (en->isClientClosed() && isComplete)
             {
                 // en may be deleted after this call
-                enumerationContextTable.releaseContext(en);
+                _enumerationContextTable->releaseContext(en);
             }
             else
             {
@@ -2532,7 +2527,7 @@ Boolean CIMOperationRequestDispatcher::_rejectAssociationTraversalDisabled(
     }
     else
     {
-        //// KS_TODO add explicit international message
+        //// TODO add explicit international message
         _enqueueExceptionResponse(request,CIM_ERR_NOT_SUPPORTED, opName);
         return true;
     }
@@ -3435,7 +3430,7 @@ bool CIMOperationRequestDispatcher::processPullRequest(
         CSTRING(request->enumerationContext) ));
 
     // Find the enumerationContext object from the request parameter
-    EnumerationContext* en = enumerationContextTable.find(
+    EnumerationContext* en = _enumerationContextTable->find(
         request->enumerationContext);
 
     // If enumeration Context,value is zero, or is already in closed status
@@ -3594,7 +3589,7 @@ bool CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage(
         {
             // en may be deleted in this call. Do not use
             // after this call
-            enumerationContextTable.releaseContext(en);
+            _enumerationContextTable->releaseContext(en);
         }
         else
         {
@@ -3680,7 +3675,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
             cimStatusCodeToString(response->cimException.getCode()) ));
     }
 
-    enumerationContextTable.setRequestSizeStatistics(operationMaxObjectCount);
+    _enumerationContextTable->setRequestSizeStatistics(operationMaxObjectCount);
 
     // Check after processing the results of the get.
     // This function either closes the operation if providers are complete
@@ -5512,7 +5507,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // Setup the EnumerationContext. Returns pointer to object
     //
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -5696,7 +5691,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     // Setup the EnumerationContext. Returns pointer to object
     //
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -5953,7 +5948,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     // Create new context object.
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -6184,7 +6179,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     // Create new enumerationContext
     //
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -6441,7 +6436,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     //
     // Create a new enumeration context
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -6704,7 +6699,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     //
     // Create new enumerationContext and enumerationContextString.
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -6883,7 +6878,7 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     // Setup the EnumerationContext. Returns pointer to object
     //
     EnumerationContext* enumerationContext =
-        enumerationContextTable.createContext(
+        _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
             request->continueOnError,
@@ -6964,7 +6959,7 @@ void CIMOperationRequestDispatcher::handleEnumerationCount(
 
     // Determine if the enumerationContext exists
 
-    EnumerationContext* en = enumerationContextTable.find(
+    EnumerationContext* en = _enumerationContextTable->find(
        request->enumerationContext);
 
     // test for invalid context and if found, error out.
@@ -7072,7 +7067,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
             "contextId=%s .  ",
         (const char*)request->enumerationContext.getCString() ));
 
-    EnumerationContext* en = enumerationContextTable.find(
+    EnumerationContext* en = _enumerationContextTable->find(
        request->enumerationContext);
 
     if (_rejectInvalidEnumerationContext(request, en))
@@ -7118,7 +7113,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         // If providers complete, we can release this context
         if ((providersComplete = en->providersComplete()))
         {
-            enumerationContextTable.releaseContext(en);
+            _enumerationContextTable->releaseContext(en);
         }
     }
 

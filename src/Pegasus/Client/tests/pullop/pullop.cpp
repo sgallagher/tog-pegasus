@@ -188,10 +188,10 @@ static char * verbose;
     7 - returned objects
     6 - Step by Step through operations.
     5 - Details of operations (i.e. data returned)
-    4 - Overview of each operation (send and rtn parameters)
+    4 - Overview of each operation (send and rtn parameters), input parameters
     3 - Statistical information on operations
     2 - Add Warning messages
-    1 - Error messages
+    1 - Error messages (These always show)
     0 - None of the VCOUT calls
 */
 #define VCOUT if (verbose) cout
@@ -461,7 +461,7 @@ void displayTimeDiff(const String& operationName,
     Stopwatch& pullTime,
     Stopwatch& enumTime,
     Stopwatch& elapsedPullTime,
-    Uint32 responseSize)
+    unsigned int responseSize)
 {
     if (!timeOperation_opt)
     {
@@ -650,7 +650,7 @@ static int _compareObjectPaths(const CIMObjectPath& p1,
     Array<CIMKeyBinding> kb1 = p1.getKeyBindings();
     Array<CIMKeyBinding> kb2 = p2.getKeyBindings();
 
-    for (Uint32 i = 0 ; i < kb1.size() ; i++)
+    for (size_t i = 0 ; i < kb1.size() ; i++)
     {
         int rtn1;
 
@@ -672,7 +672,7 @@ static inline int _compareObjectPaths(const void* p1, const void* p2)
 static void _Sort(Array<CIMObjectPath>& x)
 {
     CIMObjectPath* data = (CIMObjectPath*)x.getData();
-    Uint32 size = x.size();
+    size_t size = x.size();
 
     if (size > 1)
     {
@@ -692,7 +692,7 @@ static inline int _compareClasses(const void* p1, const void* p2)
 static void _Sort(Array<CIMClass>& x)
 {
     CIMClass* data = (CIMClass*)x.getData();
-    Uint32 size = x.size();
+    unsigned int size = x.size();
 
     if (size > 1)
     {
@@ -713,7 +713,7 @@ static int _compareInstances(const void* p1, const void* p2)
 static void _Sort(Array<CIMInstance>& x)
 {
     CIMInstance* data = (CIMInstance*)x.getData();
-    Uint32 size = x.size();
+    unsigned int size = x.size();
 
     if (size > 1)
     {
@@ -731,7 +731,7 @@ static int _compareObjects(const void* p1, const void* p2)
 static void _Sort(Array<CIMObject>& x)
 {
     CIMInstance* data = (CIMInstance*)x.getData();
-    Uint32 size = x.size();
+    unsigned int size = x.size();
 
     if (size > 1)
     {
@@ -780,7 +780,7 @@ bool comparePath(const CIMObjectPath& p1,
         }
         if (p1x != p2x)
         {
-            VCOUT6 << "ERROR: pull path(NoHost)= " << p1x.toString() << endl
+            cerr << "ERROR: pull path(NoHost)= " << p1x.toString() << endl
                  << "\n  Enumerate path(NoHost)= " << p2x.toString() << endl;
             return false;
         }
@@ -789,7 +789,7 @@ bool comparePath(const CIMObjectPath& p1,
     {
         if (p1 != p2)
         {
-            VCOUT6 << "ERROR: pull path=" << p1.toString() <<endl
+            cerr << "ERROR: pull path=" << p1.toString() <<endl
                  << "\n  Enumerate path  ="   << p2.toString()  << endl;
             return false;
         }
@@ -883,7 +883,7 @@ bool compareInstance(const String& s1, const String& s2,
             i2 = itemp;
         }
 
-        for (Uint32 i = 0 ; i < i1.getPropertyCount() ; i++)
+        for (size_t i = 0 ; i < i1.getPropertyCount() ; i++)
         {
             CIMConstProperty p1 = i1.getProperty(i);
             CIMConstProperty p2;
@@ -1015,7 +1015,7 @@ bool compareInstance(const String& s1, const String& s2,
 // messages. Also displays the values before the tests.
 // return true if the ERROR condition (i.e. too many) is returned.
 
-bool displayAndTestReturns(const String& op, Boolean endOfSequence,
+bool displayAndTestReturns(const String& op, bool endOfSequence,
     Uint32 returnedCount, Uint32 expectedCount)
 {
     // Display the returned counters and msg type
@@ -1024,11 +1024,10 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
         << " endOfSequence = " << boolToString(endOfSequence)
         << endl;
 
-    // KS_TODO - Account for NULL expectedCount.
     if (!endOfSequence && (returnedCount < expectedCount))
     {
-        VCOUT2 << "WARN: This operation delivered less than requested"
-                  " instances. "
+        VCOUT2 << "WARN: " << op
+             << " delivered less than requested instances. "
              << " Expected: " << expectedCount
              << ". Delivered: " << returnedCount << endl;
         warnings++;
@@ -1036,7 +1035,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
     }
     if (returnedCount > expectedCount)
     {
-        VCOUT1 << "ERROR: Delivered more objects than requested."
+        cerr << "ERROR: Delivered more objects than requested."
                  << " Expected " << expectedCount
                  << ". Delivered " << returnedCount << endl;
         return true;
@@ -1049,7 +1048,7 @@ bool displayAndTestReturns(const String& op, Boolean endOfSequence,
 void displayInstances(const Array<CIMInstance>& instances)
 {
     ConstArrayIterator<CIMInstance> iterator(instances);
-    for (Uint32 i = 0; i < iterator.size(); i++)
+    for (size_t i = 0; i < iterator.size(); i++)
     {
         cout << i << ". " << iterator[i].getPath().toString()
              << endl;
@@ -1059,7 +1058,7 @@ void displayInstances(const Array<CIMInstance>& instances)
 void displayObjectPaths(const Array<CIMObjectPath>& paths)
 {
     ConstArrayIterator<CIMObjectPath> iterator(paths);
-    for (Uint32 i = 0; i < iterator.size(); i++)
+    for (size_t i = 0; i < iterator.size(); i++)
     {
         cout << i << ". " << iterator[i].toString()
              << endl;
@@ -1092,9 +1091,9 @@ Boolean compareInstances(const String& s1, const String s2,
     _Sort(inst2);
 
     // Compare based on size of smallest array
-    Uint32 loopSize = (inst1.size() > inst2.size())?inst1.size() : inst2.size();
+    size_t loopSize = (inst1.size() > inst2.size())?inst1.size() : inst2.size();
 
-    for (Uint32 i = 0 ; i < loopSize ; i++)
+    for (size_t i = 0 ; i < loopSize ; i++)
     {
         bool localRtn = compareInstance(s1, s2,
             inst1[i], inst2[i], true, verbose);
@@ -1111,8 +1110,8 @@ Boolean compareInstances(const String& s1, const String s2,
 
 Boolean testForCorrectProperties(const CIMInstance inst)
 {
-    Uint32 foundCount = 0;
-    for (Uint32 i = 0; i < propertyList_opt.size(); i++)
+    unsigned int foundCount = 0;
+    for (size_t i = 0; i < propertyList_opt.size(); i++)
     {
         if (!inst.findProperty(propertyList_opt[i]))
         {
@@ -1136,7 +1135,7 @@ Boolean testForCorrectProperties(const CIMInstance inst)
 }
 Boolean testForCorrectProperties(Array<CIMInstance> instances)
 {
-    Uint32 localErrors = 0;
+    unsigned int localErrors = 0;
     if (propertyList_opt.isNull())
     {
         return true;
@@ -1144,7 +1143,7 @@ Boolean testForCorrectProperties(Array<CIMInstance> instances)
     if (propertyList_opt.size() == 0)
     {
         ConstArrayIterator<CIMInstance> iterator(instances);
-        for (Uint32 i = 0; i < iterator.size(); i++)
+        for (size_t i = 0; i < iterator.size(); i++)
         {
             if (iterator[i].getPropertyCount() != 0)
             {
@@ -1159,7 +1158,7 @@ Boolean testForCorrectProperties(Array<CIMInstance> instances)
     else
     {
         ConstArrayIterator<CIMInstance> iterator(instances);
-        for (Uint32 i = 0; i < iterator.size(); i++)
+        for (size_t i = 0; i < iterator.size(); i++)
         {
             if (iterator[i].getPropertyCount() != propertyList_opt.size())
             {
@@ -1189,7 +1188,7 @@ Boolean compareInstances(const String& s1, const String s2,
 
     if (instances.size() != objects.size())
     {
-        VCOUT1 << s1 << " ERROR: count mismatch of Instances/Objects "
+        cerr << s1 << " ERROR: count mismatch of Instances/Objects "
             << "Pull sequence " <<  instances.size()
             << " " << s2 << " " << objects.size()
             << endl;
@@ -1202,10 +1201,11 @@ Boolean compareInstances(const String& s1, const String s2,
     _Sort(instances);
     _Sort(objects);
 
-    Uint32 loopSize = instances.size() > objects.size()?
+    // loop on the smaller of the two arrays.
+    size_t loopSize = instances.size() > objects.size()?
         instances.size() : objects.size();
 
-    for (Uint32 i = 0; i < loopSize; i++)
+    for (size_t i = 0; i < loopSize; i++)
     {
         CIMInstance instLocal = (CIMInstance)objects[i];
         bool localRtn = compareInstance(s1, s2,
@@ -1233,8 +1233,8 @@ bool _contains(const Array<CIMObjectPath>& arr,
     const CIMObjectPath& path,
     bool ignoreHost)
 {
-    Uint32 n = arr.size();
-    for (Uint32 i = 0; i < n; i++)
+    unsigned int n = arr.size();
+    for (size_t i = 0; i < n; i++)
     {
         if (comparePath(arr[i], path, ignoreHost))
         {
@@ -1260,8 +1260,13 @@ Boolean compareObjectPaths(
     if (p1.size() != p2.size())
     {
         Uint32 errorCount = 0;
-
-        VCOUT1 << "ERROR: count mismatch of ObjectPaths "
+        String className = "";
+        if (p1.size() > 0)
+        {
+            className = p1[0].getClassName().getString();
+        }
+        cerr << "ERROR: count mismatch of ObjectPaths "
+            << " class " << className
             << s1 << " rtnd " <<  p1.size() << " "
             << s2 << " rtnd " << p2.size()
             << endl;
@@ -1269,40 +1274,26 @@ Boolean compareObjectPaths(
         _Sort(p1);
         _Sort(p2);
 
-        if (p1.size() > p2.size())
-        {
+        size_t loopSize = (p1.size() > p2.size())? p1.size() : p2.size();
 
-            ConstArrayIterator<CIMObjectPath> iterator(p1);
-            for (Uint32 i = 0; i < iterator.size(); i++)
-            {
-                if (!_contains(p2, iterator[i],ignoreHost))
-                {
-                    errorCount++;
-                }
-            }
-        }
-        else
+        for (size_t i = 0; i < loopSize; i++)
         {
-
-            ConstArrayIterator<CIMObjectPath> iterator(p2);
-            for (Uint32 i = 0; i < iterator.size(); i++)
+            if (!_contains(p2, p1[i],ignoreHost))
             {
-                if (!_contains(p1, iterator[i], ignoreHost))
-                {
-                    errorCount++;
-                }
+                errorCount++;
             }
         }
 
         rtn = false;
     }
-    else
+    else // they are the same size
     {
         // sort the paths to assure same order.
         _Sort(p1);
         _Sort(p2);
 
-        for (Uint32 i = 0 ; i < p1.size() ; i++)
+        ConstArrayIterator<CIMObjectPath> iterator(p1);
+        for (size_t i = 0 ; i < iterator.size() ; i++)
         {
             bool localRtn = comparePath(p1[i], p2[i], ignoreHost);
             if (!localRtn)
@@ -1569,7 +1560,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         // if the compare opt was set, get with enumerate and compare
         if (compare_opt && endOfSequence)
         {
-            VCOUT1 << "Comparing Result to enumerateInstances" << endl;
+            VCOUT3 << "Comparing Result to enumerateInstances" << endl;
             enumTime.start();
             Array<CIMInstance> enumeratedInstances = client.enumerateInstances(
                 nameSpace,
@@ -1587,9 +1578,18 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                    << " instances" << endl;
 
             testForCorrectProperties(pulledInstances);
-            compareInstances("PullnstancesWithPath",
-                             "EnumerateInstances  ",
-                             pulledInstances, enumeratedInstances);
+            try
+            {
+                compareInstances("PullnstancesWithPath",
+                                 "EnumerateInstances  ",
+                                 pulledInstances, enumeratedInstances);
+            }
+            catch (Exception& e)
+            {
+                cerr << "Exception Error: in testPullEnumerateInstances. "
+                    << e.getMessage() << endl;
+                PEGASUS_ASSERT(false);
+            }
         }
         if (!validateInstancePath(pulledInstances))
         {
@@ -2243,7 +2243,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     //
     VCOUT4 << "Test Pull Enumerate Instances for each class" << endl;
     testTime.start();
-    for (Uint32 i = 0 ; i < cn.size() ; i++)
+    for (size_t i = 0 ; i < cn.size() ; i++)
     {
         VCOUT5 << "Test for class "<< cn[i].getString() << endl;
         testPullEnumerateInstances(client, ns, cn[i].getString());
@@ -2261,7 +2261,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     testTime.reset();
     testTime.start();
     counter = 0;
-    for (Uint32 i = 0 ; i < cn.size() ; i++)
+    for (size_t i = 0 ; i < cn.size() ; i++)
     {
         VCOUT5 << "Test for class "<< cn[i].getString() << endl;
         testPullEnumerationInstancePaths(client, ns, cn[i].getString());
@@ -2275,7 +2275,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     // that are not association classes.
     VCOUT4 << "Association Tests" << endl;
     counter = 0;
-    for (Uint32 i = 0 ; i < cn.size() ; i++)
+    for (size_t i = 0 ; i < cn.size() ; i++)
     {
         Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(ns,
             cn[i]);
@@ -2607,7 +2607,7 @@ int main(int argc, char** argv)
     {
         if (host_opt == "")
         {
-            VCOUT1 << "connectLocal" << endl;
+            VCOUT4 << "connectLocal" << endl;
             client.connectLocal();
         }
         else
@@ -2616,7 +2616,7 @@ int main(int argc, char** argv)
             Uint32 port;
             if (parseHostName(host_opt, hostName, port))
             {
-                VCOUT1 << " Connect to host "
+                VCOUT4 << " Connect to host "
                        << hostName << ":" << port << endl;
                 client.connect(hostName, port, user_opt, password_opt);
             }
@@ -2695,7 +2695,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            cout << "ERROR: Invalid operation name. " << operation << endl;
+            cerr << "ERROR: Invalid operation name. " << operation << endl;
             exit(1);
         }
     }

@@ -43,9 +43,11 @@ include $(ROOT)/mak/program.mak
 
 ##############################
 ## Test cmpi provider logistics
-CMPICL = CMPISample_InstanceProviderClass
+CMPISample_CLASS_ID = CMPISample_InstanceProviderClass -n root/SampleProvider
+
+## CMPI association provider logistical information
 CMPIASSOCOBJ =  CMPI_TEST_Person.name=\"Melvin\"
-CMPIASSOCOBJ2 = CMPI_TEST_Vehicle.vehiclename="\Ferrari\"
+CMPIASSOCOBJ_INST_ID = CMPI_TEST_Person.name=\"Melvin\" -n test/TestProvider
 
 ## ResponseStressTest provider class and namespace
 NStressCxx = test/testProvider
@@ -53,13 +55,9 @@ CStressCxx = TST_ResponseStressTestCxx
 STRESSCXX_CLASS_ID = TST_ResponseStressTestCxx -n test/testProvider
 
 ## Simple C++ Provider classes and namespaces
-CxxNS = root/SampleProvider
-CxxCL = Sample_InstanceProviderClass
+CxxSE_CLASS_ID = Sample_InstanceProviderClass -n root/SampleProvider
 
 ## C++ association Provider Object and Namespace identification
-##CxxAssocOB = Test_CLITestProviderClass.Id=\"Mike\"
-##CxxAssocNS = test/TestProvider
-## Combined instance and namespace. 
 CXXASSOC_INST_ID = Test_CLITestProviderClass.Id=\"Mike\" -n test/TestProvider
 
 HOSTID = -H localhost
@@ -85,6 +83,27 @@ errortests:
 
 poststarttests:
 	@$(ECHO)  Enumerate and EnumerateNames tests that go to Completion
+	make simpleTests
+
+	@$(ECHO)  Test close in process of delivery
+	make testenumclose
+	make testenumpathsclose
+
+	@$(ECHO)  Execute stresstests
+	make stresstests
+
+	@$(ECHO)  Test timeout in process of delivery
+	make testtimeout
+
+	@$(ECHO) Error tests. Tests simple parameter errors.
+	make errortests
+
+	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
+
+## execute simple Enumerate and associator tests with a variety of
+## sizes, request parameters, etc. Includes both C++ and cmpi providers.
+simpleTests:
+	@$(ECHO)  Enumerate and EnumerateNames tests that go to Completion
 	make smallTestEnumerateInstances
 	make smallTestEnumerateInstanceNames
 	make smallCmpiEnumerate
@@ -96,10 +115,6 @@ poststarttests:
 	make enumerateMaxObjectSizeVariations
 	make enumeratePathsMaxObjectSizeVariations
 	make enumerateEmptyResponse
-	make stresse1
-	make stresse2
-	make stressen1
-	make stressen2
 
 	@$(ECHO)  Associator and Reference tests that go to completion
 	make SimpleRefAndAssoc
@@ -111,70 +126,60 @@ poststarttests:
 	make pcmpian1
 	make pcmpia1
 
-	@$(ECHO)  Test close in process of delivery
-	make testenumclose
-	make testenumpathsclose
-
-	@$(ECHO)  Test timeout in process of delivery
-	make testtimeout
-
-	@$(ECHO) Error tests. Tests simple parameter errors.
-	make errortests
-
-	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
+	@$(ECHO) +++++ pullop SimpleTests passed
 
 ## Enumerate a class that is a C++ Provider. Very small enumerate
 ## Normally returns about 3 instances. Also tests returning with property
 ## variations.
 smallTestEnumerateInstances:
 ## Return all with initial request
-	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID) -P Message
-	$(PROGRAM) e -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID) -P ""
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 5 -N 5  -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 5 -N 5 -C -T $(HOSTID) -P Message
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 5 -N 5 -C -T $(HOSTID) -P ""
 ## Return with probably one pull
-	$(PROGRAM) e -c $(CxxCL) -M 1 -N 5 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 1 -N 5 -n $(CxxNS) -C -T $(HOSTID) -P Message
-	$(PROGRAM) e -c $(CxxCL) -M 1 -N 5 -n $(CxxNS) -C -T $(HOSTID) -P ""
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 1 -N 5 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 1 -N 5 -C -T $(HOSTID) -P Message
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 1 -N 5 -C -T $(HOSTID) -P ""
 
 ## test variations of open max object count and pull max object count
 enumerateMaxObjectSizeVariations:
-	$(PROGRAM) e -c $(CxxCL) -M 1 -N 1 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 2 -N 2 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 0 -N 3 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 0 -N 10 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 0 -N 100 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CxxCL) -M 500 -N 100 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 1 -N 1 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 2 -N 2 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 3 -N 3 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 0 -N 1 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 0 -N 3 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 0 -N 10 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 0 -N 100 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 100 -N 10 -C -T $(HOSTID)
+	$(PROGRAM) e $(CxxSE_CLASS_ID) -M 500 -N 100 -C -T $(HOSTID)
 
 enumeratePathsMaxObjectSizeVariations:
-	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 2 -N 2 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 3 -N 3 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 0 -N 1 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 0 -N 3 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 0 -N 10 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 0 -N 100 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 100 -N 10 -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 500 -N 100 -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 1 -N 1 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 2 -N 2 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 3 -N 3 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 0 -N 1 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 0 -N 3 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 0 -N 10 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 0 -N 100 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 100 -N 10 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 500 -N 100 -C -T $(HOSTID)
 
 ## enumerate instance names of a class in a C++ provider
 smallTestEnumerateInstanceNames:
-	$(PROGRAM) en -c $(CxxCL) -M 1 -N 1  -n $(CxxNS) -C $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 5 -N 5  -n $(CxxNS) -C -T $(HOSTID)
-	$(PROGRAM) en -c $(CxxCL) -M 0 -N 1  -n $(CxxNS) -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 1 -N 1 -C $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 5 -N 5 -C -T $(HOSTID)
+	$(PROGRAM) en $(CxxSE_CLASS_ID) -M 0 -N 1 -C -T $(HOSTID)
 
 ## enumerate from cmpi providers. There are 3 tests here to include
 ## property list variations
 smallCmpiEnumerate:
-	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID)
-	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID) -P Message
-	$(PROGRAM) e -c $(CMPICL) -M 1 -N 1  -n root/SampleProvider -C -T $(HOSTID) -P ""
+	$(PROGRAM) e $(CMPISample_CLASS_ID) -M 1 -N 1 -C -T $(HOSTID)
+	$(PROGRAM) e $(CMPISample_CLASS_ID) -M 1 -N 1 -C -T $(HOSTID) -P Message
+	$(PROGRAM) e $(CMPISample_CLASS_ID) -M 1 -N 1 -C -T $(HOSTID) -P ""
 
 ## enumerate from cmpi providers
 smallCmpiEnumerateNames:
-	$(PROGRAM) en -c $(CMPICL) -M 1 -N 1 -n root/SampleProvider -C -T $(HOSTID)
+	$(PROGRAM) en $(CMPISample_CLASS_ID) -M 1 -N 1 -C -T $(HOSTID)
 
 ## Simple pull ref and assoc operations.
 SimpleRefAndAssoc:
@@ -260,7 +265,15 @@ enumerateEmptyResponse:
 ## the provider to be loaded which eliminates startup differences.
 ## Set large client timeout here because with the stress test sizes, they
 ## fail in valgrind with smaller client timeout.
-stresse1:
+
+stresstests:
+	make stressEnum1
+	make stressEnum2
+	make stressEnumName1
+	make stressEnumName2
+	make stressVariation
+
+stressEnum1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
@@ -269,19 +282,19 @@ stresse1:
 	    -T -v 3 $(HOSTID)
 
 ## test with object size 1000 and 100,000 returned objects
-stresse2:
+stressEnum2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
 	    ResponseCount=100000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 120\
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T -v 3 $(HOSTID)
 
-stressen1:
+stressEnumName1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T -v 3 $(HOSTID)
 
-stressen2:
+stressEnumName2:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
 	    ResponseCount=100000 $(CIMCLIHOSTID)
 	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T -v 3 $(HOSTID)
@@ -348,6 +361,11 @@ invalidAssocObjectPath:
 #### test should timeout after the first pull. (-s defines time to sleep
 #### between operations)
 testtimeout:
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
+
+## corresponding test but whit large response size. Not part of poststart
+## tests because it changes the parameters of the stress test provider
+testBigTimeout:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=100 ResponseCount=1000 $(CIMCLIHOSTID)
 	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
 
@@ -361,11 +379,10 @@ testexceedMaxObjectCountLimit:
 ##################################
 ## CMPI Provider tests
 pcmpia1:
-	$(PROGRAM) a -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
+	$(PROGRAM) a $(CMPIASSOCOBJ_INST_ID) -M 1 -N 1  -C -T $(HOSTID)
 
 pcmpian1:
-	$(PROGRAM) an -M 1 -N 1 -c $(CMPIASSOCOBJ) -n test/TestProvider -C -T $(HOSTID)
-
+	$(PROGRAM) an $(CMPIASSOCOBJ_INST_ID) -M 1 -N 1 -C -T $(HOSTID)
 
 #######################################################################
 #### Close tests

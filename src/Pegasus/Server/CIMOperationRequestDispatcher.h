@@ -1031,6 +1031,10 @@ private:
         EnumerationContext* en,
         Uint32 operationMaxObjectCount,
         Boolean requireCompleteResponses);
+
+    // pointer to EnumerationContextTable which allocates
+    // and releases enumeration context objects.
+    EnumerationContextTable *_enumerationContextTable;
 // EXP_PULL END
 
     // Pointer to internal RoutingTable for Control Providers and Services

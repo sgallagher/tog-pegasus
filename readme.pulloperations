@@ -80,6 +80,9 @@ TODO list:
    EnumerationContextTable and table size set to 1/2 of maximum number of
    open contexts.
 3. Clean up some statistics in EnumerationContextTable
+4. Correct error in query and queryLanguage parameters in cimcli in that
+   the default for queryLanguage is WQL but must be "" for pull operations.
+   If WQL found they set it to "".
 
 
 9 May 2104
@@ -113,6 +116,7 @@ TODO list:
    client really did send an erronous request.
 7. Modified PullErrors to correctly test above changed in behavior.
 8. Removed a significant number of diagnostic messages.
+9. Added query and querylanguage parameters to cimcli.
 
 
 4 May 2014

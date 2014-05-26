@@ -1178,7 +1178,7 @@ int enumerateInstances(Options& opts)
 */
 
 /**
- * _pullInstances executes the proper pullInstances function in
+ * _pullInstancesWithPath executes the proper pullInstances function in
  * a loop to get everything until either endOfSequence received
  * or the size limit defined on input is received.
  * @param  instances Array<CIMInstance> pulled
@@ -1189,7 +1189,7 @@ int enumerateInstances(Options& opts)
  *                 be executed.
  */
 
-int _pullInstances(
+int _pullInstancesWithPath(
     Options& opts,
     Array<CIMInstance>& instances,
     CIMEnumerationContext& enumerationContext,
@@ -1324,6 +1324,11 @@ String _displayPullCommonParam(Options& opts)
 */
 int pullEnumerateInstances(Options& opts)
 {
+    // opts default is WQL so we will set that to NULL
+    if (opts.queryLanguage == "WQL")
+    {
+        opts.queryLanguage = "";
+    }
     if (opts.verboseTest)
     {
         cout << "PullEnumerateInstances "
@@ -1378,7 +1383,7 @@ int pullEnumerateInstances(Options& opts)
 
     if (!endOfSequence)
     {
-        if (!_pullInstances(opts, instances, enumerationContext ))
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
         {
             // some error return from the pull loop.
             cerr << "Pull Loop Returned error" << endl;
@@ -1395,6 +1400,11 @@ int pullEnumerateInstances(Options& opts)
 
 int pullEnumerateInstancePaths(Options& opts)
 {
+        // opts default is WQL so we will set that to NULL
+    if (opts.queryLanguage == "WQL")
+    {
+        opts.queryLanguage = "";
+    }
     if (opts.verboseTest)
     {
         cout << "PullEnumerateInstances "
@@ -1454,6 +1464,11 @@ int pullEnumerateInstancePaths(Options& opts)
 
 int pullReferenceInstancePaths(Options& opts)
 {
+        // opts default is WQL so we will set that to NULL
+    if (opts.queryLanguage == "WQL")
+    {
+        opts.queryLanguage = "";
+    }
     if (opts.verboseTest)
     {
         cout << "PullReferenceInstanceNames "
@@ -1516,6 +1531,11 @@ int pullReferenceInstancePaths(Options& opts)
 */
 int pullReferenceInstances(Options& opts)
 {
+        // opts default is WQL so we will set that to NULL
+    if (opts.queryLanguage == "WQL")
+    {
+        opts.queryLanguage = "";
+    }
     if (opts.verboseTest)
     {
         cout << "PullReferenceInstances "
@@ -1565,7 +1585,7 @@ int pullReferenceInstances(Options& opts)
 
     if (!endOfSequence)
     {
-        if (!_pullInstances(opts, instances, enumerationContext ))
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
         {
             // some error return from the pull loop.
             cerr << "Pull Loop Returned error" << endl;
@@ -1583,6 +1603,11 @@ int pullReferenceInstances(Options& opts)
 
 int pullAssociatorInstancePaths(Options& opts)
 {
+    // opts default is WQL so we will set that to NULL
+    if (opts.queryLanguage == "WQL")
+    {
+        opts.queryLanguage = "";
+    }
     if (opts.verboseTest)
     {
         cout << "PullReferenceInstanceNames "
@@ -1646,6 +1671,11 @@ int pullAssociatorInstancePaths(Options& opts)
 
 int pullAssociatorInstances(Options& opts)
 {
+        // opts default is WQL so we will set that to NULL
+    if (opts.queryLanguage == "WQL")
+    {
+        opts.queryLanguage = "";
+    }
     if (opts.verboseTest)
     {
         cout << "PullAssoociatorInstances "
@@ -1699,7 +1729,7 @@ int pullAssociatorInstances(Options& opts)
 
     if (!endOfSequence)
     {
-        if (!_pullInstances(opts, instances, enumerationContext ))
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
         {
             // some error return from the pull loop.
             cerr << "Pull Loop Returned error" << endl;
@@ -1777,7 +1807,7 @@ int pullQueryInstances(Options& opts)
 
     if (!endOfSequence)
     {
-        if (!_pullInstances(opts, instances, enumerationContext, false ))
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext, false))
         {
             // some error return from the pull loop.
             cerr << "Pull Loop Returned error" << endl;

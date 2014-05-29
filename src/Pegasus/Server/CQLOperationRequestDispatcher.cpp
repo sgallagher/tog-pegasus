@@ -83,8 +83,9 @@ void CQLOperationRequestDispatcher::applyQueryToEnumeration(
     PEG_METHOD_EXIT();
 }
 
-void CQLOperationRequestDispatcher::handleQueryRequest(
+bool CQLOperationRequestDispatcher::handleQueryRequest(
     CIMExecQueryRequestMessage* request,
+    CIMException& cimException,
     EnumerationContext* enumerationContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -100,7 +101,6 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
             _queryOrig));
 
     AutoPtr<CQLQueryExpressionRep> qx;
-    CIMException cimException;
     CIMName className;
 
     if (request->queryLanguage != "DMTF:CQL")
@@ -148,12 +148,8 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
 
     if (exception)
     {
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = cimException;
-
-        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
     // Get names of descendent classes:
@@ -171,20 +167,19 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
     catch (CIMException& e)
     {
         // Return exception response if exception from getSubClasses
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = e;
-
-        _enqueueResponse(request, response);
+        cimException = e;
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
     // If no provider is registered and the repository isn't the default,
-    // return CIM_ERR_NOT_SUPPORTED
-    if (_rejectNoProvidersOrRepository(request, providerInfos))
+    // return with the exception for NOT supported
+
+    if (_CIMExceptionIfNoProvidersOrRepository(request,providerInfos,
+                                               cimException))
     {
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
     // We have instances for Providers and possibly repository.
@@ -305,6 +300,7 @@ void CQLOperationRequestDispatcher::handleQueryRequest(
     } // for all classes and derived classes
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

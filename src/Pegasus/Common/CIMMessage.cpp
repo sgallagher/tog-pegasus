@@ -712,8 +712,6 @@ CIMResponseMessage*
             messageId,
             CIMException(),
             CIMClass(),     // queryResultClass
-            true,           // endOfSequence
-            String::EMPTY,  // enumerationContext
             queueIds.copyAndPop()));
     CIMResponseData & rspData = response->getResponseData();
     // KS_TODO Probably not required. Wait for complete OpenQuery Implementation
@@ -1553,6 +1551,31 @@ CIMOpenAssociatorInstancePathsRequestMessage(
     resultClass(resultClass_),
     role(role_),
     resultRole(resultRole_)
+{
+}
+
+CIMOpenQueryInstancesRequestMessage::
+CIMOpenQueryInstancesRequestMessage(
+    const String& messageId_,
+    const CIMNamespaceName& nameSpace_,
+    const String& queryLanguage_,
+    const String& query_,
+    Boolean returnQueryResultClass_,
+    const Uint32Arg& operationTimeout_,
+    const Boolean continueOnError_,
+    const Uint32 maxObjectCount_,
+    const QueueIdStack& queueIds_,
+    const String& authType_,
+    const String& userName_)
+: CIMOpenOperationRequestMessage(
+    CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE,
+    messageId_, nameSpace_, CIMName(),
+    queryLanguage_, query_, operationTimeout_, continueOnError_,
+    maxObjectCount_, TYPE_QUERY, queueIds_,authType_, userName_),
+
+    returnQueryResultClass(returnQueryResultClass_),
+    queryLanguage(queryLanguage_),
+    query(query_)
 {
 }
 
@@ -2451,7 +2474,6 @@ CIMOpenEnumerateInstancesResponseMessage::
         CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_, CIMResponseData::RESP_INSTANCES,
         endOfSequence_, enumerationContext_)
-
     {
     }
 
@@ -2587,14 +2609,14 @@ CIMOpenQueryInstancesResponseMessage::
         const String& messageId_,
         const CIMException& cimException_,
         const CIMClass& queryResultClass_,
+        const QueueIdStack& queueIds_,
         Boolean endOfSequence_,
-        const String& enumerationContext_,
-        const QueueIdStack& queueIds_)
-    : CIMResponseDataMessage(CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES),
-        queryResultClass(queryResultClass_),
-        endOfSequence(endOfSequence_),
-        enumerationContext(enumerationContext_)
+        const String& enumerationContext_)
+    : CIMOpenOrPullResponseDataMessage(
+        CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,CIMResponseData::RESP_INSTANCES,
+        endOfSequence_, enumerationContext_),
+        queryResultClass(queryResultClass_)
     {
     }
 

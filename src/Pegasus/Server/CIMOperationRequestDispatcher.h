@@ -882,6 +882,13 @@ protected:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName);
 
+    /* generate and return the required exception if this test fails
+
+    */
+    Boolean _CIMExceptionIfNoProvidersOrRepository(
+        CIMOperationRequestMessage* request,
+        const ProviderInfoList& providerInfos,
+        CIMException& cimException);
     /**
         Reject if no providers or repository for this class
     */
@@ -995,6 +1002,13 @@ protected:
         EnumerationContext* en,
         Uint32 operationMaxObjectCount);
 
+    bool issueOpenOrPullResponseMessage(
+        CIMOperationRequestMessage* openRequest,
+        CIMOpenOrPullResponseDataMessage* openResponse,
+        EnumerationContext* en,
+        Uint32 operationMaxObjectCount,
+        Boolean requireCompleteResponses);
+
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
 
@@ -1025,12 +1039,6 @@ private:
         CIMOpenOrPullResponseDataMessage*  pullResponse,
         const char * requestName);
 
-    bool issueOpenOrPullResponseMessage(
-        CIMOperationRequestMessage* openRequest,
-        CIMOpenOrPullResponseDataMessage* openResponse,
-        EnumerationContext* en,
-        Uint32 operationMaxObjectCount,
-        Boolean requireCompleteResponses);
 
     // pointer to EnumerationContextTable which allocates
     // and releases enumeration context objects.

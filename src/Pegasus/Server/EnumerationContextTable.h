@@ -112,8 +112,13 @@ public:
      */
     EnumerationContext* createContext(
         const CIMNamespaceName& nameSpace,
-        Uint32Arg&  operationTimeOutParam,
+        const Uint32Arg&  operationTimeOutParam,
         Boolean continueOnError,
+        MessageType pullRequestType,
+        CIMResponseData::ResponseDataContent contentType);
+
+    EnumerationContext* createContext(
+        const CIMOpenOperationRequestMessage* request,
         MessageType pullRequestType,
         CIMResponseData::ResponseDataContent contentType);
 

@@ -77,9 +77,10 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
     enr->getResponseData().setSize();
 }
 
-void WQLOperationRequestDispatcher::handleQueryRequest(
+bool WQLOperationRequestDispatcher::handleQueryRequest(
     CIMExecQueryRequestMessage* request,
-    EnumerationContext* enumerationContext)
+    CIMException& cimException,
+    EnumerationContext* en)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "WQLOperationRequestDispatcher::handleQueryRequest");
@@ -88,7 +89,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     AutoPtr<WQLSelectStatement> selectStatement(new WQLSelectStatement());
 
     AutoPtr<WQLQueryExpressionRep> qx;
-    CIMException cimException;
+
     CIMName className;
 
     if (request->queryLanguage!="WQL")
@@ -132,12 +133,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
     if (exception)
     {
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = cimException;
-
-        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
     //
@@ -153,22 +150,18 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     }
     catch (CIMException& e)
     {
-        // Return exception response if exception from getSubClasses
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = e;
-
-        _enqueueResponse(request, response);
+        cimException = e;
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
-
-    if (_rejectNoProvidersOrRepository(request,providerInfos))
+    if (_CIMExceptionIfNoProvidersOrRepository(request, providerInfos,
+                                               cimException))
     {
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
     // We have instances for Providers and possibly repository.
@@ -184,9 +177,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         qx.release(),
         "WQL");
 
-    if (enumerationContext != NULL)
+    if (en != NULL)
     {
-        poA->setPullOperation(enumerationContext);
+        poA->setPullOperation(en);
     }
 
     // Set the number of expected responses in the OperationAggregate
@@ -233,7 +226,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         ProviderIdContainer* providerIdContainer =
             providerInfo.providerIdContainer.get();
 
-        // if not a provider with Query capability, execute
+        // If not a provider with Query capability, execute
         // EnumerateInstances for the provider.
         if (providerInfo.hasNoQuery)
         {
@@ -257,7 +250,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             context = &enumReq->operationContext;
 
             if (providerIdContainer)
+            {
                 context->insert(*providerIdContainer);
+            }
 
             context->insert(identityContainer);
 
@@ -274,7 +269,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             OperationContext* context = &request->operationContext;
 
             if (providerIdContainer)
+            {
                 context->insert(*providerIdContainer);
+            }
 
             requestCopy->operationContext = *context;
             requestCopy->className = providerInfo.className;
@@ -287,6 +284,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     } // for all classes and derived classes
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

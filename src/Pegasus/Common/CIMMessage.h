@@ -1072,10 +1072,8 @@ public:
     String enumerationContext;
 };
 
-// KS_TODO Subclass this from CIMOpenOperationRequest and create
-// the constructor in CIMMessage.cpp
 class PEGASUS_COMMON_LINKAGE CIMOpenQueryInstancesRequestMessage
-    : public CIMOperationRequestMessage
+    : public  CIMOpenOperationRequestMessage
 {
 public:
     CIMOpenQueryInstancesRequestMessage(
@@ -1084,36 +1082,22 @@ public:
         const String& queryLanguage_,
         const String& query_,
         Boolean returnQueryResultClass_,
-        Uint32Arg operationTimeout_,
+        const Uint32Arg& operationTimeout_,
         Boolean continueOnError_,
         Uint32 maxObjectCount_,
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY)
-    : CIMOperationRequestMessage(
-        CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
-            authType_, userName_,
-            nameSpace_,CIMName()),
-        returnQueryResultClass(returnQueryResultClass_),
-        queryLanguage(queryLanguage_),
-        query(query_),
-        operationTimeout(operationTimeout_),
-        maxObjectCount(maxObjectCount_)
-    {
-    }
+        const String& userName_ = String::EMPTY);
+
     virtual CIMResponseMessage* buildResponse() const;
 
     Boolean returnQueryResultClass;
 
     // WARNING: The queryLanguage and query here are not the same as
-    // for other OpenMessages.  For those a filterQuery like FQL is requied
+    // for other OpenMessages.  For those a filterQuery like FQL is required
     // This is a full Query Language (ex. WQL or CQL)
     String queryLanguage;
     String query;
-    Uint32Arg operationTimeout;
-    Boolean continueOnError;
-    Uint32 maxObjectCount;
-
 };
 // EXP_PULL_END
 
@@ -1952,20 +1936,18 @@ public:
 };
 
 class PEGASUS_COMMON_LINKAGE CIMOpenQueryInstancesResponseMessage
-    : public CIMResponseDataMessage
+    : public CIMOpenOrPullResponseDataMessage
 {
 public:
     CIMOpenQueryInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const CIMClass& queryResultClass_,
-        Boolean endOfSequence_,
-        const String& enumerationContext_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
 
     CIMClass queryResultClass;
-    Boolean endOfSequence;
-    String enumerationContext;
 };
 
 //EXP_PULL_END

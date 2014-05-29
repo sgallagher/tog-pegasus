@@ -4959,9 +4959,9 @@ static CIMOpenQueryInstancesResponseMessage*
             messageId,
             cimException,
             CIMClass(),
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
 
     // Instead of resolving the binary data here, delegate this
     // to a later point in time when the data is actually retrieved through

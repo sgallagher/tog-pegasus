@@ -148,7 +148,7 @@ static IDFactory _enumerationContextIDFactory(6000);
 
 EnumerationContext* EnumerationContextTable::createContext(
     const CIMNamespaceName& nameSpace,
-    Uint32Arg&  operationTimeoutParam,
+    const Uint32Arg&  operationTimeoutParam,
     Boolean continueOnError,
     MessageType pullRequestType,
     CIMResponseData::ResponseDataContent contentType)
@@ -215,6 +215,18 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     PEG_METHOD_EXIT();
     return en;
+}
+
+    EnumerationContext* EnumerationContextTable::createContext(
+        const CIMOpenOperationRequestMessage* request,
+        MessageType pullRequestType,
+        CIMResponseData::ResponseDataContent contentType)
+{
+    return createContext(request->nameSpace,
+            request->operationTimeout,
+            request->continueOnError,
+            pullRequestType,
+            contentType);
 }
 
 void EnumerationContextTable::displayStatistics(bool clearStats)

@@ -17,11 +17,11 @@ TODO list:
       Leave this as FUTURE
    2. OpenExecQuery - Code is incomplete in that it does not include the
       return from the exec query function to the aggregator yet. Code for Pull
-      part of OpenQueryInstancesRequest a) should be part of
-      the common CIMOperationRequestDispatcher execCommon code.
+      part of OpenQueryInstancesRequest a) should be part of the common
+      CIMOperationRequestDispatcher execCommon code. DONE, not tested. 29 May
    3. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
       pull not completed so we feed the responses back to the EnmerationContext
-      queues
+      queues. DONE Not tested 29 May
    4. Minor TODOs, diagnostics, etc. still in the code
    5. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
@@ -58,20 +58,47 @@ TODO list:
            return true
        }
        It would mean that the method trace for the handlers would not return
-       an exit if we rejected. LOW PRIORITY
-    10. There are still a couple of template functionsaround the task of
+       an exit if we rejected. VERY LOW PRIORITY
+    10. There are still a couple of template functions around the task of
        distributing requests to the multiple providers.
        In fact there are two similiar but different templates for
        the associators(i.e. assoc, ref, etc.) functions and the parallel
        openAssoc functions.  It would be nice to consolidate that logic and
        further to try to create a non-template form for those functions. LOW
        PRIORITY.
-    11. External runtime variables. Proposing that they be fixed for this release
-      rather than set by configuration. Making this a separate bug.
-      See bug 9819 for the changes to cover this.
+    11. External runtime variables. This bug leaves these variables as
+      internal to CIMOperationRequestDispatcher.cpp.  
+      See bug 9819 for the changes to externalize these variables, both
+      the runtime and buildtime variables.  The Work group discussion
+      documents what the variables are and how they tie to statistics info.
+      See the OpenPegasus Wiki, Pull operations work group.
+    12. Not directly related to pull but now over half the code in
+      WQLOperationRequestDispatcher.cpp and CQLOperationRequestDispatcher
+      handle functions is just duplicated.  Need to create a common function
+      and eliminate the duplicated code
+    13. Left almost duplicate createContext function in EnumerationContextTab.
+      Clean up code
+
 
    NEXT TASKS: 
-      a. finish 8, 11 3 above
+      a. finish 8, 11 2,3 above ( Finish by about 1 June)
+
+29 May 2014
+1. Correct issue in cimcli that was causing rejects of open operations when
+   there were no filters requested. The standard default is WQL in cimcli
+   so we overrode this for the pull operations.
+2. Clean up OpenQueryInstances in CIMMessage.h and CIMMessage.cpp.
+3. Modify CIMOperationRequestDispatcher and
+   EnumerationContextTable.CreateContext to pass request rather than request
+   parameters.
+4. Remove a number of diagnostic messages.  Note that there are still some.
+   They are marked KS_TODO with with note to remove before checkin. They are
+   all traces and validations.
+5. Correct error in inclusion of execinfo.h include in CIMOperationRequestDis.
+   found by Ji Lee.
+6. Cleaned up execQuery and extended it for OpenQueryInstances.  ExecQuery
+   tested but have not tested OpenQueryInstances yet. One more checkin and we
+   should be able to close 2,3 above (OpenQueryInstances).
 
 26 May 2014
 1. Remove a number of diagnostics.

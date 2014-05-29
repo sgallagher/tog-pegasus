@@ -1324,11 +1324,12 @@ String _displayPullCommonParam(Options& opts)
 */
 int pullEnumerateInstances(Options& opts)
 {
-    // opts default is WQL so we will set that to NULL
-    if (opts.queryLanguage == "WQL")
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
     {
         opts.queryLanguage = "";
     }
+
     if (opts.verboseTest)
     {
         cout << "PullEnumerateInstances "
@@ -1400,11 +1401,12 @@ int pullEnumerateInstances(Options& opts)
 
 int pullEnumerateInstancePaths(Options& opts)
 {
-        // opts default is WQL so we will set that to NULL
-    if (opts.queryLanguage == "WQL")
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
     {
         opts.queryLanguage = "";
     }
+
     if (opts.verboseTest)
     {
         cout << "PullEnumerateInstances "
@@ -1464,11 +1466,12 @@ int pullEnumerateInstancePaths(Options& opts)
 
 int pullReferenceInstancePaths(Options& opts)
 {
-        // opts default is WQL so we will set that to NULL
-    if (opts.queryLanguage == "WQL")
+        // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
     {
         opts.queryLanguage = "";
     }
+
     if (opts.verboseTest)
     {
         cout << "PullReferenceInstanceNames "
@@ -1531,11 +1534,12 @@ int pullReferenceInstancePaths(Options& opts)
 */
 int pullReferenceInstances(Options& opts)
 {
-        // opts default is WQL so we will set that to NULL
-    if (opts.queryLanguage == "WQL")
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
     {
         opts.queryLanguage = "";
     }
+
     if (opts.verboseTest)
     {
         cout << "PullReferenceInstances "
@@ -1603,11 +1607,12 @@ int pullReferenceInstances(Options& opts)
 
 int pullAssociatorInstancePaths(Options& opts)
 {
-    // opts default is WQL so we will set that to NULL
-    if (opts.queryLanguage == "WQL")
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
     {
         opts.queryLanguage = "";
     }
+
     if (opts.verboseTest)
     {
         cout << "PullReferenceInstanceNames "
@@ -1671,11 +1676,12 @@ int pullAssociatorInstancePaths(Options& opts)
 
 int pullAssociatorInstances(Options& opts)
 {
-        // opts default is WQL so we will set that to NULL
-    if (opts.queryLanguage == "WQL")
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
     {
         opts.queryLanguage = "";
     }
+
     if (opts.verboseTest)
     {
         cout << "PullAssoociatorInstances "
@@ -1746,7 +1752,6 @@ int pullAssociatorInstances(Options& opts)
 
 int pullQueryInstances(Options& opts)
 {
-
     // Currently we do not allow the query return class in OpenPegasus.
     Boolean returnQueryResultClass = false;
 

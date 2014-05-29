@@ -382,7 +382,7 @@ public:
 
 
     // Diagnostic to display the current context into the
-    // trace file  KS_TODO eliminate this diagnostic
+    // trace file  KS_TODO eliminate or compile in debug mode only
     void trace();
 
     //
@@ -453,7 +453,7 @@ private:
     // Set by open. All pulls must match this type.
     MessageType _pullRequestType;
 
-    // status flags.
+    // Status flags.
     // Set true when context closed from client side
     bool _clientClosed;
 

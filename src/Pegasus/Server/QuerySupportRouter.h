@@ -75,13 +75,15 @@ typedef void (*applyQueryFunctionPtr)(
 class QuerySupportRouter
 {
 public:
-    /*  Handle the ExecQuery request by handing it off to the
+    /**  Handle the ExecQuery request by handing it off to the
         correct handler for the defined query language. The handler validates
         the request and processes it either by doing an enumeration and
         filtering the result or handing it to the provider if the provider has
         query processing capabilities.
         @param opThis
         @param msg CIMExecQueryRequestMessage to be processed
+        @param exception CIMException to be completed and retruned if return
+        false
         @param enumerationContext pointer to the enumerationContext for
         this operation if it is a pull operation.
         @return true if the query language is supported.
@@ -91,6 +93,7 @@ public:
     static Boolean routeHandleExecQueryRequest(
         CIMOperationRequestDispatcher* opThis,
         CIMExecQueryRequestMessage* msg,
+        CIMException& cimException,
         EnumerationContext* enumerationContext = NULL);
 
     /** get pointer to  the correct applyQueryToEnumeration function

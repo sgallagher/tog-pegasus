@@ -2598,9 +2598,9 @@ CIMOpenQueryInstancesResponseMessage*
             messageId,
             cimException,
             CIMClass(),
+            QueueIdStack(),
             endOfSequence,
-            enumerationContext,
-            QueueIdStack());
+            enumerationContext);
     }
 
     if (isEmptyImethodresponseTag)
@@ -2624,9 +2624,9 @@ CIMOpenQueryInstancesResponseMessage*
         messageId,
         cimException,
         CIMClass(),
+        QueueIdStack(),
         endOfSequence,
-        enumerationContext,
-        QueueIdStack());
+        enumerationContext);
 
     msg->getResponseData().setInstances(instances);
     return msg;

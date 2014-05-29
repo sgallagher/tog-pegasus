@@ -49,7 +49,6 @@
 
 #include <Pegasus/Server/EnumerationContext.h>
 #include <Pegasus/Server/EnumerationContextTable.h>
-#include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -251,12 +250,6 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     {
         _totalReceivedComplete++;
         _totalReceivedExpected += response.getIndex() + 1;
-
-        //// KS_TODO Remove this trace diagnostic
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-            "resequence isComplete."
-            "totalResponsesReceivedComplete = %u. _totalReceivedExpected = %u",
-            _totalReceivedComplete, _totalReceivedExpected ));
     }
 
     response.setIndex(_totalReceived++);
@@ -323,21 +316,21 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
             response.cimException = CIMException();
         }
-        //// KS_TODO - This else and display is all temporary
-        else
-        {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Set CIMException  isComplete: %s Total responses: %u, "
-                    "total chunks: %u, total errors: %u totalIssued: %u "
-                    "totalReceivedNotSupported: %u notSupportedReceived %s",
-                boolToString(isComplete),
-                _totalReceivedComplete,
-                _totalReceived,
-                _totalReceivedErrors,
-                _totalIssued,
-                _totalReceivedNotSupported,
-                boolToString(notSupportedReceived)));
-        }
+////      //// KS_TODO - This else and display is all temporary
+////      else
+////      {
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+////              "Set CIMException  isComplete: %s Total responses: %u, "
+////                  "total chunks: %u, total errors: %u totalIssued: %u "
+////                  "totalReceivedNotSupported: %u notSupportedReceived %s",
+////              boolToString(isComplete),
+////              _totalReceivedComplete,
+////              _totalReceived,
+////              _totalReceivedErrors,
+////              _totalIssued,
+////              _totalReceivedNotSupported,
+////              boolToString(notSupportedReceived)));
+////      }
 
         isComplete = true;
         _totalReceivedComplete = 0;
@@ -1018,12 +1011,6 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             _logOperation(poA->getRequest(), response);
         }
 
-        // Send it syncronously so that multiple responses will show up in the
-        // receiving queue according to the order that we have set the response
-        // index. If this was a single complete response, we could in theory
-        // send it async (i.e SendForget), however, there is no need to make a
-        // condition point based off this.
-
         // If it is a pull operation response, send to the output caching queue
         // in the enumeration context.  If not a pull operation,
         // directly queue.
@@ -1127,6 +1114,11 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             }
         }
         // Otherwise not a pull operation; queue response
+        // Send it syncronously so that multiple responses will show up in the
+        // receiving queue according to the order that we have set the response
+        // index. If this was a single complete response, we could in theory
+        // send it async (i.e SendForget), however, there is no need to make a
+        // condition point based off this.
         else
         {
             if (q)
@@ -1680,7 +1672,7 @@ Boolean CIMOperationRequestDispatcher::_lookupAssociationProvider(
             _lookupRegisteredAssociationProvider(
                 nameSpace, assocClass, &providerIdContainer);
 
-        /// Provider registration should NEVER return more than a single
+        //  Provider registration should NEVER return more than a single
         //  provider for this lookup by design of provider registration today.
         if (assocProviderList.size() > 0)
         {
@@ -2446,7 +2438,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
             break;
 
         case CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE:
-            handleOpenQueryInstancesRequest(
+            del = handleOpenQueryInstancesRequest(
                 (CIMOpenQueryInstancesRequestMessage*)opRequest);
             break;
 //KS_PULL_END
@@ -2578,6 +2570,29 @@ void CIMOperationRequestDispatcher::_rejectEnumerateTooBroad(
                 "Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD",
                 "Enumerate request too Broad"));
     }
+}
+
+Boolean CIMOperationRequestDispatcher::_CIMExceptionIfNoProvidersOrRepository(
+    CIMOperationRequestMessage* request,
+    const ProviderInfoList& providerInfos,
+    CIMException& cimException)
+{
+    if ((providerInfos.providerCount == 0) &&
+        !(_repository->isDefaultInstanceProvider()))
+    {
+        cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
+                "Server.CIMOperationRequestDispatcher."
+                    "REQUEST_CLASS_NOT_SUPPORTED",
+                "No provider or repository defined for class $0.",
+                request->className.getString()));
+        return true;
+    }
+    else   // We have either providers or a repository
+    {
+        return false;
+    }
+
 }
 
 Boolean CIMOperationRequestDispatcher::_rejectNoProvidersOrRepository(
@@ -5267,24 +5282,11 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
         PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     exception=true;
 #else
-    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false)
+    CIMException cimException;
+    if (!QuerySupportRouter::routeHandleExecQueryRequest(this,request,
+                                                         cimException))
     {
-        if (request->operationContext.contains(
-                SubscriptionFilterConditionContainer::NAME))
-        {
-            SubscriptionFilterConditionContainer sub_cntr =
-                request->operationContext.get(
-                    SubscriptionFilterConditionContainer::NAME);
-            response->cimException = PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
-                sub_cntr.getQueryLanguage());
-        }
-        else
-        {
-            response->cimException = PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
-        }
-
+        response->cimException = cimException;
         exception = true;
     }
 #endif
@@ -5508,9 +5510,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     //
     EnumerationContext* enumerationContext =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
+            request,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
             CIMResponseData::RESP_INSTANCES);
 
@@ -5692,9 +5692,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     //
     EnumerationContext* enumerationContext =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
+            request,
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
             CIMResponseData::RESP_INSTNAMES);
 
@@ -5879,11 +5877,6 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         return true;
     }
 
-////  // KS_TODO want single source for this info.
-////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_TEMP
-////      "OpenReferenceInstances "
-////      "providerCount = %u.", providerInfos.providerCount));
-
     //
     // Request the instances from the repository, as necessary.
     // Instances go directly into a response because the are returned as
@@ -5949,9 +5942,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // Create new context object.
     EnumerationContext* enumerationContext =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
+            request,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
             CIMResponseData::RESP_OBJECTS);
 
@@ -6180,9 +6171,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     //
     EnumerationContext* enumerationContext =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
+            request,
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
             CIMResponseData::RESP_OBJECTPATHS);
 
@@ -6437,9 +6426,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // Create a new enumeration context
     EnumerationContext* enumerationContext =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
+            request,
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
             CIMResponseData::RESP_OBJECTS);
 
@@ -6700,9 +6687,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // Create new enumerationContext and enumerationContextString.
     EnumerationContext* enumerationContext =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
+            request,
             CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE,
             CIMResponseData::RESP_OBJECTPATHS);
 
@@ -6846,7 +6831,7 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
         return true;
     }
 
-    AutoPtr<CIMOpenQueryInstancesResponseMessage> response(
+    AutoPtr<CIMOpenQueryInstancesResponseMessage> openResponse(
         dynamic_cast<CIMOpenQueryInstancesResponseMessage*>(
             request->buildResponse()));
 
@@ -6857,19 +6842,10 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
         PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     exception=true;
 #endif
-    // KS_TODO this operation currently not supported. It requires extending
-    // The WQL and CQL dispatch support functions to interface with the
-    // pull operations.
-
-    //// KS_TODO temporary code until we finish support for this operation
-    response->cimException =
-    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-    exception=true;
-    //// End of temporary code
 
     if (exception)
     {
-        _enqueueResponse(request, response.release());
+        _enqueueResponse(request, openResponse.release());
         PEG_METHOD_EXIT();
         return true;
     }
@@ -6877,7 +6853,7 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     //
     // Setup the EnumerationContext. Returns pointer to object
     //
-    EnumerationContext* enumerationContext =
+    EnumerationContext* en =
         _enumerationContextTable->createContext(
             request->nameSpace,
             request->operationTimeout,
@@ -6885,14 +6861,14 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
             CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
             CIMResponseData::RESP_INSTANCES);
 
-    if (enumerationContext == NULL)
+    if (en == NULL)
     {
         _rejectCreateContextFailed(request);
         PEG_METHOD_EXIT();
         return true;
     }
 
-      //// KS TODO check this since not sure whether required.
+      //// KS_TODO check this since not sure whether required.
 ////  enumerationContext->setRequestProperties(
 ////      request->includeClassOrigin, request->propertyList);
       //// This moved to query processor
@@ -6914,36 +6890,53 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
 
     AutoPtr<CIMExecQueryRequestMessage> requestDestroyer(internalRequest);
 
-    if (QuerySupportRouter::routeHandleExecQueryRequest(
-       this, internalRequest, enumerationContext) == false)
+    CIMException cimException;
+    if (!QuerySupportRouter::routeHandleExecQueryRequest(
+       this, internalRequest,cimException, en))
     {
-        if (internalRequest->operationContext.contains(
-                SubscriptionFilterConditionContainer::NAME))
-        {
-            SubscriptionFilterConditionContainer sub_cntr =
-                internalRequest->operationContext.get(
-                    SubscriptionFilterConditionContainer::NAME);
-            response->cimException = PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
-                sub_cntr.getQueryLanguage());
-        }
-        else
-        {
-            response->cimException = PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
-        }
+//      if (internalRequest->operationContext.contains(
+//              SubscriptionFilterConditionContainer::NAME))
+//      {
+//          SubscriptionFilterConditionContainer sub_cntr =
+//              internalRequest->operationContext.get(
+//                  SubscriptionFilterConditionContainer::NAME);
+//
+//          response->cimException = PEGASUS_CIM_EXCEPTION(
+//              CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+//              sub_cntr.getQueryLanguage());
+//      }
+//      else
+//      {
+//          response->cimException = PEGASUS_CIM_EXCEPTION(
+//              CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
+//      }
 
         exception = true;
     }
 
-        // Build empty open response
+    if (exception)
+    {
+        openResponse->cimException = cimException;
+        _enqueueResponse(request, openResponse.release());
+        PEG_METHOD_EXIT();
+        return true;
+    }
+    // Issue the Response to the Open Request. This may be issued immediatly
+    // or delayed by setting information into the enumeration context
+    // if there are no responses from providers ready
+    // to avoid issuing empty responses.
 
-    AutoPtr<CIMOpenQueryInstancesRequestMessage> openResponse(
-        dynamic_cast<CIMOpenQueryInstancesRequestMessage*>(
-            request->buildResponse()));
+    // Enumeration Context must not be used after this call
+    bool releaseRequest = issueOpenOrPullResponseMessage(
+       request,
+       openResponse.release(),
+       en,
+       operationMaxObjectCount,
+       requireCompleteResponses);
 
     PEG_METHOD_EXIT();
-    return true;
+    return releaseRequest;
+
 }
 
 void CIMOperationRequestDispatcher::handleEnumerationCount(
@@ -7970,7 +7963,6 @@ Boolean CIMOperationRequestDispatcher::_forwardEnumerationToProvider(
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
         //// TODO we are building from a generic, not a specific type.
-        cout << "Exception from _forwardEnumerationToProvider" << endl;
         CIMResponseMessage* response = request->buildResponse();
         response->cimException = checkClassException;
         _forwardResponseForAggregation(request,  poA, response);

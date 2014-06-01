@@ -46,7 +46,6 @@
 #include <Pegasus/Common/SCMOClass.h>
 #include <Pegasus/Common/SCMOInstance.h>
 #include <Pegasus/Common/SCMODump.h>
-#include <Pegasus/Common/Mutex.h>           // KS_TODO  Remove
 #include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -67,7 +66,8 @@ public:
         RESP_ENC_XML = 4,
         RESP_ENC_SCMO = 8
     };
-
+    // Defines the data content type for the object. A CIMResponseData
+    // object can have only a single Content type.
     enum ResponseDataContent {
         RESP_INSTNAMES = 1,
         RESP_INSTANCES = 2,
@@ -370,7 +370,8 @@ public:
     // used to communicate to clients in the provided CIMBuffer.
     // The pull responses requires a flag (isPull) and the special
     // case  of encoding OpenQueryInstances and PullInstances a second flag
-    // (encodeInstanceOnly which only encodes the instance itself)
+    // (encodeInstanceOnly which only encodes the instance itself and to
+    // encode any objects as instances)
     void encodeXmlResponse(Buffer& out,
         Boolean isPull,
         Boolean encodeInstanceOnly = false);
@@ -402,10 +403,18 @@ public:
         return _propertyList;
     }
 
-    void traceResponseData();           // KS_TODO Diagnostic. remove
-    String toStringTraceResponseData();  // KS_TODO Diagnostic remove
-
     void resolveBinaryToSCMO();
+
+//// #ifdef PEGASUS_DEBUG
+    /* Create a trace file entry with the core data in the CIMResponse
+       object
+    */
+    void traceResponseData() const;
+    /*
+        Generate a String containing the core data in the CIMResponse object
+    */
+    String toStringTraceResponseData() const;
+//// #endif
 
 private:
 
@@ -442,6 +451,7 @@ private:
     // Special flag to handle the case where binary data in passed through the
     // system but must be mapped to instances in the getInstances.  This
     // accounts for only one case today, binary data in the BinaryCodec
+    // TODO May 2014 (KS) - This appears to be completely unused
     Boolean _mapObjectsToIntances;
 
     // Storing type of data in this enumeration

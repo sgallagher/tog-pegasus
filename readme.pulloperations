@@ -15,14 +15,16 @@ TODO list:
       need to do this. The binary response is not really used often
       in the current environment So double mapping it is not a major issue.
       Leave this as FUTURE
-   2. OpenExecQuery - Code is incomplete in that it does not include the
+   2. DONE OpenExecQuery - Code is incomplete in that it does not include the
       return from the exec query function to the aggregator yet. Code for Pull
       part of OpenQueryInstancesRequest a) should be part of the common
       CIMOperationRequestDispatcher execCommon code. DONE, not tested. 29 May
-   3. The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
+       30 May tested with simple cli calls.
+   3. DONE The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
       pull not completed so we feed the responses back to the EnmerationContext
-      queues. DONE Not tested 29 May
-   4. Minor TODOs, diagnostics, etc. still in the code
+      queues. DONE Not tested 29 May 30 May DONE,  some testing done
+   4. Minor TODOs, diagnostics, etc. still in the code. Reduced almost to
+      none now.  We are leaving some in as PEGASUS_DEBUG
    5. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
@@ -30,27 +32,39 @@ TODO list:
       of queue when converting (avoids the second move). This would mean
       extending the output writers to allow the count field to be supplied
       so they would only create output for up to the count supplied.(Make
-      this future beyond bug 9676)
+      this future beyond bug 9676). This is fairly extensive because it
+      extends beyond CIMResponseData to SCMO and XML writers where the
+      XmlWriters used by encodeXmlResponse would have to have counters
+      added. Then instead of copying on getCache we would simply pass the
+      cache and count on and the writer would take and remove.
    6. Add more static tests (currently only OpenEnumerateInstances and
       OpenEnumerateInstanceNames covered). 
       Low priority because most of this except exact XML covered in other
       tests. note that we can only add very limited tests since a) no
       way to test multiple operations in sequence(i.e. open/pull) and
       cannot be sure how many responses will come back in all cases even
-      for open.
-   7. Clean up the CIMOperationRequestDecoder.cpp rejectCIMException
-      further since there is some overlap.  VERY Low priority.
+      for open.  The only reason for most of these tests is to assure that
+      we do not change XML inadvertendtly in future with change that is
+      compatible to both our server and client but breaks other clients or
+      servers. In any case we can do only minimal tests because most real
+      testing involves both open and pull and the static tests are by their
+      nature single operation.
+   7. Clean up the CIMOperationRequestDecoder.cpp reject CIMException
+      further since there is some overlap. The only overlap is that a
+      couple of the specific functions duplicate. VERY LOW priority.
    8. Correct issue between operations and HTTP where we are sending
       trailers with exceptions. Modify response mechanisms so that we
       set non-chunked for all responses where we send error responses to
-      avoid the trailers.
+      avoid the trailers. NOTE: There should be now a bug on this in general
+      where we would want to send an initial error without the trailer. Should
+      have always done that.
    9. It would be more efficient in dispatcher to always use exception for
        rejects and change the _reject functions so that they never return
        when they reject. This is VERY LOW PRIORITY and primarily saves
        a few lines of code in the reject functions and their calls.  Means we
        would code.
-       _rejectIfEnumerationToBroad(...)
-       _rejectIfThisParameterIncorrect(...)
+       _rejectIfEnumerationToBroad(...);
+       _rejectIfThisParameterIncorrect(...);
 
        instead of
        if (_rejectIfEnum...)
@@ -58,7 +72,9 @@ TODO list:
            return true
        }
        It would mean that the method trace for the handlers would not return
-       an exit if we rejected. VERY LOW PRIORITY
+       an exit if we rejected. VERY LOW PRIORITY. Possibly FUTURE. No behavior
+       change, just more compact source code but it messes with the method
+       trace logic.
     10. There are still a couple of template functions around the task of
        distributing requests to the multiple providers.
        In fact there are two similiar but different templates for
@@ -72,16 +88,47 @@ TODO list:
       the runtime and buildtime variables.  The Work group discussion
       documents what the variables are and how they tie to statistics info.
       See the OpenPegasus Wiki, Pull operations work group.
-    12. Not directly related to pull but now over half the code in
-      WQLOperationRequestDispatcher.cpp and CQLOperationRequestDispatcher
-      handle functions is just duplicated.  Need to create a common function
-      and eliminate the duplicated code
-    13. Left almost duplicate createContext function in EnumerationContextTab.
-      Clean up code
+    12. Trace functions in CIMResponseData,h & cpp should be PEGASUS_DEBUG.
+      Same for trace function in EnumerationContext and EnumerationContextTable
+    13. Question. We added trace in CIMRequestOperationDispatcher.cpp if
+      query enum is recevied with no object path.  However, since this is
+      a provider provblem should we be doing something other than a trace
+      (ex. log) since traces are often not really used and they do generate
+      lots of data whereby something like this could get lost. Also, need
+      to review what level of trace if we keep trace.
 
 
    NEXT TASKS: 
-      a. finish 8, 11 2,3 above ( Finish by about 1 June)
+      a. finish 8, 12 above ( Finish by about 1 June). Do next mergeout and
+         mergein to create a complete patch
+
+30 May 2014
+1. Correct issue in UintArgs.  Modified to use smart pointers, consistent
+   with public interfaces. Tested
+2. Complete code for OpenQueryInstances and PullInstances so that the complete
+   sequence works for both the server and client (i.e. 2, 3 above done
+   except for more tests in pullop).
+3. Fix issue in cimcli where the OpenQueryInstances was outputting a path
+   component where there is no path transmitted from the server.
+4. Moved large block of common code in CQLOperationRequestDispatcher.cpp
+   and WQLOperationRequestDispatcher.cpp to common function
+   handleQueryRequestCommon in CIMOperationRequestDispatcher.cpp. These
+   handlers now reduced to just the parser processing and minimal error
+   checks.
+5. Cleaned up some code in EnumerationContextTable.CreateContext so only
+   single interface for all requests.
+6, Commented out a number of PEG_TRACE messages.  Note that they are
+   commented with 4 /s at line beginning to be easily identified.
+   //// code
+   There are still a number of KS_TODOs but they are mostly some questsions,
+   some internationalization (note that almost none of this environment is
+   completely internationlaized (see the decoders)) and a couple of questions
+   about the existing code or exactly what message should be sent.  I argue
+   that the current TODOs should not stop checkin. Will remove after we
+   have tested couple of days and prove that there is no real need.
+7. Added trace in Query response code if there is no objectPath since that
+   is really an error in the provider
+
 
 29 May 2014
 1. Correct issue in cimcli that was causing rejects of open operations when

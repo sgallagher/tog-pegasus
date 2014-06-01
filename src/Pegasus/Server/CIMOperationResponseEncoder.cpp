@@ -624,6 +624,11 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
                 (CIMPullInstancesWithPathResponseMessage*)message);
             break;
 
+        case CIM_PULL_INSTANCES_RESPONSE_MESSAGE:
+            encodePullInstancesResponse(
+                (CIMPullInstancesResponseMessage*)message);
+            break;
+
         case CIM_CLOSE_ENUMERATION_RESPONSE_MESSAGE:
             encodeCloseEnumerationResponse(
                 (CIMCloseEnumerationResponseMessage*)message);
@@ -930,7 +935,8 @@ void CIMOperationResponseEncoder::encodePullInstancesResponse(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        // encode as pull and also encode only the instance
+        // encode as pull and also encode only the instance.
+        // if Content type is Object, encode as instance
         response->getResponseData().encodeXmlResponse(body, true, true);
 
         // Add return elements, endOfSequence and context
@@ -974,6 +980,7 @@ void CIMOperationResponseEncoder::encodeOpenQueryInstancesResponse(
     {
         // Encode response objects with indication that this is pull
         // operation and that we encode only the instance
+        // If objectType is object, encode as instance
         response->getResponseData().encodeXmlResponse(body, true, true);
     }
 

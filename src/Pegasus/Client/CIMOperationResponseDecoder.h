@@ -268,20 +268,23 @@ private:
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
+    CIMOpenQueryInstancesResponseMessage* _decodeOpenQueryInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
     CIMPullInstancesWithPathResponseMessage*
         _decodePullInstancesWithPathResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMPullInstancePathsResponseMessage*
-        _decodePullInstancePathsResponse(
+    CIMPullInstancePathsResponseMessage* _decodePullInstancePathsResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
 
-    CIMPullInstancesResponseMessage*
-        _decodePullInstancesResponse(
+    CIMPullInstancesResponseMessage* _decodePullInstancesResponse(
             XmlParser& parser,
             const String& messageId,
             Boolean isEmptyImethodresponseTag);
@@ -295,12 +298,6 @@ private:
         XmlParser& parser,
         const String& messageId,
         Boolean isEmptyImethodresponseTag);
-
-    CIMOpenQueryInstancesResponseMessage*
-        _decodeOpenQueryInstancesResponse(
-            XmlParser& parser,
-            const String& messageId,
-            Boolean isEmptyImethodresponseTag);
 // EXP_PULL END
 
     MessageQueue*        _outputQueue;

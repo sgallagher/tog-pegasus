@@ -28,72 +28,112 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //%////////////////////////////////////////////////////////////////////////////
-
-#include <Pegasus/Common/UintArgs.h>
-#include <Pegasus/Common/StringConversion.h>
+#include "UintArgsRep.h"
+#include "UintArgs.h"
+#include "StringConversion.h"
+#include "AtomicInt.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
+template<class REP>
+inline void Ref(REP* rep)
+{
+        rep->_refCounter++;
+}
+
+template<class REP>
+inline void Unref(REP* rep)
+{
+    if (rep->_refCounter.decAndTestIfZero())
+        delete rep;
+}
+
+//////////////////////////////////////////////////////////////////
 // Uint32Arg Integer Class used for parameters that
 // require Uint32 on input or output. Provides for NULL as well as
 // all Uint32 values
-//
-Uint32Arg::Uint32Arg() : _value(0), _null(true)
+//////////////////////////////////////////////////////////////////
+
+Uint32Arg::Uint32Arg()
 {
+    _rep = new Uint32ArgRep();
 }
 
-Uint32Arg::Uint32Arg(const Uint32Arg& x) :
-    _value(x._value), _null(x._null)
+Uint32Arg::Uint32Arg(const Uint32Arg& x)
 {
+
+    _rep = x._rep;
+    Ref(_rep);
 }
 
-Uint32Arg::Uint32Arg(Uint32 x) : _value(x), _null(false)
+Uint32Arg::Uint32Arg(Uint32 x)
 {
+    _rep = new Uint32ArgRep();
+    _rep->_value = x;
+    _rep->_null = false;
+}
+
+static inline Uint32ArgRep* _copyOnWriteUint32ArgRep(
+    Uint32ArgRep* rep)
+{
+    if (rep->_refCounter.get() > 1)
+    {
+        Uint32ArgRep* tmpRep= new Uint32ArgRep(*rep);
+        Unref(rep);
+        return tmpRep;
+    }
+    else
+    {
+        return rep;
+    }
 }
 
 Uint32Arg::~Uint32Arg()
 {
+    Unref(_rep);
 }
 
 Uint32Arg& Uint32Arg::operator=(const Uint32Arg& x)
 {
-    if (&x != this)
+    if (x._rep != _rep)
     {
-        _value = x._value;
-        _null = x._null;
+        Unref(_rep);
+        _rep = x._rep;
+        Ref(_rep);
     }
-
     return *this;
 }
 
 
 const Uint32& Uint32Arg::getValue() const
 {
-    return _value;
+    return _rep->_value;
 }
 
 void Uint32Arg::setValue(Uint32 x)
 {
-    _value = x;
-    _null = false;
+
+    _rep = _copyOnWriteUint32ArgRep(_rep);
+    _rep->_value = x;
+    _rep->_null = false;
 }
 
 Boolean Uint32Arg::isNull() const
 {
-    return _null;
+    return _rep->_null;
 }
 
 void Uint32Arg::setNullValue()
 {
-    _value = 0;
-    _null = true;
+    _rep = _copyOnWriteUint32ArgRep(_rep);
+    _rep->_value = 0;
+    _rep->_null = true;
 }
 
 String Uint32Arg::toString()
 {
     String s;
-    if (_null)
+    if (_rep->_null)
     {
         s = "NULL";
     }
@@ -101,82 +141,110 @@ String Uint32Arg::toString()
     {
         char buffer[22];
         Uint32 size;
-        const char* rtn = Uint32ToString(buffer, _value, size);
+        const char* rtn = Uint32ToString(buffer, _rep->_value, size);
         s = rtn;
     }
     return s;
 }
+
 Boolean Uint32Arg::equal(const Uint32Arg& x) const
 {
-    if ((_null != x._null))
+    if ((_rep->_null != x._rep->_null))
     {
         return false;
     }
-    return _null? true : (_value == x._value);
+    return _rep->_null? true : (_rep->_value == x._rep->_value);
 }
 
 Boolean operator==(const Uint32Arg& x, const Uint32Arg& y)
 {
     return x.equal(y);
 }
+
+//////////////////////////////////////////////////////////////
 // Uint64 Class Used for handling of Uint64
 // parameters on Client input and output
-//
+/////////////////////////////////////////////////////////////
 
-Uint64Arg::Uint64Arg() : _value(0), _null(true)
+Uint64Arg::Uint64Arg()
 {
+    _rep = new Uint64ArgRep();
 }
 
-Uint64Arg::Uint64Arg(const Uint64Arg& x) :
-    _value(x._value), _null(x._null)
+Uint64Arg::Uint64Arg(const Uint64Arg& x)
 {
+
+    _rep = x._rep;
+    Ref(_rep);
 }
 
-Uint64Arg::Uint64Arg(Uint64 x) : _value(x), _null(false)
+Uint64Arg::Uint64Arg(Uint64 x)
 {
+    _rep = new Uint64ArgRep();
+    _rep->_value = x;
+    _rep->_null = false;
+}
+
+static inline Uint64ArgRep* _copyOnWriteUint64ArgRep(
+    Uint64ArgRep* rep)
+{
+    if (rep->_refCounter.get() > 1)
+    {
+        Uint64ArgRep* tmpRep= new Uint64ArgRep(*rep);
+        Unref(rep);
+        return tmpRep;
+    }
+    else
+    {
+        return rep;
+    }
 }
 
 Uint64Arg::~Uint64Arg()
 {
+    Unref(_rep);
 }
 
 Uint64Arg& Uint64Arg::operator=(const Uint64Arg& x)
 {
-    if (&x != this)
+    if (x._rep != _rep)
     {
-        _value = x._value;
-        _null = x._null;
+        Unref(_rep);
+        _rep = x._rep;
+        Ref(_rep);
     }
-
     return *this;
 }
 
-
 const Uint64& Uint64Arg::getValue() const
 {
-    return _value;
+    return _rep->_value;
 }
 
 void Uint64Arg::setValue(Uint64 x)
 {
-    _value = x;
-    _null = false;
+
+    _rep = _copyOnWriteUint64ArgRep(_rep);
+    _rep->_value = x;
+    _rep->_null = false;
 }
 
 Boolean Uint64Arg::isNull() const
 {
-    return _null;
+    return _rep->_null;
 }
 
 void Uint64Arg::setNullValue()
 {
-    _value = 0;
-    _null = true;
+    _rep = _copyOnWriteUint64ArgRep(_rep);
+    _rep->_value = 0;
+    _rep->_null = true;
 }
+
 String Uint64Arg::toString()
 {
     String s;
-    if (_null)
+    if (_rep->_null)
     {
         s = "NULL";
     }
@@ -184,7 +252,7 @@ String Uint64Arg::toString()
     {
         char buffer[22];
         Uint32 size;
-        const char* rtn = Uint64ToString(buffer, _value, size);
+        const char* rtn = Uint64ToString(buffer, _rep->_value, size);
         s = rtn;
     }
     return s;
@@ -192,14 +260,16 @@ String Uint64Arg::toString()
 
 Boolean Uint64Arg::equal(const Uint64Arg& x) const
 {
-    if ((_null != x._null))
+    if ((_rep->_null != x._rep->_null))
     {
         return false;
     }
-    return _null? true : (_value == x._value);
+    return _rep->_null? true : (_rep->_value == x._rep->_value);
 }
+
 Boolean operator==(const Uint64Arg& x, const Uint64Arg& y)
 {
     return x.equal(y);
 }
+
 PEGASUS_NAMESPACE_END

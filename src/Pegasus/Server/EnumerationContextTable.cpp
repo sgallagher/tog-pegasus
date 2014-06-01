@@ -147,9 +147,7 @@ EnumerationContextTable::~EnumerationContextTable()
 static IDFactory _enumerationContextIDFactory(6000);
 
 EnumerationContext* EnumerationContextTable::createContext(
-    const CIMNamespaceName& nameSpace,
-    const Uint32Arg&  operationTimeoutParam,
-    Boolean continueOnError,
+    const CIMOpenOperationRequestMessage* request,
     MessageType pullRequestType,
     CIMResponseData::ResponseDataContent contentType)
 {
@@ -167,10 +165,10 @@ EnumerationContext* EnumerationContextTable::createContext(
     }
     // set the operation timeout to either the default or current
     // value
-    Uint32 operationTimeout = (operationTimeoutParam.isNull())?
+    Uint32 operationTimeout = (request->operationTimeout.isNull())?
         _defaultOperationTimeoutSec
         :
-        operationTimeoutParam.getValue();
+        request->operationTimeout.getValue();
 
     // Create new context name
     Uint32 rtnSize;
@@ -180,9 +178,9 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     // Create new context, Context name is monolithically increasing counter.
     EnumerationContext* en = new EnumerationContext(contextId,
-        nameSpace,
+        request->nameSpace,
         operationTimeout,
-        continueOnError,
+        request->continueOnError,
         pullRequestType,
         contentType);
 
@@ -215,18 +213,6 @@ EnumerationContext* EnumerationContextTable::createContext(
 
     PEG_METHOD_EXIT();
     return en;
-}
-
-    EnumerationContext* EnumerationContextTable::createContext(
-        const CIMOpenOperationRequestMessage* request,
-        MessageType pullRequestType,
-        CIMResponseData::ResponseDataContent contentType)
-{
-    return createContext(request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            pullRequestType,
-            contentType);
 }
 
 void EnumerationContextTable::displayStatistics(bool clearStats)

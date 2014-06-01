@@ -198,13 +198,13 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 //  static const char* func = "OperationAggregate::resequenceResponse";
 
     //// KS_TODO_ This trace is temporary. TEMP
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "Response MsgType= %s StatusCode = %s. "
-        "Namespace: %s, Class name: %s, ",
-        MessageTypeToString(response.getType()),
-        cimStatusCodeToString(response.cimException.getCode()),
-        CSTRING(_nameSpace.getString()),
-        CSTRING(_className.getString()) ));
+////  PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
+////      "Response MsgType= %s StatusCode = %s. "
+////      "Namespace: %s, Class name: %s, ",
+////      MessageTypeToString(response.getType()),
+////      cimStatusCodeToString(response.cimException.getCode()),
+////      CSTRING(_nameSpace.getString()),
+////      CSTRING(_className.getString()) ));
 
     // If error, increment error counter.
     // If NOT_SUPPORTED Error, increment NotSupported counter
@@ -302,24 +302,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             _totalReceivedErrors != _totalReceived) && notSupportedReceived)
         {
             //// KS_TODO this trace is diagnostic.  Remove before release
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // TODO KS_TEMP
-                "Set CIMException  isComplete: %s Total responses: %u, "
-                    "total chunks: %u, total errors: %u totalIssued: %u "
-                    "totalReceivedNotSupported: %u notSupportedReceived %s",
-                boolToString(isComplete),
-                _totalReceivedComplete,
-                _totalReceived,
-                _totalReceivedErrors,
-                _totalIssued,
-                _totalReceivedNotSupported,
-                boolToString(notSupportedReceived)));
-
-            response.cimException = CIMException();
-        }
-////      //// KS_TODO - This else and display is all temporary
-////      else
-////      {
-////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // TODO KS_TEMP
 ////              "Set CIMException  isComplete: %s Total responses: %u, "
 ////                  "total chunks: %u, total errors: %u totalIssued: %u "
 ////                  "totalReceivedNotSupported: %u notSupportedReceived %s",
@@ -330,7 +313,9 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 ////              _totalIssued,
 ////              _totalReceivedNotSupported,
 ////              boolToString(notSupportedReceived)));
-////      }
+
+            response.cimException = CIMException();
+        }
 
         isComplete = true;
         _totalReceivedComplete = 0;
@@ -932,19 +917,10 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         poA->appendResponse(response);
         Uint32 type = poA->getRequestType();
 
-        // there should never be more than one object in the list for async
+        // There should never be more than one object in the list for async
         // queues these functions are called for their jobs other than
         // aggregating.
-
-        // Operations which run through here include:
-        // CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE
-        // CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE
-        // CIM_ASSOCIATORS_REQUEST_MESSAGE
-        // CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE
-        // CIM_REFERENCES_REQUEST_MESSAGE
-        // CIM_REFERENCE_NAMES_REQUEST_MESSAGE
-        // CIM_EXEC_QUERY_REQUEST_MESSAGE
-
+        // All CIMENUM.., CIM_REF,, and CIM_ASSOC... messages
         if (type != CIM_EXEC_QUERY_REQUEST_MESSAGE)
         {
             // Hostname completion required for the four assoc-like operations
@@ -3286,41 +3262,6 @@ struct ProviderRequests
        OperationAggregate* poA,
        const char * reqMsgName)
     {
-          ////  KS_TODO Marking comment for now.  Have not figured out how to
-          //// get the MsgType to this function for the internalResponse.
-////      //// If response from repository, forward for aggregation.
-////
-////      // The following is call dependent (instancePaths or cimObjects
-////      // Need an array of something parameter
-////      if (repositoryData.size() != 0)
-////      {
-////          // This one is a problem unless we define a new parameter
-////          // for internalResponse. Maybe need the same thing as the
-////          // setSelectedRequestFields. But since this is a conditional
-////          // not sure how to provide the parameter.
-////          AutoPtr<IRSP> internalResponse;
-////          internalResponse.reset(dynamic_cast<IRSP*>(
-////              internalRequest->buildResponse()));
-////          // Sets the data into the appropriate type in CIMResponseData
-////          // There are functions for CIMObjects and CIMObjectPaths
-////          internalResponse->getResponseData().setArrayData(repositoryData);
-////
-////          poA->incTotalIssued();
-////
-////          // send the repository's results for aggregation
-////          // directly to callback (includes response).
-////          //
-////          dispatcher->_forwardResponseForAggregation(
-////              new REQ(*internalRequest),
-////              poA,
-////              internalResponse.release());
-////
-////          PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4, // KS_PULL_TEMP
-////          "%s repository _forwardForAggregation."
-////          " ProviderCount= %u total issued = %u", reqMsgName,
-////          providerInfos.providerCount, poA->getTotalIssued()));
-////      }
-
         // Issue requests to all providers defined.
         while (providerInfos.hasMore(true))
         {
@@ -3409,20 +3350,6 @@ struct ProviderRequests
 **                      and pullInstances with a single function
 **
 **************************************************************************/
-/**
-   Complete processing for the pull operations, pullInstancesWithPath
-   and Pull InstancePaths.  This function replaces all the code in the
-   pull functions including the input checking code because the pull operations
-   are exactly the same except for the response object type.
-   @param this -  Pointer to the CIMOperationRequestDispatcher object.
-          Required to execute dispatcher methods
-   @param request CIMPullOperationRequestMessage* Defines the pull
-                request message pointer
-   @param pullResponse - AutoPtr<CIMOpenOrPullResponseDataMessage>& defines the
-                response message for this pull response
-   @param requestName - String with the request name. Used internally for
-                traces, etc.
-*/
 
 bool CIMOperationRequestDispatcher::processPullRequest(
     CIMPullOperationRequestMessage* request,
@@ -3713,6 +3640,172 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     _enqueueResponse(request, responseDestroyer.release());
 
     PEG_METHOD_EXIT();
+}
+
+/*
+   Common processing for ExecQuery and OpenQueryInstances requests
+  This code gets the provider lists and issues the requests.
+*/
+bool CIMOperationRequestDispatcher::handleQueryRequestCommon(
+    CIMExecQueryRequestMessage* request,
+    CIMException& cimException,
+    EnumerationContext* enumerationContext,
+    const char* queryLanguage,
+    const CIMName& className,
+    QueryExpressionRep* qx)
+{
+        PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::handleQueryRequestCommon");
+        AutoPtr<QueryExpressionRep> destroyer(qx);
+    //
+    // Get names of descendent classes:
+    //
+    ProviderInfoList providerInfos;
+
+    // This exception should not be required or we should apply for
+    // all _lookupInstanceProvider Calls.
+
+    try
+    {
+        providerInfos = _lookupAllInstanceProviders(
+                request->nameSpace,
+                className);
+    }
+    catch (CIMException& e)
+    {
+        // Return exception response if exception from getSubClasses
+        cimException = e;
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    // If no provider is registered and the repository isn't the default,
+    // return CIM_ERR_NOT_SUPPORTED
+    if (_CIMExceptionIfNoProvidersOrRepository(request, providerInfos,
+                                               cimException))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    // We have instances for Providers and possibly repository.
+    // Set up an aggregate object and save a copy of the original request.
+    // NOTE: OperationAggregate released only when operation complete
+
+    bool isPullOperation = (enumerationContext != NULL)? true : false;
+
+    OperationAggregate* poA= new OperationAggregate(
+        new CIMExecQueryRequestMessage(*request),
+        className,
+        request->nameSpace,
+        providerInfos.providerCount,
+        false, false,
+        destroyer.release(),
+        queryLanguage);
+
+    if (isPullOperation)
+    {
+        poA->setPullOperation(enumerationContext);
+    }
+
+    // Build enum request for call to repository
+    AutoPtr<CIMEnumerateInstancesRequestMessage> repRequest(
+        new CIMEnumerateInstancesRequestMessage(
+            request->messageId,
+            request->nameSpace,
+            CIMName(),
+            false,false,false,
+            CIMPropertyList(),
+            request->queueIds,
+            request->authType,
+            request->userName));
+
+    // Gather the repository responses and send as one response
+    // with many instances
+    //
+    if (_enumerateFromRepository(repRequest.release(), poA, providerInfos))
+    {
+        CIMResponseMessage* response = poA->removeResponse(0);
+
+        _forwardResponseForAggregation(
+            new CIMExecQueryRequestMessage(*request),
+            poA,
+            response);
+    }
+
+    // Loop through providerInfos, forwarding requests to providers
+    while (providerInfos.hasMore(true))
+    {
+        // If this class has a provider
+        ProviderInfo& providerInfo = providerInfos.getNext();
+
+        // KS_TODO we should show if it is a query or instance provider in trace
+        providerInfos.pegRoutingTrace(providerInfo,
+                         ((isPullOperation)? "OpenQueryInstances": "execQuery"),
+                         request->messageId);
+
+        ProviderIdContainer* providerIdContainer =
+            providerInfo.providerIdContainer.get();
+
+        // If not a provider with Query capability, execute
+        // EnumerateInstances for the provider.
+        if (providerInfo.hasNoQuery)
+        {
+            OperationContext* context = &request->operationContext;
+            const OperationContext::Container* container = 0;
+            container = &context->get(IdentityContainer::NAME);
+            const IdentityContainer& identityContainer =
+                dynamic_cast<const IdentityContainer&>(*container);
+
+            AutoPtr<CIMEnumerateInstancesRequestMessage> enumReq(
+                new CIMEnumerateInstancesRequestMessage(
+                    request->messageId,
+                    request->nameSpace,
+                    providerInfo.className,
+                    false,false,false,
+                    CIMPropertyList(),
+                    request->queueIds,
+                    request->authType,
+                    identityContainer.getUserName()));
+
+            context = &enumReq->operationContext;
+
+            if (providerIdContainer)
+            {
+                context->insert(*providerIdContainer);
+            }
+
+            context->insert(identityContainer);
+
+            _forwardRequestForAggregation(
+                providerInfo.serviceId,
+                providerInfo.controlProviderName,
+                enumReq.release(), poA);
+        }
+        else
+        {
+            AutoPtr<CIMExecQueryRequestMessage> requestCopy(
+                new CIMExecQueryRequestMessage(*request));
+
+            OperationContext* context = &request->operationContext;
+
+            if (providerIdContainer)
+            {
+                context->insert(*providerIdContainer);
+            }
+
+            requestCopy->operationContext = *context;
+            requestCopy->className = providerInfo.className;
+
+            _forwardRequestForAggregation(
+                providerInfo.serviceId,
+                providerInfo.controlProviderName,
+                requestCopy.release(), poA);
+        }
+    } // for all classes and derived classes
+
+    PEG_METHOD_EXIT();
+    return true;
 }
 // EXP_PULL_END
 
@@ -5738,7 +5831,6 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
         providerInfos.providerCount,
         true,           // completeHostAndNamespace = false
         false);         // No property List for this operation
-
     //
     // Set Open... operation parameters into the operationAggregate
     // Includes setting namespace that is used to complete host and naespace
@@ -6804,7 +6896,7 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
             "maxObjectCount=%u ",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->queryLanguage),
-               CSTRING(request->query),
+        CSTRING(request->query),
         boolToString(request->returnQueryResultClass),
         CSTRING(request->operationTimeout.toString()),
         boolToString(request->continueOnError),
@@ -6852,14 +6944,14 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
 
     //
     // Setup the EnumerationContext. Returns pointer to object
-    //
+    // Objects are passed through the system (they are from ExecQuery)
+    // and mapped to instances on output
+
     EnumerationContext* en =
         _enumerationContextTable->createContext(
-            request->nameSpace,
-            request->operationTimeout,
-            request->continueOnError,
-            CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-            CIMResponseData::RESP_INSTANCES);
+            request,
+            CIM_PULL_INSTANCES_REQUEST_MESSAGE,
+            CIMResponseData::RESP_OBJECTS);
 
     if (en == NULL)
     {
@@ -6867,12 +6959,6 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
         PEG_METHOD_EXIT();
         return true;
     }
-
-      //// KS_TODO check this since not sure whether required.
-////  enumerationContext->setRequestProperties(
-////      request->includeClassOrigin, request->propertyList);
-      //// This moved to query processor
-////  poA->setPullOperation((void *)enumerationContext);
 
     // Create the corresponding CIMExecQueryRequestMessage
     CIMExecQueryRequestMessage* internalRequest =
@@ -6890,37 +6976,14 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
 
     AutoPtr<CIMExecQueryRequestMessage> requestDestroyer(internalRequest);
 
-    CIMException cimException;
     if (!QuerySupportRouter::routeHandleExecQueryRequest(
-       this, internalRequest,cimException, en))
+       this, internalRequest,openResponse->cimException, en))
     {
-//      if (internalRequest->operationContext.contains(
-//              SubscriptionFilterConditionContainer::NAME))
-//      {
-//          SubscriptionFilterConditionContainer sub_cntr =
-//              internalRequest->operationContext.get(
-//                  SubscriptionFilterConditionContainer::NAME);
-//
-//          response->cimException = PEGASUS_CIM_EXCEPTION(
-//              CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
-//              sub_cntr.getQueryLanguage());
-//      }
-//      else
-//      {
-//          response->cimException = PEGASUS_CIM_EXCEPTION(
-//              CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
-//      }
-
-        exception = true;
-    }
-
-    if (exception)
-    {
-        openResponse->cimException = cimException;
         _enqueueResponse(request, openResponse.release());
         PEG_METHOD_EXIT();
         return true;
     }
+
     // Issue the Response to the Open Request. This may be issued immediatly
     // or delayed by setting information into the enumeration context
     // if there are no responses from providers ready
@@ -7167,7 +7230,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 //// KS_TODO temporary while we finish pull testing
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
         "CIMOperationRequestDispatcher::handleOperationResponseAggregation"
-        " -  Type %s requiresHostnameCompletion : %s _hasPropList: %s",
+        " - Type %s requiresHostnameCompletion : %s _hasPropList: %s",
         MessageTypeToString(poA->_msgRequestType),
         (poA->_requiresHostnameCompletion == true ? "true" : "false"),
         (poA->_hasPropList == true ? "true" : "false")));
@@ -7265,7 +7328,7 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
         CIMExecQueryResponseMessage* toResponse = 0;
         Uint32 startIndex = 0;
         Uint32 endIndex = numberResponses - 1;
-        Boolean manyResponses = true;
+        bool manyResponses = true;
 
         // Define pointer to the applyQueryToEnumeration function appropriate
         // for the query language defined.
@@ -7294,7 +7357,9 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
         }
 
         // Work backward and delete each response off the end of the array
-        //
+        // KS_TODO May 2104 - The manyResponses logic is convoluted and very
+        // hard to understand. Not even certain is is correct since we do not
+        // have a wealth of query providers in our tests.
         for (Uint32 i = endIndex; i >= startIndex; i--)
         {
             if (manyResponses)
@@ -7314,15 +7379,15 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                 {
                     applyQueryToEnumeration(response, poA->_query);
                 }
+                CIMClass cimClass;
+                Boolean clsRead = false;
 
                 CIMEnumerateInstancesResponseMessage* fromResponse =
                     (CIMEnumerateInstancesResponseMessage*) response;
-                CIMClass cimClass;
-
-                Boolean clsRead = false;
                 Array<CIMInstance>& a =
                     fromResponse->getResponseData().getInstances();
 
+                // Map instances to objects and add objectPath
                 for (Uint32 j = 0, m = a.size(); j < m; j++)
                 {
                     CIMObject co=CIMObject(a[j]);
@@ -7330,7 +7395,7 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                     const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
 
                     if (kbs.size() == 0)
-                    {     // no path set why ?
+                    {     // no path set
                         if (clsRead == false)
                         {
                             cimClass = _repository->getClass(
@@ -7338,6 +7403,14 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                                 false,true,false, CIMPropertyList());
                             clsRead=true;
                         }
+                        // Trace enum responses that do not have
+                        // path component.
+                        // KS_TODO should this really be log???
+                        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                            "query response, no path set in provider. "
+                                   "class %s",
+                            CSTRING(cimClass.getClassName().getString()) ));
+
                         op = a[j].buildPath(cimClass);
                     }
                     op.setNameSpace(poA->_nameSpace);
@@ -7349,16 +7422,18 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                     }
                 }
             }
-            else
+            else   // This response is CIMExecQueryResponse
             {
                 CIMExecQueryResponseMessage* fromResponse =
                     (CIMExecQueryResponseMessage*) response;
 
                 CIMResponseData & from = fromResponse->getResponseData();
+
                 from.completeHostNameAndNamespace(
                     System::getHostName(),
                     poA->_nameSpace);
-
+                // KS_TODO this manyResponses makes no sense to me. Isn't
+                // this always ExecQuery which is always false?
                 if (manyResponses)
                 {
                     toResponse->getResponseData().appendResponseData(from);

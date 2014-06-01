@@ -1311,52 +1311,46 @@ void CIMOperationRequestDecoder::handleMethodCall(
                              cimMethodName, "OpenEnumerateInstances") == 0)
                     request.reset(decodeOpenEnumerateInstancesRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "OpenEnumerateInstancePaths") == 0)
                     request.reset(decodeOpenEnumerateInstancePathsRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "OpenReferenceInstances") == 0)
                     request.reset(decodeOpenReferenceInstancesRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "OpenReferenceInstancePaths") == 0)
                     request.reset(decodeOpenReferenceInstancePathsRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "OpenAssociatorInstances") == 0)
                     request.reset(decodeOpenAssociatorInstancesRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "OpenAssociatorInstancePaths") == 0)
                     request.reset(decodeOpenAssociatorInstancePathsRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "PullInstancesWithPath") == 0)
                     request.reset(decodePullInstancesWithPathRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "PullInstancePaths") == 0)
                     request.reset(decodePullInstancePathsRequest(
                         queueId, parser, messageId, nameSpace));
-
+                else if (System::strcasecmp(
+                             cimMethodName, "PullInstances") == 0)
+                    request.reset(decodePullInstancesRequest(
+                        queueId, parser, messageId, nameSpace));
                 else if (System::strcasecmp(
                              cimMethodName, "CloseEnumeration") == 0)
                     request.reset(decodeCloseEnumerationRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "EnumerationCount") == 0)
                     request.reset(decodeEnumerationCountRequest(
                         queueId, parser, messageId, nameSpace));
-
                 else if (System::strcasecmp(
                              cimMethodName, "OpenQueryInstances") == 0)
                     request.reset(decodeOpenQueryInstancesRequest(

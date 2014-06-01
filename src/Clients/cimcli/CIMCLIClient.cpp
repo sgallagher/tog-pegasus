@@ -1812,6 +1812,7 @@ int pullQueryInstances(Options& opts)
 
     if (!endOfSequence)
     {
+        // The false argument indicates that we pull instances only, no path
         if (!_pullInstancesWithPath(opts, instances, enumerationContext, false))
         {
             // some error return from the pull loop.
@@ -1822,9 +1823,8 @@ int pullQueryInstances(Options& opts)
 
     _stopCommandTimer(opts);
 
-    // KS_TODO need to do option to display instances without path to cover this
-    // Also warning message if path exists.
-    CIMCLIOutput::displayInstances(opts, instances);
+    // The false indicates that we do not display the path component
+    CIMCLIOutput::displayInstances(opts, instances, false);
 
     return(CIMCLI_RTN_CODE_OK);
 }

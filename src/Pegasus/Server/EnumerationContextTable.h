@@ -93,29 +93,26 @@ public:
 
     ~EnumerationContextTable();
 
-    /** Create a new EnumerationContext object and return a pointer
+    /* Create a new EnumerationContext object and return a pointer
         to the object. This includes information
         required to process the pull and close operations for the enumeration
         sequence controlled by this context. The context instance will remain
         active for the life of the enumeration sequence.
-        @param nameSpace CIMNamespaceName for this request
-        @param operationTimeOutParam Uint32Arg value of operation
-        timeout in seconds.
-        @param continueOnError Boolean containing the continueOnError flag for
-         this context.  (CURRENTLY MUST BE FALSE)
-        @param pullOpenRequestType - Type for the Pull request message so
-         tests can be made when pull received.  Prevents trying
+        @param request CIMOpenOperationRequestMessage. Input
+            Arguments from the request are saved in the EnumerationContext
+
+        @param pullOpenRequestType - Message Type for the Pull request message
+            so tests can be made when pull received.  Prevents trying
          to pull paths when instances required, etc.
+
         @param contentType - Content type for the CIMResponseData cache
-         container
-        @return EnumerationContext*
+         container. Defines the response object tyoes (objects, instances,
+         CIMObjectPaths)
+        @return EnumerationContext* pointer to the created context or
+        NULL indicating that a new context could not be created. The only
+        reasons a context could not be created are memory issues or
+        this request exceeds the maximum open Enumeration context limit.
      */
-    EnumerationContext* createContext(
-        const CIMNamespaceName& nameSpace,
-        const Uint32Arg&  operationTimeOutParam,
-        Boolean continueOnError,
-        MessageType pullRequestType,
-        CIMResponseData::ResponseDataContent contentType);
 
     EnumerationContext* createContext(
         const CIMOpenOperationRequestMessage* request,

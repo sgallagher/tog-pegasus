@@ -50,13 +50,15 @@
  They are not reference counted and do not provide a separate representation
  class.
 
- The class provides the means to construct, destruct, assign, set and test
- the characteristics of an argument. They may be constructed with the default
- NULL or a specific integer value.
+ The classes provide the means to construct, destruct, assign, set and test
+ the characteristics of a client argument that is nullable. They may be
+ constructed with the default NULL or a specific integer value.
 
  *************************************************************/
 
 PEGASUS_NAMESPACE_BEGIN
+
+class Uint32ArgRep;
 
 class PEGASUS_COMMON_LINKAGE Uint32Arg
 {
@@ -142,9 +144,10 @@ public:
     Boolean equal(const Uint32Arg& x) const;
 
 private:
-    Uint32 _value;
-    Boolean _null;
+    Uint32ArgRep* _rep;
 };
+
+class Uint64ArgRep;
 
 class PEGASUS_COMMON_LINKAGE Uint64Arg
 {
@@ -199,6 +202,7 @@ public:
         </pre>
     */
     void setValue(Uint64 x);
+
     /** Tests the object for NULL state.
         @return This method returns true if the object is NULL. Otherwise
         it returns false.
@@ -229,8 +233,7 @@ public:
     Boolean equal(const Uint64Arg& x) const;
 
 private:
-    Uint64 _value;
-    Boolean _null;
+    Uint64ArgRep* _rep;
 };
 
 /**

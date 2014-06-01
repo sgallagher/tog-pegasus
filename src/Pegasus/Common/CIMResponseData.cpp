@@ -700,7 +700,6 @@ Uint32 CIMResponseData::size()
          boolToString(RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
                               ));
     }
-////  PEG_TRACE((TRC_XML, Tracer::LEVEL1, "ReturnSize=%u", _size ));
 #endif
     return _size;
 }
@@ -713,10 +712,14 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::appendResponseData");
+
+    PEGASUS_DEBUG_ASSERT(valid());
+
     // Confirm that the CIMResponseData type matches the type
     // of the data being appended
+    // A CIMResponseData must represent a single data content type.
+    // ex. Cannot mix objects and instances.
 
-    PEGASUS_DEBUG_ASSERT(valid());            // KS_TEMP
     PEGASUS_DEBUG_ASSERT(_dataType == x._dataType);
     _encoding |= x._encoding;
 
@@ -734,12 +737,6 @@ void CIMResponseData::appendResponseData(const CIMResponseData & x)
     // add the SCMO instances
     _scmoInstances.appendArray(x._scmoInstances);
     _size += x._scmoInstances.size();
-
-////  // add Xml encodings
-////  // KS_TODO these are temporary. delete before release
-////  PEGASUS_ASSERT(x._referencesData.size() == x._instanceData.size());
-////  PEGASUS_ASSERT(x._instanceData.size() == x._hostsData.size());
-////  PEGASUS_ASSERT(x._instanceData.size() == x._nameSpacesData.size());
 
     _referencesData.appendArray(x._referencesData);
     _instanceData.appendArray(x._instanceData);
@@ -1079,14 +1076,6 @@ void CIMResponseData::completeHostNameAndNamespace(
             }
         }
     }
-////  PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,   // KS_TODO TEMP
-////    "completeHostNameAndNamespace Set hostName, etc "
-////    "host %s ns %s set for dataType=%u encoding=%u isPull=%s",
-////        (const char *)hn.getCString(),
-////        (const char *)ns.getString().getCString(),
-////        _dataType, _encoding, boolToString(isPullOperation) ));
-
-
     PEG_METHOD_EXIT();
 }
 
@@ -1295,13 +1284,26 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                     // If pull, map to instances
                     if (isPullResponse)
                     {
+
                         CIMInstance x = (CIMInstance)_objects[i];
-                        XmlWriter::appendValueInstanceWithPathElement(
-                            out,
-                            x,
-                            _includeQualifiers,
-                            _includeClassOrigin,
-                            _propertyList);
+                        if (encodeInstanceOnly)
+                        {
+                            XmlWriter::appendInstanceElement(
+                                out,
+                                x,
+                                _includeQualifiers,
+                                _includeClassOrigin,
+                                _propertyList);
+                        }
+                        else
+                        {
+                            XmlWriter::appendValueInstanceWithPathElement(
+                                out,
+                                x,
+                                _includeQualifiers,
+                                _includeClassOrigin,
+                                _propertyList);
+                        }
                     }
                     else
                     {
@@ -1387,6 +1389,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
                     // OpenQueryInstances and pullInstances
                     if (encodeInstanceOnly)
                     {
+                        // KS_TODO move this to SCMOXmlWriter
                         for (Uint32 i = 0, n = _scmoInstances.size();i < n; i++)
                         {
                             _appendInstanceElement(out, _scmoInstances[i]);
@@ -1409,8 +1412,20 @@ void CIMResponseData::encodeXmlResponse(Buffer& out,
             {
                 if (isPullResponse)
                 {
-                    SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
-                        out,_scmoInstances, _propertyList);
+                    // if encodeInstanceOnly flag, encode objects as instances
+                    // Used by OpenQueryInstances and pullInstances.
+                    if (encodeInstanceOnly)
+                    {
+                        for (Uint32 i = 0, n = _scmoInstances.size();i < n; i++)
+                        {
+                            _appendInstanceElement(out, _scmoInstances[i]);
+                        }
+                    }
+                    else
+                    {
+                        SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
+                            out,_scmoInstances, _propertyList);
+                    }
                 }
                 else
                 {
@@ -2210,13 +2225,15 @@ void CIMResponseData::clear()
     _size = 0;
 }
 
-//// KS_TODO Remove. Diagnostic Displays below before commit to CVS
-void CIMResponseData::traceResponseData()
+// The following are debugging support only
+//// #ifdef PEGASUS_DEBUG
+void CIMResponseData::traceResponseData() const
 {
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
         "%s", (const char*)toStringTraceResponseData().getCString() ));
 }
-String CIMResponseData::toStringTraceResponseData()
+
+String CIMResponseData::toStringTraceResponseData() const
 {
     int rtnSize;
     char *p;
@@ -2259,6 +2276,7 @@ String CIMResponseData::toStringTraceResponseData()
     free(p);
     return(rtnStr);
 }
+//// #endif
 
 
 PEGASUS_NAMESPACE_END

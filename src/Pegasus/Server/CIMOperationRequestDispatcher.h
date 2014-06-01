@@ -350,7 +350,7 @@ class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
     friend class CIMOperationRequestDispatcher;
 public:
-    /** Operation Aggregate constructor.  Builds an aggregate object
+    /** Operation Aggregate constructor.  Builds an aggregation
         object.
         @param request - CIMOprationRequestMessage containing copy
                        of the original request
@@ -389,7 +389,7 @@ public:
     // Increment the total Operation Requests issued parameter by 1
     void incTotalIssued();
 
-    Uint32 getTotalIssued();
+    Uint32 getTotalIssued() const;
 
     // Append a new entry to the response list.
 
@@ -397,7 +397,7 @@ public:
 
     Uint32 numberResponses() const;
 
-    CIMOperationRequestMessage* getRequest();
+    CIMOperationRequestMessage* getRequest() const;
 
     CIMResponseMessage* getResponse(const Uint32& pos);
 
@@ -421,6 +421,8 @@ public:
      *      Context defined for this sequence
      */
     void setPullOperation(EnumerationContext* enContext);
+
+    bool isPullOperation() const;
 
     String _messageId;
     MessageType _msgRequestType;
@@ -460,7 +462,7 @@ private:
     Magic<0xC531B144> _magic;
 };
 
-inline Uint32 OperationAggregate::getTotalIssued()
+inline Uint32 OperationAggregate::getTotalIssued() const
 {
     return _totalIssued;
 }
@@ -470,7 +472,7 @@ inline void OperationAggregate::incTotalIssued()
     _totalIssued++;
 }
 
-inline CIMOperationRequestMessage* OperationAggregate::getRequest()
+inline CIMOperationRequestMessage* OperationAggregate::getRequest() const
 {
     return _request;
 }
@@ -478,6 +480,11 @@ inline CIMOperationRequestMessage* OperationAggregate::getRequest()
 inline MessageType OperationAggregate::getRequestType() const
 {
     return _msgRequestType;
+}
+
+inline bool OperationAggregate::isPullOperation() const
+{
+    return _pullOperation;
 }
 
 /******************************************************************************
@@ -614,6 +621,34 @@ public:
         CIMEnumerationCountRequestMessage* request);
 
 // EXP_PULL END
+
+    /** Common Request handling for ExecQuery and OpenQueryRequests.
+       This function gets the provider list, get instances from the
+       repository and calls the required providers.
+
+       @param request CIMExecQueryRequestMessage. The request being issued
+
+       @param cimException CIMException - Contains an exception if
+       the processing fails and the return from the function is false.
+
+       @param enumerationContext* EnumertionContext if this is a
+       pull operation or NULL if not.
+
+       @param queryLanguage const char* defining query language (ex.
+                            "WQL")
+
+       @return bool true if processing completed successfully or
+       false if there is an error.  cimException contains CIMException
+       if return is false.
+    */
+    bool handleQueryRequestCommon(
+        CIMExecQueryRequestMessage* request,
+        CIMException& cimException,
+        EnumerationContext* enumerationContext,
+        const char* queryLanguage,
+        const CIMName& className,
+        QueryExpressionRep* qx);
+
 
     /** Callback from Providers, etc. This callback is used for
         Operations that aggregate response information. This is the
@@ -1033,12 +1068,25 @@ private:
         ProviderInfoList& providerInfos,
         CIMResponseMessage* response);
 
-// EXP_PULL_BEGIN
+/**
+   Complete processing for the pull operations, pullInstancesWithPath
+   and Pull InstancePaths.  This function replaces all the code in the
+   pull functions including the input checking code because the pull operations
+   are exactly the same except for the response object type.
+   @param this -  Pointer to the CIMOperationRequestDispatcher object.
+          Required to execute dispatcher methods
+   @param request CIMPullOperationRequestMessage* Defines the pull
+                request message pointer
+   @param pullResponse - AutoPtr<CIMOpenOrPullResponseDataMessage>& defines the
+                response message for this pull response
+   @param requestName - String with the request name. Used internally for
+                traces, etc.
+*/
     bool processPullRequest(
         CIMPullOperationRequestMessage* request,
         CIMOpenOrPullResponseDataMessage*  pullResponse,
         const char * requestName);
-
+// EXP_PULL_BEGIN
 
     // pointer to EnumerationContextTable which allocates
     // and releases enumeration context objects.

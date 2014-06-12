@@ -1076,19 +1076,19 @@ CIMResponseData CIMClientRep::openEnumerateInstancePaths(
 }
 
 CIMResponseData  CIMClientRep::openReferenceInstances(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass,
-        const String& role,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        const String& filterQueryLanguage,
-        const String& filterQuery,
-        const Uint32Arg& operationTimeout,
-        Boolean continueOnError,
-        Uint32 maxObjectCount)
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
 {
     AutoPtr<CIMRequestMessage> request(
         new CIMOpenReferenceInstancesRequestMessage(
@@ -1181,8 +1181,7 @@ CIMResponseData CIMClientRep::openAssociatorInstances(
     const String& filterQuery,
     const Uint32Arg& operationTimeout,
     Boolean continueOnError,
-    Uint32 maxObjectCount
-    )
+    Uint32 maxObjectCount )
 {
     AutoPtr<CIMRequestMessage> request(
         new CIMOpenAssociatorInstancesRequestMessage(
@@ -1270,7 +1269,7 @@ CIMResponseData CIMClientRep::openAssociatorInstancePaths(
 CIMResponseData CIMClientRep::pullInstancesWithPath(
     CIMEnumerationContext& enumerationContext,
     Boolean& endOfSequence,
-    const Uint32 maxObjectCount)
+    Uint32 maxObjectCount)
 {
     AutoPtr<CIMRequestMessage> request(
         new CIMPullInstancesWithPathRequestMessage(
@@ -1327,7 +1326,7 @@ CIMResponseData CIMClientRep::pullInstancePaths(
 CIMResponseData CIMClientRep::pullInstances(
     CIMEnumerationContext& enumerationContext,
     Boolean& endOfSequence,
-    const Uint32 maxObjectCount)
+    Uint32 maxObjectCount)
 {
     AutoPtr<CIMRequestMessage> request(
         new CIMPullInstancesRequestMessage(
@@ -1401,16 +1400,16 @@ Uint64Arg CIMClientRep::enumerationCount(
 }
 
 CIMResponseData CIMClientRep::openQueryInstances(
-        CIMEnumerationContext& enumerationContext,
-        Boolean& endOfSequence,
-        const CIMNamespaceName& nameSpace,
-        const String& queryLanguage,
-        const String& query,
-        CIMClass& queryResultClass,
-        Boolean returnQueryResultClass,
-        const Uint32Arg& operationTimeout,
-        Boolean continueOnError,
-        Uint32 maxObjectCount)
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const String& queryLanguage,
+    const String& query,
+    CIMClass& queryResultClass,
+    Boolean returnQueryResultClass,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
 {
     // Save requied information in enumerationContext
     enumerationContext.setNameSpace(nameSpace);

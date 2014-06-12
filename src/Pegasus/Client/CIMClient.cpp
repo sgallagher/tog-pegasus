@@ -581,7 +581,7 @@ Array<CIMObjectPath> CIMClient::openEnumerateInstancePaths(
     const String& filterQueryLanguage,
     const String& filterQuery,
     const Uint32Arg& operationTimeout,
-    const Boolean continueOnError,
+    Boolean continueOnError,
     Uint32 maxObjectCount)
 {
 
@@ -609,7 +609,7 @@ Array<CIMInstance> CIMClient::openReferenceInstances(
     const String& filterQueryLanguage,
     const String& filterQuery,
     const Uint32Arg& operationTimeout,
-    const Boolean continueOnError,
+    Boolean continueOnError,
     Uint32 maxObjectCount
     )
 {
@@ -639,7 +639,7 @@ Array<CIMObjectPath> CIMClient::openReferenceInstancePaths(
     const String& filterQueryLanguage,
     const String& filterQuery,
     const Uint32Arg& operationTimeout,
-    const Boolean continueOnError,
+    Boolean continueOnError,
     Uint32 maxObjectCount
     )
 {
@@ -671,7 +671,7 @@ Array<CIMInstance> CIMClient::openAssociatorInstances(
     const String& filterQueryLanguage,
     const String& filterQuery,
     const Uint32Arg& operationTimeout,
-    const Boolean continueOnError,
+    Boolean continueOnError,
     Uint32 maxObjectCount
     )
 {
@@ -705,7 +705,7 @@ Array<CIMObjectPath> CIMClient::openAssociatorInstancePaths(
     const String& filterQueryLanguage,
     const String& filterQuery,
     const Uint32Arg& operationTimeout,
-    const Boolean continueOnError,
+    Boolean continueOnError,
     Uint32 maxObjectCount
     )
 {

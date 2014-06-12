@@ -1062,7 +1062,7 @@ public:
     deliver fewer elements including possibly zero elements. In any case, the
     server will reset the <TT>operationTimeout</TT> so that maxObjectCount of
     zero can be used to keep an enumeration  sequence open without receiving
-    elements
+    elements. This is an optional argument with default = 0.
 
     @return If successful, the method returns zero or more named
     Instances that meet the required criteria.
@@ -1122,7 +1122,7 @@ public:
     @param className The <TT>className</TT> input parameter defines the
     Class that is the basis for the enumeration.
 
-    @param filterQueryLanguage See filterQuery parameter for
+    @param filterQueryLanguage See filterQuery argument for
     openEnumerateInstances
 
     @param filterQuery See filterQuery parameter for openEnumerateInstances
@@ -1171,7 +1171,7 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
+        Boolean continueOnError = false,
         Uint32 maxObjectCount = 0 );
 
  /**
@@ -1257,7 +1257,7 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
+        Boolean continueOnError = false,
         Uint32 maxObjectCount = 0 );
 
  /**
@@ -1339,7 +1339,7 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
+        Boolean continueOnError = false,
         Uint32 maxObjectCount = 0 );
 
     /**
@@ -1434,7 +1434,7 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
+        Boolean continueOnError = false,
         Uint32 maxObjectCount = 0 );
 
     /**
@@ -1520,7 +1520,7 @@ public:
         const String& filterQueryLanguage = String::EMPTY,
         const String& filterQuery = String::EMPTY,
         const Uint32Arg& operationTimeout = Uint32Arg(),
-        const Boolean continueOnError = false,
+        Boolean continueOnError = false,
         Uint32 maxObjectCount = 0 );
 
 
@@ -1664,7 +1664,9 @@ public:
     maximum number of instances that may be returned by the server. Any
     Uint32 integer is allowed including 0. The client may use
     the value zero to tell the server to keep the enumeration sequence
-    open without retrieving any instances.
+    open without retrieving any instances. Whereas this is an
+    optional parameter for the Open... operation is is required for
+    all of the pull... operations.
 
     @return If the <TT>pullInstancesWithPath</TT> request is successful the
     method return contains zero or more CIMInstances (with path component).
@@ -1714,7 +1716,9 @@ public:
     the maximum number of instances that may be returned by the server. Any
     Uint32 integer is allowed including 0. The client may use
     the value zero to tell the server to keep the enumeration sequence
-    open without retrieving any instances.
+    open without retrieving any instances. Whereas this is an
+    optional parameter for the Open... operation is is required for
+    all of the pull... operations.
 
     @return If the <TT>pullInstances</TT> request is successful the
     method return contains zero or more CIMInstances (with no path
@@ -1765,6 +1769,21 @@ public:
     @param enumerationContext CIMEnumerationContext returned by a previous
     open or pull operation for the enumeration sequence.
 
+    @param endOfSequence Boolean output parameter indicates when the
+    enumeration sequence is complete. if <TT>endofSequence</TT> is
+    true upon successful completion of the operation, the sequence is
+    complete and the <TT>enumerationContext</TT> can be assumed to be
+    invalid for any future operations. If the <TT>endOfSequence</TT> is
+    false additional elements may be available from the server.
+
+    @param maxObjectCount Uint32 input parameter (required) that defines
+    the maximum number of instances that may be returned by the server. Any
+    Uint32 integer is allowed including 0. The client may use
+    the value zero to tell the server to keep the enumeration sequence
+    open without retrieving any instances. Whereas this is an
+    optional parameter for the Open... operation is is required for
+    all of the pull... operations.
+
     @return If the <TT>closeEnumeration</TT> is successful any resources used
     by the server are released and the enumerationContext is no longer valid.
 
@@ -1785,7 +1804,7 @@ public:
     void closeEnumeration(
         CIMEnumerationContext& enumerationContext );
 
-    /*
+    /**
     The <TT>enumerationCount</TT> operation returns an estimate of
     the total number of objects  in an open enumerationContext.
 
@@ -1800,7 +1819,20 @@ public:
     @return Uint64Arg containing either an estimate of the the
             number of objects remaining to be returned for the
             enumeration sequence defined by the enumerationContext
-            argument or NULL if it cannot return a value
+            argument or NULL if it cannot return a value.
+
+    If not successful the operation returns one of the following
+    exceptions:
+        <UL>
+            <LI>CIM_ERR_ACCESS_DENIED
+            <LI>CIM_ERR_SERVER_IS_SHUTTING_DOWN
+            <LI>CIM_ERR_NOT_SUPPORTED
+            <LI>CIM_ERR_INVALID_NAMESPACE
+            <LI>CIM_ERR_INVALID_PARAMETER
+            <LI>CIM_ERR_INVALID_ENUMERATION_CONTEXT
+            <LI>CIM_ERR_PULL_CANNON_BE_ABANDONED
+            <LI>CIM_ERR_FAILED
+        </UL>
     */
 
     Uint64Arg enumerationCount(

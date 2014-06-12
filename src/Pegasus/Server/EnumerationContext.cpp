@@ -54,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 EnumerationContext::EnumerationContext(const String& contextId,
     const CIMNamespaceName& nameSpace,
     Uint32 interOperationTimeoutValue,
-    const Boolean continueOnError,
+    Boolean continueOnError,
     MessageType pullRequestType,
     CIMResponseData::ResponseDataContent contentType )
     :

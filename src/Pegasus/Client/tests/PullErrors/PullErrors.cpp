@@ -78,7 +78,6 @@
 
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/System.h>     // required for sleep function
-#include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 

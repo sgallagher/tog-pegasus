@@ -505,6 +505,9 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
         PEGASUS_PULL_OPERATION_MAXIMUM_OBJECT_COUNT;
 #else
     // Default setting if nothing supplied externally
+////    Code based on Bug 9819. Cannot be implemented until 9819 included
+////      _systemMaxPullOperationObjectCount = ConfigManager::parseUint32Value(
+////      configManager->getCurrentValue("pullDefaultOperationTimeout"));
     _systemMaxPullOperationObjectCount = 1000;
 #endif
     // setup responseSizeMaximumSize from internal define
@@ -541,6 +544,11 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       _pullOperationMaxTimeout =
           PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
 #else
+////      KS_TODO implement this when we add bug 9819. Do not want to
+////      do now because detecting nonexistent param causes exception and
+///       that code is just to expensive for this use.
+////      _pullOperationMaxTimeout = ConfigManager::parseUint32Value(
+////      configManager->getCurrentValue("pullResponseMaxObjectCount"));
       _pullOperationMaxTimeout = 90;
 #endif
 
@@ -550,7 +558,13 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // received  in a request is NULL.  This is the server defined default.
     //
 #define PULL_OPERATION_DEFAULT_TIMEOUT 30
-
+////      KS_TODO implement this when we add bug 9819. Do not want to
+////      do now because detecting nonexistent param causes exception and
+///       that code is just to expensive for this use.
+////      _pullOperationMaxTimeout = ConfigManager::parseUint32Value(
+////      configManager->getCurrentValue("pullDefaultOperationTimeout"));
+///  TODO since this is just passed on to EnumContexttable, make local variable
+    _pullOperationDefaultTimeout = 30;
     // setup definition of whether server will accept Open operations
     // that have zero as timeout value
     // Define  variable that controls whether we allow 0 as a pull
@@ -570,11 +584,15 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 // Pull, Close, and countEnumeration operations.  The default interoperation
 // timeout and max cache size are set as part of creating the table.
 //
+// TODO FUTURE: There are several system parameters here that should be
+// set globally.  We need somewhere common to be able to define this and
+// while it could be the config, it could also be a systemLimits file or
+// something common.
 #define OpenEnumerateContextsMaxLimit 128
 
     _enumerationContextTable = new EnumerationContextTable(
         OpenEnumerateContextsMaxLimit,
-        PULL_OPERATION_DEFAULT_TIMEOUT,
+        _pullOperationDefaultTimeout,
         responseCacheDefaultMaximumSize);
 
     //

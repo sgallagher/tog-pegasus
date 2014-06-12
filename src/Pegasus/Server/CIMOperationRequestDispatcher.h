@@ -1017,6 +1017,10 @@ protected:
     // exceeded, the operation request will be rejected.
     Uint32 _pullOperationMaxTimeout;
 
+    // Value for default operationTimeout for open operations if no
+    // value is supplied with the open request.
+    Uint32 _pullOperationDefaultTimeout;
+
     Uint32 _providerManagerServiceId;
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION

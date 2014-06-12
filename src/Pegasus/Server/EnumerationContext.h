@@ -124,8 +124,7 @@ class PEGASUS_SERVER_LINKAGE EnumerationContext
 public:
 
     /** Construct a single instance of Enumeration Context. This is
-        to be used only from the EnumerationContextTable
-        CreateContext function.
+    to be used only from the EnumerationContextTable CreateContext function.
 
     @param contextId String identifier for this context. These must
     be unique.
@@ -142,10 +141,11 @@ public:
     @param interoperationTimeout - microsecond timer that defines
     the next timeout.  If zero,there is no timeout in process
 
-    pullRequestType MessageType for all pull requests for this sequence
+    @param pullRequestType MessageType for all pull requests for
+    this sequence
 
-    contentType ResponseDataContent Type used to define the responseData
-    cache for this context.
+    @param  contentType ResponseDataContent Type used to define the
+    responseData cache for this context.
 
     */
     EnumerationContext(const String& contextId,
@@ -260,13 +260,6 @@ public:
        before returning to tell the ProviderLimit condition variable
        that the size of the cache may have changed.
 
-       NOTE: This function gives up control while waiting.
-
-       Wait events:
-           a. Number of objects in cache matches or exceeds count
-           b. _providersComplete flag to be set.
-           c. error condition. It tests for error condition from
-              providers before and after wait.
        @param count Uint32 count of max number of objects to return
        @param rtnData CIMResponseData containing the
            objects returned. Count of objects le count argument
@@ -306,6 +299,17 @@ public:
         be issued later as part of putting provider info into the
         cache. This saves the request, response, and count
         information.
+
+        @param request - The CIMOperationRequestMessage for the
+        response that will be issued later. This could be either a
+        pull or open response
+
+        @param response - The CIMOpenOrPullResponseMessage that will
+        be issued at a later time. Required by the function that
+        issues the response.
+
+        @param operationMaxObjecCount Uint32 that defines the
+        maximum number of objects to be returned.
     */
     void saveNextResponse(CIMOperationRequestMessage* request,
          CIMOpenOrPullResponseDataMessage* response,
@@ -381,8 +385,9 @@ public:
     bool incAndTestPullCounters(bool isZeroLength);
 
 
-    // Diagnostic to display the current context into the
-    // trace file  KS_TODO eliminate or compile in debug mode only
+    /** Diagnostic to display the current context into the trace
+        file  KS_TODO eliminate or compile in debug mode only
+    */
     void trace();
 
     //
@@ -397,10 +402,12 @@ public:
     CIMException _cimException;
 
     // This mutex locks the entire Enumeration context for some
-    // critical sections.
+    // critical sections. the following function control this
+    // mutex
     void lockContext();
     void unlockContext();
     bool tryLockContext();
+
     Mutex _contextLock;
 
     /* Increment count of requests processed for this enumeration

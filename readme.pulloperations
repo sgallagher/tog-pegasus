@@ -92,15 +92,28 @@ TODO list:
       Same for trace function in EnumerationContext and EnumerationContextTable
     13. Question. We added trace in CIMRequestOperationDispatcher.cpp if
       query enum is recevied with no object path.  However, since this is
-      a provider provblem should we be doing something other than a trace
+      a provider problem should we be doing something other than a trace
       (ex. log) since traces are often not really used and they do generate
       lots of data whereby something like this could get lost. Also, need
       to review what level of trace if we keep trace.
+   14. Note that the build-a-class argument on OpenQueryInstances always
+      returns error since we do not build the class.  We propose to deprecate
+      this in DMTF and not implement in in OpenPegasus. TODO add a bug
+      defining this limitation
 
 
    NEXT TASKS: 
       a. finish 8, 12 above ( Finish by about 1 June). Do next mergeout and
          mergein to create a complete patch
+12 June 2014
+1. Implement the basic code for the CIMOperationDispatcher portion of bug 9819
+   Note that the CIMConfig calls are disabled with comments.
+2. Corrected a number of differences in const declaration and definition for
+   continueOnError and maxObjectCount in CIMClient. This corrects issue documented
+   in bug 9676 comment 53
+3. Corrected some documentation for Pull operations in CIMClient.
+4. Corrected similar issue In EnumerationContext class. See comment 54
+5. Removed ExecInfo.h header from Client/tests/PullErrors/PullErrors.cpp
 
 30 May 2014
 1. Correct issue in UintArgs.  Modified to use smart pointers, consistent

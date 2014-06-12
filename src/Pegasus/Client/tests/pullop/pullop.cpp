@@ -116,7 +116,6 @@
 #include <Pegasus/Common/System.h>    // required for sleep function
 #include <Pegasus/Common/ArrayIterator.h>
 
-#include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdarg>

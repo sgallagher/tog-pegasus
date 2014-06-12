@@ -222,7 +222,8 @@ PEGASUS_USER_CMDS = \
    cimprovider \
    cimsub \
    osinfo \
-   wbemexec
+   wbemexec \
+   cimcli
 
 PEGASUS_GENERATED_SCRIPTS = \
    genOpenPegasusSSLCerts
@@ -242,7 +243,8 @@ PEGASUS_UNIX_MAN_USER_PAGES = \
    cimprovider.1 \
    cimsub.1 \
    osinfo.1 \
-   wbemexec.1
+   wbemexec.1 \
+   cimcli.1
 
 PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimauth.8 \

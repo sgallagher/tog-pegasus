@@ -83,34 +83,40 @@ TODO list:
        further to try to create a non-template form for those functions. LOW
        PRIORITY.
     11. External runtime variables. This bug leaves these variables as
-      internal to CIMOperationRequestDispatcher.cpp.  
-      See bug 9819 for the changes to externalize these variables, both
-      the runtime and buildtime variables.  The Work group discussion
-      documents what the variables are and how they tie to statistics info.
-      See the OpenPegasus Wiki, Pull operations work group.
+       internal to CIMOperationRequestDispatcher.cpp.  
+       See bug 9819 for the changes to externalize these variables, both
+       the runtime and buildtime variables.  The Work group discussion
+       documents what the variables are and how they tie to statistics info.
+       See the OpenPegasus Wiki, Pull operations work group.
     12. Trace functions in CIMResponseData,h & cpp should be PEGASUS_DEBUG.
-      Same for trace function in EnumerationContext and EnumerationContextTable
-    13. Question. We added trace in CIMRequestOperationDispatcher.cpp if
-      query enum is recevied with no object path.  However, since this is
-      a provider problem should we be doing something other than a trace
-      (ex. log) since traces are often not really used and they do generate
-      lots of data whereby something like this could get lost. Also, need
-      to review what level of trace if we keep trace.
+       Same for trace function in EnumerationContext and
+       EnumerationContextTable
+    13.Question. We added trace in CIMRequestOperationDispatcher.cpp if
+       query enum is recevied with no object path.  However, since this is
+       a provider problem should we be doing something other than a trace
+       (ex. log) since traces are often not really used and they do generate
+       lots of data whereby something like this could get lost. Also, need
+       to review what level of trace if we keep trace.
    14. Note that the build-a-class argument on OpenQueryInstances always
-      returns error since we do not build the class.  We propose to deprecate
-      this in DMTF and not implement in in OpenPegasus. TODO add a bug
-      defining this limitation
-
+       returns error since we do not build the class.  We propose to deprecate
+       this in DMTF and not implement in in OpenPegasus. TODO add a bug
+       defining this limitation. This is not a TODO, just a warning for
+       the future. TODO add bug about this and add to release notes
 
    NEXT TASKS: 
-      a. finish 8, 12 above ( Finish by about 1 June). Do next mergeout and
-         mergein to create a complete patch
+      a. finish 8, 12 above. Test against cimperf since there was a bug
+      in cimperf from before.
+
+14 June 2014
+1. Mergeout from head of tree.
+
+
 12 June 2014
 1. Implement the basic code for the CIMOperationDispatcher portion of bug 9819
    Note that the CIMConfig calls are disabled with comments.
 2. Corrected a number of differences in const declaration and definition for
-   continueOnError and maxObjectCount in CIMClient. This corrects issue documented
-   in bug 9676 comment 53
+   continueOnError and maxObjectCount in CIMClient. This corrects issue
+   documented in bug 9676 comment 53
 3. Corrected some documentation for Pull operations in CIMClient.
 4. Corrected similar issue In EnumerationContext class. See comment 54
 5. Removed ExecInfo.h header from Client/tests/PullErrors/PullErrors.cpp

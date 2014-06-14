@@ -102,8 +102,8 @@ const char* operationName[] =
     "InvokeMethod"                    //   Not Present, use 1 ((:Other")
 };
 
-Uint32 operationNameSize = sizeof(operationName[0]) /
-    sizeof (operationName);
+Uint32 operationNameSize = sizeof(operationName) /
+    sizeof (operationName[0]);
 
 /* Method to build an OptionManager object - which holds and organizes options
    and the properties */

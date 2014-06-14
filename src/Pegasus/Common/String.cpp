@@ -34,6 +34,8 @@
 #include "InternalException.h"
 #include "MessageLoader.h"
 #include "StringRep.h"
+#include <Pegasus/Common/Pegasus_inl.h>
+#include <cstdarg>
 
 #ifdef PEGASUS_HAS_ICU
 # include <unicode/ures.h>
@@ -378,6 +380,49 @@ static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
     UTF16toUTF8(&q, q + n, &p, p + 3 * n);
 
     return p - (Uint8*)dest;
+}
+
+//  Function to return a formatted char*  from a va_list.
+//  Allocates space for the returned char* and repeats the
+//  build process until the allocated space is large enough
+//  to hold the result.  This is internal only and the core function
+//  used by stringPrintf and stringVPrintf
+
+static char* _charVPrintf(const char* format, va_list ap)
+{
+    // Iniitial allocation size.  This is a guess assuming that
+    // most printfs are one or two lines long
+    int allocSize = 256;
+
+    int rtnSize;
+    char *p;
+
+    // initial allocate for output
+    if ((p = (char*)malloc(allocSize)) == NULL)
+    {
+        return 0;
+    }
+
+    // repeat formatting  with increased realloc until it works.
+    do
+    {
+        rtnSize = vsnprintf(p, allocSize, format, ap);
+
+        // return if successful if not negative and
+        // returns less than allocated size.
+        if (rtnSize > -1 && rtnSize < allocSize)
+        {
+            return p;
+        }
+
+        // increment alloc size. Assumes that positive return is
+        // expected size and negative is error.
+        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
+
+    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
+
+    // return error code if realloc failed
+    return 0;
 }
 
 //==============================================================================
@@ -1139,6 +1184,53 @@ Boolean String::equal(const String& s1, const String& s2)
          memcmp(s1._rep->data,
                 s2._rep->data,
                 s1._rep->size * sizeof(Uint16)) == 0);
+}
+
+void String::appendPrintf(const char* format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+
+    // Format into allocated memory
+    ////char* rtnCharPtr = _charVPrintf(format, ap);
+
+    // Iniitial allocation size.  This is a guess assuming that
+    // most printfs are one or two lines long
+    int allocSize = 256;
+    int rtnSize;
+    char *p;
+
+    // initial allocate for output
+    if ((p = (char*)malloc(allocSize)) == NULL)
+    {
+        return;
+    }
+
+    // repeat formatting  with increased realloc until it works.
+    do
+    {
+        rtnSize = vsnprintf(p, allocSize, format, ap);
+
+        // return if successful; i.e. if not negative and
+        // returns less than allocated size.
+        if (rtnSize > -1 && rtnSize < allocSize)
+        {
+            break;
+        }
+
+        // increment alloc size. Positive return is
+        // expected size and negative is error.
+        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
+
+    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
+
+    // get here only with error in malloc.
+
+    va_end(ap);
+
+    // Free allocated memory append printf output to current string
+    append(p, rtnSize);
+    free(p);
 }
 
 Boolean String::equal(const String& s1, const char* s2)

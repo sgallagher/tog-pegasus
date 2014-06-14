@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Linkage.h>
+#include <cstdarg>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -444,6 +445,18 @@ public:
     */
     void toLower();
 
+    /**
+        Constructs a String based on printf specifications. For some
+        compilers the PEGASUS_FORMAT generates warning messages if
+        the format string does not match the input arguments.
+        @param format  const char * The format specification as defined
+            for printf. The format specification corresponds to the
+            standard C++ printf format specification
+        @param ... The list of arguments that will be formated.
+    */
+    PEGASUS_FORMAT(2,3)
+    void appendPrintf(const char* format, ...);
+
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /**
         <I><B>Experimental Interface</B></I><BR>
@@ -499,10 +512,7 @@ public:
     /**
         Compares two strings and returns true if they are equal independent of
         the case of the characters.
-        @param s1 The first String to compare.
-        @param s2 The second String to compare.
-        @return true if the strings are equal independent of case, false
-            otherwise.
+        @param ... Variable arguments as defined for printf
     */
     static Boolean equalNoCase(const String& s1, const String& s2);
 

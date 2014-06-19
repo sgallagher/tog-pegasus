@@ -120,6 +120,7 @@
 #include <stdlib.h>
 #include <cstdarg>
 #include <string.h>
+#include <strings.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -492,7 +493,7 @@ void displayTimeDiff(const String& operationName,
         {
             if (enumResult != 0)
             {
-                cout << " " << ( (abs(diff) * 100)/enumResult) << "%"
+                cout << " " << ( (llabs(diff) * 100)/enumResult) << "%"
                      << ((diff < 0)? " faster" : " slower") << endl;
             }
             else
@@ -2234,7 +2235,7 @@ void testAllClasses(CIMClient& client, CIMNamespaceName ns,
     VCOUT4 << "Testing " << cn.size() << " classes with instaces. Total "
         << instanceCount << " instances." << endl;
 
-    Uint32 counter;
+    Uint32 counter = 0;
     Stopwatch testTime;
 
     //

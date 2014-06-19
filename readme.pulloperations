@@ -98,18 +98,23 @@ TODO list:
        lots of data whereby something like this could get lost. Also, need
        to review what level of trace if we keep trace.
    14. Note that the build-a-class argument on OpenQueryInstances always
-       returns error since we do not build the class.  We propose to deprecate
-       this in DMTF and not implement in in OpenPegasus. TODO add a bug
-       defining this limitation. This is not a TODO, just a warning for
+      returns error since we do not build the class.  We propose to deprecate
+      this in DMTF and not implement in in OpenPegasus. TODO add a bug
+      defining this limitation. This is not a TODO, just a warning for
        the future. TODO add bug about this and add to release notes
+   15. Clarify trace of completion of each enumeration sequence.
+   16. Statistics keeping for open, etc. through cimperf.
+
 
    NEXT TASKS: 
       a. finish 8, 12 above. Test against cimperf since there was a bug
       in cimperf from before.
+18 June 2014
+1. Correct errors in pullop and CMIMessage.cpp identified by Ji Lee as comments 58,59
+2. Correct error in Makefile identified by Ji Lee as bug comment 60
 
 14 June 2014
 1. Mergeout from head of tree.
-
 
 12 June 2014
 1. Implement the basic code for the CIMOperationDispatcher portion of bug 9819

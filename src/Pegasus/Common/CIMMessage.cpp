@@ -1615,7 +1615,7 @@ CIMPullInstancePathsRequestMessage::CIMPullInstancePathsRequestMessage(
     const String& messageId_,
     const CIMNamespaceName& nameSpace_,
     const String& enumerationContext_,
-    const Uint32 maxObjectCount_,
+    Uint32 maxObjectCount_,
     const QueueIdStack& queueIds_,
     const String& authType_,
     const String& userName_)

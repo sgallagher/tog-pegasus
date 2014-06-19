@@ -28,7 +28,7 @@
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../..
 
-DIR = Providers/TestProviders/ResponseStressTest
+DIR = Providers/TestProviders/ResponseStressTestProvider
 
 include $(ROOT)/mak/config.mak
 

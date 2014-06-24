@@ -152,8 +152,8 @@ Qualifier PUnit : string = null,
 Qualifier Read : boolean = true, 
     Scope(property);
 
-//Qualifier Reference : string = null, 
-//    Scope(property);
+Qualifier Reference : string = null, 
+    Scope(property);
 
 Qualifier Required : boolean = false, 
     Scope(property, reference, method, parameter), 

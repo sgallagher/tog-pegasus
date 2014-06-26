@@ -451,6 +451,12 @@ void testSetAndGetMethods(CIMClient& client)
     VCOUT << "getRtn = " << rtn.toString() << endl;
 
     // This confirms that our orig is really the provider defaults.
+    if (!rtn.equal(orig))
+    {
+        cerr << "Error in test of default method parameters"
+            << " expected " << orig.toString()
+            << " received " << rtn.toString() << endl;
+    }
     PEGASUS_TEST_ASSERT(rtn.equal(orig));
 
     methodParameters test1(1500, 2000);

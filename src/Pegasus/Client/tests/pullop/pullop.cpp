@@ -2365,7 +2365,7 @@ int main(int argc, char** argv)
     */
     int opt;
     while ((opt = getopt(argc, argv,
-                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:")) != -1)
+                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW")) != -1)
     {
         switch (opt)
         {
@@ -2561,38 +2561,34 @@ int main(int argc, char** argv)
         }
     }
 
-    // Check usage.
+    // Check usage and get the required operation and optional objectName_opt
+    // arguments.
 
-    argc -= optind;
-    argv += optind;
-
-    if (argc < 1)
+    if (optind >= argc)
     {
-        fprintf(stderr, "ERROR: Operation Type required\n");
         fprintf(stderr, (char*)USAGE, arg0);
+        fprintf(stderr, "ERROR: Operation Type argument required\n");
         exit(1);
     }
 
-    String operation = argv[0];
+    String operation = argv[optind];
 
-    if (argc == 2)
+    if (optind+1 < argc)
     {
-        objectName_opt = argv[1];
+        objectName_opt = argv[optind+1];
     }
 
-    if (argc > 2)
+    VCOUT6 << "Operation " << operation
+           <<  " objectName_opt " << objectName_opt << endl;
+
+    if (optind + 2 < argc)
     {
-        fprintf(stderr, "ERROR: Extra Arguments supplied: ");
-        for (int i = 2; i < argc; i++)
-        {
-            fprintf(stderr, "%s ", argv[i]);
-        }
-        fprintf(stderr, "\n");
         fprintf(stderr, (char *)USAGE, arg0);
+        fprintf(stderr, "ERROR: Extra Arguments supplied: ");
         exit(1);
     }
 
-        propertyList_opt.set(propertyListBuilder);
+    propertyList_opt.set(propertyListBuilder);
 
     if (propertyList_opt.size() != 0)
     {

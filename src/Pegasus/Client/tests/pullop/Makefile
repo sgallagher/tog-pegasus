@@ -69,6 +69,25 @@ tests:
 	pullop -h
 	$(PROGRAM) --help
 
+poststarttests:
+	@$(ECHO) Enumerate and EnumerateNames tests that go to Completion
+	make simpleTests
+
+	@$(ECHO) Test close in process of delivery
+	make testenumclose
+	make testenumpathsclose
+
+	@$(ECHO) Execute stresstests
+	make stresstests
+
+	@$(ECHO) Test timeout in process of delivery
+	make testtimeout
+
+	@$(ECHO) Error tests. Tests simple parameter errors.
+	make errortests
+
+	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
+
 ########################################################################
 ## Error tests. Each test is for a single CIMException type and
 ## returns that error.
@@ -80,25 +99,6 @@ errortests:
 	make maxPullObjectCountError
 	make testexceedMaxObjectCountLimit
 	@$(ECHO) +++++ pullop errortests Passed.
-
-poststarttests:
-	@$(ECHO)  Enumerate and EnumerateNames tests that go to Completion
-	make simpleTests
-
-	@$(ECHO)  Test close in process of delivery
-	make testenumclose
-	make testenumpathsclose
-
-	@$(ECHO)  Execute stresstests
-	make stresstests
-
-	@$(ECHO)  Test timeout in process of delivery
-	make testtimeout
-
-	@$(ECHO) Error tests. Tests simple parameter errors.
-	make errortests
-
-	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
 ## execute simple Enumerate and associator tests with a variety of
 ## sizes, request parameters, etc. Includes both C++ and cmpi providers.
@@ -272,6 +272,7 @@ stresstests:
 	make stressEnumName1
 	make stressEnumName2
 	make stressVariation
+	@$(ECHO) +++++ pullop stresstests Passed.
 
 stressEnum1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \

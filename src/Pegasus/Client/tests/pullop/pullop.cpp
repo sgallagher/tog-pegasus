@@ -116,6 +116,9 @@
 #include <Pegasus/Common/System.h>    // required for sleep function
 #include <Pegasus/Common/ArrayIterator.h>
 
+#include <Pegasus/getoopt/getoopt.h>
+#include <Clients/cliutils/CommandException.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdarg>
@@ -185,6 +188,7 @@ static char * verbose;
 // the verbose_opt. Specifying a level on input gets that level and lower.
 /*
     Definition of what is displayed at each level
+    8 - Display the input parameters, all of them
     7 - returned objects
     6 - Step by Step through operations.
     5 - Details of operations (i.e. data returned)
@@ -202,9 +206,13 @@ static char * verbose;
 #define VCOUT5 if (verbose_opt >= 5) cout
 #define VCOUT6 if (verbose_opt >= 6) cout
 #define VCOUT7 if (verbose_opt >= 7) cout
+#define VCOUT8 if (verbose_opt >= 8) cout
 
 Uint32 warnings = 0;
 Uint32 errors = 0;
+
+// The input argument defining the operation to be performed
+String operation_opt = "";
 
 String namespace_opt = "";
 String host_opt = "";
@@ -2333,6 +2341,616 @@ Boolean parseHostName(const String arg, String& hostName, Uint32& port)
     return true;
 }
 
+////void parseCommandLine (int argc, char* argv [], const char * arg0)
+////{
+////    /*
+////        Analyze and set all input options. uses getopt so, by definition
+////        all options are proceeded by single -. We make a single exception
+////        to allow --help.
+////    */
+////
+////    Array<CIMName> propertyListBuilder;
+////    int opt;
+////    while ((opt = getopt(argc, argv,
+////        "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW")) != -1)
+////    {
+////        switch (opt)
+////        {
+////            case 'c':           // set objectName or className argument
+////            {
+////                objectName_opt = optarg;
+////                break;
+////            }
+////
+////            case 'h':           // -h option. Print usage
+////            {
+////                fprintf(stderr, (char*)USAGE, argv[0]);
+////                exit(0);
+////            }
+////            case '-':          // special case --help argument
+////            {
+////                if (strcmp(optarg, "help") != 0)
+////                {
+////                    printf("ERROR: invalid option: --%s\n", optarg);
+////                    exit(1);
+////                }
+////                else
+////                {
+////                    fprintf(stderr, (char*)USAGE, argv[0]);
+////                    exit(0);
+////                }
+////            }
+////
+////            case 'V':               // KS_TODO NOT USED
+////            {
+////                printf("%s\n", "Don't know right now");
+////                exit(0);
+////            }
+////
+////            case 'd':               // set deepInheritance = false;
+////            {
+////                deepInheritance_opt = false;
+////                break;
+////            }
+////            case 'o':               // set classOrigin argument to true
+////            {
+////                requestClassOrigin_opt = true;
+////                break;
+////            }
+////            case 'y' :    // Set client timeout value in seconds
+////            {
+////                if (strcasecmp("null", optarg) != 0)
+////                {
+////                    clientTimeoutSeconds_opt.setValue(
+////                        stringToUint32(optarg));
+////                }
+////                break;
+////            }
+////            case 'v':               // verbose display with integer
+////            {
+////                verbose_opt = stringToUint32(optarg);
+////                if (verbose_opt > 7)
+////                {
+////                    cerr << "INPUT ERROR: max verbose level is 5" << endl;
+////                    exit(1);
+////                }
+////                break;
+////            }
+////            case 'P':               // set property list argument
+////            {
+////                if (strlen(optarg) == 0)
+////                {
+////                    propertyListBuilder.clear();
+////                }
+////                else
+////                {
+////                    propertyListBuilder.append(optarg);
+////                }
+////                break;
+////            }
+////            case 'n':               // set request namespace
+////            {
+////                namespace_opt = optarg;
+////                break;
+////            }
+////            case 'H':           // set connect hostname
+////            {
+////                host_opt = optarg;
+////                break;
+////            }
+////             case 'u':          // set connect user name
+////            {
+////                user_opt = optarg;
+////                break;
+////            }
+////            case 'p':           // set connect password
+////            {
+////                password_opt = optarg;
+////                break;
+////            }
+////            case 'M':           // set maxObjectsOnOpen operation parameter
+////            {
+////                maxObjectsOnOpen_opt = stringToUint32(optarg);
+////                break;
+////            }
+////            case 'N':           // set maxObjectsOnPull argument
+////            {
+////                maxObjectsOnPull_opt = stringToUint32(optarg);
+////                break;
+////            }
+////            case 'C':       // set flag to compare pull and non pull ops
+////            {
+////                compare_opt = true;
+////                break;
+////            }
+////            case 't':           // set interoperation timeout argument
+////            {
+////                if (strcasecmp("null", optarg) == 0)
+////                {
+////                    interOperationTimeout_opt.setNullValue();
+////                }
+////                else
+////                {
+////                    interOperationTimeout_opt.setValue(
+////                        stringToUint32(optarg));
+////                }
+////                break;
+////            }
+////            case 'T':       // flag to tell pullop to display timing of op
+////            {
+////                timeOperation_opt = true;
+////                break;
+////            }
+////            case 'f':               // filterQuery argument
+////            {
+////                filterQuery_opt = optarg;
+////                break;
+////            }
+////            case 'l':           // define filterQueryLanguage argument
+////            {
+////                filterQueryLanguage_opt = optarg;
+////                break;
+////            }
+////            case 'x':           // set continueOnError flag
+////            {
+////                continueOnError_opt = true;
+////                break;
+////            }
+////            case 'r':           // set flag to repeat operation per integer
+////            {
+////                repeat_opt = atoi(optarg);
+////                cout << "Option -r NOT IMPLEMENTED in code" << endl;
+////                break;
+////            }
+////            case 'R':           // set flag to reverse exit code
+////            {
+////                reverseExitCode_opt = true;
+////                break;
+////
+////            }
+////            case 'W':           // Treat Errors as Warnings
+////            {
+////                errorsAsWarnings_opt = !errorsAsWarnings_opt;
+////                break;
+////
+////            }
+////            case 's':   // sleep between request operations
+////            {
+////                sleep_opt = stringToUint32(optarg);
+////                break;
+////            }
+////            case 'X':    // define maximum requests before issue close
+////            {
+////                if (strcasecmp("null", optarg) == 0)
+////                {
+////                    // KS_TODO - I think this should be illegal
+////                    // but we leave it for a test. Besides this is
+////                    // the default if not used.
+////                    maxOperationsBeforeCloseCount_opt.setNullValue();
+////                }
+////                else
+////                {
+////                    maxOperationsBeforeCloseCount_opt.setValue(
+////                        atoi(optarg));
+////                    if (maxOperationsBeforeCloseCount_opt.getValue() == 0)
+////                    {
+////                        printf("ERROR: option %c. parameter value = 0"
+////                                " not allowed: %u",
+////                            opt,maxOperationsBeforeC
+////                                loseCount_opt.getValue());
+////                        exit(1);
+////                    }
+////                }
+////                break;
+////            }
+////            default:
+////            {
+////                printf("ERROR: unknown option: %c", opt);
+////                exit(1);
+////                break;
+////            }
+////        }
+////    }
+////
+////    // Check usage and get the required operation and optional
+///     // objectName_opt arguments.
+////
+////    if (optind >= argc)
+////    {
+////        fprintf(stderr, (char*)USAGE, arg0);
+////        fprintf(stderr, "ERROR: Operation Type argument required\n");
+////        exit(1);
+////    }
+////
+////    operation_opt = argv[optind];
+////
+////    if (optind+1 < argc)
+////    {
+////        objectName_opt = argv[optind+1];
+////    }
+////
+////    VCOUT6 << "Operation " << operation_opt
+////           <<  " objectName_opt " << objectName_opt << endl;
+////
+////    if (optind + 2 < argc)
+////    {
+////        fprintf(stderr, (char *)USAGE, arg0);
+////        fprintf(stderr, "ERROR: Extra Arguments supplied: ");
+////        exit(1);
+////    }
+////    /*
+////        array of property names that is applied at the
+////        propertylist for the operation.
+////    */
+////
+////    propertyList_opt.set(propertyListBuilder);
+////}
+
+void parseCommandLine (int argc, char* argv [], const char * arg0)
+{
+    //
+    //  Initialize and parse getOpts
+    //
+    String optString("c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW");
+    getoopt  getOpts;
+    getOpts = getoopt ();
+    getOpts.addFlagspec (optString);
+    getOpts.parse (argc, argv);
+
+    if (getOpts.hasErrors ())
+    {
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
+    }
+    /*
+        Analyze and set all input options. uses getopt so, by definition
+        all options are proceeded by single -. We make a single exception
+        to allow --help.
+    */
+
+    Array<CIMName> propertyListBuilder;
+    Uint32 i;
+    Uint32 regularArgs = 0;
+    //
+    //  Get options and arguments from the command line
+    //
+    for (i =  getOpts.first(); i <  getOpts.last(); i++)
+    {
+        if (getOpts [i].getType () == Optarg::LONGFLAG)
+        {
+            throw UnexpectedArgumentException(getOpts[i].Value());
+        }
+        else if (getOpts [i].getType () == Optarg::REGULAR)
+        {
+            if (regularArgs == 0)
+            {
+                operation_opt = getOpts[i].Value();
+                regularArgs++;
+            }
+            else if (regularArgs == 1)
+            {
+                objectName_opt = getOpts[i].Value();
+                regularArgs++;
+            }
+            else
+            {
+                throw UnexpectedArgumentException(getOpts[i].Value());
+            }
+        }
+        else /* getOpts [i].getType () == FLAG */
+        {
+
+            Uint32 c = getOpts [i].getopt()[0];
+            switch (c)
+            {
+                case 'c':           // set objectName or className argument
+                {
+////                  objectName_opt = optarg;
+                    objectName_opt = getOpts [i].Value();
+                    break;
+                }
+
+                case 'h':           // -h option. Print usage
+                {
+                    fprintf(stderr, (char*)USAGE, argv[0]);
+                    exit(0);
+                }
+
+                case 'V':               // KS_TODO NOT USED
+                {
+                    printf("%s\n", "Don't know right now");
+                    exit(0);
+                }
+
+                case 'd':               // set deepInheritance = false;
+                {
+                    deepInheritance_opt = false;
+                    break;
+                }
+                case 'o':               // set classOrigin argument to true
+                {
+                    requestClassOrigin_opt = true;
+                    break;
+                }
+                //// KS_TODO why is this one a uint32Arg???
+                case 'y' :    // Set client timeout value in seconds
+                {
+                    if (String::equalNoCase(getOpts [i].Value(),"null"))
+                    {
+                        clientTimeoutSeconds_opt.setNullValue();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Uint32 x;
+                            getOpts [i].Value (x);
+                            clientTimeoutSeconds_opt.setValue(x);
+                        }
+                        catch (const TypeMismatchException&)
+                        {
+                            throw InvalidOptionArgumentException(
+                                getOpts [i].Value(),
+                                'y');
+                        }
+                    }
+                    break;
+                }
+                case 'v':               // verbose display with integer
+                {
+                    try
+                    {
+                        getOpts[i].Value(verbose_opt);
+                    }
+                    catch (const TypeMismatchException&)
+                    {
+                        throw InvalidOptionArgumentException(
+                            getOpts [i].Value(),
+                            'v');
+                    }
+                    if (verbose_opt > 8)
+                    {
+                        cerr << "INPUT ERROR: max verbose level is 8"
+                            << endl;
+                        exit(1);
+                    }
+                    break;
+                }
+                case 'P':               // set property list argument
+                {
+                    if (getOpts [i].Value().size() == 0)
+                    {
+                        propertyListBuilder.clear();
+                    }
+                    else
+                    {
+                        propertyListBuilder.append(getOpts [i].Value());
+                    }
+                    break;
+                }
+                case 'n':               // set request namespace
+                {
+                    namespace_opt = getOpts [i].Value();
+                    break;
+                }
+                case 'H':           // set connect hostname
+                {
+                    host_opt = getOpts [i].Value();
+                    break;
+                }
+                 case 'u':          // set connect user name
+                {
+                    user_opt = getOpts [i].Value();
+                    break;
+                }
+                case 'p':           // set connect password
+                {
+                    user_opt = getOpts [i].Value();
+                    break;
+                }
+                case 'M':      // set maxObjectsOnOpen operation parameter
+                {
+                    try
+                    {
+                        getOpts [i].Value (maxObjectsOnOpen_opt);
+                    }
+                    catch (const TypeMismatchException&)
+                    {
+                        throw InvalidOptionArgumentException(
+                            getOpts [i].Value(),
+                            'M');
+                    }
+                    break;
+                }
+                case 'N':           // set maxObjectsOnPull argument
+                {
+                    try
+                    {
+                        getOpts [i].Value (maxObjectsOnPull_opt);
+                    }
+                    catch (const TypeMismatchException&)
+                    {
+                        throw InvalidOptionArgumentException(
+                            getOpts [i].Value(),
+                            'N');
+                    }
+                    break;
+                }
+                case 'C':      // set flag to compare pull and non pull ops
+                {
+                    compare_opt = true;
+                    break;
+                }
+                case 't':      // set interoperation timeout argument
+                {
+                    if (String::equalNoCase(getOpts [i].Value(),"null"))
+                    {
+                        interOperationTimeout_opt.setNullValue();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Uint32 x;
+                            getOpts [i].Value (x);
+                            interOperationTimeout_opt.setValue(x);
+                        }
+                        catch (const TypeMismatchException&)
+                        {
+                            throw InvalidOptionArgumentException(
+                                getOpts [i].Value(),
+                                't');
+                        }
+                    }
+
+                    break;
+                }
+                case 'T':    // flag to tell pullop to display timing of op
+                {
+                    timeOperation_opt = true;
+                    break;
+                }
+                case 'f':               // filterQuery argument
+                {
+                    filterQuery_opt = getOpts [i].Value();
+                    break;
+                }
+                case 'l':           // define filterQueryLanguage argument
+                {
+                    filterQueryLanguage_opt = getOpts [i].Value();
+                    break;
+                }
+                case 'x':           // set continueOnError flag
+                {
+                    continueOnError_opt = true;
+                    break;
+                }
+                case 'r':      // set flag to repeat operation per integer
+                {
+                    cout << "Option -r NOT IMPLEMENTED in code" << endl;
+                    exit (1);
+                    try
+                    {
+                        getOpts [i].Value (repeat_opt);
+                    }
+                    catch (const TypeMismatchException&)
+                    {
+                        throw InvalidOptionArgumentException(
+                            getOpts [i].Value(),
+                            'r');
+                    }
+                    break;
+                }
+                case 'R':           // set flag to reverse exit code
+                {
+                    reverseExitCode_opt = true;
+                    break;
+
+                }
+                case 'W':           // Treat Errors as Warnings
+                {
+                    errorsAsWarnings_opt = !errorsAsWarnings_opt;
+                    break;
+
+                }
+                case 's':   // sleep between request operations
+                {
+                    try
+                    {
+                        getOpts [i].Value (sleep_opt);
+                    }
+                    catch (const TypeMismatchException&)
+                    {
+                        throw InvalidOptionArgumentException(
+                            getOpts [i].Value(),
+                            's');
+                    }
+                    break;
+                }
+                case 'X':    // define maximum requests before issue close
+                {
+                    if (String::equalNoCase(getOpts [i].Value(),"null"))
+                    {
+                        maxOperationsBeforeCloseCount_opt.setNullValue();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Uint32 x;
+                            getOpts [i].Value (x);
+                            maxOperationsBeforeCloseCount_opt.setValue(x);
+                        }
+                        catch (const TypeMismatchException&)
+                        {
+                            throw InvalidOptionArgumentException(
+                                getOpts [i].Value(),
+                                'X');
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    // This path should never be hit.
+                    printf("ERROR: unknown option:");
+                    exit(1);
+                    break;
+                }
+            }  // End switch
+        }  // End else
+    }  // End for loop
+
+    VCOUT6 << "Operation " << operation_opt
+           <<  " objectName_opt " << objectName_opt << endl;
+
+    /*
+        array of property names that is applied at the
+        propertylist for the operation.
+    */
+
+    propertyList_opt.set(propertyListBuilder);
+}
+
+String dispStr(const String str)
+{
+    String strOut = "\"";
+    strOut.append(str);
+    strOut.append("\"");
+    return strOut;
+}
+void displayInputArguments()
+{
+    VCOUT8 << "Operation = " << operation_opt << endl
+        << "objectName_opt = " << objectName_opt << endl
+
+        << "namespace_opt = " << dispStr(namespace_opt) << endl
+        << "host_opt = " << dispStr(host_opt) << endl
+        << "user_opt = " << dispStr(user_opt) << endl
+        << "password_opt = " << password_opt << endl
+        << "interOperationTimeout_opt = "
+            << interOperationTimeout_opt.toString() << endl
+        << "maxObjectsOnPull_opt = " << maxObjectsOnPull_opt << endl
+        << "compare_opt = " << password_opt << endl
+        << "sleep_opt = " << sleep_opt << endl
+        << "verbose_opt = " << verbose_opt << endl
+        << "timeOperation_opt = " << boolToString(timeOperation_opt) << endl
+        << "continueOnError_opt = " << boolToString(continueOnError_opt) << endl
+        << "reverseExitCode_opt = " << boolToString(reverseExitCode_opt) << endl
+        << "deepInheritance_opt = " << boolToString(deepInheritance_opt) << endl
+        << "deepInheritance_opt = " << boolToString(deepInheritance_opt) << endl
+        << "requestClassOrigin_opt = " << boolToString(requestClassOrigin_opt)
+             << endl
+        << "errorsAsWarnings_opt = " << boolToString(errorsAsWarnings_opt)
+            << endl
+        << "clientTimeoutSeconds_opt = "
+            << clientTimeoutSeconds_opt.toString() << endl
+        << "propertyList_opt = " << propertyList_opt.toString() << endl
+        << "filterQuery_opt = " << filterQuery_opt << endl
+        << "filterQueryLanguage_opt = " << filterQueryLanguage_opt << endl
+        << endl;
+}
+
+
 /******************************************************************************
 **
 **  Main - parse input options and call function defined by
@@ -2352,243 +2970,27 @@ int main(int argc, char** argv)
         argvParams.append(" ");
         argvParams.append(argv[i]);
     }
-    /*
-        array of property names that is applied at the
-        propertylist for the operation.
-    */
-    Array<CIMName> propertyListBuilder;
 
-    /*
-        Analyze and set all input options. uses getopt so, by definition
-        all options are proceeded by single -. We make a single exception
-        to allow --help.
-    */
-    int opt;
-    while ((opt = getopt(argc, argv,
-                         "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW")) != -1)
+////  parseCommandLine(argc, argv, arg0);  // KS_TODO remove this
+    try
     {
-        switch (opt)
-        {
-            case 'c':           // set objectName or className argument
-            {
-                objectName_opt = optarg;
-                break;
-            }
-
-            case 'h':           // -h option. Print usage
-            {
-                fprintf(stderr, (char*)USAGE, argv[0]);
-                exit(0);
-            }
-            case '-':          // special case --help argument
-            {
-                if (strcmp(optarg, "help") != 0)
-                {
-                    printf("ERROR: invalid option: --%s\n", optarg);
-                    exit(1);
-                }
-                else
-                {
-                    fprintf(stderr, (char*)USAGE, argv[0]);
-                    exit(0);
-                }
-            }
-
-            case 'V':               // KS_TODO NOT USED
-            {
-                printf("%s\n", "Don't know right now");
-                exit(0);
-            }
-
-            case 'd':               // set deepInheritance = false;
-            {
-                deepInheritance_opt = false;
-                break;
-            }
-            case 'o':               // set classOrigin argument to true
-            {
-                requestClassOrigin_opt = true;
-                break;
-            }
-            case 'y' :    // Set client timeout value in seconds
-            {
-                if (strcasecmp("null", optarg) != 0)
-                {
-                    clientTimeoutSeconds_opt.setValue(stringToUint32(optarg));
-                }
-                break;
-            }
-            case 'v':               // verbose display with integer
-            {
-                verbose_opt = stringToUint32(optarg);
-                if (verbose_opt > 7)
-                {
-                    cerr << "INPUT ERROR: max verbose level is 5" << endl;
-                    exit(1);
-                }
-                break;
-            }
-            case 'P':               // set property list argument
-            {
-                if (strlen(optarg) == 0)
-                {
-                    propertyListBuilder.clear();
-                }
-                else
-                {
-                    propertyListBuilder.append(optarg);
-                }
-                break;
-            }
-            case 'n':               // set request namespace
-            {
-                namespace_opt = optarg;
-                break;
-            }
-            case 'H':           // set connect hostname
-            {
-                host_opt = optarg;
-                break;
-            }
-             case 'u':          // set connect user name
-            {
-                user_opt = optarg;
-                break;
-            }
-            case 'p':           // set connect password
-            {
-                password_opt = optarg;
-                break;
-            }
-            case 'M':           // set maxObjectsOnOpen operation parameter
-            {
-                maxObjectsOnOpen_opt = stringToUint32(optarg);
-                break;
-            }
-            case 'N':           // set maxObjectsOnPull argument
-            {
-                maxObjectsOnPull_opt = stringToUint32(optarg);
-                break;
-            }
-            case 'C':           // set flag to compare pull and non pull ops
-            {
-                compare_opt = true;
-                break;
-            }
-            case 't':           // set interoperation timeout argument
-            {
-                if (strcasecmp("null", optarg) == 0)
-                {
-                    interOperationTimeout_opt.setNullValue();
-                }
-                else
-                {
-                    interOperationTimeout_opt.setValue(stringToUint32(optarg));
-                }
-                break;
-            }
-            case 'T':           // flag to tell pullop to display timing of op
-            {
-                timeOperation_opt = true;
-                break;
-            }
-            case 'f':               // filterQuery argument
-            {
-                filterQuery_opt = optarg;
-                break;
-            }
-            case 'l':           // define filterQueryLanguage argument
-            {
-                filterQueryLanguage_opt = optarg;
-                break;
-            }
-            case 'x':           // set continueOnError flag
-            {
-                continueOnError_opt = true;
-                break;
-            }
-            case 'r':           // set flag to repeat operation per integer
-            {
-                repeat_opt = atoi(optarg);
-                cout << "Option -r NOT IMPLEMENTED in code" << endl;
-                break;
-            }
-            case 'R':           // set flag to reverse exit code
-            {
-                reverseExitCode_opt = true;
-                break;
-
-            }
-            case 'W':           // Treat Errors as Warnings
-            {
-                errorsAsWarnings_opt = !errorsAsWarnings_opt;
-                break;
-
-            }
-            case 's':   // sleep between request operations
-            {
-                sleep_opt = stringToUint32(optarg);
-                break;
-            }
-            case 'X':    // define maximum requests before issue close
-            {
-                if (strcasecmp("null", optarg) == 0)
-                {
-                    // KS_TODO - I think this should be illegal
-                    // but we leave it for a test. Besides this is
-                    // the default if not used.
-                    maxOperationsBeforeCloseCount_opt.setNullValue();
-                }
-                else
-                {
-                    maxOperationsBeforeCloseCount_opt.setValue(atoi(optarg));
-                    if (maxOperationsBeforeCloseCount_opt.getValue() == 0)
-                    {
-                        printf("ERROR: option %c. parameter value = 0"
-                                " not allowed: %u",
-                            opt,maxOperationsBeforeCloseCount_opt.getValue());
-                        exit(1);
-                    }
-                }
-                break;
-            }
-            default:
-            {
-                printf("ERROR: unknown option: %c", opt);
-                exit(1);
-                break;
-            }
-        }
+        parseCommandLine (argc, argv, arg0);
     }
 
-    // Check usage and get the required operation and optional objectName_opt
-    // arguments.
-
-    if (optind >= argc)
+    catch (const CommandFormatException& cfe)
     {
-        fprintf(stderr, (char*)USAGE, arg0);
-        fprintf(stderr, "ERROR: Operation Type argument required\n");
-        exit(1);
+        cerr << arg0 << ": " << cfe.getMessage () << endl;
+        cerr << USAGE << endl;
+        exit (1);
+    }
+    catch (const Exception& e)
+    {
+        cerr << arg0 << ": " << e.getMessage ()
+             << endl;
     }
 
-    String operation = argv[optind];
-
-    if (optind+1 < argc)
-    {
-        objectName_opt = argv[optind+1];
-    }
-
-    VCOUT6 << "Operation " << operation
-           <<  " objectName_opt " << objectName_opt << endl;
-
-    if (optind + 2 < argc)
-    {
-        fprintf(stderr, (char *)USAGE, arg0);
-        fprintf(stderr, "ERROR: Extra Arguments supplied: ");
-        exit(1);
-    }
-
-    propertyList_opt.set(propertyListBuilder);
+    displayInputArguments();
+    ///return(0);
 
     if (propertyList_opt.size() != 0)
     {
@@ -2661,37 +3063,37 @@ int main(int argc, char** argv)
     // Execute the operation defined by the operation input argument
     try
     {
-        if (operation == "e")
+        if (operation_opt == "e")
         {
             testPullEnumerateInstances(client, nameSpace, ClassName);
         }
-        else if (operation == "en")
+        else if (operation_opt == "en")
         {
             testPullEnumerationInstancePaths(client, nameSpace, ClassName);
         }
-        else if (operation == "r")
+        else if (operation_opt == "r")
         {
             testPullReferenceInstances(client,nameSpace, ObjectName);
         }
-        else if (operation == "rn")
+        else if (operation_opt == "rn")
         {
             testPullReferenceInstancePaths(client,nameSpace,ObjectName );
         }
-        else if (operation == "a")
+        else if (operation_opt == "a")
         {
             testPullAssociatorInstances(client,nameSpace,ObjectName );
         }
-        else if (operation == "an")
+        else if (operation_opt == "an")
         {
             testPullAssociatorInstancePaths(client,nameSpace,ObjectName );
         }
-        else if (operation == "all")
+        else if (operation_opt == "all")
         {
             testAllClasses(client,nameSpace);
         }
         else
         {
-            cerr << "ERROR: Invalid operation name. " << operation << endl;
+            cerr << "ERROR: Invalid operation name. " << operation_opt << endl;
             exit(1);
         }
     }

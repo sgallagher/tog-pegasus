@@ -33,6 +33,10 @@ DIR = Pegasus/Client/tests/pullop
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LIBRARIES += \
+    peggetoopt \
+    pegcliutils 
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = pullop

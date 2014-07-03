@@ -83,9 +83,6 @@
              class/instance name as second parameter without -c
            - Drop the existing defaults in favor of namespace = root/cimv2
              and no target default.
-           - Expand object compare to more details (maybe)
-           - Finish connect code so we can connect to other systems.  Add
-             connect security parameters.
            - Combine verbose and verbose_opt.  i.e. Use a particular level
              of verbose_opt for verbose. Better just delete the old
              verbose option.  Not of real value here or use it to set
@@ -93,6 +90,8 @@
            - Add concurrent repeat operation test mode (while loop around)
              whole setup and thread for each open, do, close with inner loop
              for repeat of particular open-pull sequence.
+           - Add support for SSL on client.  Note that this means adding
+             multiple parameters to get SSL parameters.
 */
 
 /*
@@ -117,7 +116,8 @@
 #include <Pegasus/Common/ArrayIterator.h>
 
 #include <Pegasus/getoopt/getoopt.h>
-#include <Clients/cliutils/CommandException.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/ExceptionRep.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -271,6 +271,109 @@ Uint32Arg maxOperationsBeforeCloseCount_opt;
 Uint32 pullCounter = 0;
 Uint32 exitCode = 0;
 
+/****************************************************************************
+**
+**    Exception Classes for cmd line parsing
+**
+*****************************************************************************/
+// Uses same names as the CLICommonUtilities Exceptions
+
+
+class  CommandException : public Exception
+{
+public:
+    CommandException(const String& exceptionMessage) : Exception
+        (exceptionMessage)
+    {
+    }
+};
+
+class CommandFormatException : public CommandException
+{
+public:
+    CommandFormatException(const String& exceptionMessage)
+       : CommandException (exceptionMessage)
+    {
+    }
+};
+
+class InvalidOptionArgumentException : public CommandFormatException
+{
+public:
+
+    /**Construct an InvalidOptionArgumentException using the values
+        of the invalid option argument string and the option
+        character.
+        @param  invalidArgument  the string containing the invalid option
+                                 argument
+        @param  option           the character representing the option
+     */
+    InvalidOptionArgumentException(
+        const String& invalidArgument,
+        char option) : CommandFormatException (String ())
+    {
+        _rep->message = "argument \"";
+        _rep->message.append (invalidArgument);
+        _rep->message.append ("\" is not valid for option \"-");
+        _rep->message.append (option);
+        _rep->message.append ("\"");
+    }
+};
+
+class InvalidOptionException : public CommandFormatException
+{
+public:
+    InvalidOptionException(char invalidOption)
+        : CommandFormatException (String ())
+    {
+        _rep->message = "option \"-";
+        _rep->message.append (invalidOption);
+        _rep->message.append ("\" is not valid for this command");
+    }
+};
+
+/** MissingOptionArgumentException signals that a required
+    option argument is missing from the command line.
+ */
+class MissingOptionArgumentException : public CommandFormatException
+{
+public:
+    /**Construct a MissingOptionArgumentException using the value of
+        the option character whose argument is missing.
+        @param option the character representing the option whose argument is
+                      missing
+     */
+    MissingOptionArgumentException(char option)
+        : CommandFormatException (String ())
+    {
+        _rep->message = "missing argument value for \"-";
+        _rep->message.append (option);
+        _rep->message.append ("\" option");
+    }
+};
+
+class UnexpectedArgumentException : public CommandFormatException
+{
+public:
+    /**
+        Construct an UnexpectedArgumentException using the value of the
+        argument string.
+        @param  argumentValue  the string containing the unexpected argument
+     */
+    UnexpectedArgumentException(const String& argumentValue)
+        : CommandFormatException (String ())
+    {
+        _rep->message = "argument \"";
+        _rep->message.append (argumentValue);
+        _rep->message.append ("\" was unexpected");
+    }
+};
+
+/****************************************************************************
+**
+**    Usage definition to display
+**
+*****************************************************************************/
 const char USAGE[] = " \
 \n\
 Test client for Pegasus Pull operations.\n\
@@ -294,10 +397,10 @@ Example:\n\
 \n\
 OPTIONS:\n\
     -V              Print version.\n\
-    -v  LEVEL       Integer defining level of displays (0 - 6)\n\
+    -v  LEVEL       Integer defining level of displays (0 - 8)\n\
                     0 - none, 1 - Errors, 2, warnings, 3 - statistical info,\n\
                     4 - operation overview, 5 - Operation details, 6 - Steps\n\
-                    7 - display returned objects\n\
+                    7 - display returned objects, 8 show input parameters.\n\
     -h              Print this help message.\n\
     --help          Print this help message.\n\
     -n NAMESPACE    The operation namespace(default is \"root/cimv2\").\n\
@@ -306,12 +409,13 @@ OPTIONS:\n\
                     ex. pullop a Test_CLITestProviderClass.Id=\"Mike\"\n\
     -H HOST         Connect to this HOST where format for host is \n\
                     hostName [:port]. Default is to use connectLocal.\n\
-                    If hostName specified witout port(default is 5988)\n\
-    -u USER         String. Connect as this USER.\n\
+                    If hostName specified without port(default is 5988)\n\
+    -u USER         String. Connect as this USER Name.\n\
     -p PASSWORD     String. Connect with this PASSWORD.\n\
-    -t TIMEOUT      Integer interoperation timeout. (Default: NULL, set\n\
-                    by server)\n\
+    -t TIMEOUT      Integer or \"NULL\" interoperation timeout. (Default: \n\
+                    NULL, set by server). \"NULL\" tells server to set value.\n\
     -s seconds      Time to sleep between operations. Used to test timeouts\n\
+                    Default = 0.\n\
     -T              Show results of detailed timing of the operations\n\
     -x              ContinueOnError flag set to true.\n\
     -o              Request ClassOrigin flag true where used.\n\
@@ -2341,260 +2445,30 @@ Boolean parseHostName(const String arg, String& hostName, Uint32& port)
     return true;
 }
 
-////void parseCommandLine (int argc, char* argv [], const char * arg0)
-////{
-////    /*
-////        Analyze and set all input options. uses getopt so, by definition
-////        all options are proceeded by single -. We make a single exception
-////        to allow --help.
-////    */
-////
-////    Array<CIMName> propertyListBuilder;
-////    int opt;
-////    while ((opt = getopt(argc, argv,
-////        "c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW")) != -1)
-////    {
-////        switch (opt)
-////        {
-////            case 'c':           // set objectName or className argument
-////            {
-////                objectName_opt = optarg;
-////                break;
-////            }
-////
-////            case 'h':           // -h option. Print usage
-////            {
-////                fprintf(stderr, (char*)USAGE, argv[0]);
-////                exit(0);
-////            }
-////            case '-':          // special case --help argument
-////            {
-////                if (strcmp(optarg, "help") != 0)
-////                {
-////                    printf("ERROR: invalid option: --%s\n", optarg);
-////                    exit(1);
-////                }
-////                else
-////                {
-////                    fprintf(stderr, (char*)USAGE, argv[0]);
-////                    exit(0);
-////                }
-////            }
-////
-////            case 'V':               // KS_TODO NOT USED
-////            {
-////                printf("%s\n", "Don't know right now");
-////                exit(0);
-////            }
-////
-////            case 'd':               // set deepInheritance = false;
-////            {
-////                deepInheritance_opt = false;
-////                break;
-////            }
-////            case 'o':               // set classOrigin argument to true
-////            {
-////                requestClassOrigin_opt = true;
-////                break;
-////            }
-////            case 'y' :    // Set client timeout value in seconds
-////            {
-////                if (strcasecmp("null", optarg) != 0)
-////                {
-////                    clientTimeoutSeconds_opt.setValue(
-////                        stringToUint32(optarg));
-////                }
-////                break;
-////            }
-////            case 'v':               // verbose display with integer
-////            {
-////                verbose_opt = stringToUint32(optarg);
-////                if (verbose_opt > 7)
-////                {
-////                    cerr << "INPUT ERROR: max verbose level is 5" << endl;
-////                    exit(1);
-////                }
-////                break;
-////            }
-////            case 'P':               // set property list argument
-////            {
-////                if (strlen(optarg) == 0)
-////                {
-////                    propertyListBuilder.clear();
-////                }
-////                else
-////                {
-////                    propertyListBuilder.append(optarg);
-////                }
-////                break;
-////            }
-////            case 'n':               // set request namespace
-////            {
-////                namespace_opt = optarg;
-////                break;
-////            }
-////            case 'H':           // set connect hostname
-////            {
-////                host_opt = optarg;
-////                break;
-////            }
-////             case 'u':          // set connect user name
-////            {
-////                user_opt = optarg;
-////                break;
-////            }
-////            case 'p':           // set connect password
-////            {
-////                password_opt = optarg;
-////                break;
-////            }
-////            case 'M':           // set maxObjectsOnOpen operation parameter
-////            {
-////                maxObjectsOnOpen_opt = stringToUint32(optarg);
-////                break;
-////            }
-////            case 'N':           // set maxObjectsOnPull argument
-////            {
-////                maxObjectsOnPull_opt = stringToUint32(optarg);
-////                break;
-////            }
-////            case 'C':       // set flag to compare pull and non pull ops
-////            {
-////                compare_opt = true;
-////                break;
-////            }
-////            case 't':           // set interoperation timeout argument
-////            {
-////                if (strcasecmp("null", optarg) == 0)
-////                {
-////                    interOperationTimeout_opt.setNullValue();
-////                }
-////                else
-////                {
-////                    interOperationTimeout_opt.setValue(
-////                        stringToUint32(optarg));
-////                }
-////                break;
-////            }
-////            case 'T':       // flag to tell pullop to display timing of op
-////            {
-////                timeOperation_opt = true;
-////                break;
-////            }
-////            case 'f':               // filterQuery argument
-////            {
-////                filterQuery_opt = optarg;
-////                break;
-////            }
-////            case 'l':           // define filterQueryLanguage argument
-////            {
-////                filterQueryLanguage_opt = optarg;
-////                break;
-////            }
-////            case 'x':           // set continueOnError flag
-////            {
-////                continueOnError_opt = true;
-////                break;
-////            }
-////            case 'r':           // set flag to repeat operation per integer
-////            {
-////                repeat_opt = atoi(optarg);
-////                cout << "Option -r NOT IMPLEMENTED in code" << endl;
-////                break;
-////            }
-////            case 'R':           // set flag to reverse exit code
-////            {
-////                reverseExitCode_opt = true;
-////                break;
-////
-////            }
-////            case 'W':           // Treat Errors as Warnings
-////            {
-////                errorsAsWarnings_opt = !errorsAsWarnings_opt;
-////                break;
-////
-////            }
-////            case 's':   // sleep between request operations
-////            {
-////                sleep_opt = stringToUint32(optarg);
-////                break;
-////            }
-////            case 'X':    // define maximum requests before issue close
-////            {
-////                if (strcasecmp("null", optarg) == 0)
-////                {
-////                    // KS_TODO - I think this should be illegal
-////                    // but we leave it for a test. Besides this is
-////                    // the default if not used.
-////                    maxOperationsBeforeCloseCount_opt.setNullValue();
-////                }
-////                else
-////                {
-////                    maxOperationsBeforeCloseCount_opt.setValue(
-////                        atoi(optarg));
-////                    if (maxOperationsBeforeCloseCount_opt.getValue() == 0)
-////                    {
-////                        printf("ERROR: option %c. parameter value = 0"
-////                                " not allowed: %u",
-////                            opt,maxOperationsBeforeC
-////                                loseCount_opt.getValue());
-////                        exit(1);
-////                    }
-////                }
-////                break;
-////            }
-////            default:
-////            {
-////                printf("ERROR: unknown option: %c", opt);
-////                exit(1);
-////                break;
-////            }
-////        }
-////    }
-////
-////    // Check usage and get the required operation and optional
-///     // objectName_opt arguments.
-////
-////    if (optind >= argc)
-////    {
-////        fprintf(stderr, (char*)USAGE, arg0);
-////        fprintf(stderr, "ERROR: Operation Type argument required\n");
-////        exit(1);
-////    }
-////
-////    operation_opt = argv[optind];
-////
-////    if (optind+1 < argc)
-////    {
-////        objectName_opt = argv[optind+1];
-////    }
-////
-////    VCOUT6 << "Operation " << operation_opt
-////           <<  " objectName_opt " << objectName_opt << endl;
-////
-////    if (optind + 2 < argc)
-////    {
-////        fprintf(stderr, (char *)USAGE, arg0);
-////        fprintf(stderr, "ERROR: Extra Arguments supplied: ");
-////        exit(1);
-////    }
-////    /*
-////        array of property names that is applied at the
-////        propertylist for the operation.
-////    */
-////
-////    propertyList_opt.set(propertyListBuilder);
-////}
+void displayInvalidOptionArgument(const char * arg0,
+    const String optValue, char option)
+{
+    cerr << arg0 << ": " << "Invalid argument for command line option "
+         << "\"" <<  option << "\". " << optValue << " not valid for option "
+         <<  option << endl;
+}
+/* Correctly parse the command line represented by argc and argv or
+    generate an exception
+    Parse results are returned in the appropriate _opt variables.
+*/
 
 void parseCommandLine (int argc, char* argv [], const char * arg0)
 {
     //
-    //  Initialize and parse getOpts
+    //  Initialize getOpts
     //
     String optString("c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW");
     getoopt  getOpts;
     getOpts = getoopt ();
     getOpts.addFlagspec (optString);
+    getOpts.addLongFlagspec("help", getoopt::NOARG);
+
+    // parse the input command line
     getOpts.parse (argc, argv);
 
     if (getOpts.hasErrors ())
@@ -2617,7 +2491,16 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
+
+            if (getOpts[i].getName() != "help")
+            {
+                throw UnexpectedArgumentException(getOpts[i].Value());
+            }
+            else
+            {
+                fprintf(stderr, (char*)USAGE, argv[0]);
+                exit(0);
+            }
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
@@ -2638,13 +2521,11 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
         }
         else /* getOpts [i].getType () == FLAG */
         {
-
             Uint32 c = getOpts [i].getopt()[0];
             switch (c)
             {
                 case 'c':           // set objectName or className argument
                 {
-////                  objectName_opt = optarg;
                     objectName_opt = getOpts [i].Value();
                     break;
                 }
@@ -2689,8 +2570,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                         catch (const TypeMismatchException&)
                         {
                             throw InvalidOptionArgumentException(
-                                getOpts [i].Value(),
-                                'y');
+                                getOpts [i].Value(), c);
                         }
                     }
                     break;
@@ -2704,8 +2584,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                     catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(
-                            getOpts [i].Value(),
-                            'v');
+                             getOpts [i].Value(), c);
                     }
                     if (verbose_opt > 8)
                     {
@@ -2756,8 +2635,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                     catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(
-                            getOpts [i].Value(),
-                            'M');
+                            getOpts [i].Value(), c);
                     }
                     break;
                 }
@@ -2770,8 +2648,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                     catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(
-                            getOpts [i].Value(),
-                            'N');
+                            getOpts [i].Value(), c);
                     }
                     break;
                 }
@@ -2797,8 +2674,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                         catch (const TypeMismatchException&)
                         {
                             throw InvalidOptionArgumentException(
-                                getOpts [i].Value(),
-                                't');
+                                getOpts [i].Value(), c);
                         }
                     }
 
@@ -2835,8 +2711,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                     catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(
-                            getOpts [i].Value(),
-                            'r');
+                            getOpts [i].Value(), c);
                     }
                     break;
                 }
@@ -2861,8 +2736,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                     catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(
-                            getOpts [i].Value(),
-                            's');
+                            getOpts [i].Value(), c);
                     }
                     break;
                 }
@@ -2883,8 +2757,7 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
                         catch (const TypeMismatchException&)
                         {
                             throw InvalidOptionArgumentException(
-                                getOpts [i].Value(),
-                                'X');
+                                getOpts [i].Value(), c);
                         }
                     }
                     break;
@@ -2950,57 +2823,8 @@ void displayInputArguments()
         << endl;
 }
 
-
-/******************************************************************************
-**
-**  Main - parse input options and call function defined by
-**         OperationType parameter
-**
-******************************************************************************/
-int main(int argc, char** argv)
+bool connectToHost(CIMClient& client)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
-
-    const char* arg0 = argv[0];
-
-    //  Save input arg list for display
-    String argvParams;
-    for (int i = 1; i < argc ; i ++)
-    {
-        argvParams.append(" ");
-        argvParams.append(argv[i]);
-    }
-
-////  parseCommandLine(argc, argv, arg0);  // KS_TODO remove this
-    try
-    {
-        parseCommandLine (argc, argv, arg0);
-    }
-
-    catch (const CommandFormatException& cfe)
-    {
-        cerr << arg0 << ": " << cfe.getMessage () << endl;
-        cerr << USAGE << endl;
-        exit (1);
-    }
-    catch (const Exception& e)
-    {
-        cerr << arg0 << ": " << e.getMessage ()
-             << endl;
-    }
-
-    displayInputArguments();
-    ///return(0);
-
-    if (propertyList_opt.size() != 0)
-    {
-        VCOUT1 << "PropertyList= " << propertyList_opt.toString() << endl;
-    }
-
-    // conditional display of input parameters
-    VCOUT1 << "START " << arg0 << " " << argvParams << endl;
-
-    CIMClient client;
     try
     {
         if (host_opt == "")
@@ -3035,6 +2859,73 @@ int main(int argc, char** argv)
     {
         cerr << "Error: in connect " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(false);
+    }
+    return true;
+}
+/******************************************************************************
+**
+**  Main - parse input options and call function defined by
+**         OperationType parameter
+**
+******************************************************************************/
+int main(int argc, char** argv)
+{
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+    const char* arg0 = argv[0];
+
+    //  Save input arg list for display
+    String argvParams;
+    for (int i = 1; i < argc ; i ++)
+    {
+        argvParams.append(" ");
+        argvParams.append(argv[i]);
+    }
+
+    // Parse the command line
+    try
+    {
+        parseCommandLine (argc, argv, arg0);
+    }
+
+    catch (const CommandFormatException& cfe)
+    {
+        cerr << arg0 << ": " << cfe.getMessage () << endl;
+        cerr << "Use " << arg0 << " -h or --help to get more information"
+             << endl;
+        exit (1);
+    }
+    catch (const Exception& e)
+    {
+        cerr << arg0 << ": " << e.getMessage ()
+             << endl;
+    }
+
+    displayInputArguments();
+
+
+    if (propertyList_opt.size() != 0)
+    {
+        VCOUT1 << "PropertyList= " << propertyList_opt.toString() << endl;
+    }
+
+    // Conditional display of all input parameters including defaults and
+    // command line.  This is primarily for diagonstics.
+    displayInputArguments();
+
+    if (propertyList_opt.size() != 0)
+    {
+        VCOUT2 << "PropertyList= " << propertyList_opt.toString() << endl;
+    }
+
+    // conditional display of input arguments
+    VCOUT2 << "START " << arg0 << " " << argvParams << endl;
+
+    CIMClient client;
+    if (!connectToHost(client))
+    {
+        cerr << "Connection to host failed. Terminating" << endl;
+        exit(1);
     }
 
     // if this option not null, set the clientTimeout value in

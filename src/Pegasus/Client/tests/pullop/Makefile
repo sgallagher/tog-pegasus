@@ -34,8 +34,7 @@ include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LIBRARIES += \
-    peggetoopt \
-    pegcliutils 
+    peggetoopt
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

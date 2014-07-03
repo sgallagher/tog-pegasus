@@ -109,6 +109,19 @@ TODO list:
    NEXT TASKS: 
       a. finish 8, 12 above. Test against cimperf since there was a bug
       in cimperf from before.
+
+2 July 2014
+1. Corrected error in the new getoopt functions that caused it to fail
+   in build and also in it unit test with the --help option.
+
+28 June 2014
+1. Corrected issue where ZOs was getting errors from pullop because we
+   used getopt to parse command line and the linux getopt is not behavior
+   consistent with ZOs.  Note that the ZOs getopt matches the posix expect and
+   the linux one has extensions (notably it permutes non option arguments to
+   the end of the arguments array.  The easiest and most logical was to move
+   the whole parser to use the internal getoopt which is what we should be
+   using all the time in any case.
 18 June 2014
 1. Correct errors in pullop and CMIMessage.cpp identified by Ji Lee as comments 58,59
 2. Correct error in Makefile identified by Ji Lee as bug comment 60

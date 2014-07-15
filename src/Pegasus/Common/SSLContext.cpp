@@ -187,7 +187,7 @@ public:
 // return 1 if revoked, 0 otherwise
 //
 int SSLCallback::verificationCRLCallback(
-    int,
+    int ok,
     X509_STORE_CTX* ctx,
     X509_STORE* sslCRLStore)
 {
@@ -261,14 +261,14 @@ int SSLCallback::verificationCRLCallback(
     //get revoked certificates
     STACK_OF(X509_REVOKED)* revokedCerts = NULL;
     revokedCerts = X509_CRL_get_REVOKED(crl);
-    int numRevoked= sk_X509_REVOKED_num(revokedCerts);
+    int numRevoked = sk_X509_REVOKED_num(revokedCerts);
     PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
         "---> SSL: Number of certificates revoked by the issuer %d\n",
         numRevoked));
 
     //check whether the subject's certificate is revoked
     X509_REVOKED* revokedCert = NULL;
-    for (int i = 0; i < numRevoked; i++)
+    for (int i = 0; i < sk_X509_REVOKED_num(revokedCerts); i++)
     {
         revokedCert = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
         //a matching serial number indicates revocation
@@ -524,8 +524,7 @@ SSLContextRep::SSLContextRep(
     const String& crlPath,
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile,
-    const String& cipherSuite,
-    const Boolean& sslCompatibility)
+    const String& cipherSuite)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -535,7 +534,7 @@ SSLContextRep::SSLContextRep(
     _crlPath = crlPath;
     _certificateVerifyFunction = verifyCert;
     _cipherSuite = cipherSuite;
-    _sslCompatibility = sslCompatibility;
+
     //
     // If a truststore and/or peer verification function is specified,
     // enable peer verification
@@ -561,7 +560,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
     _cipherSuite = sslContextRep._cipherSuite;
-    _sslCompatibility = sslContextRep._sslCompatibility;
+
     _sslContext = _makeSSLContext();
 
     PEG_METHOD_EXIT();
@@ -587,6 +586,8 @@ void SSLContextRep::_randomInit(const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_randomInit()");
 
+    Boolean ret;
+    int retVal = 0;
 
 #if defined(PEGASUS_SSL_RANDOMFILE) && !defined(PEGASUS_OS_PASE)
     if ( RAND_status() == 0 )
@@ -608,10 +609,10 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //
         // Try the given random seed file
         //
-        Boolean ret = FileSystem::exists(randomFile);
+        ret = FileSystem::exists(randomFile);
         if (ret)
         {
-            int retVal = RAND_load_file(randomFile.getCString(), -1);
+            retVal = RAND_load_file(randomFile.getCString(), -1);
             if ( retVal < 0 )
             {
                 PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
@@ -705,40 +706,13 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
 
-    // OPENSSL_VERSION_NUMBER is defined as  0xnnnnnnnnnL
-    // MMNNFFPPS: major minor fix patch status 
-    // The change  'const' SSL_METHOD 
-    // was introduced in version  1.0.0
-    
-#if (OPENSSL_VERSION_NUMBER < 0x10000000L)
-    SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
-#else
-    const SSL_METHOD *sslProtocolMethod = SSLv23_method() ;
-#endif
-
-    int options = SSL_OP_ALL;
-
+    SSL_CTX * sslContext = 0;
 
     //
     // create SSL Context Area
     //
-   
-    if ( _sslCompatibility == false )
-    {
 
-#ifdef TLS1_2_VERSION
-        // Enable only TLSv1.2 and disable all other protocol (SSL v2, SSL v3,
-        // TLS v1.0, TLSv1.1)
-        sslProtocolMethod = TLSv1_2_method();
-        options = SSL_OP_NO_TLSv1|SSL_OP_NO_TLSv1_1;
-#ifndef OPENSSL_NO_SSL3
-       options |= SSL_OP_NO_SSLv3;
-#endif  
-#endif
-    }
-
-    SSL_CTX *sslContext = NULL;
-    if (!(sslContext = SSL_CTX_new(sslProtocolMethod)))
+    if (!(sslContext = SSL_CTX_new(SSLv23_method())))
     {
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
@@ -751,7 +725,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40)))
     {
         SSL_CTX_free(sslContext);
-        sslContext = NULL;
 
         MessageLoaderParms parms(
             "Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
@@ -765,7 +738,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         if (!(SSL_CTX_set_cipher_list(sslContext, _cipherSuite.getCString())))
         {
             SSL_CTX_free(sslContext);
-            sslContext = NULL;
 
             PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Cipher Suite could not be specified");
@@ -775,11 +747,9 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             throw SSLException(parms);
         }
         else
-        {
            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Cipher suite set to %s",
                 (const char *)_cipherSuite.getCString()));
-        }
     }
 
     //
@@ -806,6 +776,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     SSL_CTX_set_mode (sslContext, SSL_MODE_RELEASE_BUFFERS);
 #endif
 
+    int options = SSL_OP_ALL;
 #ifndef PEGASUS_ENABLE_SSLV2 //SSLv2 is disabled by default
     options |= SSL_OP_NO_SSLv2;
 #endif
@@ -882,8 +853,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
                     "Could not load certificates in to trust store.");
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -920,8 +889,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     MessageLoaderParms parms(
                         "Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
                         "Could not load certificates in to trust store.");
-                    SSL_CTX_free(sslContext);
-                    sslContext = NULL;
                     PEG_METHOD_EXIT();
                     throw SSLException(parms);
                 }
@@ -947,8 +914,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         _crlStore.reset(X509_STORE_new());
         if (_crlStore.get() == NULL)
         {
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw PEGASUS_STD(bad_alloc)();
         }
@@ -968,8 +933,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
                 _crlStore.reset();
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -993,8 +956,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
                 _crlStore.reset();
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1033,9 +994,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 "Common.SSLContext.COULD_NOT_ACCESS_SERVER_CERTIFICATE",
                 "Could not access server certificate in $0.",
                 (const char*)_certPath.getCString());
-
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1060,8 +1018,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
                     "Could not get private key.");
-                SSL_CTX_free(sslContext);
-                sslContext = NULL;
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1087,8 +1043,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             MessageLoaderParms parms(
                 "Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
                 "Could not get private key.");
-            SSL_CTX_free(sslContext);
-            sslContext = NULL;
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -1255,26 +1209,25 @@ void SSLContextRep::validateCertificate()
 //
 
 SSLContextRep::SSLContextRep(
-    const String&,
-    const String&,
-    const String&,
-    const String&,
-    SSLCertificateVerifyFunction*,
-    const String&,
-    const String&,
-    const Boolean&)
+    const String& trustStore,
+    const String& certPath,
+    const String& keyPath,
+    const String& crlPath,
+    SSLCertificateVerifyFunction* verifyCert,
+    const String& randomFile,
+    const String& cipherSuite)
 {
 }
 
-SSLContextRep::SSLContextRep(const SSLContextRep&) {}
+SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 
 SSLContextRep::~SSLContextRep() {}
 
 SSL_CTX* SSLContextRep::_makeSSLContext() { return 0; }
 
 Boolean SSLContextRep::_verifyPrivateKey(
-    SSL_CTX*,
-    const String&)
+    SSL_CTX *ctx,
+    const String& keyPath)
 {
     return false;
 }
@@ -1300,7 +1253,7 @@ SharedPtr<X509_STORE, FreeX509STOREPtr> SSLContextRep::getCRLStore() const
     return SharedPtr<X509_STORE, FreeX509STOREPtr>();
 }
 
-void SSLContextRep::setCRLStore(X509_STORE*) { }
+void SSLContextRep::setCRLStore(X509_STORE* store) { }
 
 Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
 
@@ -1333,8 +1286,7 @@ SSLContext::SSLContext(
         String::EMPTY,
         verifyCert,
         randomFile,
-        String::EMPTY,
-        false);
+        String::EMPTY);
 }
 
 SSLContext::SSLContext(
@@ -1378,8 +1330,7 @@ SSLContext::SSLContext(
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile,
-        const String& cipherSuite,
-        const Boolean& sslCompatibility)
+        const String& cipherSuite)
 {
 #ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     if (crlPath.size() > 0)
@@ -1391,8 +1342,8 @@ SSLContext::SSLContext(
     }
 #endif
     _rep = new SSLContextRep(
-        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile,
-        cipherSuite,sslCompatibility);
+        trustStore, certPath, keyPath, crlPath, verifyCert, randomFile, 
+        cipherSuite);
 }
 #endif
 
@@ -1402,7 +1353,7 @@ SSLContext::SSLContext(
     const String& certPath,
     const String& keyPath,
     SSLCertificateVerifyFunction* verifyCert,
-    String,
+    String trustStoreUserName,
     const String& randomFile)
 {
     _rep = new SSLContextRep(

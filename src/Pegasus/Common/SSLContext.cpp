@@ -540,7 +540,7 @@ SSLContextRep::SSLContextRep(
     // If a truststore and/or peer verification function is specified,
     // enable peer verification
     //
-    _verifyPeer = (trustStore != String::EMPTY || verifyCert != NULL);
+    _verifyPeer = (trustStore.size() != 0 || verifyCert != NULL);
 
     _randomInit(randomFile);
 
@@ -733,9 +733,18 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         // TLS v1.0, TLSv1.1)
 
         options = SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_SSLv3;
+#else
+        PEG_METHOD_EXIT();
+        MessageLoaderParms parms(
+            " Common.SSLContext.TLS_1_2_PROTO_NOT_SUPPORTED",
+            "TLSv1.2 protocol support is not detected on this system. "
+            " To run in less secured mode, set sslBackwardCompatibility=true"
+            " in planned config file and start cimserver.");
+        throw SSLException(parms);
 #endif
     }
 
+    // sslv2 is off permanently even if sslCompatibility is true
     options |= SSL_OP_NO_SSLv2;
     SSL_CTX_set_options(sslContext, options);
 

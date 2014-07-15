@@ -313,6 +313,7 @@ endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_ExportClientSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cimserver_Availability
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_sslCipherSuiteTests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_TLSv1_2_tests
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
 endif
@@ -724,7 +725,7 @@ endif
 ##
 ############################################################################
 
-SSL_CIPHER_SUITE_TEST_CONFIG_OPTIONS= enableHttpsConnection=true sslCipherSuite=HIGH 
+SSL_CIPHER_SUITE_TEST_CONFIG_OPTIONS= enableHttpsConnection=true sslCipherSuite=HIGH
 SSL_CIPHER_SUITE_TEST_CMDS= \
 	$(MAKE)@@--directory \
             $(PEGASUS_ROOT)/src/Pegasus/Client/tests/SSLCipherVerification/ \
@@ -825,6 +826,28 @@ endif
 
 ###############################################################################
 
+
+###############################################################################
+##  TLS v 1.2 support test as per NIST 800-131a
+##
+##  Configuration Options: enableHttpsConnection=true sslCipherSuite = TLSv1.2
+##
+###############################################################################
+TLS_1_2_SUPPORT_CONFIG = enableHttpsConnection=true sslCipherSuite=TLSv1.2
+TLSv1_2_support_tests = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/Server/tests/TLSv_1_2_Support@@-f@@Makefile@@test_TLSv1_2
+
+ifdef PEGASUS_HAS_SSL
+run_TLSv1_2_tests:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(TLS_1_2_SUPPORT_CONFIG)" \
+            TESTSUITE_CMDS="$(TLSv1_2_support_tests)"
+else
+run_TLSv1_2_tests: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping TLSv 1.2 support tests"
+endif
+
+###############################################################################
 
 
 ###############################################################################

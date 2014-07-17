@@ -27,13 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -296,7 +289,9 @@ Boolean getoopt::addFlagspec(const String& opt)
 {
     unsigned int size = opt.size();
     if (size == 0)
+    {
         return false;
+    }
     for (unsigned int i = 0; i < size; i++)
     {
         char c = static_cast<char>(opt[i]);
@@ -443,10 +438,16 @@ static void optargFromShortOpt(
 static int catagorize(const char* s)
 {
     if (s[0] != '-')
+    {
         return 0;
+    }
     else
+    {
         if (s[1] == '-')
+        {
             return 2;
+        }
+    }
     return 1;
 }
 
@@ -650,9 +651,13 @@ const Optarg& getoopt::operator[](unsigned int n)
 {
     unsigned int lim = _args.size();
     if (n < lim)
+    {
         return _args[n];
+    }
     else
+    {
         return _emptyopt;
+}
 }
 
 // Return first index
@@ -818,7 +823,9 @@ flagspec* getoopt::getFlagspecForUpdate(const String& s)
     {
         flagspec& o = _flagspecs[i];
         if (o.islong && s == o.name)
+        {
             return &_flagspecs[i];
+        }
     }
     return 0;
 }
@@ -854,7 +861,9 @@ flagspec* getoopt::getFlagspecForUpdate(char c)
     {
         flagspec& o = _flagspecs[i];
         if (!o.islong && c == o.name[0])
+        {
             return &_flagspecs[i];
+        }
     }
     return 0;
 }

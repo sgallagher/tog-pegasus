@@ -110,7 +110,7 @@
 
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/General/Stopwatch.h>
-#include <Pegasus/Common/StringConversion.h>
+
 #include <Pegasus/Common/Print.h>
 #include <Pegasus/Common/System.h>    // required for sleep function
 #include <Pegasus/Common/ArrayIterator.h>
@@ -2457,15 +2457,13 @@ void displayInvalidOptionArgument(const char * arg0,
     Parse results are returned in the appropriate _opt variables.
 */
 
-void parseCommandLine (int argc, char* argv [], const char * arg0)
+void parseCommandLine (int argc, char* argv [])
 {
     //
     //  Initialize getOpts
     //
-    String optString("c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW");
-    getoopt  getOpts;
-    getOpts = getoopt ();
-    getOpts.addFlagspec (optString);
+    const char *optString("c:hdVv:n:H:u:p:t:M:N:CTf:l:P:r:X:xR-:s:y:oW");
+    getoopt getOpts = getoopt(optString);
     getOpts.addLongFlagspec("help", getoopt::NOARG);
 
     // parse the input command line
@@ -2491,7 +2489,6 @@ void parseCommandLine (int argc, char* argv [], const char * arg0)
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-
             if (getOpts[i].getName() != "help")
             {
                 throw UnexpectedArgumentException(getOpts[i].Value());
@@ -2885,7 +2882,7 @@ int main(int argc, char** argv)
     // Parse the command line
     try
     {
-        parseCommandLine (argc, argv, arg0);
+        parseCommandLine (argc, argv);
     }
 
     catch (const CommandFormatException& cfe)
@@ -2901,8 +2898,8 @@ int main(int argc, char** argv)
              << endl;
     }
 
-    displayInputArguments();
 
+    displayInputArguments();
 
     if (propertyList_opt.size() != 0)
     {

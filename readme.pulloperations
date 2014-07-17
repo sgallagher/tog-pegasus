@@ -110,6 +110,14 @@ TODO list:
       a. finish 8, 12 above. Test against cimperf since there was a bug
       in cimperf from before.
 
+17 July 2014
+1. Correct error in CIMOperationRequestDispatcher.cpp OpenQueryInstances
+   when PEGASUS_DISABLE_QUERY set.
+2. Correct issue in diagnostic code in CIMResponseData.cpp that used 
+   snprintf function not available in windows.
+3. Clean up some miscellaneous code in pullop and it makefile.
+4. Minor change to PullErrosrs.
+
 2 July 2014
 1. Corrected error in the new getoopt functions that caused it to fail
    in build and also in it unit test with the --help option.

@@ -6945,20 +6945,13 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
         dynamic_cast<CIMOpenQueryInstancesResponseMessage*>(
             request->buildResponse()));
 
-    Boolean exception = false;
-
 #ifdef PEGASUS_DISABLE_EXECQUERY
-    response->cimException =
+    openResponse->cimException =
         PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-    exception=true;
+    _enqueueResponse(request, openResponse.release());
+    PEG_METHOD_EXIT();
+    return true;
 #endif
-
-    if (exception)
-    {
-        _enqueueResponse(request, openResponse.release());
-        PEG_METHOD_EXIT();
-        return true;
-    }
 
     //
     // Setup the EnumerationContext. Returns pointer to object

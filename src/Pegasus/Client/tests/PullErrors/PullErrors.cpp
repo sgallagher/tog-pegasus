@@ -1186,7 +1186,7 @@ int main(int argc, char** argv)
 
         tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
         PEGASUS_ASSERT(tczerotest.openEnumerateInstances());
-        while((tczerotest._endOfSequence == false))
+        while(tczerotest._endOfSequence == false)
         {
             if (!tczerotest.pullInstancesWithPath())
             {
@@ -1209,7 +1209,7 @@ int main(int argc, char** argv)
 
         tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
         PEGASUS_ASSERT(tczerotest.openEnumerateInstancePaths());
-        while((tczerotest._endOfSequence == false))
+        while(tczerotest._endOfSequence == false)
         {
             if (!tczerotest.pullInstancePaths())
             {
@@ -1232,7 +1232,7 @@ int main(int argc, char** argv)
 
         tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
         PEGASUS_ASSERT(tczerotest.openAssociatorInstances());
-        while((tczerotest._endOfSequence == false))
+        while(tczerotest._endOfSequence == false)
         {
             if (!tczerotest.pullInstancesWithPath())
             {
@@ -1253,7 +1253,7 @@ int main(int argc, char** argv)
 
         tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
         PEGASUS_ASSERT(tczerotest.openAssociatorInstancePaths());
-        while((tczerotest._endOfSequence == false))
+        while(tczerotest._endOfSequence == false)
         {
             if (!tczerotest.pullInstancePaths())
             {
@@ -1276,7 +1276,7 @@ int main(int argc, char** argv)
 
         tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
         PEGASUS_ASSERT(tczerotest.openReferenceInstances());
-        while((tczerotest._endOfSequence == false))
+        while(tczerotest._endOfSequence == false)
         {
             if (!tczerotest.pullInstancesWithPath())
             {
@@ -1297,7 +1297,7 @@ int main(int argc, char** argv)
 
         tczerotest.setCIMException(CIM_ERR_SERVER_LIMITS_EXCEEDED);
         PEGASUS_ASSERT(tczerotest.openReferenceInstancePaths());
-        while((tczerotest._endOfSequence == false))
+        while(tczerotest._endOfSequence == false)
         {
             if (!tczerotest.pullInstancePaths())
             {

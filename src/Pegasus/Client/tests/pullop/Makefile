@@ -33,8 +33,7 @@ DIR = Pegasus/Client/tests/pullop
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-LIBRARIES += \
-    peggetoopt
+LIBRARIES += peggetoopt
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

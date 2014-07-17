@@ -2235,19 +2235,8 @@ void CIMResponseData::traceResponseData() const
 
 String CIMResponseData::toStringTraceResponseData() const
 {
-    int rtnSize;
-    char *p;
-
-    int allocSize = 256;
-
-    if ((p = (char*)malloc(allocSize)) == NULL)
-    {
-        return String();
-    }
-
-    do
-    {
-        rtnSize = snprintf(p, allocSize,
+    String rtnStr;
+    rtnStr.appendPrintf(
         "CIMResponseData::traceResponseData(encoding=%X,dataType=%X "
         " size=%u C++instNamecount=%u c++Instances=%u c++Objects=%u "
         "scomInstances=%u XMLInstData=%u binaryData=%u "
@@ -2258,22 +2247,6 @@ String CIMResponseData::toStringTraceResponseData() const
         _referencesData.size(), _instanceData.size(), _hostsData.size(),
         _nameSpacesData.size());
 
-        // return if successful if not negative and
-        // returns less than allocated size.
-        if (rtnSize > -1 && rtnSize < allocSize)
-        {
-            break;
-        }
-
-        // increment alloc size. Assumes that positive return is
-        // expected size and negative is error.
-        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
-
-    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
-
-    // Free allocated memory and return formatted output in String
-    String rtnStr(p);
-    free(p);
     return(rtnStr);
 }
 //// #endif

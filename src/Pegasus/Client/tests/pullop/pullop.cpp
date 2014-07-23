@@ -123,7 +123,6 @@
 #include <stdlib.h>
 #include <cstdarg>
 #include <string.h>
-#include <strings.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

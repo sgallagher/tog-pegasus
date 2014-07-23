@@ -110,12 +110,16 @@ TODO list:
       a. finish 8, 12 above. Test against cimperf since there was a bug
       in cimperf from before.
 
+21 July 2014
+1. Removed strings.h from pullop.cpp
+2. Minor cleanup per testing
+
 17 July 2014
 1. Correct error in CIMOperationRequestDispatcher.cpp OpenQueryInstances
    when PEGASUS_DISABLE_QUERY set.
 2. Correct issue in diagnostic code in CIMResponseData.cpp that used 
    snprintf function not available in windows.
-3. Clean up some miscellaneous code in pullop and it makefile.
+3. Clean up some miscellaneous code in pullop and Makefile.
 4. Minor change to PullErrosrs.
 
 2 July 2014

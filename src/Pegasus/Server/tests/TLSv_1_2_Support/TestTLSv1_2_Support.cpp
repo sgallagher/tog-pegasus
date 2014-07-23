@@ -35,35 +35,43 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/AutoPtr.h>
 
+
+#include <openssl/tls1.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName("root/cimv2");
 
 /*
- * This is a test for SSL cipher suite.
+ * This tests the TLSv1.2 support in pegasus
  *
  * The cimserver must be configured as following to test this:
  *
- *  enableHttpsConnection=true
+ *  enableHttpsConnection=true and sslCipherSuite = TLSv1.2
  *
  */
 
 #ifdef PEGASUS_HAS_SSL
-void _SslCipherTest(String &host , Uint32 &port, String &randPath)
+
+void _testTLS1_2_support(String &host , Uint32 &port, String &randPath)
 {
 
+//A rudimentary way to detect TLS1_2 support on openSSL and hence on pegasus
+#ifdef TLS1_2_VERSION
 
     String trustStorePath;
     String certPath;
     String keyPath;
-    String cipherSuite = "LOW";
+    String cipherSuite = "SSLv3";
+    Boolean sslCompatibility = false;
     AutoPtr<CIMClient> cc(new CIMClient);
 
     try
     {
-        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath,
-            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite));
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite,
+            sslCompatibility));
 
         if (sslContext.get())
         {
@@ -73,23 +81,29 @@ void _SslCipherTest(String &host , Uint32 &port, String &randPath)
             //Otherwise it informs that server is not started properly
             //
             PEGASUS_TEST_ASSERT( 0 &&
-                (bool)"cimserver not started with sslCipherSuite=HIGH");
-
+                (bool)"cimserver not started with sslCipherSuite=TLSv1.2");
         }
+    }
+    catch(CannotConnectException &e)
+    {
+        cout << "SSLCipherTest Expected exception:  "<< e.getMessage() << endl;
+        cout << "Test passed: Connecting with cipher list: " << cipherSuite
+            << " and TLS1.2 as expected" << endl;
     }
     catch(Exception &e)
     {
-        cout << "SSLCipherTest Expected exception:  "<< e.getMessage() << endl;
-        cout << "Test passed. Connecting with cipher list as " << cipherSuite
-            << " failed " << endl;
+        cerr << "SSLCipherTest Failed:  "<< e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(0 && (bool)"Got unexpected Exception, Aborting");
     }
 
-    cipherSuite = "HIGH";
+
+    cipherSuite = "TLSv1.2";
     try
     {
 
-        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath,
-            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite));
+        AutoPtr<SSLContext> sslContext(new SSLContext (trustStorePath, 
+            certPath, keyPath, String::EMPTY, 0, randPath, cipherSuite,
+            sslCompatibility));
         if (sslContext.get())
         {
             cc->connect (host, port, *sslContext, "", "");
@@ -109,22 +123,26 @@ void _SslCipherTest(String &host , Uint32 &port, String &randPath)
         PEGASUS_TEST_ASSERT(0);
     }
 
-    cout << "Test passed. Connected with cipher suite as " << cipherSuite
-        << endl;
+    cout << "Test passed: Connecting with cipher list: " << cipherSuite
+        << " and TLS1.2" << endl;
+#else
+    //Hacks to stop unused param warning while compiling
+    PEGASUS_TEST_ASSERT( host == host);
+    PEGASUS_TEST_ASSERT( port == port);
+    PEGASUS_TEST_ASSERT( randPath == randPath);
 
-
-}
+    cout << "TLSv1.2 is not supported on this build of pegasus. Upgrade openssl"
+        << " skipping TLSv1.2 support tests" << endl;
 #endif
+}
 
-
-
+#endif
 
 int main()
 {
-    String host;
 
 #ifdef PEGASUS_HAS_SSL
-    host = System::getHostName();
+    String host = System::getHostName();
     Uint32 port = System::lookupPort(
         WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
 
@@ -135,7 +153,7 @@ int main()
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 # endif
 
-    _SslCipherTest(host , port,  randPath);
+    _testTLS1_2_support( host ,  port,  randPath);
 
     cout << "+++++ passed all tests" << endl;
 

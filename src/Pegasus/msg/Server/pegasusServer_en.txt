@@ -3615,6 +3615,13 @@ en:table {
         */
         Common.SSLContext.COULD_NOT_ACCESS_SERVER_CERTIFICATE:string {"PGS09212: Could not access server certificate in {0}."}
 
+       /**
+        * @note  PGS09213:
+        *    Do not translate 'sslBackwardCompatibility=true' since it is a configuration setting
+        */
+        Common.SSLContext.TLS_1_2_PROTO_NOT_SUPPORTED:string {"PGS09213: TLSv1.2 protocol support is not detected on this system. To run in less secured mode, set sslBackwardCompatibility=true in planned config file and start cimserver."}
+ 
+
         // ==========================================================
         // Messages for TraceFileHandler
         //  Please use message prefix "PGS09400"

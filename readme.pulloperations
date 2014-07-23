@@ -110,6 +110,9 @@ TODO list:
       a. finish 8, 12 above. Test against cimperf since there was a bug
       in cimperf from before.
 
+23 July 2014
+1. Mergeout from head of tree to Task branch
+
 21 July 2014
 1. Removed strings.h from pullop.cpp
 2. Minor cleanup per testing

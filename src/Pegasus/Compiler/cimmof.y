@@ -484,7 +484,7 @@ parameter: qualifierList parameterType parameterName array
     cimmofParser *cp = cimmofParser::Instance();
 
     // Create new parameter with name, type, isArray, array, referenceClassName
-    if ($4 == -1) 
+    if ($4 == -1)
     {
         p = cp->newParameter(*$3, $2, false, 0, g_referenceClassName);
     }
@@ -635,7 +635,7 @@ propertyName: TOK_SIMPLE_IDENTIFIER
    NOTE: array type is ival (int) which allows positive and negative.
          The Empty is actually -1
 */
-array: 
+array:
     // array syntax with [ number ]
     TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE TOK_RIGHTSQUAREBRACKET
         {
@@ -760,7 +760,7 @@ constantValue:
         {$$ = $1;}
     | TOK_NULL_VALUE
         {
-            g_typedInitializerValue.nonNullParserType = 
+            g_typedInitializerValue.nonNullParserType =
                 strValTypeNS::NULL_VALUE;
             $$ = new String(String::EMPTY);
         } ;
@@ -862,7 +862,7 @@ stringValue: TOK_STRING_VALUE
 /*
     arrayInitializer = "{" constantValue*( "," constantValue)"}"
 
-    Intiialize array of comma-separated constant values 
+    Intiialize array of comma-separated constant values
 
     Used in: Initializer, typedInitializer, typedQualifierParameter
     Result: strVal
@@ -968,7 +968,7 @@ keyValuePairList: keyValuePair
 
 /*
     Parse one keybinding and append to global KeyBindingArray. calcualates
-    keyBinding type from first char of string.  
+    keyBinding type from first char of string.
 */
 keyValuePair: keyValuePairName TOK_EQUAL initializer
     {
@@ -1009,7 +1009,7 @@ alias: TOK_AS aliasIdentifier
             g_currentAliasDecl.getCString());
 
     }
-    | /* empty */ 
+    | /* empty */
         {
             $$ = new String(String::EMPTY);
             g_currentAliasDecl = String::EMPTY;
@@ -1227,7 +1227,7 @@ scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN
     } ;
 
 /* aggregate the keywords used to define scope */
-metaElements: 
+metaElements:
     metaElement
         {   /* empty */
             $$ = $1;
@@ -1303,13 +1303,13 @@ explicitFlavor: TOK_ENABLEOVERRIDE
 
 flavor: overrideFlavors
         {
-            $$ = &g_flavor;
+          $$ = &g_flavor;
         }
     | /* empty */
-       {
+        {
            g_flavor = CIMFlavor (CIMFlavor::NONE);
            $$ = &g_flavor;
-       } ;
+        } ;
 
 overrideFlavors: explicitFlavor
     | overrideFlavors explicitFlavor ;
@@ -1402,9 +1402,16 @@ qualifierName: TOK_ASSOCIATION
             free(metaQualifierName);
             metaQualifierName = 0;
         }
+
+    // Added because "Reference" is a documented qualifier in addition to
+    // being a keyword in the syntax.
+    | TOK_REFERENCE
+        {
+            g_flavor = CIMFlavor (CIMFlavor::NONE);
+            $$ = new String("Reference");
+        }
     | TOK_SIMPLE_IDENTIFIER
         {
-            // KS Probably hangover for case when no scope supplied
             g_flavor = CIMFlavor (CIMFlavor::NONE);
             $$ = $1;
         };

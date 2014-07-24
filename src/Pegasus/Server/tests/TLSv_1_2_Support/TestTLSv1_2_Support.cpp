@@ -36,7 +36,9 @@
 #include <Pegasus/Common/AutoPtr.h>
 
 
-#include <openssl/tls1.h>
+#ifdef PEGASUS_HAS_SSL
+#  include <openssl/tls1.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

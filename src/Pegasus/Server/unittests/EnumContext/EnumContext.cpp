@@ -37,6 +37,7 @@
 #include <Pegasus/General/Guid.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/CIMResponseData.h>
+#include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -45,16 +46,35 @@ static Boolean verbose;
 #define VCOUT if (verbose) cout
 
 // Reduce creation of simple context to one line for these tests.
-EnumerationContext* createSimpleContext(EnumerationContextTable& enumTable,
+// Returns the Id in the name argument
+EnumerationContext* createEnumContext(EnumerationContextTable* enumTable,
                                         String& name)
 {
     const CIMNamespaceName ns = "/test/namespace";
-    Boolean continueOnError = false;
-    Uint32Arg timeOut = 50;
-    EnumerationContext* en = enumTable.createContext(
-        ns,
-        timeOut,
-        continueOnError,
+    String messageId = "1111";
+    String enumerationContext = "6000";
+    Uint32 maxObjectCount(500);
+    Uint32Arg operationTimeout(30);
+    CIMName className = "CIM_Nothing";
+    // Used only to set values into the context.  Released at
+    // end of this function
+    AutoPtr<CIMOpenEnumerateInstancesRequestMessage> request(
+        new CIMOpenEnumerateInstancesRequestMessage(
+            messageId,
+            ns,
+            className,
+            false,
+            false,
+            CIMPropertyList(),
+            String(),
+            String(),
+            operationTimeout,
+            false,
+            maxObjectCount,
+            QueueIdStack()));
+
+    EnumerationContext* en = enumTable->createContext(
+        request.get(),
         CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
         CIMResponseData::RESP_INSTANCES);
     name = en->getContextId();
@@ -64,33 +84,34 @@ EnumerationContext* createSimpleContext(EnumerationContextTable& enumTable,
 void test01()
 {
     VCOUT << "Start test01" << endl;
-    EnumerationContextTable enumTable(1000);
-    cout << "line " << __LINE__ << endl;
+    EnumerationContextTable* enumTable = new EnumerationContextTable(
+        1000,    // max OpenContexts
+        30,      // defaultInteroperationTimeout
+        1000);   // responseCache max size
+
     String createdContextName1;
-    EnumerationContext* en1 = createSimpleContext(enumTable,
-                                                     createdContextName1);
+    EnumerationContext* en1 = createEnumContext(enumTable,
+                                                  createdContextName1);
 
     PEGASUS_TEST_ASSERT(en1->responseCacheSize() == 0);
 
     //String createdContextName1 = et.createContext(enContext1);
 
     String createdContextName2;
-    EnumerationContext* en2 = createSimpleContext(enumTable,
+    EnumerationContext* en2 = createEnumContext(enumTable,
                                              createdContextName2);
 
-    cout << "line " << __LINE__ << endl;
-    EnumerationContext* enFound2 = enumTable.find(createdContextName2);
+    EnumerationContext* enFound2 = enumTable->find(createdContextName2);
 
     PEGASUS_TEST_ASSERT(enFound2->valid());
 
     PEGASUS_TEST_ASSERT(enFound2 != 0);
 
     // test find on string not in table.
-    PEGASUS_TEST_ASSERT(enumTable.find(String("xxxx")) == 0);
+    PEGASUS_TEST_ASSERT(enumTable->find(String("xxxx")) == 0);
 
-    PEGASUS_TEST_ASSERT(enumTable.size() == 2);
+    PEGASUS_TEST_ASSERT(enumTable->size() == 2);
 
-    cout << "line " << __LINE__ << endl;
     en1->setClientClosed();
     en1->setProvidersComplete();
 
@@ -98,14 +119,14 @@ void test01()
     en2->setProvidersComplete();
     en1->lockContext();
     en2->lockContext();
-    cout << "line " << __LINE__ << endl;
-    enumTable.releaseContext(en1);
-    enumTable.releaseContext(en2);
+    enumTable->releaseContext(en1);
+    enumTable->releaseContext(en2);
 
-    cout << "line " << __LINE__ << endl;
-    PEGASUS_TEST_ASSERT(enumTable.size() == 0);
+    PEGASUS_TEST_ASSERT(enumTable->size() == 0);
 
-    //enumTable.removeContextTable();
+    enumTable->removeContextTable();
+    delete(enumTable);
+
     VCOUT << "EnumTest End test01 successful" << endl;
 }
 
@@ -114,34 +135,37 @@ void test02()
 {
     VCOUT << "Start test02" << endl;
     // Create the enumeration table
-    EnumerationContextTable enumTable(1000);
+    EnumerationContextTable* enumTable = new EnumerationContextTable(
+        1200,    // max OpenContexts
+        30,      // defaultInteroperationTimeout
+        1000);   // responseCache max size
 
     // Build a large set of contexts
     Uint32 testSize = 1000;
     Array<String> rtndContextNames;
 
-    PEGASUS_TEST_ASSERT(enumTable.size() == 0);
+    PEGASUS_TEST_ASSERT(enumTable->size() == 0);
 
     // Build a set of contexts defined by testSize
     for (Uint32 i = 0 ; i < testSize ; i++)
     {
         String createdContextName;
-        PEGASUS_TEST_ASSERT(createSimpleContext(enumTable,createdContextName));
+        PEGASUS_TEST_ASSERT(createEnumContext(enumTable,createdContextName));
 
         rtndContextNames.append(createdContextName);
         PEGASUS_TEST_ASSERT(rtndContextNames[i].size() != 0);
     }
 
-    PEGASUS_TEST_ASSERT(enumTable.size() == testSize);
+    PEGASUS_TEST_ASSERT(enumTable->size() == testSize);
 
     // confirm that we can find all of the created contexts
     for (Uint32 i = 0 ; i < testSize ; i++)
     {
-        EnumerationContext* en = enumTable.find(rtndContextNames[i]);
+        EnumerationContext* en = enumTable->find(rtndContextNames[i]);
         PEGASUS_TEST_ASSERT(en != 0);
         PEGASUS_TEST_ASSERT(en->valid());
     }
-    PEGASUS_TEST_ASSERT(enumTable.size() == testSize);
+    PEGASUS_TEST_ASSERT(enumTable->size() == testSize);
 
     // Confirm that contexts are unique.
     // KS_TODO the uniqueness test.
@@ -149,207 +173,20 @@ void test02()
     // remove all contexts from table.
     for (Uint32 i = 0 ; i < testSize ; i++)
     {
-        EnumerationContext* en = enumTable.find(rtndContextNames[i]);
+        EnumerationContext* en = enumTable->find(rtndContextNames[i]);
         en->setProvidersComplete();
         en->setClientClosed();
         en->lockContext();
-        enumTable.releaseContext(en);
+        enumTable->releaseContext(en);
     }
 
-    PEGASUS_TEST_ASSERT(enumTable.size() == 0);
+    PEGASUS_TEST_ASSERT(enumTable->size() == 0);
 
-    enumTable.removeContextTable();
+    enumTable->removeContextTable();
+    delete(enumTable);
 
     VCOUT << "test02 Complete success" << endl;
 }
-
-// Test Enumeration Timeout.
-//void test03()
-//{
-//    VCOUT << "Start test03, Test Enumeration Timeouts" << endl;
-//    EnumerationContextTable enumTable(1000);
-//
-//    String createdContextName;
-//
-//    const CIMNamespaceName ns = "/test/namespace";
-//    Boolean continueOnError = false;
-//    Uint32Arg x = 2;
-//    EnumerationContext* en = enumTable.createContext(
-//        ns,
-//        x,
-//        continueOnError,
-//        CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE,
-//        CIMResponseData::RESP_INSTANCES,
-//        createdContextName);
-//
-//    // test expired timer test before we start a timer.
-//    Array<String> contexts;
-//
-//    Uint32 activeEnumerations = 0;
-//    activeEnumerations = enumTable.findExpiredContexts(contexts);
-//    PEGASUS_TEST_ASSERT(activeEnumerations == 0);
-//    PEGASUS_TEST_ASSERT(contexts.size() == 0);
-//
-//    // test the timer on the single context
-//
-//    en->startTimer();
-//    activeEnumerations = enumTable.findExpiredContexts(contexts);
-//    PEGASUS_TEST_ASSERT(activeEnumerations == 1);
-//    ///////////PEGASUS_TEST_ASSERT(contexts.size() == 0);
-//
-//    Uint32 seconds = 0;
-//    Array<String> list;
-//    Uint32 actives;
-//    Array<String> expiredList;
-//    while ((actives = enumTable.findExpiredContexts(list)) != 0)
-//    {
-//        PEGASUS_TEST_ASSERT(actives == 1);
-//        for (Uint32 i = 0 ; i < list.size() ; i++)
-//        {
-//            cout << list[i] << endl;
-//            expiredList.append(list[i]);
-//        }
-//        seconds++;
-//        sleep(1);
-//    }
-//    VCOUT << "seconds " << seconds << endl;
-//    PEGASUS_TEST_ASSERT(seconds >= 2 && seconds <= 4);
-//
-//    if (expiredList.size() > 0)
-//    {
-//        EnumerationContext* en = enumTable.find(expiredList[0]);
-//
-//        PEGASUS_TEST_ASSERT(en->valid());
-//
-//        en->setProvidersComplete();
-//
-//        enumTable.remove(createdContextName);
-//    }
-//    else
-//    {
-//        PEGASUS_ASSERT(false);
-//    }
-//
-//    PEGASUS_TEST_ASSERT(enumTable.size() == 0);
-//
-//    VCOUT << "test03 Complete success" << endl;
-//}
-//
-//
-//// Test Enumeration Timeout with multiple contexts.
-//void test03a()
-//{
-//    VCOUT << "Start test03a" << endl;
-//    VCOUT << "Start test03a, Test Multiple Enumeration Timeouts" << endl;
-//
-//    EnumerationContextTable enumTable(1000);
-//
-//    // Insert multiple context entries into the enumeration table.
-//
-//    String createdContextXName;
-//    EnumerationContext* x = createSimpleContext(enumTable,
-//                                                 createdContextXName);
-//
-//
-//    // Add new entry, start both timers and test for
-//    // completions.
-//    String createdContextYName;
-//    EnumerationContext* y = createSimpleContext(enumTable,
-//                                                 createdContextYName);
-//
-//
-//    String createdContextZName;
-//    EnumerationContext* z = createSimpleContext(enumTable,
-//                                                 createdContextZName);
-//
-//
-//    // Start the interoperation timer for all contexts
-//
-//    x->startTimer();
-//    y->startTimer();
-//    z->startTimer();
-//
-//    // Test for timeouts.
-//
-//    Array<String> timedOutList;
-//    Uint32 activeTimers = 0;
-//    Uint32 seconds = 0;
-//    while ((activeTimers = enumTable.findExpiredContexts(timedOutList)) != 0)
-//    {
-//         VCOUT << "activeTimers = " << activeTimers << " at "
-//             << seconds << " seconds. timeouts count "
-//             << timedOutList.size() << endl;
-//
-//        // Confirm that returned timed out contexts are valid
-//        if (timedOutList.size() != 0)
-//        {
-//            for (Uint32 i = 0 ; i < timedOutList.size() ; i++)
-//            {
-//                VCOUT << "context " << timedOutList[i]
-//                    << " Timed Out at " << seconds << " seconds."
-//                    << "timeouts count "<< timedOutList.size()
-//                    << " i " << i <<  endl;
-//                EnumerationContext* en = enumTable.find(timedOutList[i]);
-//                en->valid();
-//
-//                // Test the context against the id and time for each entry
-//                // to determine the timeout times are correct.
-//
-//                if (en->getContextName() == x->getContextName())
-//                {
-//                    PEGASUS_TEST_ASSERT(en->getContextName() ==
-//                                        createdContextXName);
-//                    PEGASUS_TEST_ASSERT(seconds == 3);
-//                }
-//                if (en->getContextName() == y->getContextName())
-//                {
-//                    PEGASUS_TEST_ASSERT(en->getContextName() ==
-//                                        createdContextYName);
-//                    PEGASUS_TEST_ASSERT(seconds == 6);
-//                }
-//                if (en->getContextName() == z->getContextName())
-//                {
-//                    PEGASUS_TEST_ASSERT(en->getContextName() ==
-//                                        createdContextZName);
-//                    cout << "seconds " << seconds << endl;
-//                    PEGASUS_TEST_ASSERT(seconds == 1);
-//                }
-//            }
-//        }
-//        seconds++;
-//        sleep(1);
-//    }
-//    VCOUT << "all timers off now. seconds ="
-//        << seconds << endl;
-//    PEGASUS_TEST_ASSERT(enumTable.size() == 3);
-//
-//    // clear the table are test for size 0
-//
-//    PEGASUS_ASSERT(!enumTable.remove(createdContextXName));
-//    enumTable.remove(createdContextYName);
-//    enumTable.remove(createdContextZName);
-//    // should not be removed because provider state not complete.
-//    PEGASUS_TEST_ASSERT(enumTable.size() == 3);
-//
-//    EnumerationContext* en1 = enumTable.find(createdContextXName);
-//    en1->setProvidersComplete();
-//    PEGASUS_ASSERT(enumTable.remove(createdContextXName));
-//    PEGASUS_TEST_ASSERT(enumTable.size() == 2);
-//
-//    EnumerationContext* en2 = enumTable.find(createdContextYName);
-//    en2->setProvidersComplete();
-//    enumTable.remove(createdContextYName);
-//    PEGASUS_TEST_ASSERT(enumTable.size() == 1);
-//
-//    EnumerationContext* en3 = enumTable.find(createdContextZName);
-//    en3->setProvidersComplete();
-//    enumTable.remove(createdContextZName);
-//    PEGASUS_TEST_ASSERT(enumTable.size() == 0);
-//
-//    enumTable.clear();
-//
-//    VCOUT << "test03a Complete success" << endl;
-//}
 
 // test the cache get functions.
 void test04()
@@ -358,11 +195,13 @@ void test04()
     // Create an entry for the cache
 
     // define an EnumerationContext
-    EnumerationContextTable enumTable(1000);
-
+    EnumerationContextTable* enumTable = new EnumerationContextTable(
+        1000,    // max OpenContexts
+        30,      // defaultInteroperationTimeout
+        1000);   // responseCache max size
     String createdContextName;
-    EnumerationContext* en = createSimpleContext(enumTable,
-                                                 createdContextName);
+    EnumerationContext* en = createEnumContext(enumTable,
+                                               createdContextName);
 
     PEGASUS_TEST_ASSERT(createdContextName == en->getContextId());
 
@@ -388,7 +227,9 @@ void test04()
     CIMResponseData from(CIMResponseData::RESP_INSTANCES);
     en->getCache(10, from);
     PEGASUS_TEST_ASSERT(from.size() == 10);
-    enumTable.removeContextTable();
+
+    enumTable->removeContextTable();
+    delete(enumTable);
 }
 
 
@@ -422,11 +263,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL setProvidersComplete(void * parm)
 void test06()
 {
     VCOUT << "Test06 Started" << endl;
-    EnumerationContextTable enumTable(1000);
+    // define an EnumerationContext
+    EnumerationContextTable* enumTable = new EnumerationContextTable(
+        1000,    // max OpenContexts
+        30,      // defaultInteroperationTimeout
+        1000);   // responseCache max size
 
     // Create an enumeration context
     String enContextIdStr;
-    EnumerationContext* en = createSimpleContext(enumTable,
+    EnumerationContext* en = createEnumContext(enumTable,
                                                  enContextIdStr);
 
     PEGASUS_TEST_ASSERT(en->responseCacheSize() == 0);
@@ -445,11 +290,14 @@ void test06()
     th->join();
     delete th;
     en->lockContext();
-    enumTable.releaseContext(en);
+    enumTable->releaseContext(en);
+
+    enumTable->removeContextTable();
+    delete(enumTable);
 }
 ThreadReturnType PEGASUS_THREAD_CDECL setresponseCacheSize(void * parm)
 {
-    VCOUT << "Thread Start" << endl;
+    VCOUT << "Thread setresponseCacheSize Start" << endl;
     Thread* my_thread = (Thread *)parm;
     EnumerationContext* enumerationContext =
         (EnumerationContext *)my_thread->get_parm();
@@ -480,6 +328,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL setresponseCacheSize(void * parm)
                 x);
 
         enumerationContext->putCache((CIMResponseMessage*&)response, false);
+        delete(response);
     }
     // signal again after setting providersComplete.
     // This one should wake up the condition.
@@ -494,26 +343,33 @@ ThreadReturnType PEGASUS_THREAD_CDECL setresponseCacheSize(void * parm)
                 CIMException(),
                 x);
 
-        enumerationContext->putCache((CIMResponseMessage*&)response, false);
+        enumerationContext->putCache((CIMResponseMessage*&)response, true);
+        delete(response);
     }
-    VCOUT << "setresponseCacheSize to 2 items ThreadComplete" << endl;
+    VCOUT << "setresponseCacheSize contains "
+          << enumerationContext->responseCacheSize()
+          <<  "items. ThreadComplete" << endl;
     return ThreadReturnType(0);
 }
 
 // Test cache size  setting and getCacheResponseData
 void test07()
 {
-    EnumerationContextTable enumTable(1000);
+    VCOUT << "test07 Start" << endl;
+    // define an EnumerationContext
+    EnumerationContextTable* enumTable = new EnumerationContextTable(
+        1000,    // max OpenContexts
+        30,      // defaultInteroperationTimeout
+        1000);   // responseCache max size
 
     // Create an enumeration context
     String enContextIdStr;
-    EnumerationContext* en = createSimpleContext(enumTable,
+    EnumerationContext* en = createEnumContext(enumTable,
                                                  enContextIdStr);
 
     PEGASUS_TEST_ASSERT(en->responseCacheSize() == 0);
     threadComplete = false;
     // Create a thread with Enumeration Context as parameter
-//  char * param;
     Thread * th = new Thread(setresponseCacheSize, (void *)en, false);
 
     th->run();
@@ -521,14 +377,36 @@ void test07()
     // call the testresponseCacheSize Condition. Should return only when the
     // thread has signaled.
     VCOUT << "getCacheResponseData Wait" << endl;
-    CIMResponseData from(CIMResponseData::RESP_INSTANCES);
-    cout << en->responseCacheSize();
-    en->getCache(1, from);
-    VCOUT << "getCacheResponseData Wait return" << endl;
+    CIMResponseData resp(CIMResponseData::RESP_INSTANCES);
+
+    // Sleep to allow thread to complete
+    sleep(2);
+
+    cout << "ResponseCacheSize() " << en->responseCacheSize() << endl;
+    PEGASUS_TEST_ASSERT(en->responseCacheSize() == 2);
+    en->getCache(1, resp);
+
+    PEGASUS_TEST_ASSERT(resp.size() == 1);
+
+    PEGASUS_TEST_ASSERT(en->responseCacheSize() == 1);
+    VCOUT << "getCacheResponseData getCache returned" << endl;
+
+    // get the second response
+
+    CIMResponseData resp1(CIMResponseData::RESP_INSTANCES);
+    VCOUT << "Cache Size " << en->responseCacheSize() << endl;;
+    en->getCache(1, resp1);
+
+    PEGASUS_TEST_ASSERT(resp1.size() == 1);
+    PEGASUS_TEST_ASSERT(en->responseCacheSize() == 0);
+
     PEGASUS_TEST_ASSERT(threadComplete);
 
     th->join();
     delete th;
+
+    enumTable->removeContextTable();
+    delete(enumTable);
 }
 
 
@@ -537,16 +415,12 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     test01();
     test02();
-    // Removed because we modified whole timer concept and these no
-    // longer work.
-//  test03();
-//  test03a();
 
-    // putcache and getResponseCache test functions.  Text the condition
-    // variable wait logic.
+    // putcache and getResponseCache test functions.
     test06();
 
-    // KS_TODO we have an issue with this test.
+    // test getcache function with counts less than what is in cache.
+    // Issue with the test for the moment.  KS 26 July 2014
     //test07();
 
     cout << argv[0] << " +++++ passed all tests" << endl;

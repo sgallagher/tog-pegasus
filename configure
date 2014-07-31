@@ -358,7 +358,7 @@ if [ ! -z "$with_ssl" ]; then
   fi
 
   if [ ! -f "$with_ssl/$libbase/libssl.so" ]; then
-    echo "$0: missing dependency: \$with_ssl/$libbase/libss.so"
+    echo "$0: missing dependency: \$with_ssl/$libbase/libssl.so"
     missing=1
   fi
 
@@ -833,7 +833,7 @@ then
 fi
 if [ "$enable_pam" = "1" ]; then
   echo "export PEGASUS_PAM_AUTHENTICATION=true" >> $options
-  echo "export PEGASUS_USE_PAM_STANDALONE_PROC=true" >> $options
+  echo "export PEGASUS_USE_PAM_STANDALONE_PROC=false" >> $options
    \cp -f $PEGASUS_ROOT/rpm/wbem /etc/pam.d
    chmod 0644 /etc/pam.d/wbem
 fi

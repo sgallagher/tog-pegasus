@@ -105,8 +105,8 @@ void showOperations(const char* pgmName, Uint32 lineLength)
         OperationTableEntry thisOperation = operations.next();
 
         cout << endl;
-        String opString = stringPrintf(
-            "%-5s %-21s ",
+        String opString;
+        opString.appendPrintf("%-5s %-21s ",
             thisOperation.ShortCut,
             thisOperation.OperationName);
 
@@ -215,7 +215,8 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
             OperationExampleEntry example = operations.getExampleEntry();
             // format the shortcut and
             // command string into a single output string.
-            String opString = stringPrintf(
+            String opString;
+            opString.appendPrintf(
                 "%-5s %-21s ",
                 thisOperation.ShortCut,
                 thisOperation.OperationName);
@@ -248,8 +249,8 @@ Boolean showOperationUsage(const char* cmd, OptionManager& om,
                 << endl;
 
             // Output the common Options information
-            String commonOpStr =
-                 stringPrintf("%s", "Common Options are : \n");
+            String commonOpStr;
+            commonOpStr.appendPrintf("%s", "Common Options are : \n");
 
             commonOpStr.append(commonOptions);
 

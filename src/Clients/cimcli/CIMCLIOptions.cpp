@@ -878,7 +878,7 @@ Boolean CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                     {
                         pList.append(CIMName(pListString[i]));
                     }
-                    catch (InvalidNameException& e)
+                    catch (InvalidNameException&)
                     {
                         throw OMInvalidOptionValue("propertyList", properties);
                     }

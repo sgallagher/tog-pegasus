@@ -114,7 +114,18 @@ static int _compareKeyBinding(const CIMKeyBinding& kb1,
                         kb2.getValue().getCString(),
                         uValue2))
                     {
-                        rtn = (uValue2 - uValue1);
+                        if ((uValue2 - uValue1) > 0)
+                        {
+                            rtn = 1;
+                        }
+                        else if (((uValue2 - uValue1) == 0))
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
                     }
                     else
                     {
@@ -132,7 +143,18 @@ static int _compareKeyBinding(const CIMKeyBinding& kb1,
                         kb2.getValue().getCString(),
                         sValue2))
                     {
-                        rtn = (sValue2 - sValue1);
+                        if ((sValue2 - sValue1) > 0)
+                        {
+                            rtn = 1;
+                        }
+                        else if (((sValue2 - sValue1) == 0))
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
                     }
                     else
                     {

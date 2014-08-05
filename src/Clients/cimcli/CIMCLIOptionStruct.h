@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Clients/cimcli/Linkage.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/General/Stopwatch.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Clients/cimcli/CIMCLIClient.h>
 

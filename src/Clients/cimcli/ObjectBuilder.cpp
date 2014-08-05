@@ -40,20 +40,14 @@
 #include "CIMCLIClient.h"
 #include "ObjectBuilder.h"
 #include "CIMCLICommon.h"
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/ArrayIterator.h>
+
 #include <Clients/cliutils/CsvStringParse.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-// Define a Pegasus array implementation for the tokenItem type
-#define PEGASUS_ARRAY_T tokenItem
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
 // Diagnostic dislays activated if verboseTest set to true below.  This is
-// compile time used for developer tests only.  Tjis should be disabled
+// compile time used for developer tests only.  This should be disabled
 // before code is released or automated tests run.
 bool verboseTest = false;
 #define VCOUT if (verboseTest) cout << "LINE=" << __LINE__ << " TST "
@@ -407,14 +401,15 @@ Boolean _stringToArrayValue(
             val.set(a);
             break;
         }
-
+        // Limits are checked in common functions for all of the integer
+        // types below
         case CIMTYPE_UINT8:
         {
             Array<Uint8> a;
             val.get(a);
             while(strl.more())
             {
-                a.append(strToUint(strl.next().getCString(), type));
+                a.append((Uint8)strToUint(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -426,7 +421,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToSint(strl.next().getCString(), type));
+                a.append((Sint8)strToSint(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -438,7 +433,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToUint(strl.next().getCString(), type));
+                a.append((Uint16)strToUint(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -450,7 +445,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToSint(strl.next().getCString(), type));
+                a.append((Sint16)strToSint(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -462,7 +457,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToUint(strl.next().getCString(), type));
+                a.append((Uint32)strToUint(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -474,7 +469,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToSint(strl.next().getCString(), type));
+                a.append((Sint32)strToSint(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -510,7 +505,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToSint(strl.next().getCString(), type));
+                a.append((Real32)strToReal(strl.next().getCString(), type));
             }
             val.set(a);
             break;
@@ -522,7 +517,7 @@ Boolean _stringToArrayValue(
             val.get(a);
             while(strl.more())
             {
-                a.append(strToSint(strl.next().getCString(), type));
+                a.append(strToReal(strl.next().getCString(), type));
             }
             val.set(a);
             break;

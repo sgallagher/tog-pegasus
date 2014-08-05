@@ -42,7 +42,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Common/ArrayInternal.h>
 
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -50,6 +49,8 @@
 #include <Pegasus/Common/Print.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Pegasus_inl.h>
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/General/Stopwatch.h>
 
 #include "CIMCLIClient.h"
 
@@ -2418,13 +2419,6 @@ struct classTreeEntry
     }
 };
 
-// Create a Pegasus array type for classTreeEntry
-#include <Pegasus/Common/ArrayIterator.h>
-#define PEGASUS_ARRAY_T classTreeEntry
-# include <Pegasus/Common/ArrayInter.h>
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
 /*
     Class defining the container for classTreeEntry items.  As classes are
     analyzed, classTreeEntry items are put into this container and at the
@@ -2756,14 +2750,6 @@ struct instanceCounter
         _count++;
     }
 };
-
-// Define array of instanceCounter struct
-
-#include <Pegasus/Common/ArrayIterator.h>
-#define PEGASUS_ARRAY_T instanceCounter
-# include <Pegasus/Common/ArrayInter.h>
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
 
 // find an instance in array of instanceCounter. Returns true if found
 static bool _findInstance(Array<instanceCounter>& x, String& name, Uint32& pos)

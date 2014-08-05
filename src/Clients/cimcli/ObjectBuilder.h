@@ -32,8 +32,8 @@
 #define _CLI_ObjectBuilder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
 #include <Clients/cimcli/Linkage.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 
 /*
@@ -117,13 +117,8 @@ public:
     // required by Array template
     tokenItem() {}
 private:
-};
 
-// Define a Pegasus Array for the tokenItem type
-// Implementation defined in cpp file
-#define PEGASUS_ARRAY_T tokenItem
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
+};
 
 // Define the class that builds instances and parameters from command line
 // input.

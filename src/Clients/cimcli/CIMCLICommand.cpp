@@ -46,7 +46,6 @@
     are defined in CIMCLIOptions.
 */
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Tracer.h>

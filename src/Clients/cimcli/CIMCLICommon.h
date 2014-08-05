@@ -33,12 +33,8 @@
 #define _CLI_COMMON_H
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
 #include <Clients/cimcli/Linkage.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/Formatter.h>
-
-#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <cstdarg>
 PEGASUS_NAMESPACE_BEGIN
@@ -334,19 +330,6 @@ Uint32 PEGASUS_CLI_LINKAGE cimcliExitRtn(Uint32 exitCode);
  *  @param expectedExitCode value to set.
  */
 void setExpectedExitCode(Uint32 expectedExitCode);
-
-/**
- * Return a Pegasus String formatted string in allocated memory
- * based on the input format definition string and the variable
- * number of arguments that follow the format string.
- *
- * @param format containing the C++ printf format definition.
- * @param ... variable number of input parameters dependent on
- *        the format definition input parameter
- * @return String with formatted string.
- */
-
-String PEGASUS_CLI_LINKAGE stringPrintf(const char* format, ...);
 
 /**
    Remap a long string into a multi-line string that can be

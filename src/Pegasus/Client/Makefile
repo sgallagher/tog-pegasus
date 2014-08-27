@@ -67,7 +67,8 @@ SOURCES = \
     CIMOperationRequestEncoder.cpp \
     CIMOperationResponseDecoder.cpp \
     ClientAuthenticator.cpp \
-    CIMClientException.cpp
+    CIMClientException.cpp \
+    CIMEnumerationContext.cpp
 
 SOURCES_SLP = \
     CIMServerDiscovery.cpp

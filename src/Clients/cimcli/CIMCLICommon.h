@@ -39,6 +39,11 @@
 #include <cstdarg>
 PEGASUS_NAMESPACE_BEGIN
 
+
+// Diagnostic tool maintained just to trace development issues.
+// issues a single line when set into source code.
+#define TRACELINE cout << __FILE__ << ":" << __LINE__ << endl;
+
 // Common functions used in cimcli
 
 /**

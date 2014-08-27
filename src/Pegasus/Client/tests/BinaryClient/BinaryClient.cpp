@@ -38,6 +38,8 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+static char * verbose;
+
 //==============================================================================
 //
 // TestBinaryClient host port
@@ -53,8 +55,18 @@ static void _SetBinaryResponse(CIMClient& client, Boolean flag)
     rep->setBinaryResponse(flag);
 }
 
+void printInstances(Array<CIMInstance> instances)
+{
+    for (Uint32 i = 0; i < instances.size(); i++)
+    {
+        PrintInstance(cout, instances[i]);
+    }
+}
+
 int main(int argc, char** argv)
 {
+
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     // Check args:
 
     if (argc != 3)
@@ -86,12 +98,42 @@ int main(int argc, char** argv)
         Array<CIMInstance> result = client.enumerateInstances("root/cimv2",
             "CIM_ManagedElement");
 
+        if (verbose)
+        {
+            printInstances(result);
+        }
+
         for (Uint32 i = 0; i < result.size(); i++)
         {
-#if defined(PEGASUS_DEBUG)
             PrintInstance(cout, result[i]);
-#endif
         }
+
+        CIMEnumerationContext enumerationContext;
+        Boolean endOfSequence;
+        result = client.openEnumerateInstances(
+           enumerationContext,
+           endOfSequence,
+           "root/cimv2",
+           "CIM_ManagedElement");
+
+        if (verbose)
+        {
+            printInstances(result);
+        }
+
+        while (!endOfSequence)
+        {
+            result = client.pullInstancesWithPath(
+               enumerationContext,
+               endOfSequence,
+               100);
+
+            if (verbose)
+            {
+                printInstances(result);
+            }
+        }
+
     }
     catch (Exception& e)
     {

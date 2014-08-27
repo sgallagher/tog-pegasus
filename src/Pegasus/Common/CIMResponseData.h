@@ -45,14 +45,16 @@
 #include <Pegasus/Common/CIMBuffer.h>
 #include <Pegasus/Common/SCMOClass.h>
 #include <Pegasus/Common/SCMOInstance.h>
+#include <Pegasus/Common/SCMODump.h>
+#include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 typedef Array<Sint8> ArraySint8;
 #define PEGASUS_ARRAY_T ArraySint8
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
-
 
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
@@ -64,7 +66,8 @@ public:
         RESP_ENC_XML = 4,
         RESP_ENC_SCMO = 8
     };
-
+    // Defines the data content type for the object. A CIMResponseData
+    // object can have only a single Content type.
     enum ResponseDataContent {
         RESP_INSTNAMES = 1,
         RESP_INSTANCES = 2,
@@ -72,21 +75,26 @@ public:
         RESP_OBJECTS = 4,
         RESP_OBJECTPATHS = 5
     };
-    //includeClassOrigin & _includeQualifiers are set to true by default.
-    //_propertyList is initialized to an empty propertylist to enable
-    // sending all properties by default. _isClassOperation set false and
-    // only reset by selected operations (ex. associator response builder)
+    /** Constructor that sets the ResponseDataContent attributes.
+        includeClassOrigin & _includeQualifiers are set to true by
+        default. //_propertyList is initialized to an empty
+        propertylist to enable // sending all properties by default.
+        _isClassOperation set false and // only reset by selected
+        operations (ex. associator response builder)
+    */
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content),_includeQualifiers(true),
+        _encoding(0),_dataType(content),_size(0),
+        _includeQualifiers(true),
         _includeClassOrigin(true),
         _isClassOperation(false),
         _propertyList(CIMPropertyList())
-    {
-    }
+    {}
 
     CIMResponseData(const CIMResponseData & x):
         _encoding(x._encoding),
+        _mapObjectsToIntances(x._mapObjectsToIntances),
         _dataType(x._dataType),
+        _size(x._size),
         _referencesData(x._referencesData),
         _instanceData(x._instanceData),
         _hostsData(x._hostsData),
@@ -101,15 +109,113 @@ public:
         _includeQualifiers(x._includeQualifiers),
         _includeClassOrigin(x._includeClassOrigin),
         _isClassOperation(x._isClassOperation),
-        _propertyList(x._propertyList)
+        _propertyList(x._propertyList),
+        _magic(x._magic)
     {
+        PEGASUS_DEBUG_ASSERT(valid());
     }
+
+    /**Construct an empty object.  Issue here in that we would like
+       to assure that this is invalid but if we add the _dataType
+       parameter it must be a valid one.  The alternative would be
+       to define an invalid enum but that would cost us in all
+       case/if statements. Therefore up to the user to create and
+       then use correctly.
+    */
+    CIMResponseData():
+        _encoding(0),_mapObjectsToIntances(false), _size(0),
+        _includeQualifiers(true), _includeClassOrigin(true),
+        _propertyList(CIMPropertyList())
+    {
+        PEGASUS_DEBUG_ASSERT(valid());
+    }
+
+    /**
+     * Move CIM objects from another CIMResponse data object to this
+     * CIMResponseData object. Moves the number of objects defined
+     * in the count parameter from one to another. They are removed
+     * from the from object and inserted into the to object.
+     *
+     * @param CIMResponseData from which the objects are moved
+     * @param count Uint32 count of objects to move
+     * @return - Actual number of objects moved.
+     */
+    Uint32 moveObjects(CIMResponseData & x, Uint32 count);
+
+    /**
+     * Return count of the number of CIM objects in the
+     * CIMResponseData object
+     * @return Uint32 The count of the number of CIM objects
+     * (instances, paths, or objects)in the CIMResponsedata object
+     */
+    Uint32 size();
+
+    /** Set the internal size variable based on the current count
+       of what is in the CIMResponseData.  This operation
+       required after users have played with the arrays. See
+       CQLOperationRequestDispatcher for example
+     */
+
+    void setSize();
+
+    /** Determine if there is any binary content in the CIM
+        ResponseData object
+        @return Boolean true if binary data exists in content.
+     */
+    Boolean hasBinaryData() const;
 
     ~CIMResponseData()
+    { }
+
+    /** Issue with pull and other operations
+       in that the other assoc operations return objects and objectPaths
+       and the pulls return instances and instancePaths. The pull operation
+       must be able to handle either so we use this to reset the datatype
+    */
+    void setDataType(ResponseDataContent content)
     {
+        PEGASUS_DEBUG_ASSERT(valid());
+        // This assert is temp test since the object should be zero
+        // size when data type set.
+        PEGASUS_ASSERT(_size == 0);
+        _dataType = content;
     }
 
-    // C++ objects interface handling
+    /** Move key attributes from one CIMResponseData object to
+       another. The attributes include the _dataType,
+       includeQualifiers and includeClassOrigin and properties
+       parameters. This used with pull operations to set up
+       output CIMResponseData from cache.
+       @param from CIMResponseData object that is source for attributes
+     */
+    void setResponseAttributes(CIMResponseData& from)
+    {
+        PEGASUS_DEBUG_ASSERT(valid());
+        PEGASUS_DEBUG_ASSERT(_size == 0);
+
+        _dataType = from._dataType;
+        _includeQualifiers = from._includeQualifiers;
+        _includeClassOrigin = from._includeClassOrigin;
+        _propertyList = from._propertyList;
+    }
+
+    /** get the datatype property
+       @return ResponseDataContent enum value
+    */
+    ResponseDataContent getResponseDataContent()
+    {
+        PEGASUS_DEBUG_ASSERT(valid());
+        return _dataType;
+    }
+
+    /* Clear all data out of the CIMResponse Object
+    */
+    void clear();
+    /*******************************************************************
+    **
+    **     C++ objects interface handling
+    **
+    *******************************************************************/
 
     // Instance Names handling
     Array<CIMObjectPath>& getInstanceNames();
@@ -118,6 +224,12 @@ public:
     {
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
+        _size += x.size();
+    }
+    // See also setArrayData with CIMObjects below.
+    void setArrayData(const Array<CIMObjectPath>& x)
+    {
+        setInstanceNames(x);
     }
 
     // Instance handling
@@ -127,36 +239,79 @@ public:
     {
         _instances.clear();
         _instances.append(x);
+        _size++;
         _encoding |= RESP_ENC_CIM;
     }
 
     // Instances handling
     Array<CIMInstance>& getInstances();
 
+    // Get an array of CIMInstances from the CIMResponseData converting from
+    // any of the internal forms to the C++ format.  This will also convert
+    // CIMObjects to CIMInstances if there are any CIMObjects.
+    // NOTE: This is a temporary solution to satisfy the BinaryCodec passing
+    // of data to the client where the data could be either instances or
+    // objects.  The correct solution is to convert back when the provider, etc.
+    // returns the data to the server.  We must convert to that solution but
+    // this keeps the BinaryCodec working for the moment.
+    // Expect that this will be used only in CIMCLient.cpp
+    Array<CIMInstance>& getInstancesFromInstancesOrObjects();
+
     void setInstances(const Array<CIMInstance>& x)
     {
         _instances=x;
         _encoding |= RESP_ENC_CIM;
+        _size += x.size();
     }
+
     void appendInstance(const CIMInstance& x)
     {
+        PEGASUS_DEBUG_ASSERT(valid());
         _instances.append(x);
         _encoding |= RESP_ENC_CIM;
+        _size += 1;
+    }
+
+    void appendInstances(const Array<CIMInstance>& x)
+    {
+        PEGASUS_DEBUG_ASSERT(valid());
+        _instances.appendArray(x);
+        _encoding |= RESP_ENC_CIM;
+        _size += x.size();
     }
 
     // Objects handling
     Array<CIMObject>& getObjects();
+
     void setObjects(const Array<CIMObject>& x)
     {
+        PEGASUS_DEBUG_ASSERT(valid());
         _objects=x;
         _encoding |= RESP_ENC_CIM;
+        _size += x.size();
+    }
+
+    // Sets array of CIMObjects into the CIMResponseData
+    // NOTE: This was added to provider overloaded
+    //     function for setting arrays of both CIMObject and
+    //   CIMObjectPaths from CIMOperationRequestDispatcher
+    void setArrayData(const Array<CIMObject>& x)
+    {
+        setObjects(x);
     }
     void appendObject(const CIMObject& x)
     {
+        PEGASUS_DEBUG_ASSERT(valid());
         _objects.append(x);
         _encoding |= RESP_ENC_CIM;
+        _size += 1;
     }
 
+    /*******************************************************************
+    **
+    **     SCMO objects interface handling
+    **
+    *******************************************************************/
     // SCMO representation, single instance stored as one element array
     // object paths are represented as SCMOInstance
     Array<SCMOInstance>& getSCMO();
@@ -165,8 +320,10 @@ public:
 
     void appendSCMO(const Array<SCMOInstance>& x)
     {
+        PEGASUS_DEBUG_ASSERT(valid());
         _scmoInstances.appendArray(x);
         _encoding |= RESP_ENC_SCMO;
+        _size += x.size();
     }
 
     Array<Uint8>& getBinary();
@@ -192,19 +349,35 @@ public:
 
     // Function primarily used by CIMOperationRequestDispatcher to complete
     // namespace and hostname on a,an,r and rn operations in the
-    // OperationAggregator
+    // OperationAggregator. Behavior is different for pull operations
     void completeHostNameAndNamespace(
         const String & hn,
-        const CIMNamespaceName & ns);
+        const CIMNamespaceName & ns,
+        Boolean isPullOperation = false);
 
     // Encoding responses
 
-    // binary format used with Provider Agents and OP Clients
+    // Encode the CIMResponse data into binary format in the provided
+    // CIMBuffer.  used with Provider Agents and OP Clients
     void encodeBinaryResponse(CIMBuffer& out);
-    // Xml format used with Provider Agents only
-    void encodeInternalXmlResponse(CIMBuffer& out);
-    // official Xml format(CIM over Http) used to communicate to clients
-    void encodeXmlResponse(Buffer& out);
+
+    // Encode the CIMResponse data into Xml format in the provided CIMBuffer
+    // Used with Provider Agents only.
+    void encodeInternalXmlResponse(CIMBuffer& out,
+        Boolean isPullResponse = false);
+
+    // Encode the CIMResponse data into official Xml format(CIM over Http)
+    // used to communicate to clients in the provided CIMBuffer.
+    // The pull responses requires a flag (isPull) and the special
+    // case  of encoding OpenQueryInstances and PullInstances a second flag
+    // (encodeInstanceOnly which only encodes the instance itself and to
+    // encode any objects as instances)
+    void encodeXmlResponse(Buffer& out,
+        Boolean isPull,
+        Boolean encodeInstanceOnly = false);
+
+    // diagnostic tests magic number in context to see if valid object
+    Boolean valid() const;
 
     //This function is called from buildResponce to set CIMResponcedata
     //with respective values of IncludeQualifiers,IncludeClassOrigin and
@@ -230,6 +403,19 @@ public:
         return _propertyList;
     }
 
+    void resolveBinaryToSCMO();
+
+//// #ifdef PEGASUS_DEBUG
+    /* Create a trace file entry with the core data in the CIMResponse
+       object
+    */
+    void traceResponseData() const;
+    /*
+        Generate a String containing the core data in the CIMResponse object
+    */
+    String toStringTraceResponseData() const;
+//// #endif
+
 private:
 
     // helper functions to transform different formats into one-another
@@ -239,7 +425,7 @@ private:
     void _resolveToCIM();
     void _resolveToSCMO();
 
-    void _resolveBinary();
+    void _resolveBinaryToSCMO();
 
     void _resolveXmlToSCMO();
     void _resolveXmlToCIM();
@@ -256,13 +442,26 @@ private:
     void _deserializeObject(Uint32 idx,CIMObject& cimObject);
     Boolean _deserializeReference(Uint32 idx,CIMObjectPath& cimObjectPath);
     Boolean _deserializeInstanceName(Uint32 idx,CIMObjectPath& cimObjectPath);
+    void _appendInstanceElement(Buffer& out, SCMOInstance _scmoInstance);
 
-    // Bitflags in this integer will reflect what data representation types
+    // Bitflags in this integer reflect what data representation types
     // are currently stored in this CIMResponseData object
     Uint32 _encoding;
 
+    // Special flag to handle the case where binary data in passed through the
+    // system but must be mapped to instances in the getInstances.  This
+    // accounts for only one case today, binary data in the BinaryCodec
+    // TODO May 2014 (KS) - This appears to be completely unused
+    Boolean _mapObjectsToIntances;
+
     // Storing type of data in this enumeration
     ResponseDataContent _dataType;
+
+    // Count of objects stored in this CIMResponseData object.  This is the
+    // accumulated count of objects stored in all of the data
+    // representations. Note that there are a couple of cases where the
+    // CIMResponseData can be used in a way that makes this not 100% accurate.
+    Uint32 _size;
 
     // unused arrays are represented by ArrayRepBase _empty_rep
     // which is a 16 byte large static shared across all of them
@@ -274,7 +473,6 @@ private:
     Array<ArraySint8> _instanceData;
     Array<String> _hostsData;
     Array<CIMNamespaceName> _nameSpacesData;
-
 
     // For binary encoding.
     Array<Uint8> _binaryData;
@@ -301,6 +499,9 @@ private:
     Boolean _isClassOperation;
     CIMPropertyList _propertyList;
 
+    // magic number to use with valid function to confirm validity
+    // of response data.
+    Magic<0x57D11323> _magic;
 };
 
 PEGASUS_NAMESPACE_END

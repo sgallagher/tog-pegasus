@@ -142,6 +142,24 @@ int PEGASUS_CLI_LINKAGE setObjectManagerStatistics(Options& opts,
                                    Boolean newState,
                                    Boolean& stateAfterMod);
 
+//KS_PULL_BEGIN
+int PEGASUS_CLI_LINKAGE pullEnumerateInstances(Options& opts);
+
+int PEGASUS_CLI_LINKAGE pullEnumerateInstancePaths(Options& opts);
+
+int PEGASUS_CLI_LINKAGE pullReferenceInstances(Options& opts);
+
+int PEGASUS_CLI_LINKAGE pullReferenceInstancePaths(Options& opts);
+
+int PEGASUS_CLI_LINKAGE pullAssociatorInstances(Options& opts);
+
+int PEGASUS_CLI_LINKAGE pullAssociatorInstancePaths(Options& opts);
+
+int PEGASUS_CLI_LINKAGE pullQueryInstances(Options& opts);
+
+int PEGASUS_CLI_LINKAGE countInstances(Options& opts);
+//KS_PULL_END
+
 int PEGASUS_CLI_LINKAGE countInstances(Options& opts);
 
 int PEGASUS_CLI_LINKAGE classTree(Options& opts);

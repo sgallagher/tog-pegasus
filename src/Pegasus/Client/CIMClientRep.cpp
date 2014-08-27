@@ -982,8 +982,468 @@ CIMValue CIMClientRep::invokeMethod(
     outParameters = response->outParameters;
 
     return response->retValue;
-
 }
+
+// EXP_PULL_BEGIN
+CIMResponseData CIMClientRep::openEnumerateInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    // Save requied information in enumerationContext
+    enumerationContext.setNameSpace(nameSpace);
+
+    // Create/send the request message
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenEnumerateInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            className,
+            deepInheritance,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    Message* message =
+        _doRequest(request, CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
+
+    // When Response received, get response message, get output parameters
+    // and return data
+    CIMOpenEnumerateInstancesResponseMessage* response =
+        (CIMOpenEnumerateInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenEnumerateInstancesResponseMessage> destroyer(response);
+
+    // set endOfSequence and context return parameters
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+
+CIMResponseData CIMClientRep::openEnumerateInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenEnumerateInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            className,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+    CIMOpenEnumerateInstancePathsResponseMessage* response =
+        (CIMOpenEnumerateInstancePathsResponseMessage*)message;
+
+    AutoPtr<CIMOpenEnumerateInstancePathsResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData  CIMClientRep::openReferenceInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenReferenceInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            resultClass,
+            role,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE);
+
+    CIMOpenReferenceInstancesResponseMessage* response =
+        (CIMOpenReferenceInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenReferenceInstancesResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+
+CIMResponseData CIMClientRep::openReferenceInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenReferenceInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            resultClass,
+            role,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request, CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+    CIMOpenReferenceInstancePathsResponseMessage* response =
+        (CIMOpenReferenceInstancePathsResponseMessage*)message;
+
+    AutoPtr<CIMOpenReferenceInstancePathsResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::openAssociatorInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount )
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenAssociatorInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+
+    Message* message =
+        _doRequest(request, CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE);
+
+    CIMOpenAssociatorInstancesResponseMessage* response =
+        (CIMOpenAssociatorInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenAssociatorInstancesResponseMessage> destroyer(response);
+
+    // set parameters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::openAssociatorInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenAssociatorInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    enumerationContext.setNameSpace(nameSpace);
+    Message* message =
+        _doRequest(request,
+                   CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+    CIMOpenAssociatorInstancePathsResponseMessage* response =
+        (CIMOpenAssociatorInstancePathsResponseMessage*)message;
+
+    AutoPtr<CIMOpenAssociatorInstancePathsResponseMessage> destroyer(response);
+
+    // set paramters to be returned to caller
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::pullInstancesWithPath(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMPullInstancesWithPathRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            maxObjectCount,
+            QueueIdStack() ));
+
+        Message* message =
+            _doRequest(request, CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE);
+
+        CIMPullInstancesWithPathResponseMessage* response =
+            (CIMPullInstancesWithPathResponseMessage*)message;
+
+        AutoPtr<CIMPullInstancesWithPathResponseMessage> destroyer(response);
+
+        // set paramters to be returned to caller
+        endOfSequence = response->endOfSequence;
+        enumerationContext.setContextString(response->enumerationContext);
+
+        return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::pullInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMPullInstancePathsRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            maxObjectCount,
+            QueueIdStack()
+            ));
+
+        Message* message =
+            _doRequest(request, CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE);
+
+        CIMPullInstancePathsResponseMessage* response =
+            (CIMPullInstancePathsResponseMessage*)message;
+
+        AutoPtr<CIMPullInstancePathsResponseMessage> destroyer(response);
+
+        // set paramters to be returned to caller
+        endOfSequence = response->endOfSequence;
+        enumerationContext.setContextString(response->enumerationContext);
+
+        return response->getResponseData();
+}
+
+CIMResponseData CIMClientRep::pullInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMPullInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            maxObjectCount,
+            QueueIdStack() ));
+
+        Message* message =
+            _doRequest(request, CIM_PULL_INSTANCES_RESPONSE_MESSAGE);
+
+        CIMPullInstancesResponseMessage* response =
+            (CIMPullInstancesResponseMessage*)message;
+
+        AutoPtr<CIMPullInstancesResponseMessage> destroyer(response);
+
+        // set paramters to be returned to caller
+        endOfSequence = response->endOfSequence;
+        enumerationContext.setContextString(response->enumerationContext);
+
+        return response->getResponseData();
+}
+
+void CIMClientRep::closeEnumeration(
+    CIMEnumerationContext& enumerationContext)
+{
+    AutoPtr<CIMRequestMessage> request(
+        new CIMCloseEnumerationRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            QueueIdStack()
+            ));
+
+        Message* message =
+            _doRequest(request, CIM_CLOSE_ENUMERATION_RESPONSE_MESSAGE);
+
+        CIMCloseEnumerationResponseMessage* response =
+            (CIMCloseEnumerationResponseMessage*)message;
+
+        AutoPtr<CIMCloseEnumerationResponseMessage> destroyer(response);
+
+        return;
+}
+
+Uint64Arg CIMClientRep::enumerationCount(
+    CIMEnumerationContext& enumerationContext)
+{
+    if (enumerationContext.getContextString().size())
+    {
+        throw InvalidEnumerationContextException();
+    }
+    AutoPtr<CIMRequestMessage> request(
+        new CIMEnumerationCountRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            enumerationContext.getNameSpace(),
+            enumerationContext.getContextString(),
+            QueueIdStack()
+            ));
+
+        Message* message =
+            _doRequest(request, CIM_ENUMERATION_COUNT_RESPONSE_MESSAGE);
+
+        CIMEnumerationCountResponseMessage* response =
+            (CIMEnumerationCountResponseMessage*)message;
+
+        AutoPtr<CIMEnumerationCountResponseMessage> destroyer(response);
+
+        return response->count ;
+}
+
+CIMResponseData CIMClientRep::openQueryInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const String& queryLanguage,
+    const String& query,
+    CIMClass& queryResultClass,
+    Boolean returnQueryResultClass,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    // Save requied information in enumerationContext
+    enumerationContext.setNameSpace(nameSpace);
+
+    // Create/send the request message
+    AutoPtr<CIMRequestMessage> request(
+        new CIMOpenQueryInstancesRequestMessage(
+            String::EMPTY,                  // messageId_ param
+            nameSpace,
+            queryLanguage,
+            query,
+            returnQueryResultClass,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack()));
+
+    Message* message =
+        _doRequest(request, CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE);
+
+    // When Response received, get response message, get output parameters
+    // and return data
+    CIMOpenQueryInstancesResponseMessage* response =
+        (CIMOpenQueryInstancesResponseMessage*)message;
+
+    AutoPtr<CIMOpenQueryInstancesResponseMessage> destroyer(response);
+
+    // set endOfSequence and context return parameters
+    endOfSequence = response->endOfSequence;
+    enumerationContext.setContextString(response->enumerationContext);
+
+    return response->getResponseData();
+}
+//EXP_PULL_END
 
 Message* CIMClientRep::_doRequest(
     AutoPtr<CIMRequestMessage>& request,

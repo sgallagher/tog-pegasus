@@ -49,6 +49,7 @@
 #define INCLUDE_QUALIFIERS      (1 << 1)
 #define INCLUDE_CLASS_ORIGIN    (1 << 2)
 #define DEEP_INHERITANCE        (1 << 3)
+#define CONTINUE_ON_ERROR       (1 << 4)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -90,6 +91,20 @@ enum Operation
     OP_DeleteQualifier,
     OP_EnumerateQualifiers,
     OP_InvokeMethod,
+// EXP_PULL_BEGIN
+    OP_OpenEnumerateInstances,
+    OP_OpenEnumerateInstancePaths,
+    OP_OpenReferenceInstances,
+    OP_OpenReferenceInstancePaths,
+    OP_OpenAssociatorInstances,
+    OP_OpenAssociatorInstancePaths,
+    OP_PullInstancesWithPath,
+    OP_PullInstancePaths,
+    OP_PullInstances,
+    OP_CloseEnumeration,
+    OP_EnumerationCount,
+    OP_OpenQueryInstances,
+// EXP_PULL_END
     OP_Count
 };
 
@@ -110,6 +125,10 @@ static Operation _NameToOp(const CIMName& name)
                 return OP_CreateInstance;
             if (_EQUAL(s, "CreateClass"))
                 return OP_CreateClass;
+//EXP_PULL_BEGIN
+            if (_EQUAL(s, "CloseEnumeration"))
+                return OP_CloseEnumeration;
+// EXP_PULL_END
             break;
         case 'D':
             if (_EQUAL(s, "DeleteInstance"))
@@ -155,6 +174,32 @@ static Operation _NameToOp(const CIMName& name)
             if (_EQUAL(s, "ModifyClass"))
                 return OP_ModifyClass;
             break;
+// EXP_PULL_BEGIN
+        case 'O':
+            if (_EQUAL(s, "OpenEnumerateInstances"))
+                return OP_OpenEnumerateInstances;
+            if (_EQUAL(s, "OpenEnumerateInstancePaths"))
+                return OP_OpenEnumerateInstancePaths;
+            if (_EQUAL(s, "OpenReferenceInstances"))
+                return OP_OpenReferenceInstances;
+            if (_EQUAL(s, "OpenReferenceInstancePaths"))
+                return OP_OpenReferenceInstancePaths;
+            if (_EQUAL(s, "OpenAssociatorInstances"))
+                return OP_OpenAssociatorInstances;
+            if (_EQUAL(s, "OpenAssociatorInstancePaths"))
+                return OP_OpenAssociatorInstancePaths;
+            if (_EQUAL(s, "OpenQueryInstances"))
+                return OP_OpenQueryInstances;;
+            break;
+        case 'P':
+            if (_EQUAL(s, "PullInstancesWithPath"))
+                return OP_PullInstancesWithPath;
+            if (_EQUAL(s, "PullInstancePaths"))
+                return OP_PullInstancePaths;
+            if (_EQUAL(s, "PullInstances"))
+                return OP_PullInstances;
+            break;
+// EXP_PULL_END
         case 'R':
             if (_EQUAL(s, "References"))
                 return OP_References;
@@ -372,10 +417,10 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
         cimException,
         QueueIdStack());
 
-    // Instead of resolving the binary data right here, we delegate this
+    // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
+    // a call to CIMResponseData::getInstances, which
+    // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
@@ -449,10 +494,10 @@ _decodeEnumerateInstanceNamesResponse(
         cimException,
         QueueIdStack());
 
-    // Instead of resolving the binary data right here, we delegate this
+    // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to getInstanceNames, which is going to resolve the binary
-    // data when the callback function is registered.
+    // a call to CIMResponseData::getInstanceNames, which
+    // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
@@ -564,10 +609,10 @@ static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
         cimException,
         QueueIdStack());
 
-    // Instead of resolving the binary data right here, we delegate this
+    // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
+    // a call to CIMResponseData::getInstances, which
+    // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
@@ -1081,10 +1126,10 @@ static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
         cimException,
         QueueIdStack());
 
-    // Instead of resolving the binary data right here, we delegate this
+    // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
+    // a call to CIMResponseData::getObjects, which
+    // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
@@ -1228,10 +1273,10 @@ static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
         cimException,
         QueueIdStack());
 
-    // Instead of resolving the binary data right here, we delegate this
+    // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
+    // a call to CIMResponseData::getInstanceNames, which
+    // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
@@ -1506,10 +1551,10 @@ static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
         cimException,
         QueueIdStack());
 
-    // Instead of resolving the binary data right here, we delegate this
+    // Instead of resolving the binary data here, we delegate this
     // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
+    // a call to CIMResponseData::getInstanceNames, which
+    // resolves the binary data as it is passed to the next interface.
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
@@ -3036,6 +3081,1961 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     msg->binaryRequest = true;
     return msg;
 }
+// EXP_PULL_BEGIN
+//==============================================================================
+//
+// OpenEnumerateInstances
+//
+//==============================================================================
+
+static void _encodeOpenEnumerateInstancesRequest(
+    CIMBuffer& buf,
+    CIMOpenEnumerateInstancesRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenEnumerateInstances");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    if (msg->deepInheritance)
+        flags |= DEEP_INHERITANCE;
+
+    if (msg->includeClassOrigin)
+        flags |= INCLUDE_CLASS_ORIGIN;
+
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenEnumerateInstances);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [CLASSNAME]
+    buf.putName(msg->className);
+
+    // [PROPERTY-LIST]
+    buf.putPropertyList(msg->propertyList);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->filterQuery);
+}
+
+static CIMOpenEnumerateInstancesRequestMessage*
+    _decodeOpenEnumerateInstancesRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean deepInheritance = flags & DEEP_INHERITANCE;
+    Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [CLASSNAME]
+    CIMName className;
+    if (!in.getName(className))
+        return 0;
+
+    // [PROPERTY-LIST]
+    CIMPropertyList propertyList;
+    if (!in.getPropertyList(propertyList))
+        return 0;
+
+    // These can all be one common function.
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+
+    AutoPtr<CIMOpenEnumerateInstancesRequestMessage> request(
+        new CIMOpenEnumerateInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            className,
+            deepInheritance,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodeOpenEnumerateInstancesResponseBody(
+    CIMBuffer& out,
+    CIMOpenEnumerateInstancesResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("OpenEnumerateInstances");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenEnumerateInstancesResponseMessage*
+    _decodeOpenEnumerateInstancesResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    // KS_TODO Should we set validation???
+    // Turn on validation: This is a debugging tool
+//#if defined(ENABLE_VALIDATION)
+//    buf.setValidate(true);
+//#endif
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+    {
+        return 0;
+    }
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    CIMOpenEnumerateInstancesResponseMessage* msg =
+        new CIMOpenEnumerateInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to CIMResponseData::getInstances, which
+    // resolves the binary data as it is passed to the next interface.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+
+//==============================================================================
+//
+// OpenEnumerateInstancesPaths
+//
+//==============================================================================
+
+static void _encodeOpenEnumerateInstancePathsRequest(
+    CIMBuffer& buf,
+    CIMOpenEnumerateInstancePathsRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenEnumerateInstancePaths");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenEnumerateInstancePaths);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [CLASSNAME]
+    buf.putName(msg->className);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->filterQuery);
+}
+
+static CIMOpenEnumerateInstancePathsRequestMessage*
+    _decodeOpenEnumerateInstancePathsRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [CLASSNAME]
+    CIMName className;
+    if (!in.getName(className))
+        return 0;
+
+    // These can all be one common function.
+
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+
+    AutoPtr<CIMOpenEnumerateInstancePathsRequestMessage> request(
+        new CIMOpenEnumerateInstancePathsRequestMessage(
+            messageId,
+            nameSpace,
+            className,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodeOpenEnumerateInstancePathsResponseBody(
+    CIMBuffer& out,
+    CIMOpenEnumerateInstancePathsResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("OpenEnumerateInstancePaths");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenEnumerateInstancePathsResponseMessage*
+    _decodeOpenEnumerateInstancePathsResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+    {
+        return 0;
+    }
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    CIMOpenEnumerateInstancePathsResponseMessage* msg =
+        new CIMOpenEnumerateInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to CIMResponseData::getInstanceNames, which
+    // resolves the binary data as it is passed to the next interface.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+//==============================================================================
+//
+// OpenReferenceInstances
+//
+//==============================================================================
+
+static void _encodeOpenReferenceInstancesRequest(
+    CIMBuffer& buf,
+    CIMOpenReferenceInstancesRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenReferenceInstances");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    if (msg->includeClassOrigin)
+        flags |= INCLUDE_CLASS_ORIGIN;
+
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenReferenceInstances);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [OBJECT-NAME]
+    buf.putObjectPath(msg->objectName);
+
+    // [RESULT-CLASS]
+    buf.putName(msg->resultClass);
+
+    // [ROLE]
+    buf.putString(msg->role);
+
+    // [PROPERTY-LIST]
+    buf.putPropertyList(msg->propertyList);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->filterQuery);
+}
+
+static CIMOpenReferenceInstancesRequestMessage*
+    _decodeOpenReferenceInstancesRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [OBJECT-NAME]
+
+    CIMObjectPath objectName;
+
+    if (!in.getObjectPath(objectName))
+        return 0;
+
+    // [RESULT-CLASS]
+
+    CIMName resultClass;
+
+    if (!in.getName(resultClass))
+        return 0;
+
+    // [ROLE]
+
+    String role;
+
+    if (!in.getString(role))
+        return 0;
+
+    // [PROPERTY-LIST]
+    CIMPropertyList propertyList;
+    if (!in.getPropertyList(propertyList))
+        return 0;
+
+    // These can all be one common function.
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+
+    AutoPtr<CIMOpenReferenceInstancesRequestMessage> request(
+        new CIMOpenReferenceInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            objectName,
+            resultClass,
+            role,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodeOpenReferenceInstancesResponseBody(
+    CIMBuffer& out,
+    CIMOpenReferenceInstancesResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("OpenReferenceInstances");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenReferenceInstancesResponseMessage*
+    _decodeOpenReferenceInstancesResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+        return 0;
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+        return 0;
+
+    CIMOpenReferenceInstancesResponseMessage* msg =
+        new CIMOpenReferenceInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to CIMResponseData::getInstances, which
+    // resolves the binary data is passed to the next interface.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+//==============================================================================
+//
+// OpenReferenceInstancePaths
+//
+//==============================================================================
+
+static void _encodeOpenReferenceInstancePathsRequest(
+    CIMBuffer& buf,
+    CIMOpenReferenceInstancePathsRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenReferenceInstancePaths");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenReferenceInstancePaths);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [OBJECT-NAME]
+    buf.putObjectPath(msg->objectName);
+
+    // [RESULT-CLASS]
+    buf.putName(msg->resultClass);
+
+    // [ROLE]
+    buf.putString(msg->role);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->filterQuery);
+}
+
+static CIMOpenReferenceInstancePathsRequestMessage*
+    _decodeOpenReferenceInstancePathsRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../
+Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [OBJECT-NAME]
+
+    CIMObjectPath objectName;
+    if (!in.getObjectPath(objectName))
+        return 0;
+
+    // [RESULT-CLASS]
+
+    CIMName resultClass;
+    if (!in.getName(resultClass))
+        return 0;
+
+    // [ROLE]
+
+    String role;
+    if (!in.getString(role))
+        return 0;
+
+    // These can all be one common function.
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+
+    AutoPtr<CIMOpenReferenceInstancePathsRequestMessage> request(
+        new CIMOpenReferenceInstancePathsRequestMessage(
+            messageId,
+            nameSpace,
+            objectName,
+            resultClass,
+            role,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodeOpenReferenceInstancePathsResponseBody(
+    CIMBuffer& out,
+    CIMOpenReferenceInstancePathsResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("OpenReferenceInstancePaths");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenReferenceInstancePathsResponseMessage*
+    _decodeOpenReferenceInstancePathsResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+        return 0;
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+        return 0;
+
+    CIMOpenReferenceInstancePathsResponseMessage* msg =
+        new CIMOpenReferenceInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+
+//==============================================================================
+//
+// OpenAssociatorInstances
+//
+//==============================================================================
+
+static void _encodeOpenAssociatorInstancesRequest(
+    CIMBuffer& buf,
+    CIMOpenAssociatorInstancesRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenAssociatorInstances");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    if (msg->includeClassOrigin)
+        flags |= INCLUDE_CLASS_ORIGIN;
+
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenAssociatorInstances);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [OBJECT-NAME]
+    buf.putObjectPath(msg->objectName);
+
+    // [ASSOC-CLASS]
+    buf.putName(msg->assocClass);
+
+    // [RESULT-CLASS]
+    buf.putName(msg->resultClass);
+
+    // [ROLE]
+    buf.putString(msg->role);
+
+    // [RESULT-ROLE]
+    buf.putString(msg->resultRole);
+
+    // [PROPERTY-LIST]
+    buf.putPropertyList(msg->propertyList);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->filterQuery);
+}
+
+static CIMOpenAssociatorInstancesRequestMessage*
+    _decodeOpenAssociatorInstancesRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [OBJECT-NAME]
+
+    CIMObjectPath objectName;
+
+    if (!in.getObjectPath(objectName))
+        return 0;
+
+    // [ASSOC-CLASS]
+
+    CIMName assocClass;
+
+    if (!in.getName(assocClass))
+        return 0;
+
+    // [RESULT-CLASS]
+
+    CIMName resultClass;
+
+    if (!in.getName(resultClass))
+        return 0;
+
+    // [ROLE]
+
+    String role;
+
+    if (!in.getString(role))
+        return 0;
+
+    // [RESULT-ROLE]
+
+    String resultRole;
+
+    if (!in.getString(resultRole))
+        return 0;
+
+    // [PROPERTY-LIST]
+    CIMPropertyList propertyList;
+    if (!in.getPropertyList(propertyList))
+        return 0;
+
+    // These can all be one common function.
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+
+    AutoPtr<CIMOpenAssociatorInstancesRequestMessage> request(
+        new CIMOpenAssociatorInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            includeClassOrigin,
+            propertyList,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodeOpenAssociatorInstancesResponseBody(
+    CIMBuffer& out,
+    CIMOpenAssociatorInstancesResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("OpenAssociatorInstances");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenAssociatorInstancesResponseMessage*
+    _decodeOpenAssociatorInstancesResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+        return 0;
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+        return 0;
+
+    CIMOpenAssociatorInstancesResponseMessage* msg =
+        new CIMOpenAssociatorInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext );
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+
+//==============================================================================
+//
+// OpenAssociatorInstancePaths
+//
+//==============================================================================
+
+static void _encodeOpenAssociatorInstancePathsRequest(
+    CIMBuffer& buf,
+    CIMOpenAssociatorInstancePathsRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenAssociatorInstancePaths");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenAssociatorInstancePaths);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [OBJECT-NAME]
+    buf.putObjectPath(msg->objectName);
+
+    // [ASSOC-CLASS]
+    buf.putName(msg->assocClass);
+
+    // [RESULT-CLASS]
+    buf.putName(msg->resultClass);
+
+    // [ROLE]
+    buf.putString(msg->role);
+
+    // [RESULT-ROLE]
+    buf.putString(msg->resultRole);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+    buf.putString(msg->filterQueryLanguage);
+    buf.putString(msg->filterQuery);
+}
+
+static CIMOpenAssociatorInstancePathsRequestMessage*
+    _decodeOpenAssociatorInstancePathsRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [OBJECT-NAME]
+
+    CIMObjectPath objectName;
+    if (!in.getObjectPath(objectName))
+        return 0;
+
+    // [ASSOC-CLASS]
+
+    CIMName assocClass;
+    if (!in.getName(assocClass))
+        return 0;
+
+    // [RESULT-CLASS]
+
+    CIMName resultClass;
+    if (!in.getName(resultClass))
+        return 0;
+
+    // [ROLE]
+
+    String role;
+    if (!in.getString(role))
+        return 0;
+
+    // [RESULT-ROLE]
+
+    String resultRole;
+    if (!in.getString(resultRole))
+        return 0;
+
+    // These can all be one common function.
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+
+    AutoPtr<CIMOpenAssociatorInstancePathsRequestMessage> request(
+        new CIMOpenAssociatorInstancePathsRequestMessage(
+            messageId,
+            nameSpace,
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            filterQueryLanguage,
+            filterQuery,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+static void _encodeOpenAssociatorInstancePathsResponseBody(
+    CIMBuffer& out,
+    CIMOpenAssociatorInstancePathsResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("OpenAssociatorInstancePaths");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenAssociatorInstancePathsResponseMessage*
+    _decodeOpenAssociatorInstancePathsResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+    {
+        return 0;
+    }
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    CIMOpenAssociatorInstancePathsResponseMessage* msg =
+        new CIMOpenAssociatorInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+
+//==============================================================================
+//
+// PullInstancesWithPath
+//
+//==============================================================================
+
+static void _encodePullInstancesWithPathRequest(
+    CIMBuffer& buf,
+    CIMPullInstancesWithPathRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("PullInstancesWithPath");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    _putHeader(buf, flags, msg->messageId, OP_PullInstancesWithPath);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [EnumerationContext]
+    buf.putString(msg->enumerationContext);
+
+    buf.putUint32(msg->maxObjectCount);
+}
+
+static CIMPullInstancesWithPathRequestMessage*
+    _decodePullInstancesWithPathRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+    {
+        return 0;
+    }
+
+    // [EnumerationContext]
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    // [MAXCOUNT]
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+    {
+       return 0;
+    }
+
+    AutoPtr<CIMPullInstancesWithPathRequestMessage> request(
+        new CIMPullInstancesWithPathRequestMessage(
+            messageId,
+            nameSpace,
+            enumerationContext,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodePullInstancesWithPathResponseBody(
+    CIMBuffer& out,
+    CIMPullInstancesWithPathResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("PullInstancesWithPath");
+    name = NAME;
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMPullInstancesWithPathResponseMessage*
+    _decodePullInstancesWithPathResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+    {
+        return 0;
+    }
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    CIMPullInstancesWithPathResponseMessage* msg =
+        new CIMPullInstancesWithPathResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+//==============================================================================
+//
+// PullInstancePaths
+//
+//==============================================================================
+
+static void _encodePullInstancePathsRequest(
+    CIMBuffer& buf,
+    CIMPullInstancePathsRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("PullInstancePaths");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    _putHeader(buf, flags, msg->messageId, OP_PullInstancePaths);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [EnumerationContext]
+    buf.putString(msg->enumerationContext);
+
+    buf.putUint32(msg->maxObjectCount);
+}
+
+static CIMPullInstancePathsRequestMessage*
+    _decodePullInstancePathsRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+    {
+        return 0;
+    }
+
+    // [EnumerationContext]
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    // [MAXOBJECTCOUNT]
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+
+    AutoPtr<CIMPullInstancePathsRequestMessage> request(
+        new CIMPullInstancePathsRequestMessage(
+            messageId,
+            nameSpace,
+            enumerationContext,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodePullInstancePathsResponseBody(
+    CIMBuffer& out,
+    CIMPullInstancePathsResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("PullInstancePaths");
+    name = NAME;
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMPullInstancePathsResponseMessage*
+    _decodePullInstancePathsResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+    {
+        return 0;
+    }
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    CIMPullInstancePathsResponseMessage* msg =
+        new CIMPullInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+
+
+//==============================================================================
+//
+// PullInstances
+//
+//==============================================================================
+
+static void _encodePullInstancesRequest(
+    CIMBuffer& buf,
+    CIMPullInstancesRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("PullInstances");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    _putHeader(buf, flags, msg->messageId, OP_PullInstances);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [EnumerationContext]
+    buf.putString(msg->enumerationContext);
+
+    buf.putUint32(msg->maxObjectCount);
+}
+
+static CIMPullInstancesRequestMessage*
+    _decodePullInstancesRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+    {
+        return 0;
+    }
+
+    // [EnumerationContext]
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    // [MAXCOUNT]
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+    {
+       return 0;
+    }
+
+    AutoPtr<CIMPullInstancesRequestMessage> request(
+        new CIMPullInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            enumerationContext,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+// For the pull Response messages the interface is the message and the,
+// not just the responseData.
+static void _encodePullInstancesResponseBody(
+    CIMBuffer& out,
+    CIMPullInstancesResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("PullInstances");
+    name = NAME;
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMPullInstancesResponseMessage*
+    _decodePullInstancesResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+    {
+        return 0;
+    }
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    CIMPullInstancesResponseMessage* msg =
+        new CIMPullInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+//==============================================================================
+//
+// CloseEnumeration
+//
+//==============================================================================
+
+static void _encodeCloseEnumerationRequest(
+    CIMBuffer& buf,
+    CIMCloseEnumerationRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("CloseEnumeration");
+    name = NAME;
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    _putHeader(buf, flags, msg->messageId, OP_CloseEnumeration);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [EnumerationContext]
+    buf.putString(msg->enumerationContext);
+}
+
+static CIMCloseEnumerationRequestMessage* _decodeCloseEnumerationRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [EnumerationContext]
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    AutoPtr<CIMCloseEnumerationRequestMessage> request(
+        new CIMCloseEnumerationRequestMessage(
+            messageId,
+            nameSpace,
+            enumerationContext,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+static void _encodeCloseEnumerationResponseBody(
+    CIMBuffer& out,
+    CIMCloseEnumerationResponseMessage* msg,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("CloseEnumeration");
+    name = NAME;
+}
+
+static CIMCloseEnumerationResponseMessage*
+    _decodeCloseEnumerationResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    CIMCloseEnumerationResponseMessage* msg =
+        new CIMCloseEnumerationResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack());
+
+    msg->binaryRequest=true;
+    return msg;
+}
+//==============================================================================
+//
+// EnumerationCount
+//
+//==============================================================================
+
+static void _encodeEnumerationCountRequest(
+    CIMBuffer& buf,
+    CIMEnumerationCountRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("EnumerationCount");
+    name = NAME;
+
+    // [HEADER]
+    Uint32 flags = 0;
+
+    _putHeader(buf, flags, msg->messageId, OP_EnumerationCount);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [EnumerationContext]
+    buf.putString(msg->enumerationContext);
+}
+
+static CIMEnumerationCountRequestMessage* _decodeEnumerationCountRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    // [NAMESPACE]
+
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [EnumerationContext]
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+    {
+        return 0;
+    }
+
+    AutoPtr<CIMEnumerationCountRequestMessage> request(
+        new CIMEnumerationCountRequestMessage(
+            messageId,
+            nameSpace,
+            enumerationContext,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+static void _encodeEnumerationCountResponseBody(
+    CIMBuffer& out,
+    CIMEnumerationCountResponseMessage* msg,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    static const CIMName NAME("EnumerationCount");
+    name = NAME;
+
+    // [count]
+    out.putUint64Arg(msg->count);
+}
+
+static CIMEnumerationCountResponseMessage*
+    _decodeEnumerationCountResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+    Uint64 count;
+    if (!in.getUint64(count))
+        return 0;
+
+    CIMEnumerationCountResponseMessage* msg =
+        new CIMEnumerationCountResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            count);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+//==============================================================================
+//
+// OpenQueryInstances
+//
+//==============================================================================
+
+static void _encodeOpenQueryInstancesRequest(
+    CIMBuffer& buf,
+    CIMOpenQueryInstancesRequestMessage* msg,
+    CIMName& name)
+{
+    /* See ../Client/CIMOperationRequestEncoder.cpp */
+
+    static const CIMName NAME("OpenQueryInstances");
+
+    // [HEADER]
+
+    Uint32 flags = 0;
+
+    if (msg->continueOnError)
+        flags |= CONTINUE_ON_ERROR;
+
+    _putHeader(buf, flags, msg->messageId, OP_OpenQueryInstances);
+
+    // [NAMESPACE]
+    buf.putNamespaceName(msg->nameSpace);
+
+    // [filterQuery and filterQueryLanguage]
+    buf.putString(msg->query);
+    buf.putString(msg->queryLanguage);
+
+    // [returnQueryResultClass]
+    buf.putBoolean(msg->returnQueryResultClass);
+
+    buf.putUint32(msg->maxObjectCount);
+    buf.putUint32Arg(msg->operationTimeout);
+}
+
+static CIMOpenQueryInstancesRequestMessage*
+    _decodeOpenQueryInstancesRequest(
+    CIMBuffer& in,
+    Uint32 queueId,
+    Uint32 returnQueueId,
+    Uint32 flags,
+    const String& messageId)
+{
+    /* See ../Server/CIMOperationRequestDecoder.cpp */
+
+    STAT_GETSTARTTIME
+
+    Boolean continueOnError = flags & CONTINUE_ON_ERROR;
+
+    // [NAMESPACE]
+    CIMNamespaceName nameSpace;
+    if (!in.getNamespaceName(nameSpace))
+        return 0;
+
+    // [FILTERQUERY and FILTERQUERYSTRING]
+    String filterQuery;
+    if (!in.getString(filterQuery))
+        return 0;
+    String filterQueryLanguage;
+    if (!in.getString(filterQueryLanguage))
+        return 0;
+
+    // [RETURNQUERYRESULTCLASS]
+    Boolean returnQueryResultClass;
+    if (!in.getBoolean(returnQueryResultClass))
+        return 0;
+
+    // These can all be one common function.
+    Uint32 maxObjectCount;
+    if (!in.getUint32(maxObjectCount))
+       return 0;
+    Uint32Arg operationTimeout;
+    if (!in.getUint32Arg(operationTimeout))
+        return 0;
+
+    AutoPtr<CIMOpenQueryInstancesRequestMessage> request(
+        new CIMOpenQueryInstancesRequestMessage(
+            messageId,
+            nameSpace,
+            filterQuery,
+            filterQueryLanguage,
+            returnQueryResultClass,
+            operationTimeout,
+            continueOnError,
+            maxObjectCount,
+            QueueIdStack(queueId, returnQueueId)));
+
+    request->binaryRequest = true;
+
+    STAT_SERVERSTART
+
+    return request.release();
+}
+
+static void _encodeOpenQueryInstancesResponseBody(
+    CIMBuffer& out,
+    CIMOpenQueryInstancesResponseMessage* msg,
+    CIMResponseData& data,
+    CIMName& name)
+{
+    /* See ../Server/CIMOperationResponseEncoder.cpp */
+
+    out.putClass(msg->queryResultClass);
+
+    // [endOfSequence]
+    out.putBoolean(msg->endOfSequence);
+
+    // [enumerationContext]
+    out.putString(msg->enumerationContext);
+
+    data.encodeBinaryResponse(out);
+}
+
+static CIMOpenQueryInstancesResponseMessage*
+    _decodeOpenQueryInstancesResponse(
+    CIMBuffer& in,
+    const String& messageId)
+{
+    CIMException cimException;
+
+    // KS_TODO Should we set validation???
+    // Turn on validation: This is a debugging tool
+//#if defined(ENABLE_VALIDATION)
+//    buf.setValidate(true);
+//#endif
+
+    Boolean endOfSequence;
+    if (!in.getBoolean(endOfSequence))
+        return 0;
+
+    String enumerationContext;
+    if (!in.getString(enumerationContext))
+        return 0;
+
+    CIMOpenQueryInstancesResponseMessage* msg =
+        new CIMOpenQueryInstancesResponseMessage(
+            messageId,
+            cimException,
+            CIMClass(),
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    // Instead of resolving the binary data here, delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to CIMResponseData::getInstances, which
+    // resolves the binary data as it is passed to the next interface.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setRemainingBinaryData(in);
+
+    msg->binaryRequest=true;
+    return msg;
+}
+
+// EXP_PULL_END
+
+
+//==============================================================================
+//
+// BinaryCodec::hexDump()
+//
+//==============================================================================
+
+#if defined(PEGASUS_DEBUG)
+
+//    TODO - There are 3 hex dump functions in pegasus today,
+//        here, SCMO.cpp and Tracer.  We should consolidate them
+
+void BinaryCodec::hexDump(const void* data, size_t size)
+{
+    unsigned char* p = (unsigned char*)data;
+    unsigned char buf[16];
+    size_t n = 0;
+
+    for (size_t i = 0, col = 0; i < size; i++)
+    {
+        unsigned char c = p[i];
+        buf[n++] = c;
+
+        if (col == 0)
+            printf("%06X ", (unsigned int)i);
+
+        printf("%02X ", c);
+
+        if (col + 1 == sizeof(buf) || i + 1 == size)
+        {
+            for (size_t j = col + 1; j < sizeof(buf); j++)
+                printf("   ");
+
+            for (size_t j = 0; j < n; j++)
+            {
+                c = buf[j];
+
+                if (c >= ' ' && c <= '~')
+                    printf("%c", buf[j]);
+                else
+                    printf(".");
+            }
+
+            printf("\n");
+            n = 0;
+        }
+
+        if (col + 1 == sizeof(buf))
+            col = 0;
+        else
+            col++;
+    }
+
+    printf("\n");
+}
+
+#endif /* defined(PEGASUS_DEBUG) */
 
 //==============================================================================
 //
@@ -3138,6 +5138,38 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
         case OP_ExecQuery:
            return _decodeExecQueryRequest(
                 in, queueId, returnQueueId, messageId);
+//EXP_PULL_BEGIN
+        case OP_OpenEnumerateInstances:
+            return _decodeOpenEnumerateInstancesRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_OpenEnumerateInstancePaths:
+            return _decodeOpenEnumerateInstancePathsRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_OpenReferenceInstances:
+            return _decodeOpenReferenceInstancesRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_OpenReferenceInstancePaths:
+            return _decodeOpenReferenceInstancePathsRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_OpenAssociatorInstances:
+            return _decodeOpenAssociatorInstancesRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_OpenAssociatorInstancePaths:
+            return _decodeOpenAssociatorInstancePathsRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_PullInstancesWithPath:
+            return _decodePullInstancesWithPathRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_PullInstancePaths:
+            return _decodePullInstancePathsRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_CloseEnumeration:
+            return _decodeCloseEnumerationRequest(
+                in, queueId, returnQueueId, flags, messageId);
+        case OP_EnumerationCount:
+            return _decodeEnumerationCountRequest(
+                in, queueId, returnQueueId, flags, messageId);
+//EXP_PULL_END
         default:
             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
             return 0;
@@ -3245,6 +5277,38 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
         case OP_ExecQuery:
             msg = _decodeExecQueryResponse(buf, messageId);
             break;
+//EXP_PULL_BEGIN
+        case OP_OpenEnumerateInstances:
+            msg = _decodeOpenEnumerateInstancesResponse(buf, messageId);
+            break;
+        case OP_OpenEnumerateInstancePaths:
+            msg = _decodeOpenEnumerateInstancePathsResponse(buf, messageId);
+            break;
+        case OP_OpenReferenceInstances:
+            msg = _decodeOpenReferenceInstancesResponse(buf, messageId);
+            break;
+        case OP_OpenReferenceInstancePaths:
+            msg = _decodeOpenReferenceInstancePathsResponse(buf, messageId);
+            break;
+        case OP_OpenAssociatorInstances:
+            msg = _decodeOpenAssociatorInstancesResponse(buf, messageId);
+            break;
+        case OP_OpenAssociatorInstancePaths:
+            msg = _decodeOpenAssociatorInstancePathsResponse(buf, messageId);
+            break;
+        case OP_PullInstancesWithPath:
+            msg = _decodePullInstancesWithPathResponse(buf, messageId);
+            break;
+        case OP_PullInstancePaths:
+            msg = _decodePullInstancePathsResponse(buf, messageId);
+            break;
+        case OP_CloseEnumeration:
+            msg = _decodeCloseEnumerationResponse(buf, messageId);
+            break;
+        case OP_OpenQueryInstances:
+            msg = _decodeCloseEnumerationResponse(buf, messageId);
+            break;
+//EXP_PULL_END
         default:
             // Unexpected message type
             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
@@ -3268,6 +5332,7 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguageList& httpContentLanguages,
+    const Buffer& rtnParams,
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
@@ -3295,6 +5360,16 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     {
         out.append(body.getData(), body.size());
     }
+    // EXP_PULL_BEGIN
+    // If there are any output parameters include them here.
+    // Assumes that it is prebuilt with all components
+    //
+    if (rtnParams.size() != 0)
+    {
+        out << rtnParams;
+    }
+    //
+    // EXP_PULL_END
 
     return out;
 }
@@ -3484,6 +5559,76 @@ bool BinaryCodec::encodeRequest(
                 (CIMExecQueryRequestMessage*)msg, name);
             break;
         }
+
+//EXP_PULL_BEGIN
+        case CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+        {
+            _encodeOpenEnumerateInstancesRequest(buf,
+                (CIMOpenEnumerateInstancesRequestMessage*)msg, name);
+            break;
+        }
+
+        case CIM_OPEN_ENUMERATE_INSTANCE_PATHS_REQUEST_MESSAGE:
+        {
+            _encodeOpenEnumerateInstancePathsRequest(buf,
+                (CIMOpenEnumerateInstancePathsRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_OPEN_ASSOCIATOR_INSTANCES_REQUEST_MESSAGE:
+        {
+            _encodeOpenAssociatorInstancesRequest(buf,
+                (CIMOpenAssociatorInstancesRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_REQUEST_MESSAGE:
+        {
+            _encodeOpenAssociatorInstancePathsRequest(buf,
+                (CIMOpenAssociatorInstancePathsRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_OPEN_REFERENCE_INSTANCES_REQUEST_MESSAGE:
+        {
+            _encodeOpenReferenceInstancesRequest(buf,
+                (CIMOpenReferenceInstancesRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_OPEN_REFERENCE_INSTANCE_PATHS_REQUEST_MESSAGE:
+        {
+            _encodeOpenReferenceInstancePathsRequest(buf,
+                (CIMOpenReferenceInstancePathsRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_PULL_INSTANCES_WITH_PATH_REQUEST_MESSAGE:
+        {
+            _encodePullInstancesWithPathRequest(buf,
+                (CIMPullInstancesWithPathRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_PULL_INSTANCE_PATHS_REQUEST_MESSAGE:
+        {
+            _encodePullInstancePathsRequest(buf,
+                (CIMPullInstancePathsRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_CLOSE_ENUMERATION_REQUEST_MESSAGE:
+        {
+            _encodeCloseEnumerationRequest(buf,
+                (CIMCloseEnumerationRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_ENUMERATION_COUNT_REQUEST_MESSAGE:
+        {
+            _encodeEnumerationCountRequest(buf,
+                (CIMEnumerationCountRequestMessage*)msg, name);
+            break;
+        }
+        case CIM_OPEN_QUERY_INSTANCES_REQUEST_MESSAGE:
+        {
+            _encodeOpenQueryInstancesRequest(buf,
+                (CIMOpenQueryInstancesRequestMessage*)msg, name);
+            break;
+        }
+//EXP_PULL_END
 
         default:
             // Unexpected message type
@@ -3720,6 +5865,101 @@ bool BinaryCodec::encodeResponseBody(
                 name);
             break;
         }
+
+//EXP_PULL_BEGIN
+        case CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+        {
+            _encodeOpenEnumerateInstancesResponseBody(buf,
+                (CIMOpenEnumerateInstancesResponseMessage*)msg,
+                ((CIMOpenEnumerateInstancesResponseMessage*)msg)->
+                                                      getResponseData(),
+                name);
+            break;
+        }
+
+        case CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE:
+        {
+            _encodeOpenEnumerateInstancePathsResponseBody(buf,
+                (CIMOpenEnumerateInstancePathsResponseMessage*)msg,
+                ((CIMOpenEnumerateInstancePathsResponseMessage*)msg)->
+                                                          getResponseData(),
+                name);
+            break;
+        }
+
+        case CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE:
+        {
+            _encodeOpenReferenceInstancesResponseBody(buf,
+                (CIMOpenReferenceInstancesResponseMessage*)msg,
+                ((CIMOpenReferenceInstancesResponseMessage*)msg)->
+                                                      getResponseData(),
+                name);
+            break;
+        }
+
+        case CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE:
+        {
+            _encodeOpenReferenceInstancePathsResponseBody(buf,
+                (CIMOpenReferenceInstancePathsResponseMessage*)msg,
+                ((CIMOpenReferenceInstancePathsResponseMessage*)msg)->
+                                                          getResponseData(),
+                name);
+            break;
+        }
+        case CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE:
+        {
+            _encodeOpenAssociatorInstancesResponseBody(buf,
+                (CIMOpenAssociatorInstancesResponseMessage*)msg,
+                ((CIMOpenAssociatorInstancesResponseMessage*)msg)->
+                                                      getResponseData(),
+                name);
+            break;
+        }
+
+        case CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE:
+        {
+            _encodeOpenAssociatorInstancePathsResponseBody(buf,
+                (CIMOpenAssociatorInstancePathsResponseMessage*)msg,
+                ((CIMOpenAssociatorInstancePathsResponseMessage*)msg)->
+                                                          getResponseData(),
+                name);
+            break;
+        }
+
+        case CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE:
+        {
+            _encodePullInstancesWithPathResponseBody(buf,
+                (CIMPullInstancesWithPathResponseMessage*)msg,
+                ((CIMPullInstancesWithPathResponseMessage*)msg)->
+                                                      getResponseData(),
+                name);
+            break;
+        }
+
+        case CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE:
+        {
+            _encodePullInstancePathsResponseBody(buf,
+                (CIMPullInstancePathsResponseMessage*)msg,
+                ((CIMPullInstancePathsResponseMessage*)msg)->
+                                                      getResponseData(),
+                name);
+            break;
+        }
+        case CIM_CLOSE_ENUMERATION_RESPONSE_MESSAGE:
+        {
+            _encodeCloseEnumerationResponseBody(buf,
+                (CIMCloseEnumerationResponseMessage*)msg,
+                name);
+            break;
+        }
+        case CIM_ENUMERATION_COUNT_RESPONSE_MESSAGE:
+        {
+            _encodeEnumerationCountResponseBody(buf,
+                (CIMEnumerationCountResponseMessage*)msg,
+                name);
+            break;
+        }
+//EXP_PULL_END
 
         default:
             // Unexpected message type

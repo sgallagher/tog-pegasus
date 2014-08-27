@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TestServerProfileProvider.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -115,9 +116,35 @@ TestServerProfileProvider::~TestServerProfileProvider()
 void TestServerProfileProvider::initialize(CIMOMHandle& cimom)
 {
     cimomHandle = cimom;
-    testClass = cimomHandle.getClass(
-        OperationContext(), CIMNamespaceName("test/TestProvider"),
-        testClassName, false, true, true, CIMPropertyList());
+    try
+    {
+        testClass = cimomHandle.getClass(
+            OperationContext(), CIMNamespaceName("test/TestProvider"),
+            testClassName, false, true, true, CIMPropertyList());
+    }
+    catch (const CIMException& e)
+    {
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                   "Initialize Error testClassName %s CIMException %u %s",
+                   (const char *)testClassName.getString().getCString(),
+                   e.getCode(), cimStatusCodeToString(e.getCode()) ));
+        throw (e);
+    }
+    catch (const Exception& e)
+    {
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                   "Initialize Error testClassName %s Exception %s",
+                   (const char *)testClassName.getString().getCString(),
+                   (const char *)e.getMessage().getCString() ));
+        throw (e);
+    }
+    catch ( ... )
+    {
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                   "Initialize Error testClassName %s Exception ...",
+                   (const char *)testClassName.getString().getCString() ));
+        throw ;
+    }
 }
 
 void TestServerProfileProvider::terminate()

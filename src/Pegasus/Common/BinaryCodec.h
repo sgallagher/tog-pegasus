@@ -49,6 +49,16 @@ class PEGASUS_COMMON_LINKAGE BinaryCodec
 {
 public:
 
+#if defined(PEGASUS_DEBUG)
+    /**
+        Peform hex dump of the given data. This is a diagnostic
+        tool compiled only in debug mode.
+        TODO - There are 3 hex dump functions in pegasus today,
+        here, SCMO.cpp and Tracer.  We should consolidate them
+    */
+    static void hexDump(const void* data, size_t size);
+#endif /* defined(PEGASUS_DEBUG) */
+
     static bool encodeRequest(
         Buffer& out,
         const char* host,
@@ -81,6 +91,7 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguageList& httpContentLanguages,
+        const Buffer& rtnParams,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst,

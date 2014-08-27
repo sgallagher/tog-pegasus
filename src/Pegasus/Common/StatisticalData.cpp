@@ -68,7 +68,7 @@ String StatisticalData::requestName[] =
   "Associators",                    //    16          16
   "AssociatorNames",                //    17          17
   "References",                     //    18          18
-  "ReferenceNames",                 //    19          20
+  "ReferenceNames",                 //    19          19
   "GetProperty",                    //    20          20
   "SetProperty",                    //    21          21
   "GetQualifier",                   //    22          22
@@ -77,8 +77,21 @@ String StatisticalData::requestName[] =
   "EnumerateQualifiers",            //    25          25
 // Entries below this point are not part of the CIM Class and are treated
 // as OtherOperationTypes in the CIM_CIMOMStatisticalData instance.
-  "InvokeMethod"                    //    26          Not Present index = 26
-
+  "InvokeMethod",                    //    26          Not Present index = 26
+//EXP_PULL_BEGIN
+//// These are not defined in CIM_StatisticalData class and are
+///  represented by the Other groping with supplementary property
+  "OpenEnumerateInstances",         //    71          27
+  "OpenEnumerateInstancePaths",     //    72
+  "OpenAssociators",                //    73
+  "OpenAssociatorPaths",           //     74
+  "OpenReferences",                 //    75
+  "OpenReferenceNames",             //    76
+  "OpenQueryInstances",             //    77
+  "PullInstancesWithPath",          //    78
+  "PullInstancePaths",              //    79
+  "CloseEnumeration" ,              //    80
+//EXP_PULL_END
 };
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;
@@ -117,7 +130,6 @@ void StatisticalData::clear()
     }
 }
 
-
 String StatisticalData::getRequestName(Uint16 i)
 {
     return requestName[i];
@@ -131,8 +143,11 @@ void StatisticalData::addToValue(Sint64 value,
     // mapping request and responses to the request types.
     Uint16 type;
 
-    // if is response type, substract starting point of responses.
-    if (msgType >= CIM_GET_CLASS_RESPONSE_MESSAGE)
+    if ((msgType) >= CIM_OPEN_ENUMERATE_INSTANCES_REQUEST_MESSAGE)
+    {
+        type = msgType - CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE;
+    }
+    else if (msgType >= CIM_GET_CLASS_RESPONSE_MESSAGE)
     {
         type = msgType - CIM_GET_CLASS_RESPONSE_MESSAGE;
     }
@@ -149,6 +164,12 @@ void StatisticalData::addToValue(Sint64 value,
                  "Invalid Request Type =  %u", type));
          return;
     }
+    //// Diagnostic to confirm message type conversion. Normally commented
+    //// out
+//  PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
+//   "StatisticalData::addToValue msgType %s %u. stat type %u %s",
+//             MessageTypeToString(msgType),
+//             msgType, type, (const char*)requestName[type].getCString() ));
 
     if (copyGSD)
     {

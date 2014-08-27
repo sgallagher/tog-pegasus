@@ -43,19 +43,52 @@ PEGASUS_NAMESPACE_BEGIN
 // query language type or return false if the language type not supported.
 Boolean QuerySupportRouter::routeHandleExecQueryRequest(
     CIMOperationRequestDispatcher* opThis,
-    CIMExecQueryRequestMessage* msg)
+    CIMExecQueryRequestMessage* msg,
+    CIMException& cimException,
+    EnumerationContext* enumerationContext)
 {
+    bool rtnStat = false;
     if (msg->queryLanguage=="WQL")
-        ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+    {
+        rtnStat = ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(
+             msg,
+             cimException,
+             enumerationContext);
+    }
 #ifdef PEGASUS_ENABLE_CQL
     else if(msg->queryLanguage == "DMTF:CQL")
-        ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+    {
+        rtnStat = ((CQLOperationRequestDispatcher*)opThis)->handleQueryRequest(
+            msg,
+            cimException,
+            enumerationContext);
+    }
 #endif
     else
     {
+        if (msg->operationContext.contains(
+                SubscriptionFilterConditionContainer::NAME))
+        {
+            SubscriptionFilterConditionContainer sub_cntr =
+                msg->operationContext.get(
+                    SubscriptionFilterConditionContainer::NAME);
+
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+                sub_cntr.getQueryLanguage());
+        }
+        else
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, msg->queryLanguage);
+        }
         return false;
     }
 
+    if (!rtnStat)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -81,9 +114,7 @@ applyQueryFunctionPtr QuerySupportRouter::getFunctPtr(
 #endif
     else
     {
-        //Unreachable, but the statments make c-advice 
-        //happy
-        return NULL;
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
     }
 }
 

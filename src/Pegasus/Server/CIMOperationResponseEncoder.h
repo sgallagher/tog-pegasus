@@ -59,6 +59,15 @@ public:
         Boolean isImplicit,
         Buffer* bodygiven = 0);
 
+//EXP_PULL_BEGIN
+    void sendResponsePull(
+        CIMResponseMessage* response,
+        const String& name,
+        Boolean isImplicit,
+        Buffer* bodyParams,
+        Buffer* bodygiven = 0);
+//EXP_PULL_END
+
     virtual void enqueue(Message*);
 
     virtual void handleEnqueue(Message*);
@@ -97,6 +106,44 @@ public:
 
     void encodeEnumerateInstancesResponse(
         CIMEnumerateInstancesResponseMessage* response);
+
+//EXP_PULL_BEGIN
+    void encodeOpenEnumerateInstancesResponse(
+        CIMOpenEnumerateInstancesResponseMessage* response);
+
+    void encodeOpenEnumerateInstancePathsResponse(
+        CIMOpenEnumerateInstancePathsResponseMessage* response);
+
+    void encodeOpenReferenceInstancesResponse(
+        CIMOpenReferenceInstancesResponseMessage* response);
+
+    void encodeOpenReferenceInstancePathsResponse(
+        CIMOpenReferenceInstancePathsResponseMessage* response);
+
+    void encodeOpenAssociatorInstancesResponse(
+        CIMOpenAssociatorInstancesResponseMessage* response);
+
+    void encodeOpenAssociatorInstancePathsResponse(
+        CIMOpenAssociatorInstancePathsResponseMessage* response);
+
+    void encodePullInstancesWithPathResponse(
+        CIMPullInstancesWithPathResponseMessage* response);
+
+    void encodePullInstancePathsResponse(
+        CIMPullInstancePathsResponseMessage* response);
+
+    void encodePullInstancesResponse(
+        CIMPullInstancesResponseMessage* response);
+
+    void encodeCloseEnumerationResponse(
+        CIMCloseEnumerationResponseMessage* response);
+
+    void encodeEnumerationCountResponse(
+        CIMEnumerationCountResponseMessage* response);
+
+    void encodeOpenQueryInstancesResponse(
+        CIMOpenQueryInstancesResponseMessage* response);
+//EXP_PULL_END
 
     void encodeDeleteInstanceResponse(
         CIMDeleteInstanceResponseMessage* response);

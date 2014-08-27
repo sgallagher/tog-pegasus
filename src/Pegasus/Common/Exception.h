@@ -386,6 +386,18 @@ public:
     ConnectionTimeoutException();
 };
 
+// EXP_PULL_BEGIN
+
+class PEGASUS_COMMON_LINKAGE InvalidEnumerationContextException:
+    public Exception
+{
+public:
+    ///
+    InvalidEnumerationContextException();
+};
+
+// EXP_PULL_END
+
 /**
     An SSLException indicates an error with an SSL context, operation, or
     configuration.

@@ -56,6 +56,7 @@ DIRS = \
     HashTable \
     HTTPMessage \
     InstanceDecl \
+    IPC \
     L10N \
     L10N/msg \
     Logger \
@@ -76,6 +77,7 @@ DIRS = \
     QualifierList \
     Reference \
     Resolve \
+    ResponseData \
     Scope \
     SCMO \
     SpinLock \

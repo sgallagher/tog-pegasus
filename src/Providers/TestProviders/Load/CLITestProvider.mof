@@ -159,7 +159,9 @@ class Test_CLITestProviderClass
        [ Description("Method to set parameters to modify provider behavior"),
        static ]
    uint32 setProviderParameters(
-        [in, out] String substituteHostName
+        [in, out, Description("Sets a string to be used as the host name "
+        "for responses that require a host name")]
+        String substituteHostName
 	);
 
        [ Description("Method to reset all parameters that control provider "
@@ -345,7 +347,6 @@ class Test_CLITestEmbeddedClass
 	        "the Test_CLITestProviderClass class.") ]
 	    Test_CLITestProviderClass REF referenceParamArray[]
 	);
-
 };
 
 

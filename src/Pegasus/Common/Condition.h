@@ -83,16 +83,74 @@ struct ConditionRep
 //
 //==============================================================================
 
+/**
+ * This class defines a condition variable based on the
+ * Pthreads model that allows signaling between threads for more complex
+ * conditions than semaphores.
+ * The general pattern for a condition variable is:
+ * 1. Define the condition variable and corresponding Mutex
+ *     Condition testCondition;
+ *     Mutex testCondtionMutex;
+ *
+ * 2. Define the condition wait logic as a while loop and protect it with
+ * the mutex.
+ *
+ *     testConditionMutex.lock();
+ *     while (testdata < 3 && !endOfTransaction)
+ *     {
+ *         testCondition.wait(testConditionMutex)
+ *     }
+ *     testConditionMutex.unlock();
+ *
+ * If the condition is true, execution continues.  If not, the wait is
+ * executed which unlocks the mutex and goes to sleep to wait for a signal
+ * on the definedcondition variable from another thread. Pthreads
+ * DOES not guarantee that there will not be spurious signals so the
+ * condition wait loop MUST test for the condition.
+ * . . .
+ * 3. As part of some thread, define the signal function as follows.
+ * When the following signal code is executed, the condition variable in
+ * one thread in the wait condition will be  awakened.
+ *
+ *     testConditionMutex.lock();
+ *     testCondition.signal();
+ *     testCondition.unlock();
+ *
+ * The user should be careful that the conditions are only modified under
+ * control of the mutex associated with the condition variable.
+ */
+
 class PEGASUS_COMMON_LINKAGE Condition
 {
 public:
 
+    /**
+     * Define a condition variable.
+     *
+     */
     Condition();
 
     ~Condition();
 
+    /**
+     * Signal the condition variable that the condition might be
+     * satisfied.  The signal should always be protected by the
+     * condition mutex and need not fully test the condition when
+     * executed.
+     */
     void signal();
 
+    /**
+     *  Wait on the signal from another thread for the defined
+     *  condition variable. The wait will return when a signal is
+     *  received. The wait function should always be protected by
+     *  the condition mutex.  Each time the wait is executed it
+     *  unlocks the mutex, sleeps awating a signal. When a signal is
+     *  received, the mutex is locked.
+     *
+     *  @param mutex - Condition variable mutex that should protect
+     *  both the wait and signal execution.
+     */
     void wait(Mutex& mutex);
 
 private:

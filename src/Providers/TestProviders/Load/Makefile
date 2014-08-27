@@ -156,6 +156,11 @@ repository:
 	@ $(ECHO) +++++ Registering LocalizedProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" LocalizedProviderR.mof
 
+	@ $(ECHO) +++++ Loading ResponseStressTest class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" ResponseStressTest.mof
+	@ $(ECHO) +++++ Registering ResponseStressTestProvider ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" ResponseStressTestProviderRegistration.mof
+
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
@@ -323,6 +328,11 @@ repositoryServer:
 	@ $(ECHO) +++++ Registering LocalizedProvider ...
 	@ cimmof "-n$(INTEROPNS)" LocalizedProviderR.mof
 
+	@ $(ECHO) +++++ Loading ResponseStress class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" ResponseStressTest.mof
+	@ $(ECHO) +++++ Registering ResponseStressTestProvider ...
+	@ cimmof "-n$(INTEROPNS)" ResponseStressTestProviderRegistration.mof
+
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
@@ -432,7 +442,8 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m cmpiPerf_TestClassProviderModule
 	cimprovider -r -m cmpiPerf_TestClassAProviderModule
 	cimprovider -r -m cmpiPerf_TestAssocClassProviderModule
-	
+	cimprovider -r -m ResponseStressTestProviderModule
+
 ifdef PEGASUS_ENABLE_EXECQUERY
 	cimprovider -r -m TestCMPIInstanceProviderModule
 endif

@@ -85,8 +85,19 @@ enum OperationID
     ID_StatisticsOn              ,
     ID_StatisticsOff             ,
     ID_TestInstance              ,
+//EXP_PULL_BEGIN
+    ID_PullEnumerateInstances    ,
+    ID_PullEnumerateInstancePaths,
+    ID_PullReferenceInstances    ,
+    ID_PullReferenceInstancePaths,
+    ID_PullAssociatorInstances   ,
+    ID_PullAssociatorInstancePaths,
+    ID_PullQueryInstances,
+//EXP_PULL_END
     ID_CountInstances            ,
     ID_ClassTree
+//
+//ID_Profile                   ,
 };
 /*
     Structure for the Operation Table.  This table is used to define the

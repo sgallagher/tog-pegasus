@@ -192,7 +192,6 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CLASSTYPE,
         Uint16(2));
 
-
     //
     //  Everything above was commmon to CIM Namespace.  The following are
     //  PG_Namespace Properties
@@ -293,7 +292,7 @@ CIMInstance InteropProvider::getNameSpaceInstance(
         }
     }
 
-    if(repository->nameSpaceExists(name)) 
+    if(repository->nameSpaceExists(name))
     {
         CIMInstance newInst = buildNamespaceInstance(name);
         if( newInst.getPath() != ref )
@@ -551,7 +550,7 @@ CIMObjectPath InteropProvider::createNamespace(
     // Create the namespace with the retrieved attributes.
     //
     repository->createNameSpace(newNamespaceName, attributes);
-  
+
     PEG_TRACE((
         TRC_CONTROLPROVIDER,
         Tracer::LEVEL4,

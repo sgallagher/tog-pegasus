@@ -40,6 +40,7 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/QueryExpressionRep.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/UintArgs.h>
 #include <Pegasus/Common/ArrayIterator.h>
 #include <Pegasus/Common/Magic.h>
 
@@ -50,6 +51,7 @@
     <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Server/reg_table.h>
+#include <Pegasus/Server/EnumerationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -199,7 +201,7 @@ public:
      */
     void appendClass(ProviderInfo& x);
 
-    /** append a new Provider to the list.  Note that this function
+    /** Append a new Provider to the list.  This function
         increments the ProviderCount.  This count may be different
         than the count of items in the array
         @param x ProviderInfo to append to the list
@@ -248,6 +250,10 @@ public:
         @return Uint32
      */
     Uint32 getIndex();
+
+    // Execute the pegtrace that displays class/provider
+    void pegRoutingTrace(ProviderInfo& providerInfo, const char * reqMsgName,
+                         String& messageId);
 
 // The following are purely debug functionality and are normally not
 // compiled.  To compile them for testing of the results of the
@@ -344,7 +350,7 @@ class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
     friend class CIMOperationRequestDispatcher;
 public:
-    /** Operation Aggregate constructor.  Builds an aggregate object
+    /** Operation Aggregate constructor.  Builds an aggregation
         object.
         @param request - CIMOprationRequestMessage containing copy
                        of the original request
@@ -383,16 +389,15 @@ public:
     // Increment the total Operation Requests issued parameter by 1
     void incTotalIssued();
 
-    Uint32 getTotalIssued();
+    Uint32 getTotalIssued() const;
 
-    // Append a new entry to the response list.  Return value indicates
-    // whether this response is the last one expected
+    // Append a new entry to the response list.
 
-    Boolean appendResponse(CIMResponseMessage* response);
+    void appendResponse(CIMResponseMessage* response);
 
     Uint32 numberResponses() const;
 
-    CIMOperationRequestMessage* getRequest();
+    CIMOperationRequestMessage* getRequest() const;
 
     CIMResponseMessage* getResponse(const Uint32& pos);
 
@@ -407,6 +412,18 @@ public:
 
     void resequenceResponse(CIMResponseMessage& response);
 
+    /** sets the parameters required for pull operations into a new
+     *  operation aggregate that was created as part of an Open...
+     *  Operation.
+     *
+     * @param enContext EnumerationContext defined for this sequence
+     * @param contextString String representing the operation
+     *      Context defined for this sequence
+     */
+    void setPullOperation(EnumerationContext* enContext);
+
+    bool isPullOperation() const;
+
     String _messageId;
     MessageType _msgRequestType;
     Uint32 _dest;
@@ -420,14 +437,20 @@ public:
     Array<String> propertyList;
     QueryExpressionRep* _query;
     String _queryLanguage;
+    Boolean _pullOperation;
+    Boolean _enumerationFinished;
+    Boolean _closeReceived;
+    EnumerationContext* _enumerationContext;
 
 private:
-    /** Hidden (unimplemented) copy constructor */
+    /** Hidden (unimplemented) copy and assignment constructors */
     OperationAggregate(const OperationAggregate& x);
+    OperationAggregate& operator=(const OperationAggregate&);
 
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
     Mutex _enqueueResponseMutex;
+    Mutex _enqueuePullResponseMutex;
     CIMOperationRequestMessage* _request;
     Uint32 _totalIssued;
     Uint32 _totalReceived;
@@ -439,7 +462,7 @@ private:
     Magic<0xC531B144> _magic;
 };
 
-inline Uint32 OperationAggregate::getTotalIssued()
+inline Uint32 OperationAggregate::getTotalIssued() const
 {
     return _totalIssued;
 }
@@ -449,7 +472,7 @@ inline void OperationAggregate::incTotalIssued()
     _totalIssued++;
 }
 
-inline CIMOperationRequestMessage* OperationAggregate::getRequest()
+inline CIMOperationRequestMessage* OperationAggregate::getRequest() const
 {
     return _request;
 }
@@ -459,9 +482,21 @@ inline MessageType OperationAggregate::getRequestType() const
     return _msgRequestType;
 }
 
+inline bool OperationAggregate::isPullOperation() const
+{
+    return _pullOperation;
+}
+
+/******************************************************************************
+**
+**  CIMOperationRequestDispatcher Class
+**
+******************************************************************************/
+
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher :
     public MessageQueueService
 {
+    friend struct ProviderRequests;
 public:
 
     typedef MessageQueueService Base;
@@ -548,11 +583,95 @@ public:
     void handleInvokeMethodRequest(
         CIMInvokeMethodRequestMessage* request);
 
+ // EXP_PULL_BEGIN
+    bool handleOpenEnumerateInstancesRequest(
+        CIMOpenEnumerateInstancesRequestMessage* request);
+
+    bool handleOpenEnumerateInstancePathsRequest(
+        CIMOpenEnumerateInstancePathsRequestMessage* request);
+
+    bool handleOpenReferenceInstancesRequest(
+        CIMOpenReferenceInstancesRequestMessage* request);
+
+    bool handleOpenReferenceInstancePathsRequest(
+        CIMOpenReferenceInstancePathsRequestMessage* request);
+
+    bool handleOpenAssociatorInstancesRequest(
+        CIMOpenAssociatorInstancesRequestMessage* request);
+
+    bool handleOpenAssociatorInstancePathsRequest(
+        CIMOpenAssociatorInstancePathsRequestMessage* request);
+
+    bool handleOpenQueryInstancesRequest(
+        CIMOpenQueryInstancesRequestMessage* request);
+
+    bool handlePullInstancesWithPath(
+        CIMPullInstancesWithPathRequestMessage* request);
+
+    bool handlePullInstancePaths(
+        CIMPullInstancePathsRequestMessage* request);
+
+    bool handlePullInstances(
+        CIMPullInstancesRequestMessage* request);
+
+    void handleCloseEnumeration(
+        CIMCloseEnumerationRequestMessage* request);
+
+    void handleEnumerationCount(
+        CIMEnumerationCountRequestMessage* request);
+
+// EXP_PULL END
+
+    /** Common Request handling for ExecQuery and OpenQueryRequests.
+       This function gets the provider list, get instances from the
+       repository and calls the required providers.
+
+       @param request CIMExecQueryRequestMessage. The request being issued
+
+       @param cimException CIMException - Contains an exception if
+       the processing fails and the return from the function is false.
+
+       @param enumerationContext* EnumertionContext if this is a
+       pull operation or NULL if not.
+
+       @param queryLanguage const char* defining query language (ex.
+                            "WQL")
+
+       @return bool true if processing completed successfully or
+       false if there is an error.  cimException contains CIMException
+       if return is false.
+    */
+    bool handleQueryRequestCommon(
+        CIMExecQueryRequestMessage* request,
+        CIMException& cimException,
+        EnumerationContext* enumerationContext,
+        const char* queryLanguage,
+        const CIMName& className,
+        QueryExpressionRep* qx);
+
+
+    /** Callback from Providers, etc. This callback is used for
+        Operations that aggregate response information. This is the
+        callback pointer used by the _forwardForAggregation
+        function.
+        @param AsyncOpNode *
+        @param MessageQueue*
+        @param userParam Pointer to data that is transparently
+        carrried through the call to callback process. It contains
+        a pointer to the OperationAggregate.
+     */
     static void _forwardForAggregationCallback(
         AsyncOpNode*,
         MessageQueue*,
         void*);
 
+    /** Callback from providers etc. for operations that do not
+        aggregate response. This callback pointer used by
+        _forwardToProvider functions.
+        @param AsyncOpNode *
+        @param MessageQueue*
+        @param userParam Contains the request message
+     */
     static void _forwardRequestCallback(
         AsyncOpNode*,
         MessageQueue*,
@@ -564,6 +683,12 @@ public:
         OperationAggregate* poA);
 
     void handleExecQueryResponseAggregation(OperationAggregate* poA);
+
+    // Issue RequestToProvider Functions
+    void issueRequestsToProviders(CIMEnumerateInstancesRequestMessage* request,
+        Uint32 numberOfClasses,
+        ProviderInfoList& providerInfos,
+        OperationAggregate* poA);
 
 protected:
 
@@ -611,7 +736,8 @@ protected:
     /*Forward the response defined for aggregation processing
       and queue for output.  Note this function is called
       when a response that should be processed through the
-      aggregator already exists.
+      aggregator already exists. It just queues the response because
+      one exists.
     */
     void _forwardResponseForAggregation(
         CIMOperationRequestMessage* request,
@@ -620,17 +746,18 @@ protected:
 
     /*
         Forward a request for aggregation.  This is the path used
-        to forward aggregationoperation requests to providers,
+        to forward aggregating operation requests to providers,
         control providers, and services
     */
-    void _forwardRequestForAggregation(
+    void _forwardAggregatingRequestToProvider(
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
         OperationAggregate* poA);
 
     /*  Commmon aggregating function used by both _forwardResponseForAggregation
-        and _forwardRequestForAggregation above.
-
+        and _forwardRequestForAggregation above. This is an inline function
+        //// FUTURE we should be able to eliminate this one completely
+        //// in favor of the one above. Also change the name.
     */
     void _forwardRequestForAggregation(
         Uint32 serviceId,
@@ -639,7 +766,7 @@ protected:
         OperationAggregate* poA,
         CIMResponseMessage* response = 0);
 
-    void _forwardRequestToProvider(
+    void _forwardRequestToSingleProvider(
         const ProviderInfo& providerInfo,
         CIMOperationRequestMessage* request,
         CIMOperationRequestMessage* requestCopy);
@@ -707,6 +834,44 @@ protected:
     // pattern of returning true if the test fails so that the main
     // function must test the result and return.  This allows putting
     // the trace method return into the CIMOperationRequestDispatcher main.
+    //
+// EXP_PULL_BEGIN
+
+    bool _rejectIfPullParametersFailTests(
+        CIMOpenOperationRequestMessage* request,
+        Uint32& operationMaxObjectCount);
+
+    bool _rejectIfContinueOnError(CIMOperationRequestMessage* request,
+        Boolean continueOnError);
+
+    bool _rejectInvalidFilterParameters(CIMOperationRequestMessage* request,
+        const String& filterQueryLanguageParam,
+        const String& filterQueryParam);
+
+    bool _rejectInvalidMaxObjectCountParam(
+        CIMOperationRequestMessage* request,
+        const Uint32 maxObjectCountParam,
+        bool requiredParameter,
+        Uint32& value,
+        const Uint32 defaultValue);
+
+    bool _rejectInvalidOperationTimeout(CIMOperationRequestMessage* request,
+        const Uint32Arg& operationTimeout);
+
+    bool _rejectInvalidEnumerationContext(
+        CIMOperationRequestMessage* request,
+        EnumerationContext* enumerationContext);
+
+    bool _rejectIfContextTimedOut(CIMOperationRequestMessage* request,
+        Boolean isTimedOut);
+
+    bool _rejectInvalidPullRequest(CIMOperationRequestMessage* request,
+        Boolean valid);
+
+    bool _rejectIfEnumerationContextProcessing(
+        CIMOperationRequestMessage* request,
+        Boolean processing);
+// EXP_PULL_END
 
     Boolean _rejectAssociationTraversalDisabled(
         CIMOperationRequestMessage* request,
@@ -737,6 +902,8 @@ protected:
     Boolean _rejectInvalidClassParameter(CIMOperationRequestMessage* request,
         CIMConstClass& targetClass);
 
+    void _rejectCreateContextFailed(CIMOperationRequestMessage* request);
+
     /**Equivalent to _rejectInvalidClassParameter above except that
        it included objecName parameter
 
@@ -750,6 +917,13 @@ protected:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName);
 
+    /* generate and return the required exception if this test fails
+
+    */
+    Boolean _CIMExceptionIfNoProvidersOrRepository(
+        CIMOperationRequestMessage* request,
+        const ProviderInfoList& providerInfos,
+        CIMException& cimException);
     /**
         Reject if no providers or repository for this class
     */
@@ -757,7 +931,7 @@ protected:
         const ProviderInfoList&);
 
     /**
-        Checks whether the number of providers required to complete an
+        Reject if the number of providers required to complete an
         operation is greater than the maximum allowed.
         @param nameSpace The target namespace of the operation.
         @param className The name of the class specified in the request.
@@ -796,11 +970,10 @@ protected:
     things like this, simply return no objects.  On the other hand
     This is a real boundary condition for the server where the
     repository is not to be used and there are NO providers registered.
-    TODO - Check if this is really valid
+    KS_TODO - Check if this is really valid
 */
     Boolean _checkNoProvidersOrRepository(CIMOperationRequestMessage* request,
         Uint32 providerCount, const CIMName& className);
-
 
     Boolean _forwardEnumerationToProvider(
         ProviderInfo &providerInfo,
@@ -829,7 +1002,27 @@ protected:
     // response.
     Uint32 _maximumEnumerateBreadth;
 
+    // Define the maximum number of objects that the system will accept
+    // for pull operation input parameter.
+    Uint32 _systemMaxPullOperationObjectCount;
+
+    // Define whether the system will accept the value zero as a valid
+    // pull interoperation timeout. Since the value of zero disables the
+    // timer this would mean that the system operates with no timeout
+    // between pull operations. This should be somewhere externally as
+    // a configuration parameter
+    Boolean _rejectZeroOperationTimeoutValue;
+
+    // Value for maximum timeout for pull operations.  If this value is
+    // exceeded, the operation request will be rejected.
+    Uint32 _pullOperationMaxTimeout;
+
+    // Value for default operationTimeout for open operations if no
+    // value is supplied with the open request.
+    Uint32 _pullOperationDefaultTimeout;
+
     Uint32 _providerManagerServiceId;
+
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Array<String> _excludeModulesFromNormalization;
 #endif
@@ -841,6 +1034,19 @@ protected:
         CIMOperationRequestMessage* request,
         OperationAggregate* poA,
         ProviderInfoList& providerInfos);
+
+    void _issueImmediateOpenOrPullResponseMessage(
+        CIMOperationRequestMessage* request,
+        CIMOpenOrPullResponseDataMessage* response,
+        EnumerationContext* en,
+        Uint32 operationMaxObjectCount);
+
+    bool issueOpenOrPullResponseMessage(
+        CIMOperationRequestMessage* openRequest,
+        CIMOpenOrPullResponseDataMessage* openResponse,
+        EnumerationContext* en,
+        Uint32 operationMaxObjectCount,
+        Boolean requireCompleteResponses);
 
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
@@ -866,12 +1072,43 @@ private:
         ProviderInfoList& providerInfos,
         CIMResponseMessage* response);
 
+/**
+   Complete processing for the pull operations, pullInstancesWithPath
+   and Pull InstancePaths.  This function replaces all the code in the
+   pull functions including the input checking code because the pull operations
+   are exactly the same except for the response object type.
+   @param this -  Pointer to the CIMOperationRequestDispatcher object.
+          Required to execute dispatcher methods
+   @param request CIMPullOperationRequestMessage* Defines the pull
+                request message pointer
+   @param pullResponse - AutoPtr<CIMOpenOrPullResponseDataMessage>& defines the
+                response message for this pull response
+   @param requestName - String with the request name. Used internally for
+                traces, etc.
+*/
+    bool processPullRequest(
+        CIMPullOperationRequestMessage* request,
+        CIMOpenOrPullResponseDataMessage*  pullResponse,
+        const char * requestName);
+// EXP_PULL_BEGIN
+
+    // pointer to EnumerationContextTable which allocates
+    // and releases enumeration context objects.
+    EnumerationContextTable *_enumerationContextTable;
+// EXP_PULL END
+
     // Pointer to internal RoutingTable for Control Providers and Services
     DynamicRoutingTable *_routing_table;
+
+    // internal bool that defines whether handleEnqueue will delete
+    // the original request.  Used because in some cases the handler
+    // retains the request beyond the life of the handleEnqueue call.
+    bool _deleteRequestRequired;
 };
 
 // Forward response to Common Request Aggregator.  This is simply
-// a syntatic simplification.
+// a syntatic simplification that sends the response directly to the
+// aggregation component because a response exists.
 inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
     CIMOperationRequestMessage* request,
     OperationAggregate* poA,
@@ -888,7 +1125,7 @@ inline void CIMOperationRequestDispatcher::_forwardResponseForAggregation(
 /*
     For request for aggregation with poA as parameter.
 */
-inline void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
+inline void CIMOperationRequestDispatcher::_forwardAggregatingRequestToProvider(
     const ProviderInfo& providerInfo,
     CIMOperationRequestMessage* request,
     OperationAggregate* poA)

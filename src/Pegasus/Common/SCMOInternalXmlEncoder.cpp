@@ -57,25 +57,25 @@ void SCMOInternalXmlEncoder::_putXMLInstance(
         Buffer buf(4096);
 
         // Serialize instance as XML.
-        if (propertyList.isNull()) 
-        { 
-            Array<Uint32> emptyNodes; 
+        if (propertyList.isNull())
+        {
+            Array<Uint32> emptyNodes;
             SCMOXmlWriter::appendInstanceElement(
                 buf,
                 ci,
                 false,
                 emptyNodes);
-        }   
+        }
         else
         {
             Array<propertyFilterNodesArray_t> propFilterNodesArrays;
-            // This searches for an already created array of nodes, 
+            // This searches for an already created array of nodes,
             // if not found, creates it inside propFilterNodesArrays
-            const Array<Uint32> & nodes= 
-                SCMOXmlWriter::getFilteredNodesArray( 
-                    propFilterNodesArrays, 
+            const Array<Uint32> & nodes=
+                SCMOXmlWriter::getFilteredNodesArray(
+                    propFilterNodesArrays,
                     ci,
-                    propertyList); 
+                    propertyList);
             SCMOXmlWriter::appendInstanceElement(
                 buf,
                 ci,
@@ -97,7 +97,7 @@ void SCMOInternalXmlEncoder::_putXMLInstance(
         else
         {
             // Serialize object path as XML.
-            SCMOXmlWriter::appendValueReferenceElement(buf, ci, true);
+            SCMOXmlWriter::appendValueReferenceElement(buf, ci);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -115,7 +115,7 @@ void SCMOInternalXmlEncoder::_putXMLInstance(
 
 void SCMOInternalXmlEncoder::_putXMLNamedInstance(
     CIMBuffer& out,
-    const Array<SCMOInstance> & ci, 
+    const Array<SCMOInstance> & ci,
     const CIMPropertyList& propertyList)
 {
     Array<propertyFilterNodesArray_t> propFilterNodesArrays;
@@ -133,29 +133,29 @@ void SCMOInternalXmlEncoder::_putXMLNamedInstance(
         {
             Buffer buf(4096);
             // Serialize instance as XML.
-            if (propertyList.isNull()) 
-            { 
-                SCMOXmlWriter::appendInstanceElement( 
-                    buf, 
-                    ci[i], 
-                    false, 
-                    emptyNodes); 
-            } 
-            else 
-            { 
-                // This searches for an already created array of nodes, 
-                // if not found, creates it inside propFilterNodesArrays 
-                const Array<Uint32> & nodes = 
-                    SCMOXmlWriter::getFilteredNodesArray( 
-                        propFilterNodesArrays, 
-                        ci[i], 
+            if (propertyList.isNull())
+            {
+                SCMOXmlWriter::appendInstanceElement(
+                    buf,
+                    ci[i],
+                    false,
+                    emptyNodes);
+            }
+            else
+            {
+                // This searches for an already created array of nodes,
+                // if not found, creates it inside propFilterNodesArrays
+                const Array<Uint32> & nodes =
+                    SCMOXmlWriter::getFilteredNodesArray(
+                        propFilterNodesArrays,
+                        ci[i],
                         propertyList);
-                SCMOXmlWriter::appendInstanceElement( 
-                    buf, 
-                    ci[i], 
-                    true, 
-                    nodes); 
-            } 
+                SCMOXmlWriter::appendInstanceElement(
+                    buf,
+                    ci[i],
+                    true,
+                    nodes);
+            }
             buf.append('\0');
             out.putUint32(buf.size());
             out.putBytes(buf.getData(), buf.size());

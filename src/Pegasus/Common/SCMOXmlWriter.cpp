@@ -132,6 +132,48 @@ void SCMOXmlWriter::appendValueSCMOInstanceElements(
     }
 }
 
+// EXP_PULL_BEGIN
+void SCMOXmlWriter::appendValueSCMOInstanceWithPathElements(
+     Buffer& out,
+     const Array<SCMOInstance> & _scmoInstances,
+     const CIMPropertyList & propertyList)
+{
+    if (propertyList.isNull())
+    {
+        Array<Uint32> emptyNodes;
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            SCMOXmlWriter::appendValueInstanceWithPathElement(
+                out,
+                _scmoInstances[i],
+                false,
+                emptyNodes);
+        }
+    }
+    else
+    {
+        Array<propertyFilterNodesArray_t> propFilterNodesArrays;
+
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            // This searches for an already created array of nodes,
+            // if not found, creates it inside propFilterNodesArrays
+            const Array<Uint32> & nodes=
+                SCMOXmlWriter::getFilteredNodesArray(
+                    propFilterNodesArrays,
+                    _scmoInstances[i],
+                    propertyList);
+
+            SCMOXmlWriter::appendValueInstanceWithPathElement(
+                out,
+                _scmoInstances[i],
+                true,
+                nodes);
+        }
+    }
+}
+//EXP_PULL_END
+
 void SCMOXmlWriter::appendValueSCMOInstanceElement(
     Buffer& out,
     const SCMOInstance& scmoInstance,
@@ -181,7 +223,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
             if (SCMO_OK == smrc)
             {
                 SCMOInstance * ref = kbValue->extRefPtr;
-                appendValueReferenceElement(out, *ref, true);
+                appendValueReferenceElement(out, *ref);
             }
         }
         else
@@ -630,7 +672,7 @@ void SCMOXmlWriter::appendValueElement(
         SCMOInstance * ref = value.value.extRefPtr;
         if (ref)
         {
-            appendValueReferenceElement(out, *ref, true);
+            appendValueReferenceElement(out, *ref);
         }
     }
     else
@@ -655,14 +697,20 @@ void SCMOXmlWriter::appendValueElement(
 //------------------------------------------------------------------------------
 void SCMOXmlWriter::appendValueReferenceElement(
     Buffer& out,
-    const SCMOInstance& ref,
-    Boolean putValueWrapper)
+    const SCMOInstance& ref)
 {
-    if (putValueWrapper)
-    {
-        out << STRLIT("<VALUE.REFERENCE>\n");
-    }
+    out << STRLIT("<VALUE.REFERENCE>\n");
 
+    appendClassOrInstancePathElement(out, ref);
+
+    out << STRLIT("</VALUE.REFERENCE>\n");
+}
+
+// Append either a class or instance Path Element
+void SCMOXmlWriter::appendClassOrInstancePathElement(
+    Buffer& out,
+    const SCMOInstance& ref)
+{
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
 
@@ -701,10 +749,6 @@ void SCMOXmlWriter::appendValueReferenceElement(
             appendInstanceNameElement(out, ref);
         }
     }
-    if (putValueWrapper)
-    {
-        out << STRLIT("</VALUE.REFERENCE>\n");
-    }
 }
 
 // appendLocalInstancePathElement()
@@ -738,6 +782,7 @@ void SCMOXmlWriter::appendInstancePathElement(
     appendInstanceNameElement(out, instancePath);
     out << STRLIT("</INSTANCEPATH>\n");
 }
+
 void SCMOXmlWriter::appendValueObjectWithPathElement(
     Buffer& out,
     const Array<SCMOInstance> & objectWithPath,
@@ -777,6 +822,31 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
     }
 }
 
+//EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// appendValueInstanceWithPathElement()
+//
+//     <!ELEMENT VALUE.INSTANCEWITHPATH (INSTANCEPATH,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+// EXP_PULL_TBD checkout the INSTANCEPATH vs NAMEDINSTANCE differences
+// Can we create something more common
+void SCMOXmlWriter::appendValueInstanceWithPathElement(
+    Buffer& out,
+    const SCMOInstance& namedInstance,
+    bool filtered,
+    const Array<Uint32> & nodes)
+{
+    out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
+
+    appendInstancePathElement(out, namedInstance);
+    appendInstanceElement(out, namedInstance, filtered, nodes);
+
+    out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
+}
+//EXP_PULL_END
+
 // appendValueObjectWithPathElement()
 //     <!ELEMENT VALUE.OBJECTWITHPATH
 //         ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
@@ -788,7 +858,7 @@ void SCMOXmlWriter::appendValueObjectWithPathElement(
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
-    appendValueReferenceElement(out, objectWithPath, false);
+    appendClassOrInstancePathElement(out, objectWithPath);
     appendObjectElement(out, objectWithPath,filtered,nodes);
 
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
@@ -1300,7 +1370,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 SCMOInstance * ref = arr->extRefPtr;
                 if (ref)
                 {
-                    appendValueReferenceElement(out, *ref, true);
+                    appendValueReferenceElement(out, *ref);
                 }
                 arr++;
             }

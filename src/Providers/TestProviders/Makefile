@@ -71,6 +71,9 @@ TEST_DIRS = \
 	FaultyInstanceProvider/testclient \
 	TestGoodInstanceProvider \
 	DeliveryRetryTestProvider \
+	ResponseStressTestProvider \
+        ResponseStressTestProvider/testclient \
+	DeliveryRetryTestProvider \
         TestProviderLifecycleIndications \
 	TestCIM_ErrorProvider \
 	TestCIM_ErrorProvider/tests \

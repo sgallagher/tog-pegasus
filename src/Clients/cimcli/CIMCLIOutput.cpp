@@ -709,20 +709,24 @@ static void _outputPath(Options& opts, const CIMObjectPath& path,
     displayInstances because it handles the entire array of instances.
 */
 static void _outputFormatInstance(Options& opts,
-    CIMInstance& instance)
+    CIMInstance& instance, bool displayPathComponent = true)
 {
 
-    // Display the instance based on the format type.
+    // Display the instance based on the format type
     if (opts.outputType == OUTPUT_XML)
     {
-        // display the path element
-        _outputPath(opts, instance.getPath(), "path= ");
+        if (displayPathComponent)
+        {
+            _outputPath(opts, instance.getPath(), "path= ");
+        }
         XmlWriter::printInstanceElement(instance, cout);
     }
     else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
     {
-        // display the path element
-        _outputPath(opts, instance.getPath(), "// path= ");
+        if (displayPathComponent)
+        {
+            _outputPath(opts, instance.getPath(), "// path= ");
+        }
         CIMInstance temp = instance.clone();
         // Reset the propagated flag to assure that these entities
         // are all shown in the MOF output.
@@ -1019,7 +1023,8 @@ void CIMCLIOutput::displayInstance(Options& opts,
 }
 
 void CIMCLIOutput::displayInstances(Options& opts,
-    Array<CIMInstance>& instances)
+    Array<CIMInstance>& instances,
+    bool displayPathComponent)
 {
     String description = "instances of class";
     if (opts.summary)
@@ -1043,7 +1048,7 @@ void CIMCLIOutput::displayInstances(Options& opts,
         for (Uint32 i = 0; i < instances.size(); i++)
         {
             CIMInstance instance = instances[i];
-            _outputFormatInstance(opts, instance);
+            _outputFormatInstance(opts, instance, displayPathComponent);
         }
     }
     testReturnCount(opts, instances.size(), description);

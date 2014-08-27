@@ -134,7 +134,55 @@ enum CIMStatusCode
     /**
         The specified extrinsic method does not exist.
     */
-    CIM_ERR_METHOD_NOT_FOUND = 17
+    CIM_ERR_METHOD_NOT_FOUND = 17,
+    //EXP_PULL_BEGIN
+    /**
+        The specified Namespace is not empty.
+    */
+    CIM_ERR_NAMESPACE_NOT_EMPTY = 20,
+    /**
+        The enumeration identified by the specified context cannot
+        be found, is in a closed state, does not exist, or is
+        otherwise invalid.
+    */
+    CIM_ERR_INVALID_ENUMERATION_CONTEXT = 21,
+    /**
+        The specified operation timeout is not supported by the CIM
+        Server.
+    */
+    CIM_ERR_INVALID_OPERATION_TIMEOUT = 22,
+    /**
+       The Pull operation has been abandoned due to execution of a
+       concurrent CloseEnumeration operation on the same enumeration
+    */
+    CIM_ERR_PULL_HAS_BEEN_ABANDONED = 23,
+    /**
+        The attempt to abandon a concurrent Pull operation on the
+        same enumeration failed, the concurrent Pull operation
+        proceeds normally.
+    */
+    CIM_ERR_PULL_CANNOT_BE_ABANDONED = 24,
+    /**
+        Using a filter in the enumeration is not supported by the
+        CIM Server.
+    */
+    CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED = 25,
+    /**
+    *   The CIM Server does not support continuation on error.
+    */
+    CIM_ERR_CONTINUATION_ON_ERROR_NOT_SUPPORTED = 26,
+    /**
+        The CIM Server has failed the operation based upon exceeding
+        server limits.
+    */
+    CIM_ERR_SERVER_LIMITS_EXCEEDED = 27,
+    /**
+        The CIM Server is in the process of shutting down and cannot
+        process the operation at this time..    *
+    */
+    CIM_ERR_SERVER_IS_SHUTTING_DOWN = 28
+
+    //EXP_PULL_END
 };
 
 PEGASUS_COMMON_LINKAGE const char* cimStatusCodeToString(CIMStatusCode code);

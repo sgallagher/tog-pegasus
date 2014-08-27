@@ -122,7 +122,7 @@ void InteropProvider::associators(
 
         if( refs.size() )
         {
-            Array<CIMInstance> refObjs = 
+            Array<CIMInstance> refObjs =
                 getReferencedInstances(refs,targetRole,context,propertyList);
             ConstArrayIterator<CIMInstance> refsIterator(refObjs);
             for(Uint32 i = 0; i < refsIterator.size(); i++)

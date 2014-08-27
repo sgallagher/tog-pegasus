@@ -148,6 +148,44 @@ private:
     void _encodeInvokeMethodRequest(
         CIMInvokeMethodRequestMessage* message);
 
+ // EXP_PULL_BEGIN
+    void _encodeOpenEnumerateInstancesRequest(
+        CIMOpenEnumerateInstancesRequestMessage* message);
+
+    void _encodeOpenEnumerateInstancePathsRequest(
+        CIMOpenEnumerateInstancePathsRequestMessage* message);
+
+    void _encodeOpenReferenceInstancePathsRequest(
+        CIMOpenReferenceInstancePathsRequestMessage* message);
+
+    void _encodeOpenReferenceInstancesRequest(
+        CIMOpenReferenceInstancesRequestMessage* message);
+
+    void _encodeOpenAssociatorInstancePathsRequest(
+        CIMOpenAssociatorInstancePathsRequestMessage* message);
+
+    void _encodeOpenAssociatorInstancesRequest(
+        CIMOpenAssociatorInstancesRequestMessage* message);
+
+    void _encodePullInstancesWithPathRequest(
+        CIMPullInstancesWithPathRequestMessage* message);
+
+    void _encodePullInstancePathsRequest(
+        CIMPullInstancePathsRequestMessage* message);
+
+    void _encodePullInstancesRequest(
+        CIMPullInstancesRequestMessage* message);
+
+    void _encodeCloseEnumerationRequest(
+        CIMCloseEnumerationRequestMessage* message);
+
+    void _encodeOpenQueryInstancesRequest(
+        CIMOpenQueryInstancesRequestMessage* message);
+
+    void _encodeEnumerationCountRequest(
+        CIMEnumerationCountRequestMessage* message);
+ //EXP_PULL_END
+
     void _sendRequest(Buffer& buffer);
 
     MessageQueue* _outputQueue;

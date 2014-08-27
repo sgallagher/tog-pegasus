@@ -657,6 +657,81 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             else if (System::strcasecmp(iMethodResponseName, "ExecQuery") == 0)
                 response = _decodeExecQueryResponse(
                     parser, messageId, isEmptyTag);
+// EXP_PULL_BEGIN
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenEnumerateInstances") == 0)
+            {
+                response = _decodeOpenEnumerateInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenEnumerateInstancePaths") == 0)
+            {
+                response = _decodeOpenEnumerateInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenReferenceInstances") == 0)
+            {
+                response = _decodeOpenReferenceInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenReferenceInstancePaths") == 0)
+            {
+                response = _decodeOpenReferenceInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenAssociatorInstances") == 0)
+            {
+                response = _decodeOpenAssociatorInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenAssociatorInstancePaths") == 0)
+            {
+                response = _decodeOpenAssociatorInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "OpenQueryInstances") == 0)
+            {
+                response = _decodeOpenQueryInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "PullInstancesWithPath") == 0)
+            {
+                response = _decodePullInstancesWithPathResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "PullInstancePaths") == 0)
+            {
+                response = _decodePullInstancePathsResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "PullInstances") == 0)
+            {
+                response = _decodePullInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            }
+            else if (System::strcasecmp(
+                    iMethodResponseName, "CloseEnumeration") == 0)
+            {
+                response = _decodeCloseEnumerationResponse(
+                    parser, messageId, isEmptyTag);
+            }
+
+            else if (System::strcasecmp(
+                iMethodResponseName, "EnumerationCount") == 0)
+            {
+                response = _decodeEnumerationCountResponse(
+                    parser, messageId, isEmptyTag);
+            }
+//EXP_PULL_END
             else
             {
                 MessageLoaderParms mlParms(
@@ -1799,5 +1874,769 @@ CIMInvokeMethodResponseMessage*
         outParameters,
         methodName);
 }
+
+// EXP_PULL_BEGIN
+/**************************************************************************
+**
+**   Common Functions to support the decode of Pull Operation Responses
+**
+***************************************************************************/
+
+/*
+    Decode the instancePath portion of all of the open an pull instancepaths
+    operations.  This function is common to all of the pull decode operations.
+*/
+
+// KS_EXP_TBD - Can we combine what we do here with the function in
+// enumerateinstancenames that uses getInstanceNameElement????
+void _decodeInstancePathElements(
+    XmlParser& parser,
+    Array<CIMObjectPath>& instancePaths)
+{
+    XmlEntry entry;
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMObjectPath instancePath;
+
+            while (XmlReader::getInstancePathElement(parser, instancePath))
+            {
+                instancePaths.append(instancePath);
+            }
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+}
+
+/*
+    decode returned instancesWithPathElement into an array
+    of instances. This function is common to all of the Pull decoder
+    operations.
+*/
+void _decodeGetInstancesWithPathElement(
+    XmlParser& parser,
+    Array<CIMInstance>& namedInstances)
+{
+    XmlEntry entry;
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMInstance namedInstance;
+
+            /// KS_TBD _QUESTION. Diff of this getNameInstances Function
+            while (XmlReader::getInstanceWithPathElement(
+                       parser, namedInstance))
+            {
+                namedInstances.append(namedInstance);
+            }
+
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+}
+
+/*
+    Decode returned instances Element into an array
+    of instances. This function is only for pullInstances.
+*/
+void _decodeGetInstancesElement(
+    XmlParser& parser,
+    Array<CIMInstance>& instances)
+{
+    XmlEntry entry;
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMInstance instance;
+
+            while (XmlReader::getInstanceElement(parser, instance))
+            {
+                instances.append(instance);
+            }
+
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+}
+
+/*  Common Function for Open, Pull Parm Value processing.
+    Parse the output parameters from the  responses that
+    have two parameters (endOfSequence and enumerationContext). These
+    parameters are common across all of the Open* operations and the
+    pull operations.
+    This function returns the parsed values of these parameters or, if
+    there is an error, generates an exception.
+*/
+void _decodeOpenResponseParamValues(XmlParser& parser,
+       Boolean& endOfSequence,
+       String& enumerationContext)
+{
+    Boolean duplicateParameter = false;
+    Boolean gotEndOfSequence = false;
+    Boolean gotEnumerationContext = false;
+
+    Boolean emptyTag;
+    for (const char* name;
+         XmlReader::getParamValueTag(parser, name, emptyTag); )
+    {
+        if (System::strcasecmp(name, "EndOfSequence") == 0)
+        {
+            XmlReader::rejectNullParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, endOfSequence, true);
+            duplicateParameter = gotEndOfSequence;
+            gotEndOfSequence = true;
+        }
+
+        else if (System::strcasecmp(name, "EnumerationContext") == 0)
+        {
+            XmlReader::getStringValueElement(parser, enumerationContext,
+                false);
+            duplicateParameter = gotEnumerationContext;
+            gotEnumerationContext = true;
+        }
+        else
+        {
+            // Ignore this as an extra tag
+        }
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "PARAMVALUE");
+        }
+        // Stop on the first duplicate found
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER,
+                    "Duplicate EndOfSequence or EnumerationContext received");
+        }
+    }
+
+    // KS_TODO -Should the error be INVALID_PARAMETER or XmlValidation since
+    // it is really MISSING but this is response so we have generally
+    // used XmlValidationError.
+    if (!gotEndOfSequence)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "EndOfSequence is a Required Parameter");
+    }
+
+    // EnumerationContext is required parameter
+    if (!gotEnumerationContext)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "EnumerationContext is a Required Parameter");
+    }
+    // EnumerationContext must have value if not endOfSequence
+    if ((!endOfSequence) && (enumerationContext.size() == 0))
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Valid EnumerationContext is a Required Parameter");
+    }
+}
+
+/******************************************************************************
+**
+** Open and Pull Operation Response Decoders
+**
+******************************************************************************/
+CIMOpenEnumerateInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenEnumerateInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    //XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenEnumerateInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+    // EXP_PULL should error out if response empty because either
+    // enumerationContext or endOfSequence is required. Create
+    // missing Parameter error here.
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenEnumerateInstancesResponseMessage* msg;
+
+    msg = new CIMOpenEnumerateInstancesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstances(namedInstances);
+    return msg;
+}
+
+CIMOpenEnumerateInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenEnumerateInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenEnumerateInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+
+    }
+
+    _decodeInstancePathElements(parser, instancePaths);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenEnumerateInstancePathsResponseMessage* msg;
+
+    msg = new CIMOpenEnumerateInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+    return msg;
+}
+
+
+CIMOpenReferenceInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenReferenceInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenReferenceInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenReferenceInstancesResponseMessage* msg;
+
+    msg = new CIMOpenReferenceInstancesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    // set response data type to Instances.  The default for this
+    // message is OBJECTS since that is what we use in the server.
+    msg->getResponseData().setDataType(CIMResponseData::RESP_INSTANCES);
+    msg->getResponseData().setInstances(namedInstances);
+
+    return msg;
+}
+
+CIMOpenReferenceInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenReferenceInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenReferenceInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    _decodeInstancePathElements(parser, instancePaths);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenReferenceInstancePathsResponseMessage* msg;
+
+    msg = new CIMOpenReferenceInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+
+    return msg;
+}
+
+CIMOpenAssociatorInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenAssociatorInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenAssociatorInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenAssociatorInstancesResponseMessage* msg;
+
+    msg = new CIMOpenAssociatorInstancesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setDataType(CIMResponseData::RESP_INSTANCES);
+    msg->getResponseData().setInstances(namedInstances);
+
+    return msg;
+}
+
+CIMOpenAssociatorInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenAssociatorInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenAssociatorInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+    {
+        if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+            CIMObjectPath instancePath;
+
+            while (XmlReader::getInstancePathElement(parser, instancePath))
+                instancePaths.append(instancePath);
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+    }
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    //
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenAssociatorInstancePathsResponseMessage* msg;
+
+    msg = new CIMOpenAssociatorInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+
+    return msg;
+}
+
+CIMOpenQueryInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodeOpenQueryInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    CIMException cimException;
+    Array<CIMInstance> instances;
+    CIMClass queryResultClass;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMOpenQueryInstancesResponseMessage(
+            messageId,
+            cimException,
+            CIMClass(),
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+    // EXP_PULL error out if response empty because either
+    // enumerationContext or endOfSequence is required. Create
+    // missing Parameter error here.
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    _decodeGetInstancesElement(parser, instances);
+
+    // Get the OUT parameters (endOfSequence and enumerationContext)
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMOpenQueryInstancesResponseMessage* msg =
+        new CIMOpenQueryInstancesResponseMessage(
+            messageId,
+            cimException,
+            queryResultClass,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+
+    msg->getResponseData().setInstances(instances);
+    return msg;
+}
+
+CIMPullInstancesWithPathResponseMessage*
+    CIMOperationResponseDecoder::_decodePullInstancesWithPathResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> namedInstances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMPullInstancesWithPathResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+    _decodeGetInstancesWithPathElement(parser, namedInstances);
+
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMPullInstancesWithPathResponseMessage* msg;
+
+    msg = new CIMPullInstancesWithPathResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstances(namedInstances);
+    return msg;
+}
+
+CIMPullInstancePathsResponseMessage*
+    CIMOperationResponseDecoder::_decodePullInstancePathsResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instancePaths;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    //Boolean duplicateParameter = false;
+    //Boolean gotEndOfSequence = false;
+    //Boolean gotEnumerationContext = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMPullInstancePathsResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    _decodeInstancePathElements(parser, instancePaths);
+
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMPullInstancePathsResponseMessage* msg;
+
+    msg = new CIMPullInstancePathsResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstanceNames(instancePaths);
+    return msg;
+}
+
+CIMPullInstancesResponseMessage*
+    CIMOperationResponseDecoder::_decodePullInstancesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMInstance> instances;
+    Boolean endOfSequence = true;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMPullInstancesResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            endOfSequence,
+            enumerationContext);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+    _decodeGetInstancesElement(parser, instances);
+
+    _decodeOpenResponseParamValues(parser, endOfSequence, enumerationContext);
+
+    CIMPullInstancesResponseMessage* msg;
+
+    msg = new CIMPullInstancesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        endOfSequence,
+        enumerationContext);
+
+    msg->getResponseData().setInstances(instances);
+    return msg;
+}
+
+CIMCloseEnumerationResponseMessage*
+    CIMOperationResponseDecoder::_decodeCloseEnumerationResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Array<CIMObjectPath> instanceNames;
+    String enumerationContext = String::EMPTY;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMCloseEnumerationResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack());
+    }
+
+    return new CIMCloseEnumerationResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack());
+}
+
+CIMEnumerationCountResponseMessage*
+    CIMOperationResponseDecoder::_decodeEnumerationCountResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag)
+{
+    XmlEntry entry;
+    CIMException cimException;
+    Uint64Arg count;
+
+    Boolean duplicateParameter = false;
+    Boolean gotCount = false;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return new CIMEnumerationCountResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            0);
+    }
+
+    if (isEmptyImethodresponseTag)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+            "Return Parameters endOfSequence"
+                "and/or enumerationContext required.");
+    }
+
+    // Extract the parameter count from the message
+
+    Boolean emptyTag;
+    for (const char* name;
+         XmlReader::getIReturnValueTag(parser, name, emptyTag); )
+    {
+        if (System::strcasecmp(name, "Count") == 0)
+        {
+            XmlReader::getUint64ValueElement(parser, count, true);
+            //duplicateParameter = gotCount;
+            gotCount = true;
+        }
+
+        else
+        {
+            /// EXP_PULL_TBD
+            // We probably simply want to ignore this as an extra tag
+        }
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
+
+        // EXP_PULL_TBD add test here for the required parameters
+        // NOT sure from the spec if the parameter is required or not.
+
+        if (!gotCount)
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+                                        "Return value missing");
+        }
+    }
+    return new CIMEnumerationCountResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        count);
+}
+
+//EXP_PULL_END
 
 PEGASUS_NAMESPACE_END

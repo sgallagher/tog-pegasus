@@ -73,18 +73,23 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
             a.remove(i);
         }
     }
+    // Reset the ResponseData size since we may have modified it.
+    enr->getResponseData().setSize();
 }
 
-void WQLOperationRequestDispatcher::handleQueryRequest(
-    CIMExecQueryRequestMessage* request)
+bool WQLOperationRequestDispatcher::handleQueryRequest(
+    CIMExecQueryRequestMessage* request,
+    CIMException& cimException,
+    EnumerationContext* enumerationContext)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "WQLOperationRequestDispatcher::handleQueryRequest");
 
     Boolean exception=false;
     AutoPtr<WQLSelectStatement> selectStatement(new WQLSelectStatement());
+
     AutoPtr<WQLQueryExpressionRep> qx;
-    CIMException cimException;
+
     CIMName className;
 
     if (request->queryLanguage!="WQL")
@@ -128,156 +133,19 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
     if (exception)
     {
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = cimException;
-
-        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
-        return;
+        return false;
     }
 
-    //
-    // Get names of descendent classes:
-    //
-    ProviderInfoList providerInfos;
-
-    try
-    {
-        providerInfos = _lookupAllInstanceProviders(
-                request->nameSpace,
-                className);
-    }
-    catch (CIMException& e)
-    {
-        // Return exception response if exception from getSubClasses
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = e;
-
-        _enqueueResponse(request, response);
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    // If no provider is registered and the repository isn't the default,
-    // return CIM_ERR_NOT_SUPPORTED
-
-    if (_rejectNoProvidersOrRepository(request,providerInfos))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    // We have instances for Providers and possibly repository.
-    // Set up an aggregate object and save a copy of the original request.
-    // NOTE: OperationAggregate released only when operation complete
-
-    OperationAggregate* poA= new OperationAggregate(
-        new CIMExecQueryRequestMessage(*request),
+    bool rtn = handleQueryRequestCommon(request,
+        cimException,
+        enumerationContext,
+        "DMTF:CQL",
         className,
-        request->nameSpace,
-        providerInfos.providerCount,
-        false, false,
-        qx.release(),
-        "WQL");
-
-    // Set the number of expected responses in the OperationAggregate
-    Uint32 numClasses = providerInfos.size();
-
-    // Build enum request for call to repository.
-    AutoPtr<CIMEnumerateInstancesRequestMessage> repRequest(
-        new CIMEnumerateInstancesRequestMessage(
-            request->messageId,
-            request->nameSpace,
-            CIMName(),
-            false,false,false,
-            CIMPropertyList(),
-            request->queueIds,
-            request->authType,
-            request->userName));
-
-    if (_enumerateFromRepository(repRequest.release(), poA, providerInfos))
-    {
-        CIMResponseMessage* response = poA->removeResponse(0);
-
-        _forwardResponseForAggregation(
-            new CIMExecQueryRequestMessage(*request),
-            poA,
-            response);
-    }
-
-    // Loop through providerInfos, forwarding requests to providers
-    while (providerInfos.hasMore(true))
-    {
-        // If this class has a provider
-        ProviderInfo& providerInfo = providerInfos.getNext();
-
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "Routing ExecQuery request for class %s to "
-                "service \"%s\" for control provider \"%s\".  "
-                "Class # %u of %u",
-            CSTRING(providerInfo.className.getString()),
-            lookup(providerInfo.serviceId)->getQueueName(),
-            CSTRING(providerInfo.controlProviderName),
-            providerInfos.getIndex(),
-            numClasses ));
-
-        ProviderIdContainer* providerIdContainer =
-            providerInfo.providerIdContainer.get();
-
-        // if not a provider with Query capability, execute
-        // EnumerateInstances for on the provider.
-        if (providerInfo.hasNoQuery)
-        {
-            OperationContext* context = &request->operationContext;
-            const OperationContext::Container* container = 0;
-            container = &context->get(IdentityContainer::NAME);
-            const IdentityContainer& identityContainer =
-                dynamic_cast<const IdentityContainer&>(*container);
-
-            AutoPtr<CIMEnumerateInstancesRequestMessage> enumReq(
-                new CIMEnumerateInstancesRequestMessage(
-                    request->messageId,
-                    request->nameSpace,
-                    providerInfo.className,
-                    false,false,false,
-                    CIMPropertyList(),
-                    request->queueIds,
-                    request->authType,
-                    identityContainer.getUserName()));
-
-            context = &enumReq->operationContext;
-
-            if (providerIdContainer)
-                context->insert(*providerIdContainer);
-
-            context->insert(identityContainer);
-
-            _forwardRequestForAggregation(
-                providerInfo.serviceId,
-                providerInfo.controlProviderName,
-                enumReq.release(), poA);
-        }
-        else
-        {
-            AutoPtr<CIMExecQueryRequestMessage> requestCopy(
-                new CIMExecQueryRequestMessage(*request));
-
-            OperationContext* context = &request->operationContext;
-
-            if (providerIdContainer)
-                context->insert(*providerIdContainer);
-
-            requestCopy->operationContext = *context;
-            requestCopy->className = providerInfo.className;
-
-            _forwardRequestForAggregation(
-                providerInfo.serviceId,
-                providerInfo.controlProviderName,
-                requestCopy.release(), poA);
-        }
-    } // for all classes and derived classes
+        qx.release());
 
     PEG_METHOD_EXIT();
+    return rtn;
 }
 
 PEGASUS_NAMESPACE_END

@@ -267,6 +267,86 @@ public:
         const CIMObjectPath& reference,
         const String& cimMethodName);
 
+// EXP_PULL_BEGIN
+    CIMOpenEnumerateInstancesRequestMessage*
+        decodeOpenEnumerateInstancesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenReferenceInstancePathsRequestMessage*
+        decodeOpenReferenceInstancePathsRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenAssociatorInstancesRequestMessage*
+        decodeOpenAssociatorInstancesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenAssociatorInstancePathsRequestMessage*
+        decodeOpenAssociatorInstancePathsRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenReferenceInstancesRequestMessage*
+        decodeOpenReferenceInstancesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMOpenEnumerateInstancePathsRequestMessage*
+        decodeOpenEnumerateInstancePathsRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
+
+    CIMPullInstancesWithPathRequestMessage* decodePullInstancesWithPathRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMPullInstancePathsRequestMessage* decodePullInstancePathsRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMPullInstancesRequestMessage* decodePullInstancesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMCloseEnumerationRequestMessage* decodeCloseEnumerationRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMEnumerationCountRequestMessage* decodeEnumerationCountRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+
+    CIMOpenQueryInstancesRequestMessage*  decodeOpenQueryInstancesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
+// EXP_PULL_END
+
     /** Sets the flag to indicate whether or not the CIMServer is
         shutting down.
     */

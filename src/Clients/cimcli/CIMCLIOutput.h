@@ -74,9 +74,11 @@ public:
      * CIMObjectOaths to be displayed. This array may be modified by
      * the output functions, specifically to sort the array if the
      * sort command line option is specified.
+     * @param displayPathComponent bool. If true, displays the
+     * path component.  Default = true
      */
     static void PEGASUS_CLI_LINKAGE displayInstances(Options& opts,
-        Array<CIMInstance>& instances);
+        Array<CIMInstance>& instances, bool displayPathComponent = true);
 
 
     /**

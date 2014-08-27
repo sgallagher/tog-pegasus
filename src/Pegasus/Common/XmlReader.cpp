@@ -1255,6 +1255,206 @@ Boolean XmlReader::getStringValueElement(
     return true;
 }
 
+// EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// getUint32ArgValueElement()
+//
+//     <!ELEMENT VALUE (#PCDATA)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getUint32ArgValueElement(
+    XmlParser& parser,
+    Uint32Arg& val,
+    Boolean required)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    {
+        if (required)
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+                "Expected VALUE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+        return false;
+    }
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    const char* valueString = "";
+
+    if (!empty)
+    {
+        if (testContentOrCData(parser, entry))
+            valueString = entry.text;
+
+        expectEndTag(parser, "VALUE");
+    }
+    else
+    {
+        // create the arg object with the NULL value in it.
+        val = Uint32Arg();
+        return true;
+    }
+
+    //convert to Uint32. Note error if overflow.
+
+    Uint64 x;
+    if (!StringConversion::stringToUnsignedInteger(valueString, x))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.INVALID_UI_VALUE",
+            "Invalid unsigned integer value");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+
+    if (!StringConversion::checkUintBounds(x, CIMTYPE_UINT32))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.U32_VALUE_OUT_OF_RANGE",
+            "Uint32 value out of range");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+    // create the arg object with the value in it.
+    val = Uint32Arg(x);
+
+    return true;
+}
+//------------------------------------------------------------------------------
+//
+// getUint64ValueElement()
+//
+//     <!ELEMENT VALUE (#PCDATA)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getUint64ValueElement(
+    XmlParser& parser,
+    Uint64Arg& val,
+    Boolean required)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    {
+        if (required)
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+                "Expected VALUE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+        return false;
+    }
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    const char* valueString = "";
+
+    if (!empty)
+    {
+        if (testContentOrCData(parser, entry))
+            valueString = entry.text;
+
+        expectEndTag(parser, "VALUE");
+    }
+    else
+    {
+        // create the arg object with the NULL value in it.
+        val = Uint64Arg();
+        return true;
+    }
+
+    Uint64 x;
+
+    if (!StringConversion::stringToUnsignedInteger(valueString, x))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.INVALID_UI_VALUE",
+            "The unsigned integer value is not valid.");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+
+    // create the arg object with the value in it.
+    val = Uint64Arg(x);
+
+    return true;
+}
+
+
+//------------------------------------------------------------------------------
+//
+// getUint32ValueElement()
+//
+//     <!ELEMENT VALUE (#PCDATA)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getUint32ValueElement(
+    XmlParser& parser,
+    Uint32& val,
+    Boolean required)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    {
+        if (required)
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_VALUE_ELEMENT",
+                "Expected VALUE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+        return false;
+    }
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    const char* valueString = "";
+
+    if (!empty)
+    {
+        if (testContentOrCData(parser, entry))
+            valueString = entry.text;
+
+        expectEndTag(parser, "VALUE");
+    }
+    else
+    {
+        // leave the existing value
+        return true;
+    }
+
+    //convert to Uint32. Note error if overflow.
+
+    Uint64 x;
+    if (!StringConversion::stringToUnsignedInteger(valueString, x))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.INVALID_UI_VALUE",
+            "Invalid unsigned integer value");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+
+    if (!StringConversion::checkUintBounds(x, CIMTYPE_UINT32))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.U32_VALUE_OUT_OF_RANGE",
+            "Uint32 value out of range");
+        throw XmlSemanticError(parser.getLine(), mlParms);
+    }
+    // create the arg object with the value in it.
+    val = x;
+
+    return true;
+}
+//EXP_PULL_END
+
 //----------------------------------------------------------------------------
 //
 // getPropertyValue
@@ -3337,6 +3537,54 @@ Boolean XmlReader::getNamedInstanceElement(
     return true;
 }
 
+
+//EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+// getInstanceWithPathElement()
+//
+//     <!ELEMENT VALUE.NAMEDINSTANCE (INSTANCENAME,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getInstanceWithPathElement(
+    XmlParser& parser,
+    CIMInstance& namedInstance)
+{
+    XmlEntry entry;
+    if (!testStartTag(parser, entry, "VALUE.INSTANCEWITHPATH"))
+        return false;
+
+    CIMObjectPath instanceName;
+
+    // Get INSTANCENAME elements:
+    if (!getInstancePathElement(parser, instanceName))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.EXPECTED_INSTANCEPATH_ELEMENT",
+            "expected INSTANCEPATH element");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
+    // Get INSTANCE elements:
+
+    if (!getInstanceElement(parser, namedInstance))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.EXPECTED_INSTANCE_ELEMENT",
+            "expected INSTANCE element");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    // Get VALUE.NAMEDINSTANCE end tag:
+
+    expectEndTag(parser, "VALUE.INSTANCEWITHPATH");
+
+    namedInstance.setPath (instanceName);
+
+    return true;
+}
+
+//EXP_PULL_END
+
 //------------------------------------------------------------------------------
 //
 // getObject()
@@ -3521,6 +3769,67 @@ Boolean XmlReader::getIParamValueTag(
     return true;
 }
 
+//EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// getIParamValueTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getParamValueTag(
+    XmlParser& parser,
+    const char*& name,
+    Boolean& isEmptyTag)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "PARAMVALUE"))
+    {
+
+        return false;
+    }
+
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
+
+    // Get PARAMVALUE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.MISSING_PARAMVALUE_ATTRIBUTE",
+            "Missing PARAMVALUE.NAME attribute");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    return true;
+}
+//------------------------------------------------------------------------------
+//
+// getIReturnValueTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getIReturnValueTag(
+    XmlParser& parser,
+    const char*& name,
+    Boolean& isEmptyTag)
+{
+    XmlEntry entry;
+    if (!testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        return false;
+    //entry.print();
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
+
+    if (!entry.getAttributeValue("NAME", name))
+    {
+        MessageLoaderParms mlParms(
+            "Common.XmlReader.MISSING_IRETURNVALUE_ATTRIBUTE",
+            "Missing IRETURNVALUE.NAME attribute");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    return true;
+}
+
+//EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // rejectNullIParamValue()
@@ -3541,6 +3850,41 @@ void XmlReader::rejectNullIParamValue(
     }
 }
 
+// EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// rejectNullIReturnParamValue()
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::rejectNullIReturnValue(
+    XmlParser& parser,
+    Boolean isEmptyTag,
+    const char* paramName)
+{
+    if (isEmptyTag)
+    {
+        MessageLoaderParms mlParms("Common.XmlReader.INVALID_NULL_IRETURNVALUE",
+            "A null value is not valid for IRETURNVALUE \"$0\".",
+            paramName);
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+}
+
+void XmlReader::rejectNullParamValue(
+    XmlParser& parser,
+    Boolean isEmptyTag,
+    const char* paramName)
+{
+    if (isEmptyTag)
+    {
+        MessageLoaderParms mlParms("Common.XmlReader.INVALID_NULL_PARAMVALUE",
+            "A null value is not valid for PARAMVALUE \"$0\".",
+            paramName);
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+}
+// EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // getBooleanValueElement()

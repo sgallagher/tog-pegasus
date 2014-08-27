@@ -2839,7 +2839,20 @@ en:table {
         */
         Server.CIMOperationRequestDecoder.MISSING_HOST_HEADER:string {"PGS05422: HTTP request message lacks a Host header field."}
 
+        /**
+        * @note  PGS05423:
+        *    Substitution {0} is the name of the missing required parameter(string)
+        */
+        Server.CIMOperationRequestDecoder.REQUIRED_PARAMETER_MISSING:string {"PGS05423: Required parameter \"{$0}\" missing from request."}
 
+
+        Server.CIMOperationRequestDecoder.DUPLICATE_PARAMETER:string {"PGS05424: Duplicated request input parameter."}
+
+        /**
+        * @note  PGS05425:
+        *    Substitution {0} is the name of the invalid parameter(string)
+        */
+        Server.CIMOperationRequestDecoder.INVALID_PARAMETER:string {"PGS05425: Unrecognized or invalid request input parameter \"{$0}\"."}
         // ==========================================================
         // Messages for CIMOperationRequestDispatcher
         //  Please use message prefix "PGS05600"
@@ -2867,7 +2880,71 @@ en:table {
         * @note  PGS05604:
         *    Substitution {0} is the request class
         */
-        Server.CIMOperationRequestDispatcher.REQUEST_CLASS_NOT_SUPPORTED:string {"PGS05604: No provider or Repository defined for class {1}."}
+        Server.CIMOperationRequestDispatcher.REQUEST_CLASS_NOT_SUPPORTED:string {"PGS05604: No provider or Repository defined for class {0}."}
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_TIMED_OUT:string {"PGS05605: Enumeration Context timed out before request received."}
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_CLOSED:string {"PGS05606: Enumeration context closed when request received."}
+
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_UNDEFINED:string {"PGS05607: Enumeration context undefined."}
+
+        /**
+        * @note  PGS05608:
+        *    Substitution {0} is the maximum size allowed (integer)
+        */
+        Server.CIMOperationRequestDispatcher.ENUMERATION_TIMEOUT_TO_LARGE:string {"PGS05608: Operation timeout too large. Maximum allowed: {0}"}
+
+        Server.CIMOperationRequestDispatcher.TIMEOUT_ZERO_NOT_ALLOWED:string {"PGS05609: Operation timeout value of 0 not allowed."}
+
+        /**
+        * @note  PGS05610:
+        *    Substitution {0} is the maxObjectCount supplied (integer)
+        *    Substitution {1} is the system maxObjectCount limit(integer) 
+        */
+        Server.CIMOperationRequestDispatcher.MAXOBJECTCOUNT_OUT_OF_RANGE:string {"PGS05610: Operation maximum mbject count argument {0} too large. Maximum allowed: {1}."}
+
+        Server.CIMOperationRequestDispatcher.CONTINUE_ON_ERROR_NOT_SUPPORTED:string {"PGS05611: ContinueOnError = true argument not supported."}
+
+        Server.CIMOperationRequestDispatcher.INVALID_MODEL_PATH:string {"PGS05612: Full Model Path with keys required."}
+
+        /**
+        * @note  PGS05613:
+        * @version 2.14
+        */
+        Server.CIMOperationRequestDispatcher.PULL_OPERATION_TYPE_ERR:string {"PGS05613: Open and Pull Message types do not match."}
+
+        /**
+        * @note  PGS05614:
+        * @version 2.14
+        */
+        Server.CIMOperationRequestDispatcher.ZERO_LEN_PULL_EXCEEDED_LIMIT:string {"PGS05614: Maximum consecutive zero maxObjectCount pull requests exceeded."}
+
+        /**
+        * @note  PGS05615:
+        * @version 2.14
+        */
+        Server.CIMOperationRequestDispatcher.ENUMERATION_CONTEXT_EXCEEDED_LIMIT:string {"PGS05615: Exceeded maximum number of simultaneous open Enumerations."}
+
+        /**
+        * @note  PGS05616:
+        * @version 2.14
+        *    Substitution {0} is the received namespace (string)
+        *    Substitution {1} is the expected namespace (string) 
+        */
+        Server.CIMOperationRequestDispatcher.PULL_NAMESPACE_ERR:string {"PGS05616: Incorrect namespace ({0}) in pull operation. Expected: {1}."}
+        /**
+        * @note  PGS05617:
+        * @version 2.14
+        */
+
+        Server.CIMOperationRequestDispatcher.MISSING__FILTER_QUERY parameter:string {"PGS05617: filterQueryLanguage parameter without filterQuery parameter."}
+        /**
+        * @note  PGS0568:
+        * @version 2.14
+        */
+
+        Server.CIMOperationRequestDispatcher.MISSING_FILTER_LANG:string {"PGS05618: filterQuery parameter without filterQueryLanguage parameter."}
+
         // ==========================================================
         // Messages for ProviderMessageFacade
         //  Please use message prefix "PGS05800"
@@ -4058,6 +4135,19 @@ en:table {
          *
          */
          Common.XmlReader.TOO_MANY_KEYBINDINGS:string {"PGS09671: More than {0} key-value pairs per object path are not supported."}
+
+        /**
+         * @note  PGS09672:
+         * @version 2.14
+         */
+         Common.XmlReader.MISSING_IRETURNVALUE_ATTRIBUTE:string {"PGS09672: Missing IRETURNVALUE.NAME attribute."}
+
+        /**
+         * @note  PGS09673:
+         * Substitution {0} is a string containing a parameter name
+         * @version 2.14
+         */
+         Common.XmlReader.INVALID_NULL_PARAMVALUE:string {"PGS09673: A null value is not valid for PARAMVALUE \"$0\"."}
 
         // ==========================================================
         // Messages for String
@@ -7675,7 +7765,7 @@ CIM server listening on HTTPS port {0}."}
 
 
         // ==========================================================
-        // Messages for CIMOperationRequestDispatcher
+        // Messages for WQLOperationRequestDispatcher
         //  Please use message prefix "PGS19400 - PGS19599"
         // ==========================================================
 
@@ -8194,6 +8284,12 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate path since it is path of the file
         */
         Handler.FileListenerDestination.FileListenerDestination.FAILED_TO_WRITE_INDICATION_TO_FILE:string {"PGS21600: Failed to write indication to local file ''{0}''."}
+
+        // ==========================================================
+        // Messages for Pull EnumerationContextTable
+        //  Please use message prefix "PGS21700 - PGS21799""
+        // ==========================================================
+        Server.EnumerationContextTable.THREAD_ERROR:string {"PGS21700, Failed to start pull operation timer thread."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

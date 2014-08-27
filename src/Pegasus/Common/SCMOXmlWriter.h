@@ -80,6 +80,13 @@ public:
         const Array<SCMOInstance> & _scmoInstances,
         const CIMPropertyList & propertyList);
 
+    // EXP_PULL_BEGIN
+    static void appendValueSCMOInstanceWithPathElements(
+        Buffer& out,
+        const Array<SCMOInstance> & _scmoInstances,
+        const CIMPropertyList & propertyList);
+    //EXP_PULL_END
+
     static void appendInstanceNameElement(
         Buffer& out,
         const SCMOInstance& scmoInstance);
@@ -107,8 +114,11 @@ public:
 
     static void appendValueReferenceElement(
         Buffer& out,
-        const SCMOInstance& ref,
-        Boolean putValueWrapper);
+        const SCMOInstance& ref);
+
+    static void appendClassOrInstancePathElement(
+        Buffer& out,
+        const SCMOInstance& ref);
 
     static void appendLocalInstancePathElement(
         Buffer& out,
@@ -123,6 +133,13 @@ public:
         const Array<SCMOInstance> & objectWithPath,
         const CIMPropertyList& propertyList);
 
+//EXP_PULL_BEGIN
+    static void appendValueInstanceWithPathElement(
+        Buffer& out,
+        const SCMOInstance& namedInstance,
+        bool filtered,
+        const Array<Uint32> & nodes);
+//EXP_PULL_END
     static void appendValueObjectWithPathElement(
         Buffer& out,
         const SCMOInstance& objectWithPath,

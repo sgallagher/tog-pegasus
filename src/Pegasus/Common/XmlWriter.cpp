@@ -147,14 +147,17 @@ void XmlWriter::appendInstanceNameElement(
     const Array<CIMKeyBinding>& keyBindings = instanceName.getKeyBindings();
     for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
     {
+        // Append KEYBINDING ELEMENT
+        // <!ELEMENT KEYBINDING (KEYVALUE|VALUE.REFERENCE)>
+        //   <!ATTLIST KEYBINDING
         out << STRLIT("<KEYBINDING NAME=\"");
         out << keyBindings[i].getName() << STRLIT("\">\n");
 
         if (keyBindings[i].getType() == CIMKeyBinding::REFERENCE)
         {
             CIMObjectPath ref = keyBindings[i].getValue();
-            // create an instancePath (i.e. isClassPath = false)
-            appendValueReferenceElement(out, ref, false, true);
+            // isClassPath = false
+            appendValueReferenceElement(out, ref, false);
         }
         else
         {
@@ -360,8 +363,8 @@ inline void _xmlWritter_appendValue(Buffer& out, const CIMDateTime& x)
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObjectPath& x)
 {
-    // Emit Instance Path with value wrapper
-    XmlWriter::appendValueReferenceElement(out, x, false, true);
+    // Emit Instance Path with VALUE.REFERENCE wrapper element
+    XmlWriter::appendValueReferenceElement(out, x, false);
 }
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObject& x)
@@ -735,8 +738,8 @@ void XmlWriter::appendValueObjectWithPathElement(
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
-    appendValueReferenceElement(out, objectWithPath.getPath (),
-        isClassObject , false);
+    appendClassOrInstancePathElement(out, objectWithPath.getPath (),
+        isClassObject);
 
     appendObjectElement(
         out,
@@ -748,18 +751,8 @@ void XmlWriter::appendValueObjectWithPathElement(
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
 }
 
-//------------------------------------------------------------------------------
-//
-// appendValueReferenceElement()
-//
-//    <!ELEMENT VALUE.REFERENCE
-//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
-//         INSTANCENAME)>
-//
-//------------------------------------------------------------------------------
-
-// appends INSTANCEPATH | LOCALINSTANCEPATH | INSTANCENAME
-void XmlWriter::appendValueInstancePathElement(
+// Append INSTANCEPATH | LOCALINSTANCEPATH | INSTANCENAME
+void XmlWriter::appendInstancePath(
     Buffer& out,
     const CIMObjectPath& reference)
 {
@@ -778,7 +771,7 @@ void XmlWriter::appendValueInstancePathElement(
 }
 
 // appends CLASSPATH | LOCALCLASSPATH | CLASSNAME
-void XmlWriter::appendValueClassPathElement(
+void XmlWriter::appendClassPath(
     Buffer& out,
     const CIMObjectPath& reference)
 {
@@ -795,32 +788,47 @@ void XmlWriter::appendValueClassPathElement(
         appendClassNameElement(out, reference.getClassName());
     }
 }
-
+//------------------------------------------------------------------------------
+//
+// appendValueReferenceElement()
+//
+//    <!ELEMENT VALUE.REFERENCE
+//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
+//         INSTANCENAME)>
+//
+//------------------------------------------------------------------------------
 // Builds either a classPath or InstancePath based on isClassPath
 // parameter which was carried forward from, for example, the
-// request. If wrapper true, wrap output with <VALUE.REFERENCE>
+// request. The caller must define if this is a class or instance path
 void XmlWriter::appendValueReferenceElement(
     Buffer& out,
     const CIMObjectPath& reference,
-    Boolean isClassPath,
-    Boolean addValueWrapper)
+    Boolean isClassPath)
 {
-    if (addValueWrapper)
-    {
-         out << STRLIT("<VALUE.REFERENCE>\n");
-    }
+    out << STRLIT("<VALUE.REFERENCE>\n");
+
+    appendClassOrInstancePathElement(out, reference, isClassPath);
+
+    out << STRLIT("</VALUE.REFERENCE>\n");
+}
+
+
+// Append either the classPathElement or InstancePathElement depending on
+// the isClassPath input argument.
+//  INSTANCENAME | CLASSNAME
+
+void XmlWriter::appendClassOrInstancePathElement(
+    Buffer& out,
+    const CIMObjectPath& reference,
+    Boolean isClassPath)
+{
     if (isClassPath)
     {
-        appendValueClassPathElement(out,reference);
+        appendClassPath(out,reference);
     }
     else
     {
-        appendValueInstancePathElement(out,reference);
-    }
-
-    if (addValueWrapper)
-    {
-        out << STRLIT("</VALUE.REFERENCE>\n");
+        appendInstancePath(out,reference);
     }
 }
 
@@ -830,7 +838,7 @@ void XmlWriter::printValueReferenceElement(
     PEGASUS_STD(ostream)& os)
 {
     Buffer tmp;
-    appendValueReferenceElement(tmp, reference, isClassPath, true);
+    appendValueReferenceElement(tmp, reference, isClassPath);
     indentedPrint(os, tmp.getData());
 }
 
@@ -862,6 +870,35 @@ void XmlWriter::appendValueNamedInstanceElement(
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
 
+//EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// appendValueInstanceWithPathElement()
+//
+//     <!ELEMENT VALUE.INSTANCEWITHPATH (INSTANCEPATH,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+//
+void XmlWriter::appendValueInstanceWithPathElement(
+    Buffer& out,
+    const CIMInstance& namedInstance,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList)
+{
+    out << STRLIT("<VALUE.INSTANCEWITHPATH>\n");
+
+    appendInstancePathElement(out, namedInstance.getPath ());
+    appendInstanceElement(
+        out,
+        namedInstance,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
+
+    out << STRLIT("</VALUE.INSTANCEWITHPATH>\n");
+}
+//EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // appendClassElement()
@@ -2140,6 +2177,33 @@ void XmlWriter::_appendIParamValueElementEnd(
     out << STRLIT("</IPARAMVALUE>\n");
 }
 
+//EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// _appendParamValueElementBegin()
+// _appendParamValueElementEnd()
+//
+//     <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+//         |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+//         |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+//     <!ATTLIST IPARAMVALUE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::_appendParamValueElementBegin(
+    Buffer& out,
+    const char* name)
+{
+    out << STRLIT("<PARAMVALUE NAME=\"") << name << STRLIT("\">\n");
+}
+
+void XmlWriter::_appendParamValueElementEnd(
+    Buffer& out)
+{
+    out << STRLIT("</PARAMVALUE>\n");
+}
+//EXP_PULL_END
+
 //------------------------------------------------------------------------------
 //
 // _appendSimpleRspElementBegin()
@@ -2341,6 +2405,15 @@ void XmlWriter::_appendIReturnValueElementEnd(
     out << STRLIT("</IRETURNVALUE>\n");
 }
 
+//EXP_PULL_BEGIN
+void XmlWriter::_appendIReturnValueElementWithNameBegin(
+    Buffer& out,
+    const char* name)
+{
+    out << STRLIT("<IRETURNVALUE NAME=\"") << name << STRLIT("\">\n");
+}
+//EXP_PULL_END
+
 //------------------------------------------------------------------------------
 //
 // appendBooleanIParameter()
@@ -2358,6 +2431,88 @@ void XmlWriter::appendBooleanIParameter(
     out << STRLIT("</VALUE>\n");
     _appendIParamValueElementEnd(out);
 }
+
+//EXP_PULL_BEGIN
+void XmlWriter::appendBooleanParameter(
+    Buffer& out,
+    const char* name,
+    Boolean flag)
+{
+    _appendParamValueElementBegin(out, name);
+    out << STRLIT("<VALUE>");
+    append(out, flag);
+    out << STRLIT("</VALUE>\n");
+    _appendParamValueElementEnd(out);
+}
+
+void XmlWriter::appendBooleanIReturnValue(
+    Buffer& out,
+    const char* name,
+    Boolean flag)
+{
+    _appendIReturnValueElementWithNameBegin(out, name);
+    out << STRLIT("<VALUE>");
+    append(out, flag);
+    out << STRLIT("</VALUE>\n");
+    _appendIReturnValueElementEnd(out);
+}
+void XmlWriter::appendUint32IParameter(
+    Buffer& out,
+    const char* name,
+    Uint32 val)
+{
+    _appendIParamValueElementBegin(out, name);
+    out << STRLIT("<VALUE>");
+    append(out, val);
+    out << STRLIT("</VALUE>\n");
+    _appendIParamValueElementEnd(out);
+}
+
+// Can be used to generate either parameters with value,
+// parameters with NULL (i.e. no value element) or
+// no parameters output at all.
+void XmlWriter::appendUint32ArgIParameter(
+    Buffer& out,
+    const char* name,
+    const Uint32Arg& val,
+    const Boolean required)
+{
+    if (!required && val.isNull())
+    {
+        return;
+    }
+
+    _appendIParamValueElementBegin(out, name);
+    if (!val.isNull())
+    {
+        out << STRLIT("<VALUE>");
+        append(out, val.getValue());
+        out << STRLIT("</VALUE>\n");
+    }
+    _appendIParamValueElementEnd(out);
+}
+
+/* Output return value from Uint64Arg object as
+   Value inside IRETURNVALUE
+   If the state of the object is NULL output
+   the parameter without value.  Else
+   output the value
+*/
+void XmlWriter::appendUint64ReturnValue(
+    Buffer& out,
+    const char* name,
+    const Uint64Arg& val)
+{
+    _appendIReturnValueElementBegin(out);
+    out << STRLIT("<VALUE>");
+    if (!val.isNull())
+    {
+        append(out, val.getValue());
+    }
+    out << STRLIT("</VALUE>\n");
+    _appendIReturnValueElementEnd(out);
+}
+//EXP_PULL_END
 
 //------------------------------------------------------------------------------
 //
@@ -2377,6 +2532,60 @@ void XmlWriter::appendStringIParameter(
     _appendIParamValueElementEnd(out);
 }
 
+// EXP_PULL_BEGIN
+//------------------------------------------------------------------------------
+//
+// appendStringIParameterIfNotEmpty()
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendStringIParameterIfNotEmpty(
+    Buffer& out,
+    const char* name,
+    const String& str)
+{
+    if (str != String::EMPTY)
+    {
+        appendStringIParameter(out,name,str);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+// appendStringParameter()
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendStringParameter(
+    Buffer& out,
+    const char* name,
+    const String& str)
+{
+    _appendParamValueElementBegin(out, name);
+    out << STRLIT("<VALUE>");
+    appendSpecial(out, str);
+    out << STRLIT("</VALUE>\n");
+    _appendParamValueElementEnd(out);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendStringIReturnValue()
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendStringIReturnValue(
+    Buffer& out,
+    const char* name,
+    const String& str)
+{
+    _appendIReturnValueElementWithNameBegin(out, name);
+    out << STRLIT("<VALUE>");
+    appendSpecial(out, str);
+    out << STRLIT("</VALUE>\n");
+    _appendIReturnValueElementEnd(out);
+}
+//EXP_PULL_END
 //------------------------------------------------------------------------------
 //
 // appendClassNameIParameter()
@@ -2625,6 +2834,7 @@ Buffer XmlWriter::formatSimpleMethodRspMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguageList& httpContentLanguages,
+    const Buffer& bodyParams,
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
@@ -2746,11 +2956,23 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
 //
 //------------------------------------------------------------------------------
 
+/*
+    Formats a IMethod Response Message.  This function formats
+    messages for chunking based on the isFirst and isLast parameters.
+    If isFirst is set, it outputs headers and ResponseElement begin.
+    It always sends the body.  If isLast is set,  it sends the rtnParams
+    and the ResponseElement end followed by any parameter in the rtnParams.
+    KS_PULL_TBD_TODO - Determine what we want to do with chunking. Since this
+    This whole thing is based on the concept of each message sending a  single
+    chunk and we will want in the future to modify so we can chose easily
+    whether we want to chunk or not and send the chunks.
+*/
 Buffer XmlWriter::formatSimpleIMethodRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguageList& httpContentLanguages,
+    const Buffer& rtnParams,
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
@@ -2787,6 +3009,15 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
     {
         if (body.size() != 0 || isFirst == false)
             _appendIReturnValueElementEnd(out);
+
+        // EXP_PULL_BEGIN
+        // Insert any return parameters.
+        if (rtnParams.size() != 0)
+        {
+            out << rtnParams;
+        }
+        // EXP_PULL_END
+
         _appendIMethodResponseElementEnd(out);
         _appendSimpleRspElementEnd(out);
         _appendMessageElementEnd(out);

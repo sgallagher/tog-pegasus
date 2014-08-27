@@ -32,6 +32,7 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include "CIMBinMsgSerializer.h"
 #include "CIMInternalXmlEncoder.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -39,8 +40,21 @@ void CIMBinMsgSerializer::serialize(
     CIMBuffer& out,
     CIMMessage* cimMessage)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMBinMsgSerializer::serialize");
+
     if (cimMessage == 0)
         return;
+
+    PEG_TRACE((TRC_DISPATCHER,  Tracer::LEVEL4,
+        "Serialize Message id %s type %s binary req %s"
+                       " binary resp %s iscomplete %s internal %s",
+        (const char*)cimMessage->messageId.getCString(),
+        MessageTypeToString(cimMessage->getType()),
+        boolToString(cimMessage->binaryRequest),
+        boolToString(cimMessage->binaryResponse),
+        boolToString(cimMessage->isComplete()),
+        boolToString(cimMessage->internalOperation)
+        ));
 
     // [messageId]
     out.putString(cimMessage->messageId);
@@ -50,6 +64,9 @@ void CIMBinMsgSerializer::serialize(
 
     // [binaryResponse]
     out.putBoolean(cimMessage->binaryResponse);
+
+    // [internalOperation]
+    out.putBoolean(cimMessage->internalOperation);
 
     // [type]
     out.putUint32(Uint32(cimMessage->getType()));
@@ -94,6 +111,8 @@ void CIMBinMsgSerializer::serialize(
     }
     else
         out.putPresent(false);
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMBinMsgSerializer::_putRequestMessage(
@@ -1030,7 +1049,8 @@ void CIMBinMsgSerializer::_putAssociatorsResponseMessage(
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        msg->getResponseData().encodeInternalXmlResponse(out,
+            msg->internalOperation);
     }
 }
 
@@ -1057,7 +1077,8 @@ void CIMBinMsgSerializer::_putReferencesResponseMessage(
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        msg->getResponseData().encodeInternalXmlResponse(out,
+            msg->internalOperation);
     }
 }
 

@@ -333,7 +333,7 @@ Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
         nameSpace,
         className).getInstanceNames();
 
-    // remover name space and host name from object paths to be
+    // remove name space and host name from object paths to be
     // instance names.
     for (Uint32 i = 0, n = p.size(); i < n ; i++)
     {
@@ -542,6 +542,264 @@ CIMValue CIMClient::invokeMethod(
         inParameters,
         outParameters);
 }
+
+// KS_PULL_BEGIN
+Array<CIMInstance> CIMClient::openEnumerateInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+    return _rep->openEnumerateInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        className,
+        deepInheritance,
+        includeClassOrigin,
+        propertyList,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstances();
+}
+
+Array<CIMObjectPath> CIMClient::openEnumerateInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount)
+{
+
+    return _rep->openEnumerateInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        className,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstanceNames();
+}
+
+Array<CIMInstance> CIMClient::openReferenceInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount
+    )
+{
+    return _rep->openReferenceInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        resultClass,
+        role,
+        includeClassOrigin,
+        propertyList,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+Array<CIMObjectPath> CIMClient::openReferenceInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount
+    )
+{
+    return _rep->openReferenceInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        resultClass,
+        role,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstanceNames();
+}
+
+Array<CIMInstance> CIMClient::openAssociatorInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount
+    )
+{
+    return _rep->openAssociatorInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+        includeClassOrigin,
+        propertyList,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+Array<CIMObjectPath> CIMClient::openAssociatorInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    const String& filterQueryLanguage,
+    const String& filterQuery,
+    const Uint32Arg& operationTimeout,
+    Boolean continueOnError,
+    Uint32 maxObjectCount
+    )
+{
+    return _rep->openAssociatorInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+        filterQueryLanguage,
+        filterQuery,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstanceNames();
+}
+
+
+Array<CIMInstance> CIMClient::openQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass,
+        const Uint32Arg& operationTimeout,
+        Boolean continueOnError,
+        Uint32 maxObjectCount)
+{
+    return _rep->openQueryInstances(
+        enumerationContext,
+        endOfSequence,
+        nameSpace,
+        queryLanguage,
+        query,
+        queryResultClass,
+        returnQueryResultClass,
+        operationTimeout,
+        continueOnError,
+        maxObjectCount).getInstances();
+}
+
+Array<CIMInstance> CIMClient::pullInstancesWithPath(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+    return _rep->pullInstancesWithPath(
+        enumerationContext,
+        endOfSequence,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+Array<CIMObjectPath> CIMClient::pullInstancePaths(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+
+    return _rep->pullInstancePaths(
+        enumerationContext,
+        endOfSequence,
+        maxObjectCount).getInstanceNames();
+}
+
+Array<CIMInstance> CIMClient::pullInstances(
+    CIMEnumerationContext& enumerationContext,
+    Boolean& endOfSequence,
+    Uint32 maxObjectCount)
+{
+    return _rep->pullInstances(
+        enumerationContext,
+        endOfSequence,
+        maxObjectCount).getInstancesFromInstancesOrObjects();
+}
+
+void CIMClient::closeEnumeration(
+    CIMEnumerationContext& enumerationContext)
+{
+    return _rep->closeEnumeration(
+        enumerationContext);
+}
+
+Uint64Arg CIMClient::enumerationCount(
+    CIMEnumerationContext& enumerationContext)
+{
+    return _rep->enumerationCount(
+        enumerationContext);
+}
+
+// KS_PULL_END
 
 void CIMClient::registerClientOpPerformanceDataHandler(
     ClientOpPerformanceDataHandler& handler)

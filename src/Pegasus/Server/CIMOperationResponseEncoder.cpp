@@ -60,6 +60,7 @@ CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 {
 }
 
+
 //==============================================================================
 //
 // CIMOperationResponseEncoder::sendResponse()
@@ -106,10 +107,31 @@ CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 //
 //==============================================================================
 
+/* Sent a response with a Buffer containing the body. This is based on
+   sending response body (bodygiven).  This call is used by the non-pull
+   operations.
+*/
+
 void CIMOperationResponseEncoder::sendResponse(
     CIMResponseMessage* response,
     const String& name,
     Boolean isImplicit,
+    Buffer* bodygiven)
+{
+    Buffer bodyParams;
+    sendResponsePull(response, name, isImplicit, &bodyParams, bodygiven);
+}
+
+/*
+    Pull operation version of SendResponse.  This adds one additional
+    parameter (bodyParamsIn) that contains the parameters.  This is because
+    the parameters are added only on the the final segment of a chunk
+*/
+void CIMOperationResponseEncoder::sendResponsePull(
+    CIMResponseMessage* response,
+    const String& name,
+    Boolean isImplicit,
+    Buffer* bodyParams,
     Buffer* bodygiven)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -161,6 +183,8 @@ void CIMOperationResponseEncoder::sendResponse(
     Buffer bodylocal;
     Buffer& body = bodygiven ? *bodygiven : bodylocal;
 
+    Buffer& bodyParamsBuf = bodyParams ? *bodyParams : bodylocal;
+
     // STAT_SERVEREND sets the getTotalServerTime() value in the message class
     STAT_SERVEREND
 
@@ -175,6 +199,7 @@ void CIMOperationResponseEncoder::sendResponse(
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguageList& httpContentLanguages,
+        const Buffer& bodyParams,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst,
@@ -257,6 +282,7 @@ void CIMOperationResponseEncoder::sendResponse(
                 messageId,
                 httpMethod,
                 contentLanguage,
+                bodyParamsBuf,
                 body,
                 serverTime,
                 isFirst,
@@ -265,15 +291,39 @@ void CIMOperationResponseEncoder::sendResponse(
     }
     else
     {
-        message = formatResponse(
-            cimName,
-            messageId,
-            httpMethod,
-            contentLanguage,
-            body,
-            serverTime,
-            isFirst,
-            isLast);
+        // else non-error condition
+        try
+        {
+            message = formatResponse(
+                cimName,
+                messageId,
+                httpMethod,
+                contentLanguage,
+                bodyParamsBuf,
+                body,
+                serverTime,
+                isFirst,
+                isLast);
+        }
+        catch (PEGASUS_STD(bad_alloc)&)
+        {
+            MessageLoaderParms parms(
+                "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
+                "A System error has occurred. Please retry the CIM Operation "
+                    "at a later time.");
+
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                parms);
+
+            cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+
+            // try again with new error and no body
+            body.clear();
+            sendResponse(response, name, isImplicit);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
         STAT_BYTESSENT
     }
@@ -502,7 +552,67 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
             encodeInvokeMethodResponse(
                 (CIMInvokeMethodResponseMessage*)message);
             break;
+//EXP_PULL_BEGIN
+        case CIM_OPEN_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+            encodeOpenEnumerateInstancesResponse(
+                (CIMOpenEnumerateInstancesResponseMessage*)message);
+            break;
 
+        case CIM_OPEN_ENUMERATE_INSTANCE_PATHS_RESPONSE_MESSAGE:
+            encodeOpenEnumerateInstancePathsResponse(
+                (CIMOpenEnumerateInstancePathsResponseMessage*)message);
+            break;
+
+        case CIM_OPEN_REFERENCE_INSTANCES_RESPONSE_MESSAGE:
+            encodeOpenReferenceInstancesResponse(
+                (CIMOpenReferenceInstancesResponseMessage*)message);
+            break;
+
+        case CIM_OPEN_REFERENCE_INSTANCE_PATHS_RESPONSE_MESSAGE:
+            encodeOpenReferenceInstancePathsResponse(
+                (CIMOpenReferenceInstancePathsResponseMessage*)message);
+            break;
+
+        case CIM_OPEN_ASSOCIATOR_INSTANCES_RESPONSE_MESSAGE:
+            encodeOpenAssociatorInstancesResponse(
+                (CIMOpenAssociatorInstancesResponseMessage*)message);
+            break;
+
+        case CIM_OPEN_ASSOCIATOR_INSTANCE_PATHS_RESPONSE_MESSAGE:
+            encodeOpenAssociatorInstancePathsResponse(
+                (CIMOpenAssociatorInstancePathsResponseMessage*)message);
+            break;
+
+        case CIM_PULL_INSTANCE_PATHS_RESPONSE_MESSAGE:
+            encodePullInstancePathsResponse(
+                (CIMPullInstancePathsResponseMessage*)message);
+            break;
+
+        case CIM_PULL_INSTANCES_WITH_PATH_RESPONSE_MESSAGE:
+            encodePullInstancesWithPathResponse(
+                (CIMPullInstancesWithPathResponseMessage*)message);
+            break;
+
+        case CIM_PULL_INSTANCES_RESPONSE_MESSAGE:
+            encodePullInstancesResponse(
+                (CIMPullInstancesResponseMessage*)message);
+            break;
+
+        case CIM_CLOSE_ENUMERATION_RESPONSE_MESSAGE:
+            encodeCloseEnumerationResponse(
+                (CIMCloseEnumerationResponseMessage*)message);
+            break;
+
+        case CIM_ENUMERATION_COUNT_RESPONSE_MESSAGE:
+            encodeEnumerationCountResponse(
+                (CIMEnumerationCountResponseMessage*)message);
+            break;
+
+        case CIM_OPEN_QUERY_INSTANCES_RESPONSE_MESSAGE:
+            encodeOpenQueryInstancesResponse(
+                (CIMOpenQueryInstancesResponseMessage*)message);
+            break;
+//EXP_PULL_END
         default:
             // Unexpected message type
             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
@@ -584,7 +694,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "GetInstance", true, &body);
 }
@@ -602,11 +712,256 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
 
     sendResponse(response, "EnumerateInstances", true, &body);
 }
+
+//EXP_PULL_BEGIN
+/*
+    Apply the EndOfSequence and EnumerationContext parameters to the
+    supplied buffer. These parameters are standard on most open
+    and pull responses.
+    // FUTURE TODO: Since the common response message is
+    // CIMOpenOrPullResponseDataMessage we could change this to just
+    // pass the response message.
+*/
+void _appendOpenOrPullResponseParameters(Buffer& rtnParamBody,
+    Boolean endOfSequence, String& enumerationContext)
+{
+    // Insert EndOfSequence. PerDSP0200 this is required output
+    // parameter
+    XmlWriter::appendBooleanParameter(rtnParamBody, "EndOfSequence",
+        endOfSequence);
+
+    // Insert EnumerationContext parameter. Per DSP0200 this is a required
+    // parameter but may be NULL value if endOfSequence = true
+    XmlWriter::appendStringParameter(rtnParamBody, "EnumerationContext",
+        (endOfSequence? String::EMPTY : enumerationContext) );
+}
+
+void CIMOperationResponseEncoder::encodeOpenEnumerateInstancesResponse(
+    CIMOpenEnumerateInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        // Encode response objects with indication that this is pull
+        // operation.
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "OpenEnumerateInstances",
+        true, &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenEnumerateInstancePathsResponse(
+    CIMOpenEnumerateInstancePathsResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and Enumerationontext
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "OpenEnumerateInstancePaths",
+        true, &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenReferenceInstancesResponse(
+    CIMOpenReferenceInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+
+    sendResponsePull(response, "OpenReferenceInstances", true,
+        &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenReferenceInstancePathsResponse(
+    CIMOpenReferenceInstancePathsResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "OpenReferenceInstancePaths", true,
+        &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenAssociatorInstancesResponse(
+    CIMOpenAssociatorInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "OpenAssociatorInstances", true,
+                     &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenAssociatorInstancePathsResponse(
+    CIMOpenAssociatorInstancePathsResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "OpenAssociatorInstancePaths", true,
+                     &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodePullInstancesWithPathResponse(
+    CIMPullInstancesWithPathResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "PullInstancesWithPath", true,
+                     &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodePullInstancePathsResponse(
+    CIMPullInstancePathsResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body, true);
+
+        // Add return parameters-endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "PullInstancePaths", true, &rtnParamBody,
+                     &body);
+}
+
+void CIMOperationResponseEncoder::encodePullInstancesResponse(
+    CIMPullInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        // encode as pull and also encode only the instance.
+        // if Content type is Object, encode as instance
+        response->getResponseData().encodeXmlResponse(body, true, true);
+
+        // Add return elements, endOfSequence and context
+        _appendOpenOrPullResponseParameters(rtnParamBody,
+            response->endOfSequence, response->enumerationContext);
+    }
+
+    sendResponsePull(response, "PullInstances", true,
+                     &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeCloseEnumerationResponse(
+    CIMCloseEnumerationResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    sendResponsePull(response, "CloseEnumeration", true, &rtnParamBody,
+                     &body);
+}
+
+void CIMOperationResponseEncoder::encodeEnumerationCountResponse(
+    CIMEnumerationCountResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    XmlWriter::appendUint64ReturnValue(rtnParamBody, "Count",
+        response->count);
+
+    sendResponsePull(response, "EnumerationCount", true, &rtnParamBody, &body);
+}
+
+void CIMOperationResponseEncoder::encodeOpenQueryInstancesResponse(
+    CIMOpenQueryInstancesResponseMessage* response)
+{
+    Buffer body;
+    Buffer rtnParamBody;
+
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        // Encode response objects with indication that this is pull
+        // operation and that we encode only the instance
+        // If objectType is object, encode as instance
+        response->getResponseData().encodeXmlResponse(body, true, true);
+    }
+
+    // KS_FUTURE implement the addition of the queryClassResult
+    // Add return elements, endOfSequence and context
+    _appendOpenOrPullResponseParameters(rtnParamBody,
+        response->endOfSequence, response->enumerationContext);
+
+    sendResponsePull(response, "OpenQueryInstances",
+        true, &rtnParamBody, &body);
+}
+//EXP_PULL_END
 
 void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
     CIMEnumerateInstanceNamesResponseMessage* response)
@@ -615,7 +970,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "EnumerateInstanceNames", true, &body);
 }
@@ -680,7 +1035,7 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "ReferenceNames", true, &body);
 }
@@ -691,7 +1046,7 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "References", true, &body);
 }
@@ -702,7 +1057,7 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "AssociatorNames", true, &body);
 }
@@ -713,7 +1068,7 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "Associators", true, &body);
 }
@@ -724,7 +1079,7 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        response->getResponseData().encodeXmlResponse(body, false);
     }
     sendResponse(response, "ExecQuery", true, &body);
 }

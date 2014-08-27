@@ -231,6 +231,41 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     {ID_ShowOptions,             "showOptions",2 ,  "?",
     "Clients.cimcli.CIMCLIClient.?_COMMAND_HELP",
     "Show List of Commands"},
+
+//KS_PULL_BEGIN
+    {ID_PullEnumerateInstances,   "EunumerateInstances with Pull",2, "pei",
+    "Clients.cimcli.CIMCLIClient.PEI_COMMAND_HELP",
+        "Execute EnumerateInstances using the Pull Operations"},
+
+    {ID_PullEnumerateInstancePaths,
+        "EunumerateInstance paths with Pull",2, "pni",
+    "Clients.cimcli.CIMCLIClient.PEIP_COMMAND_HELP",
+        "Execute EnumerateInstances Paths using the Pull Operations"},
+
+    {ID_PullReferenceInstances,   "ReferenceInstances with Pull",2, "pr",
+    "Clients.cimcli.CIMCLIClient.PRI_COMMAND_HELP",
+        "Execute Open and Pull References"},
+
+    {ID_PullReferenceInstancePaths,
+        "ReferencesInstances with Pull",2, "prn",
+    "Clients.cimcli.CIMCLIClient.PRIP_COMMAND_HELP",
+        "Execute Open,Pull ReferenceInstancePaths using the Pull Operations"},
+
+    {ID_PullAssociatorInstances,   "AssociatorInstances with Pull",2, "pa",
+    "Clients.cimcli.CIMCLIClient.PAK_COMMAND_HELP",
+        "Execute Open and Pull Associations"},
+
+    {ID_PullAssociatorInstancePaths,
+        "AssociatorInstance paths with Pull",2, "pan",
+    "Clients.cimcli.CIMCLIClient.PAIP_COMMAND_HELP",
+        "Execute Open,Pull AssociatorInstancePaths using the Pull Operations"},
+
+    {ID_PullQueryInstances,
+        "execQuery with Pull",2, "pxq",
+    "Clients.cimcli.CIMCLIClient.PXQIP_COMMAND_HELP",
+        "Execute query operation using pull Operations\n"
+        "pzq <querylanguage> <query> <pull parameters>"},
+//KS_PULL_END
 };
 
 const Uint32 NUM_OPERATIONS =
@@ -343,7 +378,6 @@ OperationExampleEntry OperationExamples[] = {
         "       TST_Person.name=\"Mike\" using object path input format\n",
     "Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS",
     "    -n\n"},
-
 
     // Create Class Not Supported
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
@@ -525,6 +559,89 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli ?  -- Displays help command\n",
     "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
     "    No options Required"},
+
+//KS_PULL_BEGIN
+    {"Clients.cimcli.CIMCLIClient.PEI_COMMAND_EXAMPLE",
+    "cimcli pei PG_ComputerSystem   -- Pull Enumerate Instances of class\n",
+    "Clients.cimcli.CIMCLIClient.PEI_COMMAND_OPTIONS",
+    "    -n, -di, -lo, -iq, -pl\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PNI_COMMAND_EXAMPLE",
+    "cimcli pni -n test/TestProvider TST_Person\n"
+        "    -- Pull Enumerate Instance Names of class TST_Person\n",
+    "Clients.cimcli.CIMCLIClient.PNI_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PR_COMMAND_EXAMPLE",
+    "cimcli pr TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider"
+        " -rc TST_Lineage\n"
+        "    -- get references for instances association class TST_Lineage\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+    " cimcli pr TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider\n"
+        "    -- get references for all instances of classes\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+        " cimcli pr TST_Person -n test/TestProvider -rc TST_Lineage\n"
+        "    -- get reference classes for TST_Lineage association class and\n"
+        "       subclasses in namespace test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.PR_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -iq, -pl, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PRN_COMMAND_EXAMPLE",
+    "cimcli prn TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider "
+        "-rc TST_Lineage\n"
+        "    -- get referenceNames for instances association class\n"
+        "       TST_Lineage associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+    " cimcli prn TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider\n"
+        "    -- get referenceNames for all instances of classes\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+        " cimcli prn TST_Person -n test/TestProvider -rc TST_Lineage\n"
+        "    -- get referenceNames for Class TST_Lineage in namespace\n"
+        "       test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.PRN_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PA_COMMAND_EXAMPLE",
+    "cimcli pa TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider"
+        "  -ac TST_Lineage\n -rc TST_Person\n"
+        "    -- get associations for instances of association class\n"
+        "       TST_Lineage and result class TST_Person\n"
+        "       associated with instance of TST_person with key\n"
+        "       \"Mike\" in namespace test/TestProvider\n"
+        "or\n"
+        " cimcli pa TST_Person -n test/TestProvider -ac TST_Lineage\n"
+        "    -- get associated classes for all instances of classes\n"
+        "       associated with class TST_person and with\n"
+        "       association class TST_Lineage\n"
+        "or\n"
+        " cimcli pa TST_Person -n test/TestProvider -ac TST_Lineage -i\n"
+        "    -- get associated instances by selecting interactively for\n"
+        "       classes  associated with class TST_person and with\n"
+        "       association class TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.PA_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.PAN_COMMAND_EXAMPLE",
+    "cimcli an TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider "
+        "-ac TST_Lineage\n"
+        "or\n"
+        " cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.PAN_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -i\n"},
+    {"Clients.cimcli.CIMCLIClient.PXQ_COMMAND_EXAMPLE",
+    "cimcli pxq \"select * from CIM_ComputerSystem\"\n"
+        "    -- This command will work when the code is compiled with\n"
+        "       ExecQuery enabled\n",
+    "Clients.cimcli.CIMCLIClient.PXQ_COMMAND_OPTIONS",
+    "    -n, queryLanguage, query, pull parameters\n"},
+//KS_PULL_END
 };
 
 

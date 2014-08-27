@@ -257,7 +257,7 @@ public:
         if (item.serverTimeKnown)
         {
             /* Bypass this because we are getting server times zero
-            KS_TODO There is a server issue returning 0 server time
+            KS_ISSUE There is a server issue returning 0 server time
             This was a test for that issue and we would like to leave
             it documented here until server issue resolved. KS
             if (item.serverTime == 0)
@@ -477,7 +477,7 @@ int main(int argc, char** argv)
             String host;
             HostLocator addr;
 
-            if (opts.location != String::EMPTY)
+            if (opts.location.size() != 0)
             {
                 addr.setHostLocator(opts.location);
                 if (!addr.isValid())
@@ -504,7 +504,7 @@ int main(int argc, char** argv)
             useSSL.append((opts.ssl)? "true" : "false");
 #endif
 
-            if (host != String::EMPTY && addr.isPortSpecified())
+            if (host.size() != 0 && addr.isPortSpecified())
             {
                 portNumber = addr.getPort();
             }
@@ -513,7 +513,7 @@ int main(int argc, char** argv)
             //an empty location option indicates requires using connectLocal()
             //Use localhost, etc. as option to do connect to same machine
             //with connect(...)
-            if (String::equal(host, String::EMPTY))
+            if (host.size() == 0)
             {
                 if (opts.verboseTest)
                 {
@@ -1035,6 +1035,62 @@ int main(int argc, char** argv)
                         opts, false, rtndState);
                     break;
 
+//KS_PULL_BEGIN
+                case (ID_PullEnumerateInstances):
+                    if (!_getClassNameInput(argc, argv, opts, true))
+                        exit(CIMCLI_INPUT_ERR);
+                    opts.termCondition = pullEnumerateInstances(opts);
+                    break;
+
+                case (ID_PullEnumerateInstancePaths):
+                    if (!_getClassNameInput(argc, argv, opts, true))
+                        exit(CIMCLI_INPUT_ERR);
+                    opts.termCondition = pullEnumerateInstancePaths(opts);
+                    break;
+                case (ID_PullReferenceInstances):
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(CIMCLI_INPUT_ERR);
+                    opts.termCondition = pullReferenceInstances(opts);
+                    break;
+
+                case (ID_PullReferenceInstancePaths):
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(CIMCLI_INPUT_ERR);
+                    opts.termCondition = pullReferenceInstancePaths(opts);
+                    break;
+
+                case (ID_PullAssociatorInstances):
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(CIMCLI_INPUT_ERR);
+                    opts.termCondition = pullAssociatorInstances(opts);
+                    break;
+
+                case (ID_PullAssociatorInstancePaths):
+                    if (!_getObjectNameInput(argc, argv, opts, true))
+                        exit(CIMCLI_INPUT_ERR);
+                    opts.termCondition = pullAssociatorInstancePaths(opts);
+                    break;
+                case ID_PullQueryInstances:
+                    if (argc <= 2 && opts.query.size() == 0)
+                    {
+                        cerr << "ERROR: PullQueryInstances requires a query"
+                                "filter definition\n"
+                                "   - supplied directly as a parameter\n"
+                                "   - OR supplied with the -f option\n"
+                                "   The filterLanguage may be supplied\n"
+                                "   - as the second argument\n"
+                                "   - OR as the -ql option\n"
+                              << endl;
+                    }
+                    opts.query = argv[2];
+                    if (argc==4)
+                    {
+                        opts.queryLanguage = argv[3];
+                    }
+                    opts.termCondition = pullQueryInstances(opts);
+                    break;
+
+//KS_PULL_END
                 case (ID_CountInstances):
                     if (_getClassNameInput(argc, argv, opts,  false))
                     {
@@ -1045,6 +1101,7 @@ int main(int argc, char** argv)
                         return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     break;
+
                 case (ID_ClassTree):
                     if (_getClassNameInput(argc, argv, opts,  false))
                     {

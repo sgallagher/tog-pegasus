@@ -113,6 +113,57 @@ void _showValueParameters(const Options& opts)
     cout << endl;
 }
 
+//KS_PULL_BEGIN
+// Map Uint32 to a Pegasus string
+String _toString(Uint32 i)
+{
+    char scratchBuffer[22];
+    Uint32 n;
+    String s = Uint32ToString(scratchBuffer,i,n);
+    return(s);
+}
+
+// display for Uint32 arguments.  Displays the value
+// or NULL
+String _toString(Uint32Arg x)
+{
+    char scratchBuffer[22];
+    Uint32 n;
+    String s = ((x.isNull()?
+        "NULL"
+        :
+        //_toString(x.getValue()) )
+        Uint32ToString(scratchBuffer,x.getValue(),n) )
+        );
+
+    return(s);
+}
+
+/*
+    Test the received response element count against the
+    maximum allowed for this response.
+    @return true if too many
+*/
+Boolean _testRcvTooManyElements(
+    const Uint32Arg& maxObjectCount,
+    Uint32 returnedElementCount, Boolean verbose)
+{
+    if (!maxObjectCount.isNull())
+    {
+        if ((maxObjectCount.getValue() < returnedElementCount) && verbose)
+        {
+             cout << "Error. Operation"
+                    " returned more than requested elements."
+                << " Returned " << returnedElementCount << " elements. "
+                << "maxObjectCount = " << maxObjectCount.getValue() << endl;
+             return(true);
+        }
+    }
+    // We can only return true if we sent Null
+    return(false);
+}
+//KS_PULL_END
+
 // Map the keybinding values from any CIMObjectPath that was input into
 // our standard input form for use by objectBuilder.
 void mapKeyBindingsToInputParameters(Options& opts)
@@ -1107,6 +1158,698 @@ int enumerateInstances(Options& opts)
     return CIMCLI_RTN_CODE_OK;
 }
 
+//KS_PULL_BEGIN
+/************************** Pull Common functions  ***************************/
+
+/*
+    These common functions serve for pulling all of the opened operations.
+    They provide a loop to pull either instances or CIMObjectPaths until one
+    of the following end conditions is met:
+        endOfSequence found
+        maxObjToReceive hit (if maxObjToReceive != 0)
+        Exception or CIMException - Handled outside these functions.
+
+    These functions also execute an inter-pull-operation delay if the
+    pullDelay parameter is set.
+
+    The complete set of instances or paths received is returned.
+    KS_TODO - Keep more detailed statistics on pull, how many received,
+    timing, etc.
+
+*/
+
+/**
+ * _pullInstancesWithPath executes the proper pullInstances function in
+ * a loop to get everything until either endOfSequence received
+ * or the size limit defined on input is received.
+ * @param  instances Array<CIMInstance> pulled
+ * @param  enumerationContext CIMEnumerationContext for this
+ *                            operation
+ * @param withPath Boolean that defines whether the
+ *                 pullInstancesWithPath or pullInstances should
+ *                 be executed.
+ */
+
+int _pullInstancesWithPath(
+    Options& opts,
+    Array<CIMInstance>& instances,
+    CIMEnumerationContext& enumerationContext,
+    Boolean withPath = true)
+{
+    Boolean endOfSequence = false;
+    Uint32 maxPullObj = opts.maxObjectCount;
+    Uint32 maxObjToReceive = opts.maxObjectsToReceive;
+    Boolean rtn = true;
+    Boolean limitSize = (maxObjToReceive == 0)? false: true;
+
+    while (!endOfSequence)
+    {
+        // If max objects limit defined on input, end and return true
+        if (limitSize && (instances.size() >= maxObjToReceive))
+        {
+            if (opts.verboseTest)
+            {
+                cout << "Issuing closeEnumeration after "
+                     << instances.size() << " received because hit"
+                     << " limit of " << limitSize << endl;
+            }
+            opts.client.closeEnumeration(enumerationContext);
+            endOfSequence = true;
+        }
+        else
+        {
+            Uint32 remainder = maxObjToReceive - instances.size();
+            if (limitSize && ((remainder) < maxPullObj))
+            {
+                if (opts.verboseTest)
+                {
+                    cout << "Remainder to request for limit = "
+                         << remainder << endl;
+                }
+                maxPullObj = remainder;
+            }
+            if (opts.pullDelay != 0)
+            {
+                System::sleep(opts.pullDelay);
+            }
+            Array<CIMInstance> cimInstancesPulled;
+            if (withPath)
+            {
+                if (opts.verboseTest)
+                {
+                    cout << "pullInstancesWithPath. maxObj= "
+                         << maxPullObj << endl;
+                }
+                cimInstancesPulled =
+                    opts.client.pullInstancesWithPath(
+                        enumerationContext,
+                        endOfSequence,
+                        maxPullObj);
+            }
+            else
+            {
+                if (opts.verboseTest)
+                {
+                    cout << "pullInstances with path. maxObj= "
+                         << maxPullObj << endl;
+                }
+                cimInstancesPulled =
+                    opts.client.pullInstances(
+                        enumerationContext,
+                        endOfSequence,
+                        maxPullObj);
+            }
+
+            rtn = !_testRcvTooManyElements(maxPullObj,
+                cimInstancesPulled.size(), opts.verboseTest);
+
+            instances.appendArray(cimInstancesPulled);
+        }
+    }
+    return rtn;
+}
+
+
+/*
+    Common function for the loop to pull instance paths until
+    EndOfSequence reached.
+    @return - returns true unless some error occured. Note executing
+    the close does not constitute error.
+*/
+Boolean _pullInstancePaths(
+    Options& opts,
+    Array<CIMObjectPath>& paths,
+    CIMEnumerationContext& enumerationContext)
+{
+    Boolean endOfSequence = false;
+    Uint32 maxPullObj = opts.maxObjectCount;
+    Uint32 maxObjToReceive = opts.maxObjectsToReceive;
+
+    Boolean rtn = true;
+    Boolean limitSize = (maxObjToReceive == 0)? false: true;
+
+    while (!endOfSequence)
+    {
+        // if we have exceeded the input maxObjectsToReceive
+        // close the connection.
+        if (limitSize && (paths.size() >= maxObjToReceive))
+        {
+            opts.client.closeEnumeration(enumerationContext);
+            endOfSequence = true;
+        }
+        else
+        {
+            Uint32 remainder = maxObjToReceive - paths.size();
+            if (limitSize && ((remainder) < maxPullObj))
+            {
+                maxPullObj = remainder;
+            }
+            // if the delay options set, delay between operations by
+            // defined amount
+            if (opts.pullDelay != 0)
+            {
+                System::sleep(opts.pullDelay);
+            }
+            Array<CIMObjectPath> pathsPulled = opts.client.pullInstancePaths(
+                enumerationContext,
+                endOfSequence,
+                maxPullObj);
+
+            rtn = !_testRcvTooManyElements(maxPullObj,
+                pathsPulled.size(), opts.verboseTest);
+
+            paths.appendArray(pathsPulled);
+        }
+    }
+    return rtn;
+}
+
+// Create an output string of the common parameters of the pull operations.
+// This just reduces code generated. Used for display of input element
+// if verbose set.
+String _displayPullCommonParam(Options& opts)
+{
+    String rtn = ", maxObjectCount = ";
+    rtn.append(_toString(opts.maxObjectCount));
+    rtn.append(", operationTimeout = ");
+    rtn.append(", maxObjectsToReceive= ");
+    rtn.append(opts.maxObjectsToReceive);
+    rtn.append(", pullDelay = ");
+    rtn.append(opts.pullDelay);
+    return rtn;
+}
+/************************** PullEnumerateInstances  ***************************/
+/*
+    This action function executes the enumerateInstances
+    client operation. Inputs are the parameters for the CIMCLient call
+*/
+int pullEnumerateInstances(Options& opts)
+{
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
+    {
+        opts.queryLanguage = "";
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullEnumerateInstances "
+            << "Namespace = " << opts.nameSpace
+            << ", Class = " << opts.className.getString()
+            << ", deepInheritance = " << boolToString(opts.deepInheritance)
+            << ", localOnly = " << boolToString(opts.localOnly)
+            << ", includeQualifiers = " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin = "
+                << boolToString(opts.includeClassOrigin)
+            << ", PropertyList = " << opts.propertyList.toString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+
+    Array<CIMInstance> instances;
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    // insure that we do not request more than limit on open
+    if (opts.maxObjectsToReceive != 0)
+    {
+        // if ask for more than max we want, reset max count.
+        if (opts.maxObjectCount > opts.maxObjectsToReceive)
+        {
+            opts.maxObjectCount = opts.maxObjectsToReceive;
+        }
+    }
+
+    CIMEnumerationContext enumerationContext;
+
+    instances = opts.client.openEnumerateInstances(
+        enumerationContext,
+        endOfSequence,
+        opts.nameSpace,
+        opts.className,
+        opts.deepInheritance,
+        opts.includeClassOrigin,
+        opts.propertyList,
+        opts.queryLanguage,
+        opts.query,
+        opts.pullOperationTimeout,
+        opts.continueOnError,
+        opts.maxObjectCount);
+
+    _testRcvTooManyElements(opts.maxObjectCount,
+        instances.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+
+    _stopCommandTimer(opts);
+
+    CIMCLIOutput::displayInstances(opts, instances);
+
+    return(CIMCLI_RTN_CODE_OK);
+}
+
+int pullEnumerateInstancePaths(Options& opts)
+{
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
+    {
+        opts.queryLanguage = "";
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullEnumerateInstances "
+            << "Namespace = " << opts.nameSpace
+            << ", Class = " << opts.className.getString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+
+    Array<CIMObjectPath> paths;
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    // insure that we do not request more than limit on open
+    if (opts.maxObjectsToReceive != 0)
+    {
+        // if ask for more than max we want, reset max count.
+        if (opts.maxObjectCount > opts.maxObjectsToReceive)
+        {
+            opts.maxObjectCount = opts.maxObjectsToReceive;
+        }
+    }
+
+    CIMEnumerationContext enumerationContext;
+    paths = opts.client.openEnumerateInstancePaths( enumerationContext,
+        endOfSequence,
+        opts.nameSpace,
+        opts.className,
+        opts.queryLanguage,
+        opts.query,
+        opts.pullOperationTimeout,
+        opts.continueOnError,
+        opts.maxObjectCount);
+
+    _testRcvTooManyElements(opts.maxObjectCount,
+        paths.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstancePaths(opts, paths, enumerationContext ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+    _stopCommandTimer(opts);
+
+    CIMCLIOutput::displayPaths(opts,paths);
+
+    return(CIMCLI_RTN_CODE_OK);
+}
+
+int pullReferenceInstancePaths(Options& opts)
+{
+        // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
+    {
+        opts.queryLanguage = "";
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullReferenceInstanceNames "
+            << "Namespace= " << opts.nameSpace
+            << ", ObjectPath= " << opts.getTargetObjectNameStr()
+            << ", resultClass= " << opts.resultClass.getString()
+            << ", role= " << opts.role
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+    if (!_conditionalSelectInstance(opts, thisObjectPath))
+    {
+        return(CIMCLI_RTN_CODE_OK);
+    }
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    CIMEnumerationContext enumerationContext;
+    Array<CIMObjectPath> paths =
+        opts.client.openReferenceInstancePaths( enumerationContext,
+                                endOfSequence,
+                                opts.nameSpace,
+                                thisObjectPath,
+                                opts.resultClass,
+                                opts.role,
+                                opts.queryLanguage,
+                                opts.query,
+                                opts.pullOperationTimeout,
+                                opts.continueOnError,
+                                opts.maxObjectCount
+                                );
+    _testRcvTooManyElements(opts.maxObjectCount,
+        paths.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstancePaths(opts, paths, enumerationContext ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+    _stopCommandTimer(opts);
+
+    String s = "pull referenceNames";
+    opts.className = thisObjectPath.getClassName();
+    CIMCLIOutput::displayPaths(opts, paths, s);
+
+    return(CIMCLI_RTN_CODE_OK);}
+
+/*
+  Initiate a OpenReferenceInstances call and pull the instances.
+*/
+int pullReferenceInstances(Options& opts)
+{
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
+    {
+        opts.queryLanguage = "";
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullReferenceInstances "
+            << "Namespace= " << opts.nameSpace
+            << ", Object= " << opts.getTargetObjectNameStr()
+            << ", resultClass= " << opts.resultClass.getString()
+            << ", role= " << opts.role
+            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
+            << ", CIMPropertyList= " << opts.propertyList.toString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+    if (!_conditionalSelectInstance(opts, thisObjectPath))
+        return(0);
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    CIMEnumerationContext enumerationContext;
+
+    Array<CIMInstance> instances;
+
+    instances = opts.client.openReferenceInstances(
+        enumerationContext,
+        endOfSequence,
+        opts.nameSpace,
+        thisObjectPath,
+        opts.resultClass,
+        opts.role,
+        opts.includeClassOrigin,
+        opts.propertyList,
+        opts.queryLanguage,
+        opts.query,
+        opts.pullOperationTimeout,
+        opts.continueOnError,
+        opts.maxObjectCount);
+
+    _testRcvTooManyElements(opts.maxObjectCount,
+        instances.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+    _stopCommandTimer(opts);
+
+    String s = "pull references";
+    //// KS_TBDCIMCLIOutput::displayInstances(opts,instances,s);
+
+    CIMCLIOutput::displayInstances(opts,instances);
+    return(CIMCLI_RTN_CODE_OK);
+}
+
+
+int pullAssociatorInstancePaths(Options& opts)
+{
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
+    {
+        opts.queryLanguage = "";
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullReferenceInstanceNames "
+            << "Namespace= " << opts.nameSpace
+            << ", ObjectPath= " << opts.getTargetObjectNameStr()
+            << ", assocClass= " << opts.assocClass.getString()
+            << ", resultClass= " << opts.resultClass.getString()
+            << ", role= " << opts.role
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+    if (!_conditionalSelectInstance(opts, thisObjectPath))
+        return(0);
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+    String filterQueryLanguage;
+    String filterQuery;
+
+    CIMEnumerationContext enumerationContext;
+    Array<CIMObjectPath> paths =
+        opts.client.openAssociatorInstancePaths( enumerationContext,
+                                endOfSequence,
+                                opts.nameSpace,
+                                thisObjectPath,
+                                opts.assocClass,
+                                opts.resultClass,
+                                opts.role,
+                                opts.resultRole,
+                                filterQueryLanguage,
+                                filterQuery,
+                                opts.pullOperationTimeout,
+                                opts.continueOnError,
+                                opts.maxObjectCount
+                                );
+    _testRcvTooManyElements(opts.maxObjectCount,
+        paths.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstancePaths(opts, paths, enumerationContext ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+    _stopCommandTimer(opts);
+
+    String s = "pull associator names";
+    opts.className = thisObjectPath.getClassName();
+    CIMCLIOutput::displayPaths(opts, paths, s);
+
+    return(CIMCLI_RTN_CODE_OK);
+}
+
+int pullAssociatorInstances(Options& opts)
+{
+    // hide the opts defaultfor WQL query language
+    if ((opts.queryLanguage == "WQL")  && (opts.query == ""))
+    {
+        opts.queryLanguage = "";
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullAssoociatorInstances "
+            << "Namespace= " << opts.nameSpace
+            << ", Object= " << opts.getTargetObjectNameStr()
+            << ", assocClass= " << opts.assocClass.getString()
+            << ", resultClass= " << opts.resultClass.getString()
+            << ", role= " << opts.role
+            << ", resultRole= " << opts.resultRole
+            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
+            << ", CIMPropertyList= " << opts.propertyList.toString()
+            << ", QueryLanguage = " << opts.queryLanguage
+            << ", Query = " << opts.query
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+
+    // do conditional select of instance if params properly set.
+    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+
+    if (!_conditionalSelectInstance(opts, thisObjectPath))
+        return(CIMCLI_RTN_CODE_OK);
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    CIMEnumerationContext enumerationContext;
+
+    Array<CIMInstance> instances;
+    instances = opts.client.openAssociatorInstances(
+        enumerationContext,
+        endOfSequence,
+        opts.nameSpace,
+        thisObjectPath,
+        opts.assocClass,
+        opts.resultClass,
+        opts.role,
+        opts.resultRole,
+        opts.includeClassOrigin,
+        opts.propertyList,
+        opts.queryLanguage,
+        opts.query,
+        opts.pullOperationTimeout,
+        opts.continueOnError,
+        opts.maxObjectCount);
+
+    _testRcvTooManyElements(opts.maxObjectCount,
+        instances.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+    _stopCommandTimer(opts);
+
+    String s = "Pull Associations";
+    /// KS_TBD CIMCLIOutput::displayInstances(opts,instances,s);
+    CIMCLIOutput::displayInstances(opts,instances);
+    return(CIMCLI_RTN_CODE_OK);
+}
+
+int pullQueryInstances(Options& opts)
+{
+    // Currently we do not allow the query return class in OpenPegasus.
+    Boolean returnQueryResultClass = false;
+
+    if (opts.verboseTest)
+    {
+        cout << "OpenQueryInstances "
+            << "Namespace = " << opts.nameSpace
+            << ", queryLanguage = " << opts.queryLanguage
+            << ", query = " << opts.query
+            << ", returnQueryResultClass = "
+            << boolToString(returnQueryResultClass)
+            << _displayPullCommonParam(opts)
+            << endl;
+    }
+
+    if (opts.verboseTest)
+    {
+        cout << "PullQueryInstances "
+            << "Namespace = " << opts.nameSpace
+            << ", queryLanguage = " << opts.queryLanguage
+            << ", query = " << opts.query
+            << endl;
+    }
+
+    Array<CIMInstance> instances;
+
+    _startCommandTimer(opts);
+
+    Boolean endOfSequence = false;
+
+    // insure that we do not request more than limit on open
+    if (opts.maxObjectsToReceive != 0)
+    {
+        // if ask for more than max we want, reset max count.
+        if (opts.maxObjectCount > opts.maxObjectsToReceive)
+        {
+            opts.maxObjectCount = opts.maxObjectsToReceive;
+        }
+    }
+
+    CIMEnumerationContext enumerationContext;
+    CIMClass queryResultClass;
+
+    instances = opts.client.openQueryInstances(
+        enumerationContext,
+        endOfSequence,
+        opts.nameSpace,
+        opts.queryLanguage,
+        opts.query,
+        queryResultClass,
+        returnQueryResultClass,
+        opts.pullOperationTimeout,
+        opts.continueOnError,
+        opts.maxObjectCount);
+
+    _testRcvTooManyElements(opts.maxObjectCount,
+        instances.size(), opts.verboseTest);
+
+    if (!endOfSequence)
+    {
+        // The false argument indicates that we pull instances only, no path
+        if (!_pullInstancesWithPath(opts, instances, enumerationContext, false))
+        {
+            // some error return from the pull loop.
+            cerr << "Pull Loop Returned error" << endl;
+        }
+    }
+
+
+    _stopCommandTimer(opts);
+
+    // The false indicates that we do not display the path component
+    CIMCLIOutput::displayInstances(opts, instances, false);
+
+    return(CIMCLI_RTN_CODE_OK);
+}
+//KS_PULL_END
 
 /************************** executeQuery  ***************************/
 /*

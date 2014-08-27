@@ -50,6 +50,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/UintArgs.h>
 #include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Common/IndicationRouter.h>
 
@@ -72,8 +73,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /*
- * Please DONOT make any ctor of CIMMessage(s) inline as it bloats code
- * Instead define the ctor in CIMMessage.cpp,
+ * Please DO NOT make any constructor of CIMMessage(s) inline as it bloats code
+ * Instead define the constructor in CIMMessage.cpp,
  * Bug 9580 has details
 */
 
@@ -152,7 +153,18 @@ public:
     // Note that a binary response can be sent to an XML request as long
     // as the "Accept" header is "application/x-openpegasus".
     Boolean binaryResponse;
-
+// EXP_PULL_BEGIN
+    // Defines Request Operations that were created internally rather than
+    // from a client.  For version 2.14 that is the internal provider
+    // requests for the Pull Operations (ex. EnumerateInstances when
+    // OpenEnumerateInstances is received). This allows the internal
+    // code (ex. OOP) to discriminate between external operations and
+    // the internal provider operations since there are some behavior
+    // differences (ex. EnumerateInstances paths in response, handling
+    // of statistics). Normally set by CIMOperationRequestDispatcher.
+    // Defaults to false and must be specifically set to true.
+    Boolean internalOperation;
+// EXP_PULL_END
 private:
 
     ThreadType _languageContextThreadId;
@@ -192,6 +204,10 @@ public:
         const QueueIdStack& queueIds_,
         Boolean isAsyncResponsePending=false);
 
+    /* Sync attributes from the request to the response including:
+       Mask, HttpMethod, closeConnect, Response type (binary, xml)
+       Server start time.
+    */
     void syncAttributes(const CIMRequestMessage* request);
 
     QueueIdStack queueIds;
@@ -199,7 +215,6 @@ public:
 
     // This flag indicates if the response will arrive asynchronously.
     Boolean isAsyncResponsePending;
-
 };
 
 //
@@ -755,6 +770,335 @@ public:
     CIMName methodName;
     Array<CIMParamValue> inParameters;
 };
+
+//EXP_PULL_BEGIN
+// Intermediate message in the hiearchy to capture all of the common
+// attributes of the various CIMOpen... messages
+
+class PEGASUS_COMMON_LINKAGE CIMOpenOperationRequestMessage
+    : public CIMOperationRequestMessage
+{
+public:
+    CIMOpenOperationRequestMessage(
+        MessageType type_,
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        Uint32 providerType_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    String filterQueryLanguage;
+    String filterQuery;
+    Uint32Arg operationTimeout;
+    Boolean continueOnError;
+    Uint32 maxObjectCount;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesRequestMessage
+    : public CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenEnumerateInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        const Boolean deepInheritance_,
+        const Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+    virtual CIMResponseMessage* buildResponse() const;
+
+    Boolean deepInheritance;
+    Boolean includeClassOrigin;
+    CIMPropertyList propertyList;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancePathsRequestMessage
+    : public CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenEnumerateInstancePathsRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancesRequestMessage
+    : public CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenReferenceInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& resultClass_,
+        const String& role_,
+        Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMObjectPath objectName;
+    CIMName resultClass;
+    String role;
+    Boolean includeClassOrigin;
+    CIMPropertyList propertyList;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancePathsRequestMessage
+    : public CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenReferenceInstancePathsRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& resultClass_,
+        const String& role_,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMObjectPath objectName;
+    CIMName resultClass;
+    String role;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancesRequestMessage
+    : public CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenAssociatorInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& assocClass_,
+        const CIMName& resultClass_,
+        const String& role_,
+        const String& resultRole_,
+        const Boolean includeClassOrigin_,
+        const CIMPropertyList& propertyList_,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMObjectPath objectName;
+    CIMName assocClass;
+    CIMName resultClass;
+    String role;
+    String resultRole;
+    Boolean includeClassOrigin;
+    CIMPropertyList propertyList;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancePathsRequestMessage
+    : public CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenAssociatorInstancePathsRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMObjectPath& objectName_,
+        const CIMName& assocClass_,
+        const CIMName& resultClass_,
+        const String& role_,
+        const String& resultRole_,
+        const String& filterQueryLanguage_,
+        const String& filterQuery_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMObjectPath objectName;
+    CIMName assocClass;
+    CIMName resultClass;
+    String role;
+    String resultRole;
+};
+
+// Intermediate message in the request class hiearchy to capture the
+// common attributes of CIMPull... messages.  Since all of the input parameters
+// of all of the pull messages are the same. This captures all of the
+// information for the pull request messages except information about the
+// response data type
+class PEGASUS_COMMON_LINKAGE CIMPullOperationRequestMessage
+    : public CIMOperationRequestMessage
+{
+public:
+    CIMPullOperationRequestMessage(
+        MessageType type_,
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    String enumerationContext;
+    Uint32 maxObjectCount;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMPullInstancesWithPathRequestMessage
+    : public CIMPullOperationRequestMessage
+{
+public:
+    CIMPullInstancesWithPathRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMPullInstancePathsRequestMessage
+    : public CIMPullOperationRequestMessage
+{
+public:
+    CIMPullInstancePathsRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+};
+class PEGASUS_COMMON_LINKAGE CIMPullInstancesRequestMessage
+    : public CIMPullOperationRequestMessage
+{
+public:
+    CIMPullInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMCloseEnumerationRequestMessage
+    : public CIMOperationRequestMessage
+{
+public:
+    CIMCloseEnumerationRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    String enumerationContext;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMEnumerationCountRequestMessage
+    : public CIMOperationRequestMessage
+{
+public:
+    CIMEnumerationCountRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& enumerationContext_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    String enumerationContext;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenQueryInstancesRequestMessage
+    : public  CIMOpenOperationRequestMessage
+{
+public:
+    CIMOpenQueryInstancesRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const String& queryLanguage_,
+        const String& query_,
+        Boolean returnQueryResultClass_,
+        const Uint32Arg& operationTimeout_,
+        Boolean continueOnError_,
+        Uint32 maxObjectCount_,
+        const QueueIdStack& queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY);
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    Boolean returnQueryResultClass;
+
+    // WARNING: The queryLanguage and query here are not the same as
+    // for other OpenMessages.  For those a filterQuery like FQL is required
+    // This is a full Query Language (ex. WQL or CQL)
+    String queryLanguage;
+    String query;
+};
+// EXP_PULL_END
 
 class PEGASUS_COMMON_LINKAGE CIMProcessIndicationRequestMessage
     : public CIMRequestMessage
@@ -1425,6 +1769,187 @@ public:
     Array<CIMParamValue> outParameters;
     CIMName methodName;
 };
+
+//EXP_PULL_BEGIN
+// Extend CIMResponseDataMessage for the common elements on open and
+// pull operations. All of the Open and pull response operations
+// return endOfSequence and enumerationContext arguments
+class PEGASUS_COMMON_LINKAGE CIMOpenOrPullResponseDataMessage
+    : public CIMResponseDataMessage
+{
+public:
+    CIMOpenOrPullResponseDataMessage(
+        MessageType type_,
+        const String& messageId_,
+        const CIMException& cimException_,
+         const QueueIdStack& queueIds_,
+        CIMResponseData::ResponseDataContent rspContent_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+
+    Boolean endOfSequence;
+    String enumerationContext;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancesResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMOpenEnumerateInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+};
+
+// All open and pull ResponseData messages derive from CIMPullResponse
+// Data message because the response data is common (CIMResponseData,
+// endOfSequencd, and enumerationContext.
+class PEGASUS_COMMON_LINKAGE CIMOpenEnumerateInstancePathsResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    // Constructor with default endOfSequence and enumeration context optional
+    CIMOpenEnumerateInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+
+    Array<CIMObjectPath> cimInstancePaths;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancesResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMOpenReferenceInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenReferenceInstancePathsResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMOpenReferenceInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancesResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMOpenAssociatorInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenAssociatorInstancePathsResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    // Constructor with defautl endOfSequence and enumerationContext
+    CIMOpenAssociatorInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+};
+
+class PEGASUS_COMMON_LINKAGE CIMPullInstancesWithPathResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMPullInstancesWithPathResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_);
+};
+
+class PEGASUS_COMMON_LINKAGE CIMPullInstancePathsResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMPullInstancePathsResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_);
+};
+
+class PEGASUS_COMMON_LINKAGE CIMPullInstancesResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMPullInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Boolean endOfSequence_,
+        const String& enumerationContext_);
+};
+
+// CIMCloseEnumeration is not a Data message and returns
+// only an acknowledgement
+class PEGASUS_COMMON_LINKAGE CIMCloseEnumerationResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMCloseEnumerationResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_);
+};
+
+// NOTE: This message will be deprecated in the DMTF
+// DSP 0200 V1.5 specification and Pegasus will not implement
+// it any further than the Dispatcher. (KS)
+class PEGASUS_COMMON_LINKAGE CIMEnumerationCountResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMEnumerationCountResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const Uint64Arg& count_ );
+
+    Uint64Arg count;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMOpenQueryInstancesResponseMessage
+    : public CIMOpenOrPullResponseDataMessage
+{
+public:
+    CIMOpenQueryInstancesResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const CIMClass& queryResultClass_,
+        const QueueIdStack& queueIds_,
+        Boolean endOfSequence_ = false,
+        const String& enumerationContext_ = String::EMPTY);
+
+    CIMClass queryResultClass;
+};
+
+//EXP_PULL_END
 
 class PEGASUS_COMMON_LINKAGE CIMProcessIndicationResponseMessage
     : public CIMResponseMessage

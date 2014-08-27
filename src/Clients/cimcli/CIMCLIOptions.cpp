@@ -298,6 +298,26 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP",
         "Measure time for the operation and present results"},
 
+//EXP_PULL_BEGIN
+        {"pullTimeout", "10", false, Option::WHOLE_NUMBER, 0, 0, "pt",
+            "Clients.cimcli.CIMCLIClient.PULLTIMEOUT",
+            "Pull interoperation timeout in seconds. "},
+
+        {"maxObjectCount", "100", false, Option::WHOLE_NUMBER, 0, 0, "mo",
+            "Clients.cimcli.CIMCLIClient.MAXOBJCNT",
+            "Maximum number of objects in a single Pull "},
+
+        {"maxObjectsToReceive", "0", false, Option::WHOLE_NUMBER, 0, 0, "mr",
+        "Clients.cimcli.CIMCLIClient.MAXOBJRCV",
+            "Maximum objects to Receive in a pull sequence. "
+            "Will Close when this number received."},
+
+        {"pullDelay", "0", false, Option::WHOLE_NUMBER, 0, 0, "pullDelay",
+        "Clients.cimcli.CIMCLIClient.PULLDELAY",
+            "Delay in Seconds between pull Operations. "
+            "Default zero, no delay."},
+// EXP_PULL_END
+
         {"sort", "false", false, Option::BOOLEAN, 0, 0, "-sort",
         "Clients.cimcli.CIMCLIClient.SORT_OPTION_HELP",
         "Sort the returned entities for multi-object responses "
@@ -502,6 +522,42 @@ void lookupUint32Option(Options& opts,
     }
 }
 
+//EXP_PULL_BEGIN
+// Lookup a single Uint32 option.  NOTE: The issue here is with detecting
+// whether the option exists or we should use the internal default.
+// Return from the option manager is the defined default which is itself
+// an integer.
+void lookupUint32ArgOption(Options& opts,
+                   OptionManager& om,
+                   const char* optionName,
+                   Uint32Arg& optsTarget,
+                   Uint32 defaultValue,
+                   const char* units = "")
+{
+    // KS_TBD - Expand this to allow the NULL options which is part of
+    // Uint32Arg
+
+    optsTarget.setNullValue();
+    Uint32 temp;
+    if (!om.lookupIntegerValue(optionName, temp))
+    {
+        optsTarget.setValue(0);
+    }
+
+    // KS_TBD - This is temporary until we expand option manager to support
+    // the numeric arg concept.
+    optsTarget.setValue(temp);
+
+    if (opts.verboseTest && opts.debug &&
+        (optsTarget.getValue() != 0 || !optsTarget.isNull() ) )
+    {
+        cout << optionName << " = " << optsTarget.toString()
+        << " " << units
+            << endl;
+    }
+}
+//EXP_PULL_END
+
 // Lookup value only if the option was resolved. Ignores default values.
 Boolean lookupUint32ResolvedOption(Options& opts,
     OptionManager& om,
@@ -672,6 +728,18 @@ Boolean CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         "seconds");
 
     lookupUint32Option(opts, om, "delay", opts.delay, 0, "seconds");
+
+//EXP_PULL_BEGIN
+    // Options to support parameters on pull operations
+    lookupUint32ArgOption(opts, om, "pullTimeout",
+                          opts.pullOperationTimeout, 0, "seconds");
+    lookupUint32Option(opts, om, "maxObjectCount",
+                       opts.maxObjectCount, 0, "max rtn");
+
+    lookupUint32Option(opts, om, "pullDelay", opts.pullDelay, 0, "seconds");
+    lookupUint32Option(opts, om, "maxObjectsToReceive",
+                       opts.maxObjectsToReceive, 0, "seconds");
+//EXP_PULL_END
 
     // Set the interactive request flag based on input
     lookupBooleanOption(opts, om,"interactive", opts.interactive);

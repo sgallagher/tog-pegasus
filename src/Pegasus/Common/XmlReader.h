@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/UintArgs.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -207,6 +208,23 @@ public:
         String& str,
         Boolean required);
 
+// KS_PULL_BEGIN
+    static Boolean getUint32ArgValueElement(
+        XmlParser& parser,
+        Uint32Arg& val,
+        Boolean required);
+
+    static Boolean getUint32ValueElement(
+        XmlParser& parser,
+        Uint32& val,
+        Boolean required);
+
+    static Boolean getUint64ValueElement(
+        XmlParser& parser,
+        Uint64Arg& val,
+        Boolean required);
+//KS_PULL_END
+
     static CIMValue stringArrayToValue(
         Uint32 lineNumber,
         const Array<const char*>& array,
@@ -354,6 +372,12 @@ public:
         XmlParser& parser,
         CIMInstance& namedInstance);
 
+//EXP_PULL_BEGIN
+    static Boolean getInstanceWithPathElement(
+        XmlParser& parser,
+        CIMInstance& namedInstance);
+//EXP_PULL_END
+
     static void getObject(XmlParser& parser, CIMClass& x);
 
     static void getObject(XmlParser& parser, CIMInstance& x);
@@ -379,11 +403,33 @@ public:
         const char*& name,
         Boolean& isEmptyTag);
 
+// EXP_PULL_BEGIN
+
+    static Boolean getParamValueTag(
+        XmlParser& parser,
+        const char*& name,
+        Boolean& isEmptyTag);
+
+    static Boolean getIReturnValueTag(
+        XmlParser& parser,
+        const char*& name,
+        Boolean& isEmptyTag);
+// EXP_PULL_END
     static void rejectNullIParamValue(
         XmlParser& parser,
         Boolean isEmptyTag,
         const char* paramName);
 
+// EXP_PULL_BEGIN
+    static void rejectNullParamValue(
+        XmlParser& parser,
+        Boolean isEmptyTag,
+        const char* paramName);
+    static void rejectNullIReturnValue(
+        XmlParser& parser,
+        Boolean isEmptyTag,
+        const char* paramName);
+// EXP_PULL_END
     static Boolean getPropertyValue(
         XmlParser& parser,
         CIMValue& cimValue);

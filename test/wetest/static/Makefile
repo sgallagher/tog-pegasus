@@ -43,7 +43,9 @@ DIRS = \
 	DeleteInstance\
         Property\
         ExportMessageHeaders \
-        ExportErrorXml
+        ExportErrorXml \
+	OpenEnumerateInstances \
+	OpenEnumerateInstancePaths
 
 # These tests are not re-runnable
 #	ModifyClass\

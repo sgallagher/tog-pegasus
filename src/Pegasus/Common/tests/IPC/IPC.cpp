@@ -29,8 +29,16 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+/*
+    Test of IPC functions including threads, condition variables, and
+    MessageQueue.
+    NOTE: This is a very limited test and not a comprehensive test of
+          any of these functions
+*/
+
 #include <Pegasus/Common/Condition.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <sys/types.h>
 #include <Pegasus/Common/PegasusAssert.h>
@@ -44,6 +52,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#define VCOUT if (verbose) cout
+
 Boolean verbose = false;
 
 // Fibonacci test parameter definition
@@ -55,11 +65,15 @@ public:
         th = NULL;
         cond_start = new Condition();
         mq = NULL;
+        cond_mutex = new Mutex();
+        id = 0;
+        started = 0;
     }
 
     ~parmdef()
     {
         delete cond_start;
+        delete cond_mutex;
     }
 
     int first;
@@ -68,33 +82,61 @@ public:
     Thread * th;
     Condition * cond_start;
     MessageQueue * mq;
+    Mutex * cond_mutex;
+    Uint32 id;
+    Boolean started;
 };
 
+String _addComma(Boolean x)
+{
+    return (x)? String(", ") : String("");
+}
 
 ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
 {
+    // generate local version of parm variables
     Thread* my_thread = (Thread *)parm;
     parmdef * Parm = (parmdef *)my_thread->get_parm();
+
     int first = Parm->first;
     int second = Parm->second;
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
+    Mutex * cond_mutex = Parm->cond_mutex;
+    Uint32 id = Parm->id;
 
+    VCOUT << "Enter fibonacci thread " << id
+          << " first = " << first << " second = " << second
+          << " count = " << count
+          << endl;
+
+    // signal thread started
+    cond_mutex->lock();
+    Parm->started = true;
     condstart->signal();
+    cond_mutex->unlock();
 
     int add_to_type = 0;
     if (count < 20)
         add_to_type = 100;
 
-    for (int i=0; i < count; i++)
+    // Create message for each fibonacci number calculated from first
+    // for count numbers
+    for (int i = 0; i < count; i++)
     {
         int sum = first + second;
         first = second;
         second = sum;
-        Message * message = new Message(i+add_to_type, 0, sum);
+
+        VCOUT << _addComma(count != 0) << first;
+
+        Message * message = new Message(static_cast<MessageType>(
+            (i + add_to_type))
+            , 0, sum);
         mq->enqueue(message);
     }
+    VCOUT << endl;
 
     if (!add_to_type)
         Parm->th->thread_switch();
@@ -112,13 +154,22 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     int first = Parm->first;
     int second = Parm->second;
     int count = Parm->count;
+    VCOUT << first << " " << second << " " << count << endl;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
+    Mutex * cond_mutex = Parm->cond_mutex;
+    Uint32 id = Parm->id;
 
+    VCOUT << "Enter deq %u" << id << endl;
+
+    // Signal that thread started
+    cond_mutex->lock();
+    Parm->started = true;
     condstart->signal();
+    cond_mutex->unlock();
 
     Message * message;
-    type = 0;
+    type = static_cast<MessageType>(0);
 
     while (type != CLOSE_CONNECTION_MESSAGE)
     {
@@ -131,18 +182,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
         type = message->getType();
         delete message;
     }
-
     if (verbose)
     {
-#if defined (PEGASUS_OS_VMS)
-        //
-        // Threads::self returns long-long-unsigned.
-        //
-        printf("Received Cancel Message, %llu about to end\n", Threads::self());
-#else
-        cout << "Received Cancel Message, " << Threads::self() <<
-            " about to end\n";
-#endif
+        cout << "Received Cancel Message. id = "
+              << id << " Ending." << endl;
     }
 
     return ThreadReturnType(0);
@@ -151,42 +194,51 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
 // Test Thread, MessageQueue, and Condition
 int test01()
 {
-    MessageQueue * mq = new MessageQueue("testQueue", true);
+    MessageQueue * mq = new MessageQueue("testQueue");
     parmdef * parm[4];
 
     for (int i = 0; i < 4;i++)
     {
         parm[i] = new parmdef();
         parm[i]->mq = mq;
+        parm[i]->id = i;
     }
 
+    // instrument Parm for 20 Fibonacci numbers starting at 0
     parm[0]->first = 0;
     parm[0]->second = 1;
     parm[0]->count = 20;
 
+    // Instrument Parm for 10 numbers starting at 4
     parm[3]->first = 4;
     parm[3]->second = 6;
     parm[3]->count = 10;
 
-    parm[0]->th = new Thread(fibonacci,parm[0],false);
-    parm[1]->th = new Thread(deq,parm[1],false);
-    parm[2]->th = new Thread(deq,parm[2],false);
-    parm[3]->th = new Thread(fibonacci,parm[3],false);
+    parm[0]->th = new Thread(fibonacci, parm[0], false);
+    parm[1]->th = new Thread(deq, parm[1], false);
+    parm[2]->th = new Thread(deq, parm[2], false);
+    parm[3]->th = new Thread(fibonacci, parm[3], false);
 
+    // Start all 4 threads
     for (int i = 0; i < 4;i++)
     {
-       parm[i]->cond_start->lock_object(Threads::self());
+       //parm[i]->cond_start->wait();
        parm[i]->th->run();
     }
 
-    // Let the thread start and wait for Start Condition to be signaled
+    // Let the threads start and wait for Start Condition to be signaled
+    // on all threads
     for (int i = 0; i < 4;i++)
     {
-        parm[i]->cond_start->unlocked_wait( Threads::self() );
-        parm[i]->cond_start->unlock_object( );
+        parm[i]->cond_mutex->lock();
+        while (parm[i]->started == false)
+        {
+            parm[i]->cond_start->wait(*parm[i]->cond_mutex);
+        }
+        parm[i]->cond_mutex->unlock();
     }
 
-    // all fired up successfully
+    // all started successfully
 
     // Finish the enqueueing tasks
     parm[0]->th->join();
@@ -239,6 +291,8 @@ void test02()
     AtomicInt * atom = new AtomicInt(0);
     Thread* threads[numThreads];
 
+    VCOUT << "Enter test02" << endl;
+
     (*atom)++;
     Boolean zero = atom->decAndTestIfZero();
     PEGASUS_TEST_ASSERT(zero);
@@ -267,19 +321,21 @@ int main(int argc, char** argv)
 {
     verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
-    for (Uint32 loop=0; loop<10; loop++)
+    Uint32 LoopCount = 10;
+
+    for (Uint32 loop = 0; loop < LoopCount; loop++)
     {
         test01();
     }
-    if (verbose)
-        cout << "+++++ passed test 1" << endl;
 
-    for (Uint32 loop=0; loop<10; loop++)
+        VCOUT << "+++++ passed test 1" << endl;
+
+    for (Uint32 loop = 0; loop < LoopCount; loop++)
     {
         test02();
     }
-    if (verbose)
-        cout << "+++++ passed test 2" << endl;
+
+        VCOUT << "+++++ passed test 2" << endl;
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

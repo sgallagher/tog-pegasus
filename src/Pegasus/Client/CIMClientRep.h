@@ -290,6 +290,138 @@ public:
         Array<CIMParamValue>& outParameters
     );
 
+// EXP_PULL_BEGIN
+    virtual CIMResponseData openEnumerateInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean deepInheritance = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String::EMPTY,
+        const String& filterQuery = String::EMPTY,
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+
+    virtual CIMResponseData openEnumerateInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+
+    virtual CIMResponseData openReferenceInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+
+    virtual CIMResponseData openReferenceInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+
+    virtual CIMResponseData openAssociatorInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+
+    virtual CIMResponseData openAssociatorInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY,
+        const String& filterQueryLanguage = String(),
+        const String& filterQuery = String(),
+        const Uint32Arg& operationTimeout = Uint32Arg(),
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+
+    virtual CIMResponseData pullInstancesWithPath(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        Uint32 maxObjectCount
+    );
+
+    virtual CIMResponseData pullInstancePaths(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        Uint32 maxObjectCount
+    );
+
+    virtual CIMResponseData pullInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        Uint32 maxObjectCount
+    );
+
+    virtual void closeEnumeration(
+        CIMEnumerationContext& enumerationContext
+    );
+
+    virtual Uint64Arg enumerationCount(
+        CIMEnumerationContext& enumerationContext
+    );
+
+    virtual CIMResponseData openQueryInstances(
+        CIMEnumerationContext& enumerationContext,
+        Boolean& endOfSequence,
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query,
+        CIMClass& queryResultClass,
+        Boolean returnQueryResultClass = false,
+        const Uint32Arg& operationTimeout = NULL,
+        Boolean continueOnError = false,
+        Uint32 maxObjectCount = 0
+    );
+ //EXP_PULL_END
+
     void registerClientOpPerformanceDataHandler(
         ClientOpPerformanceDataHandler & handler);
 

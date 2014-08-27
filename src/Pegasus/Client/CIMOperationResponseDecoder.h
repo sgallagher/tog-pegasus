@@ -231,6 +231,75 @@ private:
         const String& methodName,
         Boolean isEmptyMethodresponseTag);
 
+// EXP_PULL_BEGIN
+    CIMOpenEnumerateInstancesResponseMessage*
+        _decodeOpenEnumerateInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMOpenEnumerateInstancePathsResponseMessage*
+        _decodeOpenEnumerateInstancePathsResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMOpenReferenceInstancesResponseMessage*
+        _decodeOpenReferenceInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMOpenReferenceInstancePathsResponseMessage*
+        _decodeOpenReferenceInstancePathsResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMOpenAssociatorInstancesResponseMessage*
+        _decodeOpenAssociatorInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMOpenAssociatorInstancePathsResponseMessage*
+        _decodeOpenAssociatorInstancePathsResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMOpenQueryInstancesResponseMessage* _decodeOpenQueryInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMPullInstancesWithPathResponseMessage*
+        _decodePullInstancesWithPathResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMPullInstancePathsResponseMessage* _decodePullInstancePathsResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMPullInstancesResponseMessage* _decodePullInstancesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
+
+    CIMCloseEnumerationResponseMessage* _decodeCloseEnumerationResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
+
+    CIMEnumerationCountResponseMessage* _decodeEnumerationCountResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
+// EXP_PULL END
+
     MessageQueue*        _outputQueue;
 
     MessageQueue*        _encoderQueue;

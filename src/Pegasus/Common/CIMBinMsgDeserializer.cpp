@@ -32,6 +32,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "CIMBinMsgDeserializer.h"
 
@@ -41,6 +42,8 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     CIMBuffer& in,
     size_t size)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMBinMsgDeserializer::deserialize");
+
     if (size == 0)
         return 0;
 
@@ -70,6 +73,10 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     if (!in.getBoolean(binaryResponse))
         return 0;
 
+    Boolean internalOperation;
+
+    if (!in.getBoolean(internalOperation))
+        return 0;
     // [type]
 
     MessageType type;
@@ -151,7 +158,20 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     msg->setComplete(isComplete);
     msg->setIndex(index);
     msg->operationContext = operationContext;
+    msg->internalOperation = internalOperation;
 
+    PEG_TRACE((TRC_DISPATCHER,  Tracer::LEVEL4,
+        "Serialize Message id %s type %s binary req %s"
+                       " binary resp %s iscomplete %s internal %s",
+        (const char*)msg->messageId.getCString(),
+        MessageTypeToString(msg->getType()),
+        boolToString(msg->binaryRequest),
+        boolToString(msg->binaryResponse),
+        boolToString(msg->isComplete()),
+        boolToString(msg->internalOperation)
+        ));
+
+    PEG_METHOD_EXIT();
     return msg;
 }
 
@@ -1708,7 +1728,6 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
             delete(msg);
             return 0;
         }
-
         return msg;
     }
     else
@@ -1718,7 +1737,6 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
             delete(msg);
             return 0;
         }
-
         return msg;
     }
 }

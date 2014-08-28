@@ -418,7 +418,6 @@ bool SCMOStreamer::_getInstances()
 
     // Instance references resolution table
     SCMOResolutionTable *extRefArray = new SCMOResolutionTable[numExtRefs];
-    Uint32 extRefIndex=0;
     if (numExtRefs > 0)
     {
         if(!_buf.getBytes(extRefArray, numExtRefs*sizeof(SCMOResolutionTable)))
@@ -465,28 +464,37 @@ bool SCMOStreamer::_getInstances()
 
         SCMOInstance* scmoInstPtr = new SCMOInstance(scmbInstPtr);
 
-        if (numExtRefs > 0)
-        {
-            // Handle the external references to other SCMOInstances
-            Uint32 numExtRefs = scmoInstPtr->numberExtRef();
-            for (Uint32 i=0; i < numExtRefs; i++)
-            {
-                Uint32 extRefPos = extRefArray[extRefIndex].index;
-                SCMOInstance* extRefPtr = instArray[extRefPos].scmbptr.scmoInst;
-                scmoInstPtr->putExtRef(i,extRefPtr);
-
-                // Mark instance as already consumed
-                instArray[extRefPos].scmbptr.uint64 = 0;
-
-                extRefIndex++;
-            }
-        }
-
         instArray[x].scmbptr.scmoInst = scmoInstPtr;
 
 #ifdef PEGASUS_DEBUG
         _clsResolverTable.append(instArray[x]);
 #endif
+    }
+
+    // resolve all references in all instances
+    if (numExtRefs > 0)
+    {
+        for (Uint32 x = 0; x < numInst; x++)
+        {
+            SCMOInstance* inst = (SCMOInstance*)instArray[x].scmbptr.scmoInst;
+            // resolve all references in this instance
+            for (Uint32 ref = 0; ref < inst->numberExtRef(); ref++)
+            {
+                SCMOInstance* oldPtr = inst->getExtRef(ref);
+                /* find the instance for given reference*/
+                for (Uint32 y = 0; y < numExtRefs; y++)
+                {
+                    if (extRefArray[y].scmbptr.scmoInst == oldPtr) {
+                        Uint64 i = extRefArray[y].index;
+                        SCMOInstance *newPtr = instArray[i].scmbptr.scmoInst;
+                        inst->putExtRef(ref, newPtr);
+                        // consume the instance
+                        instArray[i].scmbptr.uint64 = 0;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // Append all non-referenced instances to output array

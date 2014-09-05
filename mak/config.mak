@@ -242,7 +242,7 @@ endif
 ## NOTE: If the default below is changed, please update the definition
 ## of default for this variable in pegasus/doc/BuildAndReleaseOptions.html
 ifndef PEGASUS_CIM_SCHEMA
-    PEGASUS_CIM_SCHEMA=CIM236
+    PEGASUS_CIM_SCHEMA=CIM241
 endif
 
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)

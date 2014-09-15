@@ -216,6 +216,11 @@ static struct OwnerEntry _properties[] =
     {"minIndicationDeliveryRetryInterval",
         (ConfigPropertyOwner*)&ConfigManager::indicationServiceOwner}
 #endif
+
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    ,{"mapToLocalName",
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner}
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);

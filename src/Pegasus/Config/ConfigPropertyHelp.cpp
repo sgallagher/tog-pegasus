@@ -190,7 +190,8 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "configured using the 'cimauth' command]"},
 
     {"httpAuthType",  "Type of HTTP authentication. Currently = 'basic'\n"
-        "indicating basic authentication"},
+        "indicating basic authentication or 'negotiate' indicating use of\n"
+        "HTPP Negotiate authentication method."},
 
     {"passwordFilePath",  "Path to password file if password file used for\n"
         "user authentication."},
@@ -387,8 +388,11 @@ struct configPropertyDescription configPropertyDescriptionList[] =
 
     {"mimeTypesFile",
         "Refers to the file which holds the mime types being served by the \n"
-        "pegasus webserver "}
+        "pegasus webserver "},
 
+    {"mapToLocalName",  "If 'true', all remote client names are translated to\n"
+            "local ones. This applies only to clients using Negotiate\n"
+            "authentication method."}
 };
 
 const Uint32 configPropertyDescriptionListSize =

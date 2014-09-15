@@ -65,6 +65,10 @@ SOURCES = \
     BasicAuthenticationHandler.cpp \
     AuthenticationManager.cpp
 
+ifeq ($(PEGASUS_NEGOTIATE_AUTHENTICATION),true)
+    SOURCES += NegotiateAuthenticationHandler.cpp
+endif
+
 # Special code calling pam_end in class AuthHandle only required
 # with session based authentication mechanism
 ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)

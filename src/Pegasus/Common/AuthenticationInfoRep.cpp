@@ -52,7 +52,9 @@ AuthenticationInfoRep::AuthenticationInfoRep()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
-
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+      _session.reset(new NegotiateServerSession());
+#endif
     PEG_METHOD_EXIT();
 }
 
@@ -77,7 +79,7 @@ AuthenticationInfoRep::~AuthenticationInfoRep()
             FileSystem::removeFile(_localAuthFilePath);
         }
     }
-       
+
     PEG_METHOD_EXIT();
 }
 

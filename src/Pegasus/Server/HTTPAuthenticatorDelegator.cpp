@@ -1072,9 +1072,20 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 {
                     //ATTN: the number of challenges get sent for a
                     //      request on a connection can be pre-set.
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+                    // Kerberos authentication needs access to the
+                    // AuthenticationInfo object for this session in
+                    // order to set up the reference to the
+                    // CIMKerberosSecurityAssociation object for this
+                    // session.
+
+                    String authResp =
+                        _authenticationManager->getHttpAuthResponseHeader(
+                            httpMessage->authInfo);
+#else
                     String authResp =
                         _authenticationManager->getHttpAuthResponseHeader();
-
+#endif
                     if (authResp.size() > 0)
                     {
                         if (authStatus.doChallenge())
@@ -1427,9 +1438,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     } // isRequestAuthenticated and enableAuthentication check
     else
     {  // client not authenticated; send challenge
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+        String authResp =
+            _authenticationManager->getHttpAuthResponseHeader(
+                httpMessage->authInfo);
+#else
         String authResp =
             _authenticationManager->getHttpAuthResponseHeader();
-
+#endif
         if (authResp.size() > 0)
         {
             if (authStatus.doChallenge())

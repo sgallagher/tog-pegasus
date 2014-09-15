@@ -281,5 +281,10 @@ ifeq ($(OS_TYPE),windows)
     endif
 endif
 
+ifeq ($(PEGASUS_NEGOTIATE_AUTHENTICATION),true)
+    SOURCES += Negotiate.cpp
+endif
+
+
 include $(ROOT)/mak/dynamic-library.mak
 # DO NOT DELETE

@@ -84,6 +84,8 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 {
     ClientTrace::setup();
 
+    _authenticator.setHost(_connectHost);
+
     //
     // Create response decoder:
     //

@@ -40,6 +40,11 @@
 #include <Pegasus/Common/SSLContext.h>
 
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+// TODO: write proper CIMKerberosSecurityAssociation with opaque types
+#include <Pegasus/Common/Negotiate.h>
+#endif //PEGASUS_NEGOTIATE_AUTHENTICATION
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -297,6 +302,14 @@ public:
         return _rep->getIpAddress();
     }
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    /** Get GSSAPI context for this connection. */
+    SharedPtr<NegotiateServerSession> getNegotiateSession()
+    {
+        CheckRep(_rep);
+        return _rep->getNegotiateSession();
+    }
+#endif //PEGASUS_NEGOTIATE_AUTHENTICATION
 
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {

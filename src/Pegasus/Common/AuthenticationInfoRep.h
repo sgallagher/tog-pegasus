@@ -41,6 +41,10 @@
 #include <Pegasus/Common/AuthHandle.h>
 
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+#include <Pegasus/Common/Negotiate.h>
+#endif //PEGASUS_NEGOTIATE_AUTHENTICATION
+
 PEGASUS_NAMESPACE_BEGIN
 
 class AuthenticationInfo;
@@ -135,6 +139,14 @@ public:
         return _ipAddress;
     }
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    /** Get GSSAPI context for this connection. */
+    SharedPtr<NegotiateServerSession> getNegotiateSession()
+    {
+        return _session;
+    }
+#endif //PEGASUS_NEGOTIATE_AUTHENTICATION
+
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {
         return _clientCertificate;
@@ -200,6 +212,10 @@ private:
     Boolean _connectionAuthenticated;
     String  _ipAddress;
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    SharedPtr<NegotiateServerSession> _session;
+#endif //PEGASUS_NEGOTIATE_AUTHENTICATION
+    
     Boolean _wasRemotePrivilegedUserAccessChecked;
 
     Array<SSLCertificateInfo*> _clientCertificate;

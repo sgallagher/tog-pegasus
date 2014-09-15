@@ -1239,6 +1239,24 @@ is defined in the file $(PEGASUS_ROOT)/mak/config.mak.<br>
      dependent on platform support for PAM.<br>
 </ul>
 
+<h5>PEGASUS_NEGOTIATE_AUTHENTICATION</h5>
+<ul>
+  <b>Description:&nbsp;</b>If set to true enables the HTTP Negotiate
+     authentication method,  as described by RFC 4559, both to Pegasus server
+     and client.
+
+     Enabling this option also adds 1) a new option to the runtime
+     configuration variable "httpAuthType" and 2) a new runtime variable
+     "mapToLocalName". <br>
+  <b>Default Value:&nbsp;</b>false<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>false<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>false<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>HTTP Negotiate support requires the GSSAPI
+     development headers and libraries to build OpenPegasus, such as
+     libgssapi_krb5 from MIT Kerberos5 implementation.<br>
+</ul>
+
 <h5>PEGASUS_PLATFORM</h5>
 <ul>
   <b>Description:&nbsp;</b>Describes the target platform for the
@@ -2837,6 +2855,25 @@ configuration properties.</p>
   <b>Considerations:&nbsp;</b><br>
   <b>Source Configuration File:&nbsp;</b>
      Pegsus/Config/LogPropertyOwner.cpp<p>&nbsp;</p>
+</ul>
+
+<h5>mapToLocalName</h5>
+<ul>
+  <b>Description:&nbsp;</b> If 'true', all remote client names are translated
+     to local ones using GSSAPI. This applies only to clients using Negotiate
+     authentication method, i.e. when "httpAuthType" runtime variable is set to
+     "negotiate".<br>
+  <b>Default Value:&nbsp;</b>false<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>
+     false<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>false<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>This option is available only when Pegasus is
+     compiled with PEGASUS_NEGOTIATE_AUTHENTICATION=true.<br>
+  <b>Source Configuration File:&nbsp;</b>
+     Pegasus/Config/SecurityPropertyOwner.cpp<p>&nbsp;</p>
 </ul>
 
 <h5>maxLogFileSizeKBytes</h5>

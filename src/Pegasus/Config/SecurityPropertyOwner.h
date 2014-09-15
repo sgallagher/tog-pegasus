@@ -219,6 +219,9 @@ private:
     AutoPtr<struct ConfigProperty> _enableCFZAPPLID;
 #endif
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    AutoPtr<struct ConfigProperty> _mapToLocalName;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

@@ -96,6 +96,9 @@ static struct ConfigPropertyRow properties[] =
         IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, IS_VISIBLE},
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    {"mapToLocalName", "false", IS_STATIC, IS_VISIBLE},
+#endif
 #else // PEGASUS_OS_PASE
     {"enableAuthentication", "false", IS_STATIC, IS_VISIBLE},
     {"httpAuthType", "Basic", IS_STATIC, IS_VISIBLE},
@@ -134,6 +137,9 @@ static struct ConfigPropertyRow properties[] =
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
 #endif
     {"sslCipherSuite", "DEFAULT", IS_STATIC, IS_VISIBLE}
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    ,{"mapToLocalName", "false", IS_STATIC, IS_VISIBLE},
+#endif
 #endif
 };
 
@@ -165,6 +171,9 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _enableCFZAPPLID.reset(new ConfigProperty());
 #endif
     _cipherSuite.reset(new ConfigProperty());
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    _mapToLocalName.reset(new ConfigProperty());
+#endif
 
 }
 
@@ -373,6 +382,19 @@ void SecurityPropertyOwner::initialize()
                 properties[i].externallyVisible;
         }
 #endif
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+        else if (String::equal(
+                     properties[i].propertyName, "mapToLocalName"))
+        {
+            _mapToLocalName->propertyName = properties[i].propertyName;
+            _mapToLocalName->defaultValue = properties[i].defaultValue;
+            _mapToLocalName->currentValue = properties[i].defaultValue;
+            _mapToLocalName->plannedValue = properties[i].defaultValue;
+            _mapToLocalName->dynamic = properties[i].dynamic;
+            _mapToLocalName->externallyVisible =
+                properties[i].externallyVisible;
+        }
+#endif
         else if (String::equal(
                      properties[i].propertyName, "sslCipherSuite"))
         {
@@ -460,6 +482,12 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equal(_enableCFZAPPLID->propertyName, name))
     {
         return _enableCFZAPPLID.get();
+    }
+#endif
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    else if (String::equal(_mapToLocalName->propertyName, name))
+    {
+        return _mapToLocalName.get();
     }
 #endif
     else if (String::equal(_cipherSuite->propertyName, name))
@@ -594,13 +622,20 @@ Boolean SecurityPropertyOwner::isValid(
 #ifdef PEGASUS_OS_ZOS
         || String::equal(_enableCFZAPPLID->propertyName, name)
 #endif
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+        || String::equal(_mapToLocalName->propertyName, name)
+#endif
         )
     {
         retVal = ConfigManager::isValidBooleanValue(value);
     }
     else if (String::equal(_httpAuthType->propertyName, name))
     {
-        if (String::equal(value, "Basic") || String::equal(value, "Digest"))
+        if (String::equal(value, "Basic") || String::equal(value, "Digest")
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+            || String::equal(value, "Negotiate")
+#endif
+        )
         {
             retVal = true;
         }

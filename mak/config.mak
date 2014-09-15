@@ -1417,6 +1417,26 @@ endif
 
 ##==============================================================================
 ##
+## PEGASUS_NEGOTIATE_AUTHENTICATION
+##
+##==============================================================================
+
+ifndef PEGASUS_NEGOTIATE_AUTHENTICATION
+  PEGASUS_NEGOTIATE_AUTHENTICATION=false
+endif
+
+ifeq ($(PEGASUS_NEGOTIATE_AUTHENTICATION),true)
+    DEFINES += -DPEGASUS_NEGOTIATE_AUTHENTICATION
+    # Link with MIT Kerberos
+    SYS_LIBS += -lgssapi_krb5
+else
+  ifneq ($(PEGASUS_NEGOTIATE_AUTHENTICATION),false)
+    $(error "PEGASUS_NEGOTIATE_AUTHENTICATION must be true or false")
+  endif
+endif
+
+##==============================================================================
+##
 ## PEGASUS_USE_PAM_STANDALONE_PROC
 ##
 ##==============================================================================

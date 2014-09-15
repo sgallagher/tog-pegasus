@@ -43,6 +43,9 @@
 
 #include <Pegasus/Common/AutoPtr.h>
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+#include "NegotiateAuthenticationHandler.h"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -145,7 +148,13 @@ AuthenticationStatus AuthenticationManager::performHttpAuthentication(
     {
         authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
     }
-
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    else if ( String::equalNoCase(authType, "Negotiate") &&
+              String::equal(_httpAuthType, "Negotiate") )
+    {
+        authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
+    }
+#endif
     // FUTURE: Add code to check for "Digest" when digest
     // authentication is implemented.
 
@@ -263,13 +272,22 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
 //
 // Get HTTP authentication response header
 //
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+String AuthenticationManager::getHttpAuthResponseHeader(
+    AuthenticationInfo* authInfo)
+#else
 String AuthenticationManager::getHttpAuthResponseHeader()
+#endif
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "AuthenticationManager::getHttpAuthResponseHeader()");
 
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    String respHeader = _httpAuthHandler->getAuthResponseHeader(
+        String::EMPTY, String::EMPTY, authInfo);
+#else
     String respHeader = _httpAuthHandler->getAuthResponseHeader();
-
+#endif
     PEG_METHOD_EXIT();
     return respHeader;
 }
@@ -313,7 +331,12 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     {
         handler.reset((Authenticator* ) new BasicAuthenticationHandler( ));
     }
-
+#ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
+    if ( String::equal(_httpAuthType, "Negotiate") )
+    {
+        handler.reset((Authenticator* ) new NegotiateAuthenticationHandler( ));
+    }
+#endif
     // FUTURE: uncomment these line when Digest authentication
     // is implemented.
     //

@@ -466,6 +466,8 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
             }
 
             headerStart++;
+            int remainingSize = httpMessage->message.size() -
+                (headerStart - (char *) messageStart);
 
             // Build a new message with the original start line, the new
             // authorization header, and the original headers and content.
@@ -473,7 +475,7 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
             Buffer newMessageBuffer;
             newMessageBuffer << messageStart << HTTP_CRLF;
             newMessageBuffer << authHeader << HTTP_CRLF;
-            newMessageBuffer << headerStart;
+            newMessageBuffer.append(headerStart, remainingSize);
 
             HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
             delete httpMessage;

@@ -64,12 +64,7 @@ static const char* commonOptions = "    -count, -d, -delay, -p, -l, -u, -o, -x,\
 /*
     This function loads the message from resourcebundle using the key passed
 */
-String loadMessage(const char* key, const char* defMessage)
-{
-    MessageLoaderParms parms(key, defMessage);
-    parms.msg_src_path = MSG_PATH;
-    return MessageLoader::getMessage(parms);
-}
+
 
 void showExamples()
 {

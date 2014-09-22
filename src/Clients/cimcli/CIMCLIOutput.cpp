@@ -343,7 +343,6 @@ void mofFormat(PEGASUS_STD(ostream)& os,
     const char* text,
     Uint32 indentSize)
 {
-
     // Copy to avoid changes to input text.
     char* var = new char[strlen(text)+1];
     char* tmp = strcpy(var, text);
@@ -357,7 +356,6 @@ void mofFormat(PEGASUS_STD(ostream)& os,
     char prevchar = 0;
 
     // The following line displays the input MOF. Diagnostic tool
-    ///////// Compile only if debugging this function cout << tmp << endl;
 
     // This simplistic and must move to formatting in the
     // MofWriter.  This operation indents based on characters in
@@ -502,7 +500,6 @@ void mofFormat(PEGASUS_STD(ostream)& os,
         prevchar = c;
     }
     delete [] var;
-
 }
 
 /*************************************************************
@@ -529,7 +526,9 @@ static void _print(const CIMProperty& property,
     }
     else
     {
-        cout << " Format type error" << endl;
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR",
+            "ERROR: Format option definition error."));
     }
 }
 
@@ -741,39 +740,56 @@ static void _outputFormatInstance(Options& opts,
         mofFormat(cout, x.getData(), 4);
     }
     else
-        cerr << "Error, Format Definition Error" << endl;
+    {
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR",
+            "ERROR: Format option definition error."));
+    }
 }
 
 static void _outputFormatClass(Options& opts,
     const CIMClass& myClass)
 {
-    if (opts.outputType == OUTPUT_XML)
+    switch (opts.outputType)
     {
-        XmlWriter::printClassElement(myClass, cout);
-    }
-
-    else if (opts.outputType == OUTPUT_MOF || opts.outputType == OUTPUT_TEXT)
-    {
-        // Reset the propagated flag to assure that these entities
-        // are all shown in the MOF output.
-
-        CIMClass temp = myClass.clone();
-        for (Uint32 i = 0 ; i < temp.getPropertyCount() ; i++)
+        case OUTPUT_XML:
         {
-            CIMProperty p = temp.getProperty(i);
-            p.setPropagated(false);
+            XmlWriter::printClassElement(myClass, cout);
+            break;
         }
-        for (Uint32 i = 0 ; i < temp.getMethodCount() ; i++)
+        case OUTPUT_MOF:
+        case OUTPUT_TEXT:
         {
-            CIMMethod m = temp.getMethod(i);
-            m.setPropagated(false);
+            // Reset the propagated flag to assure that these entities
+            // are all shown in the MOF output.
+
+            CIMClass temp = myClass.clone();
+            for (Uint32 i = 0 ; i < temp.getPropertyCount() ; i++)
+            {
+                CIMProperty p = temp.getProperty(i);
+                p.setPropagated(false);
+            }
+            for (Uint32 i = 0 ; i < temp.getMethodCount() ; i++)
+            {
+                CIMMethod m = temp.getMethod(i);
+                m.setPropagated(false);
+            }
+            Buffer x;
+            MofWriter::appendClassElement(x, temp);
+            mofFormat(cout, x.getData(), 4);
+            break;
         }
-        Buffer x;
-        MofWriter::appendClassElement(x, temp);
-        mofFormat(cout, x.getData(), 4);
+        default:
+            {
+                cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR",
+                "ERROR: Format option definition error."));
+                //#N
+                //#P
+                //#T FORMAT_OP_ERR
+                //#S ERROR: Format option definition error.
+            }
     }
-    else
-        cerr << "Error, Format Definition Error" << endl;
 }
 
 static void _outputFormatObject(Options& opts,
@@ -791,6 +807,7 @@ static void _outputFormatObject(Options& opts,
     }
     else
     {
+        // Code design error. Should never occur
         cerr << "Error: Output Object is neither class or instance" << endl;
     }
 }
@@ -878,10 +895,17 @@ static void _outputFormatParamValue(Options& opts,
 
         }
         else
+        {
             cerr << "ParamValue not initialized" << endl;
+        }
     }   // not defined format
     else
-        cerr << "Error, Format Definition Error" << endl;
+    {
+        // Duplicate so no international definition here
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR",
+            "ERROR: Format option definition error."));
+    }
 }
 
 static void _outputFormatQualifierDecl(const Options& opts,
@@ -899,7 +923,10 @@ static void _outputFormatQualifierDecl(const Options& opts,
     }
     else
     {
-        cerr << "Error: Format type error" << endl;
+        // Duplicate so no international definition here
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR",
+            "ERROR: Format option definition error."));
     }
 }
 
@@ -918,7 +945,10 @@ static void _outputFormatCIMValue(Options& opts,
     }
     else
     {
-        cerr << "Error: Format type error" << endl;
+        // Duplicated msg so no international definition here
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR",
+            "ERROR: Format option definition error."));
     }
 }
 
@@ -933,8 +963,17 @@ static void _displayOperationSummary(
 {
     if (count != 0)
     {
-        cout << count << " " << description
-            << " " << item << " returned.";
+        cimcliMsg::msg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.SUMMARY_COUNT",
+            "$0 $1 $2 returned.",
+            count, description, item));
+        //#N substitution {0} numeric counter
+        //#N substitution {1} string defining type of data
+        //#N substitution {2} string containing a class name
+        //#N @version 2.14
+        //#P 10
+        //#T SUMMARY_COUNT
+        //#S Count {0} {1} {2} returned.
 
         if (opts.repeat > 0)
         {
@@ -961,10 +1000,20 @@ void CIMCLIOutput::testReturnCount(Options& opts,
 {
     if (opts.executeCountTest && (opts.expectedCount != rcvdCount))
     {
-        cerr << "Failed "
-             << description
-             << " count test. Expected= " << opts.expectedCount
-             << " Received= " << rcvdCount << endl;
+        // KS_FUTURE could this be just the cimcliMsg::exit. Does
+        // that set the termCondition?
+        cimcliMsg::errmsg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.SUMMARY_COUNT_ERR",
+            "Failed $0 count test."
+            " Expected $1. Received $2.",
+            description, opts.expectedCount, rcvdCount));
+        //#N substitution {0} text not to be translated
+        //#N substitution {1} numeric value
+        //#N substitution {2} numeric value
+        //#N @version 2.14
+        //#P 11
+        //#T SUMMARY_COUNT_ERR
+        //#S Failed {0} count test. Expected {1}. Received {2}.
 
         opts.termCondition = CIMCLI_RTN_COUNT_TEST_FAILED;
 
@@ -1026,6 +1075,7 @@ void CIMCLIOutput::displayInstances(Options& opts,
     Array<CIMInstance>& instances,
     bool displayPathComponent)
 {
+    // KS_TODO internationalize
     String description = "instances of class";
     if (opts.summary)
     {
@@ -1085,7 +1135,8 @@ void CIMCLIOutput::displayPaths(Options& opts,
     if (opts.summary)
     {
         _displayOperationSummary(opts, paths.size(), description,
-                               opts.className.getString());
+            opts.className.getString());
+
     }
     else
     {
@@ -1177,7 +1228,6 @@ void CIMCLIOutput::displayClassNames(Options& opts,
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
             displayClassName(opts, classNames[i]);
-            //cout << classNames[i].getString() << endl;
         }
     }
     testReturnCount(opts, classNames.size(), description);
@@ -1211,7 +1261,7 @@ void CIMCLIOutput::displayNamespaceNames(Options& opts,
 {
     if (opts.summary)
     {
-        cout << ns.size() << " namespaces " << " returned."
+        cout << ns.size() << " namespaces "
             << endl;
     }
     else
@@ -1290,7 +1340,7 @@ void CIMCLIOutput::displayQualDecls(Options& opts,
 {
     if (opts.summary)
     {
-        cout << qualifierDecls.size() << " returned." << endl;
+        cout << qualifierDecls.size() << endl;
     }
     else
     {

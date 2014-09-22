@@ -301,7 +301,7 @@ int main(int argc, char** argv)
 {
     //****** Show the args diagnostic display *******
     // This is developer tool to sort out issues of incoming parameters
-    // Activated by making the last argument the keyword "displaycliargs".
+    // Activated by making the last argument the keyword "_displaycliargs_".
     // It displays all args and then eliminates argv[argc] so the proces
     // can continue normally.
     if (strcmp(argv[argc - 1],"displaycliargs") == 0)
@@ -388,23 +388,41 @@ int main(int argc, char** argv)
     }
     catch(CIMException& e)
     {
-        cerr << CIMCLI << " Caught CIMException during init: "
-             << "\n" << e.getMessage()
-             << endl;
+        cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.INIT_CIMEXCEPT_ERR",
+                "CIMException during initialization.\n $0.",
+                e.getMessage()));
+        //#N substitution {0} is a string with the exception message
+        //#N @version 2.14
+        //#P 60
+        //#T INIT_CIMEXCEPT_ERR
+        //#S CIMException during initialization.\n {0}.
+
+
         showUsage();
         return cimcliExitRtn(e.getCode());
     }
 
     catch (Exception& e)
     {
-        cerr << CIMCLI << ": Caught Exception during init. "
-             << e.getMessage() << endl;
+        cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.INIT_EXCEPT_ERR",
+                "Exception during initialization.\n $0.",
+                e.getMessage()));
+
+//#N substitution {0} is a string with the exception message
+//#T INIT_EXCEPT_ERR
+//#S Exception during initialization.\n {0}.
         showUsage();
         return cimcliExitRtn(CIMCLI_RTN_CODE_PEGASUS_EXCEPTION);
     }
     catch(...)
     {
-        cerr << CIMCLI << " Caught General Exception During Init:" << endl;
+        cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.INIT_GENEXCEPT_ERR",
+                "General Exception during initialization."));
+        //#T INIT_GENEXCEPT_ERR
+        //#S General Exception during initialization.
         showUsage();
         return cimcliExitRtn(GENERAL_CLI_ERROR_CODE);
     }
@@ -417,9 +435,16 @@ int main(int argc, char** argv)
     }
     else
     {
-        cerr << "Error: Command name or shortcut must be first parameter."
-            << " \n  ex. " << CIMCLI << " enumerateclasses or "
-            << CIMCLI << " ec\n" << endl;
+        cimcliMsg::errmsg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.OPMISSING_ERR",
+            "ERROR: Command name or shortcut must be first parameter."
+            " \n  ex. $0 enumerateclasses or \n    $0 ec."));
+        //#N Substitution {0} is name of the executable
+        //#N @version 2.14
+        //#P 61
+        //#T OPMISSING_ERR
+        //#S ERROR: Command name or shortcut must be first parameter.
+        //#S \n  ex. {0} enumerateclasses or \n {0} ec.
 
         showUsage();
 
@@ -444,7 +469,7 @@ int main(int argc, char** argv)
 
     if (opts.verboseTest && opts.debug)
     {
-        cout << "Command = " << opts.cimCmd << endl;
+        cout << "Operation = " << opts.cimCmd << endl;
     }
 
     // Find the command or the shortcut name input.
@@ -453,12 +478,24 @@ int main(int argc, char** argv)
 
     if (!thisOperation.find(opts.cimCmd))
     {
-        cerr << "Error: Invalid cimcli operation name. "
-                "Operation name must be first parmeter"
+        cimcliMsg::errmsg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.INVALID_OP_NAME_ERR",
+            "Error: Invalid cimcli operation name $0. "
+                "Operation name must be first parameter"
                 " or --c parameter."
-            << " \n  ex. cli enumerateclasses\n"
-            << "Enter " << CIMCLI << " -h for help."
-            << endl;
+                " \n  ex. cli enumerateclasses\n"
+                "Enter $1 -h for help.",
+            opts.cimCmd, CIMCLI));
+        //#N substitution {0} is a string with invalid name
+        //#N substitution {1} name of executable
+        //#N @version 2.14
+        //#P 62
+        //#T INVALID_OP_NAME_ERR
+        //#S Error: Invalid cimcli operation name {0}.
+        //#S Operation name must be first parmeter or --c parameter.
+        //#S .ex. cli enumerateclasses.
+        //#S Enter {1} -h for help.
+
         return cimcliExitRtn(GENERAL_CLI_ERROR_CODE);
     }
 
@@ -551,29 +588,53 @@ int main(int argc, char** argv)
                         (opts.clientCert.size() != 0
                             && opts.clientKey.size() == 0))
                     {
-                        cerr << "WARNING: Both client key and path required."
-                             << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.KEYPATH_ERR",
+                            "WARNING: Both client key and path required."));
+                        //#T KEYPATH_ERR
+                        //#S WARNING: Both client key and path required.
                     }
                     if ((opts.clientKey.size() != 0) &&
                         !_testFileExists(opts.clientKey))
                     {
-                        cerr << "WARNING: Key File " << opts.clientKey
-                             << " does not exist" << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.KEY_ERR",
+                            "WARNING: Key File $0 does not exist.",
+                            opts.clientKey));
+                        //#N Substitution {0} is a file name
+                        //#N @version 2.14
+                        //#P 64
+                        //#T KEY_ERR
+                        //#S WARNING: Key File {0} does not exist.
                     }
 
                     if ((opts.clientCert.size() != 0) &&
                         !_testFileExists(opts.clientCert))
                     {
-                        cerr << "WARNING: Certificate File " << opts.clientCert
-                             << " does not exist" << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.CERT_ERR",
+                            "WARNING: Certificate File $0 does not exist.",
+                            opts.clientCert));
+                        //#N Substitution {0} is a file name
+                        //#N @version 2.14
+                        //#P 65
+                        //#T CERT_ERR
+                        //#S WARNING: Certificate File {0} does not exist.
                     }
 
                     if ((opts.clientTruststore.size() != 0) &&
                         !_testFileExists(opts.clientTruststore))
                     {
-                        cerr << "WARNING: Directory/file "
-                             << opts.clientTruststore
-                             << " does not exist." << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.TRUSTFILE_ERR",
+                            "WARNING: Truststore directory/file $0 does"
+                            " not exist."));
+                        //#N Substitution {0} is a file name
+                        //#N @version 2.14
+                        //#P 66
+                        //#T TRUSTFILE_ERR
+                        //#S WARNING: Truststore directory/file {0} does
+                        //#S not exist.
                     }
 
                     if(opts.clientCert.size() != 0
@@ -652,8 +713,16 @@ int main(int argc, char** argv)
                        || (opts.clientKey.size() != 0)
                        || (opts.clientTruststore.size() != 0))
                     {
-                        cerr << "WARNING: --key,--cert, or --truststore "
-                             "parameters input  but not used." << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.SSL_NOT_USED_ERR",
+                            "WARNING: --key,--cert, or --truststore "
+                             "parameters input  but not used."));
+                        //#N Substitution {0} is a file name
+                        //#N @version 2.14
+                        //#P 67
+                        //#T SSL_NOT_USED_ERR
+                        //#S WARNING: --key,--cert, or --truststore
+                        //#S parameters input  but not used.
                     }
                     // Connect to server only with name and password.
                     opts.client.connect(host, portNumber, opts.user,
@@ -668,8 +737,16 @@ int main(int argc, char** argv)
     }
     catch(Exception &e)
     {
-        cerr << "Pegasus Exception: " << e.getMessage() <<
-              " Trying to connect to " << opts.location << endl;
+        cimcliMsg::errmsg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.CONNECT_EXCEPTION_ERR",
+            "Pegasus Exception: $0 trying to connect to $1",
+                e.getMessage(), opts.location ));
+        //#N Substitution {0} is an exception message Text
+        //#N substitution {1} is host name or IP address
+        //#N @version 2.14
+        //#P 68
+        //#T CONNECT_EXCEPTION_ERR
+        //#S Pegasus Exception: {0} trying to connect to {1}.
         return cimcliExitRtn(CIMCLI_CONNECTION_FAILED);
     }
 
@@ -825,10 +902,24 @@ int main(int argc, char** argv)
                 case ID_GetProperty :
                     if (argc < 4)
                     {
-                        cout << "Usage: cli getproperty <instancename>"
-                            "<propertyname> or"
-                            " cli getproperty <classname>"
-                            " <propertyname> <keypropert=value>*" << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.GETPROP_ERR",
+                            "Usage: $0 getproperty <instancename>"
+                                        "<propertyname> or"
+                                        " $0 getproperty <classname> "
+                                        "<propertyname> <keypropery=value>*.",
+                            CIMCLI));
+        //#N Substitution {0} is the name of the executable
+        //#N getproperty is keyword.  Do not translate
+        //#N classname keyproperty instancename propertyname are words
+        //#N representing particular input (ex. property name
+        //#N is the name of a property.
+        //#N @version 2.14
+        //#P 69
+        //#T GETPROP_ERR
+        //#S Usage: {0} getproperty <instancename> <propertyname> or
+        //#S {0} getproperty <classname> <propertyname> <keyproperty=value>*.
+
                         return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
 
@@ -851,10 +942,25 @@ int main(int argc, char** argv)
                 case ID_SetProperty :
                     if (argc < 4)
                     {
-                        cout <<
-                           "Usage: cli setproperty instancename "
-                           "propertyname=value "
-                           << endl;
+                        // KS_TODO this probably in error. Does not id where
+                        // the new value is defined.
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.SETPROP_ERR",
+                            "Usage: $0 setproperty <instancename>"
+                                        "<propertyname> or"
+                                        " $0 setproperty <classname> "
+                                        "<propertyname> <keyproperty=value>*.",
+                                        CIMCLI ));
+//#N Substitution {0} is the name of the executable
+//#N setproperty is keyword.  Do not translate
+//#N classname keyproperty instancename propertyname are words
+//#N representing particular input (ex. property name
+//#N is the name of a property.
+//#N @version 2.14
+//#P 670
+//#T SETPROP_ERR
+//#S Usage: {0} setproperty <instancename> <propertyname> or
+//#S {0} setproperty <classname> <propertyname> <keyproperty=value>*.
                         return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
                     if (!_getObjectNameInput(argc, argv, opts, true))
@@ -973,14 +1079,27 @@ int main(int argc, char** argv)
                 case ID_InvokeMethod :
                     if (argc < 4)
                     {
-                        cerr << "Usage: InvokeMethod requires that object and"
-                            " method names be specified.\n"
-                            "Input parameters are optional and can be"
-                            " specified as additional parameters to"
-                            " this call. "
-                            "Enter each input parameter as name=value"
-                            " (no spaces around equal sign)."
-                            << endl;
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.INVOKEMETHOD_ERR",
+                            "Usage: invokemethod(im) requires that object and"
+                                " method names be specified.\n"
+                                "Input parameters are optional and can be"
+                                " specified as additional parameters to"
+                                " this call. "
+                                "Enter each input parameter as name=value"
+                                " (no spaces around equal sign)." ));
+                        //#N invokemethod is a keyword. im is a keyword
+                        //#N @version 2.14
+                        //#P 71
+                        //#T INVOKEMETHOD_ERR
+                        //#S Usage: invokemethod(im) requires that object and
+                        //#S method names be specified.\n
+                        //#S Input parameters are optional and can be
+                        //#S specified as additional parameters to
+                        //#S this call.
+                        //#S Enter each input parameter as name=value
+                        //#S (no spaces around equal sign).
+
                         return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     }
 
@@ -1008,14 +1127,24 @@ int main(int argc, char** argv)
                 case ID_ExecQuery:
                     if (argc <= 2 && opts.query.size() == 0)
                     {
-                        cerr << "ERROR: ExecQuery requires a query"
-                                "filter definition\n"
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.EXECQUERY_ERR",
+                            "Usage: execquery(xq) requires a query"
+                                "filter definition:\n"
                                 "   - supplied directly as a parameter\n"
                                 "   - OR supplied with the -f option\n"
                                 "   The filterLanguage may be supplied\n"
                                 "   - as the second argument\n"
-                                "   - OR as the -ql option\n"
-                              << endl;
+                                "   - OR as the -ql option\n" ));
+                        //#N execquery is a keyword. im is a keyword
+                        //#T EXECQUERY_ERR
+                        //#S Usage: execquery(xq) requires a query
+                        //#S filter definition:\n
+                        //#S    - supplied directly as a parameter\n
+                        //#S    - OR supplied with the -f option\n
+                        //#S    The filterLanguage may be supplied\n
+                        //#S    - as the second argument\n
+                        //#S    - OR as the -ql option.
                     }
                     opts.query = argv[2];
                     if (argc==4)
@@ -1073,14 +1202,24 @@ int main(int argc, char** argv)
                 case ID_PullQueryInstances:
                     if (argc <= 2 && opts.query.size() == 0)
                     {
-                        cerr << "ERROR: PullQueryInstances requires a query"
-                                "filter definition\n"
+                        cimcliMsg::errmsg(MessageLoaderParms(
+                            "Clients.cimcli.CIMCLIClient.PULLQUERY_ERR",
+                            "Usage: pullqueryInstances(pxq) requires a "
+                                "query filter definition:\n"
                                 "   - supplied directly as a parameter\n"
                                 "   - OR supplied with the -f option\n"
-                                "   The filterLanguage may be supplied\n"
+                                "   The filterLanguage may be supplied:\n"
                                 "   - as the second argument\n"
-                                "   - OR as the -ql option\n"
-                              << endl;
+                                "   - OR as the -ql option\n" ));
+                        //#N execquery is a keyword. im is a keyword
+                        //#T PULLQUERY_ERR
+                        //#S Usage: pullQueryInstances requires a query
+                        //#S filter definition:\n
+                        //#S    - supplied directly as a parameter\n
+                        //#S    - OR supplied with the -f option\n
+                        //#S    The filterLanguage may be supplied\n
+                        //#S    - as the second argument\n
+                        //#S    - OR as the -ql option.
                     }
                     opts.query = argv[2];
                     if (argc==4)
@@ -1113,13 +1252,14 @@ int main(int argc, char** argv)
                     }
                     break;
 
-                default:
-                    cout << "Invalid cimcli operation name. "
-                            "Operation name must be first parmeter"
-                            " or --c parameter."
-                        << " \n  ex. cli enumerateclasses\n"
-                        << "Enter " << CIMCLI << " -h for help."
-                        << endl;
+            default:
+                    // This should never happen
+                    // message international def documented above.
+                    cimcliMsg::errmsg(MessageLoaderParms(
+                        "Clients.cimcli.CIMCLIClient.OPMISSING_ERR",
+                        "ERROR: Command name or shortcut must be first "
+                        "parameter.\n  ex. $0 enumerateclasses or \n $0 ec."));
+
                     return cimcliExitRtn(CIMCLI_INPUT_ERR);
                     break;
             } // switch statement
@@ -1167,6 +1307,7 @@ int main(int argc, char** argv)
 
             if (repeatCount == 0)
             {
+                // KS_TODO did not internationalize this one.
                 cout << " Time= "
                     << opts.saveElapsedTime
                     << " Sec "
@@ -1248,6 +1389,8 @@ int main(int argc, char** argv)
         // if abnormal term, dump all times
         if (opts.termCondition != 0)
         {
+            // KS_TODO did not internationalize this one since it is
+            // and abnormal termination
             cout << "Exception" << endl;
             cout << "Prev Time " << opts.saveElapsedTime << " Sec" << endl;
             opts.saveElapsedTime = opts.elapsedTime.getElapsed();
@@ -1257,11 +1400,15 @@ int main(int argc, char** argv)
                 << totalTime/repeatCount
                 << " min= " << minTime << " max= " << maxTime << endl;
         }
-
-        cout << "Total Elapsed Time= "
-             << totalElapsedExecutionTime.getElapsed()
-             << " Sec. Terminated at " << System::getCurrentASCIITime()
-             << endl;
+         cimcliMsg::msg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.TOTAL_ELAPSED_TIME",
+            "Total Elapsed Time= $0 sec. Terminated at $1. ",
+            totalElapsedExecutionTime.getElapsed(),
+            System::getCurrentASCIITime()));
+         //#N Substitution {0} integer representing elapsed time
+         //#N Substitution {1} String with current time
+         //#T TOTAL_ELAPSED_TIME
+         //#S Total Elapsed Time= {0} sec. Terminated at {1}.
     }
 
     // if delay parameter set, sleep before terminating.

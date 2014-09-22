@@ -812,6 +812,7 @@ Qualifier Write : boolean = FALSE, Scope(property);
 
 9. +++++ getClass Operation
 67 class names  returned.
+
 CIM_ActsAsSpare
 CIM_CollectedCollections
 CIM_CollectionConfiguration
@@ -2364,7 +2365,7 @@ class Test_CLITestProviderClass
     uint32 reset();
     uint32 debugMode(boolean newState);
 };
-1 associator names
+1 associatorNames
 //ChangedHostName/test/TestProvider:Test_CLITestProviderClass
 Return Value= 0
 substituteHostName=
@@ -2421,7 +2422,7 @@ instance of Test_CLITestProviderClass
     arrayDateTime = {"19991224120000.000000+360", "19991224120000.000000+360", 
         "19991224120000.000000+360"};
 };
-1 associator names
+1 associatorNames
 //localhost/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
 
 // path= //localhost/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
@@ -2477,7 +2478,9 @@ Test instance Test_CLITestProviderClass.Id="EmptyStringTest" OK
 Return Value= 0
 substituteHostName=
 1 instances of class Test_CLITestProviderClass returned.
+
 1  Test_CLITestProviderClass returned.
+
 
 // path= Test_CLITestProviderClass.Id="Mike"
 
@@ -2540,17 +2543,23 @@ instance of Test_CLITestProviderClass
 };
 Test_CLITestProviderClass.Id="Mike"
 1 instances of class Test_CLITestProviderClass returned.
-Failed instances of class count test. Expected= 10 Received= 1
+
+Failed instances of class count test. Expected 10. Received 1.
 1  Test_CLITestProviderClass returned.
-Failed  count test. Expected= 10 Received= 1
+
+Failed  count test. Expected 10. Received 1.
 1 associators  returned.
-Failed associators count test. Expected= 10 Received= 1
+
+Failed associators count test. Expected 10. Received 1.
 1 references  returned.
-Failed references count test. Expected= 10 Received= 1
-1 associator names Test_CLITestProviderClass returned.
-Failed associator names count test. Expected= 10 Received= 1
+
+Failed references count test. Expected 10. Received 1.
+1 associatorNames Test_CLITestProviderClass returned.
+
+Failed associatorNames count test. Expected 10. Received 1.
 1 referenceNames Test_CLITestProviderClass returned.
-Failed referenceNames count test. Expected= 10 Received= 1
+
+Failed referenceNames count test. Expected 10. Received 1.
 Return Value= 0
 21. +++++ SortInstancesTest
 Test_CLITestProviderClass.Id="Andy"
@@ -2686,7 +2695,7 @@ WET_Statistics
 WET_Synchronized
 23. +++++ Test execQuery
 24. +++++ Test Errors on Input
-INPUT ERROR: Invalid keyword for boolean value =  blah. Must be "true" or "false" upper or lower case
+INPUT ERROR: Invalid keyword for boolean value = blah. Must be "true" or "false" upper or lower case
 INPUT ERROR: Value conversion error. 1234blah. type uint32
 
 INPUT ERROR: Value conversion error. 9999999. type uint8
@@ -2697,7 +2706,9 @@ test/cimv2 Total Classes=777, with Instances=0, Instances=0
 25. +++++ Test niall operation
 26. +++++ Test pull Operations
 1  Test_CLITestProviderClass returned.
+
 1 instances of class Test_CLITestProviderClass returned.
+
 
 // path= //ChangedHostName/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
 
@@ -2751,6 +2762,6 @@ instance of Test_CLITestProviderClass
     arrayDateTime = {"19991224120000.000000+360", "19991224120000.000000+360", 
         "19991224120000.000000+360"};
 };
-1 pull associator names
+1 pullInstancePaths
 //ChangedHostName/test/TestProvider:Test_CLITestProviderClass.Id="Mike"
 26. +++++ Test pull Operations

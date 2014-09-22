@@ -611,10 +611,10 @@ cier3:
 	    comment="test with embedded instance. Missing embedded end tag." } \
 	    --expExit 53 >> $(RESULTFILE) 2>&1
 
-## test for error, embedded end marks with no embedded property
-## ERROR here in that we should not be able to create instance with empty
-## key parameter, Should return a system error but actually creates the
-## class.  This is probably a provider error so lets not worry about it.
+## test for error, input with empty string key property.  NOTE That this
+## should result in an error but it doesn't. Since that is probably
+## a provider error, ignore the error.
+## KS_TODO we should fix the provider at some point.
 cier4:
 	$(CIMCLI) ci $(EMBED_CLASS_DEF) id! >> $(RESULTFILE) 2>&1
 

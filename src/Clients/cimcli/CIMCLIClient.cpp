@@ -802,9 +802,14 @@ void _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
     // Assure niq and iq not both supplied. They are incompatible
     if (opts.includeQualifiersRequested && opts.notIncludeQualifiersRequested)
     {
-        cerr << "Error: -niq and -iq parameters cannot be used together"
-             << endl;
-        cimcliExit(CIMCLI_INPUT_ERR);
+        cimcliMsg::exit(CIMCLI_INPUT_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.INC_QUAL_PARM_ERR",
+            "Error: -niq and -iq parameters cannot be used together."));
+        //#N -niq and -iq are literals. Do not translate
+        //#N @version 2.14
+        //#P 50
+        //#T INC_QUAL_PARM_ERR
+        //#S Error: -niq and -iq parameters cannot be used together.
     }
     // if default is true (ex class operations), we test for -niq received
     // depend only on the -niq input.
@@ -1408,7 +1413,11 @@ int pullEnumerateInstances(Options& opts)
         if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, ex. too many response objects."));
+            //#T PULL_RESP_ERR
+            //#S Pull Loop returned error, ex. too many response objects.
         }
     }
 
@@ -1474,7 +1483,9 @@ int pullEnumerateInstancePaths(Options& opts)
         if (!_pullInstancePaths(opts, paths, enumerationContext ))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, for example, too many responses."));
         }
     }
 
@@ -1538,7 +1549,9 @@ int pullReferenceInstancePaths(Options& opts)
         if (!_pullInstancePaths(opts, paths, enumerationContext ))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, for example, too many responses."));
         }
     }
 
@@ -1571,8 +1584,8 @@ int pullReferenceInstances(Options& opts)
             << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
             << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
             << ", CIMPropertyList= " << opts.propertyList.toString()
-            << ", QueryLanguage = " << opts.queryLanguage
-            << ", Query = " << opts.query
+            << ", QueryLanguage= " << opts.queryLanguage
+            << ", Query= " << opts.query
             << _displayPullCommonParam(opts)
             << endl;
     }
@@ -1613,7 +1626,9 @@ int pullReferenceInstances(Options& opts)
         if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, for example, too many responses."));
         }
     }
     _stopCommandTimer(opts);
@@ -1682,13 +1697,15 @@ int pullAssociatorInstancePaths(Options& opts)
         if (!_pullInstancePaths(opts, paths, enumerationContext ))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, for example, too many responses."));
         }
     }
 
     _stopCommandTimer(opts);
 
-    String s = "pull associator names";
+    String s = "pullInstancePaths";
     opts.className = thisObjectPath.getClassName();
     CIMCLIOutput::displayPaths(opts, paths, s);
 
@@ -1759,7 +1776,9 @@ int pullAssociatorInstances(Options& opts)
         if (!_pullInstancesWithPath(opts, instances, enumerationContext ))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, for example, too many responses."));
         }
     }
 
@@ -1837,7 +1856,9 @@ int pullQueryInstances(Options& opts)
         if (!_pullInstancesWithPath(opts, instances, enumerationContext, false))
         {
             // some error return from the pull loop.
-            cerr << "Pull Loop Returned error" << endl;
+            cimcliMsg::errmsg(MessageLoaderParms(
+                "Clients.cimcli.CIMCLIClient.PULL_RESP_ERR",
+                "Pull Loop returned error, for example, too many responses."));
         }
     }
 
@@ -2192,12 +2213,23 @@ int testInstance(Options& opts)
     // the request. The warning is simply a flag for the user.
     if (rtndInstance.getPropertyCount() != opts.propertyList.size())
     {
-        cerr << "Warning: Response returned different property"
-            " set than requested."
-            << "\nRequested = " << opts.propertyList.toString() << endl
-            << "Returned = " << _buildPropertyList(rtndInstance).toString()
-            << "\nContinuing and testing against requested property list"
-            << endl;
+        cimcliMsg::errmsg(MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.DIFF_PROP_RTND_ERR",
+            "WARNING: Response returned different property set than requested."
+            "\nRequested = $0"
+            "\nReturned = $1"
+            "\nContinuing and testing against requested property list",
+            opts.propertyList.toString(),
+            _buildPropertyList(rtndInstance).toString() ));
+        //#N substitution {0} is a string with the classname in error
+        //#N @version 2.14
+        //#P 51
+        //#T DIFF_PROP_RTND_ERR
+        //#S Warning: Response returned different property set than requested.
+        //#S \nRequested = {0}
+        //#S \nReturned = {1}
+        //#S \nContinuing and testing against requested property list.
+
         rtndInstance.instanceFilter(opts.includeQualifiers,
             opts.includeClassOrigin,
             opts.propertyList);
@@ -2304,11 +2336,12 @@ int modifyInstance(Options& opts)
             }
             else
             {
-                cerr << "Error: no path for instance set" << endl;
-                cimcliExit(CIMCLI_INPUT_ERR);
+                cimcliMsg::exit(CIMCLI_INPUT_ERR, MessageLoaderParms(
+                    "Clients.cimcli.CIMCLIClient.NO_PATH_ERR",
+                    "No path for instance set."));
+                //#T NO_PATH_ERR
+                //#S No path for instance set.
             }
-
-
         }
     }
 
@@ -2840,7 +2873,7 @@ int associatorNames(Options& opts)
 
     _stopCommandTimer(opts);
 
-    String s = "associator names";
+    String s = "associatorNames";
     opts.className = thisObjectPath.getClassName();
     CIMCLIOutput::displayPaths(opts, associatorNames, s);
 
@@ -3066,13 +3099,15 @@ int setObjectManagerStatistics(Options& opts, Boolean newState,
     CIMValue v = p.getValue();
     v.get(stateAfterMod);
 
-    cout << "Updated Status= " << ((stateAfterMod)? "true" : "false") << endl;
+    // It is our intention to deprecate this function so did not
+    // internationalize
+    cout << "Updated Status= " << boolToString(stateAfterMod) << endl;
 
     if (stateAfterMod != newState)
     {
         cerr << "Error: State change error. Expected: "
-            << ((newState)? "true" : "false")
-            << " Rcvd: " << ((stateAfterMod)? "true" : "false") << endl;
+            << boolToString(newState)
+            << " Rcvd: " << boolToString(stateAfterMod) << endl;
     }
 
     return CIMCLI_RTN_CODE_OK;
@@ -3191,9 +3226,15 @@ public:
             }
         }
 
-        cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-            "class %s not found in classTreeArray",
-            (const char *)name.getString().getCString());
+        cimcliMsg::exit(CIMCLI_INTERNAL_ERR, MessageLoaderParms(
+            "Clients.cimcli.CIMCLIClient.CLASS_NAME_NOT_FOUND_ERR",
+            "Class $0 not found in classTreeArray",
+            (const char *)name.getString().getCString()));
+        //#N substitution {0} is a string with the class name in error
+        //#N @version 2.14
+        //#P 52
+        //#T CLASS_NAME_NOT_FOUND_ERR
+        //#S Class {0} not found in classTreeArray
 
         PEGASUS_UNREACHABLE(return classTreeEntry();)
     }
@@ -3382,7 +3423,11 @@ int classTree(Options& opts)
         // Must have a class name for tail of tree if showing superclasses
         if (opts.className.isNull())
         {
-            cimcliMsg::exit(0, "Class input required");
+            cimcliMsg::exit(CIMCLI_INPUT_ERR, MessageLoaderParms(
+                        "Clients.cimcli.CIMCLIClient.NEED_CLASS_NAME_ERR",
+                        "Class name input required"));
+//#T NEED_CLASS_NAME_ERR
+//#S Class name input required
         }
 
         CIMName cn = opts.className;
@@ -3598,14 +3643,16 @@ int countInstances(Options& opts)
         // just stopping
         catch(CIMException& e)
         {
-            cerr << "CIMException " << classNames[iClass].getString() << " "
-                 << e.getMessage() << " Code " << e.getCode() << endl;
+            cerr << "CIMException: " << classNames[iClass].getString() << " "
+                 << e.getMessage() << " Code " << e.getCode()
+                 << ". Continuing processing."<< endl;
             continue;
         }
         catch(Exception& e)
         {
             cerr << " Pegasus Exception: " << e.getMessage() << " "
-                 << classNames[iClass].getString() << endl;
+                 << classNames[iClass].getString()
+                 << ". Continuing processing."<< endl;
             continue;
         }
 

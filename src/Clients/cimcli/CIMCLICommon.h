@@ -46,6 +46,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 // Common functions used in cimcli
 
+String loadMessage(const char* key, const char* msg);
+
 /**
  * cliExit - Function to actually execute cimcli exits
  */
@@ -199,6 +201,71 @@ public:
      *              formatString)
     */
     static void msg(
+        const String& formatString,
+        const Formatter::Arg& arg0,
+        const Formatter::Arg& arg1,
+        const Formatter::Arg& arg2);
+
+    /** Internationalized form of message output. The following
+     *  methods output messages but do not
+     *  terminate cimcli
+     */
+     /**
+     * Generate an Internationlaized output message to cerr
+     *
+     * @param msgParms MessageLoaderParms definition with key to
+     * internationalized message and default message consisting of
+     * format string and variable number of parameters.
+     */
+    static void errmsg(
+        const MessageLoaderParms& msgParms);
+
+    /** Non internationalized message output with a single String
+     *  parameter
+     * @param formatString String without parameters that is
+     *                     displayed
+     */
+    static void errmsg(
+        const String& formatString);
+
+    /** One-argument form of message that generates a message
+     *  from a formatString and a single argument.
+     *  @param formatString - formatting string as defined in the
+     *  file src/Pegasus/Common/Formatter.h
+     *  @param arg0  Input argument for formatterString.See
+     *               Formatter.h for more information on possible
+     *               arguments.
+    */
+    static void errmsg(
+        const String& formatString,
+        const Formatter::Arg& arg0);
+
+    /** Two-argument form of message that generates a message
+     *  from a formatString and a single argument.
+     *  @param formatString - formatting string as defined in the
+     *  file src/Pegasus/Common/Formatter.h
+     *  @param arg0 - First input argument (replaces $0 in
+     *              formatString)
+     *  @param arg1 - Second input argument (replaces $1 in
+     *              formatString)
+    */
+        static void errmsg(
+        const String& formatString,
+        const Formatter::Arg& arg0,
+        const Formatter::Arg& arg1);
+
+    /** Three-argument form of message that generates a message
+     *  from a formatString and a single argument.
+     *  @param formatString - formatting string as defined in the
+     *  file src/Pegasus/Common/Formatter.h
+     *  @param arg0 - First input argument (replaces $0 in
+     *              formatString)
+     *  @param arg1 - Second input argument (replaces $1 in
+     *              formatString)
+     *  @param arg3 - Thirs input argument (replaces $2 in
+     *              formatString)
+    */
+    static void errmsg(
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,

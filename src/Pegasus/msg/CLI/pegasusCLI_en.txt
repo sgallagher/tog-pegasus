@@ -146,7 +146,7 @@ en:table {
 	* @note PGC00219: substitution {0} name of the property (string)
 	*        substitution {1} value of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"PGC00219: The current value for property {0} is set to {1} in the CIM server."}
+       Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"PGC00219: The current value for property {0} is set to {1} in the CIM server."}
 
 	/**
 	* @note PGC00220: substitution {0} name of the property (string)
@@ -1023,6 +1023,8 @@ en:table {
         // ==========================================================
         // Messages for CIMCLICommand
         //  Please use message prefix "PGC01600"
+	//  NOTE: Message prefix not used with cimcli because all
+	//  messages are console output in response to cmd inputs.
         // ==========================================================
 
         /**
@@ -1590,22 +1592,419 @@ en:table {
         "-h for all help, -hc for commands, -ho for options\n"}
 
         /**
-        * @note PGC01718: substitution {0} cimcli version (string)
+        * @note PGC01618: substitution {0} cimcli version (string)
         *    substitution {1} Pegasus version (string)
         */
 
         Clients.cimcli.CIMCLIClient.VERSION:string {
         "Version {0}"}
 
-	/**
-	* @note PGC01719: substitution {0} is a string with the keyword
-	* in error
- 	*/
-       
-	Clients.cimcli.CIMCLIClient.BOOLEAN_VALUE_ERR:string {
-        "Invalid keywork for boolean value = {0}. Must be \"true\" or \"false\""
-	" upper or lower case\n"}
+        /*CIMCLIAUTOMEDMESSAGEBUNDLE_BEGIN
+        * MessageBundleInput automatically generated 2014-09-22
+        * by cimcli buildMsgStrings.awk.
+        */
 
+        /**
+        * @note PGC01660:
+        *      substitution {0} is a string with the exception message
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INIT_CIMEXCEPT_ERR:string {"CIMException during initialization.\n {0}."}
+
+        /**
+        * @note:
+        *      substitution {0} is a string with the exception message
+        */
+
+        Clients.cimcli.CIMCLIClient.INIT_EXCEPT_ERR:string {"Exception during initialization.\n {0}."}
+
+        Clients.cimcli.CIMCLIClient.INIT_GENEXCEPT_ERR:string {"General Exception during initialization."}
+
+        /**
+        * @note PGC01661:
+        *      Substitution {0} is name of the executable
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.OPMISSING_ERR:string {"ERROR: Command name or shortcut must be first parameter. \n ex. {0} enumerateclasses or \n {0} ec."}
+
+        /**
+        * @note PGC01662:
+        *      substitution {0} is a string with invalid name
+        *      substitution {1} name of executable
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INVALID_OP_NAME_ERR:string {"Error: Invalid cimcli operation name {0}. Operation name must be first parmeter or --c parameter. .ex. cli enumerateclasses. Enter {1} -h for help."}
+
+        Clients.cimcli.CIMCLIClient.KEYPATH_ERR:string {"WARNING: Both client key and path required."}
+
+        /**
+        * @note PGC01664:
+        *      Substitution {0} is a file name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.KEY_ERR:string {"WARNING: Key File {0} does not exist."}
+
+        /**
+        * @note PGC01665:
+        *      Substitution {0} is a file name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.CERT_ERR:string {"WARNING: Certificate File {0} does not exist."}
+
+        /**
+        * @note PGC01666:
+        *      Substitution {0} is a file name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.TRUSTFILE_ERR:string {"WARNING: Truststore directory/file {0} does not exist."}
+
+        /**
+        * @note PGC01667:
+        *      Substitution {0} is a file name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.SSL_NOT_USED_ERR:string {"WARNING: --key,--cert, or --truststore parameters input but not used."}
+
+        /**
+        * @note PGC01668:
+        *      Substitution {0} is an exception message Text
+        *      substitution {1} is host name or IP address
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.CONNECT_EXCEPTION_ERR:string {"Pegasus Exception: {0} trying to connect to {1}."}
+
+        /**
+        * @note PGC01669:
+        *      Substitution {0} is the name of the executable
+        *      getproperty is keyword. Do not translate
+        *      classname keyproperty instancename propertyname are words
+        *      representing particular input (ex. property name
+        *      is the name of a property.
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.GETPROP_ERR:string {"Usage: {0} getproperty <instancename> <propertyname> or {0} getproperty <classname> <propertyname> <keyproperty=value>*."}
+
+        /**
+        * @note PGC016670:
+        *      Substitution {0} is the name of the executable
+        *      setproperty is keyword. Do not translate
+        *      classname keyproperty instancename propertyname are words
+        *      representing particular input (ex. property name
+        *      is the name of a property.
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.SETPROP_ERR:string {"Usage: {0} setproperty <instancename> <propertyname> or {0} setproperty <classname> <propertyname> <keyproperty=value>*."}
+
+        /**
+        * @note PGC01671:
+        *      invokemethod is a keyword. im is a keyword
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INVOKEMETHOD_ERR:string {"Usage: invokemethod(im) requires that object and method names be specified.\n Input parameters are optional and can be specified as additional parameters to this call. Enter each input parameter as name=value (no spaces around equal sign)."}
+
+        /**
+        * @note:
+        *      execquery is a keyword. im is a keyword
+        */
+
+        Clients.cimcli.CIMCLIClient.EXECQUERY_ERR:string {"Usage: execquery(xq) requires a query filter definition:\n - supplied directly as a parameter\n - OR supplied with the -f option\n The filterLanguage may be supplied\n - as the second argument\n - OR as the -ql option."}
+
+        /**
+        * @note:
+        *      execquery is a keyword. im is a keyword
+        */
+
+        Clients.cimcli.CIMCLIClient.PULLQUERY_ERR:string {"Usage: pullQueryInstances requires a query filter definition:\n - supplied directly as a parameter\n - OR supplied with the -f option\n The filterLanguage may be supplied\n - as the second argument\n - OR as the -ql option."}
+
+        /**
+        * @note:
+        *      Substitution {0} integer representing elapsed time
+        *      Substitution {1} String with current time
+        */
+
+        Clients.cimcli.CIMCLIClient.TOTAL_ELAPSED_TIME:string {"Total Elapsed Time= {0} sec. Terminated at {1}."}
+
+        /**
+        * @note PGC01650:
+        *      -niq and -iq are literals. Do not translate
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INC_QUAL_PARM_ERR:string {"Error: -niq and -iq parameters cannot be used together."}
+
+        Clients.cimcli.CIMCLIClient.PULL_RESP_ERR:string {"Pull Loop returned error, ex. too many response objects."}
+
+        /**
+        * @note PGC01651:
+        *      substitution {0} is a string with the classname in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.DIFF_PROP_RTND_ERR:string {"Warning: Response returned different property set than requested. \nRequested = {0} \nReturned = {1} \nContinuing and testing against requested property list."}
+
+        Clients.cimcli.CIMCLIClient.NO_PATH_ERR:string {"No path for instance set."}
+
+        /**
+        * @note PGC01652:
+        *      substitution {0} is a string with the class name in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.CLASS_NAME_NOT_FOUND_ERR:string {"Class {0} not found in classTreeArray"}
+
+        Clients.cimcli.CIMCLIClient.NEED_CLASS_NAME_ERR:string {"Class name input required"}
+
+        /**
+        * @note PGC01642:
+        *      substitution {0} is a string with the array
+        *      in error
+        */
+
+        Clients.cimcli.CIMCLIClient.UNMATCHED_BRACES_ERR:string {"Unmatched { } in array {0}."}
+
+        /**
+        * @note PGC01643:
+        *      substitution {0} is a string with the keyword
+        *      in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.BOOLEAN_VALUE_ERR:string {"Invalid keyword for boolean value = {0}. Must be \"true\" or \"false\""}
+
+        /**
+        * @note PGC01620:
+        *      substitution {0} is a string with the input text
+        *      in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.NO_SEPERATOR_ERR:string {"No name/value separator in {0}. Parameters must have separator such as = { ={ } !."}
+
+        /**
+        * @note PGC01621:
+        *      substitution {0} is a string with the input text
+        *      in error
+        */
+
+        Clients.cimcli.CIMCLIClient.NO_NAME_ERR:string {"No name on input parameter {0}"}
+
+        /**
+        * @note PGC01622:
+        *      substitution {0} is a string with the input text
+        *      in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.BAD_DATATYPE_ERR:string {"Data type {0} build from string not allowed."}
+
+        /**
+        * @note PGC01623:
+        *      substitution {0} is a string with the property
+        *      name in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.DUP_PROPERTY_ERR:string {"Duplicate scalar property Name. {0}."}
+
+        /**
+        * @note PGC01624:
+        *      substitution {0} is a string with the parameter
+        *      name in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.TERMINATOR_ERR:string {"\"!\" terminator allowed only on String type. Parameter= {0}"}
+
+        /**
+        * @note PGC01625:
+        *      substitution {0} is a string with the parameter
+        *      name in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.ARRAY_ERR:string {"Error parsing Array parameter {0}"}
+
+        /**
+        * @note PGC01626:
+        *      substitution {0} is a string with the CIMType
+        *      in error.
+        *      substitution {1} is the string with the invalid token.
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INV_DATATYPE_ERR:string {"Invalid CIM datatype on embedded object. CIMType {0} token {1}."}
+
+        /**
+        * @note PGC01627:
+        *      substitution {0} is a string with the propertyName
+        *      in error.
+        *      substitution {1} is the a string with the invalid
+        *      token.
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.MULT_INST_ERR:string {"Scalar property {0} at input parameter {1}"}
+
+        /**
+        * @note PGC01628:
+        *      substitution {0} is a string with the token in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.EMB_INST_ERR:string {"Embedded Instance(s) not built. Token={0}."}
+
+        /**
+        * @note PGC01629:
+        *      substitution {0} is a string with the token in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INV_TOK_ERR:string {"Invalid token on building CIMValue. Token {0}."}
+
+        /**
+        * @note PGC01630:
+        *      substitution {0} is a string with the token in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.INV_ARR_ITERATE_ERR:string {"Internal Error in iterateArray.."}
+
+        /**
+        * @note PGC01631:
+        *      substitution {0} is a string with token in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.No_ClSNAME_ERR:string {"No embedded instance classname at {0}."}
+
+        /**
+        * @note PGC01632:
+        *      substitution {0} is a string with the input text in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.UNMATCHED_INST_ERR:string {"Unmatched Embedded instance end marker(s) at parameter \"{0}\"."}
+
+        /**
+        * @note PGC01633:
+        *      substitution {0} is a string with the token position in
+        *      error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.PARSE_FAIL_ERR:string {"Parse Failed. Input Parameter \"{0}\"."}
+
+        Clients.cimcli.CIMCLIClient.MISSING_TERMINATOR_ERR:string {"Missing Embedded object Terminator i.e. \"}\" or \".\"."}
+
+        /**
+        * @note PGC01634:
+        *      substitution {0} is a string with the classname in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.CLASSNAME_ERR:string {"Failed to build Instance for class {0}."}
+
+        /**
+        * @note PGC01635:
+        *      substitution {0} is a string with a property name
+        *      substitution {1} is a string with a classname
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.PROP_NOT_IN_CLASS:string {"Warning: Property {0} not in class {1}. Skipped this property."}
+
+        /**
+        * @note PGC01636:
+        *      substitution {0} is a string with a method name
+        *      substitution {1} is a string with a class name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.METHOD_NOT_IN_CLASS:string {"Warning: Method{0} not in class {1}. Skipped this method."}
+
+        /**
+        * @note PGC01637:
+        *      substitution {0} is a string with the parameter name
+        *      substitution {1} is a string with the class name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.PARAM_NOT_IN_CLASS:string {"Warning: Parameter {0} not valid method parameter in class {0}."}
+
+        /**
+        * @note PGC01638:
+        *      substitution {0} is a string with a parameter name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.PARAMNAME_DUP_ERR:string {"Multiple definitions of scalar parameter named {0}."}
+
+        /**
+        * @note PGC01639:
+        *      substitution {0} is a string with the parameter in error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.PARAM_TOKEN_ERR:string {"Parse Error adding parameter {0}."}
+
+        /**
+        * @note PGC01640:
+        *      substitution {0} is a string with property name in error
+        *      substitution {1} is a string with a class name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.PROP_NOT_IN_CLASS_ERR:string {"Property {0} not property in class {1}."}
+
+        /**
+        * @note PGC01641:
+        *      substition {0} property name of input causing error
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.TYPE_NOT_ALLOWED_ERR:string {"Input of Instance or Object types not allowed. Property {0}."}
+
+        /**
+        * @note PGC016:
+        *     
+        */
+
+        Clients.cimcli.CIMCLIClient.FORMAT_OP_ERR:string {"ERROR: Format option definition error."}
+
+        /**
+        * @note PGC01610:
+        *      substitution {0} numeric counter
+        *      substitution {1} string defining type of data
+        *      substitution {2} string containing a class name
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.SUMMARY_COUNT:string {"Count {0} {1} {2} returned."}
+
+        /**
+        * @note PGC01611:
+        *      substitution {0} text not to be translated
+        *      substitution {1} numeric value
+        *      substitution {2} numeric value
+        *      @version 2.14
+        */
+
+        Clients.cimcli.CIMCLIClient.SUMMARY_COUNT_ERR:string {"Failed {0} count test. Expected {1}. Received {2}."}
+
+        /*
+        * cimcli MessageBundle End
+        CIMCLIAUTOMEDMESSAGEBUNDLE_END*/
         // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================

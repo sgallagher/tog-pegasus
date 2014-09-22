@@ -187,6 +187,48 @@ void cimcliMsg::msg(
     cout << Formatter::format(formatString, arg0, arg1, arg2) << endl;
 }
 
+
+/** Internationalized msg with output Message to cerr
+*/
+void cimcliMsg::errmsg(
+    const MessageLoaderParms& msgParms)
+{
+    MessageLoaderParms parms = msgParms;
+    parms.useProcessLocale = true;
+    parms.msg_src_path = MSG_PATH;
+    cerr << MessageLoader::getMessage(parms) << endl;
+}
+
+/** Optimized one-parameter form of Message output
+*/
+void cimcliMsg::errmsg(
+    const String& formatString,
+    const Formatter::Arg& arg0)
+{
+    cout << Formatter::format(formatString, arg0) << endl;
+}
+
+/** Optimized two-argument form of Message output
+*/
+void cimcliMsg::errmsg(
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1)
+{
+    cerr << Formatter::format(formatString, arg0, arg1) << endl;
+}
+
+/** Optimized three-argument form of Message output
+*/
+void cimcliMsg::errmsg(
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2)
+{
+    cerr << Formatter::format(formatString, arg0, arg1, arg2) << endl;
+}
+
 void _print(Boolean x)
 {
     cout << boolToString(x);
@@ -202,6 +244,13 @@ String _toString(Array<CIMName> array)
         rtn.append(array[i].getString());
     }
     return rtn;
+}
+
+String loadMessage(const char* key, const char* msg)
+{
+    MessageLoaderParms parms(key, msg);
+    parms.msg_src_path = MSG_PATH;
+    return MessageLoader::getMessage(parms);
 }
 
 // Output a CIMPropertyList to cout

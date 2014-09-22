@@ -301,33 +301,33 @@ Return Value= 0
 referenceParamArray=Test_CLITestProviderClass.id=100 Test_CLITestProviderClass.id=101 
 Return Value= 0
 referenceParamArray=Test_CLITestProviderClass.Id="100" Test_CLITestProviderClass.Id="101" 
-INPUT ERROR: Missing Embedded object Terminator i.e. "}"
-INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
-INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
+INPUT ERROR: Missing Embedded object Terminator i.e. "}" or "."
+INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter "}"
+INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter "}"
 Returned Path  Test_CLITestEmbeddedClass.Id=""
-INPUT ERROR: "!" terminator allowed only on String type.  Parameter= scalBool!
-INPUT ERROR: No name on input parameter =1204 
-INPUT ERROR: No name on input parameter {Test_CLITestEmbedded1 
+INPUT ERROR: "!" terminator allowed only on String type. Parameter= scalBool!
+INPUT ERROR: No name on input parameter =1204
+INPUT ERROR: No name on input parameter {Test_CLITestEmbedded1
 cimcli CIMException:  Cmd= ci Object= Test_CLITestEmbeddedClass Code= 1
 CIM_ERR_FAILED: Key Property(s) Required: Id
 cimcli CIMException:  Cmd= ci Object= Test_CLITestProviderLinkClass Code= 1
 CIM_ERR_FAILED: Key Property(s) Required: child
 Returned Path  Test_CLITestEmbeddedClass.Id="1210"
-Warning: property "nosuchProperty" not in class: Test_CLITestEmbeddedClass. Skipping.
+Warning: Property nosuchProperty not in class Test_CLITestEmbeddedClass. Skipped this property.
 Returned Path  Test_CLITestEmbeddedClass.Id="1211"
 INPUT ERROR: Duplicate scalar property Name. comment=Whoops second def for scalar
 INPUT ERROR: Duplicate scalar property Name. parent={Test_CLITestProviderClass
 +++++ passed createEmbeddedInstance error tests
-INPUT ERROR: Multiple definition of scalar parameter name=scalSint32
+INPUT ERROR: Multiple definitions of scalar parameter named scalSint32
 INPUT ERROR: Value conversion error. 110,120s. type sint32
 
 Return Value= 0
-INPUT ERROR: Missing Embedded object Terminator i.e. "}"
-INPUT ERROR: Missing Embedded object Terminator i.e. "}"
-INPUT ERROR: Missing Embedded object Terminator i.e. "}"
-INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter="}"
-INPUT ERROR: Multiple definition of scalar parameter name=referenceParam
-Warning: property "idx" not in class: Test_CLITestProviderClass. Skipping.
+INPUT ERROR: Missing Embedded object Terminator i.e. "}" or "."
+INPUT ERROR: Missing Embedded object Terminator i.e. "}" or "."
+INPUT ERROR: Missing Embedded object Terminator i.e. "}" or "."
+INPUT ERROR: Unmatched Embedded instance end marker(s) at parameter "}"
+INPUT ERROR: Multiple definitions of scalar parameter named referenceParam
+Warning: Property idx not in class Test_CLITestProviderClass. Skipped this property.
 cimcli Pegasus Exception: no such property: Id. Cmd = im Object = Test_CLITestEmbeddedClass
 +++++ passed invokeEmbeddedInstanceMethod error tests
 +++++ passed test errors tests

@@ -26,15 +26,24 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT=../../../../..
+ROOT = ../../../../../..
+
+DIR = Pegasus/Security/Authentication/tests/Cookies
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    LocalAuthFile \
-    LocalAuthenticationHandler \
-    BasicAuthenticationHandler \
-    AuthenticationManager  \
-    Cookies
+include ../libraries.mak
 
-include $(ROOT)/mak/recurse.mak
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestCookies
+
+SOURCES = Cookies.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:
+

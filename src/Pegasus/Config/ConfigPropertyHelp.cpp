@@ -392,7 +392,13 @@ struct configPropertyDescription configPropertyDescriptionList[] =
 
     {"mapToLocalName",  "If 'true', all remote client names are translated to\n"
             "local ones. This applies only to clients using Negotiate\n"
-            "authentication method."}
+            "authentication method."},
+
+    {"httpSessionTimeout",
+            "If set to a positive integer, value specifies a HTTP session\n"
+            "cookie expiration time in seconds. If set to 0, cookie\n"
+            "processing in Pegasus is disabled, it will not send nor accept\n"
+            "any cookies."}
 };
 
 const Uint32 configPropertyDescriptionListSize =

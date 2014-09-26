@@ -378,6 +378,21 @@ public:
         return _rep->isExpiredPassword();
     }
 
+    /**
+     * Value of Cookie: header to send in the next response
+     */
+    void setCookie(const String &value)
+    {
+        CheckRep(_rep);
+        _rep->setCookie(value);
+    }
+
+    String getCookie() const
+    {
+        CheckRep(_rep);
+        return _rep->getCookie();
+    }
+
 private:
 
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)

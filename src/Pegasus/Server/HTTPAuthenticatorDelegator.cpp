@@ -71,6 +71,8 @@ static const char* _HTTP_HEADER_PEGASUSAUTHORIZATION = "PegasusAuthorization";
 
 static const String _CONFIG_PARAM_ENABLEAUTHENTICATION = "enableAuthentication";
 
+static const char _COOKIE_NAME[] = "PEGASUS_SID";
+
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 cimOperationMessageQueueId,
     Uint32 cimExportMessageQueueId,
@@ -89,6 +91,7 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
 
     _authenticationManager.reset(new AuthenticationManager());
+    _sessions.reset(new HTTPSessionList());
 
     PEG_METHOD_EXIT();
 }
@@ -439,10 +442,27 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     {
         authStatus = AuthenticationStatus(AUTHSC_SUCCESS);
     }
-        
 
     if (enableAuthentication)
     {
+
+        // Find cookie and check if we know it
+        String cookieHdr;
+        if (!authStatus.isSuccess() && _sessions->cookiesEnabled()
+                    && httpMessage->lookupHeader(headers, "Cookie", cookieHdr))
+        {
+            String userName;
+            String cookie;
+            if (httpMessage->parseCookieHeader(cookieHdr, _COOKIE_NAME, cookie)
+                        && _sessions->isAuthenticated(cookie,
+                                    httpMessage->ipAddress, userName))
+            {
+                authStatus = AuthenticationStatus(AUTHSC_SUCCESS);
+                httpMessage->authInfo->setAuthenticatedUser(userName);
+                httpMessage->authInfo->setAuthType(
+                        AuthenticationInfoRep::AUTH_TYPE_COOKIE);
+            }
+        }
 
         if (authStatus.isSuccess())
         {
@@ -977,7 +997,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             authorization,
                             httpMessage->authInfo);
 
-                    if (!authStatus.isSuccess())
+                    if (authStatus.isSuccess())
+                    {
+                        _createCookie(httpMessage);
+                    }
+                    else
                     {
                         String authResp;
 
@@ -1068,7 +1092,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }                    
                 }
 #endif
-                if (!authStatus.isSuccess())
+                if (authStatus.isSuccess())
+                {
+                    _createCookie(httpMessage);
+                }
+                else
                 {
                     //ATTN: the number of challenges get sent for a
                     //      request on a connection can be pre-set.
@@ -1125,7 +1153,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     return;
                 }
             }  // End if HTTP Authorization
-
         } //end if (!isRequestAuthenticated)
 
     } //end enableAuthentication
@@ -1481,8 +1508,49 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 closeConnect);
         }
     }
-
 PEG_METHOD_EXIT();
+}
+
+void HTTPAuthenticatorDelegator::_createCookie(
+        HTTPMessage *httpMessage)
+{
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPAuthenticatorDelegator::_createCookie");
+
+    if (!_sessions->cookiesEnabled())
+    {
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // The client passed authentication, give it a cookie
+    String sessionID = _sessions->addNewSession(
+            httpMessage->authInfo->getAuthenticatedUser(),
+            httpMessage->ipAddress);
+    const char attributes[] = ";secure;httpOnly;maxAge=";
+    ConfigManager *configManager = ConfigManager::getInstance();
+    String strTimeout = configManager->getCurrentValue("httpSessionTimeout");
+
+    String cookie;
+    cookie.reserveCapacity(sizeof(_COOKIE_NAME) + 1 + sessionID.size()
+            + sizeof(attributes) + strTimeout.size() + 1);
+    cookie.append(_COOKIE_NAME);
+    cookie.append("=");
+    cookie.append(sessionID);
+    cookie.append(attributes);
+    cookie.append(strTimeout);
+
+    // Schedule the cookie to be added in the next response
+    httpMessage->authInfo->setCookie(cookie);
+
+    PEG_METHOD_EXIT();
+}
+
+void HTTPAuthenticatorDelegator::idleTimeCleanup()
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPAuthenticatorDelegator::idleTimeCleanup");
+    _sessions->clearExpired();
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

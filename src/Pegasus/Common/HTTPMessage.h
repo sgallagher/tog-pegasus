@@ -130,6 +130,11 @@ public:
         String& authType,
         String& cookie);
 
+    static Boolean parseCookieHeader(
+        const String& cookieHeader,
+        const String& name,
+        String &value);
+
     /**
         Advances a given pointer to the first character that is not
         HTTP header whitespace (space or tabs).
@@ -159,6 +164,15 @@ public:
                 returns NULL.
     */
     static char* findSeparator(const char* data);
+
+    /**
+        Add a header just after the status line. This method can be used
+        to modify a message just before it is sent.
+
+        @param header   Complete header, in format "\r\nName: value". Especially
+        note the starting whitespace characters!
+     */
+    void injectHeader(const String &header);
 
 private:
 

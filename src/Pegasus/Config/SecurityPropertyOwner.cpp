@@ -41,6 +41,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
 #include "ConfigExceptions.h"
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 
@@ -96,6 +97,7 @@ static struct ConfigPropertyRow properties[] =
         IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, IS_VISIBLE},
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
+    {"httpSessionTimeout", "0", IS_DYNAMIC, IS_VISIBLE},
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     {"mapToLocalName", "false", IS_STATIC, IS_VISIBLE},
 #endif
@@ -136,7 +138,8 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
 #endif
-    {"sslCipherSuite", "DEFAULT", IS_STATIC, IS_VISIBLE}
+    {"sslCipherSuite", "DEFAULT", IS_STATIC, IS_VISIBLE},
+    {"httpSessionTimeout", "0", IS_DYNAMIC, IS_VISIBLE}
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     ,{"mapToLocalName", "false", IS_STATIC, IS_VISIBLE},
 #endif
@@ -171,10 +174,10 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _enableCFZAPPLID.reset(new ConfigProperty());
 #endif
     _cipherSuite.reset(new ConfigProperty());
+    _httpSessionTimeout.reset(new ConfigProperty());
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     _mapToLocalName.reset(new ConfigProperty());
 #endif
-
 }
 
 
@@ -406,6 +409,17 @@ void SecurityPropertyOwner::initialize()
             _cipherSuite->externallyVisible =
                 properties[i].externallyVisible;
         }
+        else if (String::equal(
+                     properties[i].propertyName, "httpSessionTimeout"))
+        {
+            _httpSessionTimeout->propertyName = properties[i].propertyName;
+            _httpSessionTimeout->defaultValue = properties[i].defaultValue;
+            _httpSessionTimeout->currentValue = properties[i].defaultValue;
+            _httpSessionTimeout->plannedValue = properties[i].defaultValue;
+            _httpSessionTimeout->dynamic = properties[i].dynamic;
+            _httpSessionTimeout->externallyVisible =
+                    properties[i].externallyVisible;
+        }
     }
 
 }
@@ -493,6 +507,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equal(_cipherSuite->propertyName, name))
     {
         return _cipherSuite.get();
+    }
+    else if (String::equal(_httpSessionTimeout->propertyName, name))
+    {
+        return _httpSessionTimeout.get();
     }
     else
     {
@@ -839,6 +857,13 @@ Boolean SecurityPropertyOwner::isValid(
         {
            retVal =  true;
         }
+    }
+    else if (String::equal(_httpSessionTimeout->propertyName, name))
+    {
+        Uint64 v;
+        return
+            StringConversion::decimalStringToUint64(value.getCString(), v) &&
+            StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }
     else
     {

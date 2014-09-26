@@ -192,6 +192,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     {
         if (_authenticator->checkResponseHeaderForChallenge(headers))
         {
+            // If we had a cookie, it must have been a wrong one
+            _authenticator->clearCookie();
+
             //
             // Get the original request, put that in the encoder's queue for
             // re-sending with authentication challenge response.
@@ -233,6 +236,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
+
+    // Store incoming cookie, if present.
+    _authenticator->parseCookie(headers);
 
     // We have the response.  If authentication failed, we will generate a
     // CIMClientHTTPErrorException below with the "401 Unauthorized" status

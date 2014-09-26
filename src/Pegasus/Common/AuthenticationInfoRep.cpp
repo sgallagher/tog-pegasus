@@ -43,12 +43,14 @@ PEGASUS_NAMESPACE_BEGIN
 const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
 const String AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET = "LDS";
 const String AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS = "ATTLS";
+const String AuthenticationInfoRep::AUTH_TYPE_COOKIE = "COOKIE";
 
 AuthenticationInfoRep::AuthenticationInfoRep()
     : _connectionAuthenticated(false),
       _wasRemotePrivilegedUserAccessChecked(false),
       _authHandle(),
-      _isExpiredPassword(false)
+      _isExpiredPassword(false),
+      _cookie()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");

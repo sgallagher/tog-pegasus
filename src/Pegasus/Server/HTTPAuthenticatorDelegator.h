@@ -42,6 +42,7 @@
 #include <Pegasus/Server/Linkage.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Security/Authentication/Cookies.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -94,6 +95,8 @@ public:
         _rsOperationMessageQueueId = rsOperationMessageQueueId;
     }
 
+    void idleTimeCleanup();
+
 private:
 
     void _sendResponse(
@@ -114,6 +117,11 @@ private:
         const String& pegasusError = String::EMPTY,
         Boolean closeConnect = false);
 
+    /**
+     * Create a cookie after successful authentication.
+     */
+    void _createCookie(HTTPMessage *httpMessage);
+
     Uint32 _cimOperationMessageQueueId;
     Uint32 _cimExportMessageQueueId;
     Uint32 _wsmanOperationMessageQueueId;
@@ -123,6 +131,7 @@ private:
 #endif
 
     AutoPtr<AuthenticationManager> _authenticationManager;
+    AutoPtr<HTTPSessionList> _sessions;
 
 private:
       CIMRepository* _repository;

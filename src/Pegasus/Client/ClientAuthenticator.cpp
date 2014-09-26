@@ -98,6 +98,7 @@ void ClientAuthenticator::clear()
     _localAuthFileContent.clear();
     _challengeReceived = false;
     _authType = ClientAuthenticator::NONE;
+    _cookie.clear();
 }
 
 Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
@@ -530,6 +531,36 @@ String ClientAuthenticator::_getSubStringUptoMarker(
     }
 
     return result;
+}
+
+void ClientAuthenticator::parseCookie(Array<HTTPHeader> headers)
+{
+    // This code assumes there is at maximum one Set-Cookie header in a
+    // response. In real HTTP, multiple Set-Cookie headers may be present.
+    const char* cookieHeader;
+    if (!HTTPMessage::lookupHeader(
+            headers, "Set-Cookie", cookieHeader, false))
+    {
+        return;
+    }
+
+    // Skip initial whitespaces
+    while (*cookieHeader && isspace(*cookieHeader))
+    {
+        ++cookieHeader;
+    }
+
+    _cookie = _getSubStringUptoMarker(&cookieHeader, ';');
+}
+
+String ClientAuthenticator::getCookie()
+{
+    return _cookie;
+}
+
+void ClientAuthenticator::clearCookie()
+{
+    _cookie.clear();
 }
 
 PEGASUS_NAMESPACE_END

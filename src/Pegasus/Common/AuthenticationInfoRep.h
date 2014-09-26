@@ -65,6 +65,7 @@ public:
     static const String AUTH_TYPE_SSL;
     static const String AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
     static const String AUTH_TYPE_ZOS_ATTLS;
+    static const String AUTH_TYPE_COOKIE;
 
     AuthenticationInfoRep();
 
@@ -195,6 +196,16 @@ public:
         return _isExpiredPassword;
     }
 
+    void setCookie(const String &value)
+    {
+        _cookie = value;
+    }
+
+    String getCookie() const
+    {
+        return _cookie;
+    }
+
 private:
 
     /** Default Copy Constructor and assignment operator  */
@@ -223,6 +234,7 @@ private:
     AuthHandle _authHandle;
     String _userRole;
     Boolean _isExpiredPassword;
+    String  _cookie;
 };
 
 PEGASUS_NAMESPACE_END

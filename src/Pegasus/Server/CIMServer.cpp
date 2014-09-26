@@ -772,6 +772,7 @@ void CIMServer::runForever()
     if (!_dieNow)
     {
         _monitor->run(500000);
+
         static struct timeval lastIdleCleanupTime = {0, 0};
         struct timeval now;
         Time::gettimeofday(&now);
@@ -782,6 +783,10 @@ void CIMServer::runForever()
 
             try
             {
+                // clean up expired sessions
+                _httpAuthenticatorDelegator->idleTimeCleanup();
+
+                // clean up idle providers
                 _providerManager->idleTimeCleanup();
                 MessageQueueService::get_thread_pool()->cleanupIdleThreads();
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN

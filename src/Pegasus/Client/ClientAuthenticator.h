@@ -115,6 +115,15 @@ public:
     */
     AuthType getAuthType();
 
+    /**
+     * Parse Set-Cookie header from a HTTP response.
+     */
+    void parseCookie(Array<HTTPHeader> headers);
+
+    String getCookie();
+
+    void clearCookie();
+
 private:
 
     String _buildLocalAuthResponse();
@@ -144,6 +153,8 @@ private:
     String _localAuthFileContent;
 
     AuthType _authType;
+
+    String _cookie;
 
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     AutoPtr<NegotiateClientSession> _session;

@@ -696,4 +696,53 @@ Boolean HTTPMessage::parseHttpAuthHeader(
     return true;
 }
 
+void HTTPMessage::injectHeader(const String &header)
+{
+    char* data = (char*)message.getData();
+
+    // find where the request / status line ends and inject just after it
+    char* sep = findSeparator(data);
+    PEGASUS_ASSERT(sep);
+
+    int len = sep - data;
+    message.insert(len, (const char*) header.getCString(), header.size());
+}
+
+
+Boolean HTTPMessage::parseCookieHeader(
+    const String& cookieHeader,
+    const String& name,
+    String &value)
+{
+    // Cookie header syntax: Cookie: <name>=<value>;<name>=<value>...
+    Uint32 i = 0;
+    Uint32 size = cookieHeader.size();
+
+    while(i < size)
+    {
+        // find name=value;
+        Uint32 namesep = cookieHeader.find(i, '=');
+
+        if (namesep == PEG_NOT_FOUND)
+            return false;
+
+        Uint32 valsep = cookieHeader.find(namesep, ';');
+        if (valsep == PEG_NOT_FOUND)
+        {
+            // there is no ';', it must be the last value
+            valsep = size - 1;
+        }
+
+        String cookieName = cookieHeader.subString(i, namesep-i);
+        String cookieValue = cookieHeader.subString(namesep+1, valsep-namesep);
+        if (name == cookieName)
+        {
+            value = cookieValue;
+            return true;
+        }
+        i = valsep + 1;
+    }
+    return false;
+};
+
 PEGASUS_NAMESPACE_END

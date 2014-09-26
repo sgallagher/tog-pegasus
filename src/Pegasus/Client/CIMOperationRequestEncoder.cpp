@@ -42,6 +42,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static const String COOKIE_HEADER = "\r\nCookie: ";
+
 // append either ClassPath or InstancePath based IParameter.
 // This function local to client to clean up use of the getKeyBindings test
 // in the common code.  It is used by the associators, etc. requests
@@ -1487,7 +1489,6 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
             buffer.getData());
     }
 
-
     HTTPMessage * http_request = new HTTPMessage(buffer);
 
     // these variables are needed to call HTTPMessage::parse, all we need
@@ -1501,6 +1502,18 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
     {
         dataStore_prt->setRequestSize(contentLength);
         dataStore_prt->setStartNetworkTime();
+    }
+
+    // Inject Cookie: header, if needed
+    if (_authenticator)
+    {
+        String cookie = _authenticator->getCookie();
+        if (cookie.size())
+        {
+            String hdr = COOKIE_HEADER;
+            hdr.append(cookie);
+            http_request->injectHeader(hdr);
+        }
     }
 
     _outputQueue->enqueue(http_request);

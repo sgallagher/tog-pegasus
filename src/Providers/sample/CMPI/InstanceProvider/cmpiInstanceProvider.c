@@ -31,6 +31,9 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <string.h>
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static const CMPIBroker *_broker;
 static CMPIBoolean valid[10];
@@ -51,10 +54,41 @@ static void initialize()
     CMPIValue value1, value2, value_inst1, value_inst2;
     CMPIInstance *instance1, *instance2, *instance3;
     CMPIObjectPath *cop1, *cop2, *cop3;
+    CMPIObjectPath *embeddedObjPath;
+    CMPIInstance *emInst1;
+    CMPIValue valueEmInst;
+
     value1.uint8 = 1;
     value2.string = CMNewString(_broker, "\\x0C9C\\x0CA8\\x0CCD\\x0CAE"
         "\\x0CA6\\x0CBF\\x0CA8\\x0CA6 \\x0CB6\\x0CC1\\x0CAD\\x0CBE"
         "\\x0CB6\\x0CAF\\x0C97\\x0CB3\\x0CC1", &rc);
+
+    /* Create an embedded instance to be returned as embedded object
+       This is an instance of a class that does not exist which
+       is legal in DMTF specs.
+    */
+    embeddedObjPath = CMNewObjectPath (
+    _broker,
+    "test/TestProvider",
+    "TestCMPI_EmbeddedNoClass",
+    &rc);
+
+    assert(rc.rc == CMPI_RC_OK);
+    valueEmInst.uint32 = 1;
+
+    rc = CMAddKey(embeddedObjPath,"id",&valueEmInst, CMPI_uint32);
+    assert(rc.rc == CMPI_RC_OK);
+    emInst1 = CMNewInstance(_broker, embeddedObjPath, &rc);
+
+    assert(rc.rc == CMPI_RC_OK);
+    valueEmInst.uint32 = 1999;
+    rc = CMSetProperty(emInst1, "id", &valueEmInst, CMPI_uint32);
+
+    assert(rc.rc == CMPI_RC_OK);
+
+    // set the new instance into a value container
+    valueEmInst.inst = emInst1;
+
     /* create a new array to hold the instances created */
     arr_ptr = CMNewArray(_broker, initArraySize, CMPI_instance, &rc);
 
@@ -69,13 +103,13 @@ static void initialize()
     /* if created object path is not null then create new instance */
     if(!CMIsNullObject(cop1))
     {
-
         instance1 = CMNewInstance(_broker,
                         cop1,
                         &rc);
         /* set the properties for newly created instance */
         CMSetProperty(instance1, "Identifier",&value1, CMPI_uint8);
         CMSetProperty(instance1, "Message", &value2, CMPI_string);
+        CMSetProperty(instance1, "emObject", &valueEmInst, CMPI_instance);
         value_inst1.inst = instance1;
 
         /* assign the created instance to array created */
@@ -134,6 +168,7 @@ static void initialize()
                         &rc);
          CMSetProperty(instance3, "Identifier", &value1, CMPI_uint8);
          CMSetProperty(instance3, "Message", &value2, CMPI_string);
+         CMSetProperty(instance3, "emObject", &valueEmInst, CMPI_instance);
          value_inst2.inst = instance3;
          rc = CMSetArrayElementAt(arr_ptr,
             numOfInst,

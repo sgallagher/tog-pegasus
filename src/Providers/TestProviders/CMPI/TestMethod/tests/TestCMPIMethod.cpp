@@ -747,6 +747,8 @@ void test09 (CIMClient & client)
     CIMProperty outputProp(outputInstance.getProperty(i));
     CIMProperty inputProp(inputInstance.getProperty(i));
 
+    cout << "output " << outputProp.getName().getString()
+         << "\ninput  " << inputProp.getName().getString() << endl;
     PEGASUS_TEST_ASSERT(outputProp.getName() == inputProp.getName());
     PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
   }

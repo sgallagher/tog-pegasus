@@ -40,6 +40,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#define VCOUT if (verbose) cout
 
 const CIMNamespaceName providerNamespace =
           CIMNamespaceName ("root/SampleProvider");
@@ -47,7 +48,8 @@ const CIMName CLASSNAME = CIMName ("CMPISample_InstanceProviderClass");
 
 static Boolean verbose;
 #define QUERIES 7
-const char *queries[] = {"SELECT * FROM CMPISample_InstanceProviderClass",
+const char *queries[] = {
+    "SELECT * FROM CMPISample_InstanceProviderClass",
     "SELECT * FROM CMPISample_InstanceProviderClass where Identifier<3",
     "select Identifier FROM CMPISample_InstanceProviderClass",
     "select Message FROM CMPISample_InstanceProviderClass",
@@ -97,7 +99,7 @@ void test01(CIMClient &client)
     client.deleteInstance(providerNamespace, instanceName);
 }
 
-#ifdef PEGASUS_ENABLE_EXECQUERY
+#ifndef PEGASUS_DISABLE_EXECQUERY
 void test02(CIMClient & client)
 {
     Uint32 pos;
@@ -105,18 +107,16 @@ void test02(CIMClient & client)
     CIMValue theValue;
     String wql ("WQL");
 
-    if (verbose)
-    {
-            cerr << "Querying " << queries << endl;
-    }
-
     //evaluate each query from "queries" array
     for(Uint32 j =0 ; j < QUERIES; j++)
     {
-        Array <CIMObject> objects = client.execQuery (
+        VCOUT << "Query = " << queries[j] << " number " << j << endl;
+
+        Array<CIMObject> objects = client.execQuery(
             providerNamespace,
             wql,
             queries[j]);
+
         if (objects.size () == 0)
         {
             if (verbose)
@@ -145,6 +145,17 @@ void test02(CIMClient & client)
                     theValue = theProperty.getValue ();
                     PEGASUS_TEST_ASSERT (theValue.getType() == CIMTYPE_STRING);
                 }
+                pos = instance.findProperty ("emObject");
+                if (pos != PEG_NOT_FOUND)
+                {
+                    theProperty = instance.getProperty (pos);
+                    theValue = theProperty.getValue ();
+                    if (!theValue.isNull())
+                    {
+                        PEGASUS_TEST_ASSERT (theValue.getType()
+                                             == CIMTYPE_OBJECT);
+                    }
+                }
             }
         }
     }//QUERIES
@@ -169,7 +180,8 @@ int main(int, char** argv)
     try
     {
         test01(client);
-#ifdef PEGASUS_ENABLE_EXECQUERY
+#ifndef PEGASUS_DISABLE_EXECQUERY
+cout << "Execute test02" << endl;
         test02(client);
 #endif
     }

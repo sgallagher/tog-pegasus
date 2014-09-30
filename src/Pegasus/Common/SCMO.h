@@ -94,7 +94,10 @@ struct SCMBDataPtr
 //
 // The value QUALNAME_USERDEFINED indicates that the qualifier is
 // user defined and the qualifier name must be specified.
-//
+//// KS_FUTURE  bug 9930 this may no longer be the correct list. ex. REFERENCE
+/// qualifier Struct, etc.
+
+
 enum QualifierNameEnum
 {
     QUALNAME_USERDEFINED=0,
@@ -214,7 +217,7 @@ union SCMBUnion
     SCMBDataPtr arrayValue;
     SCMBDataPtr stringValue;
     SCMBDateTime dateTimeValue;
-    // Used for embedded referecnes, instances, and objects
+    // Used for embedded references, instances, and objects
     // as an external references to SCMO_Instances.
     SCMOInstance* extRefPtr;
 
@@ -277,10 +280,23 @@ struct SCMBUserKeyBindingElement
         // The cim type
         CIMType       type;
     };
-    // Relativer pointer to the key property name.
+    // Relative pointer to the key property name.
     SCMBDataPtr   name;
     // The value.
     SCMBKeyBindingValue value;
+};
+
+struct SCMBUserPropertyElement
+{
+    // If not 0, a relative pointer to the next element.
+    SCMBDataPtr   nextElement;
+
+    SCMBDataPtr classOrigin;
+
+    // Relative pointer to the property name.
+    SCMBDataPtr   name;
+    // The value.
+    SCMBValue value;
 };
 
 struct SCMBQualifier
@@ -295,7 +311,7 @@ struct SCMBQualifier
         Uint32              flavor;
     };
     // if name == QUALNAME_USERDEFINED
-    // the ralative pointer to the user defined name
+    // the relative pointer to the user defined name
     SCMBDataPtr     userDefName;
     // Qualifier Value
     SCMBValue       value;
@@ -396,7 +412,7 @@ struct SCMBKeyBindingNode
     Sint32          hasNext;
     // Array index of next property in hash chain.
     Uint32          nextNode;
-    // Relativer pointer to the key property name.
+    // Relative pointer to the key property name.
     SCMBDataPtr     name;
     Uint32          nameHashTag;
     // The type of the key binding.
@@ -432,7 +448,8 @@ struct SCMBClass_Main
     // The reference counter for this class
     AtomicInt       refCount;
     // Object flags
-    struct{
+    struct
+    {
       unsigned isEmpty :1;
     }flags;
 
@@ -474,20 +491,21 @@ struct SCMBInstance_Main
     // The reference counter for this instance
     AtomicInt           refCount;
 
-    // Instance flags
+    // Instance flags, define bitfields for instance flags.
     struct{
       unsigned includeQualifiers  :1;
       unsigned includeClassOrigin :1;
       unsigned isClassOnly:1;
       unsigned isCompromised:1;
       unsigned exportSetOnly:1;
+      unsigned noClassForInstance:1;
     }flags;
 
     union
     {
         // An absolute pointer/reference to the class SCMB for this instance
         SCMOClass*   ptr;
-        // To keept 64 Bit space for the pointer the same
+        // To keep 64 Bit space for the pointer the same
         // size on 32 and 64 Bit systems.
         Uint64       placeHolder;
     }theClass;
@@ -502,6 +520,8 @@ struct SCMBInstance_Main
     // Will be initialized by with the values of the linked SCMOClass.
     // If it was overwritten, the new value is stored in the SCMOInstance
     // and the the flag isCompromised is set to true.
+    // This flag is also set when a SCMOInstance is created from a
+    // CMPEncNewObjectPath and there is not Class in the repository.
     SCMBDataPtr     instNameSpace;
     SCMBDataPtr     instClassName;
     // Relative pointer to hostname
@@ -516,17 +536,26 @@ struct SCMBInstance_Main
     };
     // Relative pointer to SCMBInstancePropertyArray
     SCMBDataPtr     propertyArray;
+
+    // Definition of user-defined properties which are properties introduced
+    // by the creator of the instance but which are not in the SCMOClass.
+    // This is used only if the noClassForInstance flag is set indicating
+    // that there was no class found for the defined classname/namespace
+    // Number of user defined properties
+    Uint32          numberUserProperties;
+    // Relative pointer  SCMBUserPropertyElement
+    SCMBDataPtr     userPropertyElement;
 };
 
 // The index of an instance key binding is the same as the class.
-// If a key binding has to be find by name, the class key binding ordered set
+// If a key binding has to be found by name, the class key binding ordered set
 // has to be used to find the right index.
 typedef SCMBKeyBindingValue SCMBInstanceKeyBindingArray[];
 
 // The index of an instance property is the same as the class property.
-// If a property has to be find by name, the class property ordered set
+// If a property has to be found by name, the class property ordered set
 // has to be used to find the right index.
-// The properties of an instances contains only the values provider.
+// The properties of an instances contains only the values provided.
 // If a instance property does not contain a value
 // the default value of the class has to be used.
 typedef SCMBValue   SCMBInstancePropertyArray[];
@@ -569,7 +598,7 @@ inline Uint32 _generateSCMOStringTag(
     const SCMBDataPtr& ptr,
     char* base)
 {
-    // The lenght of a SCMBDataPtr to a UTF8 string includs the trailing '\0'.
+    // Length of a SCMBDataPtr to a UTF8 string includes the trailing '\0'.
     return _generateStringTag(_getCharString(ptr,base),ptr.size-1);
 }
 
@@ -602,6 +631,7 @@ static inline Boolean _equalNoCaseUTF8Strings(
         return false;
     }
     const char* a = (const char*)_getCharString(ptr_a,base);
+
     return ( _utf8ICUncasecmp(a,name,len)== 0);
 #else
     return System::strncasecmp(

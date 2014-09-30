@@ -71,7 +71,8 @@ public:
     // Methods for SCMOInstance only
     void dumpSCMOInstance(
         SCMOInstance& testInst,
-        Boolean inclMemHdr = true) const;
+        Boolean inclMemHdr = true,
+        Boolean verbose = false) const;
     void dumpSCMOInstanceKeyBindings(
         SCMOInstance& testInst,
         Boolean verbose = false) const ;
@@ -134,6 +135,12 @@ private:
     void _dumpSCMBMgmt_Header(SCMBMgmt_Header& header,char* base) const;
 
     void _hexDump(char* buffer,Uint64 length) const;
+
+    void _dumpEmbeddedInstance(SCMBUnion u, Boolean verbose) const;
+
+    void _dumpUserDefinedPropertyElement(char* instbase,
+        SCMBUserPropertyElement* theElement,
+        Boolean verbose) const;
 
     Boolean _fileOpen;
     FILE *_out;

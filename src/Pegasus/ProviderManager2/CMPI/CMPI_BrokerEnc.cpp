@@ -297,15 +297,36 @@ extern "C"
             Uint32 cnL;
             const char* cn = scmoOp->getClassName_l(cnL);
             SCMOClass* scmoClass = mbGetSCMOClass(ns,nsL,cn,cnL);
+
+            // If return with no class, create instance but mark with
+            // flag indicating no valid class in repository
             if (0 == scmoClass)
             {
-                CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+                // Create the new instance based on the objectPath.
+                newScmoInst = new SCMOInstance(scmoOp->clone());
+
+                newScmoInst->markNoClassForInstance(true);
+                CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
+                new CMPI_Object(newScmoInst, CMPI_Object::ObjectTypeInstance));
+
+                CMSetStatus(rc, CMPI_RC_OK);
                 PEG_METHOD_EXIT();
-                return NULL;
+                return neInst;
             }
-            else
+            // The following is the old code before we changed to
+            // allow use of instances that have no class in repository.
+            // Get Rid of this when we are satisfied that the new
+            // logic covers all issues (See bug 9721)
+            // No Class found for this classname. Error
+            //if (0 == scmoClass)
+            //{
+            //    CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+            //    PEG_METHOD_EXIT();
+            //    return NULL;
+            //}
+            //else
             {
-                // Create a new clean objectPath ...
+                // Create a new clean objectPath from the retrieved instance
                 SCMOInstance scmoNewOp(*scmoClass);
 
                 // ... copy the key properties from the dirty one ...
@@ -325,11 +346,13 @@ extern "C"
 
                 // ... and finally use the new clean ObjectPath
                 newScmoInst = new SCMOInstance(scmoNewOp);
+                newScmoInst->markNoClassForInstance(false);
             }
         }
-        else
+        else   // not compromised
         {
             newScmoInst = new SCMOInstance(scmoOp->clone());
+            newScmoInst->markNoClassForInstance(false);
         }
         CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
             new CMPI_Object(newScmoInst, CMPI_Object::ObjectTypeInstance));
@@ -374,6 +397,7 @@ extern "C"
             SCMOClass localDirtyClass(cls,ns);
             scmoInst = new SCMOInstance(localDirtyClass);
             scmoInst->markAsCompromised();
+            scmoInst->markNoClassForInstance(true);
 
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,

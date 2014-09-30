@@ -94,6 +94,8 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
+// KS_FUTURE bug 9930 this is not really complete list of all qualifiers with
+// latest  CIM_Schemas. At least struct and reference should be in this list.
 const StrLit SCMOClass::_qualifierNameStrLit[72] =
 {
     STRLIT(""),
@@ -301,7 +303,6 @@ inline void SCMOClass::_initSCMOClass()
     cls.hdr->header.startOfFreeSpace=sizeof(SCMBClass_Main);
 
     cls.hdr->refCount=1;
-
 }
 
 SCMOClass::SCMOClass(const char* className, const char* nameSpaceName )
@@ -335,7 +336,6 @@ SCMOClass::SCMOClass(
     const CIMClass& theCIMClass,
     const char* nameSpaceName)
 {
-
     _initSCMOClass();
 
     try
@@ -498,7 +498,7 @@ CIMProperty SCMOClass::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
     Uint32 i, k = clsProp.theProperty.numberOfQualifiers;
     for ( i = 0 ; i < k ; i++)
     {
-        _getCIMQualifierFromSCMBQualifier(
+       _getCIMQualifierFromSCMBQualifier(
             theCimQualifier,
             qualiArray[i],
             cls.base);
@@ -514,9 +514,7 @@ void SCMOClass::_getCIMQualifierFromSCMBQualifier(
     CIMQualifier& theCimQualifier,
     const SCMBQualifier& scmbQualifier,
     const char* base)
-
 {
-
     CIMName theCimQualiName;
     CIMValue theCimValue;
 
@@ -568,7 +566,6 @@ const char* SCMOClass::_getPropertyNameAtNode(Uint32 propNode) const
 
 SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
 {
-
     Uint32 tag,len,hashIdx;
 
     len = strlen(name);
@@ -583,7 +580,7 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
         return SCMO_NOT_FOUND;
     }
 
-    // get the propterty node array
+    // get the Key Binding node array
     SCMBKeyBindingNode* nodeArray =
         (SCMBKeyBindingNode*)
             &(cls.base[cls.hdr->keyBindingSet.nodeArray.start]);
@@ -620,10 +617,13 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
     return SCMO_NOT_FOUND;
 
 }
-
-SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
+/*
+    Gets the property Node for class-defined properties. Returns the
+    node and SCMO_OK or the error SCMO_NOT_FOUND
+    This function does NOT handle user-defined properties.
+*/
+SCMO_RC SCMOClass::_getPropertyNodeIndex(Uint32& node, const char* name) const
 {
-
     Uint32 tag,len,hashIdx;
 
     len = strlen(name);
@@ -638,7 +638,7 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
         return SCMO_NOT_FOUND;
     }
 
-    // get the propterty node array
+    // get the property node array
     SCMBClassPropertyNode* nodeArray =
         (SCMBClassPropertyNode*)
             &(cls.base[cls.hdr->propertySet.nodeArray.start]);
@@ -699,8 +699,8 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
         // Each property needs a bit in the mask.
         // The number of Uint64 in the key mask is :
         // Decrease the number of properties by 1 since
-        // the array is starting at 0!
-        // Divided with the number of bits in a Uint64.
+        // the array starts at 0!
+        // Divide by the number of bits in a Uint64.
         // e.g. number of Properties = 68
         // (68 - 1) / 64 = 1 --> The mask consists of two Uint64 values.
         _getFreeSpace(cls.hdr->keyPropertyMask,
@@ -720,7 +720,6 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
 
         for (Uint32 i = 0; i < noProps; i++)
         {
-
             _setProperty(start,&isKey ,theCIMProperties[i]);
             if(isKey)
             {
@@ -797,7 +796,7 @@ void SCMOClass::_insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex)
     Uint32 *hashTable = cls.hdr->keyBindingSet.hashTable;
 
     // calculate the new hash index of the new property.
-    Uint32 hash = newKeyNode->nameHashTag & 
+    Uint32 hash = newKeyNode->nameHashTag &
         (PEGASUS_KEYBINDIG_SCMB_HASHSIZE - 1);
 
     // 0 is an invalid index in the hash table
@@ -837,8 +836,6 @@ void SCMOClass::_insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex)
 
 void SCMOClass::_insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex)
 {
-
-
     SCMBClassPropertyNode* newPropNode =
         (SCMBClassPropertyNode*)&(cls.base[start]);
 
@@ -957,7 +954,6 @@ void SCMOClass::_setProperty(
     Boolean* isKey,
     const CIMProperty& theCIMProperty)
 {
-
    *isKey = false;
 
     CIMPropertyRep* propRep = theCIMProperty._rep;
@@ -1212,7 +1208,7 @@ SCMO_RC SCMOClass::_isNodeSameType(
 
     if(nodeArray[node].theProperty.defaultValue.valueType != type)
     {
-        // Accept an property of type instance also
+        // Accept a property of type instance also
         // for an CIMTYPE_OBJECT property.
         if (!(type == CIMTYPE_INSTANCE &&
               nodeArray[node].theProperty.defaultValue.valueType
@@ -1263,12 +1259,10 @@ SCMOInstance::SCMOInstance(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-
     _initSCMOInstance(new SCMOClass(baseClass));
 
     inst.hdr->flags.includeQualifiers=includeQualifiers;
     inst.hdr->flags.includeClassOrigin=includeClassOrigin;
-
 }
 
 SCMOInstance::SCMOInstance(SCMOClass& baseClass, const CIMObjectPath& cimObj)
@@ -1280,19 +1274,20 @@ SCMOInstance::SCMOInstance(SCMOClass& baseClass, const CIMObjectPath& cimObj)
 
 SCMOInstance::SCMOInstance(SCMOClass& baseClass, const CIMInstance& cimInstance)
 {
-
     _initSCMOInstance(new SCMOClass(baseClass));
 
     _setCIMInstance(cimInstance);
-
 }
 
 SCMOInstance::SCMOInstance(CIMClass& theCIMClass, const char* altNameSpace)
 {
     _initSCMOInstance(new SCMOClass(theCIMClass,altNameSpace));
-
 }
 
+/*
+    Construct a new SCMOInstance from a CIMInstance. This constructor
+    gets the SCMOClass from the cache
+*/
 SCMOInstance::SCMOInstance(
     const CIMInstance& cimInstance,
     const char* altNameSpace,
@@ -1305,15 +1300,26 @@ SCMOInstance::SCMOInstance(
 
     _initSCMOInstance( new SCMOClass(theSCMOClass));
 
+    // If class empty, the name info not set into the instance
     if(theSCMOClass.isEmpty())
     {
         // flag the instance as compromized
         inst.hdr->flags.isCompromised=true;
+        inst.hdr->flags.noClassForInstance=true;
+
+        // Copy class name of the class from the
+        // CIMInstance
+
+        _setString(cimInstance.getClassName().getString(),
+            inst.hdr->instClassName,
+            &inst.mem);
+
+        _setBinary(altNameSpace, altNSLen,
+                   inst.hdr->instNameSpace, &inst.mem);
     }
-    else
-    {
-        _setCIMInstance(cimInstance);
-    }
+
+    _setCIMInstance(cimInstance);
+
 }
 
 SCMOInstance::SCMOInstance(
@@ -1344,11 +1350,10 @@ SCMOInstance::SCMOInstance(
         {
             // flag the instance as compromized
             inst.hdr->flags.isCompromised=true;
+            inst.hdr->flags.noClassForInstance=true;
         }
-        else
-        {
-            _setCIMInstance(cimInstance);
-        }
+
+        _setCIMInstance(cimInstance);
     }
 }
 
@@ -1368,11 +1373,13 @@ SCMOInstance::SCMOInstance(
     {
         // flag the instance as compromized
         inst.hdr->flags.isCompromised=true;
+        // KS_TODO should we set the noClassForInstance
+        // and set the path for this one??
+
+        inst.hdr->flags.noClassForInstance=true;
     }
-    else
-    {
-        _setCIMObjectPath(cimObj);
-    }
+
+     _setCIMObjectPath(cimObj);
 }
 
 void SCMOInstance::_destroyExternalReferences()
@@ -1425,13 +1432,12 @@ SCMOClass SCMOInstance::_getSCMOClass(
 
 void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
 {
-
     Uint64 refPtr =(((char *)pInst) - (char *)(*pmem));
     SCMBMgmt_Header* memHdr = (*pmem);
     // Save the number of external references in the array
     Uint32 noExtRef = memHdr->numberExtRef;
 
-    // Allocate the external reflerence array
+    // Allocate the external reference array
     // if it is full or empty ( 0 == 0 ).
     if (noExtRef == memHdr->sizeExtRefIndexArray)
     {
@@ -1532,7 +1538,7 @@ void SCMOInstance::_destroyExternalKeyBindings()
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
         (SCMBKeyBindingNode*)&((inst.hdr->theClass.ptr->cls.base)[idx]);
 
-    // create a pointer to instanc key binding array.
+    // create a pointer to instance key binding array.
     SCMBKeyBindingValue* theInstanceKeyBindingNodeArray =
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
@@ -1579,7 +1585,6 @@ void SCMOInstance::_destroyExternalKeyBindings()
 
 SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
 {
-
     SCMO_RC rc = SCMO_OK;
     CIMObjectPath objPath;
 
@@ -1612,6 +1617,11 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
         }
     }
 
+    // User-defined properties and exportSetOnly
+    // are mutually exclusive. Do not appear in same instance.
+    // KS_TODO insure that this is true or change to export all.
+    // This flag is only set by _setCIMInstance
+
     if (inst.hdr->flags.exportSetOnly)
     {
         for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
@@ -1631,13 +1641,38 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     }
     else
     {
-        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+        // export all properties
+        Uint32 propertyCount = getPropertyCount();
+        if (!noClassForInstance())
         {
-            // Set all properties in the CIMInstance gegarding they
-            // are part of the SCMOInstance or the SCMOClass.
-            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+            for(Uint32 i = 0, k = propertyCount; i<k; i++)
+            {
+                // Set all properties in the CIMInstance gegarding they
+                // are part of the SCMOInstance or the SCMOClass.
+                CIMProperty theProperty = _getCIMPropertyAtNodeIndex(i);
 
-            newInstance._rep->_properties.append(theProperty);
+                newInstance._rep->_properties.append(theProperty);
+            }
+        }
+        else
+        {
+            // Create cim property for all properties in SCMO Instance.
+            // Work end to beginning only because User-defined properties
+            // are inserted in reverse order and that upsets instance
+            // identical testing
+            if (propertyCount != 0)
+            {
+                Uint32 i = propertyCount - 1;
+                do
+                {
+                    // Set all properties in the CIMInstance whether they
+                    // are part of the SCMOInstance or the SCMOClass.
+                    CIMProperty theProperty = _getCIMPropertyAtNodeIndex(i);
+
+                    newInstance._rep->_properties.append(theProperty);
+                }
+                while (i-- != 0);
+            }
         }
     }
 
@@ -1732,79 +1767,110 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
 
 CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
 {
-    CIMValue theValue;
     CIMProperty retProperty;
 
     // For better usability define pointers to SCMO Class data structures.
     SCMBClass_Main* clshdr = inst.hdr->theClass.ptr->cls.hdr;
     char* clsbase = inst.hdr->theClass.ptr->cls.base;
 
-
-    SCMBClassPropertyNode& clsProp =
-        ((SCMBClassPropertyNode*)
-         &(clsbase[clshdr->propertySet.nodeArray.start]))[nodeIdx];
-
-    SCMBValue& instValue =
-        ((SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]))[nodeIdx];
-
-    if (instValue.flags.isSet)
+    if (_isClassDefinedProperty(nodeIdx))
     {
-        _getCIMValueFromSCMBValue(theValue,instValue,inst.base);
-    }
-    else
-    {
-        _getCIMValueFromSCMBValue(
-            theValue,
-            clsProp.theProperty.defaultValue,
-            clsbase);
-    }
+        // For better usability define pointers to SCMO Class data structures.
 
+        SCMBClassPropertyNode& clsProp =
+            ((SCMBClassPropertyNode*)
+             &(clsbase[clshdr->propertySet.nodeArray.start]))[nodeIdx];
 
+        SCMBValue& instValue =
+            ((SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]))[nodeIdx];
 
-    if (inst.hdr->flags.includeClassOrigin)
-    {
-        retProperty = CIMProperty(
-            CIMNameCast(_newCimString(clsProp.theProperty.name,clsbase)),
-            theValue,
-            theValue.getArraySize(),
-            CIMNameCast(
-                _newCimString(clsProp.theProperty.refClassName,clsbase)),
-            CIMNameCast(
-                _newCimString(clsProp.theProperty.originClassName,clsbase)),
-            clsProp.theProperty.flags.propagated);
-    }
-    else
-    {
-         retProperty = CIMProperty(
-            CIMNameCast(_newCimString(clsProp.theProperty.name,clsbase)),
-            theValue,
-            theValue.getArraySize(),
-            CIMNameCast(
-                _newCimString(clsProp.theProperty.refClassName,clsbase)),
-            CIMName(),
-            clsProp.theProperty.flags.propagated);
-    }
-
-    if (inst.hdr->flags.includeQualifiers)
-    {
-        SCMBQualifier* qualiArray =
-            (SCMBQualifier*)
-                 &(clsbase[clsProp.theProperty.qualifierArray.start]);
-
-        CIMQualifier theCimQualifier;
-
-        Uint32 i, k = clsProp.theProperty.numberOfQualifiers;
-        for ( i = 0 ; i < k ; i++)
+        // if set, get value. Else get value from class
+        CIMValue theCIMValue;
+        if (instValue.flags.isSet)
         {
-            SCMOClass::_getCIMQualifierFromSCMBQualifier(
-                theCimQualifier,
-                qualiArray[i],
+            _getCIMValueFromSCMBValue(theCIMValue,instValue,inst.base);
+        }
+        else
+        {
+            _getCIMValueFromSCMBValue(
+                theCIMValue,
+                clsProp.theProperty.defaultValue,
                 clsbase);
+        }
 
-            retProperty._rep->_qualifiers.addUnchecked(theCimQualifier);
+        // Redo this into single call KS_TODO
+
+        if (inst.hdr->flags.includeClassOrigin)
+        {
+            retProperty = CIMProperty(
+                CIMNameCast(_newCimString(clsProp.theProperty.name,clsbase)),
+                theCIMValue,
+                theCIMValue.getArraySize(),
+                CIMNameCast(
+                    _newCimString(clsProp.theProperty.refClassName,clsbase)),
+                CIMNameCast(
+                    _newCimString(clsProp.theProperty.originClassName,clsbase)),
+                clsProp.theProperty.flags.propagated);
+        }
+        else
+        {
+             retProperty = CIMProperty(
+                CIMNameCast(_newCimString(clsProp.theProperty.name,clsbase)),
+                theCIMValue,
+                theCIMValue.getArraySize(),
+                CIMNameCast(
+                    _newCimString(clsProp.theProperty.refClassName,clsbase)),
+                CIMName(),
+                clsProp.theProperty.flags.propagated);
+        }
+
+        if (inst.hdr->flags.includeQualifiers)
+        {
+            SCMBQualifier* qualiArray =
+                (SCMBQualifier*)
+                     &(clsbase[clsProp.theProperty.qualifierArray.start]);
+
+            CIMQualifier theCimQualifier;
+
+            Uint32 i, k = clsProp.theProperty.numberOfQualifiers;
+            for ( i = 0 ; i < k ; i++)
+            {
+                SCMOClass::_getCIMQualifierFromSCMBQualifier(
+                    theCimQualifier,
+                    qualiArray[i],
+                    clsbase);
+
+                retProperty._rep->_qualifiers.addUnchecked(theCimQualifier);
+            }
         }
     }
+    else   // User-defined property
+    {
+        SCMBUserPropertyElement* pElement =
+            _getUserDefinedPropertyElementAt(nodeIdx);
 
+        SCMBValue& instValue = pElement->value;
+
+        CIMValue theCimValue;
+        if (instValue.flags.isSet)
+        {
+            // There is No default so
+            _getCIMValueFromSCMBValue(theCimValue,instValue,inst.base);
+        }
+        else
+        {
+            // There is no default. isSet MUST be set
+            PEGASUS_ASSERT(false);
+        }
+
+        retProperty = CIMProperty(
+           CIMNameCast(_newCimString(pElement->name, inst.base)),
+           theCimValue,
+           theCimValue.getArraySize(),
+           CIMName(),          // referenceClassName
+           CIMName(),          // ClassOrigin
+           false);             // isPropagated == false
+    }
     return retProperty;
 }
 
@@ -2280,17 +2346,16 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
             key);
     }
 }
-
+/*
+    This function handles both class and user-defined properties
+    because _getSCMBValueForNode handles both
+*/
 void SCMOInstance::_setCIMValueAtNodeIndex(
     Uint32 node,
     CIMValueRep* valRep,
     CIMType realType)
 {
-    SCMBValue* theInstPropNodeArray =
-        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
-
-
-    SCMBValue& theInstProp = theInstPropNodeArray[node];
+    SCMBValue& theInstProp = _getSCMBValueForNode(node);
 
     theInstProp.valueType=realType;
     theInstProp.flags.isNull=valRep->isNull;
@@ -2587,7 +2652,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
     case CIMTYPE_STRING:
         {
             keyData.isSet=true;
-            // Check if a key binding is set with in the same instance.
+            // Check if a key binding is set within the same instance.
             // If this is the case, a reallocation can take place and the
             // uBase pointer can be invalid and cause a read in freed memory!
             if (uBase == inst.base)
@@ -2606,7 +2671,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
 
                     // In this function a reallocation may take place!
                     // The keyData.data.stringValue is set
-                    // before the rallocation.
+                    // before the reallocation.
                     start = _getFreeSpace(
                         keyData.data.stringValue,
                         u.stringValue.size,
@@ -2679,7 +2744,6 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     PEGASUS_ASSERT(SCMB_INITIAL_MEMORY_CHUNK_SIZE
         - sizeof(SCMBInstance_Main)>0);
 
-
     inst.base = (char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
     if (inst.base == 0)
     {
@@ -2699,9 +2763,19 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     inst.hdr->header.startOfFreeSpace=sizeof(SCMBInstance_Main);
 
     inst.hdr->refCount=1;
+    inst.hdr->numberUserProperties = 0;
 
-    //Assign the SCMBClass structure this instance based on.
-    inst.hdr->theClass.ptr = pClass;
+    if (pClass == NULL)
+    {
+        // Set number of properties
+        inst.hdr->numberKeyBindings = 0;
+        inst.hdr->numberProperties = 0;
+        inst.hdr->flags.noClassForInstance = true;
+    }
+    else
+    {
+        //Assign the SCMBClass structure to this instance based on.
+        inst.hdr->theClass.ptr = pClass;
 
     // Copy name space name and class name of the class
     _setBinary(
@@ -2725,6 +2799,7 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     // Number of properties
     inst.hdr->numberProperties =
         inst.hdr->theClass.ptr->cls.hdr->propertySet.number;
+    }
 
     // Allocate the SCMOInstanceKeyBindingArray
     _getFreeSpace(
@@ -2737,13 +2812,11 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
         inst.hdr->propertyArray,
         sizeof(SCMBValue)*inst.hdr->numberProperties,
         &inst.mem);
-
 }
+
 
 void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
 {
-    CIMPropertyRep* propRep;
-    Uint32 propNode;
     SCMO_RC rc;
     CIMType realType;
 
@@ -2753,18 +2826,24 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
     // The instance level qualifiers are stored on the associated SCMOClass.
     inst.hdr->flags.includeQualifiers=(instRep->_qualifiers.getCount()>0);
 
-    // To ensure that at converting a CIMInstance to a SCMOInstance
-    // and vice versa do have the same property set.
-    inst.hdr->flags.exportSetOnly=true;
+    // To ensure that when converting a CIMInstance to a SCMOInstance
+    // and vice versa they have the same property set.
+    // If there is no class for this SCMO instance, ingore this since
+    // there is no class to work from.  Have to depend on the properties
+    if (!noClassForInstance())
+    {
+        inst.hdr->flags.exportSetOnly = true;
+    }
 
     _setCIMObjectPath(instRep->_reference);
 
     // Copy all properties
     for (Uint32 i = 0, k = instRep->_properties.size(); i < k; i++)
     {
-        propRep = instRep->_properties[i]._rep;
+        CIMPropertyRep* propRep = instRep->_properties[i]._rep;
         // if not already detected that qualifiers are specified and
         // there are qualifers at that property.
+
         if (!inst.hdr->flags.includeQualifiers &&
             propRep->getQualifierCount() > 0)
         {
@@ -2779,11 +2858,14 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
         }
 
         // get the property node index for the property
-        rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(
-            propNode,
-            (const char*)propRep->_name.getString().getCString());
 
-        if (rc == SCMO_OK)
+        Uint32 propNode;
+        rc = getPropertyNodeIndex(
+            (const char*)propRep->_name.getString().getCString(),
+            propNode);
+
+        // class-defined property so map
+        if (rc == SCMO_OK && !noClassForInstance())
         {
             // The type stored in the class information is set on realType.
             // It must be used in further calls to guaranty consistence.
@@ -2792,6 +2874,7 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
                      propRep->_value._rep->type,
                      propRep->_value._rep->isArray,
                      realType);
+
             if (rc == SCMO_OK)
             {
                 _setCIMValueAtNodeIndex(
@@ -2816,6 +2899,40 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
             }
 
         }
+        // user-defined property and property already exists
+        else if (rc == SCMO_OK && noClassForInstance())
+        {
+            // get an existing or new user defined property
+            Uint32 node;
+            rc = _getUserPropertyNodeIndex(node,
+                (const char*)propRep->_name.getString().getCString());
+
+            // KS_FUTURE This would be good one to extend to handle
+            // both user and class defined properties.
+            _setCIMValueAtNodeIndex(
+                propNode,
+                propRep->_value._rep,
+                propRep->_value._rep->type);
+        }
+        // User-defined property that has not yet been created.
+        else if (rc == SCMO_NOT_FOUND && noClassForInstance())
+        {
+            _createNewUserDefinedProperty(
+                (const char*)propRep->_name.getString().getCString(),
+                propRep->_name.getString().size(),
+                realType);
+
+            // get the node  for element we just created.
+
+            rc = getPropertyNodeIndex(
+                (const char*)propRep->_name.getString().getCString(),
+                propNode);
+
+            _setCIMValueAtNodeIndex(
+                propNode,
+                propRep->_value._rep,
+                propRep->_value._rep->type);
+        }
         else
         {
 
@@ -2830,7 +2947,11 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
         }
     }
 }
-
+/*
+    Gets a SCMO Property from the instance based on the property name
+    in the instance. This gets both class based properties and
+    user-defined properties
+*/
 SCMO_RC SCMOInstance::getProperty(
     const char* name,
     CIMType& type,
@@ -2846,14 +2967,32 @@ SCMO_RC SCMOInstance::getProperty(
     isArray = false;
     size = 0;
 
-    rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,name);
+    // Try to get node from class
+    // KS_TODO. This would be simpler if we used the public
+    // getPropertyNodeIndex
+    rc = inst.hdr->theClass.ptr->_getPropertyNodeIndex(node,name);
+
+//  Error, not in class. Try to get from instance user-defined properties.
     if (rc != SCMO_OK)
     {
-        return rc;
+        if ((rc == SCMO_NOT_FOUND) && noClassForInstance())
+        {
+            rc = _getUserPropertyNodeIndex(node, name);
+        }
+        if (rc != SCMO_OK)
+        {
+            return rc;
+        }
     }
-
     return  _getPropertyAtNodeIndex(node,&pname,type,pOutVal,isArray,size);
 }
+
+/*
+    getPropertyAt - This function supports both class-defined and user
+    defined properties. It is one of the public interfaces. Note that
+    there is no public way to distinguish class-defined and user-defined
+    properties.
+*/
 
 SCMO_RC SCMOInstance::getPropertyAt(
         Uint32 idx,
@@ -2868,7 +3007,7 @@ SCMO_RC SCMOInstance::getPropertyAt(
     isArray = false;
     size = 0;
 
-    if (idx >= inst.hdr->numberProperties)
+    if (idx >= getPropertyCount())
     {
         return SCMO_INDEX_OUT_OF_BOUND;
     }
@@ -2876,6 +3015,13 @@ SCMO_RC SCMOInstance::getPropertyAt(
     return  _getPropertyAtNodeIndex(idx,pname,type,pOutVal,isArray,size);
 }
 
+/*
+    Gets the Node index of a property by name. This supports both
+    class and user-defined properties.
+    Returns the 0-origin node of the property and SCMO_OK or
+    SCMO_NOT_FOUND.
+    If the PropertyName argument is empty, it returns SCMO_INVALID_PARAMTER.
+*/
 SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
 {
     SCMO_RC rc;
@@ -2884,36 +3030,130 @@ SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
         return SCMO_INVALID_PARAMETER;
     }
 
-    rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,name);
-
+    if (noClassForInstance())
+    {
+        rc = _getUserPropertyNodeIndex(node, name);
+    }
+    else
+    {
+        rc = inst.hdr->theClass.ptr->_getPropertyNodeIndex(node, name);
+    }
     return rc;
 
 }
-
+/*
+    set a property with name from input parameters.  This will set
+    into the normal properties array if the property is in the class
+    or into the user-defined array if the property is NOT in the array and
+    the noClassForInstance is set.
+*/
 SCMO_RC SCMOInstance::setPropertyWithOrigin(
     const char* name,
-    CIMType type,
+    CIMType theType,
     const SCMBUnion* pInVal,
     Boolean isArray,
     Uint32 size,
     const char* origin)
 {
     // In this function no  _copyOnWrite(), it does not change the instance.
-
     Uint32 node;
     SCMO_RC rc;
     CIMType realType;
 
-    rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,name);
+    // find the property in the class.
+    rc = inst.hdr->theClass.ptr->_getPropertyNodeIndex(node,name);
+
+    // If the instance flags indicate that there was no support class for
+    // this instance and noClassForInstance set, handle the property as
+    // a user-defined property in the user-defined property section of the
+    // instance
+    if (noClassForInstance())
+    {
+        rc = _getUserPropertyNodeIndex(node, name);
+
+        SCMBUserPropertyElement* pElement;
+        if (rc == SCMO_OK)
+        {
+            pElement = _getUserDefinedPropertyElementAt(node);
+            if (pElement->value.flags.isSet
+                && (pElement->value.valueType != theType))
+            {
+                return SCMO_TYPE_MISSMATCH;
+            }
+        }
+
+        else if (rc == SCMO_NOT_FOUND)
+        {
+            pElement =_createNewUserDefinedProperty(name, strlen(name),
+                                              theType);
+        }
+        else
+        {
+            return rc;
+        }
+        // check class origin if set.
+        if ((origin != 0) && (pElement->classOrigin.start != 0))
+        {
+            if (!_equalNoCaseUTF8Strings(pElement->classOrigin,
+                                        inst.base,
+                                        origin,
+                                        strlen(origin)))
+            {
+                return SCMO_NOT_SAME_ORIGIN;
+            }
+            else
+            {
+                // Copy the origin name including the trailing '\0'
+                _setBinary(origin,strlen(name)+1,
+                    pElement->classOrigin,&inst.mem);
+            }
+        }
+        // Test for same type and array type
+        SCMBValue& instVal = pElement->value;
+        if (instVal.flags.isSet)
+        {
+            if (instVal.valueType != theType)
+            {
+                // Accept a property of type instance also
+                // for an CIMTYPE_OBJECT property.
+                if (!(theType == CIMTYPE_INSTANCE &&
+                      instVal.valueType == CIMTYPE_OBJECT))
+                {
+                    return SCMO_WRONG_TYPE;
+                }
+            }
+
+            if (instVal.flags.isArray != isArray)
+            {
+                return (instVal.flags.isArray?
+                        SCMO_NOT_AN_ARRAY : SCMO_IS_AN_ARRAY);
+            }
+        }
+
+        // KS_FUTURE. This used only once so no need for separate function
+        _setPropertyInUserDefinedElement(
+            pElement,
+            theType,
+            pInVal,
+            isArray,
+            size);
+
+        // test and set classOrigin, etc.
+        return SCMO_OK;
+    }
+
+    //
+    // This is a class-defined instance
+    //
     if (rc != SCMO_OK)
     {
         return rc;
     }
 
-    // Is the traget type OK ?
-    // The type stored in the class information is set on realType.
+    // Is the target type OK ?
+    // The type stored in the class information is set to real Type.
     // It must be used in further calls to guaranty consistence.
-    rc = inst.hdr->theClass.ptr->_isNodeSameType(node,type,isArray,realType);
+    rc = inst.hdr->theClass.ptr->_isNodeSameType(node,theType,isArray,realType);
     if (rc != SCMO_OK)
     {
         return rc;
@@ -2927,13 +3167,15 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
             return SCMO_NOT_SAME_ORIGIN;
         }
     }
-
-
+    // KS_FUTURE should this be user-defined capable so could delete
+    // the user set above.
     _setPropertyAtNodeIndex(node,realType,pInVal,isArray,size);
 
     return SCMO_OK;
 }
 
+// KS_TODO This method never called in OpenPegasus.
+// Is there a reason for it or should we delete it.
 SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
     Uint32 node,
     CIMType type,
@@ -2965,6 +3207,7 @@ SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
     return SCMO_OK;
 }
 
+// KS_TODO this one NOT user-defined capable now
 void SCMOInstance::_setPropertyAtNodeIndex(
     Uint32 node,
     CIMType type,
@@ -3002,7 +3245,9 @@ void SCMOInstance::_setPropertyAtNodeIndex(
             theInstPropNodeArray[node].value);
     }
 }
-
+/*
+    This function can cause a reallocation.
+*/
 void SCMOInstance::_setSCMBUnion(
     const SCMBUnion* pInVal,
     CIMType type,
@@ -3010,7 +3255,6 @@ void SCMOInstance::_setSCMBUnion(
     Uint32 size,
     SCMBUnion & u)
 {
-
     switch (type)
     {
     case CIMTYPE_BOOLEAN:
@@ -3496,7 +3740,6 @@ void SCMOInstance::_setUnionArrayValue(
 
             for (Uint32 i = 0; i < loop ; i++)
             {
-
                 ptargetUnion[i].extRefPtr =
                     new SCMOInstance(
                         iterator[i],
@@ -3750,6 +3993,10 @@ void SCMOInstance::_setUnionValue(
 
     case CIMTYPE_STRING:
         {
+            // KS_TODO why do this when there is a _setChar function
+            // that directly uses Strings??? low priority question but
+            // this would seem less efficient that _setString with the
+            // strlen function in it.
             CString cstr = ((String*)((void*)&u))->getCString();
             const char *cptr = (const char*)cstr;
             _setBinary(
@@ -3839,7 +4086,7 @@ void SCMOInstance::_setUnionValue(
                         new SCMOInstance(
                             cimClass,
                             (&((const char*)*pmem)[startNS]));
-                    // marke as class only !
+                    // mark as class only !
                     scmoUnion->extRefPtr->inst.hdr->flags.isClassOnly=true;
 
                     // This function can cause a reallocation !
@@ -3854,10 +4101,10 @@ void SCMOInstance::_setUnionValue(
                         new SCMOInstance(
                             theCIMInst,
                             &(((const char*)*pmem)[startNS]),
-                            sizeNS-1);
+                            sizeNS);
 
                      // Was the conversion successful?
-                     if (scmoUnion->extRefPtr->isEmpty())
+                    if (scmoUnion->extRefPtr->isEmpty())
                      {
                          // N0, delete the SCMOInstance.
                          delete scmoUnion->extRefPtr;
@@ -3927,6 +4174,10 @@ void SCMOInstance::_setUnionValue(
     }
 }
 
+/*
+    Gets the property at the defined node index. This covers both
+    normal and user defined properties.
+*/
 SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
         Uint32 node,
         const char** pname,
@@ -3935,77 +4186,125 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
         Boolean& isArray,
         Uint32& size ) const
 {
-    SCMBValue* theInstPropNodeArray =
-        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
-
-    // create a pointer to property node array of the class.
-    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->propertySet.nodeArray.start;
-    SCMBClassPropertyNode* theClassPropNodeArray =
-        (SCMBClassPropertyNode*)&(inst.hdr->theClass.ptr->cls.base)[idx];
-
-    // the property name is always from the class.
-    // return the absolut pointer to the property name,
-    // the caller has to copy the name!
-    *pname=_getCharString(
-        theClassPropNodeArray[node].theProperty.name,
-        inst.hdr->theClass.ptr->cls.base);
-
-    // the property was set by the provider.
-    if (theInstPropNodeArray[node].flags.isSet)
+    if (_isClassDefinedProperty(node))
     {
+        SCMBValue* theInstPropNodeArray =
+            (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
 
-        type = theInstPropNodeArray[node].valueType;
-        isArray = theInstPropNodeArray[node].flags.isArray;
-        if (isArray)
+        // create a pointer to property node array of the class.
+        Uint64 idx =
+            inst.hdr->theClass.ptr->cls.hdr->propertySet.nodeArray.start;
+
+        SCMBClassPropertyNode* theClassPropNodeArray =
+            (SCMBClassPropertyNode*)&(inst.hdr->theClass.ptr->cls.base)[idx];
+
+        // the property name is always from the class.
+        // return the absolute pointer to the property name,
+        // the caller has to copy the name!
+        *pname=_getCharString(
+            theClassPropNodeArray[node].theProperty.name,
+            inst.hdr->theClass.ptr->cls.base);
+
+        // the property was set by the provider.
+        if (theInstPropNodeArray[node].flags.isSet)
         {
-            size = theInstPropNodeArray[node].valueArraySize;
+            type = theInstPropNodeArray[node].valueType;
+            isArray = theInstPropNodeArray[node].flags.isArray;
+            if (isArray)
+            {
+                size = theInstPropNodeArray[node].valueArraySize;
+            }
+
+            if (theInstPropNodeArray[node].flags.isNull)
+            {
+                return SCMO_NULL_VALUE;
+            }
+
+            // calculate the relative index for the value.
+            Uint64 start =
+                (const char*)&(theInstPropNodeArray[node].value) - inst.base;
+
+            // the caller has to copy the value !
+            *pvalue = _resolveSCMBUnion(type,isArray,size,start,inst.base);
+
+            return SCMO_OK;
         }
 
-        if (theInstPropNodeArray[node].flags.isNull)
+        // the get the defaults out of the class.
+        type = theClassPropNodeArray[node].theProperty.defaultValue.valueType;
+        isArray =
+            theClassPropNodeArray[node].theProperty.defaultValue.flags.isArray;
+        if (isArray)
+        {
+            size = theClassPropNodeArray[node].
+                       theProperty.defaultValue.valueArraySize;
+        }
+
+        if (theClassPropNodeArray[node].theProperty.defaultValue.flags.isNull)
         {
             return SCMO_NULL_VALUE;
         }
 
-        // calculate the relative index for the value.
+        // calculate the relative start address of the value in the class
         Uint64 start =
-            (const char*)&(theInstPropNodeArray[node].value) -
-            inst.base;
+            (const char*)
+                &(theClassPropNodeArray[node].theProperty.defaultValue.value) -
+            (inst.hdr->theClass.ptr->cls.base);
 
-        // the caller has to copy the value !
+        *pvalue = _resolveSCMBUnion(
+            type,
+            isArray,
+            size,
+            start,
+            (inst.hdr->theClass.ptr->cls.base));
+    }
+
+    // else treated as user-defined property
+    else
+    {
+        SCMBUserPropertyElement* pElement =
+            _getUserDefinedPropertyElementAt(node);
+
+        if (pElement == 0)
+        {
+            return SCMO_INDEX_OUT_OF_BOUND;
+        }
+
+        SCMBValue& instValue = pElement->value;
+
+        *pname = _getCharString(pElement->name,inst.base);
+
+        if (instValue.flags.isSet)
+        {
+            type = instValue.valueType;
+
+            isArray = instValue.flags.isArray;
+            if (isArray)
+            {
+                size = instValue.valueArraySize;
+            }
+
+            if (instValue.flags.isNull)
+            {
+                return SCMO_NULL_VALUE;
+            }
+        }
+        else
+        {
+            // KS_TODO sort out what we do if user-defined element not
+            // initialized.
+            // Should never happen
+            return SCMO_NULL_VALUE;
+        }
+
+        // resolve start for the Union.
+        // KS_TODO we should be able to combine following and
+        // the same for normal properties
+        Uint64 start =
+                (const char*)&(instValue.value) - inst.base;
+
         *pvalue = _resolveSCMBUnion(type,isArray,size,start,inst.base);
-
-        return SCMO_OK;
     }
-
-    // the get the defaults out of the class.
-    type = theClassPropNodeArray[node].theProperty.defaultValue.valueType;
-    isArray =
-        theClassPropNodeArray[node].theProperty.defaultValue.flags.isArray;
-    if (isArray)
-    {
-        size = theClassPropNodeArray[node].
-                   theProperty.defaultValue.valueArraySize;
-    }
-
-    if (theClassPropNodeArray[node].theProperty.defaultValue.flags.isNull)
-    {
-        return SCMO_NULL_VALUE;
-    }
-
-    // calcutate the relativ start address of the value
-    Uint64 start =
-        (const char*)
-               &(theClassPropNodeArray[node].theProperty.defaultValue.value) -
-        (inst.hdr->theClass.ptr->cls.base);
-
-    *pvalue = _resolveSCMBUnion(
-        type,
-        isArray,
-        size,
-        start,
-        (inst.hdr->theClass.ptr->cls.base)
-        );
-
     return SCMO_OK;
 
 }
@@ -4017,7 +4316,7 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
         // Create a new, empty SCMOInstance
         SCMOInstance newInst(*(this->inst.hdr->theClass.ptr));
 
-        // Copy the host name to tha new instance-
+        // Copy the host name to the new instance-
         _setBinary(
             _resolveDataPtr(this->inst.hdr->hostName,this->inst.base),
             this->inst.hdr->hostName.size,
@@ -4030,7 +4329,7 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
         // If the instance contains a user set class and/or name space name
         if (this->inst.hdr->flags.isCompromised)
         {
-            // Copy the class name to tha new instance-
+            // Copy the class name to the new instance-
             _setBinary(
                 _resolveDataPtr(this->inst.hdr->instClassName,this->inst.base),
                 this->inst.hdr->instClassName.size,
@@ -4077,7 +4376,6 @@ void SCMOInstance::_clone()
     inst.hdr->theClass.ptr = new SCMOClass(*(inst.hdr->theClass.ptr));
     // keep the ref count for external references
     _copyExternalReferences();
-
 }
 
 void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
@@ -4097,7 +4395,7 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
 
     for (Uint32 i = 0; i < noBindings; i++)
     {
-        // hast to be set every time, because of reallocation.
+        // has to be set every time, because of reallocation.
         targetArray=(SCMBKeyBindingValue*)&(targetInst.inst.base)
                              [targetInst.inst.hdr->keyBindingArray.start];
         if(sourceArray[i].isSet)
@@ -4111,7 +4409,7 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
         }
     }
 
-    // Are there user defined key bindings ?
+    // Are there user defined key bindings ? If so, copy them
     if (0 != inst.hdr->numberUserKeyBindings)
     {
         SCMBUserKeyBindingElement* theUserDefKBElement =
@@ -4133,18 +4431,20 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
     }
 }
 
-
+/*
+    Set theInsertElement into new or existing user-defined key
+    binding.
+*/
 void SCMOInstance::_setUserDefinedKeyBinding(
         SCMBUserKeyBindingElement& theInsertElement,
         char* elementBase)
 {
-
     SCMBUserKeyBindingElement* ptrNewElement;
 
     // get an exsiting or new user defined key binding
     ptrNewElement = _getUserDefinedKeyBinding(
         _getCharString(theInsertElement.name,elementBase),
-        // lenght is without the trailing '\0'
+        // length is without the trailing '\0'
         theInsertElement.name.size-1,
         theInsertElement.type);
 
@@ -4154,23 +4454,22 @@ void SCMOInstance::_setUserDefinedKeyBinding(
                 theInsertElement.value.data,
                 elementBase,
                 ptrNewElement->value);
-
 }
 
 
 SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBindingAt(
     Uint32 index ) const
 {
-
     // Get the start element
     SCMBUserKeyBindingElement *ptrNewElement =
         (SCMBUserKeyBindingElement*)
              &(inst.base[inst.hdr->userKeyBindingElement.start]);
 
-    // calculate the index within the user defined key bindings
+    // Calculate the index within the user defined key bindings
+
     index = index - inst.hdr->numberKeyBindings;
 
-    // traverse trough the user defindes key binding nodes.
+    // traverse through the user defined key binding nodes.
     for (Uint32 i = 0; i < index; i ++)
     {
         PEGASUS_ASSERT(ptrNewElement->nextElement.start != 0);
@@ -4181,6 +4480,11 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBindingAt(
     return ptrNewElement;
 }
 
+/*
+    If the user-defined keybinding already exists, return a pointer to
+    that element. Otherwise allocate a new element and return pointer
+    to the new element
+*/
 SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
     const char* name,
     Uint32 nameLen,
@@ -4197,7 +4501,6 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
     }
     else // Not found, create a new user defined key binding.
     {
-
         _getFreeSpace(newElement,
                       sizeof(SCMBUserKeyBindingElement),
                       &inst.mem);
@@ -4206,19 +4509,18 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
             (SCMBUserKeyBindingElement*)&(inst.base[newElement.start]);
 
         // link new first user defined key binding element into chain:
-        // - Assing the start point of user key binding element chain
+        // - Adding the start point of user key binding element chain
         //   to the next element of the new element.
         ptrNewElement->nextElement.start =
             inst.hdr->userKeyBindingElement.start;
         ptrNewElement->nextElement.size =
             inst.hdr->userKeyBindingElement.size;
-        // - Assing the the new element
+        // - Adding the the new element
         //   to the  start point of user key binding element chain
         inst.hdr->userKeyBindingElement.start = newElement.start;
         inst.hdr->userKeyBindingElement.size = newElement.size;
-        // Adjust the couter of user defined key bindings.
+        // Adjust the counter of user defined key bindings.
         inst.hdr->numberUserKeyBindings++;
-
 
         // Copy the type
         ptrNewElement->type = type;
@@ -4230,17 +4532,142 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
         // reset the pointer. May the instance was reallocated.
         ptrNewElement =
             (SCMBUserKeyBindingElement*)&(inst.base[newElement.start]);
+    }
+    return ptrNewElement;
+}
 
+/*
+    Create a new UserDefined Property Element, link it into the User-defined
+    chain, and populate it with name, type, and isArray.  Set isSet to ftrue.
+    Returns pointer to the new element
+*/
+SCMBUserPropertyElement* SCMOInstance::_createNewUserDefinedProperty(
+    const char * name,
+    Uint32 nameLen,
+    CIMType theType)
+{
+    SCMBDataPtr newElement;
+    _getFreeSpace(newElement,
+                  sizeof(SCMBUserPropertyElement),
+                  &inst.mem);
+
+    SCMBUserPropertyElement* pElement =
+        (SCMBUserPropertyElement*)&(inst.base[newElement.start]);
+
+    // link new first user defined property element into chain:
+    // - Add the start point of user property element chain
+    //   to the next element of the new element.
+    pElement->nextElement.start =
+        inst.hdr->userPropertyElement.start;
+    pElement->nextElement.size =
+        inst.hdr->userPropertyElement.size;
+    // Add the the new element to the  start point of user property
+    // element chain
+    inst.hdr->userPropertyElement.start = newElement.start;
+    inst.hdr->userPropertyElement.size = newElement.size;
+    // Adjust the counter of user defined key bindings.
+    inst.hdr->numberUserProperties++;
+
+    // Copy the type
+    pElement->value.valueType = theType;
+    pElement->value.flags.isSet=false;
+
+    // Copy the property name including the trailing '\0'
+    _setBinary(name,nameLen+1,pElement->name,&inst.mem);
+
+    // reset the pointer. Maybe the instance was reallocated.
+    pElement =
+        (SCMBUserPropertyElement*)&(inst.base[newElement.start]);
+    return pElement;
+}
+/*
+    set either a new or existing UserDefinedProperty with the
+    InsertElement provided
+*/
+
+void SCMOInstance::_setPropertyInUserDefinedElement(
+        SCMBUserPropertyElement* pElement,
+        CIMType theType,
+        const SCMBUnion* pInVal,
+        Boolean isArray,
+        Uint32 size)
+{
+    _copyOnWrite();
+
+    SCMBValue& instVal = pElement->value;
+
+    // Set data into element
+    instVal.flags.isSet=true;
+    instVal.valueType=theType;
+    instVal.flags.isArray= isArray;
+    pElement->classOrigin.start = 0;
+
+    if (isArray)
+    {
+        instVal.valueArraySize = size;
     }
 
-
-    return ptrNewElement;
+    if (pInVal==0)
+    {
+        instVal.flags.isNull=true;
+    }
+    else
+    {
+        instVal.flags.isNull=false;
+        _setSCMBUnion(
+            pInVal,
+            theType,
+            isArray,
+            size,
+            instVal.value);
+    }
 
 }
 
-Uint32 SCMOInstance::getPropertyCount() const
+/*
+    Get the user-defined propertyElement defined by index arguement
+    Returns the Element.
+    KS_TODO what do we do if it runs through the end of the list.
+    Right now it is an assert so somewhere a check is needed.
+    Probablly the callers
+*/
+SCMBUserPropertyElement* SCMOInstance::_getUserDefinedPropertyElementAt(
+    Uint32 index ) const
 {
-    return(inst.hdr->numberProperties);
+    // Get the start element
+    SCMBUserPropertyElement* pElement =
+        (SCMBUserPropertyElement*)
+             &(inst.base[inst.hdr->userPropertyElement.start]);
+
+    XCOUT << "inst.hdr->userPropertyElement.start address "
+            << pElement  << " relative "
+        << inst.hdr->userPropertyElement.start
+        << " number of user properties " << inst.hdr->numberUserProperties
+        << endl;
+
+    // calculate the index within the user defined properties
+    // based on numberProperties in instance. This should
+    // be verified against numberUserProperties
+
+    index = index - inst.hdr->numberProperties;
+
+    // traverse  the user defined property nodes.
+    for (Uint32 i = 0; i < index; i ++)
+    {
+        PEGASUS_ASSERT(pElement->nextElement.start != 0);
+        pElement = (SCMBUserPropertyElement*)
+              &(inst.base[pElement->nextElement.start]);
+        // KS_TODO should be able to compute this error from number
+        // properties
+        // return NULL if this index not found.
+        if (pElement == 0)
+        {
+            // This error should never occur.
+            PEGASUS_ASSERT(false);
+            return 0;
+        }
+    }
+    return pElement;
 }
 
 SCMBUnion * SCMOInstance::_resolveSCMBUnion(
@@ -4250,9 +4677,13 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
     Uint64 start,
     char* base) const
 {
-
     SCMBUnion* u = (SCMBUnion*)&(base[start]);
 
+    XCOUT << "_resolveSCMBUnion Enter. Union at " << u
+          << " isArray " << boolToString(isArray)
+          << " type " << cimTypeToString(type)
+          << " start " << start
+          << endl;
     SCMBUnion* av = 0;
 
     if (isArray)
@@ -4483,7 +4914,6 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
     }
     else // look at the user defined key bindings
     {
-
         SCMBUserKeyBindingElement* theElem = _getUserDefinedKeyBindingAt(node);
 
         type = theElem->type;
@@ -4531,6 +4961,44 @@ SCMO_RC SCMOInstance::_getUserKeyBindingNodeIndex(
         elementStart = theUserDefKBElement->nextElement.start;
     }
 
+    return SCMO_NOT_FOUND;
+
+}
+/*
+    Get the node index for a user-defined property
+    // KS_TODO confirm not duplicated elsewhere
+*/
+SCMO_RC SCMOInstance::_getUserPropertyNodeIndex(
+    Uint32& node,
+    const char* name) const
+{
+    Uint32 len = strlen(name);
+    node = 0;
+
+    Uint64 elementStart = inst.hdr->userPropertyElement.start;
+    XCOUT << "inst.hdr->userPropertyElement.start "
+            << elementStart  << endl;
+
+    while (elementStart != 0)
+    {
+        SCMBUserPropertyElement* pElement =
+            (SCMBUserPropertyElement*)&(inst.base[elementStart]);
+
+        XCOUT << "SCMBUserPropertyElement get at "
+            << static_cast<void*>(pElement)
+            << " node " << node << endl;
+
+        if (_equalNoCaseUTF8Strings(
+            pElement->name,inst.base,name,len))
+        {
+            // the node index of a user defined key binding has an offset
+            // by the number of user-defined properties defined in the class
+            node = node + inst.hdr->numberKeyBindings;
+            return SCMO_OK;
+        }
+        node++;
+        elementStart = pElement->nextElement.start;
+    }
     return SCMO_NOT_FOUND;
 
 }
@@ -4878,7 +5346,7 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
         return SCMO_OK;
     }
 
-    // the key binig does not belong to the associated class
+    // the key binding does not belong to the associated class
     // add/set it as user defined key binding.
     SCMBUserKeyBindingElement* ptrNewElement;
 
@@ -4927,29 +5395,29 @@ SCMO_RC SCMOInstance::setKeyBinding(
     }
 
     rc = inst.hdr->theClass.ptr->_getKeyBindingNodeIndex(node,name);
+
     if (rc != SCMO_OK)
     {
-        // the key bindig does not belong to the associated class
+        // the key binding does not belong to the associated class
         // add/set it as user defined key binding.
-        SCMBUserKeyBindingElement *theNode;
+        SCMBUserKeyBindingElement *pElement;
 
-        theNode = _getUserDefinedKeyBinding( name,strlen(name),type);
+        pElement = _getUserDefinedKeyBinding( name,strlen(name),type);
 
         // Is this a new node or an existing user key binding?
-        if (theNode->value.isSet && (theNode->type != type))
+        if (pElement->value.isSet && (pElement->type != type))
         {
             return SCMO_TYPE_MISSMATCH;
-
         }
 
-        theNode->value.isSet=true;
+        pElement->value.isSet=true;
 
         _setSCMBUnion(
             keyvalue,
             type,
             false, // a key binding can never be an array.
             0,
-            theNode->value.data);
+            pElement->value.data);
 
          return SCMO_OK;
     }
@@ -4992,7 +5460,8 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
         (SCMBKeyBindingNode*)&((inst.hdr->theClass.ptr->cls.base)[idx]);
 
-    // is the node a user defined key binding ?
+    // is the node a user defined key binding ? Tests if node ge number
+    // of key bindings.
     if (node >= inst.hdr->numberKeyBindings)
     {
         SCMBUserKeyBindingElement* theNode = _getUserDefinedKeyBindingAt(node);
@@ -5101,7 +5570,7 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
             }
         }
         return SCMO_OK;
-        
+
     }
 
     if (setType == CIMTYPE_SINT64)
@@ -5311,7 +5780,9 @@ Boolean SCMODump::compareFile(String master)
     return true;
 }
 
-void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
+void SCMODump::dumpSCMOInstance(SCMOInstance& testInst,
+    Boolean inclMemHdr,
+    Boolean verbose) const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
@@ -5324,6 +5795,7 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
     }
 
     // The reference counter for this c++ class
+    // KS_FUTURE Modify the bool displays to use boolToString
     fprintf(_out,"\nrefCount=%i",insthdr->refCount.get());
     fprintf(_out,"\ntheClass: %p",insthdr->theClass.ptr);
     fprintf(_out,"\n\nThe Flags:");
@@ -5337,6 +5809,8 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
            (insthdr->flags.isCompromised ? "True" : "False"));
     fprintf(_out,"\n   exportSetOnly: %s",
            (insthdr->flags.exportSetOnly ? "True" : "False"));
+    fprintf(_out,"\n   noClassForThisInstance: %s",
+           (insthdr->flags.noClassForInstance ? "True" : "False"));
     fprintf(_out,"\n\ninstNameSpace: \'%s\'",
            NULLSTR(_getCharString(insthdr->instNameSpace,instbase)));
     fprintf(_out,"\n\ninstClassName: \'%s\'",
@@ -5344,9 +5818,9 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
     fprintf(_out,"\n\nhostName: \'%s\'",
            NULLSTR(_getCharString(insthdr->hostName,instbase)));
 
-    dumpSCMOInstanceKeyBindings(testInst);
+    dumpSCMOInstanceKeyBindings(testInst, verbose);
 
-    dumpInstanceProperties(testInst);
+    dumpInstanceProperties(testInst, verbose);
     fprintf(_out,"\n\n");
 
 }
@@ -5373,9 +5847,53 @@ void SCMODump::dumpInstanceProperties(
 
         printSCMOValue(val[i],instbase,verbose);
     }
+    fprintf(_out,"\n\nInstance User-DefinedProperties :");
+    fprintf(_out,"\n=====================");
+    fprintf(_out,"\n\nNumber of user-defined properties in instance : %u\n",
+           insthdr->numberUserProperties);
 
+    SCMBUserPropertyElement* theElement;
+
+    Uint64 start = insthdr->userPropertyElement.start;
+
+    Uint32 count = 0;
+    while (start != 0)
+    {
+        theElement = (SCMBUserPropertyElement*)&(instbase[start]);
+
+        // KS_TODO eliminate this display. Once we are actually running
+        // it is of little value.
+        fprintf(_out, "\nUser-defined PropertyElement # %u %s", count++,
+                ((theElement->nextElement.start != 0)?
+                    "" : "last"));
+
+        _dumpUserDefinedPropertyElement(
+            instbase,theElement, verbose);
+
+        start = theElement->nextElement.start;
+    } // for all user def. key bindings.
 }
 
+void SCMODump::_dumpUserDefinedPropertyElement(char* instbase,
+    SCMBUserPropertyElement* theElement, Boolean verbose) const
+{
+        if (theElement->value.flags.isSet)
+        {
+            fprintf(_out,"\n\nName: '%s'\nType: '%s'",
+                NULLSTR(_getCharString(theElement->name,instbase)),
+                cimTypeToString(theElement->value.valueType));
+
+            printSCMOValue(
+                theElement->value,
+                instbase,
+                verbose);
+        }
+        else
+        {
+            fprintf(_out,"\n\n    %s : Not Set",
+                NULLSTR(_getCharString(theElement->name,instbase)));
+        }
+}
 
 void SCMODump::dumpSCMOInstanceKeyBindings(
     SCMOInstance& testInst,
@@ -5807,7 +6325,11 @@ void SCMODump::_dumpQualifier(
      printSCMOValue(theQualifier.value,clsbase);
 
 }
-
+/*
+    printSCMOValue is a superset of printUnionValue.  It prints type
+    information, flags, and then the UnionValue for the element
+    or all elements in the array
+*/
 void SCMODump::printSCMOValue(
     const SCMBValue& theValue,
     char* base,
@@ -5889,7 +6411,25 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
          fprintf(_out,"\n");
      }
 }
-
+void SCMODump::_dumpEmbeddedInstance(SCMBUnion u, Boolean verbose) const
+{
+    if (verbose)
+    {
+        fprintf(_out,"\n-----------> "
+                      "Start of embedded external reference"
+                      " <-----------\n");
+        dumpSCMOInstance(*u.extRefPtr, true, verbose);
+        fprintf(_out,"\n-----------> "
+                     "End of embedded external reference"
+                     " <-----------\n");
+    }
+    else
+    {
+        fprintf(_out,
+            "\nPointer to external Reference : \'%p\'",
+            u.extRefPtr);
+    }
+}
 void SCMODump::_hexDump(char* buffer,Uint64 length) const
 {
 
@@ -6198,7 +6738,7 @@ void SCMODump::printArrayValue(
                     fprintf(_out,"\n-----------> "
                                   "Start of embedded external reference [%d]"
                                   " <-----------\n\n",i);
-                    dumpSCMOInstance(*(p[i].extRefPtr));
+                    dumpSCMOInstance(*(p[i].extRefPtr), false, verbose);
                     fprintf(_out,"\n-----------> "
                                   "End of embedded external reference [%d]"
                                   " <-----------\n\n",i);
@@ -6212,7 +6752,7 @@ void SCMODump::printArrayValue(
                 {
                     fprintf(
                         _out,
-                        "Pointer to external Reference[%d] : \'%p\';",
+                        "\nPointer to external Reference[%d] : \'%p\';",
                         i,p[i].extRefPtr);
                 }
             }
@@ -6230,13 +6770,18 @@ void SCMODump::printArrayValue(
     return;
 }
 
+/*
+    printUnionValue outputs a single Union Value.
+    Note: this requires the base to output string information
+*/
+
+// KS_FUTURE this display does not represent or use the hasValue flag
 void SCMODump::printUnionValue(
     CIMType type,
     SCMBUnion u,
     char* base,
     Boolean verbose) const
 {
-
     Buffer out;
 
     switch (type)
@@ -6349,23 +6894,7 @@ void SCMODump::printUnionValue(
     case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
-            if (verbose)
-            {
-                fprintf(_out,"\n-----------> "
-                              "Start of embedded external reference"
-                              " <-----------\n\n");
-                dumpSCMOInstance(*u.extRefPtr);
-                fprintf(_out,"\n-----------> "
-                             "End of embedded external reference"
-                             " <-----------\n\n");
-            } else
-            {
-                fprintf(
-                    _out,
-                    "Pointer to external Reference : \'%p\'",
-                    u.extRefPtr);
-            }
-
+            _dumpEmbeddedInstance(u, verbose);
             break;
         }
     default:
@@ -6469,8 +6998,9 @@ Uint32 _utf8ICUncasecmp(
 #endif
 
 /**
- * This function calcutates a free memory slot in the single chunk memory block.
- * Warning: In this routine a reallocation may take place.
+ * This function calculates a free memory slot in the single
+ * chunk memory block. Warning: In this routine a reallocation
+ * may take place.
  * @param ptr A reference to a data SCMB data pointer. The values to the free
  *            block is written into this pointer. If the provided ptr is
  *            located in the single chunk memory block, this pointer may be
@@ -6479,7 +7009,7 @@ Uint32 _utf8ICUncasecmp(
  * @parm size The requested free memory slot.
  * @parm pmem A reference to the pointer of the single chunk memory block.
  *            e.g. &cls.mem
- * @return The relaive index of the free memory slot.
+ * @return The relative index of the free memory slot.
  */
 Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,

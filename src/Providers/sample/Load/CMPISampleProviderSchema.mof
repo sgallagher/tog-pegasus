@@ -40,6 +40,10 @@ class CMPISample_InstanceProviderClass : CMPISample_ProviderClass
 {
 	[read, write]
 	string Message;
+    // Defines an embeddedObject Property. Used to test EmbeddedObject
+    // With No defined class
+	[EmbeddedObject]
+         string emObject;
 };
 
 [Version ("1.0.0")]

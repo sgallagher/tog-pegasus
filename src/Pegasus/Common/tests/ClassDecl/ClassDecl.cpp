@@ -114,6 +114,20 @@ void test01()
     PEGASUS_TEST_ASSERT(class1.findMethod(
                 CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
+    // Test the manipulation of an embeddedObjectProperty
+    CIMClass embedClass(CIMName ("embedObj"), CIMName ());
+    class1.addProperty(CIMProperty(CIMName ("embedObj"),
+        CIMObject(embedClass), 0, CIMName(),
+            CIMName(), false));
+
+    PEGASUS_TEST_ASSERT(class1.findProperty(
+                CIMName ("embedObj")) != PEG_NOT_FOUND);
+    Uint32  posProp = class1.findProperty(CIMName ("embedObj"));
+    CIMConstProperty constprop1 = class1.getProperty(posProp);
+    PEGASUS_TEST_ASSERT(constprop1.getClassOrigin() == CIMName());
+    PEGASUS_TEST_ASSERT(constprop1.getType() == CIMTYPE_OBJECT);
+    class1.removeProperty(posProp);
+
     // Now add another method and reconfirm.
 
     class1.addMethod(CIMMethod(CIMName ("makeActive"), CIMTYPE_BOOLEAN)

@@ -41,6 +41,7 @@
 #include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
 void SCMOXmlWriter::buildPropertyFilterNodesArray(
      Array<Uint32> & nodes,
      const SCMOClass * classPtr,
@@ -51,7 +52,7 @@ void SCMOXmlWriter::buildPropertyFilterNodesArray(
         Uint32 node = 0;
         const CIMName & name = propertyList[i];
         SCMO_RC rc =
-            classPtr->_getProperyNodeIndex(
+            classPtr->_getPropertyNodeIndex(
                 node,
                 (const char *)name.getString().getCString());
         if(rc == SCMO_OK)
@@ -290,7 +291,7 @@ void SCMOXmlWriter::appendInstanceElement(
     // Append Properties:
     if(!filtered)
     {
-        for (Uint32 i=0,k=scmoInstance.inst.hdr->numberProperties;i<k;i++)
+        for (Uint32 i=0,k=scmoInstance.getPropertyCount();i<k;i++)
         {
             SCMOXmlWriter::appendPropertyElement(out,scmoInstance,i);
         }
@@ -388,19 +389,20 @@ void SCMOXmlWriter::appendQualifierElement(
 //              %Propagated;>
 //
 //------------------------------------------------------------------------------
+
 void SCMOXmlWriter::appendPropertyElement(
     Buffer& out,
     const SCMOInstance& scmoInstance,
     Uint32 pos)
 {
-    CIMType propertyType;
 
-    // This is an absolute pointer at a SCMBValue
+    // Absolute pointer to the property SCMBValue
     SCMBValue * propertyValue;
     const char * propertyValueBase;
-    // This is an absolute pointer at a SCMBValue
+
+    // Absolute pointer at a SCMBValue
     SCMBClassProperty * propertyDef;
-    // This is the absolute pointer at which the class info for the given
+    // Absolute pointer to the the class info for the given
     // instance starts
     const char* clsbase = scmoInstance.inst.hdr->theClass.ptr->cls.base;
 
@@ -410,7 +412,34 @@ void SCMOXmlWriter::appendPropertyElement(
         &propertyValueBase,
         &propertyDef);
 
-    propertyType = propertyValue->valueType;
+    bool noClassExists = scmoInstance.inst.hdr->flags.noClassForInstance;
+    bool includeClassOrigin = scmoInstance.inst.hdr->flags.includeClassOrigin;
+    bool includeQualifiers = scmoInstance.inst.hdr->flags.includeQualifiers;
+    // This one either false or comes from class definition
+    bool propagated = false;
+
+    // Get property name and set any output parameter values
+    const char * pName;
+    Uint32 pLen;
+    if (scmoInstance._isClassDefinedProperty(pos))
+    {
+        // Get name from class Definition
+        pName = &(clsbase[propertyDef->name.start]);
+        pLen = (propertyDef->name.size-1);
+        propagated = propertyDef->flags.propagated;
+    }
+    else
+    {
+        // Get name from Instance
+        SCMBUserPropertyElement* pElement =
+            scmoInstance._getUserDefinedPropertyElementAt(pos);
+
+        pName = _getCharString(pElement->name,scmoInstance.inst.base);
+        pLen = pElement->name.size-1;
+        includeQualifiers = false;
+    }
+    // KS_TODO clarify classOrigin acquisition.
+    CIMType propertyType = propertyValue->valueType;
 
     if (propertyValue->flags.isArray)
     {
@@ -418,9 +447,7 @@ void SCMOXmlWriter::appendPropertyElement(
 
         out << STRLIT("<PROPERTY.ARRAY NAME=\"");
 
-        out.append(
-            &(clsbase[propertyDef->name.start]),
-            (propertyDef->name.size-1));
+        out.append(pName, pLen);
 
         out.append('"',' ');
         //out << STRLIT("\" ");
@@ -456,6 +483,7 @@ void SCMOXmlWriter::appendPropertyElement(
                               " EMBEDDEDOBJECT=\"instance\"");
             }
         }
+        // Every CYMType but CIMOBject, CIMInstance
         else
         {
             out.append(' ');
@@ -469,8 +497,7 @@ void SCMOXmlWriter::appendPropertyElement(
             out.append('"');
         }
 
-
-        if (scmoInstance.inst.hdr->flags.includeClassOrigin)
+        if (includeClassOrigin)
         {
             if (propertyDef->originClassName.start != 0)
             {
@@ -481,7 +508,8 @@ void SCMOXmlWriter::appendPropertyElement(
                 out.append('"');
             }
         }
-        if (propertyDef->flags.propagated)
+
+        if (propagated)
         {
             out << STRLIT(" PROPAGATED=\"true\"");
         }
@@ -490,7 +518,7 @@ void SCMOXmlWriter::appendPropertyElement(
         //out << STRLIT(">\n");
 
         // Append Instance Qualifiers:
-        if (scmoInstance.inst.hdr->flags.includeQualifiers)
+        if (includeQualifiers)
         {
             SCMBQualifier * theArray=
                 (SCMBQualifier*)
@@ -507,25 +535,25 @@ void SCMOXmlWriter::appendPropertyElement(
         SCMOXmlWriter::appendValueElement(out,*propertyValue,propertyValueBase);
         out << STRLIT("</PROPERTY.ARRAY>\n");
     }
+
+    // else Not an array type
     else if (propertyType == CIMTYPE_REFERENCE)
     {
         out << STRLIT("<PROPERTY.REFERENCE NAME=\"");
-        out.append(
-            &(clsbase[propertyDef->name.start]),
-            (propertyDef->name.size-1));
+        out.append(pName, pLen);
         out.append('"',' ');
         //out << STRLIT("\" ");
 
-        if (0 != propertyDef->refClassName.start)
+        if ((!noClassExists) && (0 != propertyDef->refClassName.start))
         {
             out << STRLIT(" REFERENCECLASS=\"");
             out.append(
-                &(clsbase[propertyDef->refClassName.start]),
-                (propertyDef->refClassName.size-1));
+              &(clsbase[propertyDef->refClassName.start]),
+              (propertyDef->refClassName.size-1));
             out.append('"');
         }
 
-        if (scmoInstance.inst.hdr->flags.includeClassOrigin)
+        if (includeClassOrigin)
         {
             if (propertyDef->originClassName.start != 0)
             {
@@ -536,14 +564,15 @@ void SCMOXmlWriter::appendPropertyElement(
                 out.append('"');
             }
         }
-        if (propertyDef->flags.propagated)
+        if (propagated)
         {
             out << STRLIT(" PROPAGATED=\"true\"");
         }
         out.append('>','\n');
         //out << STRLIT(">\n");
+
         // Append Instance Qualifiers:
-        if (scmoInstance.inst.hdr->flags.includeQualifiers)
+        if (includeQualifiers)
         {
             SCMBQualifier * theArray=
                 (SCMBQualifier*)
@@ -564,14 +593,13 @@ void SCMOXmlWriter::appendPropertyElement(
     {
         out << STRLIT("<PROPERTY NAME=\"");
 
-        out.append(
-            &(clsbase[propertyDef->name.start]),
-            (propertyDef->name.size-1));
+        out.append(pName, pLen);
 
         out.append('"',' ');
         //out << STRLIT("\" ");
 
-        if (scmoInstance.inst.hdr->flags.includeClassOrigin)
+        // User-defined properties will not includeClassOrigin
+        if (includeClassOrigin)
         {
             if (propertyDef->originClassName.start != 0)
             {
@@ -582,7 +610,7 @@ void SCMOXmlWriter::appendPropertyElement(
                 out.append('"');
             }
         }
-        if (propertyDef->flags.propagated)
+        if (propagated)
         {
             out << STRLIT(" PROPAGATED=\"true\"");
         }
@@ -618,12 +646,12 @@ void SCMOXmlWriter::appendPropertyElement(
         //out << STRLIT(">\n");
 
         // Append Instance Qualifiers:
-        if (scmoInstance.inst.hdr->flags.includeQualifiers)
+        if (includeQualifiers)
         {
             SCMBQualifier * theArray=
                 (SCMBQualifier*)
                     &(clsbase[propertyDef->qualifierArray.start]);
-            // need to iterate
+            // Iterate through all qualifiers
             for (Uint32 i=0, n=propertyDef->numberOfQualifiers;i<n;i++)
             {
                 SCMOXmlWriter::appendQualifierElement(

@@ -96,7 +96,7 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup(
                     }
                     else
                     {
-                        /* some error occured, do NOT delete the MI 
+                        /* some error occured, do NOT delete the MI
                            increase MI count again
                         */
                         cmi->getProviderBase()->incUseCount();
@@ -114,14 +114,14 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup(
                 cmi->getProviderBase()->decUseCount()==0)
             {
                 rc=cmi->cleanup(ctx);
-                /* the CMPI 2.0 spec says that cleanup function can return 
+                /* the CMPI 2.0 spec says that cleanup function can return
                    the following errors:
                    CMPI_RC_OK - Operation successful.
                    CMPI_RC_ERR_FAILED - Unspecific error occurred.
                    CMPI_RC_DO_NOT_UNLOAD and CMPI_RC_NEVER_UNLOAD - need to be
                    ignored in the terminating case, CIM server is going down
                    anyway
-                */                   
+                */
                 if (rc.rc() != CMPI_RC_ERR_FAILED)
                 {
                     cmi->getProviderBase()->setBaseMI(0);
@@ -280,6 +280,7 @@ CMPIStatus CmpiInstanceMI::driveCreateInstance(
     }
     catch (const CmpiStatus& stat)
     {
+    // KS_FUTURE these are pretty worthless.  Should not be trace??
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif

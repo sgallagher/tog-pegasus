@@ -20,18 +20,7 @@
  ++++ Status of CMNewObjectPath for CMPI_TEST_Person : (CMPI_RC_OK)
  ++++ Status of CMNewString name with value Melvin : (CMPI_RC_OK) (Melvin)
  ++++ Status of CMAddKey : (CMPI_RC_OK)
- ++++ Status of CBReferences : (CMPI_RC_OK)
- CMToArray : (CMPI_RC_OK)
-  ReturnedArraySize :3
-  Calling CMHasNext
-  Calling CMGetNext
-  CMGetNext : (CMPI_RC_OK)
-  Calling CMGetNext
-  CMGetNext : (CMPI_RC_OK)
-  Calling CMGetNext
-  CMGetNext : (CMPI_RC_OK)
-  Enum count 3 
- CBReferences is Successful
+ ++++ Status of CBReferences : (CMPI_RC_ERR_INVALID_CLASS)
  ++++ Status of CMRelease(objPath) : (CMPI_RC_OK)
  ++++ Testing with BrokerInstance provider ++++
  ++++ Status of CMNewObjectPath for TestCMPI_BrokerInstance:(CMPI_RC_OK)

@@ -166,6 +166,13 @@ public:
         return (cls.hdr->flags.isEmpty);
     }
 
+    /**
+     * Constructs an empty SCMOClass object.
+     * This should be private but it is used in a test in tests/SCMO
+     * so made it public.
+     */
+    SCMOClass();
+
 private:
 
     void Ref()
@@ -184,16 +191,12 @@ private:
 
     };
 
-    /**
-     * Constructs an empty SCMOClass object.
-     */
-    SCMOClass();
 
     inline void _initSCMOClass();
 
     void _destroyExternalReferences();
 
-    SCMO_RC _getProperyNodeIndex(Uint32& node, const char* name) const;
+    SCMO_RC _getPropertyNodeIndex(Uint32& node, const char* name) const;
     SCMO_RC _getKeyBindingNodeIndex(Uint32& node, const char* name) const;
 
     void _setClassQualifers(const CIMQualifierList& theQualifierList);

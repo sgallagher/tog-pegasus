@@ -528,21 +528,19 @@ struct SCMBInstance_Main
     SCMBDataPtr     hostName;
     // Relative pointer to SCMBInstanceKeyBindingArray
     SCMBDataPtr     keyBindingArray;
+
     // Number of properties of the class.
-    union
-    {
-        Uint64 __align64;
-        Uint32 numberProperties;
-    };
+    Uint32 numberProperties;
+    // Definition of user-defined properties which are properties introduced
+    // by the creator of the instance but which are not in the SCMOClass.
+    // This is allowed only if the noClassForInstance flag is set indicating
+    // that there was no class found for the defined classname/namespace
+    // Number of user defined properties
+    Uint32 numberUserProperties;
+
     // Relative pointer to SCMBInstancePropertyArray
     SCMBDataPtr     propertyArray;
 
-    // Definition of user-defined properties which are properties introduced
-    // by the creator of the instance but which are not in the SCMOClass.
-    // This is used only if the noClassForInstance flag is set indicating
-    // that there was no class found for the defined classname/namespace
-    // Number of user defined properties
-    Uint32          numberUserProperties;
     // Relative pointer  SCMBUserPropertyElement
     SCMBDataPtr     userPropertyElement;
 };

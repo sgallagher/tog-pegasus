@@ -500,7 +500,7 @@ void structureSizesTest()
     VCOUT << "SCMBClass_Main      : " << sizeof(SCMBClass_Main) << endl;
     PEGASUS_TEST_ASSERT(sizeof(SCMBClass_Main) == 600);
     VCOUT << "SCMBInstance_Main   : " << sizeof(SCMBInstance_Main) << endl;
-    PEGASUS_TEST_ASSERT(sizeof(SCMBInstance_Main) == 208);
+    PEGASUS_TEST_ASSERT(sizeof(SCMBInstance_Main) == 200);
 
     VCOUT << "SCMBUserPropertyElement   : "
         << sizeof(SCMBUserPropertyElement) << endl;

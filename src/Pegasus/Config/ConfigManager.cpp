@@ -39,6 +39,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/StringConversion.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigManager.h"
@@ -223,6 +224,12 @@ static struct OwnerEntry _properties[] =
     ,{"mapToLocalName",
          (ConfigPropertyOwner*)&ConfigManager::securityOwner}
 #endif
+    ,{"pullOperationsMaxObjectCount",
+        (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"pullOperationsMaxTimeout",
+        (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+    {"pullOperationsDefaultTimeout",
+        (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);
@@ -1046,6 +1053,29 @@ Boolean ConfigManager::isValidBooleanValue(const String& value)
 {
     if ((String::equalNoCase(value, STRING_TRUE)) ||
         (String::equalNoCase(value, STRING_FALSE)))
+    {
+        return true;
+    }
+    return false;
+}
+
+Uint32 ConfigManager::parseUint32Value(const String& propertyValue)
+{
+    Uint64 v;
+    StringConversion::decimalStringToUint64(
+       (const char*)propertyValue.getCString(), v);
+    return (Uint32) v;
+}
+
+Boolean ConfigManager::isValidUint32Value(const String& strValue,
+    Uint32 min,
+    Uint32 max)
+{
+    Uint64 v;
+    Boolean rtn =
+        (StringConversion::decimalStringToUint64(strValue.getCString(), v) &&
+            StringConversion::checkUintBounds(v, CIMTYPE_UINT32));
+    if (rtn && ( (v >= min) && (v <= max)) )
     {
         return true;
     }

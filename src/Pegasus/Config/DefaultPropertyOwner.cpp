@@ -539,10 +539,36 @@ Boolean DefaultPropertyOwner::isValid(
     {
         return ConfigManager::isValidBooleanValue(value);
     }
+
     else if (String::equal(name, "hostname") ||
         String::equal(name, "fullyQualifiedHostName"))
     {
         return HostAddress::isValidHostName(value);
+    }
+    // If you change the following values, please also change
+    // the help file which displays the min and max and possibly
+    // the documentation.
+    else if (String::equal(name, "pullOperationsMaxObjectCount"))
+    {
+        return ConfigManager::isValidUint32Value(value,
+            (Uint32)1,
+            (Uint32)PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT);
+    }
+    // If you change the following values fixed values, please also change
+    // the help file which displays the min and max
+    else if (String::equal(name, "pullOperationsMaxTimeout"))
+    {
+        return(ConfigManager::isValidUint32Value(value,
+            (Uint32)1,
+            (Uint32)PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC));
+    }
+    // If you change the following values, please also change
+    // the help file whcih displays the min and max
+     else if (String::equal(name, "pullOperationsDefaultTimeout"))
+    {
+        return ConfigManager::isValidUint32Value(value,
+            (Uint32)1,
+            (Uint32)PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC);
     }
     return true;
 }

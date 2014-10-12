@@ -435,7 +435,10 @@ public:
     static String getHomedPath(const String& value);
 
     /**
-        Parses a boolean configuration property value.
+        Parses a boolean configuration property value from String to
+        Uint32. It DOES NOT test the validity or size of the String
+        definition before converting.  It assumes these are correct
+        since they are validated on creation of the value.
         @param propertyValue A String containing a boolean configuration
             property value.
         @return True if the specified configuration property value represents
@@ -451,7 +454,32 @@ public:
             boolean value of 'true' or 'false'
     */
     static Boolean isValidBooleanValue(const String& propertyValue);
-   /**
+
+    /**
+        Parses a Uint32 configuration property value.
+        @param propertyValue A String containing a boolean configuration
+            property value.
+        @return the current value of the parameter
+    */
+    static Uint32 parseUint32Value(const String& propertyValue);
+    /**
+        Validates a Uint32 configuration property. Confirms that it
+        is a valid Uint32 value and that the value is between the
+        min and max values
+        @param propertyValue A String containing a boolean configuration
+            property value.
+        @param min Uint32 minimum value for the property.  It will
+                   be rejected if less than min
+        @param max Uint32 maximum value for the config parameter. It
+                   will be rejected if gt max.  Upper limit is max
+                   Uint32 value.
+        @return True if the specified configuration property value is a valid
+            boolean value of 'true' or 'false'
+    */
+    static Boolean isValidUint32Value(const String& strValue,
+        Uint32 min,
+        Uint32 max);
+    /**
         get the ip addresses to listen on for connection
         @param propertyValue A String containing a comma separated list of ips
         @return an array of ip adress specified for configuration property

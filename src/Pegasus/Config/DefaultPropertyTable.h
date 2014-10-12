@@ -86,4 +86,5 @@
 # endif
     {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE}
 #endif
+
 #endif /* Pegasus_DefaultPropertyTable_h */

@@ -39,6 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ConfigPropertyHelp.h"
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -351,7 +352,7 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "& try to deliver an indication to a particular listener destination.\n"
         "This does not effect the original delivery attempt. A value of 0\n"
         "disables reliable indication feature completely, and cimserver will\n"
-        "deliver the indication once."}, 
+        "deliver the indication once."},
 
     {"minIndicationDeliveryRetryInterval",
         "If set to a positive integer, defines the minimal time interval in\n"
@@ -377,7 +378,7 @@ struct configPropertyDescription configPropertyDescriptionList[] =
    {"sslBackwardCompatibility",
         "If 'true', OpenPegasus support SSLv3 and TLSv1 protocol.If 'false',\n"
         "OpenPegasus support only TLS1.2 protocol for openssl 1.0.1+"},
-        
+
     {"webRoot",
         "Points to a location where the static web pages to be served by the\n"
         "pegasus webserver are stored"},

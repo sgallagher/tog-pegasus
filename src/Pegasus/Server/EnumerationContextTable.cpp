@@ -43,10 +43,20 @@
 #include <Pegasus/Server/EnumerationContext.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/IDFactory.h>
-
-PEGASUS_NAMESPACE_BEGIN
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
+
+// Definition of static variable that can be set by
+// config manager
+Uint32 EnumerationContextTable::_defaultOperationTimeoutSec =
+    PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC;
+
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+Mutex EnumerationContextTable::_defaultOperationTimeoutSecMutex;
+#endif
 
 // Thread execution function for timeoutThread(). This thread executes
 // regular timeout tests on active contexts and closes them or marks them
@@ -99,23 +109,29 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimeoutThread(void* parm)
 */
 EnumerationContextTable::EnumerationContextTable(
     Uint32 maxOpenContextsLimit,
-    Uint32 defaultInteroperationTimeoutValue,
     Uint32 reponseCacheMaximumSize)
     :
     _timeoutIntervalMsec(0),
+    // Defines the Context Hash table size as 1/2 the max number of entries
     _enumContextTable(maxOpenContextsLimit / 2),
     _operationContextTimeoutThread(operationContextTimeoutThread, this, true),
     _responseCacheMaximumSize(reponseCacheMaximumSize),
     _cacheHighWaterMark(0),
     _responseObjectCountHighWaterMark(0),
-    _defaultOperationTimeoutSec(defaultInteroperationTimeoutValue),
     _enumerationContextsOpened(0),
     _enumerationsTimedOut(0),
     _maxOpenContexts(0),
     _maxOpenContextsLimit(maxOpenContextsLimit),
     _requestedSize(0),
     _requestCount(0)
-{}
+{
+    // Setup the default value for the operation timeout value if the value
+    // received  in a request is NULL.  This is the server defined default.
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    _defaultOperationTimeoutSec = ConfigManager::parseUint32Value(
+    configManager->getCurrentValue("pullOperationsDefaultTimeout"));
+}
 
 
 /* Remove all contexts and delete them. Only used on system shutdown.
@@ -303,7 +319,6 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_removeContext");
 
     PEGASUS_DEBUG_ASSERT(en->valid());
-    tableValidate();                        // KS_TEMP Diagnostic
 
     // If it is valid and providers are complete, remove
     // the enumerationContext.  If providers not complete, only
@@ -535,6 +550,18 @@ void EnumerationContextTable::_stopTimeoutThread()
         "EnumerationContextTable timeout thread stopped");
     PEG_METHOD_EXIT();
 }
+
+
+void EnumerationContextTable::setDefaultOperationTimeoutSec(Uint32 seconds)
+{
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+    AutoMutex lock(_defaultOperationTimeoutSecMutex);
+#endif
+    _defaultOperationTimeoutSec = seconds;
+    cout << "Default Operation Timeout set to " << _defaultOperationTimeoutSec
+        << " seconds" << endl;
+}
+
 
 void EnumerationContextTable::trace()
 {

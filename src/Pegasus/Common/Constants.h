@@ -211,8 +211,17 @@
 #define PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS 20
 #define PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS 300
 
-
-
+/*
+ * Pull Operation constants.  These constants define the
+ * limits for each of the defined configuration variables that may
+ * be set by the configuration manager.
+*/
+#define PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC 30
+#define PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC_STRING "30"
+#define PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC 90
+#define PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC_STRING "90"
+#define PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT 10000
+#define PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT_STRING "10000"
 /*
  * Wbem service names
  */
@@ -549,7 +558,7 @@ enum SnmpVersion {SNMPV1_TRAP = 2, SNMPV2C_TRAP = 3, SNMPV2C_INFORM = 4,
 /**
    Values for the AlertCause property of the PG_ProviderModuleInstAlert
    class, as defined in the PG Events MOF
- 
+
  */
 enum PMInstAlertCause {PM_UNKNOWN = 1, PM_OTHER = 2, PM_CREATED = 3,
     PM_DELETED = 4, PM_ENABLED = 5, PM_DISABLED = 6, PM_DEGRADED = 7,
@@ -557,7 +566,7 @@ enum PMInstAlertCause {PM_UNKNOWN = 1, PM_OTHER = 2, PM_CREATED = 3,
     PM_PROVIDER_ADDED = 11, PM_PROVIDER_REMOVED = 12,
     PM_ENABLED_CIMSERVER_START = 13, PM_DISABLED_CIMSERVER_STOP = 14};
 
-/* Values for Delivery mode property of CIM_ListenerDestinationWSManagement 
+/* Values for Delivery mode property of CIM_ListenerDestinationWSManagement
     class , as defined in CIM_ListenerDestinationWSManagement.mof */
 
 enum deliveryMode {Push = 2 ,PushWithAck = 3, Events = 4 ,Pull = 5,
@@ -589,7 +598,7 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
-PEGASUS_COMMON_LINKAGE 
+PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_WSMAN;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;

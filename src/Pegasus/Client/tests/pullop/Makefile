@@ -351,11 +351,9 @@ pullClassParamError:
 	$(PROGRAM) en -c blah -R $(HOSTID)
 
 ## Generates an error because reqested object count too large. Currently
-## maximum is fixed at 1000
-## FUTURE: When we implement runtime setting of maximum, we may have an
-## issue with this test.
+## maximum is fixed at 10000
 maxPullObjectCountError:
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9999 -N 9999 -C -R -T $(DSP) $(HOSTID)
+	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 99999 -N 99999 -C -R -T $(DSP) $(HOSTID)
 
 # Test for invalid filter query language definitions
 filterParamError:

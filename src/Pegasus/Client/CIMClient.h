@@ -1003,17 +1003,8 @@ public:
     <TT>CLASSORIGIN</TT> attribute MUST be present on all appropriate
     elements in each returned Instance. If false, no
     <TT>CLASSORIGIN</TT> attributes are present in each returned
-    Instance.
-
-    @param filterQueryLanguage If the <tt>filterQueryLanguage</tt>*
-    paramter is provided it defines a query language to be used
-    with the filterQuery. This is an optional parameter and using it may cause
-    the operation to be rejected by some CIM servers.
-
-    @param filterQuery String defining a filter query to be applied to
-    the enumeration. This is an optional parameter and using it may cause
-    the operation to be rejected by some CIM Servers.
-
+    Instance. 
+    
     @param propertyList If the <TT>propertyList</TT> input parameter is not
     <TT>NULL</TT>, the members of the array define one or more CIMProperty
     names.  Each returned Instance MUST NOT include elements
@@ -1035,17 +1026,29 @@ public:
     the Server MUST ignore the duplicates but otherwise process the request
     normally.  If the <TT>PropertyList</TT> contains elements which are
     invalid CIMProperty names for any target Instance, the Server MUST
-    ignore such entries but otherwise process the request normally.
+    ignore such entries but otherwise process the request normally. 
 
-    @param operationTimeout Int32Arg parameter that defines the interoperation
-    timeout in seconds between operations of an enumeration sequence.
-    The server shall maintain a returned enumeration context for at least the
-    time specified by this parameter.  If the parameter is set to NULL
-    the server defines the operationTimeout time.  If the user sets the
-    parameter to a time greater than that allowed by the server, the server
-    may use its maximum timeout time in place of the supplied parameter.
-    If the client sets the timeout time to zero the server may ignore timeout
-    time completely.
+    @param filterQueryLanguage If the <tt>filterQueryLanguage</tt>*
+    paramter is provided it defines a query language to be used
+    with the filterQuery. This is an optional parameter and using it may cause
+    the operation to be rejected by some CIM servers.
+
+    @param filterQuery String defining a filter query to be applied to
+    the enumeration. This is an optional parameter and using it may cause
+    the operation to be rejected by some CIM Servers.
+
+    @param operationTimeout Uint32Arg parameter that defines the
+    interoperation timeout in seconds between the response and
+    subsequent request operations of an enumeration sequence. The
+    server shall maintain a returned enumeration context for at
+    least the time specified by this parameter.  If the parameter is
+    set to NULL the server defines the operationTimeout time.  If
+    the user sets the parameter to a time greater than that allowed
+    by the server, the server may use its maximum timeout time in
+    place of the supplied parameter or refuse the request with an
+    exception. If the client sets the timeout time to zero the
+    server may either ignore timeout time completely or refuse the
+    request with an exception.
 
     @param continueOnError Boolean parameter that defines whether the server
     should continue to return instances subsequent to a CIMException error
@@ -1060,9 +1063,11 @@ public:
     including 0.
     The server may deliver up to maxObjectCount objects.  The server may
     deliver fewer elements including possibly zero elements. In any case, the
-    server will reset the <TT>operationTimeout</TT> so that maxObjectCount of
-    zero can be used to keep an enumeration  sequence open without receiving
-    elements. This is an optional argument with default = 0.
+    server will reset the <TT>operationTimeout</TT> when the
+    response is generated so that <TT>maxObjectCount</TT> of zero
+    can be used to keep an enumeration sequence open without
+    receiving elements. This is an optional argument with default =
+    0.
 
     @return If successful, the method returns zero or more named
     Instances that meet the required criteria.
@@ -1111,30 +1116,32 @@ public:
     and optionally returns zero or more CIMObjectPaths. This is the pull
     equivalent of the EnumerateInstanceNames method.
 
-    @param enumerationContext See enumerationContext parameter for
-    openEnumerateInstances.
+    @param enumerationContext See <TT>enumerationContext</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param  endOfSequence See endOfSequence parameter for
-    openEnumerateInstances.
+    @param  endOfSequence See <TT>endOfSequence</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+    @param nameSpace See <TT>nameSpace</TT> parameter for
+                     <TT>openEnumerateInstances</TT> request.
 
     @param className The <TT>className</TT> input parameter defines the
     Class that is the basis for the enumeration.
 
-    @param filterQueryLanguage See filterQuery argument for
-    openEnumerateInstances
+    @param filterQueryLanguage See <TT>filterQueryLanguage</TT> argument
+    for <TT>openEnumerateInstances</TT> request
 
-    @param filterQuery See filterQuery parameter for openEnumerateInstances
+    @param filterQuery See <TT>filterQuery</TT> parameter for
+                       <TT>openEnumerateInstances</TT> request
 
-    @param operationTimeout See operationTimeout parameter for
-    openEnumerateInstances.
+    @param operationTimeout See <TT>operationTimeout</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param continueOnError - See continueOnError parameter for
-    openEnumerateInstances.
+    @param continueOnError - See <TT>continueOnError</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param maxObjectCount - See maxObjectCount parameter for
-    openEnumerateInstances.
+    @param maxObjectCount - See <TT>maxObjectCount</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
     @return If successful, the method returns zero or more CIMObjectPaths
      that meet the required criteria.
@@ -1183,13 +1190,14 @@ public:
     except that this returns named instances (CIMInstance) and not CIMObjects.
     This operation cannot retrieve reference class information.
 
-    @param enumerationContext See enumerationContext parameter for
-    openEnumerateInstances.
+    @param enumerationContext See <TT>enumerationContext</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param  endOfSequence See endOfSequence parameter for
-    openEnumerateInstances.
+    @param  endOfSequence See <TT>endOfSequence</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+    @param nameSpace See nameSpace parameter for <TT>openEnumerateInstances</TT>
+    request.
 
     @param objectName The <TT>objectName</TT> input parameter defines the
     instance that is the basis for the enumeration.
@@ -1200,23 +1208,28 @@ public:
     @param role String input parameter that defines a filter on the roles
     of references instances to be returned
 
-    @param includeClassOrigin TBD
+    @param includeClassOrigin A Boolean indicating whether the Class Origin
+        attribute is to be included in elements of the returned Instance.
+        If false, no Class Origin attributes are requested.
+        If not specified, this parameter defaults to false.
 
-    @param propertyList TBD
+    @param propertyList See <TT>propertyList</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param filterQueryLanguage See filterQuery parameter for
-    openEnumerateInstances
+    @param filterQueryLanguage See <TT>filterQueryLanguage</TT> argument
+    for <TT>openEnumerateInstances</TT> request
 
-    @param filterQuery See filterQuery parameter for openEnumerateInstances
+    @param filterQuery See <TT>filterQuery</TT> parameter for
+    <TT>openEnumerateInstances</TT> request
 
-    @param operationTimeout See operationTimeout parameter for
-    openEnumerateInstances.
+    @param operationTimeout See <TT>operationTimeout</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param continueOnError - See continueOnError parameter for
-    openEnumerateInstances.
+    @param continueOnError - See <TT>continueOnError</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param maxObjectCount - See maxObjectCount parameter for
-    openEnumerateInstances.
+    @param maxObjectCount - See <TT>maxObjectCount</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
     @return If successful, the method returns zero or more CIMObjectPaths
      that meet the required criteria.
@@ -1265,16 +1278,19 @@ public:
     session for reference instance paths (CIMObjectPaths)
     to enumerate CIMObjectPaths of a CIM Class in the target Namespace and
     optionally returns zero or more CIMObjectPaths.
-    NOTE: The behavior of a complete referenceInstancePaths sequence is
-    similar to the referenceNames operation.
+    NOTE: The behavior of a complete referenceInstances sequence is
+    similar to the references operation except that it returns 
+    CIMInstances rather than CIMObjects and therefore cannot 
+    return CIMClass information. 
 
-    @param enumerationContext See enumerationContext parameter for
-    openEnumerateInstances.
+    @param enumerationContext See <TT>enumerationContext</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param  endOfSequence See endOfSequence parameter for
-    openEnumerateInstances.
+    @param  endOfSequence See <TT>endOfSequence</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+    @param nameSpace See <TT>nameSpace</TT> parameter
+                     for <TT>openEnumerateInstances</TT> request.
 
     @param objectName The <TT>objectName</TT> input parameter defines the
     Class that is the basis for the enumeration.
@@ -1288,19 +1304,21 @@ public:
     @param role String input parameter that defines a filter on the roles
     of associated instances to be returned
 
-    @param filterQueryLanguage See filterQuery parameter for
-    openEnumerateInstances
+    @param filterQueryLanguage See <TT>filterQueryLanguage</TT> argument
+    for <TT>openEnumerateInstances</TT> request
 
-    @param filterQuery See filterQuery parameter for openEnumerateInstances
+    @param filterQuery See <TT>filterQuery</TT> parameter for
+                       <TT>openEnumerateInstances</TT> request
 
-    @param operationTimeout See operationTimeout parameter for
-    openEnumerateInstances.
+    @param operationTimeout See <TT>operationTimeout</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param continueOnError - See continueOnError parameter for
-    openEnumerateInstances.
+    @param continueOnError - See <TT>continueOnError</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param maxObjectCount - See maxObjectCount parameter for
-    openEnumerateInstances.
+    @param maxObjectCount - See <TT>maxObjectCount</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
+
 
     @return If successful, the method returns zero or more
      CIMObjectPaths that meet the required criteria.
@@ -1351,13 +1369,14 @@ public:
     returns CIMInstances rather than CIMObjects and requires that
     a InstancePath be supplied (not just a ClassPath).
 
-    @param enumerationContext See enumerationContext parameter for
-    openEnumerateInstances.
+    @param enumerationContext See <TT>enumerationContext</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param  endOfSequence See endOfSequence parameter for
-    openEnumerateInstances.
+    @param  endOfSequence See <TT>endOfSequence</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+    @param nameSpace See nameSpace parameter
+                     for <TT>openEnumerateInstances</TT> request.
 
     @param objectName The <TT>objectName</TT> input parameter defines the
     instance that is the basis for the enumeration.
@@ -1376,22 +1395,23 @@ public:
         If false, no Class Origin attributes are requested.
         If not specified, this parameter defaults to false.
 
-    @param propertyList See propertyList parameter for
-                        openEnumerateInstances
+    @param propertyList See <TT>propertyList</TT> parameter for
+                        <TT>openEnumerateInstances</TT> request
 
-    @param filterQueryLanguage See filterQuery parameter for
-    openEnumerateInstances
+    @param filterQueryLanguage See <TT>filterQueryLanguage</TT> argument
+    for <TT>openEnumerateInstances</TT> request
 
-    @param filterQuery See filterQuery parameter for openEnumerateInstances
+    @param filterQuery See <TT>filterQuery</TT> parameter for
+                       <TT>openEnumerateInstances</TT> request
 
-    @param operationTimeout See operationTimeout parameter for
-    openEnumerateInstances.
+    @param operationTimeout See <TT>operationTimeout</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param continueOnError - See continueOnError parameter for
-    openEnumerateInstances.
+    @param continueOnError - See <TT>continueOnError</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param maxObjectCount - See maxObjectCount parameter for
-    openEnumerateInstances.
+    @param maxObjectCount - See <TT>maxObjectCount</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
     @return If successful, the method returns zero or more
      CIMInstances that meet the required criteria.
@@ -1445,13 +1465,14 @@ public:
     is the pull parallel to the <TT>associatorNames</TT>  function. but
     requires that an InstancePath be supplied (not just a ClassPath).
 
-    @param enumerationContext See enumerationContext parameter for
-    openEnumerateInstances.
+    @param enumerationContext See <TT>enumerationContext</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param  endOfSequence See endOfSequence parameter for
-    openEnumerateInstances.
+    @param  endOfSequence See <TT>endOfSequence</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+    @param nameSpace See <TT>nameSpace</TT> parameter for
+                     <TT>openEnumerateInstances</TT> request.
 
     @param objectName The <TT>objectName</TT> input parameter defines the
     instance that is the basis for the enumeration. This must be an
@@ -1467,19 +1488,21 @@ public:
     @param resultRole String input parameter that defines a filter
     on the roles of associated CIMObjectPath to be returned
 
-    @param filterQueryLanguage See filterQuery parameter for
-    openEnumerateInstances
+    @param filterQueryLanguage See <TT>filterQueryLanguage</TT> argument
+    for <TT>openEnumerateInstances</TT> request
 
-    @param filterQuery See filterQuery parameter for openEnumerateInstances
+    @param filterQuery See <TT>filterQuery</TT> parameter for
+                       <TT>openEnumerateInstances</TT> request
 
-    @param operationTimeout See operationTimeout parameter for
-    openEnumerateInstances.
+    @param operationTimeout See <TT>operationTimeout</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param continueOnError - See continueOnError parameter for
-    openEnumerateInstances.
+    @param continueOnError - See <TT>continueOnError</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param maxObjectCount - See maxObjectCount parameter for
-    openEnumerateInstances.
+    @param maxObjectCount - See <TT>maxObjectCount</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
+
 
     @return If successful, the method returns zero or more CIMObjectPaths
      that meet the required criteria.
@@ -1530,17 +1553,18 @@ public:
         corresponding pullInstances() method must be used to
         continue the sequence.
 
-    @param enumerationContext See enumerationContext parameter for
-        openEnumerateInstances.
+    @param enumerationContext See <TT>enumerationContext</TT> parameter
+    for <TT>openEnumerateInstances</TT> request.
 
-    @param  endOfSequence See endOfSequence parameter for
-        openEnumerateInstances.
+    @param  endOfSequence See <TT>endOfSequence</TT> parameter for
+    <TT>openEnumerateInstances</TT> request.
 
-    @param nameSpace See nameSpace parameter for openEnumerateInstances.
+    @param nameSpace See nameSpace parameter
+                     for <TT>openEnumerateInstances</TT> request.
 
     @param filterQueryLanguage String Specifies a Query language for which the
         <TT>filterQuery</TT> argument is valid. This is either a CQL
-        or WQL query, NOT an FQL query
+        or WQL query It is NOT an FQL query.
 
     @param filterQuery String defining a valid query in the
         query language defined by the <TT>filterQueryLanguage</TT> argument.
@@ -1552,11 +1576,11 @@ public:
         contain a class definition that defines the properties of each
         instance of the query result.
 
-    @param continueOnError - See continueOnError parameter for
-        openEnumerateInstances.
+    @param continueOnError - See <TT>continueOnError</TT> parameter for
+        <TT>openEnumerateInstances</TT> request.
 
-    @param maxObjectCount - See maxObjectCount parameter for
-        openEnumerateInstances.
+    @param maxObjectCount - See <TT>maxObjectCount</TT> parameter for
+        <TT>openEnumerateInstances</TT> request.
 
     @return Array<CIMInstance>  If successful, the return contains an array
         of zero or more instances that satisfy the filterQuery. These

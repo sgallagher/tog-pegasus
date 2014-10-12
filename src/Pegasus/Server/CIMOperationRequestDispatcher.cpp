@@ -455,27 +455,31 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 #endif
 
 //EXP_PULL_BEGIN
-    // setup PULL_OPERATION_MAXIMUM_OBJECT_COUNT from define
-    // TODO bug 98xx will make the a config parameter
+    // setup PULL_OPERATION_MAXIMUM_OBJECT_COUNT
     // Define the maximum number of objects that the server will return for a
     // single pull... or open... operation. (Objects can be instances or
     // CIMObjectPaths  depending on the operation.
-#ifdef PEGASUS_PULL_OPERATION_MAXIMUM_OBJECT_COUNT
-    _systemMaxPullOperationObjectCount =
-        PEGASUS_PULL_OPERATION_MAXIMUM_OBJECT_COUNT;
-#else
-    // Default setting if nothing supplied externally
-////    Code based on Bug 9819. Cannot be implemented until 9819 included
-////      _systemMaxPullOperationObjectCount = ConfigManager::parseUint32Value(
-////      configManager->getCurrentValue("pullDefaultOperationTimeout"));
-    _systemMaxPullOperationObjectCount = 1000;
-#endif
-    // setup responseSizeMaximumSize from internal define
+
+    _systemPullOperationMaxObjectCount = ConfigManager::parseUint32Value(
+        configManager->getCurrentValue("pullOperationsMaxObjectCount"));
+
+    //
+    // Define maximum pull interoperation timeout value.  This sets
+    // the maximum value for operationTimeout that will be accepted by
+    // Pegasus. Anything larger than this will be rejected with the
+    // error CIM_ERR_INVALID_OPERATION_TIMEOUT.
+    // This is the time limit in seconds between the completion of one
+    // operation of an enumeration sequence and the  recipt of the next request.
+    // The server must maintain the context for at least the time defined in
+    // this value.
+    _pullOperationMaxTimeout = ConfigManager::parseUint32Value(
+        configManager->getCurrentValue("pullOperationsMaxTimeout"));
+
     // Define the maximum size for the response cache in each
     // enumerationContext.  As responses are returned from providers this is the
     // maximum number that can be placed in the CIMResponseData cache waiting
-    // for pull operations to move send them as responses before responses
-    // start backing up the providers (i.e. delaying return from the provider
+    // for pull operations to send them as responses before responses
+    // start backing up to the providers (i.e. delaying return from the provider
     // deliver calls.
     // FUTURE: As we develop more flexible resource management this value should
     // be modified for each context creation in terms of the object sizes
@@ -484,49 +488,11 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // responses because they are probably much smaller.
     // This variable is not externalized because we are not sure
     // if that is logical.
-#define RESPONSE_CACHE_DEFAULT_MAXIMUM_SIZE 1000
+#define PEGASUS_PULL_RESPONSE_CACHE_DEFAULT_MAX_SIZE 1000
 
     Uint32 responseCacheDefaultMaximumSize =
-        RESPONSE_CACHE_DEFAULT_MAXIMUM_SIZE;
+        PEGASUS_PULL_RESPONSE_CACHE_DEFAULT_MAX_SIZE;
 
-    //
-    // setup PullOperationMaxTimeout, System limit on maximum interoperation
-    // time.
-    // Define maximum pull interoperation timeout value.  This defines
-    // the maximum value for operationTimeout that will be accepted by
-    // Pegasus. Anything larger than this will be rejected with the
-    // error CIM_ERR_INVALID_OPERATION_TIMEOUT.
-    // This sets the time in seconds between  the completion of one operation
-    // of an enumeration sequence and the  recipt of the next request.
-    // The server must maintain the context for at least the time defined in
-    // this value.
-#ifdef PEGASUS_PULL_OPERATION_MAX_TIMEOUT
-      _pullOperationMaxTimeout =
-          PEGASUS_PULL_OPERATION_MAX_TIMEOUT;
-#else
-////      KS_TODO implement this when we add bug 9819. Do not want to
-////      do now because detecting nonexistent param causes exception and
-///       that code is just to expensive for this use.
-////      _pullOperationMaxTimeout = ConfigManager::parseUint32Value(
-////      configManager->getCurrentValue("pullResponseMaxObjectCount"));
-      _pullOperationMaxTimeout = 90;
-#endif
-
-    //
-    // setup Default Pull Operation interoperation timeout
-    // Define the default value for timeout if the operationtimeout value
-    // received  in a request is NULL.  This is the server defined default.
-    //
-#define PULL_OPERATION_DEFAULT_TIMEOUT 30
-////      KS_TODO implement this when we add bug 9819. Do not want to
-////      do now because detecting nonexistent param causes exception and
-///       that code is just to expensive for this use.
-////      _pullOperationMaxTimeout = ConfigManager::parseUint32Value(
-////      configManager->getCurrentValue("pullDefaultOperationTimeout"));
-///  TODO since this is just passed on to EnumContexttable, make local variable
-    _pullOperationDefaultTimeout = 30;
-    // setup definition of whether server will accept Open operations
-    // that have zero as timeout value
     // Define  variable that controls whether we allow 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
     // that the server maintains no timer for the context, it may be the
@@ -552,9 +518,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 
     _enumerationContextTable = new EnumerationContextTable(
         OpenEnumerateContextsMaxLimit,
-        _pullOperationDefaultTimeout,
         responseCacheDefaultMaximumSize);
-
 //EXP_PULL_END
 
     //
@@ -1104,13 +1068,48 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
         "CIMOperationRequestDispatcher::_handle_async_request");
 
     // pass legacy operations to handleEnqueue
-    if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
-    {
-        Message* message =
-            static_cast<AsyncLegacyOperationStart*>(req)->get_action();
+    // unless it is a CIM_NOTIFY_CONFIG_CHANGE
+        AutoPtr<CIMResponseMessage> response;
+        if (legacy->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
+        {
+            try
+            {
+                response.reset(
+                   handlePropertyUpdateRequest(
+                       (CIMNotifyConfigChangeRequestMessage*)
+                           legacy.get()));
+            }
+            catch (Exception& e)
+            {
+                response.reset(((CIMRequestMessage*)
+                                legacy.get())->buildResponse());
+                response->cimException =
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+            }
+            catch (...)
+            {
+                response.reset(((CIMRequestMessage*)
+                                legacy.get())->buildResponse());
+                response->cimException =
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Exception: Unknown");
+            }
 
-        handleEnqueue(message);
+            AutoPtr<AsyncLegacyOperationResult> result(
+                new AsyncLegacyOperationResult(
+                    req->op,
+                    response.get()));
+            response.release();
+            result.release();
+            _complete_op_node(req->op);
+        }
+        else
+        {
+            Message *message =
+                static_cast<AsyncLegacyOperationStart*>(req)->get_action();
 
+            handleEnqueue(message);
+
+        }
         PEG_METHOD_EXIT();
         return;
     }
@@ -1118,6 +1117,50 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
     // pass all other operations to the default handler
     Base::_handle_async_request(req);
     PEG_METHOD_EXIT();
+}
+
+//
+// Update the DeliveryRetryAttempts & DeliveryRetryInterval
+// with the new property value
+//
+CIMNotifyConfigChangeResponseMessage*
+    CIMOperationRequestDispatcher::handlePropertyUpdateRequest(
+        CIMNotifyConfigChangeRequestMessage *message)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "CIMOperationRequestDispatcher::_handlePropertyUpdateRequest");
+    CIMNotifyConfigChangeRequestMessage * notifyRequest=
+           dynamic_cast<CIMNotifyConfigChangeRequestMessage*>(message);
+
+    Uint64 v;
+
+    StringConversion::decimalStringToUint64(
+        notifyRequest->newPropertyValue.getCString(),v);
+
+    if (String::equal(
+        notifyRequest->propertyName, "pullOperationsMaxObjectCount"))
+    {
+        _systemPullOperationMaxObjectCount = (Uint32)v;
+    }
+    else if(String::equal(
+        notifyRequest->propertyName, "pullOperationsMaxTimeout"))
+    {
+         _pullOperationMaxTimeout = (Uint32)v;
+    }
+    else if (String::equal(
+        notifyRequest->propertyName, "pullOperationsDefaultTimeout"))
+    {
+        EnumerationContextTable::setDefaultOperationTimeoutSec(v);
+    }
+     else
+    {
+        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+    }
+    CIMNotifyConfigChangeResponseMessage *response =
+        dynamic_cast<CIMNotifyConfigChangeResponseMessage*>(
+            message->buildResponse());
+    PEG_METHOD_EXIT();
+    return response;
 }
 
 /*
@@ -2836,16 +2879,16 @@ bool CIMOperationRequestDispatcher::_rejectInvalidMaxObjectCountParam(
     Uint32& rtnValue,
     const Uint32 defaultValue)
 {
-    if (maxObjectCountParam > _systemMaxPullOperationObjectCount)
+    if (maxObjectCountParam > _systemPullOperationMaxObjectCount)
     {
         CIMException x = PEGASUS_CIM_EXCEPTION_L(
         CIM_ERR_INVALID_PARAMETER, MessageLoaderParms(
             "Server.CIMOperationRequestDispatcher."
                 "MAXOBJECTCOUNT_OUT_OF_RANGE",
-            "Operation maximum Object count argument $0 too large."
+            "Operation maximum object count argument $0 too large."
             " Maximum allowed: $1.",
             maxObjectCountParam,
-            _systemMaxPullOperationObjectCount));
+            _systemPullOperationMaxObjectCount));
 
         _enqueueExceptionResponse(request, x);
         return true;

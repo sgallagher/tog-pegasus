@@ -690,6 +690,18 @@ public:
         ProviderInfoList& providerInfos,
         OperationAggregate* poA);
 
+    /*
+        Static function sets the System Pull Response Maximum object
+        count.  Used by configuration manager.
+    */
+    static void setPullOperationMaxObjectCount(Uint32 maxCount);
+
+    /*
+        Static function sets the System Pull Response Maximum timeout
+        in seconds.  Used by cimconfig.
+    */
+    static void setPullOperationMaxTimeout(Uint32 seconds);
+
 protected:
 
     /** _getSubClassNames - Gets the names of all subclasses of the defined
@@ -995,6 +1007,7 @@ protected:
     Boolean _enableAssociationTraversal;
     Boolean _enableIndicationService;
 
+    // KS_TODO the following should be private.
     // Define the maximum number of classes that system will enumerate
     // Allows the system to limit the size of enumeration responses,
     // at least in terms of number of classes that can be included in
@@ -1004,7 +1017,9 @@ protected:
 
     // Define the maximum number of objects that the system will accept
     // for pull operation input parameter.
-    Uint32 _systemMaxPullOperationObjectCount;
+
+    Uint32 _systemPullOperationMaxObjectCount;
+
 
     // Define whether the system will accept the value zero as a valid
     // pull interoperation timeout. Since the value of zero disables the
@@ -1015,11 +1030,8 @@ protected:
 
     // Value for maximum timeout for pull operations.  If this value is
     // exceeded, the operation request will be rejected.
+    // Set from configuration manager
     Uint32 _pullOperationMaxTimeout;
-
-    // Value for default operationTimeout for open operations if no
-    // value is supplied with the open request.
-    Uint32 _pullOperationDefaultTimeout;
 
     Uint32 _providerManagerServiceId;
 
@@ -1029,6 +1041,10 @@ protected:
 
     // meta dispatcher integration
     virtual void _handle_async_request(AsyncRequest* req);
+
+    // Process NotifyConfigChangeRequests
+    CIMNotifyConfigChangeResponseMessage* handlePropertyUpdateRequest(
+        CIMNotifyConfigChangeRequestMessage *message);
 
     Boolean _enumerateFromRepository(
         CIMOperationRequestMessage* request,

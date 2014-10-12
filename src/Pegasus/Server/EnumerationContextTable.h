@@ -79,16 +79,12 @@ public:
             of contexts that may be open simultaneously. Note that this number
             may have effect on the Hashtable size which is also set in
             this header file.
-        @param  defaultInteroperationTimeoutValue Uint32 default time
-            between operations of a pull sequence if the request has
-            this argument = NULL.
 
         @param responseCacheMaximumSize Uint32 Maximum number of
             objects in response queue before it backs up to
             providers
     */
     EnumerationContextTable(Uint32 maxOpenContexts,
-        Uint32 defaultInteroperationTimeoutValue,
         Uint32 reponseCacheMaximumSize);
 
     ~EnumerationContextTable();
@@ -180,7 +176,14 @@ public:
     AtomicInt _stopTimeoutThreadFlag;
     Semaphore _timeoutThreadWaitSemaphore;
 
+    /*
+        Sets the static parameter DefaultOperationTimeoutSec
+        Called from config mgr if runtime parameter changes
+    */
+    static void setDefaultOperationTimeoutSec(Uint32 seconds);
+
 private:
+
     // hide default assignment and copy constructor
     EnumerationContextTable(const EnumerationContextTable& x);
 
@@ -211,14 +214,21 @@ private:
     // before responses are not processed and back up to providers.
     Uint32 _responseCacheMaximumSize;
 
+    // Default time interval allowed for interoperation timeout
+    // when NULL is specified in the request.
+    // This is static and set externally through
+    // setDefaultOperationTimeoutSec
+    static Uint32 _defaultOperationTimeoutSec;
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+    static Mutex _defaultOperationTimeoutSecMutex;
+#endif
+
     // Systemwide highwater mark of number of objects in context cache
     Uint32 _cacheHighWaterMark;
 
     Uint32 _responseObjectCountHighWaterMark;
 
-    // Default time interval allowed for interoperation timeout
-    // when NULL is specified in the request.
-    Uint32 _defaultOperationTimeoutSec;
+
 
     // Count of enumerations Opened total since last statistics reset
     Uint64 _enumerationContextsOpened;

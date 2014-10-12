@@ -1069,6 +1069,11 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
 
     // pass legacy operations to handleEnqueue
     // unless it is a CIM_NOTIFY_CONFIG_CHANGE
+    if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
+    {
+        AutoPtr<Message> legacy(
+            static_cast<AsyncLegacyOperationStart *>(req)->get_action());
+
         AutoPtr<CIMResponseMessage> response;
         if (legacy->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
         {

@@ -53,6 +53,11 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #define VCOUT if (verbose) cout
+#ifdef PEGASUS_DEBUG
+#  define VSCMODUMP(sd) if (verbose) (sd)
+#else
+#  define VSCMODUMP(sd)
+#endif
 
 static Boolean verbose;
 static Boolean loadClassOnce;
@@ -1867,7 +1872,7 @@ void SCMOInstancePropertyTest()
              << endl << "==========" << endl << Class2XmlOut << endl;
     }
 
-    PEGASUS_ASSERT(strcmp(buf.getData(), Class2XmlOut) == 0);
+    PEGASUS_TEST_ASSERT(strcmp(buf.getData(), Class2XmlOut) == 0);
 
     VCOUT << endl << "SCMOInstancePropertyTest Done." << endl << endl;
 }
@@ -2203,8 +2208,6 @@ void SCMOUserDefinedInstancePropertyTest()
     CIMType typeReturn;
     Boolean isArrayReturn;
     Uint32 sizeReturn;
-    // set dump for diagnostics
-    SCMODump sd;
 
     // Create class in cache but do not use the created class
     // since creating instances for non-existent class.
@@ -2246,16 +2249,17 @@ void SCMOUserDefinedInstancePropertyTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    if (verbose)
-    {
-        sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true);
-    }
+    // set dump for diagnostics
+#ifdef PEGASUS_DEBUG
+    SCMODump sd;
+#endif
+    VSCMODUMP(sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true));
 
     SCMBUnion boolValue;
     boolValue.simple.val.bin=true;
     boolValue.simple.hasValue=true;
 
-    PEGASUS_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 1);
+    PEGASUS_TEST_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 1);
 
     rc = SCMO_TESTClassNotExist_Inst.getProperty(
         "BooleanPropertyValueFalse",
@@ -2311,15 +2315,12 @@ void SCMOUserDefinedInstancePropertyTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    if (verbose)
-    {
-        sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true);
-    }
+    VSCMODUMP(sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true));
 
     boolValue.simple.val.bin=true;
     boolValue.simple.hasValue=true;
 
-    PEGASUS_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 1);
+    PEGASUS_TEST_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 1);
 
     rc = SCMO_TESTClassNotExist_Inst.getProperty(
         "BooleanPropertyValueFalse",
@@ -2350,12 +2351,10 @@ void SCMOUserDefinedInstancePropertyTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 2);
 
-    if (verbose)
-    {
-        sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true);
-    }
+    VSCMODUMP(sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true));
+
 
     rc = SCMO_TESTClassNotExist_Inst.getProperty(
         "BooleanProperty",
@@ -2384,12 +2383,9 @@ void SCMOUserDefinedInstancePropertyTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    if (verbose)
-    {
-        sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true);
-    }
+    VSCMODUMP(sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true));
 
-    PEGASUS_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 3);
+    PEGASUS_TEST_ASSERT(SCMO_TESTClassNotExist_Inst.getPropertyCount() == 3);
 
     rc = SCMO_TESTClassNotExist_Inst.getProperty(
         "Uint32PropertyArray",
@@ -2421,11 +2417,11 @@ void SCMOUserDefinedInstancePropertyTest()
                                           size);
         if (strcmp(pName, "Uint32PropertyArray") == 0 )
         {
-            PEGASUS_ASSERT(type == CIMTYPE_UINT32);
+            PEGASUS_TEST_ASSERT(type == CIMTYPE_UINT32);
         }
         instanceFound = true;
     }
-    PEGASUS_ASSERT(instanceFound);
+    PEGASUS_TEST_ASSERT(instanceFound);
 
     /**
      * Test Char16
@@ -3461,16 +3457,13 @@ void SCMOUserDefinedInstancePropertyTest()
                                           size);
         if (strcmp(pName, "Uint32PropertyArray") == 0 )
         {
-            PEGASUS_ASSERT(type == CIMTYPE_UINT32);
+            PEGASUS_TEST_ASSERT(type == CIMTYPE_UINT32);
         }
         instanceFound = true;
     }
-    PEGASUS_ASSERT(instanceFound);
+    PEGASUS_TEST_ASSERT(instanceFound);
 
-    if (verbose)
-    {
-        sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true);
-    }
+    VSCMODUMP(sd.dumpSCMOInstance(SCMO_TESTClassNotExist_Inst, true, true));
     // do not forget !!!
     free((void*)unionReturn);
 
@@ -3488,7 +3481,6 @@ void SCMOUserDefinedInstancePropertyTest()
         cout << endl << buf.getData() << endl;
     }
 
-    //PEGASUS_ASSERT(strcmp(buf.getData(), InstNoClassXmlOut) == 0);
 
     VCOUT << "SCMOUserDefinedInstancePropertyTest Done" << endl;
 }
@@ -3565,7 +3557,6 @@ void SCMOUserDefinedInstanceConverterTest()
 {
     VCOUT << "Start " << "SCMOUserDefinedInstanceConverterTest()" << endl;
 
-    SCMODump sd;
     // This gets the class from the cache
     SCMOClassCache* _theCache = SCMOClassCache::getInstance();
 
@@ -3580,10 +3571,10 @@ void SCMOUserDefinedInstanceConverterTest()
 
     PEGASUS_TEST_ASSERT(!SCMO_TestClassWithEmbObj.isEmpty());
 
-    if (verbose)
-    {
-        sd.dumpSCMOClass(SCMO_TestClassWithEmbObj);
-    }
+#ifdef PEGASUS_DEBUG
+    SCMODump sd;
+#endif
+    VSCMODUMP(sd.dumpSCMOClass(SCMO_TestClassWithEmbObj));
 
     // Try to get the EmbeddedObjecClass from our cache.
     SCMOClass SCMO_TestClassEmbObjClass = _theCache->getSCMOClass(
@@ -3656,7 +3647,9 @@ void SCMOUserDefinedInstanceConverterTest()
         cout << "Original CIM Instance " << endl;
         XmlWriter::printInstanceElement(originalCimInstance,cout);
         cout << "SCMO Instance created from original instance" << endl;
+#ifdef PEGASUS_DEBUG
         sd.dumpSCMOInstance(SCMO_CSInstance, true, true);
+#endif
     }
 
     PEGASUS_TEST_ASSERT(newCimInstance.identical(originalCimInstance));

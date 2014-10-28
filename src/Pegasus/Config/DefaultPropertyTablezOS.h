@@ -58,7 +58,7 @@
 // PULL_EXP_BEGIN Pull operation config extensions
     {"pullOperationsMaxObjectCount",
         PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT_STRING, IS_DYNAMIC, IS_VISIBLE},
-    {"pullMaxOperationsTimeout",
+    {"pullOperationsMaxTimeout",
         PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC_STRING, IS_DYNAMIC, IS_VISIBLE},
     {"pullOperationsDefaultTimeout",
         PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC_STRING, IS_DYNAMIC,

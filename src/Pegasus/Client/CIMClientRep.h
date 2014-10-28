@@ -416,7 +416,7 @@ public:
         const String& query,
         CIMClass& queryResultClass,
         Boolean returnQueryResultClass = false,
-        const Uint32Arg& operationTimeout = NULL,
+        const Uint32Arg& operationTimeout = Uint32Arg(),
         Boolean continueOnError = false,
         Uint32 maxObjectCount = 0
     );

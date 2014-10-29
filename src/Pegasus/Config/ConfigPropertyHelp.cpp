@@ -190,9 +190,9 @@ struct configPropertyDescription configPropertyDescriptionList[] =
         "configured user authorizations [user authorizations may be\n"
         "configured using the 'cimauth' command]"},
 
-    {"httpAuthType",  "Type of HTTP authentication. Currently = 'basic'\n"
+    {"httpAuthType",  "Type of HTTP authentication. Either 'basic'\n"
         "indicating basic authentication or 'negotiate' indicating use of\n"
-        "HTPP Negotiate authentication method."},
+        "HTTP Negotiate authentication method. 'basic' is the default one."},
 
     {"passwordFilePath",  "Path to password file if password file used for\n"
         "user authentication."},

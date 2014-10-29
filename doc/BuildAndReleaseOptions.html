@@ -2656,6 +2656,24 @@ utility when upgrading from an OpenPegasus version less than 2.12. <br>
 Pegasus/Config/DefaultPropertyOwner.cpp
 </ul>
 
+<h5>httpAuthType</h5>
+<ul>
+  <b>Description:&nbsp;</b>Type of HTTP authentication. Allowed values are
+     'basic', indicating basic authentication or 'negotiate' indicating use of
+     HTPP Negotiate authentication method. This variable is effective only when
+     'enableAuthentication' variable is set to 'true'.<br>
+  <b>Default Value:&nbsp;</b>basic<br>
+  <b>Recommended Default Value (Development Build): </b>basic<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>basic<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No<br>
+  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>Value 'negotiate' is available only when Pegasus
+     is compiled with PEGASUS_NEGOTIATE_AUTHENTICATION=true.<br>
+  <b>Source Configuration File:&nbsp;</b>
+     Pegasus/Config/SecurityPropertyOwner.cpp
+</ul>
+
 <h5>httpPort</h5>
 
 <ul>

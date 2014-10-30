@@ -2777,6 +2777,38 @@ lookup fails.<br>
        </tbody></table>
 </ul>
 
+<h5>httpSessionTimeout</h5>
+<ul>
+  <b>Description:&nbsp;</b>If set to a positive integer, this value
+     specifies a HTTP session lifetime in seconds.
+     <br>
+     After initial authentication using standard HTTP mechanisms
+     (HTTP Basic or Negotiate authentication), the server generates a cookie
+     and sends it back to the client, as described in RFC 6265. The client
+     can then use the cookie in subsequent requests to skip the usual HTTP
+     authentication. The cookie is valid only for period of time specified by
+     this configuration option.
+     <br>
+     If set to zero, session management is turned off and CIM server will not
+     issue cookies.
+     <br>
+     This option is available only when Pegasus was compiled with
+     PEGASUS_ENABLE_SESSION_COOKIES set to 'true'.
+     <br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b>0<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>0<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>Yes<br>
+  <b>Considerations:&nbsp;</b>
+     The session timeout should be set to relatively small number (e.g. 30) to
+     ensure the window, when the a potentially stolen cookie can be re-used, is
+     quite small. This means every client will be re-authenticated the usual way
+     (HTTP Basic or Negotiate) at least every 30 seconds.
+     <br>
+</ul>
+
+
 <h5>idleConnectionTimeout</h5>
 <ul>
   <b>Description:&nbsp;</b>If set to a positive integer, this value

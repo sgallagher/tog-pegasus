@@ -399,7 +399,32 @@ struct configPropertyDescription configPropertyDescriptionList[] =
             "If set to a positive integer, value specifies a HTTP session\n"
             "cookie expiration time in seconds. If set to 0, cookie\n"
             "processing in Pegasus is disabled, it will not send nor accept\n"
-            "any cookies."}
+            "any cookies."},
+
+    {"pullOperationsMaxObjectCount",
+        "Defines the system limit on the number of instances or paths that "
+        "the client\n"
+        "may request in the open... or pull... 'maxObjectCount' "
+        "argument.\n"
+        "Minimum value = 1. Maximum value = "
+        PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT_STRING },
+
+    {"pullOperationsMaxTimeout",
+        "Defines the system maximum limit on the time in seconds between "
+        "open/pull\n"
+        "operations the client may request within an enumeration "
+        "sequence with the\n\'operationTimeout\' argument in open... client "
+        "requests.\n"
+        "Minimum value = 1 sec. Maximum value = "
+        PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC_STRING "sec"},
+
+    {"pullOperationsDefaultTimeout",
+        "Defines the default time in seconds of the \'operationTimeout\' "
+        "(the time\nbetween open/pull operations within a single "
+        "enumeration sequence)\nthe server uses when the client open... "
+        "request \'operationTimeout\' parameter\nis NULL. Minimum value = 1 "
+        "sec . Maximum value = "
+        PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC_STRING "sec"}
 };
 
 const Uint32 configPropertyDescriptionListSize =

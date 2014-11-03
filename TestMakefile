@@ -1028,20 +1028,15 @@ startcimListenAddress: FORCE
 
 
 
-LISTENING_ADD = $(shell TestListenAddress getSystemInterface)
-RESTRICT_INTRFC_TEST_CONFIG_OPTIONS= enableHttpConnection=true enableHttpsConnection=true listenAddress=$(LISTENING_ADD) 
+#Hardcoding the addess 127.0.0.1,
+RESTRICT_INTRFC_TEST_CONFIG_OPTIONS= enableHttpConnection=true enableHttpsConnection=true listenAddress=127.0.0.1
 RESTRICT_INTRFC_TEST_CMDS=$(MAKE)@@--directory $(PEGASUS_ROOT)/src/Pegasus/Server/tests/InterfaceRestriction@@-f@@Makefile@@RestrictionTest
 
-ifneq ($(strip $(LISTENING_ADD)),)
 run_interfaceRestrictionTest:FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
 	    CIMSERVER_CONFIG_OPTIONS="$(RESTRICT_INTRFC_TEST_CONFIG_OPTIONS)" \
 	    TESTSUITE_CMDS="$(RESTRICT_INTRFC_TEST_CMDS)"
-else
-run_interfaceRestrictionTest:FORCE
-	@ $(ECHO) "+++++ No Network Interface Detected: Skipping Network Restriction Test+++++++"
-endif
-	
+
 
 ##############################################################################
 ##

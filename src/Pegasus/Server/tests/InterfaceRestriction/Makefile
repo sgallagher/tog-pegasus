@@ -47,7 +47,7 @@ tests:
 
 RestrictionTest:
 
-	$(PROGRAM) RestrictionTest
+	$(PROGRAM)
 
 poststarttests: 
 

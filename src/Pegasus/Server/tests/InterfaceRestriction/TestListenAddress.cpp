@@ -46,76 +46,28 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose ;
-static Uint32 k;
 
 
-String makeBogusIp(String &ip, const String &num1, const String &num2)
-{
-    //Decide if the address passed is IPV4 or IPV6
-    //assuming that IPV4 contains "." and IPV6 ":"
-    Uint32 idx = ip.reverseFind('.');
-#ifdef PEGASUS_ENABLE_IPV6
-    Uint32 idx6 = ip.reverseFind(':');
-#endif
-    if(idx != PEG_NOT_FOUND)
-    {
-        String tmp = ip.subString(idx+1);
-        ip.remove(idx+1);
-
-        if(tmp == num1)
-        {
-            ip.append(num2);
-        }
-        else
-        {
-            ip.append(num1);
-        }
-    }
-#ifdef PEGASUS_ENABLE_IPV6
-    else if(idx6 != PEG_NOT_FOUND)
-    {  
-        String tmp = ip.subString(idx6+1);
-        ip.remove(idx6+1);
-
-        if(tmp == num1)
-        {
-            ip.append(num2);
-        }
-        else
-        {
-            ip.append(num1);
-        }
-    }
-#endif
-    else
-    {
-        cerr << "Invalid ip address detected";
-    }
-    return ip;
-}
-
-
-void _getSystemInterface(Array<String> list )
+//Get the first non LLA address and used that for testing
+String _getSystemInterface(Array<String> list )
 {
     for(Uint32 i =0; i < list.size(); ++i)
     {
         //Detect if ip is link-local address
-        //getInterfaceAddrs() currently returns link-local addr
-        //without zone index( see bug 9221)
-        //This should be removed when 9221 is fixed
         String tmp = list[i].subString(0,4);
         if( !(String::equalNoCase(tmp, "fe80")))
         {
-            cout << list[i] << endl;
-            k = i;
-            break;
+            return list[i];
         }
     }
+    return String::EMPTY;
 }
+
 void _ConnectClientAndTest(CIMClient &clnt,
-    const Uint32 port, 
+    const Uint32 port,
     const String &ip)
 {
+        cout << "connecting to "<< ip.getCString() << endl;
         clnt.connect(ip, port,"guest", "guest");
 
         CIMClass cimClass = clnt.getClass(
@@ -133,67 +85,50 @@ void _ConnectClientAndTest(CIMClient &clnt,
 }
 void  _restrictionTest(String &list)
 {
+    if (list.size() == 0)
+    {
+        cerr << "++++ No Usable Interface Detected ++++ " << endl;
+        return;
+    }
 
     CIMClient clnt;
     //This should connect
-    _ConnectClientAndTest(clnt,5988,list);
+    _ConnectClientAndTest(clnt,5988,"127.0.0.1");
 
-    String bogusIp1 = makeBogusIp(list,"30","9");
-
+    bool isConnected = false;
     try
     {
         //This should fail to connect
-        _ConnectClientAndTest(clnt, 5988,bogusIp1);
+        _ConnectClientAndTest(clnt, 5988,list);
+        isConnected = true;
     }
     catch(CannotConnectException &e)
     {
         cout << "Expected exception: " << e.getMessage() << endl;
     }
+    PEGASUS_TEST_ASSERT( !isConnected && (bool) "Unexpected connections made");
 }
 
-/* 
- * Command Line arguments of this program are as
- * getSystemInterface : get the first ip address of the machine
- * RestrictionTest    : test network restriction functionality
- *
- */
-
-int main(int argc, char** argv)
+int main(int argc, char *argv[])
 {
 #ifdef PEGASUS_OS_ZOS
         // For z/OS set stdout and stderr to EBCDIC
         setEBCDICEncoding(STDOUT_FILENO);
         setEBCDICEncoding(STDERR_FILENO);
 #endif
+    //make compiler not to complaint of unused param
+    argc;
 
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    if(argc != 2)
-    {
-        cerr << " Usage: " ;
-        cerr << argv[0] <<" getSystemInterface|RestrictionTest" << endl;
-        return 0;
-    }
 
     try
     {
         Array<String> list = System::getInterfaceAddrs();
+
         if( list.size() > 0 )
         {
-            if( !strcmp(argv[1], "getSystemInterface"))
-            {
-                _getSystemInterface(list);
-                return 0;
-            }
-            else if( !strcmp(argv[1], "RestrictionTest"))
-            {
-                _restrictionTest(list[k]);
-            }
-            else
-            {
-                cerr << " Usage: " ;
-                cerr << argv[0] <<" getSystemInterface|RestrictionTest"<< endl;
-                return 0;
-            }
+               String ipToTest = _getSystemInterface(list);
+               _restrictionTest(ipToTest);
         }
         else
         {

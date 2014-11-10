@@ -60,6 +60,8 @@ public:
 
     Sint32 read(void* ptr, Uint32 size);
 
+    Sint32 peek(void* ptr, Uint32 size);
+
     Sint32 timedWrite(const void* ptr,
                       Uint32 size,
                       Uint32 socketWriteTimeout);
@@ -151,6 +153,8 @@ public:
     SocketHandle getSocket();
 
     Sint32 read(void* ptr, Uint32 size);
+
+    Sint32 peek(void* ptr, Uint32 size);
 
     Sint32 write(const void* ptr, Uint32 size);
 

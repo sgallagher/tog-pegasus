@@ -149,6 +149,18 @@ Sint32 Socket::read(SocketHandle socket, void* ptr, Uint32 size)
 #endif
 }
 
+Sint32 Socket::peek(SocketHandle socket, void* ptr, Uint32 size)
+{
+    #ifdef PEGASUS_OS_TYPE_WINDOWS
+    return ::recv(socket, (char*)ptr, size, MSG_PEEK);
+    #else
+    int status;
+    PEGASUS_RETRY_SYSTEM_CALL(::recv(socket, (char*)ptr, size, MSG_PEEK),
+            status);
+    return status;
+    #endif
+}
+
 Sint32 Socket::write(SocketHandle socket, const void* ptr, Uint32 size)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS

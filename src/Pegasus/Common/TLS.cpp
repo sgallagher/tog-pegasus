@@ -222,6 +222,22 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
     return rc;
 }
 
+Sint32 SSLSocket::peek(void* ptr, Uint32 size)
+{
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::peek()");
+    Sint32 rc;
+
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                      SSL_state_string_long(static_cast<SSL*>(_SSLConnection)));
+    rc = SSL_peek(static_cast<SSL*>(_SSLConnection), (char *)ptr, size);
+
+    _sslReadErrno = errno;
+
+    PEG_METHOD_EXIT();
+    return rc;
+}
+
 Sint32 SSLSocket::timedWrite( const void* ptr,
                               Uint32 size,
                               Uint32 socketWriteTimeout)
@@ -720,6 +736,14 @@ Sint32 MP_Socket::read(void * ptr, Uint32 size)
         return _sslsock->read(ptr,size);
     else
         return Socket::read(_socket,ptr,size);
+}
+
+Sint32 MP_Socket::peek(void * ptr, Uint32 size)
+{
+    if (_isSecure)
+        return _sslsock->peek(ptr,size);
+    else
+        return Socket::peek(_socket,ptr,size);
 }
 
 Sint32 MP_Socket::write(const void * ptr, Uint32 size)

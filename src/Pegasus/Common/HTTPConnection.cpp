@@ -224,7 +224,7 @@ Boolean HTTPConnection::needsReconnect()
 {
     char buffer;
 
-    int n =  _socket->read(&buffer, sizeof(buffer));
+    int n =  _socket->peek(&buffer, sizeof(buffer));
 
     return n >= 0;
 }

@@ -68,6 +68,8 @@ public:
 
     static Sint32 read(SocketHandle socket, void* ptr, Uint32 size);
 
+    static Sint32 peek(SocketHandle socket, void* ptr, Uint32 size);
+
     static Sint32 write(SocketHandle socket, const void* ptr, Uint32 size);
 
     static Sint32 timedWrite(SocketHandle socket,

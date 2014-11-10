@@ -383,6 +383,7 @@ void HTTPConnection::handleEnqueue(Message *message)
             HTTPMessage* httpMessage = dynamic_cast<HTTPMessage*>(message);
             PEGASUS_ASSERT(httpMessage);
 
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
             // inject cookie to responses
             String cookie = _authInfo->getCookie();
             if (!_isClient() && cookie.size() > 0)
@@ -392,6 +393,7 @@ void HTTPConnection::handleEnqueue(Message *message)
                 // don't send cookie in subsequent messages
                 _authInfo->setCookie("");
             }
+#endif
 
             _handleWriteEvent(*httpMessage);
             break;

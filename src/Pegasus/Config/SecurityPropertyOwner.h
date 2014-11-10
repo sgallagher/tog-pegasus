@@ -210,7 +210,9 @@ private:
     AutoPtr<struct ConfigProperty> _enableSubscriptionsForNonprivilegedUsers;
     AutoPtr<struct ConfigProperty> _cipherSuite;
     AutoPtr<struct ConfigProperty> _sslBackwardCompatibility;
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     AutoPtr<struct ConfigProperty> _httpSessionTimeout;
+#endif
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     AutoPtr<struct ConfigProperty> _authorizedUserGroups;

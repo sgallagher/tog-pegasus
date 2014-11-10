@@ -209,9 +209,12 @@ static struct OwnerEntry _properties[] =
     {"hostname",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"fullyQualifiedHostName",
-        (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"httpSessionTimeout",
+        (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
+
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
+    ,{"httpSessionTimeout",
         (ConfigPropertyOwner*)&ConfigManager::securityOwner}
+#endif
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     ,{"maxIndicationDeliveryRetryAttempts",

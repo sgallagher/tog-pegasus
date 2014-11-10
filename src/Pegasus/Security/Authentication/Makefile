@@ -63,8 +63,11 @@ SOURCES = \
     SecureBasicAuthenticator.cpp \
     PAMBasicAuthenticator.cpp \
     BasicAuthenticationHandler.cpp \
-    AuthenticationManager.cpp \
-    Cookies.cpp
+    AuthenticationManager.cpp
+
+ifeq ($(PEGASUS_ENABLE_SESSION_COOKIES),true)
+    SOURCES += Cookies.cpp
+endif
 
 ifeq ($(PEGASUS_NEGOTIATE_AUTHENTICATION),true)
     SOURCES += NegotiateAuthenticationHandler.cpp

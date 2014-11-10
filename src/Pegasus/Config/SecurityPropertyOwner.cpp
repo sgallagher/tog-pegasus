@@ -97,7 +97,9 @@ static struct ConfigPropertyRow properties[] =
         IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, IS_VISIBLE},
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     {"httpSessionTimeout", "0", IS_DYNAMIC, IS_VISIBLE},
+#endif
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     {"mapToLocalName", "false", IS_STATIC, IS_VISIBLE},
 #endif
@@ -138,8 +140,10 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
 #endif
-    {"sslCipherSuite", "DEFAULT", IS_STATIC, IS_VISIBLE},
-    {"httpSessionTimeout", "0", IS_DYNAMIC, IS_VISIBLE}
+    {"sslCipherSuite", "DEFAULT", IS_STATIC, IS_VISIBLE}
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
+    ,{"httpSessionTimeout", "0", IS_DYNAMIC, IS_VISIBLE}
+#endif
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     ,{"mapToLocalName", "false", IS_STATIC, IS_VISIBLE},
 #endif
@@ -174,7 +178,9 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _enableCFZAPPLID.reset(new ConfigProperty());
 #endif
     _cipherSuite.reset(new ConfigProperty());
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     _httpSessionTimeout.reset(new ConfigProperty());
+#endif
 #ifdef PEGASUS_NEGOTIATE_AUTHENTICATION
     _mapToLocalName.reset(new ConfigProperty());
 #endif
@@ -409,6 +415,7 @@ void SecurityPropertyOwner::initialize()
             _cipherSuite->externallyVisible =
                 properties[i].externallyVisible;
         }
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
         else if (String::equal(
                      properties[i].propertyName, "httpSessionTimeout"))
         {
@@ -420,6 +427,7 @@ void SecurityPropertyOwner::initialize()
             _httpSessionTimeout->externallyVisible =
                     properties[i].externallyVisible;
         }
+#endif
     }
 
 }
@@ -508,10 +516,12 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _cipherSuite.get();
     }
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     else if (String::equal(_httpSessionTimeout->propertyName, name))
     {
         return _httpSessionTimeout.get();
     }
+#endif
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -858,6 +868,7 @@ Boolean SecurityPropertyOwner::isValid(
            retVal =  true;
         }
     }
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     else if (String::equal(_httpSessionTimeout->propertyName, name))
     {
         Uint64 v;
@@ -865,6 +876,7 @@ Boolean SecurityPropertyOwner::isValid(
             StringConversion::decimalStringToUint64(value.getCString(), v) &&
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }
+#endif
     else
     {
         throw UnrecognizedConfigProperty(name);

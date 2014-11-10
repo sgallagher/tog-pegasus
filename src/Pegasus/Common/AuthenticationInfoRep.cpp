@@ -49,8 +49,10 @@ AuthenticationInfoRep::AuthenticationInfoRep()
     : _connectionAuthenticated(false),
       _wasRemotePrivilegedUserAccessChecked(false),
       _authHandle(),
-      _isExpiredPassword(false),
-      _cookie()
+      _isExpiredPassword(false)
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
+      ,_cookie()
+#endif
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");

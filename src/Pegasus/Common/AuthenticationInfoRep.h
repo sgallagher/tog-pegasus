@@ -196,6 +196,7 @@ public:
         return _isExpiredPassword;
     }
 
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     void setCookie(const String &value)
     {
         _cookie = value;
@@ -205,6 +206,7 @@ public:
     {
         return _cookie;
     }
+#endif
 
 private:
 
@@ -234,7 +236,9 @@ private:
     AuthHandle _authHandle;
     String _userRole;
     Boolean _isExpiredPassword;
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     String  _cookie;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

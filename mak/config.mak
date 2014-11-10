@@ -1592,3 +1592,36 @@ endif
 NAMESPACE_INTEROP = interop
 
 NAMESPACE_ROOT_INTEROP = root/interop
+
+
+##==============================================================================
+##
+## PEGASUS_ENABLE_SESSION_COOKIES
+##
+##==============================================================================
+
+# Cookies are enabled by defaut when HAS_SSL is defined _or_ on zOS
+ifndef PEGASUS_ENABLE_SESSION_COOKIES
+  ifdef PEGASUS_HAS_SSL
+    PEGASUS_ENABLE_SESSION_COOKIES=true
+  else
+    ifeq ($(OS),zos)
+      PEGASUS_ENABLE_SESSION_COOKIES=true
+    else
+      PEGASUS_ENABLE_SESSION_COOKIES=false
+    endif
+  endif
+endif
+
+ifeq ($(PEGASUS_ENABLE_SESSION_COOKIES),true)
+  ifndef PEGASUS_HAS_SSL
+    ifneq ($(OS),zos)
+      $(error "PEGASUS_ENABLE_SESSION_COOKIES can be set to 'true' only when PEGASUS_HAS_SSL is 'true' or on zOS platform")
+    endif
+  endif
+  DEFINES += -DPEGASUS_ENABLE_SESSION_COOKIES
+else
+  ifneq ($(PEGASUS_ENABLE_SESSION_COOKIES),false)
+    $(error "PEGASUS_ENABLE_SESSION_COOKIES must be true or false")
+  endif
+endif

@@ -91,7 +91,9 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
 
     _authenticationManager.reset(new AuthenticationManager());
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     _sessions.reset(new HTTPSessionList());
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -446,6 +448,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     if (enableAuthentication)
     {
 
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
         // Find cookie and check if we know it
         String cookieHdr;
         if (!authStatus.isSuccess() && _sessions->cookiesEnabled()
@@ -463,6 +466,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         AuthenticationInfoRep::AUTH_TYPE_COOKIE);
             }
         }
+#endif
 
         if (authStatus.isSuccess())
         {
@@ -999,7 +1003,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                     if (authStatus.isSuccess())
                     {
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
                         _createCookie(httpMessage);
+#endif
                     }
                     else
                     {
@@ -1094,7 +1100,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif
                 if (authStatus.isSuccess())
                 {
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
                     _createCookie(httpMessage);
+#endif
                 }
                 else
                 {
@@ -1511,6 +1519,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 PEG_METHOD_EXIT();
 }
 
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
 void HTTPAuthenticatorDelegator::_createCookie(
         HTTPMessage *httpMessage)
 {
@@ -1545,11 +1554,14 @@ void HTTPAuthenticatorDelegator::_createCookie(
 
     PEG_METHOD_EXIT();
 }
+#endif
 
 void HTTPAuthenticatorDelegator::idleTimeCleanup()
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPAuthenticatorDelegator::idleTimeCleanup");
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     _sessions->clearExpired();
+#endif
     PEG_METHOD_EXIT();
 }
 

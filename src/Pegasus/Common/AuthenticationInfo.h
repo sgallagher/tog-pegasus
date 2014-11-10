@@ -378,6 +378,7 @@ public:
         return _rep->isExpiredPassword();
     }
 
+#ifdef PEGASUS_ENABLE_SESSION_COOKIES
     /**
      * Value of Cookie: header to send in the next response
      */
@@ -392,6 +393,7 @@ public:
         CheckRep(_rep);
         return _rep->getCookie();
     }
+#endif
 
 private:
 

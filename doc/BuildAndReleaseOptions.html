@@ -925,6 +925,41 @@ support Remote CMPI providers and their dependent components is built.<br>
   <b>Required:&nbsp;</b>No
 </ul>
 
+<h5>PEGASUS_ENABLE_SESSION_COOKIES</h5>
+<ul>
+  <b>Description:&nbsp;</b>If set to 'true', the OpenPegasus CIM server will
+  use HTTP cookies for session management (RFC 6265).
+  <br>
+  After a successful client authentication the client is given a cookie. The
+  client is then not asked for re-authentication as long as it provides the
+  same cookie in all subsequent requests and until the session expires. Session
+  expiry is configurable using httpSessionTimeout configuration option.
+  <br>
+  Nothing changes for clients that do not support HTTP cookies (RFC 6465) -
+  their requests are authenticated as usual, either using Basic or Negotiate
+  authentication mechanisms.
+  <br>
+  Purpose of this option is to speed up request processing - both Basic
+  and Negotiate authentication can take some time, which will form large
+  fraction of system load on busy servers.
+  <b>Default Value:&nbsp;</b>true (on supported platforms, see below)<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>true<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>true<br>
+  <b>Required:&nbsp;</b>No<p></p>
+  <b>Considerations:&nbsp;</b> This option can be set to true only when the
+    underlying platform providers cryptographically strong random numbers
+    (to generate strong session ID). Currently these platforms are
+    zOS (using native API) and any platform with OpenSSL.
+    In other words, PEGASUS_ENABLE_SESSION_COOKIES can be enabled only
+    when PEGASUS_HAS_SSL is set or on zOS.
+    <br><br>
+    Note that while this option is enabled by default (i.e. the code is
+    compiled), it is still turned off in default runtime configuration.
+    System administrators must explicitly set httpSessionTimeout configuration
+    option to nozero value to enable this feature.
+</ul>
+
+
 <h5>PEGASUS_ENABLE_SLP</h5>
 
 <ul>

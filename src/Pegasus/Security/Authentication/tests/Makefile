@@ -34,7 +34,10 @@ DIRS = \
     LocalAuthFile \
     LocalAuthenticationHandler \
     BasicAuthenticationHandler \
-    AuthenticationManager  \
-    Cookies
+    AuthenticationManager
+
+ifeq ($(PEGASUS_ENABLE_SESSION_COOKIES),true)
+    DIRS += Cookies
+endif
 
 include $(ROOT)/mak/recurse.mak

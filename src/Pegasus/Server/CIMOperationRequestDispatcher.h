@@ -52,7 +52,12 @@
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Server/reg_table.h>
 #include <Pegasus/Server/EnumerationContext.h>
-
+#ifdef PEGASUS_ENABLE_FQL
+////  Temporarily disabled because of conflicts between this and
+////  QueryExpressionRep that causes errors.  Also temporarily disabled
+////  The function that uses this since there is an error I cannot figure out.
+///#include <Pegasus/FQL/FQLQueryExpressionRep.h>
+#endif
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 //
@@ -391,6 +396,14 @@ public:
 
     Uint32 getTotalIssued() const;
 
+    //// KS_TODO set inline
+    void setFilterParameters(QueryExpressionRep* query, const String& ql)
+    {
+        _filterResponse = true;
+        _queryLanguage = ql;
+        _query = query;
+    }
+
     // Append a new entry to the response list.
 
     void appendResponse(CIMResponseMessage* response);
@@ -425,6 +438,7 @@ public:
     bool isPullOperation() const;
 
     String _messageId;
+    Boolean _filterResponse;
     MessageType _msgRequestType;
     Uint32 _dest;
     CIMName _className;
@@ -620,7 +634,7 @@ public:
     void handleEnumerationCount(
         CIMEnumerationCountRequestMessage* request);
 
-// EXP_PULL END
+// EXP_PULL_END
 
     /** Common Request handling for ExecQuery and OpenQueryRequests.
        This function gets the provider list, get instances from the
@@ -851,14 +865,16 @@ protected:
 
     bool _rejectIfPullParametersFailTests(
         CIMOpenOperationRequestMessage* request,
-        Uint32& operationMaxObjectCount);
+        Uint32& operationMaxObjectCount,
+        Boolean allowQueryFilter);
 
     bool _rejectIfContinueOnError(CIMOperationRequestMessage* request,
         Boolean continueOnError);
 
     bool _rejectInvalidFilterParameters(CIMOperationRequestMessage* request,
         const String& filterQueryLanguageParam,
-        const String& filterQueryParam);
+        const String& filterQueryParam,
+        Boolean allowQueryFilter);
 
     bool _rejectInvalidMaxObjectCountParam(
         CIMOperationRequestMessage* request,
@@ -883,6 +899,13 @@ protected:
     bool _rejectIfEnumerationContextProcessing(
         CIMOperationRequestMessage* request,
         Boolean processing);
+
+#ifdef PEGASUS_ENABLE_FQL
+    //// Temporarily disabled because of issue where we are losing
+    //// data.
+////  FQLQueryExpressionRep* handleFQLQueryRequest(
+////      CIMOpenOperationRequestMessage* msg);
+#endif
 // EXP_PULL_END
 
     Boolean _rejectAssociationTraversalDisabled(
@@ -1111,7 +1134,7 @@ private:
     // pointer to EnumerationContextTable which allocates
     // and releases enumeration context objects.
     EnumerationContextTable *_enumerationContextTable;
-// EXP_PULL END
+// EXP_PULL_END
 
     // Pointer to internal RoutingTable for Control Providers and Services
     DynamicRoutingTable *_routing_table;

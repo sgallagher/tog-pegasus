@@ -462,6 +462,8 @@ public:
     Boolean executeEnumerateCalls();
     Boolean executeAssociationCalls();
     Boolean executeAllOpenCalls();
+    Boolean executeAllOpenInstanceCalls();
+    Boolean executeAllOpenPathCalls();
 
 private:
     // default constructor and copy
@@ -840,14 +842,7 @@ Boolean testEnumSequence::executeEnumerateCalls()
     VCOUT << "execute tests for EnumerateFunctions" << endl;
     Boolean rtn1 = openEnumerateInstances();
     Boolean rtn2 = openEnumerateInstancePaths();
-    if (rtn1 && rtn2)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (rtn1 && rtn2)? true:false;
 }
 
 Boolean testEnumSequence::executeAssociationCalls()
@@ -866,6 +861,24 @@ Boolean testEnumSequence::executeAllOpenCalls()
     Boolean rtn1 = executeEnumerateCalls();
     Boolean rtn2 = executeAssociationCalls();
     return (rtn1 && rtn2)? true : false;
+}
+
+Boolean testEnumSequence::executeAllOpenInstanceCalls()
+{
+    VCOUT << "Execute tests for all open Instance functions" << endl;
+
+    Boolean rtn1 = openEnumerateInstances();
+    Boolean rtn2 = openReferenceInstances();
+    Boolean rtn3 = openAssociatorInstances();
+    return (rtn1 && rtn2 && rtn3)? true : false;
+}
+Boolean testEnumSequence::executeAllOpenPathCalls()
+{
+    VCOUT << "Execute tests for all open Path functions" << endl;
+    Boolean rtn1 = openEnumerateInstancePaths();
+    Boolean rtn2 = openReferenceInstancePaths();
+    Boolean rtn3 = openAssociatorInstancePaths();
+    return (rtn1 && rtn2 && rtn3)? true : false;
 }
 
 
@@ -1067,17 +1080,26 @@ int main(int argc, char** argv)
     PEGASUS_ASSERT(tc.executeAssociationCalls());
 
     // test Filter parameters on all operations
-    tc.setTestName("Filter Parameter test- Using filterQuery");
+    tc.setTestName("Filter Parameter test- Using incorrect filterQuery");
     tc._className =  "CMPI_TEST_Person";
     tc._cimObjectName = "CMPI_TEST_Person.name=\"Melvin\"";
     tc._filterQuery="abc";
     tc.setCIMException(CIM_ERR_FAILED);
     PEGASUS_ASSERT(tc.executeAllOpenCalls());
 
-    tc.setTestName("Filter Parameter test- Using filter and Language");
+#ifdef PEGASUS_ENABLE_FQL
+    tc.setCIMException(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
+#else
+    tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
+#endif
+    tc.setTestName("Filter Instances Parameter test Using filter wth Bad Lang");
+    tc._filterQueryLanguage="WQL";
+    PEGASUS_ASSERT(tc.executeAllOpenInstanceCalls());
+
+    tc.setTestName("Filter Paths Parameter test- Using filter and Language");
     tc._filterQueryLanguage="WQL";
     tc.setCIMException(CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED);
-    PEGASUS_ASSERT(tc.executeAllOpenCalls());
+    PEGASUS_ASSERT(tc.executeAllOpenPathCalls());
 
     tc.setTestName("Filter Parameter test- Using filterQuery Language Only");
     tc._filterQuery="";

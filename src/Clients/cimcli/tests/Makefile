@@ -31,6 +31,9 @@
 ##  divided between this Makefile and a Makefile in
 ##  src/Providers/TestProviders/CLITestProvider/tests
 ##  All cimcli tests will be integrated into this Makefile in the future.
+##  The tests in this directory consist primarily of
+##    - Test of the options to create and handle embedded instances
+##    -
 ##
 ROOT = ../../../..
 
@@ -69,6 +72,10 @@ PROVNSOPT = -n $(PROVIDERNS)
 EMBED_CLASS_DEF = -n $(PROVIDERNS) Test_CLITestEmbeddedClass
 ASSOC_CLASS_DEF = -n $(PROVIDERNS) Test_CLITestProviderLinkClass
 
+## Classes for pull test
+##
+TEST_CLASS=Test_CLITestProviderClass
+
 depend:
 
 sub:
@@ -81,13 +88,19 @@ messages:
 
 general:
 
-
 poststarttests::
 	@$(RM) $(RESULTFILE)
 	@$(ECHO) > ${RESULTFILE} 
-	$(MAKE) createEmbeddedInstanceTests
-	$(MAKE) invokeEmbeddedInstMethodTests
-	$(MAKE) EmbeddedInstanceErrorTests
+	$(ECHO) Start EmbeddedInstance Tests
+	$(MAKE) EmbeddedInstanceTests
+##	$(MAKE) invokeEmbeddedInstMethodTests
+##	$(MAKE) EmbeddedInstanceErrorTests
+	$(ECHO) End EmbeddedInstance Tests
+ifeq ($(PEGASUS_ENABLE_FQL),true)
+	$(ECHO) Start FQL Query tests
+	$(MAKE) testFQLQueries
+	$(ECHO) End FQLQueryTests
+endif
 	@$(ECHO) Sort and compare result file
 	@ $(call DIFFSORT,$(RESULTFILE),$(MASTERRESULTFILE))
 	@$(ECHO) +++++ Remove Result files since test successful
@@ -101,6 +114,15 @@ poststarttests::
 ### reinitialized (server restarted or provider reloaded)
 clean: 
 	-$(MAKE) d1
+
+## The 3 tests for FQL consist of creating a set of test instances,
+## executing the queries against these instances, and then deleting
+## these instances.
+
+testFQLQueries:  createInstances testQueries errQueries deleteInstances
+
+EmbeddedInstanceTests: createEmbeddedInstanceTests invokeEmbeddedInstMethodTests \
+                        EmbeddedInstanceErrorTests 
 
 ## Create instance tests
 createEmbeddedInstanceTests: ct1 ct2 ct3 ct4 ct5 ct6 ct7 ct8 ct9 ct10 ct11 \
@@ -764,3 +786,86 @@ imer9:
 	    embeddedInstParamMethod \
 	    referenceParam={Test_CLITestProviderClass idx=100 } \
 	    --expExit 50 >> $(RESULTFILE) 2>&1
+
+############################################################
+##
+##  Tests of use of FQL query language and pull operations
+##
+############################################################
+
+## Create instances to have known properties
+createInstances:
+	@cimcli ci -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+	    Id="PropertyOpTest1" \
+	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalSint64=99999 scalString="String1" \
+	    arrayUint32=0,128,256,65536,4294967295 \
+
+	@cimcli ci -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+	    Id="PropertyOpTest2" \
+	    scalBool=false scalUint8=20 scalSint8=-8 scalUint16=1000 \
+	    scalSint16=500 scalUint32=7698 scalSint32=999 \
+	    scalUint64=99999 scalSint64=99999 scalString="String2" \
+	    arrayUint32=0,128,256,65536,4294967295,876543
+
+## Execute the of test queries
+testQueries: testQuery1 testQuery2 testQuery3 testQuery4 \
+             testQuery6 testQuery6 testQuery7 testQuery8 \
+	     testQuery9
+
+errQueries: errQuery1 errQuery2
+
+testQuery1:
+	@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "scalBool = true" --sum -count 2
+
+testQuery2:
+	@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "scalUint32=7698"	--sum -count 1
+
+testQuery3:
+	@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "scalString = 'String2'" --sum -count 1
+
+testQuery4:
+	@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "arrayUint32[5] = 876543" --sum -count 1
+
+testQuery5:
+	@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "ANY arrayUint32 = 876543" --sum -count 1
+
+testQuery6:
+	@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "scalString <> 'NoSuchString'" --sum -count 3
+
+testQuery7:
+	cimcli pa -n "$(PROVIDERNS)" Test_CLITestProviderClass.id=\"Mike\" \
+	 -ql DMTF:FQL -f "scalBool = true" --sum -count 1
+
+testQuery8:
+	cimcli pa -n "$(PROVIDERNS)" Test_CLITestProviderClass.id=\"Mike\" \
+	 -ql DMTF:FQL -f "scalBool = false" --sum -count 0
+
+testQuery9:
+	cimcli pr -n "$(PROVIDERNS)" Test_CLITestProviderClass.id=\"Mike\" \
+	 -ql DMTF:FQL -f "scalBool = false" --sum -count 0
+
+## Syntax error that is only found during evaluation
+## the right side is not a valid property.
+errQuery1:
+	-@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "scalUint32 = 'NotANumber'" \
+	    --sum --expExit 15
+
+errQuery2:
+	-@cimcli pei -n "$(PROVIDERNS)" "$(TEST_CLASS)" \
+           -ql "DMTF:FQL" -f "scalUint32 = 123a" \
+	    --sum --expExit 15
+
+deleteInstances:
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest1"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="PropertyOpTest2"

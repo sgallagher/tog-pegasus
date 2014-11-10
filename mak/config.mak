@@ -604,6 +604,31 @@ endif
 
 ############################################################################
 #
+# PEGASUS_ENABLE_FQL
+# The use model is:
+#
+# Use PEGASUS_ENABLE_FQL=true  to enable  compilation of FQL functions.
+#
+# Use PEGASUS_ENABLE_FQL=false to disable compilation of FQL functions.
+#
+# Default is PEGASUS_ENABLE_FQL=true if not defined external to config.mak
+#
+
+ifndef PEGASUS_ENABLE_FQL
+    # Default is true. CQL is enabled normally on all platforms unless specifically defined
+    PEGASUS_ENABLE_FQL=true
+endif
+
+ifeq ($(PEGASUS_ENABLE_FQL),true)
+    DEFINES += -DPEGASUS_ENABLE_FQL
+else
+    ifneq ($(PEGASUS_ENABLE_FQL),false)
+        $(error PEGASUS_ENABLE_FQL ($(PEGASUS_ENABLE_FQL)) invalid, must be true or false)
+    endif
+endif
+
+############################################################################
+#
 # PEGASUS_OVERRIDE_PRODUCT_ID
 # PEP 186
 # Allow override of product name/version/status.  A file

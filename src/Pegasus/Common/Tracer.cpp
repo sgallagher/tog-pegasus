@@ -84,6 +84,7 @@ char const* Tracer::TRACE_COMPONENT_LIST[] =
     "ObjectResolution",
     "WQL",
     "CQL",
+    "FQL",
     "Thread",
     "CIMExportRequestDispatcher",
     "SSL",

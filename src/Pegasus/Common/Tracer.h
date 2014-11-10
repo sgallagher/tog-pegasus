@@ -72,6 +72,7 @@ enum TraceComponentId
     TRC_OBJECTRESOLUTION,
     TRC_WQL,
     TRC_CQL,
+    TRC_FQL,
     TRC_THREAD,
     TRC_EXP_REQUEST_DISP,
     TRC_SSL,

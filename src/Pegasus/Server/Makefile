@@ -82,6 +82,10 @@ LIBRARIES += \
 	InteropProvider
 endif
 
+ifeq ($(PEGASUS_ENABLE_FQL),true)
+LIBRARIES += pegfql
+endif
+
 ifeq ($(PEGASUS_ENABLE_CQL),true)
 LIBRARIES += \
         pegcql \

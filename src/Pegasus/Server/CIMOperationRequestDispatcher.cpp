@@ -52,10 +52,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef PEGASUS_ENABLE_FQL
+#include <Pegasus/FQL/FQLQueryExpressionRep.h>
+#include <Pegasus/FQL/FQLParser.h>
+#include <Pegasus/FQL/FQLInstancePropertySource.h>
+#endif
+
+/// KS_TODO delete this
+#include <Pegasus/Common/Print.h>
+
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
+#define XCOUT if (true) cout << __FILE__ << ":" << __LINE__ << " "
+
 #define CSTRING(ARG) (const char*) ARG.getCString()
+
+// Set a define based on whether FQL was enabled for this build
+#ifdef PEGASUS_ENABLE_FQL
+#  define ENABLE_FQL_FILTER true
+#else
+#  define ENABLE_FQL_FILTER false
+#endif
 
 /******************************************************************************
 **
@@ -98,6 +116,7 @@ OperationAggregate::OperationAggregate(
     QueryExpressionRep* query,
     String queryLanguage)
     : _messageId(request->messageId),
+      _filterResponse(false),
       _msgRequestType(request->getType()),
       _dest(request->queueIds.top()),
       _className(className),
@@ -1779,6 +1798,7 @@ Array<String>
 // If remote CMPI enabled and if this is a remote namespace, it must
 // place the remote info into the container.  Otherwise it just builds
 // a new container with pmInstance and pInstance and returns it
+// NOTE: nameSpace is only used in the case of REMOTE_CMPI
 
 ProviderIdContainer* CIMOperationRequestDispatcher::_updateProviderContainer(
     const CIMNamespaceName& nameSpace,
@@ -1793,10 +1813,14 @@ ProviderIdContainer* CIMOperationRequestDispatcher::_updateProviderContainer(
             nameSpace,
             remoteInformation);
         if (isRemote)
+        {
             pc = new ProviderIdContainer(
                 pmInstance, pInstance, isRemote, remoteInformation);
+        }
         else
+        {
             pc = new ProviderIdContainer(pmInstance, pInstance);
+        }
 #else
         pc = new ProviderIdContainer(pmInstance, pInstance);
 #endif
@@ -2527,8 +2551,9 @@ Boolean CIMOperationRequestDispatcher::_rejectInvalidRoleParameter(
     if (roleParameter.size() != 0 && (!CIMName::legal(roleParameter)))
     {
         //KS_TODO internationalize This
+        String text = parameterName + " " + roleParameter;
         _enqueueExceptionResponse(request,
-            CIM_ERR_INVALID_PARAMETER, roleParameter);
+            CIM_ERR_INVALID_PARAMETER, text);
 
         return true;
     }
@@ -2700,11 +2725,13 @@ void _buildPropertyListFromClass(CIMConstClass& thisClass,
 // and Operation timeout
 bool CIMOperationRequestDispatcher::_rejectIfPullParametersFailTests(
     CIMOpenOperationRequestMessage* request,
-    Uint32& operationMaxObjectCount)
+    Uint32& operationMaxObjectCount,
+    Boolean allowQueryFilter)
 {
     if (_rejectInvalidFilterParameters(request,
           request->filterQueryLanguage,
-                              request->filterQuery))
+          request->filterQuery,
+          allowQueryFilter))
     {
         return true;
     }
@@ -2760,7 +2787,8 @@ bool CIMOperationRequestDispatcher::_rejectInvalidPullRequest(
 bool CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
     CIMOperationRequestMessage* request,
     const String& filterQueryLanguageParam,
-    const String& filterQueryParam)
+    const String& filterQueryParam,
+    Boolean allowQueryFilter)
 {
     CIMResponseMessage* response = NULL;
     if (filterQueryLanguageParam.size() != 0 &&
@@ -2786,14 +2814,15 @@ bool CIMOperationRequestDispatcher::_rejectInvalidFilterParameters(
     else if(filterQueryLanguageParam.size() != 0 ||
             filterQueryParam.size() != 0)
     {
-        // KS_TODO - This code is temporary until we add FQL
-        //  Then we test for existence of FQL and let FQL test for
-        // valid query language and query
-        response = request->buildResponse();
-        response->cimException =
-            PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED,
-                "Pegasus does not support FilterQuery parameters");
+        if (!allowQueryFilter)
+        {
+            //// KS_TODO internationalize
+            response = request->buildResponse();
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FILTERED_ENUMERATION_NOT_SUPPORTED,
+                    "Operation does not support FilterQuery parameters");
+        }
     }
 
     if (response != NULL)
@@ -3272,7 +3301,6 @@ struct ProviderRequests
        CIMOperationRequestDispatcher* dispatcher,
        IREQ* internalRequest,
        ProviderInfoList& providerInfos,
-       EnumerationContext * enumerationContext,
        OperationAggregate* poA,
        const char * reqMsgName)
     {
@@ -3358,6 +3386,76 @@ struct ProviderRequests
 };    // End Of ProviderRequests Struct
 
 // EXP_PULL_BEGIN
+#ifdef PEGASUS_ENABLE_FQL
+//// Temporarily removed because we are losing the pointer to qx->_stmt when we
+//// return from this function. Just set the code inline. KS_TODO
+//FQLQueryExpressionRep* CIMOperationRequestDispatcher::handleFQLQueryRequest(
+//    CIMOpenOperationRequestMessage* request)
+//{
+//    PEG_METHOD_ENTER(TRC_DISPATCHER,
+//        "CIMOperationRequestDispatcher::parseFQLFilter");
+//    bool exception = false;
+//
+//    AutoPtr<FQLQueryStatement> queryStatement(new FQLQueryStatement());
+//
+//    AutoPtr<FQLQueryExpressionRep> qx;
+//
+//        CIMException cimException;
+//    if (request->filterQuery.size() != 0)
+//    {
+//        //// KS_TODO simplify by using FQLQueryExpressionRep to do this
+//        if (request->filterQueryLanguage != "DMTF:FQL")
+//        {
+//            cimException = PEGASUS_CIM_EXCEPTION(
+//                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+//                request->filterQueryLanguage);
+//            exception = true;
+//        }
+//        else
+//        {
+//            try
+//            {
+//                FQLParser::parse(request->filterQuery, *queryStatement.get());
+//
+//                qx.reset(new FQLQueryExpressionRep(
+//                    request->filterQueryLanguage, queryStatement.get()));
+//
+//                queryStatement.release();
+//                qx.release();
+//            }
+//            catch (ParseError& e)
+//            {
+//                String text = request->filterQuery + " " + e.getMessage();
+//
+//                cimException = PEGASUS_CIM_EXCEPTION(
+//                        CIM_ERR_INVALID_QUERY, text);
+//                exception=true;
+//            }
+//            catch (...)
+//            {
+//                cimException = PEGASUS_CIM_EXCEPTION(
+//                        CIM_ERR_INVALID_QUERY, request->filterQuery);
+//                exception=true;
+//            }
+//        }
+//        if (exception)
+//        {
+//            CIMResponseMessage* response = request->buildResponse();
+//            response->cimException = cimException;
+//
+//            XCOUT << "Gen Response " << endl;
+//            _enqueueResponse(request, response);
+//            PEG_METHOD_EXIT();
+//            return NULL;
+//        }
+//    }
+//
+//    FQLQueryStatement* qsa = qx.get()->_stmt;
+//    qsa->print();   //// DELETE
+//    PEG_METHOD_EXIT();
+//    return qx.get();
+//}
+#endif
 /**************************************************************************
 **
 ** processPullRequest - Handles pullInstancesWithPath,pullInstancePaths
@@ -5577,7 +5675,8 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // are incorrect. Tests filterQuery, continueOnError, operationTimeout
     // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
+    if (_rejectIfPullParametersFailTests(request,operationMaxObjectCount,
+                                         ENABLE_FQL_FILTER))
     {
         PEG_METHOD_EXIT();
         return true;
@@ -5612,6 +5711,78 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
         PEG_METHOD_EXIT();
         return true;
     }
+
+    //
+    //  Try to compile the filter. Get an exception only if the FQL
+    //  filter compiler generates an exception.
+    //
+#ifdef PEGASUS_ENABLE_FQL
+    bool filterResponse = false;
+////  XCOUT << "Calling handleFQLQueryRequest " << endl;
+////  FQLQueryExpressionRep* qx = handleFQLQueryRequest(request);
+////  if (qx == NULL)
+////  {
+////      // exception generated
+////      XCOUT << "Exception generated " << endl;
+////      return true;
+////  }
+////
+////  XCOUT << "Called handleFQLQueryRequest " << endl;
+////  printf("pointer %p\n",qx->_stmt);
+////
+////  FQLQueryStatement* qs = qx->_stmt;
+////
+////  XCOUT << "Called handleFQLQueryRequest " << endl;
+    AutoPtr<FQLQueryExpressionRep> qx;
+    AutoPtr<FQLQueryStatement> queryStatement;
+
+    if (request->filterQueryLanguage.size() != 0)
+    {
+        bool exception = false;
+        CIMException cimException;
+        if (request->filterQueryLanguage != "DMTF:FQL")
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+                request->filterQueryLanguage);
+            exception = true;
+        }
+        else
+        {
+            try
+            {
+                queryStatement.reset(new FQLQueryStatement());
+                FQLParser::parse(request->filterQuery, *queryStatement);
+
+                qx.reset(new FQLQueryExpressionRep(request->filterQueryLanguage,
+                                               queryStatement.get() ));
+                filterResponse = true;
+            }
+            catch (ParseError& e)
+            {
+                String text = request->filterQuery + " " + e.getMessage();
+
+                cimException =
+                    PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_INVALID_QUERY, text);
+                exception=true;
+            }
+            catch (...)
+            {
+                exception=true;
+            }
+        }
+        if (exception)
+        {
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
+
+            _enqueueResponse(request, response);
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    }
+#endif
 
     //
     // Setup the EnumerationContext. Returns pointer to object
@@ -5676,6 +5847,14 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     //
     poA->setPullOperation(enumerationContext);
 
+#ifdef PEGASUS_ENABLE_FQL
+    if (filterResponse)
+    {
+        queryStatement.release();
+        poA ->setFilterParameters(qx.release(),
+            request->filterQueryLanguage);
+    }
+#endif
     //
     // If repository as instance provider is enabled, get instances
     // from the repository
@@ -5768,7 +5947,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     // are incorrect. Tests filterQuery, continueOnError, operationTimeout
     // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
+    if (_rejectIfPullParametersFailTests(request,operationMaxObjectCount,false))
     {
         PEG_METHOD_EXIT();
         return true;
@@ -5810,6 +5989,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
         PEG_METHOD_EXIT();
         return true;
     }
+
 
    // Build a corresponding EnumerateInstancesNamesRequest to send to
     // providers. We do not pass the Pull operations request
@@ -5956,7 +6136,8 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // are incorrect. Tests filterQuery, continueOnError, operationTimeout
     // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
+    if (_rejectIfPullParametersFailTests(request,operationMaxObjectCount,
+                                         ENABLE_FQL_FILTER))
     {
         PEG_METHOD_EXIT();
         return true;
@@ -5973,6 +6154,72 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
             CIM_ERR_INVALID_PARAMETER,
             request->objectName.getClassName().getString());
     }
+
+    //
+    //  Try to compile the filter. Get an exception only if the FQL
+    //  filter compiler generates an exception.
+    //  Result saved in OperationAggregate later in process
+    //
+#ifdef PEGASUS_ENABLE_FQL
+    bool filterResponse = false;
+////  FQLQueryExpressionRep* qx = handleFQLQueryRequest(request);
+////  if (qx == NULL)
+////  {
+////      // exception generated
+////      XCOUT << "Exception generated " << endl;
+////      return true;
+////  }
+    AutoPtr<FQLQueryExpressionRep> qx;
+    AutoPtr<FQLQueryStatement> queryStatement;
+    if (request->filterQueryLanguage.size() != 0)
+    {
+        bool exception = false;
+        CIMException cimException;
+        if (request->filterQueryLanguage != "DMTF:FQL")
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+                request->filterQueryLanguage);
+            exception = true;
+        }
+        else
+        {
+            if (request->filterQuery.size() != 0)
+            {
+                try
+                {
+                    queryStatement.reset(new FQLQueryStatement());
+                    FQLParser::parse(request->filterQuery, *queryStatement);
+                    qx.reset(new FQLQueryExpressionRep(
+                        request->filterQueryLanguage,queryStatement.get() ));
+                    filterResponse = true;
+                }
+                catch (ParseError& e)
+                {
+                    String text = request->filterQuery + " " + e.getMessage();
+
+                    cimException =
+                        PEGASUS_CIM_EXCEPTION(
+                            CIM_ERR_INVALID_QUERY, text);
+                    exception=true;
+                }
+                catch (...)
+                {
+                    exception=true;
+                }
+            }
+        }
+        if (exception)
+        {
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
+
+            _enqueueResponse(request, response);
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    }
+#endif
 
     ProviderInfoList providerInfos = _lookupAllAssociationProviders(
         request->nameSpace,
@@ -6111,6 +6358,15 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     //
     poA->setPullOperation(enumerationContext);
 
+#ifdef PEGASUS_ENABLE_FQL
+    if (filterResponse)
+    {
+        queryStatement.release();
+        poA ->setFilterParameters(qx.release(),
+           request->filterQueryLanguage);
+    }
+#endif
+
     // If response from repository not empty, forward for aggregation.
     if (cimObjects.size() != 0)
     {
@@ -6134,7 +6390,6 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
         this,
         internalRequest,
         providerInfos,
-        enumerationContext,
         poA,
         "OpenReferenceInstances"
         );
@@ -6208,7 +6463,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     // are incorrect. Tests filterQuery, continueOnError, operationTimeout
     // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
+    if (_rejectIfPullParametersFailTests(request,operationMaxObjectCount,false))
     {
         PEG_METHOD_EXIT();
         return true;
@@ -6362,7 +6617,6 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
         this,
         internalRequest,
         providerInfos,
-        enumerationContext,
         poA,
         "OpenReferenceInstancePaths"
         );
@@ -6455,7 +6709,8 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // are incorrect. Tests filterQuery, continueOnError, operationTimeout
     // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
+    if (_rejectIfPullParametersFailTests(request,operationMaxObjectCount,
+                                         ENABLE_FQL_FILTER))
     {
         PEG_METHOD_EXIT();
         return true;
@@ -6468,6 +6723,64 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         throw PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
     }
+
+    //
+    //  Try to compile the filter. Get an exception only if the FQL
+    //  filter compiler generates an exception.
+    //
+#ifdef PEGASUS_ENABLE_FQL
+    bool filterResponse = false;
+    AutoPtr<FQLQueryExpressionRep> qx;
+    AutoPtr<FQLQueryStatement> queryStatement;
+    if (request->filterQueryLanguage.size() != 0)
+    {
+        bool exception = false;
+        CIMException cimException;
+        if (request->filterQueryLanguage != "DMTF:FQL")
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+                request->filterQueryLanguage);
+            exception = true;
+        }
+        else
+        {
+            if (request->filterQuery.size() != 0)
+            {
+                try
+                {
+                    queryStatement.reset(new FQLQueryStatement());
+                    FQLParser::parse(request->filterQuery, *queryStatement);
+                    qx.reset(new FQLQueryExpressionRep(
+                        request->filterQueryLanguage, queryStatement.get() ));
+                    filterResponse = true;
+                }
+                catch (ParseError& e)
+                {
+                    String text = request->filterQuery + " " + e.getMessage();
+
+                    cimException =
+                        PEGASUS_CIM_EXCEPTION(
+                            CIM_ERR_INVALID_QUERY, text);
+                    exception=true;
+                }
+                catch (...)
+                {
+                    exception=true;
+                }
+            }
+        }
+        if (exception)
+        {
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
+
+            _enqueueResponse(request, response);
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    }
+#endif
 
     ProviderInfoList providerInfos = _lookupAllAssociationProviders(
         request->nameSpace,
@@ -6607,6 +6920,15 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     //
     poA->setPullOperation(enumerationContext);
 
+#ifdef PEGASUS_ENABLE_FQL
+    if (filterResponse)
+    {
+        queryStatement.release();
+        poA ->setFilterParameters(qx.release(),
+            request->filterQueryLanguage);
+    }
+#endif
+
     // Send repository response for aggregation
 
     if (cimObjects.size() != 0)
@@ -6632,7 +6954,6 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
         this,
         internalRequest,
         providerInfos,
-        enumerationContext,
         poA,
         "OpenAssociatorInstances"
         );
@@ -6722,7 +7043,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // are incorrect. Tests filterQuery, continueOnError, operationTimeout
     // and maxObjectCount
     Uint32 operationMaxObjectCount;
-    if (_rejectIfPullParametersFailTests(request, operationMaxObjectCount))
+    if (_rejectIfPullParametersFailTests(request,operationMaxObjectCount,false))
     {
         PEG_METHOD_EXIT();
         return true;
@@ -6882,7 +7203,6 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
         this,
         internalRequest,
         providerInfos,
-        enumerationContext,
         poA,
         "OpenAssociatorInstancePaths"
         );
@@ -7314,6 +7634,75 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         poA->deleteResponse(i);
     }
 
+    // If Response flagged for Filtering, Filter this response
+    // CIMResponseData.
+#ifdef PEGASUS_ENABLE_FQL
+    if (poA->_filterResponse)
+    {
+        CIMException cimException;
+        bool exception = false;
+        QueryExpressionRep* query = poA->_query;
+
+        FQLQueryStatement* qs = ((FQLQueryExpressionRep*)query)->_stmt;
+        try
+        {
+            // If enumerate filter instances. Otherwise filter objects
+            if (poA->_msgRequestType == CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE)
+            {
+                Array<CIMInstance> &insts = to.getInstances();
+
+                for (int i = insts.size() - 1 ; i >= 0 ; i--)
+                {
+                    FQLInstancePropertySource ips(insts[i]);
+
+                    if (!qs->evaluateQuery(&ips))
+                    {
+                        insts.remove(i);
+                    }
+                }
+            }
+            else
+            {
+                Array<CIMObject> &objcts = to.getObjects();
+
+                for (int i = objcts.size() - 1 ; i >= 0 ; i--)
+                {
+                    FQLInstancePropertySource ips((CIMInstance)objcts[i]);
+
+                    if (!qs->evaluateQuery(&ips))
+                    {
+                        objcts.remove(i);
+                    }
+                }
+            }
+        }
+       // Should we catch parseError as a special KS_TODO
+        catch (CIMException& e)
+        {
+            // KS_TODO should we keep the original query string
+            String text = e.getMessage();
+
+            cimException =
+                PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_INVALID_QUERY, text);
+            exception=true;
+        }
+        catch (...)
+        {
+            // KS_TODO Should this be more general error.
+            cimException =
+                PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_INVALID_QUERY, "General error caused Exception");
+            exception = true;
+        }
+        // Reset the ResponseData size since we may have modified it.
+        to.setSize();
+        if (exception)
+        {
+            toResponse->cimException = cimException;
+        }
+    }
+#endif
     if (poA->_requiresHostnameCompletion)
     {
         // fill in host, namespace on all instances on all elements of array
@@ -8041,7 +8430,7 @@ Boolean CIMOperationRequestDispatcher::_enumerateFromRepository(
 
 // Forward request to provider unless class does not exist
 // If class does not exist, return false
-// KS_TODO Possibly change this to always send.  Sends exception message if
+// KS_FUTURE Possibly change this to always send.  Sends exception message if
 // class get error. No need for Boolean Return
 Boolean CIMOperationRequestDispatcher::_forwardEnumerationToProvider(
     ProviderInfo &providerInfo,

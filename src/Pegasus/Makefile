@@ -46,6 +46,10 @@ ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
 endif
 
+ifeq ($(PEGASUS_ENABLE_FQL),true)
+    DIRS += FQL
+endif
+
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
     DIRS += \
         WsmServer
@@ -76,6 +80,10 @@ ifeq ($(PEGASUS_ENABLE_CQL),true)
     TEST_DIRS += \
         CQL/tests \
         CQL/CQLCLI
+endif
+
+ifeq ($(PEGASUS_ENABLE_FQL),true)
+    TEST_DIRS += FQL/tests
 endif
 
 TEST_DIRS += \

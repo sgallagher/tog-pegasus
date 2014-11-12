@@ -1,14 +1,341 @@
-        Using the CIM/XML Pull Operations
+        Using the CIM/XML Pull Operations and FQL query Language
 
 STATUS
 
-<<< The TODO section is being maintained during the review and checkin process
-to keep track of problems, errors, notes, etc.  Must be deleted before
-release or reduced to those things that are considered FUTURE and not for
-this release. Please feel free to add notes, etc in this
-section as you review/test.>>>>>>
+The Pull operations and FQL query language are incorporated into
+OpenPegasus 2.14.  This readme defines the characteristics, limitations,
+etc. for that implementation.
 
-TODO list:
+===========================================
+OVERVIEW:
+
+The operation extensions for pull operations defined in the DMTF specification
+DSP0200 V 1.4 were implemented in Pegasus effective Pegasus version 2.14
+including Client and Server.
+
+These operations extend the CIM/XML  individual operations to operation
+sequences where the server must maintain state between operations in a
+sequence and the client must execute multiple operations to get the full
+set of instances or instance paths.
+
+The following new CIM/XML operations as defined in DSP0200 are included;
+
+    -OpenEnumerateInstances
+    -OpenEnumerateInstancePaths
+    -OpenReferenceInstances
+    -OpenReferenceInstancePaths
+    -OpenAssociatiorInstances
+    -OpenAssociatorInstancePaths
+    -OpenQueryInstances
+    -PullInstancesWithPath
+    -PullInstancePaths
+    -PullInstances
+    -CloseEnumeration
+    -EnumerationCount (deprecated by DMTF and incomplete)
+
+Since the concept of sequences of operations linked together (open, pull, close)
+is a major extension to the original CIM/XML operation concept of completely
+independent operations several new pieces of functionality are implemented
+to control interOperation timeouts, counts of objects to be returned, etc.
+
+NOTE: More detailed information on the pull operations is contained in:
+1. The OpenPegasus wiki (pull operations work group)
+2. The pull operations PEP (preliminary today)
+3. Presentations in the OpenPegasus wiki, in particular in the
+   pull operations workgroup documentation at:
+
+https://wiki.opengroup.org/pegasus-wiki/doku.php?id=dev:workgroups:pulloperationsupportworkgroup:pull_operation_support_work_group
+   
+
+OPENPEGASUS CLIENT
+
+The new operations follow the same pattern as the APIs for existing operations
+in that:
+
+1. All errors are handled as CIMException and Exception
+
+2. The means of inputting parameters are the same except that there are
+   significantly more input parameters with the open operations and for the
+   first time operations return parameters as well as objects in the
+   response.  Specifically the open and pull operations return values for
+   enumerationContext which is the identity for a pull sequence and
+   endOfSequence which is the marker the server sends in open and pull
+   responses when it has no more objects to send.
+
+The significant differences between the open... and original enumerate,
+associator, and reference operations includes:
+
+1. The new pull client operations typically require multiple client operations
+   to retrieve a complete set of data (ex. OpenEnumerateInstances and
+   PullInstancesWithPath) are equivalent to the old EnumerateInstances
+   client request.
+
+2. Processing of parameters on responses (i.e. the endOfSequence and
+   enumerationContext parameters are returned for open and pull operations)
+   These return arguments are used to control the loop retrieving data
+   for an enumeration sequence (ex. the sequence of OpenEnumerateInstances
+   and PullInstancesWithPath that represents a complete enumeration
+   sequence). The sequence continues until the server responds with
+   EndOfSequence is true, and the enumerationContext is the identifier
+   for the sequence.
+
+3. Numeric arguments (Uint32 and Uint64) include the option of NULL in some
+   cases so they are packaged inside classes Uint32Arg and Uint64Arg in the
+   client API.
+
+4. The openAsociatorInstances and openReferenceInstances operations ONLY
+   process instances.  They do not include the capability to return classes
+   as reference and associator requests do and therefore return CIMInstance
+   rather than CIMObject.
+
+5. Paths are returned for the instance operations as part of the returned
+   instances (ex. OpenEnumerateInstances and PullInstancesWithPath) where
+   they were not with EnumerateInstances.
+
+6. The client must maintain state between operations in an enumeration
+   sequence (using the enumerationContext parameter returned with open
+   and pull responses). The client must always return the last
+   enumerationContext received as the server may modify the
+   enumerationContext for each response in an enumeration sequence.
+
+The client API is defined in the header file:
+
+    pegasus/src/Pegasus/Client/CIMCLient.h
+
+
+OPENPEGASUS SERVER
+
+The Pegasus server attempts to always deliver at least some objects
+in a response.  It does not wait to deliver the exact number requested but
+waits to deliver at least some. The sever will wait about 15 seconds to
+deliver and if there is nothing delivered from the providers it will then
+return a response with zero objects in it so that the client does not
+timeout.  This would only occur if the providers are extremely slow (i.e.
+greater than 15 seconds) in preparing response objects to be delivered.
+
+The Pegasus server always closes an enumeration sequence upon receipt of any
+error from the providers, repository, etc. Therefore the server will reject
+any request that has continueOnError = true;
+
+Expansion to allow the continue on error may be added in a future version.
+In any case, the whole purpose of the continue on error is really to allow
+input from good providers to be mixed with providers that return errors so
+that generally this would mean simply changing the logic in the return mechanism
+to not shutdown when an error is received from any given provider.
+
+Generally we do not believe that the providers need to do much more in the
+future to support the continueOnError other than possibly allowing the provider
+to continue processing after it has received an error.
+
+OPENPEGASUS PROVIDERS
+
+This implementation (OpenPegasus version 2.14) requires NO changes to the
+existing providers.  The provider APIs operate just as they do with the
+original operations.
+
+Because the server processing is different however, there may be some
+behavior differences primarily because the client now controls the speed of
+delivery of objects.
+
+In previous versions of Pegasus, the server attempted to deliver objects as
+rapidly as then can be put on the network.  In the case of HTTP chunked requests
+they are delivered in chunks of about 100 objects. The primary delay for the
+providers was the processing of each segment through the server.  The server
+is blocked so that no other segment can proceed through the server until that
+segment is processed and sent on the network.
+In the case of non-chunked responses, they are completely gathered in the serve
+and then delivered as one non-chunked response. There were no delays for the
+providers, just lots of possible memory use in the server.
+
+The responses from providers (delivered through the deliver(...) interface) are
+gathered into segments of about 100 objects and this group of objects is moved
+through the server to be delivered to the client.
+
+However with the inclusion of the pull operations, the segments (CIMResponseData
+objects containing the instance or path objects) from the providers are cached
+in the server response cache until the next pull request and that number
+is returned in the response to that pull. Thus, if the client is slow to issue
+pull requests, the providers might be delayed at some point to reduce memory
+usage in the server (the delay appears as slow response to the deliver operation).
+
+In other words, the time to process large sets of responses from the provider
+now depends on the speed of handling the client.
+
+It is important to remember in developing providers that the Pegasus server
+can most efficiently process responses if they are passed from the provider
+to the server individually or in small arrays of objects rather than the
+provider gathering very large arrays of objects and sending them to the
+server.
+
+FQL (FILTER QUERY LANGUAGE)
+
+The FQL implementation is complete in accord with the DMTF
+specification DSP 0212 except for a few issues including:
+
+1. The regex for the LIKE operation is the same as CQL basic. It provides
+   only the following special characters   "." and  "*".
+2. The implementation does not include the comparison of
+   embeddedInstances
+3. The implementation does not include the handling of Uint8[] as
+   strings.
+
+For more details on the FQL implementation see the readme.txt in the
+    directory pegasus/src/Pegasus/FQL.
+
+OpenPegasus will remove these limitations in a future version.
+
+The FQL implementation includes a large set of sample queries in the
+directory:
+
+    pegasus/src/Pegasus/FQL/tests/Parser
+
+including both good and error generating queries.
+
+==================================================================
+LIMITATIONS IN OPENPEGASUS 2.14
+
+1. The openQueryInstances does not allow requesting the class on response.
+
+2. The openEnumerateInstanceNames, openAssociatorNames, and openReferenceNames
+do not allow use of the query filter.  This is because
+   a. The intention is to deprecate these operations completely and remove
+      them in a future version
+   b. They require that the server call the providers with the corresponding
+      enumerate, associators, references to get the full instances to
+      filter
+
+3. The filterQuery filtering is done by the server, not the providers in this
+   version of OpenPegasus. This will be modified in a future version of
+   OpenPegasus when the provider API extensions for the pull operations
+   have been resolved.  Version 2.1 of the CMPI specification will resolve
+   this issue.
+
+4. The input parameter continueOnError is processed correctly by the client
+   but the Pegasus server only provides code for 'false' value, since the server
+   does not include logic to continue processing responses after an error is
+   encountered.
+   This is consistent with the statement in the specification that use of
+   this functionality is optional and the fact that the DMTF agrees that all
+   of the issues of continuing after errors have not been clarified.
+
+5. The operation enumerationCount is not processed by the server today since
+   a) Getting the count would be the same cost as the corresponding
+   enumeration, b) the server does not include a history or estimating
+   mechanism for this to date.
+   NOTE: After a through review as part of the development of the next version
+   of CMPI we have concluded that this operation is probably not worth the
+   effort.  Since it is optional, Pegasus will only return the unknown status
+   at this point. Further it is the intention of the DMTF to deprecate this
+   function.
+
+===================================================================
+PULL OPERATION CONFIGURATION PARAMETERS
+
+The server includes several configuration parameters to set limits on the
+processing of pull operations.
+
+RUNTIME CONFIGURATION PARAMETERS
+
+1. Maximum value of interoperation time (pullOperationsMaxTimeout) -
+This parameter defines the maximum time allowed between the return of an open
+or pull response and the receipt of the next pull or a close operation before
+the server may close the enumeration.
+The specification allows the server to set a maximum interoperation time and
+refuse open requests that with requested operationTimeout greater than that time.
+
+2. Maximum number of objects returned in a single open or pull operation
+(pullOperationsMaxObjectCount) - The server can set a maximum limit on the
+number of objects that can be returned in a single open or pull operation
+with the maxObjectCount parameter. This parameter sets the maximum limit.
+The absolute maximum allowed without recompiling (and changing a value in
+Common/Constants.h) is 10000.
+
+3. Default operationTimeout (pullOperationsdefaultTimeout) - If the client
+does not specify an operation timeout in the open request, the server uses
+the value defined by this runtime configuration variable.  The default
+is 30 seconds.
+
+COMPILE TIME CONFIGURATION PARAMETERS
+
+1. Whether the server allows 0 as an interoperation timeout value - The value
+zero is a special value for the interoperationTimeout in that it tells the
+server to not timeout the enumeration sequence. This should never be used
+as it allows a client to open enumeration sequences that will not be
+cleaned up if the client does not properly terminate them.  There is a
+compile time variable in CIMOperationRequestDispatcher that would allow this
+to be set so 0 interoperation is allowed but we recommend that it never
+be used since it removes a significant component of the server management
+of enumerationContext information.
+
+With this value for interoperationTimeout, the only way to close an
+enumeration sequence is to complete all of the pulls or issue the close.
+If for some reason the sequence is not completed, that enumeration context
+would remain open indefinitely.  Since in Pegasus any open enumeration
+context uses resources (the context object and any provider responses that
+have not yet been issued in a response) it would appear that most
+platforms would not want to allow the existence of enumeration contexts
+that cannot be closed by the server.
+
+2. Maximum consecutive pull requests with 0 maxObjectCount - The use of the
+pull operation with maxObjectCount set to zero could be used to keep an
+enumeration context open indefinitely (this tells the server to restart the
+interoperationTimeout but not send any objects in the response). Therefore the
+specification allows for the server setting maximum limits on this behavior
+and returning the error CIM_ERR_SERVER_LIMITS_EXCEEDED if this limit is
+exceeded.
+
+Note that this is maximum CONSECUTIVE pulls so that issuing a pull with
+a non-zero count resets this counter.
+
+Pegasus sets the value of this limit to 1000 and allows the implementer to
+modify it by compiling  with the PEGASUS_MAXIMUM_ZERO_OBJECTCOUNT define  in
+CIMOperationRequestDispatcher.cpp modified.
+
+3. Time to wait for next response from providers - In the case where providers
+are responding very slowly, the goal is to generate responses with
+zero instances at regular intervals to allow the client to keep the
+enumeration context alive.  This wait time is set by a compile time define
+(PEGASUS_PULL_MAX_OPERATION_WAIT_SEC)in pegasus/src/Pegasus/Common/Constants.h
+and is set to 15 seconds in the current release.
+
+4. Time to wait before killing off an enumeration context that is blocked
+by missing provider responses. In the rare case where providers do not complete
+their responses to the server there is a compile-time counter that trys to
+clean up the providers and finally just kill the enumeration sequence after
+a defined number of consecutive pulls that return zero objects.
+The limit is defined in pegasus/src/Pegasus/Constants.h
+
+NOTE: The development team is trying to consolidate all such constants and
+#define definitions that control overall server characteristics but are not
+runtime parameters in Constants.h
+
+===================================================================
+TESTING
+
+The pull operations are tested primarily with two client programs in the
+directory Pegasus/Client/tests
+
+1. pullop and it corresponding Makefile provide extensive tests of the
+   pull operations and comparison of the results with the corresponding non
+   pull operations.
+
+2. PullErrors  tests a number of error scenarios with the pull operations.
+
+3. cimcli has been extended to allow execution of the pull operations with new
+   operations that parallel the existing operations:
+   enumerateinstances(ei) - corresponding is pullenumerateInstances(pei)
+   ni -> pni   enumerateInstanceNames
+   r -> pr     references
+   rn -> prn   referenceNames
+   a  -> pa    associators
+   ar -> par   associatorNames
+
+   These execute complete pull sequences (open, pull) with cimcli options
+   to control parameters like maxObjectCount, interoperation Timeout, etc.
+
+
+=============================================================
+TODO LIST - Post 2.14 release
    1. Binary operation from OOP.  Need to add counter to binary
       protocol to be able to count objects in response. Generates
       warnings in things like messageserializer and does not work with
@@ -16,17 +343,9 @@ TODO list:
       need to do this. The binary response is not really used often
       in the current environment So double mapping it is not a major issue.
       Leave this as FUTURE
-   2. DONE OpenExecQuery - Code is incomplete in that it does not include the
-      return from the exec query function to the aggregator yet. Code for Pull
-      part of OpenQueryInstancesRequest a) should be part of the common
-      CIMOperationRequestDispatcher execCommon code. DONE, not tested. 29 May
-       30 May tested with simple cli calls.
-   3. DONE The changes to WQLCIMOperationRequestDispatcher and CQL... for handling
-      pull not completed so we feed the responses back to the EnmerationContext
-      queues. DONE Not tested 29 May 30 May DONE,  some testing done
-   4. Minor TODOs, diagnostics, etc. still in the code. Reduced almost to
+   2. Minor TODOs, diagnostics, etc. still in the code. Reduced almost to
       none now.  We are leaving some in as PEGASUS_DEBUG
-   5. Extension to avoid double move of objects in CIMResponseData (one
+   3. Extension to avoid double move of objects in CIMResponseData (one
       into enumerationContext queue and second to new cimResponseData for
       response.  Want to avoid second move by extending Open/Pull response
       messages to include count and CIMResponse data to count objects out
@@ -38,25 +357,15 @@ TODO list:
       XmlWriters used by encodeXmlResponse would have to have counters
       added. Then instead of copying on getCache we would simply pass the
       cache and count on and the writer would take and remove.
-   6. Add more static tests (currently only OpenEnumerateInstances and
-      OpenEnumerateInstanceNames covered). 
-      Low priority because most of this except exact XML covered in other
-      tests. note that we can only add very limited tests since a) no
-      way to test multiple operations in sequence(i.e. open/pull) and
-      cannot be sure how many responses will come back in all cases even
-      for open.  The only reason for most of these tests is to assure that
-      we do not change XML inadvertendtly in future with change that is
-      compatible to both our server and client but breaks other clients or
-      servers. In any case we can do only minimal tests because most real
-      testing involves both open and pull and the static tests are by their
-      nature single operation.
-   8. Correct issue between operations and HTTP where we are sending
+   4. Add more static tests (currently only OpenEnumerateInstances and
+      OpenEnumerateInstanceNames covered).
+   5. Correct issue between operations and HTTP where we are sending
       trailers with exceptions. Modify response mechanisms so that we
       set non-chunked for all responses where we send error responses to
       avoid the trailers. NOTE: There should be now a bug on this in general
       where we would want to send an initial error without the trailer. Should
       have always done that.
-   9. It would be more efficient in dispatcher to always use exception for
+   6. It would be more efficient in dispatcher to always use exception for
        rejects and change the _reject functions so that they never return
        when they reject. This is VERY LOW PRIORITY and primarily saves
        a few lines of code in the reject functions and their calls.  Means we
@@ -73,784 +382,25 @@ TODO list:
        an exit if we rejected. VERY LOW PRIORITY. Possibly FUTURE. No behavior
        change, just more compact source code but it messes with the method
        trace logic.
-    10. There are still a couple of template functions around the task of
+    7. There are still a couple of template functions around the task of
        distributing requests to the multiple providers.
-       In fact there are two similiar but different templates for
+       In fact there are two similar but different templates for
        the associators(i.e. assoc, ref, etc.) functions and the parallel
        openAssoc functions.  It would be nice to consolidate that logic and
        further to try to create a non-template form for those functions. LOW
-       PRIORITY and not for bug 9676 ACTION: Define in new bug
-    11. External runtime variables. bug 9676 leaves these variables as
-       internal to CIMOperationRequestDispatcher.cpp.  
-       See bug 9819 for the changes to externalize these variables, both
-       the runtime and buildtime variables.  The Work group discussion
-       documents what the variables are and how they tie to statistics info.
-       See the OpenPegasus Wiki, Pull operations work group.
-    12. Trace functions in CIMResponseData,h & cpp should be PEGASUS_DEBUG.
+       PRIORITY
+    8. Trace functions in CIMResponseData,h & cpp should be PEGASUS_DEBUG.
        Same for trace function in EnumerationContext and
        EnumerationContextTable
-    13.Question. We added trace in CIMRequestOperationDispatcher.cpp if
+    9. Question. We added trace in CIMRequestOperationDispatcher.cpp if
        query enum is recevied with no object path.  However, since this is
        a provider problem should we be doing something other than a trace
        (ex. log) since traces are often not really used and they do generate
        lots of data whereby something like this could get lost. Also, need
        to review what level of trace if we keep trace.
-   14. Note that the build-a-class argument on OpenQueryInstances always
-       returns error since we do not build the class.  We propose to deprecate
-       this in DMTF and not implement in in OpenPegasus. TODO add a bug
-       defining this limitation. This is not a TODO, just a warning for
-       the future. TODO add bug about this and add to release notes
-   15. Clarify trace of completion of each enumeration sequence.
-   16. Statistics keeping for open, etc. through cimperf.
-
-   NEXT TASKS: 
-      a. finish 8, 12 above. Test against cimperf since there was a bug
-      in cimperf from before.
-
-26 August 2014
-1. Add flag to pullop to hide warnings when response smaller than requested
-   size. This is because the default operation is to return what exists rather
-   than waiting for a full response to match the MAXOBJECTCNT.  Note that
-   there is a flag in CIMOperationRequestDispatcher that modifies this
-   behavior.
-2. Modify displays in pullop to display less info during poststarttests.
-
-20 August 2014
-1. Update to greatly reduce the number of KS_TODO comments.  We have reduce
-   the number of these comments to about 50 total of which most are comments
-   to remove diagnostics.
-2. Internationlize a number of messages in XmlReader, etc. This completes
-   internationalization of messages added for pull operations.
-3. Added some detailed messages to cimcli to show what is happening in
-   the multiple operations.
-4. Some efficiency changes (ex. remove String::EMPTY usage)
-
-18 August 2014
-1. Update to remove some TODOs.
-2. Mergeout to the task branch.  Note that for some reason there had bee
-   a descrepency in the Pegasus/Server/Tests/TLS last bug fix not getting
-   into the previous mergeout
-    
-14 August 2014
-1. Issue with the pullop test in some systems causing an HTTP 413 error (
-too much data).  We confirmed that this is probably actually a limit in the
-client with enumerate instances (the response is simply to big in the case
-where we are asking it to deliver 100,000 responses instances on some systems)
-Modified the test for the stress test to be 30,000 instances and added a
-manual test testSizeLimit to the make file to try to deliver up to 600,000
-instances to determine limits to the environment.
-
-Note that this is not actually a failure of the pull operations. In fact
-where cimcli ei ... fails with 600,000 instances in the response cimcli pei
-works correctly.
-
-Update the Client/tests/pullop/Makefile stresstests to hopefully pass the
-nightly test on more systems.
-
-2. Eliminated a number of KS_TODOs and code that we had documented out with 
-   //// . Note that there are still a number of the KS_TODOs but most of them
-   are really isolated around 
-
-19 August 2014
-1. Mergeout to head of tree.  We picked up one issue that for some reason
-   the cvs mergeout was missing, a change to Server/tests/TLS...
-
-19 August 2014
-1. Remove a number of KS_TODO notes either by cleaning them up or by
-   change the keyword to FUTURE if they are things that we might consider
-   for the future
-2. Some efficiency improvements in dealing with strings primarily get
-   rid of use of String::EMPTY in the new code.
-
-3. Removed some diagnostic trace output that was used during development.
-
-13 August 2014
-1. Mergeout to head of tree.
-
-11. August 2014
-1. Correct error in compile in windows (bad reference to sleep(...)
-
-29 July 2014
-1. Cleanup functionality in the unittests for EnumerationContext and
-   its table.
-
-23 July 2014
-1. Mergeout from head of tree to Task branch
-
-21 July 2014
-1. Removed strings.h from pullop.cpp
-2. Minor cleanup per testing
-
-17 July 2014
-1. Correct error in CIMOperationRequestDispatcher.cpp OpenQueryInstances
-   when PEGASUS_DISABLE_QUERY set.
-2. Correct issue in diagnostic code in CIMResponseData.cpp that used 
-   snprintf function not available in windows.
-3. Clean up some miscellaneous code in pullop and Makefile.
-4. Minor change to PullErrosrs.
-
-2 July 2014
-1. Corrected error in the new getoopt functions that caused it to fail
-   in build and also in it unit test with the --help option.
-
-28 June 2014
-1. Corrected issue where ZOs was getting errors from pullop because we
-   used getopt to parse command line and the linux getopt is not behavior
-   consistent with ZOs.  Note that the ZOs getopt matches the posix expect and
-   the linux one has extensions (notably it permutes non option arguments to
-   the end of the arguments array.  The easiest and most logical was to move
-   the whole parser to use the internal getoopt which is what we should be
-   using all the time in any case.
-18 June 2014
-1. Correct errors in pullop and CMIMessage.cpp identified by Ji Lee as comments 58,59
-2. Correct error in Makefile identified by Ji Lee as bug comment 60
-
-14 June 2014
-1. Mergeout from head of tree.
-
-12 June 2014
-1. Implement the basic code for the CIMOperationDispatcher portion of bug 9819
-   Note that the CIMConfig calls are disabled with comments.
-2. Corrected a number of differences in const declaration and definition for
-   continueOnError and maxObjectCount in CIMClient. This corrects issue
-   documented in bug 9676 comment 53
-3. Corrected some documentation for Pull operations in CIMClient.
-4. Corrected similar issue In EnumerationContext class. See comment 54
-5. Removed ExecInfo.h header from Client/tests/PullErrors/PullErrors.cpp
-
-30 May 2014
-1. Correct issue in UintArgs.  Modified to use smart pointers, consistent
-   with public interfaces. Tested
-2. Complete code for OpenQueryInstances and PullInstances so that the complete
-   sequence works for both the server and client (i.e. 2, 3 above done
-   except for more tests in pullop).
-3. Fix issue in cimcli where the OpenQueryInstances was outputting a path
-   component where there is no path transmitted from the server.
-4. Moved large block of common code in CQLOperationRequestDispatcher.cpp
-   and WQLOperationRequestDispatcher.cpp to common function
-   handleQueryRequestCommon in CIMOperationRequestDispatcher.cpp. These
-   handlers now reduced to just the parser processing and minimal error
-   checks.
-5. Cleaned up some code in EnumerationContextTable.CreateContext so only
-   single interface for all requests.
-6, Commented out a number of PEG_TRACE messages.  Note that they are
-   commented with 4 /s at line beginning to be easily identified.
-   //// code
-   There are still a number of KS_TODOs but they are mostly some questsions,
-   some internationalization (note that almost none of this environment is
-   completely internationlaized (see the decoders)) and a couple of questions
-   about the existing code or exactly what message should be sent.  I argue
-   that the current TODOs should not stop checkin. Will remove after we
-   have tested couple of days and prove that there is no real need.
-7. Added trace in Query response code if there is no objectPath since that
-   is really an error in the provider
-
-
-29 May 2014
-1. Correct issue in cimcli that was causing rejects of open operations when
-   there were no filters requested. The standard default is WQL in cimcli
-   so we overrode this for the pull operations.
-2. Clean up OpenQueryInstances in CIMMessage.h and CIMMessage.cpp.
-3. Modify CIMOperationRequestDispatcher and
-   EnumerationContextTable.CreateContext to pass request rather than request
-   parameters.
-4. Remove a number of diagnostic messages.  Note that there are still some.
-   They are marked KS_TODO with with note to remove before checkin. They are
-   all traces and validations.
-5. Correct error in inclusion of execinfo.h include in CIMOperationRequestDis.
-   found by Ji Lee.
-6. Cleaned up execQuery and extended it for OpenQueryInstances.  ExecQuery
-   tested but have not tested OpenQueryInstances yet. One more checkin and we
-   should be able to close 2,3 above (OpenQueryInstances).
-
-26 May 2014
-1. Remove a number of diagnostics.
-2. Make cache size in EnumerationContextTable dynamic and remove function
-   to set default values. MaximumEnums set from Dispatcher on constructor for
-   EnumerationContextTable and table size set to 1/2 of maximum number of
-   open contexts.
-3. Clean up some statistics in EnumerationContextTable
-4. Correct error in query and queryLanguage parameters in cimcli in that
-   the default for queryLanguage is WQL but must be "" for pull operations.
-   If WQL found they set it to "".
-
-
-9 May 2104
-1. Converted several  template functions in CIMOperationRequestDispatcher
-   to real functions
-2. Added intermediate CIMMessage for CIMPullOperationRequestMessage since
-   all of the pulls have exactly the same data. This allowed us to
-   convert the template function processPullRequest from template to
-   real function
-3. Added intermediate CIMMessage for CIMOpenOperationRequestMessage betweeh\n
-   all of the Opens and the  CIMRequestData message.  This will allow
-   common code to test all of these variables in all 6
-   CIMOperationRequestDispatcher handleOpen... functions
-3. Added variable in  CIMOperationRequestDispatcher handleEnqueue to make
-   releasing the original request conditional on return from the handle... 
-   for open... and pull... handlers.
-   This allowed us to drop one place where we were creating a new request msg
-   for the delayed response and use the original request.  This meant that
-   we could convert the issueOpenOrPullResponse from template function to
-   real function.
-4. Moved open and pull constructors in CIMMessage.h to CIMMessage.cpp. NOTE:
-   openQueryInstances not moved.  Will do when we get this funciton running.
-5. Added test for correct namespace in pull operations.  Note that it is
-   never really used but since supplied with request, we test to be sure it is
-   same as open request namespace.  added internationalized exception for this.
-6. We should probably add same test to close just as an input parameter
-   validation.  
-6. Modified processPullRequest to close the enumeration context if
-   incorrect response type received.  Before we just returned exception and
-   left context open for next request.  Closing is much more logical since the
-   client really did send an erronous request.
-7. Modified PullErrors to correctly test above changed in behavior.
-8. Removed a significant number of diagnostic messages.
-9. Added query and querylanguage parameters to cimcli.
-
-
-4 May 2014
-1. Clean interface with EnumerationContext timeout thread
-2. Remove more diagnostics
-3. Correct issue with enumerationContext Release that was causing
-   failures during nightly tests.
-
-2 May 2014
-1. Remove Diagnostics from ResponseData.cpp
-2. Correct setup and start of EnumerationContextTimerThread
-3. Change limit on max number of enum contexts to be set from Dispatcher.
-4. Increase size of hashtable for enum contexts.
-5. Corrected issue causing failures in removeContext. Now runs through nightly
-   tests most of the time.
-1 May 2014
-1. Cleanup of code and variable names.
-2. Removed namespace variable from EnumerationContext.  It was never used.
-3. Added test for max number of open enumerations.  Right now it is fixed
-   and set about 100. Note that this is tied to the size of hash table
-   so that there is a issue with more dynamic setting of max and the
-   hash table size.
-4. Removed several unused functions.
-5. Found one possible issue causing thread conflict but not the core one
-   yet.  
-
-30 April
-1. Added exception response to dispatcher for Limits exceeded on
-   CreateEnumerationContext. Returns Exceeded server limits CIMException.
-2. Fixed possible deadlock where we were not unlocking EnumerationContext
-   under error condition
-
-
-27 April - mergeout to head of tree
-1. Mergeout of the code to the head of tree. Documented that mergeout in
-   the bug
-
-27 April 2014
-1. Clean up in a number of areas, mostly just code without changing
-   functionality.
-2. Modified CIMMessage.h slightly to clarify names of the pull intermediate
-   messages (the common open and pull response);
-3. Removed a number of diagnostics from CIMResponseData
-4. Added new function to ResponseStressTestProvider to be able to terminate
-   output after a defined number of objects with a CIMException.
-5. Removed a number of other TODOs
-6. Corrected a couple of errors in the server message bundle.
-7. Modified ResponseEncoder to only output the error for pull errors.
-   It was errounously outputting the EndOfSequence, EnumerationContext and
-   the error.  This way, only the error is sent which is spec.
-8. Removed number of TODOs and cleaned up a couple of others.
-9. Added static tests for OpenEnumerateInstanceNames.
-10. Modified a number of the temporary diagnostics to be permanent by
-    changing them to PEGASUS_DEBUG_ASSERTs
-
-22 April 2014
-1. Clean up some messages.
-2. Still trying to find issue that randomly keeps messages in timeout
-   queue long after they have been closed and returned.
-3. Fixed memory loss error.
-4. Added zero reject for OperationTimeout because that effectively disables
-   the whole timeout mechanism so that enumerations could be started, never
-   completed by the client and would just hang around in memory. That
-   would be a significant DDOS attack (start very large enum with no
-   timeout) and never do pulls after open.
-
-21 April 2014
-1. Reorganized code in CIMOperationRequestDecoder.cpp ...Iparam classes.
-   Cleaned up the rejectCIMException code.
-2. Cleanup some issues in the EnumerationContextTimeout Thread.
-3. Fixed issue in pullop where it was using zero as default for default
-   operation timeout where it should have been NULL, the DMTF specified
-   default.
-4. Enabled the test to reject 0 as operation timeout on a request and but
-   controled by a #define in CIMOperationRequestDispatcher.cpp
-5. Added test for excessive new OperationContext entries in table.
-
-18 April 2014
-1. Internationalize remaining messages in CIMOperationRequestDecoder.cpp and
-   clean up the decoders for some of the messages so they use the
-   ...Iparam classes.  Note that we did not clean up all of the old message
-   decoders, just the new ones and we did not clean up the Count message
-   since it is deprecated. TODO clean these up so the decoder is really
-   consistent.
-2. Enabled the EnumerationContext Timer and removed code for alternate
-   non-thread solution.
-
-17 April 2014
-1. Reorganized the lock/unlock for handling the EnumerationContext because
-   there were thread windows (i.e. using the context after it was released
-   by other thread).
-2. Modified code for the InteroperationTimerThread and deleted old code that
-   allowed this whole thread to by bypassed.
-3. Internationalized a number of CIMOperationRequestDispatcher CIMException
-   response messages.
-4. Fixed stress tests in Client/tests/pullop that were getting timeout. The
-   issue was not the pull code but that fact that the idle client timeout
-   appears to be measureing to the end of the operation and the operation
-   was taking more than 40 seconds which is the default timeout. The idle
-   timeout takes no account of the fact that chunks are being regularly
-   delivered.
-5. Several minor code changes.
-NOTE: At this point the code passes extensive tests of the pull operations
-   both in OOP and none OOP mode (but with lots of diagnostics that may
-   be affecting timing).
-
-10 April 2014
-1. Fix issues causing failure with repeated pull operations.
-2. Consolidate some of the CIMOperationRequestDispatcher.cpp template code
-
-7 April 2104
-  MergeOut of head of tree.
-
-7 April 2014
-1. Permanently fixed issue with getting correct number of objects on response.
-   This was introduced when did a temp fix to the OOP processing, in particular
-   removed the condition variable wait in the CIMOperationDispatcher handle
-   functions for opens and pulls.  This moved the functionality to kick off
-   open and pull responses to the provider threads if there are not enough
-   objects when the handle is processed. Also added a variable to allow us to
-   test with either a) responses are required to satisfy the original 
-   request size or) b, responses are required only to return some objects.
-   We will add statistics to see which of these works best.
-2. Modified WsmProcessor EnumerationContext class since the name conflicts
-   with the pull Operation EnumerationContext class.
-3. Created a new intermediate level of CIMMessage, the CIMPullResponseData
-   Message so that all of the open and Pull responses can use common code
-   since there are only two variables (endOfSequence and EnumerationContext)
-   and they are common across all the open and pull responses.
-4. Removed a number of diagnostics.
-5. Cleaned up the Dispcatcher so that the open and pulls have common response
-   code and that code can be used from the dispatcher handle functions and
-   the provider response functions.
-
-31 March 2014 - Checkin
-1. Fixed issues in OOP processing of pull operations, in particular
-   issues with cimxml output format when processed through the
-   *InternalXmlEncoder functions.
-2. Clean up some of the internalXml functionality
-3. Found issues causing timeout with a particular provider.  The issue
-   is that the dispatcher and monitor end up using the same thread so the
-   condition variable in the dispatcher thread stops the monitor. Turned
-   off the conditionVariable in getCache for the moment which means that
-   we get number of responses for open... with 0 objects before the
-   providers can begin to respond.  This is only for test.
-4. Added some statistics for enumerations and display the statistics 
-   when we close the server (same as cache statistics)
-
-12 March 2014 - Mergeout and Mergein
-1. Mergeout to head of tree for this date and mergein for patch update
-   to bug 9676
-2. Extensions to pullop tests program and tests.
-3. Added some diagnostics in looking for OOP issue.
-4. Removed a number of diagnostics messages and cleaned up code in
-   dispatcher to simplify pull operation processing.
-
-15 December 2013
-1. Mergeout and mergein up to 15 December 2013
-2. Clean up issues from tests documented in bug 9676 last week.
-3. Clean up some code in dispatcher
-4. Remove the filter function from ResponseStressc++Provider.
-
-21 November 2013
-1. Mergeout from head of tree to 21 November 2013.
-
-18 November 2013
-1. Cleanup of a bunch of minor errors and completion of all of the code for
-   the openQueryInstances except for the PullInstances in Dispatcher and
-   the aggregator function.
-2. OpenqueryInstances added to cimcli.
-
-13 October 2013 CVS branch update.
-1. Integrated bug 9786 into the branch.  Note that we need to test the
-   generated statistics.
-2. Mergeout executed to update to head of tree as of 8:00 am 13 October 2013.
-3. Cleaned up several errors in OOP processing.  Note that there is at least
-   one issue left when we to a pull on ManagedElement in at least one of the
-   namespaces.
-4. Cleaned up some of the outstanding diagnostic code
-5. Generally passes all tests except for one test of pullop where it is trying
-   to pull enum instances CIM_ManagedElement from a particular namespace.
-
-NOTE: I did not make comments here for changes in October despite the fact
-that I did 2 mergouts, number of fixes, and a mergein.
-
-30 September 2013 - CVS Update
-Mergeout head of tree up to 29 September 2013.
-
-29 September 2013. CVS update.
-1. Modified calls to statisticalData.cpp to a) directly call with request
-   type, b) incorporate the open, pull, etc. messages.  However, since these
-   are not part of the CIM class, we must do something special with them.
-   See bug 9785 for full solution to this issue.
-2. Corrected OOP interface to enable new flag to indicate internal operations
-   and set host, etc.
-3. Add code to CQLOperationsDispatcher and WQLOperationDispatcher to clean
-   up CIMResponseDataCounter after filtering.
-4. Modified ProviderAgent to set Host info for some pull operations.
-5. Added new flag to CIMBinMsgSerializer and Deserializer.
-
-17 September 2013 CVS update (Actually two different updates over 3 days)
-1. Clean up some issues in CIMMessage.h and CIMMessage.cpp
-2. Extend OpenExecQuery to WQL and CQL processors but return not complete
-3. Remove memory leak in EnumerationContext and EnumerationContextTable
-   handling.
-4. Created template functions for much of the pull operations.
-5. Reversed order of queryLanguage and query (and changed names to match
-   execQuery) in client and server.  Note that these are the execQuery
-   WQL and CQL filters and NOT FQL filters.
-6. Some code cleanup in dispatcher
-7. Today, passes all tests in pullop but issue in alltests. For some reason
-   not finding CIMObjectManager instance. Also, leaves enumeration contexts
-   if client terminates since cleanup thread not operating.
-8. XML from OOP not correctly processed.
-
-14 September 2013 CVS update
-Merged out up to 25 August.  Cleaned up all operations and standardized code.
-At this point the non pull operations code is in a set of templates but the
-pull is not yet.
-Fixed a significant number of problems so that it appears that the operations
-except for OpenExecQuery run stably, at least with the pullop test program.
-Note that there is a problem in that the Interop control provider is not
-returning its singleton wbemserver object for some reason.  Causes a test
-failure
-
-Fixed for 16 June CVS Update
-   1. Cleaned up the enumerationContext and Table release functions and tested
-      to confirm that we do not lose memory in either normal sequences or
-      sequences that close early. Cleaned up pullop and added more tests
-Taged Before: PREAUG25UPDATE and after POSTAUG25UPDATE
-
-Fixed for 9 June CVS update
-   1. Cleaned up code for OpenQueryInstances.  Note that this is incomplete.
-      No support in WQL or CQL Operations
-   2. 
-
-What was fixed for 5 June checkin.
-   1. Extended ResponseTest MOF for for both CMPI and C++ subclasses
-   2. Fixed issues with pullop.
-   3. Fixed temp issue with CIMResponseData size by putting in mutex. That
-      is not a permanent fix but it gets around issue probably in the control
-      of the move logic that meant counts were off.
-   4. Fixed issues in Dispatcher so that associator code works. Still messy
-      code in the dispatcher.
-   5. Changed name of Enumerationtable.h & cpp to EnumerationContextTable.*
-   6  Changed name of ResponseStressTest module, classes, etc.
-
-TAG: TASK_PEP317_5JUNE_2013_2
-
-2 June 2013
-
-Issues  - KS
-
- - Still way to many TODO and KS comments and KS_TEMPS.  Removing bit by bit.
-
- - Runtime variable connection for the config parameters not installed. That
-   has been made into a separate bug (see bug 9819)
-
-5. Issue with the threaded timer.  For some reason during tests it
-eventually calls the timer thread with trash for the parm (which is
-pointer to the EnumerationTable object). Caught because we do a valid
-test at beginning of the function.
-
-6. Still using the templates in CIMOperationRequestDispatcher to simplify
-the handle... processing.  
-
-7. I think I have a way around the double move of objects in the
-EnumerationContext so that the outputter will just take a defined number
-of objects directly from the gathering cache and save the second move.
-
-8. Not yet passing all tests but getting closer now. The major test that is
-causing an error today is the execution of a full enumeration with the
-forceProviders = true.  This causes a client timeout sometimes.
-
-
-
-===========================================
-
-OVERVIEW:
-
-The operation extensions for pull operations defined in the DMTF specification
-DSP0200 V 1.4 were implemented in Pegasus effective Pegasus version 2.11
-including Client and Server.
-
-These operations extend the CIM/XML  individual operations to operation
-sequences where the server must maintain state between operations in a
-sequence and the client must execute multiple operations to get the full
-set of instances or instance paths.
-
-The following new CIM/XML operations as defined in DSP0200 are included;
-
-    -OpenEnumerateInstances
-    -openEnumerateInstancePaths
-    -OpenReferenceInstances
-    -OpenReferenceInstancePaths
-    -OpenAssociatiorInstances
-    -OpenAssociatorInstancePaths
-    -OpenQueryInstances
-    -PullInstancesWithPath
-    -PullInstancePaths
-    -PullInstances
-    -CloseEnumeration
-    -EnumerationCount
-     OpenExecQuery
-
-The following  operations have not been implemented in this version of Pegasus:
-
-    -OpenQueryInstances
-
-The following limitations on the implementation exist;
-
-1. The filterQueryLanguage and filterQuery parameters are processed by
-   the Pegasus client but the server returns error if there is any data in
-   either parameter. This work does not include the development of the
-   query language.  Note that a separate effort to extend Pegasus to use
-   the DMTF FQL query language is in process.
-
-2. The input parameter continueOnError is processed correctly by the client
-   but the Pegasus server only provides for false since the server does not
-   include logic to continue processing responses after an error is
-   encountered. 
-   This is consistent with the statement in the specification that use of 
-   this functionality is optional and the fact that the DMTF agrees that all 
-   of the issues of continuing after errors have not been clarified.  
-
-3. The operation enumerationCount is not processed by the server today since
-   a) really getting the count would be the same cost as the corresponding
-   enumeration, b) the server does not include a history or estimating
-   mechanism for this to date.
-   NOTE: After a through review as part of the development of the next version
-   of CMPI we have concluded that this operation is probably not worth the
-   effort.  Since it is optional, Pegasus will only return the unknown status
-   at this point
-
-Since the concept of sequences of operations linked together (open, pull, close)
-is a major extension to the original CIM/XML operation concept of completely
-independent operations several new pieces of functionality are implemented
-to control interOperationTimeouts, counts of objects to be returned, etc.
-
-TBD - Review this
-
-CLIENT
-
-The new operations follow the same pattern as the APIs for existing operations
-in that:
-
-1. All errors are handled as CIMException and Exception
-
-2. The means of inputting parameters are the same except that there are
-   significantly more input parameters with the open operations and for the 
-   first time operations return parameters as well as objects in the 
-   response.  Specifically the open and pull operations return values for 
-   enumerationContext which is the identity for a pull sequence and 
-   endOfSequence which is the marker the server sends in open and pull 
-   responses when it has no more objects to send.
-
-The significant differences include:
-
-1. Processing of parameters on responses (i.e. the endOfSequence and
-   enumerationContext parameters are returned for open and pull operations).
-
-2. Numeric arguments (Uint32 and Uint64 include the option of NULL in some
-   cases so they are packaged inside classes Uint32Arg and Uint64Arg in the
-   client api.
-
-3. The association and reference operations ONLY process instances.  They do
-   not include the capability to return classes like reference and associator
-   do and therefore return CIMInstance rather than CIMObject.
-
-4. Paths are returned in all cases (i.e OpenEnumerateInstances and
-   PullInstancesWithPath where they were not with EnumeratInstances.
-
-5. The client must maintain state between operations in a sequence (using
-   the enumerationContext parameter).
-
-TBD- Are there more differences.
-
-
-SERVER
-
-The Pegasus server attempts to always deliver the requested number of objects
-for any open or pull request (the specification allows for the server to
-deliver less than the requested number of objects and specifically to return
-zero objects on open).  We felt that it was worth any extra cost in processing
-to provide the client with exactly what it had requested.
-
-The pegasus server always closes an enumeration sequence upon receipt of any
-error from the providers, repository, etc. Therefore the server will reject
-any request that has continueOnError = true;
-
-Expansion to allow the continue on error may be added in a future version.
-In any case, the whole purpose of the continue on error is really to allow
-input from good providers to be mixed with providers that return errors so
-that generally this would mean simply changing the logic in the return mechanism 
-to not shutdown when an error is received from any given provider.
-
-Generally we do not believe that the providers need to do much more in the
-future to support the continueOnError other than possibly allowing the provider
-to continue processing after it has received an error.
-
-PROVIDERS
-
-This implementation requires NO changes to the existing providers.  The
-provider APIs operate just as they do with the original operations.
-
-Because the server processing is different however, there may be some
-behavior differences primarily because the client now controls the speed of
-delivery of objects.
-
-In previous versions of Pegasus, the server attempts to deliver objects as
-rapidly as then can be put on the network.  In the case of HTTP chunked requests
-they are delivered in chunks of about 100 objects. The primary delay for the
-providers was the processing of each segment through the server.  The server
-is blocked so that no other segment can proceed through the server until that
-segment is processed and sent on the network.
-In the case of non-chunkedresponses, they are completely gathered in the serve
-and then delivered as one non-chunked response. There were no delays for the
-providers, just lots of possible memory use in the server.
-
-The responses from providers (delivered through the deliver(...) interface are
-gathered into segments of about 100 objects and this group of objects is moved
-through the server to be delivered to the client.
-
-However with the inclusion of the pull operations,   The segments of objects
-from the providers are cached in the server response path until the 
-maxObjectCount for that request (open or pull) and that number returned in a
-non-chunked response. Thus, if the client is slow to issue pull requests,
-the providers might be delayed at some point to reduce memory usage in the
-server (the delay appears as slow response tothe deliver operation).
-
-In other words, the time to process large sets of responses from the provider
-now depends on the speed of handling the client.
-
-It is important to remember in developing providers that the Pegasus server
-can most efficiently process responses if they are passed from the provider
-to the server individually or in small arrays of objects rather than the
-provider gathering very large arrays of objects and sending them to the
-server.
-
-NEXT GENERATION PROVIDERS
-KS_TODO
-
-CONFIGURATION PARAMETERS
-
-The server includes several configuration parameters to set limits on the
-processing of pull operations.  All of these configuration parameters are
-compile time parameters rather than runtime.
-
-1. Maximum value of minimum interoperation time.  This parameter defines the
-maximum time allowed between the return of an open or pull response and 
-the receipt of the next pull or a close operation before the server may 
-close the enumeration.  The specification allows the server to set a 
-maximum interoperation time and refuse open requests that with requested 
-operationTimeout greater than that time.  
-CIM_ERR_INVALID_OPERATION_TIMEOUT
-
-This value is set with the Pegasus environment variable
-PEGASUS_PULL....
-
-2. Maximum objects returned in a single open or pull operation.  The server
-can set a maximum limit on the number of objects that can be returned in
-a single open or pull oepration with the maxObjectCount parameter.
-
-3. Whether the server allows 0 as an interoperation timeout value. The value
-zero is s special value for the interoperationTimeout in that it tells the
-server to not timeout any enumeration sequence.
-
-With this value for interoperationTimeout, the only way to close an 
-enumeration sequence is to complete all of the pulls or issue the close.  
-If for some reason the sequence is not completed, that enumeration context 
-would remain open indefinitly.  Since in Pegasus any open enumeration 
-context uses resources (the context object and any provider resposnes that 
-have not yet been issued in a response) it would appear that most 
-platforms would not want to allow the existence of enumeration contexts 
-that cannot be closed by the server.  
-
-4, maximum consecutive pull requests with 0 maxObjectCount.  The use of the
-pull operation with maxObjectCount set to zero could be used to keep an
-enumeration context open indefinitly (this tells the server to restart the
-interoperationTimeout but not send any objects in the response). Therefore the
-specification allows for the server setting maximum limits on this behavior
-and returning the error CIM_ERR_SERVER_LIMITS_EXCEEDED if this limit is
-exceeded.
-Note that this is maximum CONSECUTIVE pulls so that issuing a pull with
-a non-zero count resets this counter.
-
-KS-TBD - Is this really logical since we can still block by just issuing
-lots of zero request and an occansional request for one object.
-
-Pegaus sets the value of this limit to 1000 and allows the implementer to
-modify it with the PEGASUS_MAXIMUM_ZERO_OBJECTCOUNT environment variable.
-
-5. Default operationTimeout - 
-
-The default of this parameter is to refuse operat
-
-In the current release of Pegasus these are all compile time parameters.
-
-
-NOTES On working with task branch.
-
-Merge out Process
-
-   To keep our TASK branch in sync with the current head of tree we need
-   to do a regular merge out.  the TaskMakefile contains the makefile
-   procedures to do this efficiently.  NOTE: Following these procedures is
-   important in that you are merging out new material each time you do
-   the merge out.  If you were just to repeatedly merge out, you would be
-   merging previously merged changes a second time causing a real mess.
-
-    Start with new directory and put TaskMakefile above pegasus (needed so you
-    have this file for the initial operations.  
-
-      make -f TaskMakefile branch_merge_out BNAME=PEP317-pullop  ## takes a long time
-
-   This checks out current head, merges it into task branch and sets tags
-   for the mergeout.  Note that at the end of this step this work is
-   part of the TASK... branch.
-
-   NOW check for conflicts, errors, etc. that resulted from the merge.
-   Look for conflict flags, compare the results (I use linux merge as a
-   good graphic compare tool) and build and test. When you are satisfied
-   that the merge out is clean, you can commit the results to the TASK...
-   branch
-   
-   To commit the work to  this into Task branch
-
-      make -f mak/TaskMakefile branch_merge_out_commit BNAME=PEP317-pullop
-
-  or manually commit and finish as follows
-
-    cvs commit
-    make -f mak/TaskMakefile  branch_merge_out_finish BNAME=PEP317-pullop
-
-## This last step is important since it cleans up temporary tags to prepare
-   you for the next checkout
-   
-COMPARE TASKBRANCH WITH HEAD
-
-    In a new pegasus work space do same as above for merge out.
-
-    make -f TaskMakefile BNAME=PEP317-pullop
-
-    This produces a result which is all of the head merged into the branch.
-    A diff of this is all the new changes to the head of tree that you will
-    include into the merge.
+   10. Better statistics keeping for open, etc. through cimperf.
+   11. Incorporate a simple test of pull operations into the TestClient
+   12. Define a simpler iteration interface for the client so that
+       the client does not have to directly control the open, pull, etc.
+       operations.
 

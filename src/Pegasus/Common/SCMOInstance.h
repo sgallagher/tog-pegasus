@@ -52,11 +52,6 @@ PEGASUS_USING_STD;
 
 #define PEGASUS_SCMB_INSTANCE_MAGIC 0xD00D1234
 
-// KS_TODO Temp console display while debugging Sept 2014
-// Set DIAGDISPLAY to true to enable diagnostics.
-#define DIAGDISPLAY false
-#define XCOUT if (DIAGDISPLAY) cout << __FILE__ << ":" << __LINE__ << " "
-
 class PEGASUS_COMMON_LINKAGE SCMOInstance
 {
 public:
@@ -1086,8 +1081,7 @@ inline SCMBValue& SCMOInstance::_getSCMBValueForNode(Uint32 node) const
 
     SCMBUserPropertyElement* pElement =
        _getUserDefinedPropertyElementAt(node);
-    XCOUT << "_getSCMBValueForUserDefinedNode " << node
-          << " pElement = " << pElement << endl;
+
     return pElement->value;
 }
 

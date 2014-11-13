@@ -4639,12 +4639,6 @@ SCMBUserPropertyElement* SCMOInstance::_getUserDefinedPropertyElementAt(
         (SCMBUserPropertyElement*)
              &(inst.base[inst.hdr->userPropertyElement.start]);
 
-    XCOUT << "inst.hdr->userPropertyElement.start address "
-            << pElement  << " relative "
-        << inst.hdr->userPropertyElement.start
-        << " number of user properties " << inst.hdr->numberUserProperties
-        << endl;
-
     // calculate the index within the user defined properties
     // based on numberProperties in instance. This should
     // be verified against numberUserProperties
@@ -4679,11 +4673,6 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
 {
     SCMBUnion* u = (SCMBUnion*)&(base[start]);
 
-    XCOUT << "_resolveSCMBUnion Enter. Union at " << u
-          << " isArray " << boolToString(isArray)
-          << " type " << cimTypeToString(type)
-          << " start " << start
-          << endl;
     SCMBUnion* av = 0;
 
     if (isArray)
@@ -4976,17 +4965,11 @@ SCMO_RC SCMOInstance::_getUserPropertyNodeIndex(
     node = 0;
 
     Uint64 elementStart = inst.hdr->userPropertyElement.start;
-    XCOUT << "inst.hdr->userPropertyElement.start "
-            << elementStart  << endl;
 
     while (elementStart != 0)
     {
         SCMBUserPropertyElement* pElement =
             (SCMBUserPropertyElement*)&(inst.base[elementStart]);
-
-        XCOUT << "SCMBUserPropertyElement get at "
-            << static_cast<void*>(pElement)
-            << " node " << node << endl;
 
         if (_equalNoCaseUTF8Strings(
             pElement->name,inst.base,name,len))

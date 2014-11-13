@@ -1,16 +1,20 @@
         Using the CIM/XML Pull Operations and FQL query Language
 
-STATUS
+Date: 12 November 2014
 
-The Pull operations and FQL query language are incorporated into
-OpenPegasus 2.14.  This readme defines the characteristics, limitations,
+STATUS 
+
+The client pull operations and FQL query language are incorporated into
+OpenPegasus 2.14. consistent and compatible with the DMTF specifications for
+the pull operations (DMTF DSP0200 v 1.4, and DMTF DSP0212 v 1.01.
+This readme defines the characteristics, limitations,
 etc. for that implementation.
 
 ===========================================
 OVERVIEW:
 
 The operation extensions for pull operations defined in the DMTF specification
-DSP0200 V 1.4 were implemented in Pegasus effective Pegasus version 2.14
+DSP0200 V 1.4 were implemented in OpenPegasus effective version 2.14
 including Client and Server.
 
 These operations extend the CIM/XML  individual operations to operation
@@ -20,18 +24,18 @@ set of instances or instance paths.
 
 The following new CIM/XML operations as defined in DSP0200 are included;
 
-    -OpenEnumerateInstances
-    -OpenEnumerateInstancePaths
-    -OpenReferenceInstances
-    -OpenReferenceInstancePaths
-    -OpenAssociatiorInstances
-    -OpenAssociatorInstancePaths
-    -OpenQueryInstances
-    -PullInstancesWithPath
-    -PullInstancePaths
-    -PullInstances
-    -CloseEnumeration
-    -EnumerationCount (deprecated by DMTF and incomplete)
+    -openEnumerateInstances
+    -openEnumerateInstancePaths
+    -openReferenceInstances
+    -openReferenceInstancePaths
+    -openAssociatiorInstances
+    -openAssociatorInstancePaths
+    -openQueryInstances
+    -pullInstancesWithPath
+    -pullInstancePaths
+    -pullInstances
+    -closeEnumeration
+    -enumerationCount (deprecated by DMTF and incomplete)
 
 Since the concept of sequences of operations linked together (open, pull, close)
 is a major extension to the original CIM/XML operation concept of completely
@@ -52,26 +56,33 @@ OPENPEGASUS CLIENT
 The new operations follow the same pattern as the APIs for existing operations
 in that:
 
-1. All errors are handled as CIMException and Exception
+1. All errors are handled as CIMException and Exception the same as the
+   original client operations.  Note, however, that there are additional
+   CIMStatusCodes for the new operations.
 
 2. The means of inputting parameters are the same except that there are
    significantly more input parameters with the open operations and for the
    first time operations return parameters as well as objects in the
    response.  Specifically the open and pull operations return values for
-   enumerationContext which is the identity for a pull sequence and
-   endOfSequence which is the marker the server sends in open and pull
-   responses when it has no more objects to send.
+   the enumerationContext argument which is the identity for a pull sequence and
+   the endOfSequence argument which is the marker the server sends in open and
+   pull responses when it has no more objects to send.
 
 The significant differences between the open... and original enumerate,
 associator, and reference operations includes:
 
 1. The new pull client operations typically require multiple client operations
-   to retrieve a complete set of data (ex. OpenEnumerateInstances and
-   PullInstancesWithPath) are equivalent to the old EnumerateInstances
-   client request.
+   to retrieve a complete set of data (ex. openEnumerateInstances and
+   pullInstancesWithPath) are equivalent to the old enumerateInstances
+   client request.  While the whole collection of responses might be returned
+   on the open if the maxObjectCount argument is set larger than the the number
+   of objects in the total response, depending on the speed of delivery of
+   objects from providers, the response might still not deliver everything
+   in the initial response.  The client code writer should always assume that
+   multiple requests will be required.
 
 2. Processing of parameters on responses (i.e. the endOfSequence and
-   enumerationContext parameters are returned for open and pull operations)
+   enumerationContext arguments are returned for open and pull operations)
    These return arguments are used to control the loop retrieving data
    for an enumeration sequence (ex. the sequence of OpenEnumerateInstances
    and PullInstancesWithPath that represents a complete enumeration
@@ -89,7 +100,7 @@ associator, and reference operations includes:
    rather than CIMObject.
 
 5. Paths are returned for the instance operations as part of the returned
-   instances (ex. OpenEnumerateInstances and PullInstancesWithPath) where
+   instances (ex. openEnumerateInstances and pullInstancesWithPath) where
    they were not with EnumerateInstances.
 
 6. The client must maintain state between operations in an enumeration
@@ -105,7 +116,7 @@ The client API is defined in the header file:
 
 OPENPEGASUS SERVER
 
-The Pegasus server attempts to always deliver at least some objects
+The OpenPegasus server attempts to always deliver at least some objects
 in a response.  It does not wait to deliver the exact number requested but
 waits to deliver at least some. The sever will wait about 15 seconds to
 deliver and if there is nothing delivered from the providers it will then
@@ -113,9 +124,9 @@ return a response with zero objects in it so that the client does not
 timeout.  This would only occur if the providers are extremely slow (i.e.
 greater than 15 seconds) in preparing response objects to be delivered.
 
-The Pegasus server always closes an enumeration sequence upon receipt of any
+The OpenPegasus server always closes an enumeration sequence upon receipt of any
 error from the providers, repository, etc. Therefore the server will reject
-any request that has continueOnError = true;
+any request that has the continueOnError argument = true;
 
 Expansion to allow the continue on error may be added in a future version.
 In any case, the whole purpose of the continue on error is really to allow
@@ -161,7 +172,7 @@ usage in the server (the delay appears as slow response to the deliver operation
 In other words, the time to process large sets of responses from the provider
 now depends on the speed of handling the client.
 
-It is important to remember in developing providers that the Pegasus server
+It is important to remember in developing providers that the OpenPegasus server
 can most efficiently process responses if they are passed from the provider
 to the server individually or in small arrays of objects rather than the
 provider gathering very large arrays of objects and sending them to the
@@ -175,9 +186,12 @@ specification DSP 0212 except for a few issues including:
 1. The regex for the LIKE operation is the same as CQL basic. It provides
    only the following special characters   "." and  "*".
 2. The implementation does not include the comparison of
-   embeddedInstances
+   embeddedInstances functionality.
 3. The implementation does not include the handling of Uint8[] as
    strings.
+4. Since the cimserver provides the filtering, it can only filter properties
+   that are returned from the providers.  Therefore all of the properties in
+   the filter MUST BE included in any property list provided with the request.
 
 For more details on the FQL implementation see the readme.txt in the
     directory pegasus/src/Pegasus/FQL.
@@ -194,21 +208,31 @@ including both good and error generating queries.
 ==================================================================
 LIMITATIONS IN OPENPEGASUS 2.14
 
-1. The openQueryInstances does not allow requesting the class on response.
+1. The openQueryInstances does not allow requesting the class on response
+   (i.e. the returnQueryResultClass argument must be false in this version).
+   Since OpenPegasus is actively proposing that this argument be deprecated
+   we will see what happens in future releases.
 
 2. The openEnumerateInstanceNames, openAssociatorNames, and openReferenceNames
-do not allow use of the query filter.  This is because
+   do not allow use of the query filter.  This is because:
    a. The intention is to deprecate these operations completely and remove
-      them in a future version
+      them in a future versionof both the specificatons and OpenPegasus.
    b. They require that the server call the providers with the corresponding
       enumerate, associators, references to get the full instances to
-      filter
+      filter and then remap this to the corresponding Names operation.
+      We propose that if the user wants just the paths, this can be achieved
+      with the instances operation with the propertylist set empty which
+      requests that the server return no properties.
 
 3. The filterQuery filtering is done by the server, not the providers in this
    version of OpenPegasus. This will be modified in a future version of
    OpenPegasus when the provider API extensions for the pull operations
    have been resolved.  Version 2.1 of the CMPI specification will resolve
-   this issue.
+   this issue.  However, this has imposed another limitation as mentioned above,
+   the properties that are part of the filter MUST BE included in any
+   propertyList in the request.  OpenPegasus does not check to be sure that
+   all properties in the filter are also in the request and would therefore
+   try to filter the response on non-existent properties.
 
 4. The input parameter continueOnError is processed correctly by the client
    but the Pegasus server only provides code for 'false' value, since the server
@@ -241,7 +265,8 @@ This parameter defines the maximum time allowed between the return of an open
 or pull response and the receipt of the next pull or a close operation before
 the server may close the enumeration.
 The specification allows the server to set a maximum interoperation time and
-refuse open requests that with requested operationTimeout greater than that time.
+refuse open requests that with requested operationTimeout greater than that
+time.
 
 2. Maximum number of objects returned in a single open or pull operation
 (pullOperationsMaxObjectCount) - The server can set a maximum limit on the
@@ -254,6 +279,13 @@ Common/Constants.h) is 10000.
 does not specify an operation timeout in the open request, the server uses
 the value defined by this runtime configuration variable.  The default
 is 30 seconds.
+
+STATISTICS
+
+The server does maintain some statistics on the pull operations and outputs
+these to the console when the server is shutdown.  In this version there
+is no way to output these statistics other than to the console and at
+shutdown.
 
 COMPILE TIME CONFIGURATION PARAMETERS
 
@@ -310,7 +342,7 @@ NOTE: The development team is trying to consolidate all such constants and
 runtime parameters in Constants.h
 
 ===================================================================
-TESTING
+TESTING PULL OPERATIONS
 
 The pull operations are tested primarily with two client programs in the
 directory Pegasus/Client/tests
@@ -346,8 +378,8 @@ TODO LIST - Post 2.14 release
    2. Minor TODOs, diagnostics, etc. still in the code. Reduced almost to
       none now.  We are leaving some in as PEGASUS_DEBUG
    3. Extension to avoid double move of objects in CIMResponseData (one
-      into enumerationContext queue and second to new cimResponseData for
-      response.  Want to avoid second move by extending Open/Pull response
+      into enumerationContext queue and second to new CIMResponseData for
+      response.  Want to avoid second move by extending open/pull response
       messages to include count and CIMResponse data to count objects out
       of queue when converting (avoids the second move). This would mean
       extending the output writers to allow the count field to be supplied
@@ -403,4 +435,9 @@ TODO LIST - Post 2.14 release
    12. Define a simpler iteration interface for the client so that
        the client does not have to directly control the open, pull, etc.
        operations.
+   13. Map properties in the FQL Filter to properties in any property list
+       provided.
+   14. Output statistical information on a regular basis rather than just
+       as server shutdown and to the log or somewhere else than just the
+       console.
 

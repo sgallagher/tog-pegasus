@@ -69,7 +69,7 @@ public:
 
     /** getElapsed - Get the elapsed time for the defined stopwatch. This
     method should only be called if it is currently stopped.
-    @return Returns the elapsed time value as a double (in milliseconds).
+    @return Returns the elapsed time value as a double (in seconds).
     */
     double getElapsed() const;
 

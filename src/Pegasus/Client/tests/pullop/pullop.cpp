@@ -252,7 +252,7 @@ Uint32Arg clientTimeoutSeconds_opt;
 CIMPropertyList propertyList_opt;
 
 /*
-    Number of times to repeat the operation.  Note that 0 means
+    Number of times to repeat the operation.  0 means
     do not repeat and is the default.
 */
 Uint32 repeat_opt = 0;
@@ -440,7 +440,7 @@ OPTIONS:\n\
                     Default \"\" which tells server no value.\n\
     -r REPEAT       Integer count of number of times to repeat pull sequence.\n\
                     This is support for stress testing. Repeats are\n\
-                    serial, not concurrent.(NOT IMPLEMENTED)\n\
+                    serial, not concurrent. 1 means execute test twice.\n\
     -R              Reverse Exit code. Useful to add error tests to\n\
                     Makefiles where we can conduct tests that expect\n\
                     exception returns. If return code is zero this option\n\
@@ -2718,8 +2718,6 @@ void parseCommandLine (int argc, char* argv [])
                 }
                 case 'r':      // set flag to repeat operation per integer
                 {
-                    cerr << "Option -r NOT IMPLEMENTED in code" << endl;
-                    exit (1);
                     try
                     {
                         getOpts [i].Value (repeat_opt);
@@ -2827,6 +2825,7 @@ void displayInputArguments()
         << "compare_opt = " << password_opt << endl
         << "sleep_opt = " << sleep_opt << endl
         << "verbose_opt = " << verbose_opt << endl
+        << "repeat_opt = " << repeat_opt << endl
         << "timeOperation_opt = " << boolToString(timeOperation_opt) << endl
         << "continueOnError_opt = " << boolToString(continueOnError_opt) << endl
         << "reverseExitCode_opt = " << boolToString(reverseExitCode_opt) << endl
@@ -2959,41 +2958,49 @@ int main(int argc, char** argv)
         nameSpace = namespace_opt;
     }
 
-    // Execute the operation defined by the operation input argument
+        // Execute the operation defined by the operation input argument
     try
     {
-        if (operation_opt == "e")
+        for (Uint32 i = 0 ; i <= repeat_opt ; i++)
         {
-            testPullEnumerateInstances(client, nameSpace, ClassName);
-        }
-        else if (operation_opt == "en")
-        {
-            testPullEnumerationInstancePaths(client, nameSpace, ClassName);
-        }
-        else if (operation_opt == "r")
-        {
-            testPullReferenceInstances(client,nameSpace, ObjectName);
-        }
-        else if (operation_opt == "rn")
-        {
-            testPullReferenceInstancePaths(client,nameSpace,ObjectName );
-        }
-        else if (operation_opt == "a")
-        {
-            testPullAssociatorInstances(client,nameSpace,ObjectName );
-        }
-        else if (operation_opt == "an")
-        {
-            testPullAssociatorInstancePaths(client,nameSpace,ObjectName );
-        }
-        else if (operation_opt == "all")
-        {
-            testAllClasses(client,nameSpace);
-        }
-        else
-        {
-            cerr << "ERROR: Invalid operation name. " << operation_opt << endl;
-            exit(1);
+            if (operation_opt == "e")
+            {
+                testPullEnumerateInstances(client, nameSpace, ClassName);
+            }
+            else if (operation_opt == "en")
+            {
+                testPullEnumerationInstancePaths(client, nameSpace, ClassName);
+            }
+            else if (operation_opt == "r")
+            {
+                testPullReferenceInstances(client,nameSpace, ObjectName);
+            }
+            else if (operation_opt == "rn")
+            {
+                testPullReferenceInstancePaths(client,nameSpace,ObjectName );
+            }
+            else if (operation_opt == "a")
+            {
+                testPullAssociatorInstances(client,nameSpace,ObjectName );
+            }
+            else if (operation_opt == "an")
+            {
+                testPullAssociatorInstancePaths(client,nameSpace,ObjectName );
+            }
+            else if (operation_opt == "all")
+            {
+                testAllClasses(client,nameSpace);
+            }
+            else
+            {
+                cerr << "ERROR: Invalid operation name. " << operation_opt
+                     << endl;
+                exit(1);
+            }
+            if (repeat_opt > 0)
+            {
+                VCOUT1 << "Repeating test time number " << i << endl;
+            }
         }
     }
     catch (CIMException& e)
@@ -3014,6 +3021,7 @@ int main(int argc, char** argv)
         }
         exitCode = 1;
     }
+
 
     // generate final output message with indication of any warnings, exitCodes
     // or warnings generated

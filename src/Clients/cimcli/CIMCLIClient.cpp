@@ -98,6 +98,34 @@ void _stopCommandTimer(Options& opts)
     }
 }
 
+double _getElapsedTime(Options& opts)
+{
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+        double rtn =  opts.elapsedTime.getElapsed();
+        opts.elapsedTime.start();
+        return rtn;
+    }
+    return 0;
+}
+
+String _getElapsedTimeFmtd(Options& opts)
+{
+    String str;
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+        double rtn =  opts.elapsedTime.getElapsed();
+        opts.elapsedTime.start();
+        str.appendPrintf("%1.2f sec", rtn);
+
+        return str;
+    }
+    return "0 sec";
+}
+
+
 /************************************************************************
 *
 *   Display functions to support the verbose display of input parameters
@@ -1214,7 +1242,8 @@ int _pullInstancesWithPath(
         {
             if (opts.verboseTest)
             {
-                cout << "Issuing closeEnumeration after "
+                cout <<_getElapsedTimeFmtd(opts)
+                    << "Issuing closeEnumeration after "
                      << instances.size() << " received because hit"
                      << " limit of " << limitSize << endl;
             }
@@ -1242,7 +1271,8 @@ int _pullInstancesWithPath(
             {
                 if (opts.verboseTest)
                 {
-                    cout << "pullInstancesWithPath. maxObj= "
+                    cout << _getElapsedTimeFmtd(opts)
+                        << "pullInstancesWithPath. maxObj= "
                          << maxPullObj << endl;
                 }
                 cimInstancesPulled =
@@ -1250,12 +1280,19 @@ int _pullInstancesWithPath(
                         enumerationContext,
                         endOfSequence,
                         maxPullObj);
+                if (opts.verboseTest)
+                {
+                    cout << _getElapsedTimeFmtd(opts)
+                        << "pullInstancesWithPath returned. "
+                        << cimInstancesPulled.size() << " instances" << endl;
+                }
             }
             else
             {
                 if (opts.verboseTest)
                 {
-                    cout << "pullInstances with path. maxObj= "
+                    cout << _getElapsedTimeFmtd(opts)
+                         << "pullInstances with path. maxObj= "
                          << maxPullObj << endl;
                 }
                 cimInstancesPulled =
@@ -1263,6 +1300,12 @@ int _pullInstancesWithPath(
                         enumerationContext,
                         endOfSequence,
                         maxPullObj);
+                if (opts.verboseTest)
+                {
+                    cout << _getElapsedTimeFmtd(opts)
+                        << "pullInstances returned. "
+                         << cimInstancesPulled.size() << " instances" << endl;
+                }
             }
 
             rtn = !_testRcvTooManyElements(maxPullObj,
@@ -1299,6 +1342,11 @@ Boolean _pullInstancePaths(
         // close the connection.
         if (limitSize && (paths.size() >= maxObjToReceive))
         {
+            if (opts.verboseTest)
+            {
+                cout << _getElapsedTimeFmtd(opts)
+                    << "pullInstancePaths close. " << endl;
+            }
             opts.client.closeEnumeration(enumerationContext);
             endOfSequence = true;
         }
@@ -1315,10 +1363,23 @@ Boolean _pullInstancePaths(
             {
                 System::sleep(opts.pullDelay);
             }
+            if (opts.verboseTest)
+            {
+                cout << _getElapsedTimeFmtd(opts) << " sec "
+                     << "pullInstancepaths. maxObj= "
+                     << maxPullObj << endl;
+            }
             Array<CIMObjectPath> pathsPulled = opts.client.pullInstancePaths(
                 enumerationContext,
                 endOfSequence,
                 maxPullObj);
+
+            if (opts.verboseTest)
+                {
+                    cout << _getElapsedTimeFmtd(opts)
+                        << "pullInstancePaths returned. "
+                         << pathsPulled.size() << " paths" << endl;
+                }
 
             rtn = !_testRcvTooManyElements(maxPullObj,
                 pathsPulled.size(), opts.verboseTest);
@@ -1390,6 +1451,11 @@ int pullEnumerateInstances(Options& opts)
     }
 
     CIMEnumerationContext enumerationContext;
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open maxObj "
+            << opts.maxObjectCount << " instances " << endl;
+    }
 
     instances = opts.client.openEnumerateInstances(
         enumerationContext,
@@ -1404,6 +1470,13 @@ int pullEnumerateInstances(Options& opts)
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open rtned "
+            << instances.size()
+            << " instances " << endl;
+    }
 
     _testRcvTooManyElements(opts.maxObjectCount,
         instances.size(), opts.verboseTest);
@@ -1464,6 +1537,12 @@ int pullEnumerateInstancePaths(Options& opts)
         }
     }
 
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open maxObj "
+            << opts.maxObjectCount << " paths " << endl;
+    }
+
     CIMEnumerationContext enumerationContext;
     paths = opts.client.openEnumerateInstancePaths( enumerationContext,
         endOfSequence,
@@ -1474,6 +1553,12 @@ int pullEnumerateInstancePaths(Options& opts)
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) <<"Open rtned " << paths.size()
+            << " paths " << endl;
+    }
 
     _testRcvTooManyElements(opts.maxObjectCount,
         paths.size(), opts.verboseTest);
@@ -1527,6 +1612,12 @@ int pullReferenceInstancePaths(Options& opts)
 
     Boolean endOfSequence = false;
 
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open maxObj "
+            << opts.maxObjectCount << " paths " << endl;
+    }
+
     CIMEnumerationContext enumerationContext;
     Array<CIMObjectPath> paths =
         opts.client.openReferenceInstancePaths( enumerationContext,
@@ -1541,6 +1632,12 @@ int pullReferenceInstancePaths(Options& opts)
                                 opts.continueOnError,
                                 opts.maxObjectCount
                                 );
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) <<"Open rtned " << paths.size()
+            << " paths " << endl;
+    }
     _testRcvTooManyElements(opts.maxObjectCount,
         paths.size(), opts.verboseTest);
 
@@ -1603,6 +1700,12 @@ int pullReferenceInstances(Options& opts)
 
     Array<CIMInstance> instances;
 
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open maxObj "
+            << opts.maxObjectCount << " instances " << endl;
+    }
+
     instances = opts.client.openReferenceInstances(
         enumerationContext,
         endOfSequence,
@@ -1617,6 +1720,12 @@ int pullReferenceInstances(Options& opts)
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) <<"Open rtned " << instances.size()
+            << " instances " << endl;
+    }
 
     _testRcvTooManyElements(opts.maxObjectCount,
         instances.size(), opts.verboseTest);
@@ -1674,21 +1783,35 @@ int pullAssociatorInstancePaths(Options& opts)
     String filterQuery;
 
     CIMEnumerationContext enumerationContext;
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open maxObj "
+            << opts.maxObjectCount << " paths " << endl;
+    }
+
     Array<CIMObjectPath> paths =
         opts.client.openAssociatorInstancePaths( enumerationContext,
-                                endOfSequence,
-                                opts.nameSpace,
-                                thisObjectPath,
-                                opts.assocClass,
-                                opts.resultClass,
-                                opts.role,
-                                opts.resultRole,
-                                filterQueryLanguage,
-                                filterQuery,
-                                opts.pullOperationTimeout,
-                                opts.continueOnError,
-                                opts.maxObjectCount
-                                );
+            endOfSequence,
+            opts.nameSpace,
+            thisObjectPath,
+            opts.assocClass,
+            opts.resultClass,
+            opts.role,
+            opts.resultRole,
+            filterQueryLanguage,
+            filterQuery,
+            opts.pullOperationTimeout,
+            opts.continueOnError,
+            opts.maxObjectCount
+            );
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd (opts) << "Open rtned " << paths.size()
+            << " paths " << endl;
+    }
+
     _testRcvTooManyElements(opts.maxObjectCount,
         paths.size(), opts.verboseTest);
 
@@ -1750,6 +1873,12 @@ int pullAssociatorInstances(Options& opts)
 
     CIMEnumerationContext enumerationContext;
 
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open maxObj "
+            << opts.maxObjectCount << " instances " << endl;
+    }
+
     Array<CIMInstance> instances;
     instances = opts.client.openAssociatorInstances(
         enumerationContext,
@@ -1767,6 +1896,12 @@ int pullAssociatorInstances(Options& opts)
         opts.pullOperationTimeout,
         opts.continueOnError,
         opts.maxObjectCount);
+
+    if (opts.verboseTest)
+    {
+        cout << _getElapsedTimeFmtd(opts) << "Open rtned " << instances.size()
+            << " instances " << endl;
+    }
 
     _testRcvTooManyElements(opts.maxObjectCount,
         instances.size(), opts.verboseTest);

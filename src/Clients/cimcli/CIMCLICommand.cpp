@@ -60,6 +60,7 @@
 #include <Clients/cimcli/CIMCLIOptions.h>
 #include <Clients/cimcli/CIMCLIOperations.h>
 #include <Clients/cimcli/CIMCLICommon.h>
+#include <Pegasus/Common/Message.h>
 
 #ifdef PEGASUS_OS_ZOS
 #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
@@ -225,10 +226,11 @@ public:
         // diagnostic function.
         // FUTURE - Should test against operation we are expecting
         if (_localVerboseTest &&
-            ((item.operationType <= 0) || item.operationType >= 24))
+            ((item.operationType <= 0) || item.operationType >
+                CIM_ENUMERATION_COUNT_REQUEST_MESSAGE))
         {
-           cerr << "Error:Operation type out of expected range in"
-                        " ClientOpPerformanceData "
+           cerr << "Error:Operation type " << item.operationType
+                << " out of expected range in ClientOpPerformanceData"
                << endl;
 
         }

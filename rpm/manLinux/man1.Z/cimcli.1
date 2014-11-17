@@ -1720,10 +1720,12 @@ Displays \fBcimcli\fR and Pegasus software Version.
 
 .TP
 .B \-v
-Verbose Display. Includes Detailed parameter Input display .
+Verbose Display. Includes Detailed parameter Input display and display of
+each operation in an enumeration sequence (open, pull, close).
 Default(false). Outputs extra information about the parameters
 actually used in the request and the return from the operation.  This
-is primarily a debugging tool.
+is primarily a debugging tool. for enumeration context it outputs information
+on each request/response in the sequence including timing information.
 
 .TP
 .B \--r [repeat_count]

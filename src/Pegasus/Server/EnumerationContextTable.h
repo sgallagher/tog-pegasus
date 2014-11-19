@@ -72,20 +72,12 @@ class EnumerationContext;
 class PEGASUS_SERVER_LINKAGE EnumerationContextTable
 {
 public:
-    /**
-        Create a new Enumeration Table Object and clear parameters.
-        Note that this is a singleton.
-        @param maxOpenContexts Uint32 sets limit on maximum number
-            of contexts that may be open simultaneously. Note that this number
-            may have effect on the Hashtable size which is also set in
-            this header file.
-
-        @param responseCacheMaximumSize Uint32 Maximum number of
-            objects in response queue before it backs up to
-            providers
+    /** Get/Create the instance of the singleton EnumerationContextTable
+       object.
+       @return EnumerateContextTable pointer to the singleton
+               Instance
     */
-    EnumerationContextTable(Uint32 maxOpenContexts,
-        Uint32 reponseCacheMaximumSize);
+    static EnumerationContextTable* getInstance();
 
     ~EnumerationContextTable();
 
@@ -130,10 +122,10 @@ public:
     */
     Uint32 size();
 
-    /** Remove any contexts that have expired inteoperation timers
+    /** Process any contexts that have expired operation timers
      *  @return returns false if the table is empty.
     */
-    bool removeExpiredContexts();
+    bool processExpiredContexts();
 
     /* Find the EnumerationContext defined by the input parameter.
        @param contextId String defining Id for the context to be located
@@ -153,8 +145,8 @@ public:
     bool valid();
 
     // KS_TEMP TODO REMOVE This diagnostic should be removed. It  validates
-    // every entry in the table. This was just a diagnostic during development
-    void tableValidate();
+    // every entry in the table. This was a diagnostic during development
+////  void tableValidate();
 
     // Diagnostic to output info on all entries in table to trace
       void trace();
@@ -164,6 +156,8 @@ public:
     void removeContextTable();
 
     void displayStatistics(bool clear = false);
+
+    String buildStatistics(bool clear = false);
 
     void setRequestSizeStatistics(Uint32 requestSize)
     {
@@ -183,11 +177,18 @@ public:
     static void setDefaultOperationTimeoutSec(Uint32 seconds);
 
 private:
+    /**
+        Create a new Enumeration Table Object and clear parameters.
+        Note that this is a singleton so this is a private
+        constructor. The only public way to create the table is the
+        static instance() method
+    */
+    EnumerationContextTable();
 
     // hide default assignment and copy constructor
     EnumerationContextTable(const EnumerationContextTable& x);
-
     EnumerationContextTable& operator=(const EnumerationContextTable&);
+
     // Scan interval timeout for timeout thread scans
     Uint32 _timeoutIntervalMsec;
 
@@ -203,6 +204,9 @@ private:
         HashFunc<String> > EnumContextTableType;
 
     EnumContextTableType _enumContextTable;
+
+    // Pointer to the created EnumerationContextTable singleton
+    static EnumerationContextTable* pInstance;
 
     Mutex _tableLock;
 
@@ -228,8 +232,6 @@ private:
 
     Uint32 _responseObjectCountHighWaterMark;
 
-
-
     // Count of enumerations Opened total since last statistics reset
     Uint64 _enumerationContextsOpened;
 
@@ -243,7 +245,10 @@ private:
     // Maximum limit on number of open contexts. Tested on each create
     Uint32 _maxOpenContextsLimit;
 
+    // KS_TODO this statistic not implemented.
     Uint64 _requestsPerEnumerationSequence;
+
+    Uint64 _totalZeroLenDelayedResponses;
 
     // Statistic to keep track of average size requested for all
     // operations.

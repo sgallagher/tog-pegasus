@@ -32,7 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
     [Version("1.0.0"), Description (" Common Class for testing "
-        "Response message stress on system with large numbers of possibly large "
+        "Response message stress on system with large numbers of possibly "
         " large instances in the response. Size and number of instances are "
         " modifiable via methods on the class. This is a class common to "
         " classed defined for particular provider APIs  ")]
@@ -61,6 +61,11 @@ class TST_ResponseStress
          "gets backed up in the provider.") ]
     Uint64 interval;
 
+    [ Description ("Delay in seconds to be inserted by provider every 150 "
+	 "instances. This allows creating some large delay in response to "
+	 "test ability to recover/ clean up from delays.") ]
+    Uint32 delay;
+
     // The following strings are used to pad instance size.
     // Making the strings that are inserted here large
     // allows the provider to create very large instances
@@ -86,16 +91,21 @@ class TST_ResponseStress
 	[IN, Description("Number of object to return before executing "
 	"CIMException defined by FailureStatusCode. If zero, ignore.")]
 	    uint64 CountToFail,
-	[IN, Description("CIMException code to return when CountToFail parameter "
-	" is non-zero.")]
-	    uint32 FailureStatusCode);
+	[IN, Description("CIMException code to return when CountToFail "
+	" parameter is non-zero.")]
+	    uint32 FailureStatusCode,
+	[IN, Description("Delay in seconds to be introduced by provider each "
+	" 150 instances returned. Allows testing delays in provider response.")]
+	    uint32 Delay
+	    );
 
     [ Description ("Method returns the current control parameters. "),
     static] Uint32 get(
         [IN ( false ), OUT] uint64 ResponseCount,
         [IN ( false ), OUT] uint64 Size,
 	[IN ( false ), OUT] uint64 CountToFail,
-	[IN ( false ), OUT] uint32 FailureStatusCode);
+	[IN ( false ), OUT] uint32 FailureStatusCode,
+	[IN ( false ), OUT] uint32 Delay);
 
     [ Description ("Reset method parameters to provider default. "),
     static] Uint32 reset();

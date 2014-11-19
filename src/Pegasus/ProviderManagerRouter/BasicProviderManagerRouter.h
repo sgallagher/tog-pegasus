@@ -69,6 +69,8 @@ public:
 
     virtual void idleTimeCleanup();
 
+    virtual void enumerationContextCleanup(const String& contextId);
+
 private:
     BasicProviderManagerRouter();
     BasicProviderManagerRouter(const BasicProviderManagerRouter&);
@@ -80,6 +82,7 @@ private:
         const String& interfaceType,
         const String& providerManagerPath,
         Boolean loadProviderManager);
+
     ProviderManager* _lookupProviderManager(const String& interfaceType);
 
     Array<ProviderManagerContainer*> _providerManagerTable;

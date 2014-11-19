@@ -67,7 +67,9 @@ MessageQueue::MessageQueue(const char* name)
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::MessageQueue()");
 
     if (!name)
+    {
         name = "";
+    }
 
     _name = new char[strlen(name) + 1];
     strcpy(_name, name);

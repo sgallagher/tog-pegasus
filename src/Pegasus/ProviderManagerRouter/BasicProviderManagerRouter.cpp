@@ -568,5 +568,9 @@ void BasicProviderManagerRouter::idleTimeCleanup()
 
     PEG_METHOD_EXIT();
 }
-
+// Does nothing today.
+void BasicProviderManagerRouter::enumerationContextCleanup(
+    const String& contextId)
+{
+}
 PEGASUS_NAMESPACE_END

@@ -61,7 +61,7 @@ public:
     OOPProviderManagerRouter(
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
-        PEGASUS_PROVIDERMODULEGROUPFAIL_CALLBACK_T 
+        PEGASUS_PROVIDERMODULEGROUPFAIL_CALLBACK_T
             providerModuleGroupFailCallback,
         PEGASUS_ASYNC_RESPONSE_CALLBACK_T asyncResponseCallback);
 
@@ -70,6 +70,8 @@ public:
     virtual Message* processMessage(Message* message);
 
     virtual void idleTimeCleanup();
+
+    virtual void enumerationContextCleanup(const String& contextId);
 
 private:
     //
@@ -108,7 +110,7 @@ private:
         const CIMInstance& providerModule,
         CIMRequestMessage* request);
 
-    /** Function creates a copy of _providerAgentTable. Do NOT inline this 
+    /** Function creates a copy of _providerAgentTable. Do NOT inline this
         method ever since it needs obtain the _providerAgentTableMutex and also
         does have to release the mutex before returning. When inlined the
         AutoMutex will not unlock.

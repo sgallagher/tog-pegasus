@@ -334,7 +334,7 @@ inline void ProviderInfoList::display()
         {
             ProviderInfo& pi = _array[i];
             cout << i << " " <<  pi.className.getString() << " "
-                 << (pi.hasProvider? "true" : "false") << endl;
+                 << boolToString(pi.hasProvider) << endl;
         }
     }
 #endif
@@ -454,7 +454,10 @@ public:
     Boolean _pullOperation;
     Boolean _enumerationFinished;
     Boolean _closeReceived;
+    // Identification of enumerationContext defined for the pull operation
+    // for which this is the operation aggregating object
     EnumerationContext* _enumerationContext;
+    String _contextId;
 
 private:
     /** Hidden (unimplemented) copy and assignment constructors */
@@ -674,7 +677,7 @@ public:
         carrried through the call to callback process. It contains
         a pointer to the OperationAggregate.
      */
-    static void _forwardForAggregationCallback(
+    static void _forwardedForAggregationCallback(
         AsyncOpNode*,
         MessageQueue*,
         void*);
@@ -686,7 +689,7 @@ public:
         @param MessageQueue*
         @param userParam Contains the request message
      */
-    static void _forwardRequestCallback(
+    static void _forwardedRequestCallback(
         AsyncOpNode*,
         MessageQueue*,
         void*);
@@ -704,18 +707,15 @@ public:
         ProviderInfoList& providerInfos,
         OperationAggregate* poA);
 
-    /*
-        Static function sets the System Pull Response Maximum object
-        count.  Used by configuration manager.
-    */
-    static void setPullOperationMaxObjectCount(Uint32 maxCount);
+//EXP_PULL_BEGIN
 
-    /*
-        Static function sets the System Pull Response Maximum timeout
-        in seconds.  Used by cimconfig.
+    /* Issue saved pull/open response immediatly even if there
+       is nothing to send. Allows the server to respond to pull operations
+       if the providers are very slow
     */
-    static void setPullOperationMaxTimeout(Uint32 seconds);
+    static void issueSavedResponse(EnumerationContext* en);
 
+//EXP_PULL_END
 protected:
 
     /** _getSubClassNames - Gets the names of all subclasses of the defined

@@ -612,6 +612,11 @@ void CIMServer::initComplete()
     _providerRegistrationManager->setInitComplete();
 }
 
+CIMServer* CIMServer::getInstance()
+{
+    return _cimserver;
+}
+
 CIMServer::~CIMServer ()
 {
     PEG_METHOD_ENTER (TRC_SERVER, "CIMServer::~CIMServer()");
@@ -765,6 +770,8 @@ void CIMServer::bind()
     PEG_METHOD_EXIT();
 }
 
+// This is the primary server runloop.  It loops until a shutdown
+// received
 void CIMServer::runForever()
 {
     // Note: Trace code in this method will be invoked frequently.
@@ -786,9 +793,11 @@ void CIMServer::runForever()
                 // clean up expired sessions
                 _httpAuthenticatorDelegator->idleTimeCleanup();
 
-                // clean up idle providers
+                // clean up idle providers. This starts separate thread
                 _providerManager->idleTimeCleanup();
+
                 MessageQueueService::get_thread_pool()->cleanupIdleThreads();
+
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
                 _wsmProcessor->cleanupExpiredContexts();
 #endif
@@ -980,7 +989,7 @@ SSLContext* CIMServer::_getSSLContext()
     static const String PROPERTY_NAME__HTTP_ENABLED =
         "enableHttpConnection";
     static const String PROPERTY_NAME__SSL_CIPHER_SUITE = "sslCipherSuite";
-    static const String PROPERTY_NAME__SSL_COMPATIBILITY = 
+    static const String PROPERTY_NAME__SSL_COMPATIBILITY =
         "sslBackwardCompatibility";
 
     String verifyClient;
@@ -1245,6 +1254,8 @@ void CIMServer::auditLogInitializeCallback()
 #endif
 }
 
+
+
 #ifdef PEGASUS_ENABLE_SLP
 
 ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm);
@@ -1277,6 +1288,7 @@ void CIMServer::startSLPProvider()
     PEG_METHOD_EXIT();
     return;
 }
+
 
 
 // startSLPProvider is a function to get the slp provider kicked off

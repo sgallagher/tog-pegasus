@@ -52,12 +52,20 @@ public:
     virtual Message* processMessage(Message* message) = 0;
 
     /**
-        Cleanup idle providers and disconnected client requests in all 
+        Cleanup idle providers and disconnected client requests in all
         active ProviderManagers.
         Note: This operation may take a long time to complete and should
         be called on a non-critical thread.
      */
     virtual void idleTimeCleanup() = 0;
+
+    /*
+        Cleanup enumerationContexts that have timed out with incomplete
+        responses from the providers.
+        @param contextId String defining the contextId to cleanup.  Note
+        that the contextId is also the request messageId.
+    */
+    virtual void enumerationContextCleanup(const String& contextId) = 0;
 
     /**
         Sets the SubscriptionInitComplete flag indicating whether the Indication

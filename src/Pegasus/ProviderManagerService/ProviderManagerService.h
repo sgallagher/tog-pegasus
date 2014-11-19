@@ -60,6 +60,8 @@ public:
 
     void idleTimeCleanup();
 
+    bool enumerationContextCleanup(const String& contextId);
+
     static void indicationCallback(CIMProcessIndicationRequestMessage* request);
     static void responseChunkCallback(
         CIMRequestMessage* request, CIMResponseMessage* response);
@@ -138,7 +140,7 @@ private:
 
     /**
         Indicates the number of threads currently attempting to cleanup idle
-        providers and clean disconnected client requests.  This value is used 
+        providers and clean disconnected client requests.  This value is used
         to prevent multiple threads from initiating cleanup the same time.
      */
     AtomicInt _idleTimeCleanupBusy;

@@ -205,6 +205,20 @@ public:
         intervals along with unloadIdleProviders
     */
     void cleanDisconnectedClientRequests();
+    /**
+        Find a pull request (internalOperation) that matches the messageId
+        provided and if found, create a response to indicate that this provider
+        is complete.  Also delete this request from the _outstandingRequestTable
+        This function is only called from the EnumerationContextTable when
+        that code concludes that a provider is "stuck" (i.e. it has not
+        returned any provider responses in a reasonable time.  Probably the
+        real case for this is where an OOP provider fails and is restarted
+        so that the provider state is lost during the execution of an
+        enumeration, assoc, etc. operation.  This differs from the original
+        non-pull operations that use the cleanDisconnectedClientRequests for
+        the same purpose.
+    */
+    void cleanClosedPullRequests(const String& messageId);
     static void setAllProvidersStopped();
     static void setSubscriptionInitComplete(Boolean value);
     void sendResponse(CIMResponseMessage *response);
@@ -1333,8 +1347,19 @@ void ProviderAgentContainer::cleanDisconnectedClientRequests()
     for (OutstandingRequestTable::Iterator i = _outstandingRequestTable.start();
         i != 0; i++)
     {
-        if(!_isClientActive(i.value()->requestMessage))
+        // Do not execute the isClientActiveTest for internalOperations
+        // these are executed on behalf of pull requests and do not
+        // have a direct connection to the client. These are cleaned up
+        // through the cleanClosedPullRequests function
+        if (i.value()->requestMessage->internalOperation)
         {
+            continue;
+        }
+        if (!_isClientActive(i.value()->requestMessage))
+        {
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                "Client Active. Send setCompleteMessage %s",
+                (const char*)i.value()->originalMessageId.getCString()));
             // create empty response and set isComplete to true.
             AutoPtr<CIMResponseMessage> response;
             SharedPtr<OutstandingRequestEntry> entry = i.value();
@@ -1345,6 +1370,64 @@ void ProviderAgentContainer::cleanDisconnectedClientRequests()
                 i.value()->requestMessage,
                 response.release());
             keys.append(i.key());
+        }
+    }
+
+    for(Uint32 j=0; j<keys.size();j++)
+    {
+         _outstandingRequestTable.remove(keys[j]);
+    }
+    PEG_METHOD_EXIT();
+}
+
+// Clean up RequestTable entries of pull requests for which the client is no
+// longer active.
+//
+void ProviderAgentContainer::cleanClosedPullRequests(const String& contextId)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderAgentContainer::cleanClosedPullRequests");
+
+    // Array to store the keys which need to be remvoed.
+    Array<String> keys;
+
+    // Any entry in this array is a request that is still outstanding and
+    // has not completed. Sending a response with the complete flag set,
+    // removes the entry from this table. This also assumes that the
+    // dispatcher status on the request is NOT closed out (operationAggregate
+    // and for pull operations enumerationContext).
+    AutoMutex tableLock(_outstandingRequestTableMutex);
+    for (OutstandingRequestTable::Iterator i = _outstandingRequestTable.start();
+        i != 0; i++)
+    {
+        // If this is a pull operation, the messageId is actually the
+        // enumeration context since that is the id inserted into the
+        // messages created in the CIMOperationRequestDispatcher.cpp
+        // If this message found, send the empty response
+        if (i.value()->requestMessage->internalOperation)
+        {
+            // the context is the original messageId for internal
+            // operation requests.
+            if (i.value()->originalMessageId == contextId)
+            {
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                    "EnumerationContext needed cleanup."
+                    " Send setCompleteMessage %s",
+                (const char*)i.value()->originalMessageId.getCString()));
+                AutoPtr<CIMResponseMessage> response;
+                SharedPtr<OutstandingRequestEntry> entry = i.value();
+                response.reset(i.value()->requestMessage->buildResponse());
+                // KS_TODO THIS NOT INTERNATIONALIZED
+                CIMException cimException(CIM_ERR_FAILED,
+                    "Provider response Timeout in OOPProviderManagerRouter");
+                response->cimException = cimException;
+                response->setComplete(true);
+                response->messageId = i.value()->originalMessageId;
+                _asyncResponseCallback(
+                    i.value()->requestMessage,
+                    response.release());
+                keys.append(i.key());
+            }
         }
     }
 
@@ -1382,7 +1465,6 @@ void ProviderAgentContainer::_processGetSCMOClassRequest(
     // writing the response to the connection
     //
     {
-
         AutoMutex lock(_agentMutex);
 
         //
@@ -1583,7 +1665,6 @@ void ProviderAgentContainer::_processResponses()
                             _outstandingRequestTable.remove(
                                 response->messageId));
                     }
-
                 }
 
                 if(foundEntry)
@@ -2218,6 +2299,31 @@ void OOPProviderManagerRouter::idleTimeCleanup()
     for (Uint32 k = 0; k < paContainerArray.size(); k++)
     {
         paContainerArray[k]->cleanDisconnectedClientRequests();
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+void OOPProviderManagerRouter::enumerationContextCleanup(
+    const String& contextId)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "OOPProviderManagerRouter::enumerationContextCleanup");
+
+    // KS_TODO since this is short-running, not sure we even need to make
+    // the copy.
+    // Get a list of the ProviderAgentContainers.  We need our own array copy
+    // to avoid holding the _providerAgentTableMutex while calling
+    //  the cleanup requests.
+    Array<ProviderAgentContainer*> paContainerArray=
+        _getProviderAgentContainerCopy();
+
+    // Iterate through the _providerAgentTable
+    // to find any entries with the defined contextId and to clean those
+    // requests up.
+    for (Uint32 k = 0; k < paContainerArray.size(); k++)
+    {
+        paContainerArray[k]->cleanClosedPullRequests(contextId);
     }
 
     PEG_METHOD_EXIT();

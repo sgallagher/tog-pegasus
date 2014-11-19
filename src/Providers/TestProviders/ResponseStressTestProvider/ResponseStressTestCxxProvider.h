@@ -107,6 +107,7 @@ private:
     Uint64 _responseCount;
     Uint64 _countToFail;
     Uint32 _failureStatusCode;
+    Uint32 _delay;
 
     CIMOMHandle _cimom;
     Boolean _continue;

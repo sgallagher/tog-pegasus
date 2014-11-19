@@ -101,6 +101,8 @@ static const char* _getServiceName(Uint32 serviceId)
     return queue ? queue->getQueueName() : "none";
 }
 
+CIMOperationRequestDispatcher* _cimOperationRequestDispatcher = NULL;
+
 /****************************************************************************
 **
 **  Implementation of OperationAggregate Class
@@ -320,12 +322,14 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     _pullOperation - Flag to indicate that this Operation Aggregate is part
     of a pull operation.
     _enumerationContext - Pointer to the Enumeration Context
-    _EnumerationContextName - Name property for this context
+    _EnumerationContextName - Id for this context Used only to confirm
+    error issues on provider responses
 */
 void OperationAggregate::setPullOperation(EnumerationContext* enContext)
 {
     _pullOperation = true;
     _enumerationContext = enContext;
+    _contextId = enContext->getContextId();
 }
 
 /*
@@ -431,6 +435,8 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
 
+    _cimOperationRequestDispatcher = this;
+
     //
     // Setup enable AssociationTraversal parameter from runtime configuration.
     // Determines whether association operations are allowed.
@@ -487,35 +493,15 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     // the maximum value for operationTimeout that will be accepted by
     // Pegasus. Anything larger than this will be rejected with the
     // error CIM_ERR_INVALID_OPERATION_TIMEOUT.
-    // This is the time limit in seconds between the completion of one
-    // operation of an enumeration sequence and the  recipt of the next request.
-    // The server must maintain the context for at least the time defined in
-    // this value.
     _pullOperationMaxTimeout = ConfigManager::parseUint32Value(
         configManager->getCurrentValue("pullOperationsMaxTimeout"));
 
-    // Define the maximum size for the response cache in each
-    // enumerationContext.  As responses are returned from providers this is the
-    // maximum number that can be placed in the CIMResponseData cache waiting
-    // for pull operations to send them as responses before responses
-    // start backing up to the providers (i.e. delaying return from the provider
-    // deliver calls.
-    // FUTURE: As we develop more flexible resource management this value should
-    // be modified for each context creation in terms of the object sizes
-    // expected and the memory usage of the CIMServer.  Thus, it would be
-    // logical to allow caching many more path responses than instance
-    // responses because they are probably much smaller.
-    // This variable is not externalized because we are not sure
-    // if that is logical.
-#define PEGASUS_PULL_RESPONSE_CACHE_DEFAULT_MAX_SIZE 1000
-
-    Uint32 responseCacheDefaultMaximumSize =
-        PEGASUS_PULL_RESPONSE_CACHE_DEFAULT_MAX_SIZE;
-
-    // Define  variable that controls whether we allow 0 as a pull
+    // Define  variable that controls whether pegasus allows 0 as a pull
     // interoperation timeout value.  Since the behavior for a zero value is
     // that the server maintains no timer for the context, it may be the
     // decision of most implementors to not allow this value.
+    // NOTE: Generally this should NEVER be used as it allows the client
+    // to open enumerations that will NEVER be closed.
 
 #define PEGASUS_PULL_OPERATION_REJECT_ZERO_TIMEOUT_VALUE
 #ifdef PEGASUS_PULL_OPERATION_REJECT_ZERO_TIMEOUT_VALUE
@@ -525,19 +511,9 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     _rejectZeroOperationTimeoutValue = false;
 #endif
 
-// Define the table instance that will contain enumeration contexts for Open,
-// Pull, Close, and countEnumeration operations.  The default interoperation
-// timeout and max cache size are set as part of creating the table.
-//
-// TODO FUTURE: There are several system parameters here that should be
-// set globally.  We need somewhere common to be able to define this and
-// while it could be the config, it could also be a systemLimits file or
-// something common.
-#define OpenEnumerateContextsMaxLimit 128
-
-    _enumerationContextTable = new EnumerationContextTable(
-        OpenEnumerateContextsMaxLimit,
-        responseCacheDefaultMaximumSize);
+    // Create the EnumerationContextTable and get pointer to the
+    // created Instance
+    _enumerationContextTable = EnumerationContextTable::getInstance();
 //EXP_PULL_END
 
     //
@@ -955,10 +931,45 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         // directly queue.
         if (poA->_pullOperation)
         {
-            // pull operation. Put CIMResponseData into Enum Context unless
-            // enum context closed.
-
+            // pull operation. get and validate the enumerationContext
             EnumerationContext* en = poA->_enumerationContext;
+            if (!en->valid())
+            {
+                EnumerationContext *en = _enumerationContextTable->find(
+                    poA->_contextId);
+
+                if (en == 0)
+                {
+                    // Did not find one means that the enumcontext cleaned up
+                    // before provider responded. Just issue discard trace
+                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Provider Response for non-Existent EnumerationContext"
+                        " %s providers. Response Discarded",
+                        (const char *)poA->_contextId.getCString() ));
+                    // KS_TODO should we discard the response here and what
+                    // about the poA. Not really sure but it is a very rare
+                    // condition, probably when we have closed enum before
+                    // providers complete. Probably only if providers delay
+                    // several minutes before response.
+                }
+                // If we found one but it is invalid, we have a system error
+                else
+                {
+                    PEGASUS_ASSERT(false);
+                    // Concluded that an invalid enum on response is really
+                    // a system error and should cause failure.  We may want
+                    // to rethink that in the future
+////                  PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+////                      "Provider Response for invalid EnumerationContext %s"
+////                      "providers. System Error",
+////                      (const char *)poA->_contextId.getCString() ));
+
+                }
+                // return true, just discards everything.
+                return true;
+            }
+            // When provider response receved, clear this counter.
+            en->clearConsecutiveZeroLenObjectResponseCounter();
 
             // If this is an exception set the error in EnumerationContext
             if (response->cimException.getCode())
@@ -975,6 +986,7 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
 
             en->lockContext();
 
+            // putCache returns true if client not closed
             if (en->putCache(response, isComplete))
             {
                 // if there are responses and there is a
@@ -983,10 +995,10 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                 // be sent.
                 if (en->_savedRequest != NULL)
                 {
-                    // If there are responses or error to send, recover them
-                    if ( ((en->testCacheForResponses(
+                    // If there are responses or error to send, send response
+                    if ( (en->testCacheForResponses(
                         en->_savedOperationMaxObjectCount,
-                        requireCompleteResponses))) )
+                        requireCompleteResponses)) )
                     {
                         // Issue response. This may mark context closed.
                         _issueImmediateOpenOrPullResponseMessage(
@@ -1839,7 +1851,7 @@ ProviderIdContainer* CIMOperationRequestDispatcher::_updateProviderContainer(
 /*  Dispatcher callback for response aggregation
     The userParameter contains the OperationAggregate for this operation
 */
-void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
+void CIMOperationRequestDispatcher::_forwardedForAggregationCallback(
     AsyncOpNode* op,
     MessageQueue* q,
     void* userParameter)
@@ -1908,6 +1920,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
         PEGASUS_DEBUG_ASSERT(poA->_enumerationContext);
     }
 
+    // Call the response handler for aggregating responses
     Boolean entireResponseIsComplete = service->_enqueueResponse(poA, response);
 
     if (entireResponseIsComplete)
@@ -1930,13 +1943,13 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
 /*  Dispatcher Callback function for nonAggregation calls.
     The userParameter contains the request message for this operation
 */
-void CIMOperationRequestDispatcher::_forwardRequestCallback(
+void CIMOperationRequestDispatcher::_forwardedRequestCallback(
     AsyncOpNode* op,
     MessageQueue* q,
     void* userParameter)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardRequestCallback");
+        "CIMOperationRequestDispatcher::_forwardedRequestCallback");
 
     CIMOperationRequestDispatcher* service =
         static_cast<CIMOperationRequestDispatcher*>(q);
@@ -2020,6 +2033,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
 
     PEGASUS_ASSERT(serviceId);
 
+    // create an AsyncOpNode
     AsyncOpNode* op = this->get_op();
 
     // if a response is provided, execute only the asynchronous callback,
@@ -2074,7 +2088,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     SendAsync(
         op,
         serviceId,
-        CIMOperationRequestDispatcher::_forwardForAggregationCallback,
+        CIMOperationRequestDispatcher::_forwardedForAggregationCallback,
         this,
         poA);
 
@@ -2129,7 +2143,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToSingleProvider(
             request);
     }
     // Forward the request asynchronously with call back to
-    // _forwardRequestCallback()
+    // _forwardedRequestCallback()
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "Forwarding %s on class %s to service %s, control provider %s. "
         "Response to queue %s.",
@@ -2144,7 +2158,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToSingleProvider(
     SendAsync(
        op,
        providerInfo.serviceId,
-       CIMOperationRequestDispatcher::_forwardRequestCallback,
+       CIMOperationRequestDispatcher::_forwardedRequestCallback,
        this,
        requestCopy);
 
@@ -3545,8 +3559,9 @@ bool CIMOperationRequestDispatcher::processPullRequest(
             return true;
         }
 
-        // Set active and stop interOperation timer
+        // Set active state and stop state timer.
         en->setProcessingState(true);
+        // this also removes lock
     }
 
     // Test limit of the maxObjectCount consecutive zero counter
@@ -3570,10 +3585,9 @@ bool CIMOperationRequestDispatcher::processPullRequest(
 
         en->setErrorState(cimException);
     }
-
     // KS_TODO determine if this is worthwhile trace
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "%s get from cache. isComplete: %s cacheSize: %u errorState: %s",
+        "%s get from cache. isComplete=%s cacheSize:=%u errorState=%s",
        requestName,
         boolToString(en->providersComplete()),
         en->responseCacheSize(),
@@ -3638,7 +3652,7 @@ bool CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage(
         if (en->isClientClosed() && en->providersComplete())
         {
             // en may be deleted in this call. Do not use
-            // after this call
+            // after this call. This call does the unlock.
             _enumerationContextTable->releaseContext(en);
         }
         else
@@ -3648,12 +3662,18 @@ bool CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage(
     }
     else
     {
-        // Set up to issue upon provider response. Request passed
+        PEGASUS_DEBUG_ASSERT(en->isProcessing());
+        // Set up to issue upon provider response or timeout. Request passed
         // to the delay variable so mark to not release.
         en->saveNextResponse(
             openRequest,
             openResponse,
             operationMaxObjectCount);
+
+        // Start the waiting timeout for this delayed response
+        // at end of this timer, it will send empty response.
+        en->startTimer(PEGASUS_PULL_MAX_OPERATION_WAIT_SEC * 1000);
+
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
             "EnumerationContextLock unlock %s",  // KS_TODO DELETE
                    CSTRING(en->getContextId()) ));
@@ -3663,8 +3683,6 @@ bool CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage(
     PEG_METHOD_EXIT();
     return releaseRequest;
 }
-
-// EXP_PULL_END
 
 /**************************************************************************
 **
@@ -3694,7 +3712,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
         "CIMOperationRequestDispatcher::"
             "_issueImmediateOpenOrPullResponseMessage");
 
-    PEGASUS_ASSERT(en->valid());
+    PEGASUS_DEBUG_ASSERT(en->valid());
 
     AutoPtr<CIMOpenOrPullResponseDataMessage> responseDestroyer(response);
 
@@ -3712,6 +3730,7 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     CIMResponseData & to = response->getResponseData();
 
     // Returns false if error flag set.
+    // Determine if this response is data or error
     Boolean errorFound = !en->getCache(operationMaxObjectCount, to);
 
     if (errorFound)
@@ -3744,12 +3763,60 @@ void CIMOperationRequestDispatcher::_issueImmediateOpenOrPullResponseMessage(
     {
         response->enumerationContext = en->getContextId();
     }
-
     _enqueueResponse(request, responseDestroyer.release());
 
     PEG_METHOD_EXIT();
 }
 
+// Issue saved response. Used to send empty responses when an active
+// enumerationContext times out.  This allows continuing operation when
+// providers are not returning responses in a timely manner and eliminates
+// client timeouts. NOTE: Generally, this only occurs when providers are VERY
+// slow returning responses so that the client should probably delay before
+// the next request.
+// Returns true if a response was generated, false if not. The only reason for
+// a response not to have been generated is if none are waiting.
+// This should be an impossible condition.
+// It is expected that any the context is locked external to this function
+// KS_TODO make this common function for all cases were we issue the
+// saved request.
+
+void CIMOperationRequestDispatcher::issueSavedResponse(EnumerationContext* en)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::issueSavedResponse");
+
+    PEGASUS_DEBUG_ASSERT(en->valid());
+
+    PEGASUS_DEBUG_ASSERT(en->isProcessing());  // assert of en  is active
+
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "issueSavedResponse for ContextId=%s", CSTRING(en->getContextId()) ));
+
+    if (en->_savedRequest != NULL)
+    {
+        // Force a response to be sent.  This allows sending a response
+        // when there are no responses in the cache.
+        _cimOperationRequestDispatcher->
+            _issueImmediateOpenOrPullResponseMessage(
+                en->_savedRequest,
+                en->_savedResponse,
+                en,
+                0);
+
+        // Delete the request; it was allocated for
+        // this delayed response.
+        delete en->_savedRequest;
+
+        // clear the saved request to indicate it was used
+        en->_savedRequest = NULL;
+        en->_savedResponse = NULL;
+        en->_savedOperationMaxObjectCount = 0;
+    }
+    PEG_METHOD_EXIT();
+}
+
+// EXP_PULL_END
 /*
    Common processing for ExecQuery and OpenQueryInstances requests
   This code gets the provider lists and issues the requests.
@@ -3814,6 +3881,7 @@ bool CIMOperationRequestDispatcher::handleQueryRequestCommon(
     if (isPullOperation)
     {
         poA->setPullOperation(enumerationContext);
+        enumerationContext->_poA = (void*)poA;
     }
 
     // Build enum request for call to repository
@@ -5809,10 +5877,14 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // activate providers.
     // NOTE: includeQualifiers NOT part of Pull operation so force to
     // false
+    // The messageID is set to the enumerationContext contextID to
+    // allow the ProviderAgentContainer to identify messages associated
+    // with a particular enumerationSequence when called by the
+    // idleTimeCleanup functions.
 
     CIMEnumerateInstancesRequestMessage* internalRequest =
         new CIMEnumerateInstancesRequestMessage(
-            request->messageId,
+            enumerationContext->getContextId(),
             request->nameSpace,
             request->className,
             request->deepInheritance,
@@ -5846,6 +5918,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
+    enumerationContext->_poA = (void*)poA;
 
 #ifdef PEGASUS_ENABLE_FQL
     if (filterResponse)
@@ -5999,7 +6072,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
 
     CIMEnumerateInstanceNamesRequestMessage* internalRequest =
         new CIMEnumerateInstanceNamesRequestMessage(
-            request->messageId,
+            enumerationContext->getContextId(),
             request->nameSpace,
             request->className,
             request->queueIds,
@@ -6032,6 +6105,7 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     // in responses
     //
     poA->setPullOperation(enumerationContext);
+    enumerationContext->_poA = (void*)poA;
 
     // gather up the repository responses and send it to out as one response
     // with many instances
@@ -6322,7 +6396,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
 
     CIMReferencesRequestMessage* internalRequest =
         new CIMReferencesRequestMessage(
-            request->messageId,
+            enumerationContext->getContextId(),
             request->nameSpace,
             request->objectName,
             request->resultClass,
@@ -6357,6 +6431,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // since operationAggregate is what is  returned from providers.
     //
     poA->setPullOperation(enumerationContext);
+    enumerationContext->_poA = (void*)poA;
 
 #ifdef PEGASUS_ENABLE_FQL
     if (filterResponse)
@@ -6560,7 +6635,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
 
     CIMReferenceNamesRequestMessage* internalRequest =
         new CIMReferenceNamesRequestMessage(
-            request->messageId,
+            enumerationContext->getContextId(),
             request->nameSpace,
             request->objectName,
             request->resultClass,
@@ -6593,6 +6668,7 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
+    enumerationContext->_poA = (void*)poA;
 
     // If any return from repository, send it to aggregator.
     // Send repository response for aggregation
@@ -6881,7 +6957,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
 
     CIMAssociatorsRequestMessage* internalRequest =
         new CIMAssociatorsRequestMessage(
-            request->messageId,
+            enumerationContext->getContextId(),
             request->nameSpace,
             request->objectName,
             request->assocClass,
@@ -6919,6 +6995,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
+    enumerationContext->_poA = (void*)poA;
 
 #ifdef PEGASUS_ENABLE_FQL
     if (filterResponse)
@@ -7148,7 +7225,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
 
     CIMAssociatorNamesRequestMessage* internalRequest =
         new CIMAssociatorNamesRequestMessage(
-            request->messageId,
+            enumerationContext->getContextId(),
             request->nameSpace,
             request->objectName,
             request->assocClass,
@@ -7181,6 +7258,7 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
+    enumerationContext->_poA = (void*)poA;
 
     // If any return from repository, send it to aggregator.
     if (objectNames.size() != 0)
@@ -7306,7 +7384,7 @@ bool CIMOperationRequestDispatcher::handleOpenQueryInstancesRequest(
     // Create the corresponding CIMExecQueryRequestMessage
     CIMExecQueryRequestMessage* internalRequest =
         new CIMExecQueryRequestMessage(
-            request->messageId,
+            en->getContextId(),
             request->nameSpace,
             request->queryLanguage,
             request->query,
@@ -8449,7 +8527,6 @@ Boolean CIMOperationRequestDispatcher::_forwardEnumerationToProvider(
     // normal response but lets rest of operation continue.
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        //// TODO we are building from a generic, not a specific type.
         CIMResponseMessage* response = request->buildResponse();
         response->cimException = checkClassException;
         _forwardResponseForAggregation(request,  poA, response);

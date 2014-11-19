@@ -36,6 +36,8 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/CIMType.h>
 
 #include "ResponseStressTestCxxProvider.h"
 
@@ -48,6 +50,9 @@ String pattern = "abcdefghighjklmnopqrstuvwxyz01234567890";
 // Name of class used by this provider
 CIMName TestClass = "TST_ResponseStressTestCxx";
 
+// Count of instances to be delivered before executing a delay defined by
+// the _delay parameter. Ignored if _delay = 0.
+#define INSTANCE_FOR_DELAY_COUNT 150
 //
 //  Local Methods
 //
@@ -69,7 +74,6 @@ String _buildString(Uint64 size, const String& pattern)
 */
 CIMObjectPath _buildPath(Uint64 sequenceNumber)
 {
-
     Array<CIMKeyBinding> keyBindings;
 
     char namebuf[60];
@@ -90,7 +94,6 @@ CIMInstance _buildInstance(Uint64 sequenceNumber,
                            Uint64 instanceSize, Uint64 timeDiff,
                            const CIMPropertyList& propertyList)
 {
-
     CIMInstance instance(TestClass);
 
     char namebuf[60];
@@ -109,7 +112,7 @@ CIMInstance _buildInstance(Uint64 sequenceNumber,
 
     // filter out unwanted properties. Would be cheaper to not add
     // the unwanted properties
-    //// KS_TODO instance.instanceFilter(true, true, propertyList);
+    // instance.instanceFilter(true, true, propertyList);
 
     return(instance);
 }
@@ -129,12 +132,14 @@ ResponseStressTestCxxProvider::~ResponseStressTestCxxProvider()
 // Reset all of the behavior parameters to a defined default.
 void ResponseStressTestCxxProvider::resetParameters()
 {
-        // set default  instance size and response count
+    // set default  configuration parameters.  These may be reset by
+    // the set method
     _responseCount = 5;
     _instanceSize = 100;
     _continue = true;
     _countToFail = 0;
     _failureStatusCode = 0;
+    _delay = 0;
 }
 void ResponseStressTestCxxProvider::initialize(CIMOMHandle& cimom)
 {
@@ -142,7 +147,6 @@ void ResponseStressTestCxxProvider::initialize(CIMOMHandle& cimom)
     _cimom = cimom;
 
     resetParameters();
-
 }
 
 void ResponseStressTestCxxProvider::terminate()
@@ -226,6 +230,15 @@ void ResponseStressTestCxxProvider::enumerateInstances(
                                             "Reached failure count");
             }
         }
+        // If _delay parameter not equal zero, execute a delay at regular
+        // interval defined by INSTANCE_FOR_DELAY_COUNT
+        if (_delay != 0 && i > 0)
+        {
+            if ((i % INSTANCE_FOR_DELAY_COUNT) == 0)
+            {
+                System::sleep(_delay);
+            }
+        }
     }
 
     handler.complete();
@@ -258,6 +271,15 @@ void ResponseStressTestCxxProvider::enumerateInstanceNames(
             {
                 throw CIMException((CIMStatusCode)_failureStatusCode,
                     "Reached failure count Limit");
+            }
+        }
+        // If _delay parameter not equal zero, execute a delay at regular
+        // interval defined by INSTANCE_FOR_DELAY_COUNT
+        if ((_delay != 0) && (i > 0))
+        {
+            if ((i % INSTANCE_FOR_DELAY_COUNT) == 0)
+            {
+                System::sleep(_delay);
             }
         }
     }
@@ -350,6 +372,12 @@ void ResponseStressTestCxxProvider::invokeMethod(
                     v.get(failureStatusCode);
                     _failureStatusCode = failureStatusCode;
                 }
+                else if(paramName =="Delay")
+                {
+                    Uint32 delay;
+                    v.get(delay);
+                    _delay = delay;
+                }
                 else
                 {
                     rtnCode = 1;
@@ -370,7 +398,7 @@ void ResponseStressTestCxxProvider::invokeMethod(
                                            (Uint64)_countToFail));
             OutParams.append(CIMParamValue("FailureStatusCode",
                                            (Uint32)_failureStatusCode));
-
+            OutParams.append(CIMParamValue("Delay", _delay));
             handler.deliverParamValue(OutParams);
             handler.deliver(Uint32(0));
         }

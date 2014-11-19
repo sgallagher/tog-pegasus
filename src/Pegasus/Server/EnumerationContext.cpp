@@ -68,7 +68,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _nameSpace(nameSpace),
     _operationTimeoutSec(interOperationTimeoutValue),
     _continueOnError(continueOnError),
-    _interOperationTimerUsec(0),
+    _operationTimerUsec(0),
     _pullRequestType(pullRequestType),
     _clientClosed(false),
     _providersComplete(false),
@@ -80,13 +80,16 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _maxWaitTimeUsec(0),
     _pullOperationCounter(0),
     _consecutiveZeroLenMaxObjectRequestCounter(0),
+    _consecutiveZeroLenObjectResponseCounter(0),
     _responseCacheMaximumSize(0),
     _requestCount(1),
     _responseObjectsCount(0),
     _requestedResponseObjectsCount(0),
-    _cacheHighWaterMark(0)
+    _totalZeroLenObjectResponseCounter(0),
+    _cacheHighWaterMark(0),
+    _poA(0)
 {
-    _responseCache.valid();             // KS_TEMP
+    PEGASUS_DEBUG_ASSERT(_responseCache.valid());
 
     // set start time for this enumeration sequence
     _startTimeUsec = System::getCurrentTimeUsec();
@@ -129,43 +132,53 @@ void EnumerationContext::startTimer()
     // Request operation timeout = 0 means do not start timer
     if (_operationTimeoutSec != 0)
     {
-        Uint64 currentTime = System::getCurrentTimeUsec();
+        startTimer(_operationTimeoutSec * 1000000);
+    }
+    PEG_METHOD_EXIT();
+}
 
-        _interOperationTimerUsec =  currentTime +
-            (_operationTimeoutSec * 1000000);
+void EnumerationContext::startTimer(Uint64 timeoutUsec)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::startTimer");
 
-        _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
+    PEGASUS_DEBUG_ASSERT(valid());
+
+    Uint64 currentTime = System::getCurrentTimeUsec();
+
+    _operationTimerUsec =  currentTime + timeoutUsec;
+
+    _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "StartTimer, ContextId=%s,"
-               " OperationTimeout=%u sec,"
-               " next timeout in %ld sec,",
-           (const char*)getContextId().getCString(),
-           _operationTimeoutSec,
-           (long signed int)
-           (_interOperationTimerUsec - currentTime)/1000000 ));
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "StartTimer, ContextId=%s, This timeoutTime(sec)=%llu"
+           " OperationTimeout=%u sec,"
+           " next timeout in %ld sec,",
+       (const char*)getContextId().getCString(),
+       (timeoutUsec / 1000000),
+       _operationTimeoutSec,
+       (long signed int)(_operationTimerUsec - currentTime)/1000000 ));
 #endif
-    }
     PEG_METHOD_EXIT();
 }
 
 void EnumerationContext::stopTimer()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::stopTimer");
+
     PEGASUS_DEBUG_ASSERT(valid());
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "StopTimer, ContextId=%s,"
-           " OperationTimeout= %u sec,"
-           " next timeout in %ld sec,",
+           " OperationTimeout=%u sec,"
+           " opttime - curtime=%ld sec,",
        (const char*)getContextId().getCString(),
        _operationTimeoutSec,
-       (long signed int)(_interOperationTimerUsec -
+       (long signed int)(_operationTimerUsec -
            System::getCurrentTimeUsec())/1000000 ));
 #endif
-    _interOperationTimerUsec = 0;
+    _operationTimerUsec = 0;
     PEG_METHOD_EXIT();
 }
 
@@ -179,27 +192,27 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
 {
     PEGASUS_DEBUG_ASSERT(valid());
 
-    if (_interOperationTimerUsec == 0)
+    if (_operationTimerUsec == 0)
     {
             return false;
     }
 
-    bool timedOut = (_interOperationTimerUsec < currentTime)? true : false;
+    bool timedOut = (_operationTimerUsec < currentTime)? true : false;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "Context Timer. ContextId= %s timer(sec)= %lu"
-           " current(sec)= %lu diff(sec)= %ld isTimedOut= %s",
+        "isTimedOut Timer. ContextId=%s timer(sec)=%lu"
+           " current(sec)=%lu time to timeout(sec)=%ld isTimedOut=%s",
         (const char*)_contextId.getCString(),
-        (long unsigned int)((_interOperationTimerUsec / 1000000)),
-        (long unsigned int)currentTime / 1000000,
-        (long signed int)(_interOperationTimerUsec - currentTime) / 1000000,
+        (long unsigned int)(_operationTimerUsec / 1000000),
+        (long unsigned int)(currentTime / 1000000),
+        (long signed int)((_operationTimerUsec - currentTime) / 1000000),
         boolToString(timedOut) ));
 #endif
-    // If it is timed out, set it inactive.
+    // If it is timed out, set timer inactive.
     if (timedOut)
     {
-        _interOperationTimerUsec = 0;
+        _operationTimerUsec = 0;
     }
     return(timedOut);
 }
@@ -225,7 +238,7 @@ void EnumerationContext::setErrorState(CIMException x)
     _error = true;
 }
 
-//// KS_FUTURE consider removing or making DEBUG compile only
+//// KS_FUTURE make DEBUG compile only
 // Diagnostic display of data in the enumeration context object
 void EnumerationContext::trace()
 {
@@ -236,6 +249,7 @@ void EnumerationContext::trace()
         "operationTimer=%lu sec "
         "continueOnError=%s "
         "pullMsgType=%s "
+        "processingState=%s"
         "providersComplete=%s "
         "closed=%s "
         "timeOpen=%lu millisec "
@@ -245,12 +259,14 @@ void EnumerationContext::trace()
         "ResponseObjectCount=%u "
         "totalWaitTimeUsec=%llu"
         "maxWaitTimeUsec=%llu"
-        "RequestedResponseObjectCount=%u",
+        "RequestedResponseObjectCount=%u"
+        "totalZeroLenObjectResponseCounter=%u",
         (const char *)_contextId.getCString(),
         _operationTimeoutSec,
-        (long unsigned int)_interOperationTimerUsec,
+        (long unsigned int)_operationTimerUsec,
         boolToString(_continueOnError),
         MessageTypeToString(_pullRequestType),
+        processingState(),
         boolToString(_providersComplete),
         boolToString(_clientClosed),
         (long unsigned int)
@@ -261,7 +277,8 @@ void EnumerationContext::trace()
         _responseObjectsCount,
         _totalWaitTimeUsec,
         _maxWaitTimeUsec,
-        _requestedResponseObjectsCount ));
+        _requestedResponseObjectsCount,
+        _totalZeroLenObjectResponseCounter ));
 }
 
 /**
@@ -316,8 +333,8 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "putCache, ContextId=%s  isComplete= %s ResponseDataType= %u "
-            " cache size= %u put size= %u clientClosed= %s",
+        "putCache, ContextId=%s  isComplete=%s ResponseDataType=%u "
+            " cache size=%u put size=%u clientClosed=%s",
         (const char*)getContextId().getCString(),
         boolToString(providersComplete),
         _responseCache.getResponseDataContent(),
@@ -351,6 +368,7 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
     }
 
     // Return true indicating that input added to cache and cache is still open
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -613,6 +631,13 @@ void EnumerationContext::setClientClosed()
     }
 }
 
+const char* EnumerationContext::processingState()
+{
+    static const char * active = "active";
+    static const char * inactive = "inactive";
+    return (_processing? active: inactive);
+}
+
 /*
     Set the processing state. Processing is true if the Dispatcher is
     actively handling a request. The dispatcher sets processing = true
@@ -622,7 +647,7 @@ void EnumerationContext::setProcessingState(bool state)
 {
     // Diagnostic to confirm we are changing state
     PEGASUS_DEBUG_ASSERT(valid());
-    PEGASUS_DEBUG_ASSERT(_processing != state);
+    PEGASUS_DEBUG_ASSERT(_processing != state); // not setting to same state
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,

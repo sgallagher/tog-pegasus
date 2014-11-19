@@ -214,14 +214,36 @@
 /*
  * Pull Operation constants.  These constants define the
  * limits for each of the defined configuration variables that may
- * be set by the configuration manager.
+ * be set by the configuration manager as well as compile time
+ * constants
 */
+//
+//  Runtime pull operation config pull configuration parameter limits
+//
 #define PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC 30
 #define PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC_STRING "30"
 #define PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC 90
 #define PEGASUS_PULL_OPERATION_MAX_TIMEOUT_SEC_STRING "90"
 #define PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT 10000
 #define PEGASUS_PULL_OPERATION_MAX_OBJECT_COUNT_STRING "10000"
+
+//
+// Constants that are NOT part of runtime configuration
+//
+// Maximum time server will wait in seconds after receiving a pull before
+// returning zero objects.
+#define PEGASUS_PULL_MAX_OPERATION_WAIT_SEC 15
+// Number of times dispatcher will send the zero length keep alive
+// response (because providers not responding) before it concludes
+// there was an error and tries to send msg to provider manager to clean up
+#define PEGASUS_MAX_CONSECUTIVE_WAITS_BEFORE_ERR 6
+
+// Number of times dispatcher will send the zero length keep alive
+// response (because providers not responding) before it concludes
+// there was an error closes the enumerationContext
+// This should be greater than PEGASUS_MAX_CONSECUTIVE_WAITS_BEFORE_ERR
+// to allow an attempt at cleanup before the enumeration is failed.
+#define PEGASUS_MAX_CONSECUTIVE_WAITS_BEFORE_FAIL 16
 /*
  * Wbem service names
  */

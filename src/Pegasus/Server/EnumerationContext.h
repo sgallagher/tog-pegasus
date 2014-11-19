@@ -173,9 +173,14 @@ public:
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    /** Start the interOperation timer for this context
+    /** Start the interOperation timer for this context. Uses the
+     *  interoperation timeout value as basis for setting timeout
+     *  // KS_TODO Should these be private?? start and stop timer
     */
     void startTimer();
+
+    /* Start timer with the defined timeout*/
+    void startTimer(Uint64 timeoutUsec);
 
     /** Stop the interOperation timer for this context
     */
@@ -349,6 +354,8 @@ public:
      */
     void setProcessingState(bool state);
 
+    const char* processingState();
+
     /**
         Test if the provider processing is complete.
         @return true if provider processing is complete.
@@ -358,7 +365,7 @@ public:
     /**
         Called by the Dispatcher Client operation when the
         processing of a Request is complete, this function
-        determines sets the next state for the operation,
+        sets the next state for the operation,
         either back to wait for the next operation or complete.
          @param errorFound bool indicating that an error was
          encountered which, if continueOnError = false, forces
@@ -429,6 +436,21 @@ public:
     // context
     EnumerationContextTable* _enumerationContextTable;
 
+    // If nonNull, this is pointer to the OperationAggregate for this
+    // enumeration sequence (i.e. the provider side control info for
+    // the dispatcher
+    // KS_TODO probably not needed any more.
+    void* _poA;
+
+    /**
+        Increment and return the zeroLenObjectResponseCounter which is a
+        counter of the number of zero-len responses sent to the client
+        consecetivily.  The counter is cleared each time a response is
+        recevied from a provider
+    */
+    Uint32 incConsecutiveZeroLenObjectResponseCounter();
+    void clearConsecutiveZeroLenObjectResponseCounter();
+
 private:
     // Default constructor not used
     EnumerationContext();
@@ -452,9 +474,11 @@ private:
     // ContinueOnError request flag.Set by open...
     Boolean _continueOnError;
 
-    // Timeout absolute time value microseconds) for interoperation timeout.
-    // 0 indicates  timer not active.
-    Uint64 _interOperationTimerUsec;
+    // Timeout absolute time value microseconds) for operation timeout.
+    // 0 indicates  timer not active. Used to time both interoperation
+    // timeouts (not processing) and timeouts when enumerationContext is
+    // active (There is a response waiting).
+    Uint64 _operationTimerUsec;
 
     // Request Type for pull operations for this pull sequence.
     // Set by open. All pulls must match this type.
@@ -506,6 +530,14 @@ private:
     // operations.
     Uint32 _consecutiveZeroLenMaxObjectRequestCounter;
 
+    // Counter of consecutive zero length  client responses sent by the
+    // dispatcher. Used to  limit condition where providers never close
+    // When this reaches a defined limit, a message is sent to the
+    // OOPProviderAgent to close out the defined enumerationContext and
+    // eventually the enumeration Context is just closed as a error.
+    Uint32 _consecutiveZeroLenObjectResponseCounter;
+
+
     // Maximum number of objects that can be placed in the response Cache
     // before blocking providers.
     Uint32 _responseCacheMaximumSize;
@@ -515,6 +547,12 @@ private:
     // Number of objects returned and sum of all request counts
     Uint32 _responseObjectsCount;
     Uint32 _requestedResponseObjectsCount;
+    // Counts all zero len responses sent from this provider.  This is
+    // for statistics. This is, in effect the number of times during
+    // this enumeation that the providers responded so late that we
+    // sent a zero response.  Indicator of provider overload or a really
+    // bad provider somewhere.
+    Uint32 _totalZeroLenObjectResponseCounter;
 
     // Enumeration startTime in microseconds
     Uint64 _startTimeUsec;
@@ -524,7 +562,9 @@ private:
     Magic<0x57D11474> _magic;
 };
 
-// Inline functions
+/******************************************************
+   Inline functions
+******************************************************/
 inline  CIMNamespaceName& EnumerationContext::getNamespace()
 {
     return _nameSpace;
@@ -585,6 +625,16 @@ inline void EnumerationContext::unlockContext() { _contextLock.unlock(); }
 inline void EnumerationContext::setContinueOnError(Boolean x)
 {
     _continueOnError = x;
+}
+// Increment both the consecutive and total
+inline Uint32 EnumerationContext::incConsecutiveZeroLenObjectResponseCounter()
+{
+    _totalZeroLenObjectResponseCounter++;
+    return _consecutiveZeroLenObjectResponseCounter++;
+}
+inline void EnumerationContext::clearConsecutiveZeroLenObjectResponseCounter()
+{
+    _consecutiveZeroLenObjectResponseCounter = 0;
 }
 
 PEGASUS_NAMESPACE_END

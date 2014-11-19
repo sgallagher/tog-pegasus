@@ -30,16 +30,19 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*
-    Test of operations that stress the CIM Operationresponse mechanism with
-    both verylarge response objects and very large numbers of response objects.
+    Test of  the ResponseStress Provider with operations that stress the
+    CIM Operationresponse mechanism with both verylarge response objects and
+    very large numbers of response objects.
     This client works specifically with the corresponding provider and
     depends on the information in the TST_ResponseStressTest class.
+    It is only a test of the providers capability to execute its options.
 */
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/General/Stopwatch.h>
-#include <Pegasus/Common/Pegasus_inl.h> // used for stringPrintf
+#include <Pegasus/Common/Pegasus_inl.h>
+#include <Pegasus/General/Stopwatch.h>
 #include <cstdarg>
 
 PEGASUS_USING_PEGASUS;
@@ -53,74 +56,6 @@ static const CIMName TEST_CLASS = CIMName("TST_ResponseStressTestCxx");
 
 static Boolean verbose;
 
-
-/***************************************************************************
-**
-**  String formatting functions.  These are helper functions to allow
-**  use of C++ standard printf formatting concepts but that return
-**  Pegasus String results rather than char* and handle all memory
-**  issues internally.
-**
-***************************************************************************/
-//  Function to return a formatted char*  from a va_list.
-//  Allocates space for the returned char* and repeats the
-//  build process until the allocated space is large enough
-//  to hold the result.  This is internal only and the core function
-//  used by stringPrintf and stringVPrintf
-
-static char* charVPrintf(const char* format, va_list ap)
-{
-    // Iniitial allocation size.  This is a guess assuming that
-    // most printfs are one or two lines long
-    int allocSize = 256;
-
-    int rtnSize;
-    char *p;
-
-    // initial allocate for output
-    if ((p = (char*)malloc(allocSize)) == NULL)
-    {
-        return 0;
-    }
-
-    // repeat formatting  with increased realloc until it works.
-    do
-    {
-        rtnSize = vsnprintf(p, allocSize, format, ap);
-
-        // return if successful if not negative and
-        // returns less than allocated size.
-        if (rtnSize > -1 && rtnSize < allocSize)
-        {
-            return p;
-        }
-
-        // increment alloc size. Assumes that positive return is
-        // expected size and negative is error.
-        allocSize = (rtnSize > -1)? (rtnSize + 1) : allocSize * 2;
-
-    } while((p = (char*)peg_inln_realloc(p, allocSize)) != NULL);
-
-    // return error code if realloc failed
-    return 0;
-}
-// Formatting function that returns a Pegasus String object.
-String stringPrintf(const char* format, ...)
-{
-    va_list ap;
-    va_start(ap, format);
-
-    // Format into allocated memory
-    char* rtnCharPtr = charVPrintf(format, ap);
-    va_end(ap);
-
-    // Free allocated memory and return formatted output in String
-    String rtnString(rtnCharPtr);
-    free(rtnCharPtr);
-
-    return(rtnString);
-}
-
 /*
     This structure encapsulates all of the parameters for the get and
     set methods for the ResponseStressTest Class with functions for
@@ -128,20 +63,26 @@ String stringPrintf(const char* format, ...)
 */
 typedef struct MethodParameters{
     MethodParameters() :  _responseCount(0),_instanceSize(0),
-        _countToFail(0), _failureStatusCode(CIM_ERR_SUCCESS)
+        _countToFail(0), _failureStatusCode(CIM_ERR_SUCCESS), _delay(0)
     {}
 
+    // Test with responseCount and instanceSize required parameters
+    // and others optional
     MethodParameters(Uint64 responseCount, Uint64 instanceSize,
-        Uint64 countToFail = 0, Uint32 failureStatusCode = 0)
-       :  _responseCount(responseCount), _instanceSize(instanceSize),
+        Uint64 countToFail = 0, Uint32 failureStatusCode = 0, Uint32 delay = 0)
+       :  _responseCount(responseCount),
+        _instanceSize(instanceSize),
         _countToFail(countToFail),
-        _failureStatusCode((CIMStatusCode)failureStatusCode) {}
+        _failureStatusCode((CIMStatusCode)failureStatusCode),
+        _delay(delay) {}
 
     MethodParameters(Uint64 responseCount, Uint64 instanceSize,
-        Uint64 countToFail, CIMStatusCode failureStatusCode)
-       :  _responseCount(responseCount), _instanceSize(instanceSize),
+        Uint64 countToFail, CIMStatusCode failureStatusCode, Uint32 delay = 0)
+       :  _responseCount(responseCount),
+        _instanceSize(instanceSize),
         _countToFail(countToFail),
-        _failureStatusCode(failureStatusCode) {}
+        _failureStatusCode(failureStatusCode),
+        _delay(delay) {}
 
     bool equal(const MethodParameters& mp)
     {
@@ -165,7 +106,17 @@ typedef struct MethodParameters{
             VCOUT << "Compare fail failureStatusCode" << endl;
             return false;
         }
+        else if (_delay != mp._delay)
+        {
+            VCOUT << "Compare Delay parmaeters" << endl;
+            return false;
+        }
         return true;
+    }
+
+    void setResponseCount(Uint64 x)
+    {
+        _responseCount = x;
     }
     void setCountToFail(Uint64 x)
     {
@@ -179,25 +130,33 @@ typedef struct MethodParameters{
     {
         _failureStatusCode = (CIMStatusCode)x;
     }
+
+    void setDelay(Uint32 x)
+    {
+        _delay = x;
+    }
     String toString()
     {
-        return stringPrintf("responseCount=%lu instanceSize=%lu "
-            "countToFail=%lu _failureStatusCond=%u (%s)",
+        String rtn;
+        rtn.appendPrintf("responseCount=%llu instanceSize=%llu "
+            "countToFail=%llu _failureStatusCond=%u (%s) _delay=%u",
             _responseCount, _instanceSize, _countToFail,
             (Uint32)_failureStatusCode,
-            cimStatusCodeToString(_failureStatusCode));
+            cimStatusCodeToString(_failureStatusCode),
+            _delay);
+        return rtn;
     }
 
     Uint64 _responseCount;
     Uint64 _instanceSize;
     Uint64 _countToFail;
     CIMStatusCode _failureStatusCode;
+    Uint32 _delay;
 
 } methodParameters;
 
-
-
 ClientOpPerformanceData returnedPerformanceData;
+
 class ClientStatistics : public ClientOpPerformanceDataHandler
 {
 public:
@@ -349,6 +308,8 @@ void set(CIMClient& client, const methodParameters& mp)
     InParams.append(CIMParamValue("CountToFail", mp._countToFail));
     InParams.append(CIMParamValue("FailureStatusCode",
         (Uint32)mp._failureStatusCode));
+    InParams.append(CIMParamValue("Delay", mp._delay));
+
     CIMValue returnValue = client.invokeMethod(
         NAMESPACE,
         CIMObjectPath(String::EMPTY,
@@ -424,11 +385,15 @@ void get(CIMClient& client, methodParameters& mp)
         {
             v.get(mp._countToFail);
         }
-               else if(paramName =="FailureStatusCode")
+        else if(paramName =="FailureStatusCode")
         {
             Uint32 x;
             v.get(x);
             mp._failureStatusCode = (CIMStatusCode)x;
+        }
+        else if(paramName =="Delay")
+        {
+            v.get(mp._delay);
         }
         else
         {
@@ -443,7 +408,7 @@ void get(CIMClient& client, methodParameters& mp)
 void testSetAndGetMethods(CIMClient& client)
 {
     // This should match the definition in the provider as compiled
-    methodParameters orig(5, 100, 0,0);
+    methodParameters orig(5, 100, 0, 0, 0);
     VCOUT << "orig = " << orig.toString() << endl;
 
     methodParameters rtn;
@@ -459,6 +424,7 @@ void testSetAndGetMethods(CIMClient& client)
             << ". Difference Ignored" << endl;
     }
 
+    // Test changes to count and size
     methodParameters test1(1500, 2000);
     set(client, test1);
 
@@ -489,11 +455,38 @@ void testSetAndGetMethods(CIMClient& client)
     get(client, rtn);
     VCOUT << "getRtn = " << rtn.toString() << endl;
 
+    // test setting delay parameter
+    methodParameters testDelayParams = orig;
+    testDelayParams.setDelay(10);
+    testDelayParams.setResponseCount(290);
+
+    methodParameters testDelayParamsRtn = testDelayParams;
+    set(client, testDelayParams);
+    get(client,testDelayParamsRtn);
+    PEGASUS_TEST_ASSERT(testDelayParamsRtn._delay == 10);
+    VCOUT << "testDelayParams" << testDelayParamsRtn.toString() << endl;
+    PEGASUS_TEST_ASSERT(testDelayParams.equal(testDelayParamsRtn));
+
+    // test if this actually delays. Delay should be about 10 seconds.
+    VCOUT << "Expect a delay of about 20 sec here" << endl;
+    Stopwatch timer;
+
+    timer.start();
+    enumerateInstanceNames(client, testDelayParams);
+    timer.stop();
+
+    // test if delay gt 9 sec.
+    PEGASUS_TEST_ASSERT(timer.getElapsed() > (double)9);
+
     // This confirms that our orig is really the provider defaults.
+
+    // reset to the original parameters.
+    set(client, orig);
+    get(client, rtn);
+    VCOUT << "getRtn = " << rtn.toString() << endl;
     PEGASUS_TEST_ASSERT(rtn.equal(orig));
 
     VCOUT << "Passed testSetAndGetMethods." << endl;
-
 }
 
 int main(int argc, char** argv)

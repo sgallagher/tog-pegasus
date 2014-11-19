@@ -170,7 +170,7 @@ void ProviderManagerService::handleEnqueue(void)
 
 void ProviderManagerService::_handleIndicationDeliveryResponse(Message *message)
 {
-    CIMProcessIndicationResponseMessage *response = 
+    CIMProcessIndicationResponseMessage *response =
         (CIMProcessIndicationResponseMessage*)message;
     if (response->oopAgentName.size())
     {
@@ -423,8 +423,8 @@ void ProviderManagerService::handleCimRequest(
             // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
             CIMEnableModuleResponseMessage * emResp =
                 dynamic_cast<CIMEnableModuleResponseMessage*>(response.get());
-            // If the provider is not loaded then update the provider status in 
-            // this thread or else the response thread will call 
+            // If the provider is not loaded then update the provider status in
+            // this thread or else the response thread will call
             // asyncResponseCallback  which will update the provider status.
             if(!emResp->isAsyncResponsePending)
             {
@@ -504,8 +504,8 @@ void ProviderManagerService::handleCimRequest(
         response.reset(cimResponse);
     }
 
-    // all responses will be handled by the asyncResponseCallback 
-    // Certain requests like disable and enable module will be processed 
+    // all responses will be handled by the asyncResponseCallback
+    // Certain requests like disable and enable module will be processed
     // in this thread if the module is not loaded yet.
     CIMResponseMessage *cimResponse = dynamic_cast<CIMResponseMessage*>(
         response.get());
@@ -611,7 +611,7 @@ void ProviderManagerService::asyncResponseCallback(
         {
                 Thread::setLanguages(AcceptLanguageList());
         }
- 
+
         if(request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
         {
             _allProvidersStopped = true;
@@ -649,7 +649,7 @@ void ProviderManagerService::asyncResponseCallback(
                 providerManagerService->_updateModuleStatusToDisabled(
                     dmResp,providerModule);
             }
-        } 
+        }
     }
     catch (Exception &e)
     {
@@ -670,7 +670,7 @@ void ProviderManagerService::asyncResponseCallback(
     new AsyncLegacyOperationResult(op, response);
 
     providerManagerService->_complete_op_node(op);
- 
+
     PEG_METHOD_EXIT();
 }
 
@@ -873,7 +873,8 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
 
     return response;
 }
-
+// idleTimeCleanup calls a separate thread to do the cleanup because it
+// could be a long running function.
 void ProviderManagerService::idleTimeCleanup()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -889,8 +890,10 @@ void ProviderManagerService::idleTimeCleanup()
     }
 
     //
-    // Start an idle time cleanup thread. 
+    // Start an idle time cleanup thread.
     //
+    // The call has a second purpose, to clean up a dead enumeration.
+    // In that case the contextId input would be non-empty
 
     if (_thread_pool->allocate_and_awaken((void*)this,
             ProviderManagerService::_idleTimeCleanupHandler) !=
@@ -908,9 +911,52 @@ void ProviderManagerService::idleTimeCleanup()
     }
 
     // Note: _idleTimeCleanupBusy is decremented in
-    // _idleTimeCleanupHandler 
+    // _idleTimeCleanupHandler
 
     PEG_METHOD_EXIT();
+}
+
+/*
+    enumerationContextCleanup does not call a separate thread to execute
+    because is is short running and is NOT run directly off the monitor
+    thread but off the enumerationContextTableTimeout thread.
+*/
+bool ProviderManagerService::enumerationContextCleanup(const String& contextId)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::enumerationContextCleanup");
+    bool rtn = true;
+    // Ensure that only one _idleTimeCleanupHandler thread runs at a time
+    _idleTimeCleanupBusy++;
+    if (_idleTimeCleanupBusy.get() != 1)
+    {
+        _idleTimeCleanupBusy--;
+        rtn = false;
+    }
+    if (_oopProviderManagerRouter)
+    {
+        try
+        {
+            // call the oop providerManager. If the enumerationContextId
+            // string not empty this will be call to do enum context
+            // cleanup. Else it is call to do idleTimeCleanup.
+            _oopProviderManagerRouter->enumerationContextCleanup(
+                contextId);
+        }
+        catch (...)
+        {
+            // Ignore errors
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Unexpected exception from "
+                    "OOPProviderManagerRouter::enumerationContextCleanup");
+            rtn = false;
+        }
+    }
+
+        _idleTimeCleanupBusy--;
+
+        PEG_METHOD_EXIT();
+        return rtn;
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL
@@ -1026,7 +1072,7 @@ void ProviderManagerService::_updateModuleStatusToDisabled(
         if (dmResp->operationalStatus.size() > 0)
         {
             //
-            //  On a successful disable, remove an OK or 
+            //  On a successful disable, remove an OK or
             // a Degraded status, if present
             //
             if (dmResp->operationalStatus[

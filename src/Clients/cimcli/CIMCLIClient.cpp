@@ -110,6 +110,8 @@ double _getElapsedTime(Options& opts)
     return 0;
 }
 
+// get a String that is the elapsed time to hundredths of a
+// second (2 decimal places)
 String _getElapsedTimeFmtd(Options& opts)
 {
     String str;
@@ -118,7 +120,7 @@ String _getElapsedTimeFmtd(Options& opts)
         opts.elapsedTime.stop();
         double rtn =  opts.elapsedTime.getElapsed();
         opts.elapsedTime.start();
-        str.appendPrintf("%1.2f sec", rtn);
+        str.appendPrintf("%1.2f sec ", rtn);
 
         return str;
     }

@@ -91,6 +91,9 @@ poststarttests:
 	@$(ECHO) Error tests. Tests simple parameter errors.
 	make errortests
 
+	@$(ECHO) Error tests. Test responses with provider delays.
+	make poststarttests_testDelayedResponses
+
 	@$(ECHO) +++++ All pullop Pull Operation tests Passed.
 
 ########################################################################
@@ -597,6 +600,10 @@ rsset:
 rsset1:
 	cimcli im set $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
 
+## force the provider to reset to its default parameters
+resetStressTestProvider:
+	cimcli im $(CStressCxx) reset  -n $(NStressCxx) $(CIMCLIHOSTID)
+
 ## cimcli enumerateInstances
 rsei: rsset
 	cimcli ei $(CStressCxx) get -n $(NStressCxx) --sum --t $(CIMCLIHOSTID)
@@ -610,6 +617,60 @@ rseip1: rsset
 
 rseipn:
 	cimcli ni $(CStressCxx) get -n $(NStressCxx) --sum $(CIMCLIHOSTID)
+
+###################################################################
+##	Tests of delaying responses from the Providers
+##      Some of these are manual only because the take a long time to
+##      complete
+#####################################################################
+
+poststarttests_testDelayedResponses: testNoDelay testSmallDelayedResponse \
+                                    testDelayedResponse
+testNoDelay:
+	cimcli im $(CStressCxx) set ResponseCount=500 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -count 500 \
+	--t $(CIMCLIHOSTID)
+
+## test for responses that are delayed but not so long that
+## zero length responses are sent
+testSmallDelayedResponse:
+	$(ECHO) This test should take about 5 seconds total
+	cimcli im $(CStressCxx) set ResponseCount=500   Delay=5 \
+           -n $(NStressCxx) $(CIMCLIHOSTID) 
+	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 500  \
+	--t $(CIMCLIHOSTID)
+
+## special test for responses that are delayed so that some zero length
+## responses are sent This should take about 45 seconds to complete
+## and return multiple zero-object responses
+testDelayedResponse:
+	$(ECHO) This test should take about 45 seconds.
+	cimcli im $(CStressCxx) set ResponseCount=295  Delay=45 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 295 \
+	--t $(CIMCLIHOSTID)
+
+## Manual test only for now
+## special test for responses that are delayed so that some zero length
+## responses are sent This should take about 135 seconds to complete
+## and return multiple zero-object responses
+testMediumDelayedResponse:
+	$(ECHO) This test should take about 135 seconds.
+	cimcli im $(CStressCxx) set ResponseCount=595 Delay=45 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 595 \
+	--t $(CIMCLIHOSTID)
+
+## special test for responses that are delayed so that some zero length
+## responses are sent This should many minutes (ex. 11) and end in an error
+testMassiveDelayedResponse:
+	$(ECHO) This test should take many minutes.
+	cimcli im $(CStressCxx) set ResponseCount=595  Delay=700 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 295 \
+	--t $(CIMCLIHOSTID)
+
 
 ##################################################
 ## Test with pull operations in cimcli

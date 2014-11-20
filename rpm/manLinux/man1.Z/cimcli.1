@@ -42,6 +42,10 @@ cimcli \- command line WBEM Client
 .OP \-ql query language
 .OP \--version
 .OP \--expExit exitCode
+.OP \ -pt pullTimeout
+.OP \-mr maxObjectsToReceive
+.OP \-pullDelay pullDelayinSec
+.OP \-mo maxObjectCount
 .YS
 
 .SH DESCRIPTION 
@@ -57,7 +61,10 @@ several other operations that are useful in working with CIM Servers.
 For the execution of the DMTF defined CIM operations (ex.  
 enumerateInstances CIM/XML operation).  \fBcimcli\fR includes as command line 
 options all of the parameters defined in the DMTF specification.  (ex.  
--di for deep inheritance for the enumerateInstances operation).  
+-di for deep inheritance for the enumerateInstances operation).
+ 
+Effective OpenPegasus 2.14 \fBcimcli\fR incorporates the pull operations defined
+by DMTF into its operations list .  See the section on Pull Client Operations 
 
 In addition to the CIM Operations defined in the DMTF specification DMTF 
 DSP0200, \fBcimcli\fR implements a number of other operations that support 
@@ -148,7 +155,6 @@ where:
 \fB<value>\fR is a string that represents either a numeric value or a 
 string value (enveloped in quotes).  Quote marks surrounding string values 
 are required.  
-
 .P
 To simplify inputting command line object names, \fBcimcli\fR offers a second
 option for defining the object name as [OperationTarget].  In this second
@@ -250,11 +256,11 @@ There are 4 types of options
 .IP \fBBoolean\fR 9
 where the option sets some condition (ex. -verbose).
 .IP \fBString\fR 9
-which require a string parameter following the option (ex. -n root/test).
+requires a string parameter following the option (ex. -n root/test).
 .IP \fBInteger\fR 9
-which requires an integer following the option (ex. --delay 4).
+requires an integer following the option (ex. --delay 4).
 .IP \fBKeyword\fR 9
-which requires a defined keyword following the option.
+requires a defined keyword following the option.
 
 .SS CONNECTION OPTIONS
 
@@ -290,7 +296,7 @@ String option where [password] defines the password to be used in the
 connection to the CIM server for the command.  
 .TP
 .B \-s
-Connect with SSL - Boolean option that specifies that \fBcimcli\fR should 
+Connect with SSL - Specifies that \fBcimcli\fR should 
 attempt to connect over a secure connection using SSL.  This option 
 causes \fBcimcli\fR to modify the client connect call to set the SSLContext 
 option to the certificate defined with the --cert and --key options.  If 
@@ -325,7 +331,7 @@ which the command is executed or the display of information on
 response including the following:
 .TP
 .B \--t
-Boolean option.  When set measure time for the operation to be completed 
+When set measures time for the operation to be completed 
 and report it upon command completion.  If this option is set, the time 
 for the operation is recorded upon completion of the operation.  In 
 addition, the client infrastructure is queried to determine if the 
@@ -339,15 +345,15 @@ operations in \fBcimcli\fR to turn control statistics generation (See son and
 soff operations) at least for the Pegasus CIM server.  
 .TP
 .B \--sort
-Boolean option that requests \fBcimcli\fR to sort the returned entities for
-multi-entity operations (ex. enumerate, reference, associator). Whereas
-the order of returned entities is random from most CIM Servers setting
+Requests \fBcimcli\fR to sort the returned entities for
+multi-entity operations (ex. enumerate, reference, associator). Normally
+the order of returned entities is random from most CIM Servers; setting
 this option outputs the objects in a defined order.  The order is based
-on the Name element for classes and qualifier declarations and on the
-object path returned for instances and CIM objects.
+on the name element for classes and qualifier declarations and on the
+object path returned for CIM instances and CIM objects.
 .TP
 .B \--r [repeat_count]
-Integer Option.Repeat the operation [repeat_count] times.  This repeats 
+Repeat the operation [repeat_count] times.  This repeats 
 the operation without disconnecting.  This option is useful for defining 
 tests that load the server with repeated calls and also for getting 
 average times for an operation by taking the average of a number of calls 
@@ -355,10 +361,10 @@ average times for an operation by taking the average of a number of calls
 time option (--t)).  
 .TP
 .B \-delay [seconds]
-Delay [seconds]seconds between connect and issuing the operation request.
+Delay [seconds] seconds between connect and issuing the operation request.
 .TP
 .B \--sum
-Boolean option.  When set, present only summary information, not full 
+When set, \fBcimcli\fR presents only summary information, not full 
 output.  Generally \fBcimcli\fR presents counts of objects returned in place of 
 the names or objects themselves when this option is set.  See also the 
 repeat (--r) and measure time (--t) options.  
@@ -369,10 +375,10 @@ Defines an expected count of objects to be returned in the response.
 does not match the object_count supplied with the option.  This can be 
 used in batch files to test for number of objects returned by an 
 operation.  In addition to the error status code, a message of the general 
-form: 
-     "Failed count test. Expected= xx. Received= yy"
-is output to cerr.
-
+form:
+.RS
+     "Failed count test. Expected= xx. Received= yy" is output to cerr.
+.RE
 .B Example:
 .EX
    cimcli en CIM_ManagedElement -count 100
@@ -383,17 +389,17 @@ is output to cerr.
 .EE
 .TP
 .B \--timeout [seconds]
-Integer options.  When defined, set the connect timeout [seconds] seconds 
+When defined, set the connect timeout [seconds] seconds 
 rather than the default timeout.  
 .TP
 .B \-o [ "xml" | "mof" | "table"]
-KeyWord option. Output type for commands that output objects. Used with commands that
-present CIM objects in their response. Presents the output in the form of
+KeyWord option. Output type for commands that output objects. Used with commands
+that present CIM objects in their response. Presents the output in the form of
 xml corresponding to DMTF CIM/XML specification, mof, or for instances a
 table of the data in each property.
 .TP
 .B \-verbose
-Boolean Option.  When set \fBcimcli\fR displays details on the input options and 
+When set \fBcimcli\fR displays details on the input options and 
 execution of \fBcimcli\fR for the operation.  
 .TP
 .B \--setRtnHostNames [SubstituteHostName]
@@ -424,10 +430,12 @@ operations.
 .B \-pl [propertylist]
 String Option.  Set the propertylist parameter for those operations that 
 allow this parameter.  The propertylist value for this parameter is a 
-comma-separated list of class properties.  This sets the propertylist 
-optional parameter on those CIM operations that allow this parameter 
+comma-separated list of class properties (without spaces between items).
+This sets the optionsl propertylist 
+parameter on those CIM operations that allow this parameter 
 including: getClass, getInstance, modifyInstance, enumerateInstances, 
-associators, and references.  If this option is not defined on the 
+associators, references, OpenEnumerateInstances, OpenReferenceInstances,
+and OpenAssociatorInstances.  If this option is not defined on the 
 execution of one of these operations, \fBcimcli\fR sets the propertylist 
 parameter to NULL indicating that all properties should be returned.  
  
@@ -456,7 +464,8 @@ The syntax of propertylist is:
              getClass with a propertylist with two properties
 
         cimcli gc CIM_ManagedElement -pl \\"\\"
-            gc operation with empty property list (return no properties)
+            gc operation with empty property list (return no
+	    properties)
 .EE
 .TP
 .B \-niq
@@ -499,8 +508,106 @@ operations.
 .SH OPERATIONS
 This section defines the individual operations supported by \fBcimcli\fR. 
 Note that either the names (ex. EnumerateInstances) or the shortcut (ei)
-may be used in inputting an [Operation] on the command line 
+may be used in defining an [Operation] on the command line 
 and they are case independent.
+
+.SS Pull Client Operations and OpenPegasus Overview (OpenPegasus 2.14 extension)
+The DMTF has extended the client xml protocol with new operations
+that return multiple instance or path responses to allow the
+client to pull the responses as components of an enumeration sequence rather
+than a single monolothic operation.  This allows the server improved management
+of operation resources and allows the client to control its memory use. cimcli
+has created a set of new operations that use this pull model. cimcli did not
+create an operation corresponding to each client api but one that uses the
+client apis and a set of options to execute complete pull enumertation 
+sequences.
+
+These operations correspond directly to the original operations as shown in the
+table below but with extra cimcli options to control the enumeration sequence
+parameters. 
+
+.EX
+OriginalOperation    shortcut    PullOperation              shortcut 
+enumerateInstances         ei    PullEnumerateInstances         pei
+enumerateInstanceNames     ni    PullEnumerateInstancePaths     pni
+references                  r    PullReferenceInstances         pr
+referenceNames             rn    PullReferenceNames             prn
+associators                 a    PullAssociators                pa
+associatorNames            an    PullAssociatorPaths            pan
+execQuery                  xq    pullExecQuery                  pxq
+.EE
+
+The pull operations generally duplicate the parameters of the original
+operations with some options to allow the new arguments required to define
+the enumeration context, control of the size of individual responses,
+timing, and maximum size.
+
+The pull operations have a common set of options including:
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation.
+
+This option allows specification of filter query languages like the DMTF
+FQL which apply specifically to filtering instances from enumerations.
+
+WQL and CQL are not allowed with this parameter in the pull operations except
+for pullExecQuery. FQL is the single normalized filter query language
+for the pull operations.
+
+Since FQL is a required query language for systems that support the pull
+operations, it is the definition normally used for this option ("DMTF:FQL")
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. The required query language is
+FQL (Filter Query Language) which is a simple query language that allows only
+comparison between properties within an instance and literals boolean
+combinations of these property comparison expressions with AND and OR documented in detail in the DMTF specification
+DSP0212 and generally is of the form:
+.EX
+   property comparison expression:
+      Scalarproperty operation scalarliteral or ScalarProperty
+      ArrayProperty operation arrayLiteral or ArrayProperty
+      ArrayProperty arrayOps scalarProperty or scalarLiteral
+      Arrayproperty[index] operation (scalarLiteral or scalarProprty or
+				      ArrayProperty[index])
+
+   literals:
+	ScalarLteral which may be:
+	    integer (decimal, hex, octal) 123, 0123, 0X1abc
+	    String "'" chars "'"
+	    real
+	    DateTime
+	    Reference
+	ArrayLiteral:
+	   "{" scalarLiteral * ("," ScalarLiteral ) "}"
+
+    Operation:
+     where the operations allowed are dependent on the
+	left argument of the expression and may include:
+          * equality comparison "=" "<>" "LIKE" "NOT LIKE"
+	  * ordering  ">=" "<=" ">" "<"
+	  * arrayOps "ANY", "EVERY"
+.EE
+
+.TP
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+.TP
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+.TP
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+.TP
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR sends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
 
 .SS ci    CreateInstance Operation
 The CreateInstance operation executes the DMTF CIM/XML createInstance 
@@ -530,7 +637,7 @@ where <propertyDef> is defined as follows:
 
 .TP
 <propertyName>=<scalarValueString>
-defines a value for a property where propertyName is a scalar
+Defines a value for a property where propertyName is a scalar
 property of any type except the types representing embedded
 instances or embedded objects (i.e. String with 
 EmbeddedInstance or EmbeddedObject qualifier). The
@@ -540,17 +647,17 @@ Strings with embedded spaces must be enclosed in quotation
 marks.
 .TP
 <propertyName>=<scalarValueString>[,<scalarValueString>]*
-defines an array of values for a property which is an array
+Defines an array of values for a property which is an array
 property and each valueString is one value in the array. 
 .TP
 <propertyName>!
-defines a value of NULL for a String property.
+Defines a value of NULL for a String property.
 .TP
 <propertyName]>=
-defines a property with NULL value.
+Defines a property with NULL value.
 .TP
 <propertyName>={<embeddedClassName> [<propertyDef>]* }
-defines a property that is an embedded instance, embedded object,
+Defines a property that is an embedded instance, embedded object,
 or reference(CIMObjectPath) where <embeddedClassName> is the class
 name for the embedded object or instance and <propertyDefinition>.
  This syntax is recursive so that instances of embedded classes can
@@ -558,7 +665,7 @@ be embedded in properties that are themselves embedded
 instance types.
 .TP
 <propertyName>={<embeddedClassName> [<propertyDef>]* [}.{ [<propertyDef>]*]*
-defines a property that is an array of embedded instances or
+Defines a property that is an array of embedded instances or
 embedded objects <embeddedClassName> is the class name for the
 embedded object or instance and <propertyDefinition>
 .RE
@@ -860,7 +967,7 @@ input parameters.
         -n root/PG_Interop --sort
 
         Execute the enumerateInstanceNames operation on
-        CIM_ManagedElement class in the root/PG_Interop namespace.
+        CIM_ManagedElement in the root/PG_Interop namespace.
         Sort the returned list of instance paths.
 
     cimcli ni CIM_Door --sum
@@ -876,7 +983,7 @@ Execute the CIM operation enumerateInstances. The syntax for this operation is:
 This operation requests instances from the CIM server and displays the returned
 instances in a user selected format.
 
-The following options represent specific parameters for this operation
+The following options represent specific parameters for this operation:
 
 .B \-nlo
 not local only operation parameter to false.  Note that this negative form 
@@ -898,9 +1005,9 @@ Set deep inheritance operation parameter to true.
 Set the output format for the instances to display the returns as mof
 
 .B \-pl [propertyList]
-optional property list for the operation
+Optional property list for the operation
         
-It returns the instances found either as MOF,XML or a table of property 
+It returns the instances found either as MOF, XML, or a table of property 
 values with each property a column in the table depending on the output 
 options parameter.
 
@@ -987,7 +1094,7 @@ so the provider may not return qualifiers even if requested.
 localonly
 
 .B \-pl [propertyList]
-optional property list for the operation
+Optional property list for the operation
 
 .B Examples:
 .EX
@@ -1046,7 +1153,7 @@ getQualifier displays the target qualifier. The syntax is:
 
 .SS sq    setQualifier Operation
 This command is not implemented. We do not intend to implement this operation
-in cimcli because of the syntax complexity.  Use a mof compiler to create
+in \fBcimcli\fR because of the syntax complexity.  Use a mof compiler to create
 new qualifiers in the CIM server
 
 .SS eq    enumeratequalifiers Operation
@@ -1094,7 +1201,7 @@ String defining the role parameter for the CIM Operation
 resultrole parameter
 
 .B \-ic
-includeClassOrigin The -ic parameter
+Set includeClassOrigin input parameter true
 
 .B \-pl [properytlist]
 Optional PropertyList
@@ -1161,7 +1268,7 @@ includeQualifiers (The default is false)
 Boolean to set include class origin operation parameter to true.
 
 .B \-pl [propertyList]
-optional property list for the operation
+Optional property list for the operation
 
 .B \-i
 Interactive request - This option is used only with commands that will 
@@ -1235,30 +1342,30 @@ Parameters are input in the form:
 .RE
 .TP
 <paramName>=<scalarValueString>
-defines a value for a parameter where paramName is a scalar parameter
+Defines a value for a parameter where paramName is a scalar parameter
 of any type except the types representing embedded instances
 or embedded objects (i.e. String with EmbeddedInstance or EmbeddedObject
 qualifier).
 .TP
 <paramName>=<scalarValueString>[,<scalarValueString>]*
-defines an array of values for a parameter which is an array parameter
+Defines an array of values for a parameter which is an array parameter
 and each valueString is one value in the array. 
 .TP
 <paramName>!
-defines a value of NULL for a String parameter
+Defines a value of NULL for a String parameter
 .TP
 <paramName>=
-defines a parameter with NULL value
+Defines a parameter with NULL value
 .TP
 <paramName>={<className> [<paramDef>]* }
-defines a parameter that is an embedded instance or embedded object
+Defines a parameter that is an embedded instance or embedded object
 where <className> is the class name for the embedded object
 or instance and <paramDef>. This syntax is recursive
 so that instances of embedded classes can be embedded in properties
 that are themselves embedded instance types.
 .TP
 <paramName>={<className> [<paramDef>]*[}.{ [<paramDef>]*]*
-defines a parameter that is an array of embedded instances or embedded
+Defines a parameter that is an array of embedded instances or embedded
 objects <className> is the class name for the embedded object
 or instance and <paramDefinition>
 .RE
@@ -1282,8 +1389,9 @@ any returned parameters that are qualified as OUT parameters.
             input1 is boolean parameter with value true
             input2 is Uint32 parameter with value 1111
 
-        The completed operation displays the return code from the command and
-        any returned parameters that are qualified as OUT parameters.
+        The completed operation displays the return code from the
+	    command and any returned parameters that are qualified as
+	    OUT parameters.
 .EE
 
 .SS gp    getProperty Operation
@@ -1319,7 +1427,7 @@ with the input parameter supplied either by direct parameter input
 or the options for filter and querylanguage. The syntax of the operation is
 
 .EX
-      cimcli <query_filter> <query_language> [<option>]*
+      cimcli xq <query_filter> <query_language> [<option>]*
 .EE
 The query_filter and the query_language may be supplied directly on the
 command line as parameter or as options (-f for the query filter and
@@ -1339,6 +1447,444 @@ parameter but simply passes the input string on to the CIM server
              uses WQL as default query language
 .EE
 
+
+.SS pei    pullEnumerateInstances Operation
+Execute the CIM enumeration sequence to pull instances from the server. This
+compromises the openEnumerateInstances possible followed by
+pullInstancesWithPath operations. This \fBcimcli\fR operation executes the
+complete sequence. The syntax for this operation is:
+
+.B        cimcli pei [className] [<option>]*
+
+This enumeration sequence requests instances from the CIM server and displays
+the returned instances in a user selected format. This is the pull equivalent
+to the enumerateInstances operation and matches its format but with extra
+options.
+
+The following options represent specific parameters for this operation:
+
+.B \-nlo
+not local only operation parameter to false.  Note that this negative form 
+for the option is used because the default for local only parameter is 
+true.  Thus, not including this parameter means that the parameter is not 
+set.  
+
+.B \-iq
+Boolean (include_Qualifiers) that sets the operation parameter for 
+include_qualifiers to true,  
+
+.B \-ic
+Boolean to set include class origin operation parameter to true.
+
+.B \-di
+Set deep inheritance operation parameter to true.
+ 
+.B \-o [xml|mof|table]
+Set the output format for the instances to display the returns as mof
+
+.B \-pl [propertyList]
+Optional property list for the operation
+
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. See the section Pull
+Client Operations for more information on query language syntax.
+
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR ends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
+        
+It returns the instances found either as MOF, XML, or a table of property 
+values with each property a column in the table depending on the output 
+options parameter.
+
+.B Example:
+.EX
+    cimcli pei CIM_ComputerSystem -niq -di -mo 100
+        This example enumerates CIM_ComputerSystem in the
+        namespace root/CIMV2 (default) requesting without
+        qualifiers (-niq) with deepInheritance (-di). Each response to
+	    cimcli will contain no more than 100 instances
+
+    cimcli pei CIM_ComputerSystem -ql "DMTF:FQL" -f "Dedicated = 3"
+        Enumerate CIM_Computer system in root/CIMV2 and return any
+	    instances where the dedicated property equals 3
+        
+.EE
+
+.SS pni    pullEnumerateInstancePaths Operation
+Execute the CIM enumeration sequence to pull instance paths from the server.
+This compromises the openEnumerateInstancePaths possibly followed by
+pullInstancePaths operations. This \fBcimcli\fR operation executes the
+complete sequence. The syntax for this operation is:
+
+.B        cimcli pni [className] [<option>]*
+
+This enumeration sequence requests instance paths from the CIM server and
+displays the returned instances in a user selected format.
+
+The following options represent specific parameters for this operation:
+
+.B \-nlo
+not local-only operation parameter to false.  Note that this negative form 
+for the option is used because the default for local-only parameter is 
+true.  Thus, not including this parameter means that the parameter is not 
+set.  
+
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation.
+Required if the -f option is specified.
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. The query language syntax is
+documented in the general section above. NOTE: The filter may not be
+allowed for the paths operations for some servers, specifically OpenPegasus.
+
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR sends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
+        
+It returns the instances found either as MOF, XML, or a table of property 
+values with each property a column in the table depending on the output 
+options parameter.
+
+.B Example:
+.EX
+    cimcli pni CIM_ComputerSystem -n root/testproviders -mo 100
+        This example enumerates the paths of CIM_ComputerSystem in the
+        namespace root/testProviders (default). Each response to
+	    cimcli will contain no more than 100 paths
+.EE
+
+
+.SS pa     pullAssociators     Operation
+Execute the enumeration context that starts with openAssociatorInstances and
+may continue with pullInstancesWithPath for the target object name. This is
+similar to the associators operation.
+
+The syntax for this operation is:
+ 
+.B    cimcli pa [objectname] [<option>]*
+
+Note that the objectname may be either a classname or an instancename.
+If classname is supplied, the interactive mode is used and a list of
+possible objectnames for the target of the association is presented to
+the user. 
+If objectname is used, the response is instances of the association
+that matches the classname.
+
+The options provide the various operation parameters including;
+
+.B \-ac [assocatonClassName]
+association Class parameter
+
+.B \-rc [resultClassName]
+resultClass parameter
+
+.B \-r [role]
+String defining the role parameter for the CIM Operation
+
+.B \-rr [resultrole]
+resultrole parameter
+
+.B \-ic
+includeClassOrigin The -ic parameter
+
+.B \-pl [properytlist]
+Optional PropertyList
+
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation.
+Required if the -f option is specified.
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. The query language syntax is
+documented in the general section above. NOTE: The filter may not be
+allowed for the paths operations for some servers, specifically OpenPegasus.
+
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR sends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
+
+.B Example:
+.EX
+    cimcli pa -n test/providers Test_CLITestProviderClass.Id=\"Mike\" \
+	    -ac Test_CLITestProviderLinkClass -rc Test_CLITestProviderClass \
+	    -r child -rr parent -pl requestInputParameters
+    
+    defines an associators request where the target object is:
+        Test_CLITestProviderClass.Id="Mike"
+    the associated class is: Test_CLITestProviderLinkClass
+    the associated role is: child
+    the reference role is: parent
+    and the propertylist includes a single property: requestInputParameters
+       
+.EE
+
+.SS pan    pullAssociatorPaths     Operation
+Execute the enumeration context that starts with openAssociatorInstancePaths and
+may continue with pullInstancesPaths for the target object name. This is
+similar to the associators operation associatorPaths except that only instances
+are returned.
+
+The syntax for this operation is:
+
+.B    cimcli pan [objectname] [<option>]*
+
+where objectname can be either a class name or an instance name. If it is
+a class name, the \fBcimcli\fR interactive mode is used to present a list of
+possible object paths for the class to the user.
+
+The following options provide the various operation parameters;
+
+.B \-ac [assocatonClassName]
+association Class parameter
+
+.B \-rc [resultClassName]
+resultClass parameter
+
+.B \-r [role]
+String defining the role parameter for the CIM Operation
+
+.B \-rr [resultrole]
+resultrole parameter
+
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation.
+Required if the -f option is specified.
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. The query language syntax is
+documented in the general section above. NOTE: The filter may not be
+allowed for the paths operations for some servers, specifically OpenPegasus.
+
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR sends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
+
+.SS pr pullreferenceInstances Operation
+Executes the an enumeration sequence that starts with OpenReferenceInstances
+and may continue with pullReferenceInstances. the sequence returns
+CIM Instances. It is similar to the references operation in basic parameters
+except that it returns instances only (it does not return classes as does
+the references operation).
+
+The syntax for this the operation is:
+
+.B        cimcli pr [objectname] [<option>]*
+
+Note that the objectname may be either a class name or an instance name.  
+If a class name is supplied, the user is queried for the objectname parameter.
+If objectname is used, the response is instances of the references that match
+the objectname.
+
+The options specifically used by this operation are:
+
+.B \-r [role]
+role parameter for the CIM Operation.
+
+.B \-rc [resultClassName]
+resultClass parameter for the CIM Operation
+
+.B \-iq
+includeQualifiers (The default is false)
+
+.B \-ic
+Boolean to set include class origin operation parameter to true.
+
+.B \-pl [propertyList]
+Optional property list for the operation
+
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation.
+Required if the -f option is specified.
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. The query language syntax is
+documented in the general section above. NOTE: The filter may not be
+allowed for the paths operations for some servers, specifically OpenPegasus.
+
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open
+request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+
+.B \-mo [maxObjectCount]
+The maximum object count that\fBcimcli\fRsends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
+
+.B Examples:
+.EX
+    cimcli pr CIM_ManagedElement
+          enter the interactive mode and presents the cimcli user with a
+	  list of all objectPaths for CIM_ManagedElement from which it
+	  builds the openReferenceInstances request.
+.EE
+
+.SS prn    pullreferencePaths Operation
+Executes an enumeration sequence that startes with openReferencePaths and
+continues with pullInstancePaths. This operation is the pull parallel of
+the referenceNames operation.
+
+The syntax for this operation is:
+
+.B        cimcli prn [objectname] [<option>]*
+
+Note that the objectname may be either a class name or a specific instance 
+name.  If classname is supplied,  the user is queried to select an instance 
+name for the clas name input.  If objectname is used, the response is 
+instance names of the references that matches the objectname.  
+
+The options specifically used by this operation are:
+
+.B \-r [role]
+role parameter for the CIM Operation
+
+.B \-rc [resultClassName]
+resultClass parameter for the CIM Operation
+
+.B \-ql [filterQueryLanguage]
+Optional definition of the filter query language used for this operation.
+Required if the -f option is specified.
+
+.B \-f [filter]
+Optional filter for the language defined in the -ql option. The response
+is filtered using this filter specification. The query language syntax is
+documented in the general section above. NOTE: The filter may not be
+allowed for the paths operations for some servers, specifically OpenPegasus.
+
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by cimcli
+before issuing a close operation.
+
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pullsequence. The primary use for this is testing delay issues.
+
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR sends to the server for each request in
+an enumeration context.  The server returns no more than this number of
+instances or paths
+
+.SS pxq pullExecQuery Operation
+The pullExecQuery executes an enumeration sequence that opens with the
+openQueryInstances client request and continues with pullInstances if required.
+This operation is parallel to the execQuery \fBcimcli\fR operation.
+
+.B Example:
+.EX
+      cimcli pxq <query_filter> <query_language> [<option>]*
+.EE
+The query_filter and the query_language may be supplied directly on the
+command line as parameter or as options (-f for the query filter and
+-ql for query language.
+
+The query languages used for this operation are languages like WQL and CQL.
+they are NOT FQL which supports only the enumerate, associator, and reference
+type operations.
+
+The pullExecQuery CIM Operation is executed directly with the input parameters
+or options.  If neither a query_filter parameter or option are supplied
+\fBcimcli\fR returns an error. If the query_language parameter (-ql) is omitted
+the default is "WQL". The operation does not validate the query language
+parameter but simply passes the input string on to the CIM server.
+
+Today this operation does not support the openQueryInstances client request
+parameter  returnQueryResultClass that requests that the cimserver generate
+a class corresponding to the returned objects.
+
+.B Examples
+.EX
+        cimcli pxq "Select * from CIM_Something" CQL
+
+        cimcli pxq "Select * from CIM_blah"
+             uses WQL as default query language
+.EE
+
 .SS son Operation (Deprecated)
 Set the CIM server statistics to enabled by doing a modify instance of
 the CIM_ObjectManager instance that defines the server. This depends
@@ -1351,7 +1897,7 @@ functionality.  The corresponding operation soff will attempt to
 disable statistics on the server.  This works with OpenPegasus servers
 starting with version 2.5.1.
 
-DEPRECATED to be replaced by at some time in the future.
+.B DEPRECATED to be replaced at some time in the future.
 
 The syntax of the operation is:
 
@@ -1490,15 +2036,14 @@ Defines an expected count of objects to be returned in the response.
 not match the object_count supplied with the option. 
 This test can be used in batch files to test for number of 
 objects returned by an operation.  In addition to the error status code, a 
-message 
-of the general form:
+message of the general form:
 .EX
      "Failed count test. Expected= xx. Received= yy"
 .EE
 is output to cerr.
 
-.B Example:
 .EX
+.B Example:
    cimcli en CIM_ManagedElement -count 100
 
        If the count of instances returned is not equal to 100,
@@ -1775,6 +2320,30 @@ time which are calculated by the server and client infrastructure.
 .TP
 .B \-x
 Output objects in xml instead of mof format. Default(false)
+
+.TP
+.B \-pt [pullTimeout]
+The timeout value that \fBcimcli\fR sends to the server as part of the open request.
+This is the minimum time in seconds that the server will keep the enumeration
+context open between sending a response and receiving the next request within
+a single pull sequence.
+
+.TP
+.B \-mr [maxObjectsToReceive]
+The maximum number of instances or paths that will be accepted by \fBcimcli\fR
+before issuing a close operation.
+
+.TP
+.B \-pullDelay [pullDelayinSec]
+Delay in seconds that \fBcimcli\fR will execute between each of the operations of
+the pull sequence. The primary use for this is testing delay issues.
+
+.TP
+.B \-mo [maxObjectCount]
+The maximum object count that \fBcimcli\fR sends to the server for each request in
+an enumeration context (one of the pull... operations.  The server returns no
+more than this number of instances or paths
+
 
 .SH EXAMPLES
 

@@ -42,7 +42,7 @@ include $(ROOT)/mak/config.mak
 GROFFOPTIONS=man
 
 DOCUMENT=cimcli
-SOURCE=$(DOCUMENT).nroff
+SOURCE=$(ROOT)/rpm/manLinux/man1.Z/$(DOCUMENT).1
 
 ## generate all targets.
 all: manpage html text
@@ -54,6 +54,11 @@ manpage:
 ## generate html output.
 html:
 	groff -$(GROFFOPTIONS) -Thtml $(SOURCE) > $(DOCUMENT).html
+
+## manual option for creating html. Sometimes the created html is
+## formatted better than with groff and the-Thtml option
+man2html:
+	man2html <$(SOURCE) >$(DOCUMENT).html
 
 ## Produce pure ASCII text output.
 text:

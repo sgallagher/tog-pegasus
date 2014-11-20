@@ -233,35 +233,35 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     "Show List of Commands"},
 
 //KS_PULL_BEGIN
-    {ID_PullEnumerateInstances,   "EunumerateInstances with Pull",2, "pei",
+    {ID_PullEnumerateInstances,   "pullEnumerateInstances",2, "pei",
     "Clients.cimcli.CIMCLIClient.PEI_COMMAND_HELP",
         "Execute EnumerateInstances using the Pull Operations"},
 
     {ID_PullEnumerateInstancePaths,
-        "EunumerateInstance paths with Pull",2, "pni",
+        "pullEunumerateInstancePaths",2, "pni",
     "Clients.cimcli.CIMCLIClient.PEIP_COMMAND_HELP",
         "Execute EnumerateInstances Paths using the Pull Operations"},
 
-    {ID_PullReferenceInstances,   "ReferenceInstances with Pull",2, "pr",
+    {ID_PullReferenceInstances,   "pullReferenceInstances",2, "pr",
     "Clients.cimcli.CIMCLIClient.PRI_COMMAND_HELP",
         "Execute Open and Pull References"},
 
     {ID_PullReferenceInstancePaths,
-        "ReferencesInstances with Pull",2, "prn",
+        "pullReferencesInstancePaths",2, "prn",
     "Clients.cimcli.CIMCLIClient.PRIP_COMMAND_HELP",
         "Execute Open,Pull ReferenceInstancePaths using the Pull Operations"},
 
-    {ID_PullAssociatorInstances,   "AssociatorInstances with Pull",2, "pa",
+    {ID_PullAssociatorInstances,   "pullAssociatorInstances",2, "pa",
     "Clients.cimcli.CIMCLIClient.PAK_COMMAND_HELP",
         "Execute Open and Pull Associations"},
 
     {ID_PullAssociatorInstancePaths,
-        "AssociatorInstance paths with Pull",2, "pan",
+        "pullAssociatorInstancePaths",2, "pan",
     "Clients.cimcli.CIMCLIClient.PAIP_COMMAND_HELP",
         "Execute Open,Pull AssociatorInstancePaths using the Pull Operations"},
 
     {ID_PullQueryInstances,
-        "execQuery with Pull",2, "pxq",
+        "pullExecQuery",2, "pxq",
     "Clients.cimcli.CIMCLIClient.PXQIP_COMMAND_HELP",
         "Execute query operation using pull Operations\n"
         "pzq <querylanguage> <query> <pull parameters>"},

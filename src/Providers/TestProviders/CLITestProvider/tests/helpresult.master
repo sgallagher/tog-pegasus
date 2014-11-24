@@ -181,17 +181,17 @@ cci   countInstances        Count all Instances in Namespace and sort by
                             from Server
 ct    classTree             Display graphic tree of classes in a namespace
 ?     showOptions           Show List of Commands
-pei   EunumerateInstances with Pull Execute EnumerateInstances using the Pull
+pei   pullEnumerateInstances Execute EnumerateInstances using the Pull
                             Operations
-pni   EunumerateInstance paths with Pull Execute EnumerateInstances Paths
+pni   pullEunumerateInstancePaths Execute EnumerateInstances Paths using the
+                            Pull Operations
+pr    pullReferenceInstances Execute Open and Pull References
+prn   pullReferencesInstancePaths Execute Open,Pull ReferenceInstancePaths
                             using the Pull Operations
-pr    ReferenceInstances with Pull Execute Open and Pull References
-prn   ReferencesInstances with Pull Execute Open,Pull ReferenceInstancePaths
+pa    pullAssociatorInstances Execute Open and Pull Associations
+pan   pullAssociatorInstancePaths Execute Open,Pull AssociatorInstancePaths
                             using the Pull Operations
-pa    AssociatorInstances with Pull Execute Open and Pull Associations
-pan   AssociatorInstance paths with Pull Execute Open,Pull
-                            AssociatorInstancePaths using the Pull Operations
-pxq   execQuery with Pull   Execute query operation using pull Operations
+pxq   pullExecQuery         Execute query operation using pull Operations
                            pzq <querylanguage> <query> <pull parameters> -h for all help, -hc for commands, -ho for options
 
 Examples : 
@@ -504,17 +504,17 @@ cci   countInstances        Count all Instances in Namespace and sort by
                             from Server
 ct    classTree             Display graphic tree of classes in a namespace
 ?     showOptions           Show List of Commands
-pei   EunumerateInstances with Pull Execute EnumerateInstances using the Pull
+pei   pullEnumerateInstances Execute EnumerateInstances using the Pull
                             Operations
-pni   EunumerateInstance paths with Pull Execute EnumerateInstances Paths
+pni   pullEunumerateInstancePaths Execute EnumerateInstances Paths using the
+                            Pull Operations
+pr    pullReferenceInstances Execute Open and Pull References
+prn   pullReferencesInstancePaths Execute Open,Pull ReferenceInstancePaths
                             using the Pull Operations
-pr    ReferenceInstances with Pull Execute Open and Pull References
-prn   ReferencesInstances with Pull Execute Open,Pull ReferenceInstancePaths
+pa    pullAssociatorInstances Execute Open and Pull Associations
+pan   pullAssociatorInstancePaths Execute Open,Pull AssociatorInstancePaths
                             using the Pull Operations
-pa    AssociatorInstances with Pull Execute Open and Pull Associations
-pan   AssociatorInstance paths with Pull Execute Open,Pull
-                            AssociatorInstancePaths using the Pull Operations
-pxq   execQuery with Pull   Execute query operation using pull Operations
+pxq   pullExecQuery         Execute query operation using pull Operations
                            pzq <querylanguage> <query> <pull parameters> -h for all help, -hc for commands, -ho for options
 The options for this command are:
 

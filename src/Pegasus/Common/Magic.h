@@ -67,7 +67,7 @@ PEGASUS_NAMESPACE_BEGIN
     (usually as the first line of every member function).
 
         \code
-        PEGASUS_ASSERT_DEBUG(_magic);
+        PEGASUS_DEBUG_ASSERT(_magic);
         \endcode
 
     Here's a typical example:
@@ -75,7 +75,7 @@ PEGASUS_NAMESPACE_BEGIN
         \code
         MyClass::~MyClass()
         {
-            PEGASUS_ASSERT_DEBUG(_magic);
+            PEGASUS_DEBUG_ASSERT(_magic);
         }
         \endcode
 

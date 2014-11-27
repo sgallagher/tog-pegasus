@@ -864,6 +864,11 @@ Sint32 MP_Socket::read(void * ptr, Uint32 size)
     return Socket::read(_socket,ptr,size);
 }
 
+Sint32 MP_Socket::peek(void * ptr, Uint32 size)
+{
+    return Socket::peek(_socket,ptr,size);
+}
+
 Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 {
     return Socket::timedWrite(_socket,ptr,size,_socketWriteTimeout);

@@ -275,13 +275,15 @@ enumerateEmptyResponse:
 ## fail in valgrind with smaller client timeout.
 
 stresstests:
+	make stressEnumpei
+	make stressEnumei
 	make stressEnum1
-##      KS_FUTURE Test 3 disabled to determine if there are
-##      server/lient limits on size of responses.  There is a manual
-##      test (target testSizeLimits) that tests up to a million objects
-##      in the response. Please run that test to determine your system 
-##      limits on operation response size.
 	make stressEnum2
+##      KS_FUTURE Test 3 disabled because there are
+##      client limits on size of responses in some test environments.  There
+##      is a manual test (target testSizeLimits) that tests up to a million
+##      objects in the response. Please run that test to determine your system 
+##      limits on operation response size.
 ##	make stressEnum3
 	make stressEnumName1
 	make stressEnumName2
@@ -289,7 +291,19 @@ stresstests:
 	make stressVariation
 	@$(ECHO) +++++ pullop stresstests Passed.
 
-## test with 10,000 instances of 10,000 bytes each
+## test with 10,000 instances of 10,000 bytes each.
+## cimcli stress tests pull and non-pull
+stressEnumpei:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	    ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli pei $(CStressCxx) -n $(NStressCxx) -pl Id,Pattern,s1,SequenceNumber --sum
+
+stressEnumei:
+	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	    ResponseCount=10000 $(CIMCLIHOSTID)
+	cimcli ei $(CStressCxx) -n $(NStressCxx) -pl Id,Pattern,s1,SequenceNumber --sum
+
+## pullop stress tests
 stressEnum1:
 	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)

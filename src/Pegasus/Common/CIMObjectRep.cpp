@@ -168,8 +168,7 @@ void CIMObjectRep::instanceFilter(
     {
         CIMConstProperty p = getProperty(i);
         CIMName name = p.getName();
-        Array<CIMName> pl = propertyList.getPropertyNameArray();
-        if (propertyList.isNull() || Contains(pl, name))
+        if (propertyList.isNull() || propertyList.contains(name))
         {
             // test ClassOrigin and possibly remove
             if (!includeClassOrigin)

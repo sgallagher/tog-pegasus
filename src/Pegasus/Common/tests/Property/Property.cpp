@@ -286,6 +286,63 @@ void test03()
     VCOUT << list1.toString() << endl;
     PEGASUS_TEST_ASSERT(list1.toString() == "EMPTY");
 
+    // test contains(...) function, Pegasus 2.14
+    list1.clear();
+    names.append(CIMName ("property1"));
+    names.append(CIMName ("property2"));
+    names.append(CIMName ("property3"));
+    list1.set(names);
+    PEGASUS_TEST_ASSERT(list1.contains("property1"));
+    PEGASUS_TEST_ASSERT(list1.contains("property2"));
+    PEGASUS_TEST_ASSERT(list1.contains("property3"));
+    PEGASUS_TEST_ASSERT(!list1.contains("propertyx"));
+
+    // retest with list cleared to be sure that an
+    // empty list returns false
+    list1.clear();
+    PEGASUS_TEST_ASSERT(!list1.contains("property1"));
+    PEGASUS_TEST_ASSERT(!list1.contains("property2"));
+    PEGASUS_TEST_ASSERT(!list1.contains("property3"));
+    PEGASUS_TEST_ASSERT(!list1.contains("propertyx"));
+
+    // test with a list created with the Array<CIMName>
+    Array<CIMName> names4;
+    names4.append(CIMName ("property1"));
+    names4.append(CIMName ("property2"));
+    names4.append(CIMName ("property3"));
+    CIMPropertyList list3(names4);
+    PEGASUS_TEST_ASSERT(list3.contains("property1"));
+    PEGASUS_TEST_ASSERT(list3.contains("property2"));
+    PEGASUS_TEST_ASSERT(list3.contains("property3"));
+    PEGASUS_TEST_ASSERT(!list3.contains("propertyx"));
+
+    // test of useThisProperty
+    list1.clear();
+    names.append(CIMName ("property1"));
+    names.append(CIMName ("property2"));
+    names.append(CIMName ("property3"));
+    list1.set(names);
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("property1"));
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("property2"));
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("property3"));
+    PEGASUS_TEST_ASSERT(!list1.useThisProperty("propertyx"));
+
+    // retest with list cleared to be sure that an
+    // cleared property list returns true for any property
+    list1.clear();
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("property1"));
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("property2"));
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("property3"));
+    PEGASUS_TEST_ASSERT(list1.useThisProperty("propertyx"));
+
+    // test for correct response with empty list
+    Array<CIMName> emptyArray;
+    list1.set(emptyArray);
+    PEGASUS_TEST_ASSERT(!list1.useThisProperty("property1"));
+    PEGASUS_TEST_ASSERT(!list1.useThisProperty("property2"));
+    PEGASUS_TEST_ASSERT(!list1.useThisProperty("property3"));
+    PEGASUS_TEST_ASSERT(!list1.useThisProperty("propertyx"));
+
 }
 
 //Test reference type properties
@@ -336,7 +393,6 @@ void test04()
     CIMObjectPath pathout2;
     v1.get(pathout2);
     // Now compare the paths
-
 
     if(verbose)
         XmlWriter::printPropertyElement(p2, cout);

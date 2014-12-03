@@ -314,6 +314,29 @@ public:
     */
     Boolean isInstance() const;
 
+    /**
+        This function is not optimized
+        for performance.  We recommend that it not be used because:
+        a) the response enviroment of OpenPegasus efficiently filters out
+           properties that are not in the PropertyList
+        b) If a provider wants to return just the properties in the propertyList
+           it should NOT put them into the returned instances.
+           Putting them into the object and then removing them in
+           the provider is a waste of energy.
+
+        NOTE: As of CIM 2.14, added a new function to CIMPropertyList (contains)
+        that allows efficient determination if a property is in the propertyList
+        so that the provider can determine if a property is required easily
+        before putting it into a response instance.
+
+        @param includeQualifiers Boolean that determines if qualifiers are
+        filtered out of the CIMObject and any properties
+        @param includClassOrigin Boolean that determines if the ClassOrigin
+        attribute is filtered out of the CIMObject
+        @param propertyList CIMPropertyList that determines which properties
+        are filtered out of the CIMObject. Any property not in the propertyList
+        is filtered out of the CIMObject
+    */
     void instanceFilter(
         Boolean includeQualifiers,
         Boolean includeClassOrigin,

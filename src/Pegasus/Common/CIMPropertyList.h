@@ -183,8 +183,40 @@ public:
     void appendCIMNameTag(Uint32 nameTag);
 
     /**
-        Return as a String the comma-separated list of properties in
-        a property list.  If the list is empty or NULL set the
+        Determine if the propertylist contains the property name defined in
+        the input argument. This does not cover the concept of NULL
+        propertylist. A NULL or empty list will return false.
+        @param name CIMName containing the property name
+        to be matched against the propertylist
+        @return True if the argument name is in the list. Otherwise
+        returns false.
+        @version 2.14
+     */
+    Boolean contains(const CIMName& name) const;
+
+    /**
+        Convience function to determine if the propertyList is either
+        NULL or the property is in the list. This can be used as a single
+        method by a provider to determine if a property is to be included
+        in the response
+        @param name CIMName containing the property name
+            to be matched against the propertylist
+        @return True if the argument name is in the list or the list
+            is null. Otherwise returns false.
+        @version 2.14
+        <p><b>Example:</b>
+        <pre>
+            if (p.useThisProperty("prop1")
+                instance.addProperty("prop1",...);
+            if (p.useThisProperty("prop2")
+                instance.addProperty("prop2",,,,);
+        </pre>
+     */
+    Boolean useThisProperty(const CIMName& name) const;
+
+    /**
+        Return as a String the comma-separated list of property names in a
+        property list.  If the list is empty or NULL set the
         corresponding string value (EMPTY or NULL).  This method is
         only for display of information in a property list.
         @return String containing the list of properties

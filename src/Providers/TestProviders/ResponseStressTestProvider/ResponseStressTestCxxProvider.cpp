@@ -62,7 +62,14 @@ CIMName TestClass = "TST_ResponseStressTestCxx";
 String _buildString(Uint64 size, const String& pattern)
 {
     String rtn;
-    for (Uint32 i = 0; i <= pattern.size(); i++)
+    Uint32 repCount = 1;
+    if (size > pattern.size())
+    {
+        repCount = size / pattern.size();
+    }
+
+    // Append the pattern to the String
+    for (Uint32 i = 0; i <= repCount; i++)
     {
         rtn.append(pattern);
     }
@@ -90,12 +97,12 @@ CIMObjectPath _buildPath(Uint64 sequenceNumber)
     Builds a single instance with the defined sequence number, instanceSize,
     and timeDiff parameters.
 */
-CIMInstance _buildInstance(Uint64 sequenceNumber,
-                           Uint64 instanceSize, Uint64 timeDiff,
-                           const CIMPropertyList& propertyList)
+void _buildInstance(CIMInstance instance,
+    Uint64 sequenceNumber,
+    Uint64 timeDiff,
+    const CIMPropertyList& propertyList,
+    const String s1)
 {
-    CIMInstance instance(TestClass);
-
     char namebuf[60];
     sprintf(namebuf, "%lu", (unsigned long)sequenceNumber);
 
@@ -103,18 +110,22 @@ CIMInstance _buildInstance(Uint64 sequenceNumber,
     instance.addProperty(CIMProperty("SequenceNumber", sequenceNumber));
     instance.addProperty(CIMProperty("Pattern", pattern));
     instance.addProperty(CIMProperty("interval", timeDiff));
-
-    // Would be cheaper to build this once for the operation.
-    String pad = _buildString(instanceSize, pattern);
-    instance.addProperty(CIMProperty("S1", pad));
+    instance.addProperty(CIMProperty("S1", s1));
 
     instance.setPath(_buildPath(sequenceNumber));
 
-    // filter out unwanted properties. Would be cheaper to not add
-    // the unwanted properties
-    // instance.instanceFilter(true, true, propertyList);
+    // filter out unwanted properties. It would be cheaper to not add
+    // the unwanted properties. Note that this function is not really
+    // required here since the real solution should be to
+    // a) not build the properties that are not to be sent
+    // b) let the server eliminate them if you do build everything.
+    // However, it created a nasty bug in the pull operations tests
+    // bug 9953) and so we leave it here to assure that the
+    // bug is fixed.
 
-    return(instance);
+    instance.instanceFilter(true, true, propertyList);
+
+    return;
 }
 
 //
@@ -168,13 +179,17 @@ void ResponseStressTestCxxProvider::getInstance(
 {
     handler.processing();
 
+    // Build the big string that sets the instance size
+    String s1 = _buildString(_instanceSize, pattern);
+
     // NOTE: For getInstance ignore the timeDiff property
     // and set to zero.
-
-    CIMInstance instance = _buildInstance(0,
-        _instanceSize,
+    CIMInstance instance(TestClass);
+    _buildInstance(instance,
         0,
-        propertyList);
+        0,
+        propertyList,
+        s1);
     handler.deliver(instance);
 
     throw CIMException(CIM_ERR_NOT_FOUND);
@@ -196,6 +211,9 @@ void ResponseStressTestCxxProvider::enumerateInstances(
 {
     handler.processing();
 
+    // Build the big string that sets the instance size
+    String s1 = _buildString(_instanceSize, pattern);
+
     // if _countToFail != 0 count number of objects to deliver before
     // we issue the defined CIMException status code
     Uint32 countToFail = (_countToFail == 0)? 0 : _countToFail;
@@ -210,10 +228,13 @@ void ResponseStressTestCxxProvider::enumerateInstances(
 
         try
         {
-            CIMInstance instance = _buildInstance(i,
-                      _instanceSize,
-                      newTime - prevTime,
-                      propertyList);
+            CIMInstance instance(TestClass);
+            _buildInstance(instance,
+                i,
+                (newTime - prevTime),
+                propertyList,
+                s1);
+
             prevTime = newTime;
             handler.deliver(instance);
         }
@@ -227,7 +248,7 @@ void ResponseStressTestCxxProvider::enumerateInstances(
             if ((--countToFail) == 0)
             {
                 throw CIMException((CIMStatusCode)_failureStatusCode,
-                                            "Reached failure count");
+                    "Reached failure count");
             }
         }
         // If _delay parameter not equal zero, execute a delay at regular

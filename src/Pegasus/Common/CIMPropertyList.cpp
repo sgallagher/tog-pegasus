@@ -224,6 +224,30 @@ void CIMPropertyList::appendCIMNameTag(Uint32 nameTag)
     _rep->cimNameTags.append(nameTag);
 }
 
+Boolean CIMPropertyList::contains(const CIMName& name) const
+{
+    Uint32 n = _rep->propertyNames.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        if (_rep->propertyNames[i] == name)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+Boolean CIMPropertyList::useThisProperty(const CIMName& name) const
+{
+    if (_rep->isNull)
+    {
+        return true;
+    }
+    return contains(name);
+}
+
 String CIMPropertyList::toString() const
 {
     if (_rep->isNull)

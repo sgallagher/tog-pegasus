@@ -235,13 +235,16 @@ void _displayTimes( Uint32 objCount, Uint32 objSize, Uint64 elapsed,
            (long unsigned int) perfData.responseSize,
            objSize, objCount);
 }
-// Enumerate the instance names for the defined
-void enumerateInstances(CIMClient& client, const methodParameters& mp)
+// Enumerate the instance names
+void enumerateInstances(CIMClient& client, const methodParameters& mp,
+                        CIMPropertyList& pl)
 {
     Stopwatch sw;
     sw.start();
+
     Array<CIMInstance> instances =
-        client.enumerateInstances(NAMESPACE, TEST_CLASS);
+        client.enumerateInstances(NAMESPACE, TEST_CLASS,
+                                  true, true, false, false, pl);
 
     sw.stop();
     Uint64 elapsed = sw.getElapsedUsec();
@@ -527,7 +530,16 @@ int main(int argc, char** argv)
 
             enumerateInstanceNames(client, mp);
 
-            enumerateInstances(client, mp);
+            CIMPropertyList pl;
+            enumerateInstances(client, mp, pl);
+
+            Array<CIMName> pn;
+            pn.append("Pattern");
+            pn.append("s1");
+            pn.append("Id");
+            pn.append("SequenceNumber");
+            pl.set(pn);
+            enumerateInstances(client, mp, pl);
         }
         // This is a real stress test and should be only used for manual
         // test, not the nightly tests.
@@ -553,8 +565,16 @@ int main(int argc, char** argv)
                 {
                     methodParameters mp(objSize[x], objCount[y]);
                     set(client, mp);
+                    CIMPropertyList pl1;
+                    enumerateInstances(client, mp, pl1);
 
-                    enumerateInstances(client, mp);
+                    Array<CIMName> pn;
+                    pn.append("Pattern");
+                    pn.append("s1");
+                    pn.append("Id");
+                    pn.append("SequenceNumber");
+                    pl1.set(pn);
+                    enumerateInstances(client, mp, pl1);
                 }
             }
         }
@@ -574,7 +594,8 @@ int main(int argc, char** argv)
     set(client, mpFail);
     try
     {
-        enumerateInstances(client, mpFail);
+        CIMPropertyList pl;
+        enumerateInstances(client, mpFail, pl);
         PEGASUS_TEST_ASSERT(false);    // should not reach here.
     }
     catch (CIMException& e)

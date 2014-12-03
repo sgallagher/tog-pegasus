@@ -239,6 +239,7 @@ TEST_DIRS += \
     Server/tests \
     Server/tests/InterfaceRestriction \
     Server/tests/TLSv_1_2_Support \
+    Server/tests/PulllopCrash \
     Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/FileURIHandler/tests
 

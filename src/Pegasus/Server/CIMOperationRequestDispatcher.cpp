@@ -7587,12 +7587,21 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         // accepted for this enumerationContext
         en->setClientClosed();
 
-        // If providers complete, we can release this context
+        // If providers complete, we can release this context.
         if ((providersComplete = en->providersComplete()))
         {
-            _enumerationContextTable->releaseContext(en);
+            // Keep the context locked when exiting from AutoMutex contextLock
+            // scope, _enumerationContextTable->releaseContext() below needs it
+            // locked and it will unlock it before it destroys it.
+            en->lockContext();
         }
     }
+    if (providersComplete)
+    {
+        // Unlock and destroy the context.
+        _enumerationContextTable->releaseContext(en);
+    }
+
 
     AutoPtr<CIMCloseEnumerationResponseMessage> response(
         dynamic_cast<CIMCloseEnumerationResponseMessage*>(

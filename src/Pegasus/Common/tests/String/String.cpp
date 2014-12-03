@@ -44,10 +44,8 @@ PEGASUS_USING_STD;
 
 static Boolean verbose;
 
-int test(char** argv)
+void test1()
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-
     String s1 = "Hello World";
     String s2 = s1;
     String s3(s2);
@@ -1445,9 +1443,11 @@ int test(char** argv)
 
     char* p = (char*)operator new(88888);
     operator delete(p);
+}
 
-    // Test appendPrintf
-
+// Test appendPrintf
+void testappendPrintf()
+{
     // Test the various basic C++ basic integer  and string types
     {
         String prtf;
@@ -1528,12 +1528,120 @@ int test(char** argv)
         VCOUT << "prtf    " << prtf << "\nresult  " << result << endl;
         PEGASUS_TEST_ASSERT(prtf == result);
     }
+
     {
         String prtf = "abcd";
         prtf.appendPrintf("%s", "efgh");
         prtf.appendPrintf("%s", "ijkl");
         String result = "abcdefghijkl";
         PEGASUS_TEST_ASSERT(prtf == result);
+    }
+
+    {
+        Uint32 a = 1;
+        Uint32 b = 2;
+        Uint32 c = 3;
+        Uint32 d = 4;
+        Uint64 e = 99999;
+
+        String prtf = "abcd";
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        prtf.appendPrintf("%s", "efgh");
+        prtf.appendPrintf("%s", "ijkl");
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",a);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",b);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",c);
+        prtf.appendPrintf("this is going to be a big string so we realloc%u",d);
+        prtf.appendPrintf("more big string so we realloc%llu",e);
+        String result = "abcdefghijklthis is going to be a big string so we"
+                        " realloc1this is going to be a big string so we "
+                        "realloc2this is going to be a big string so we "
+                        "realloc3this is going to be a big string so we "
+                        "realloc4more big string so we realloc99999efghijklthis"
+                        " is going to be a big string so we realloc1this is"
+                        " going to be a big string so we realloc2this is going"
+                        " to be a big string so we realloc3this is going to be"
+                        " a big string so we realloc4more big string so we"
+                        " realloc99999efghijklthis is going to be a big string"
+                        " so we realloc1this is going to be a big string so"
+                        " we realloc2this is going to be a big string so we"
+                        " realloc3this is going to be a big string so we"
+                        " realloc4more big string so we realloc99999efgh"
+                        "ijklthis is going to be a big string so we realloc"
+                        "1this is going to be a big string so we realloc2th"
+                        "is is going to be a big string so we realloc3this "
+                        "is going to be a big string so we realloc4more big"
+                        " string so we realloc99999efghijklthis is going to"
+                        " be a big string so we realloc1this is going to be"
+                        " a big string so we realloc2this is going to be a big"
+                        " string so we realloc3this is going to be a big"
+                        " string so we realloc4more big string so we "
+                        "realloc99999efghijklthis is going to be a big string"
+                        " so we realloc1this is going to be a big string so we"
+                        " realloc2this is going to be a big string so we"
+                        " realloc3this is going to be a big string so we reall"
+                        "oc4more big string so we realloc99999efghijklthis is"
+                        " going to be a big string so we realloc1this is going"
+                        " to be a big string so we realloc2this is going to be"
+                        " a big string so we realloc3this is going to be a big"
+                        " string so we realloc4more big string so we realloc"
+                        "99999efghijklthis is going to be a big string so we"
+                        " realloc1this is going to be a big string so we rea"
+                        "lloc2this is going to be a big string so we realloc"
+                        "3this is going to be a big string so we realloc4mor"
+                        "e big string so we realloc99999";
+        VCOUT  << prtf << endl;
+
+        PEGASUS_TEST_ASSERT(prtf == result);
+
     }
 // The following are not normally compiled.  They test that compile
 // errors are generated on at least the supported compilers when
@@ -1592,13 +1700,16 @@ int test(char** argv)
         PEGASUS_TEST_ASSERT(prtf == "32512");
     }
 #endif
-    cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return 0;
 }
 
 int main(int, char** argv)
 {
     verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-    return test(argv);
+
+    test1();
+    testappendPrintf();
+
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    return 0;
 }

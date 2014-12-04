@@ -51,6 +51,14 @@
 #include <Pegasus/Common/TimeValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+// Compile flag for specific EnumerationTable diagnostic functions
+// These are normally NOT compiled but kept in source for debugging
+// NOTE that when the following define is NOT set, they are completely
+// disabled and not tied to PEGASUS_DEBUG.
+// To enable them, uncomment the following line
+// #define ENUMERATIONTABLE_DEBUG
+
 /****************************************************************************
 **
 **   EnumerationContextTable Class
@@ -135,18 +143,17 @@ public:
     EnumerationContext* find(const String& contextId);
 
     /** Dispatch the Timer thread if it is not already dispatched.
-
-       @param interval Uint32 interval defines the interval for this context
-              in seconds.
     */
-    void dispatchTimerThread(Uint32 intervalSec);
+    void dispatchTimerThread();
 
     // Diagnostic tests magic number in context to see if valid
     bool valid();
 
-    // KS_TEMP TODO REMOVE This diagnostic should be removed. It  validates
+    // This diagnostic validates
     // every entry in the table. This was a diagnostic during development
-////  void tableValidate();
+#ifdef ENUMERATIONTABLE_DEBUG
+    void tableValidate();
+#endif
 
     // Diagnostic to output info on all entries in table to trace
       void trace();
@@ -248,7 +255,6 @@ private:
     // KS_TODO this statistic not implemented.
     Uint64 _requestsPerEnumerationSequence;
 
-    Uint64 _totalZeroLenDelayedResponses;
 
     // Statistic to keep track of average size requested for all
     // operations.
@@ -261,6 +267,9 @@ private:
             :
             0);
     }
+
+    // Total number of delayed responses generated
+    Uint64 _totalZeroLenDelayedResponses;
 
     // magic number that acts as validator of enumerationContextTable
     Magic<0x57D11474> _magic;

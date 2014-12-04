@@ -54,8 +54,7 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-// Definition of static variable that can be set by
-// config manager
+// Definition of static variable that can be set by  config manager
 Uint32 EnumerationContextTable::_defaultOperationTimeoutSec =
     PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC;
 
@@ -118,8 +117,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimeoutThread(void* parm)
     {
         et->_timeoutThreadWaitSemaphore.time_wait(nextTimeoutMsec);
 
-        // false return indicates table empty.
-        if (!et->processExpiredContexts())
+        // false return indicates table empty which terminates loop.
+        if (et->processExpiredContexts())
         {
             break;
         }
@@ -311,7 +310,7 @@ String EnumerationContextTable::buildStatistics(bool clearStats)
             _responseObjectCountHighWaterMark);
 
         str.appendPrintf(
-            "\n  Total zero Length delayed responses=%u",
+            "\n  Total zero Length delayed responses=%llu",
             _totalZeroLenDelayedResponses);
     }
     if (clearStats)
@@ -625,27 +624,29 @@ bool EnumerationContextTable::processExpiredContexts()
     return (size() == 0)? true : false;
 }
 
-////// Validate every entry in the table.This is a diagnostic that should only
-////// be used in testing changes during development.
-////void EnumerationContextTable::tableValidate()
-////{
-////    AutoMutex autoMut(_tableLock);
-////    for (EnumContextTableType::Iterator i = _enumContextTable.start(); i;
-////        i++)
-////    {
-////        EnumerationContext* en = i.value();
-////        if (!en->valid())
-////        {
-////            en->trace();
-////            PEGASUS_ASSERT(en->valid());
-////        }
-////    }
-////}
+// Validate every entry in the table.This is a diagnostic that should only
+// be used in testing changes during development.
+#ifdef ENUMERATIONTABLE_DEBUG
+void EnumerationContextTable::tableValidate()
+{
+    AutoMutex autoMut(_tableLock);
+    for (EnumContextTableType::Iterator i = _enumContextTable.start(); i;
+        i++)
+    {
+        EnumerationContext* en = i.value();
+        if (!en->valid())
+        {
+            en->trace();
+            PEGASUS_ASSERT(en->valid());
+        }
+    }
+}
+#endif
 
 // interval is the timeout for the current operation that
 // initiated this call.  It helps the timer thread decide how often
 // to scan for timeouts.
-void EnumerationContextTable::dispatchTimerThread(Uint32 intervalSec)
+void EnumerationContextTable::dispatchTimerThread()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "EnumerationContextTable::dispatchTimerThread");

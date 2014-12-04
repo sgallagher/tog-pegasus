@@ -86,8 +86,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _responseObjectsCount(0),
     _requestedResponseObjectsCount(0),
     _totalZeroLenObjectResponseCounter(0),
-    _cacheHighWaterMark(0),
-    _poA(0)
+    _cacheHighWaterMark(0)
 {
     PEGASUS_DEBUG_ASSERT(_responseCache.valid());
 
@@ -147,7 +146,7 @@ void EnumerationContext::startTimer(Uint64 timeoutUsec)
 
     _operationTimerUsec =  currentTime + timeoutUsec;
 
-    _enumerationContextTable->dispatchTimerThread((_operationTimeoutSec));
+    _enumerationContextTable->dispatchTimerThread();
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
@@ -197,7 +196,7 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
             return false;
     }
 
-    bool timedOut = (_operationTimerUsec < currentTime)? true : false;
+    bool timedOut = (_operationTimerUsec <= currentTime)? true : false;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,

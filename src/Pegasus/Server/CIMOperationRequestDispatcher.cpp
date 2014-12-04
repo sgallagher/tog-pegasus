@@ -3881,7 +3881,6 @@ bool CIMOperationRequestDispatcher::handleQueryRequestCommon(
     if (isPullOperation)
     {
         poA->setPullOperation(enumerationContext);
-        enumerationContext->_poA = (void*)poA;
     }
 
     // Build enum request for call to repository
@@ -5918,7 +5917,6 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
-    enumerationContext->_poA = (void*)poA;
 
 #ifdef PEGASUS_ENABLE_FQL
     if (filterResponse)
@@ -6105,7 +6103,6 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancePathsRequest(
     // in responses
     //
     poA->setPullOperation(enumerationContext);
-    enumerationContext->_poA = (void*)poA;
 
     // gather up the repository responses and send it to out as one response
     // with many instances
@@ -6431,7 +6428,6 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancesRequest(
     // since operationAggregate is what is  returned from providers.
     //
     poA->setPullOperation(enumerationContext);
-    enumerationContext->_poA = (void*)poA;
 
 #ifdef PEGASUS_ENABLE_FQL
     if (filterResponse)
@@ -6668,7 +6664,6 @@ bool CIMOperationRequestDispatcher::handleOpenReferenceInstancePathsRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
-    enumerationContext->_poA = (void*)poA;
 
     // If any return from repository, send it to aggregator.
     // Send repository response for aggregation
@@ -6995,7 +6990,6 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancesRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
-    enumerationContext->_poA = (void*)poA;
 
 #ifdef PEGASUS_ENABLE_FQL
     if (filterResponse)
@@ -7258,7 +7252,6 @@ bool CIMOperationRequestDispatcher::handleOpenAssociatorInstancePathsRequest(
     // Set Open... operation parameters into the operationAggregate
     //
     poA->setPullOperation(enumerationContext);
-    enumerationContext->_poA = (void*)poA;
 
     // If any return from repository, send it to aggregator.
     if (objectNames.size() != 0)

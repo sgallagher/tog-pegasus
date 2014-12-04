@@ -436,12 +436,6 @@ public:
     // context
     EnumerationContextTable* _enumerationContextTable;
 
-    // If nonNull, this is pointer to the OperationAggregate for this
-    // enumeration sequence (i.e. the provider side control info for
-    // the dispatcher
-    // KS_TODO probably not needed any more.
-    void* _poA;
-
     /**
         Increment and return the zeroLenObjectResponseCounter which is a
         counter of the number of zero-len responses sent to the client

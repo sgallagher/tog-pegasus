@@ -117,7 +117,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimeoutThread(void* parm)
     {
         et->_timeoutThreadWaitSemaphore.time_wait(nextTimeoutMsec);
 
-        // false return indicates table empty which terminates loop.
+        // true return indicates table empty which terminates loop.
         if (et->processExpiredContexts())
         {
             break;
@@ -231,7 +231,7 @@ EnumerationContext* EnumerationContextTable::createContext(
         :
         request->operationTimeout.getValue();
 
-    // Create new context name
+    // Create new contextId
     Uint32 rtnSize;
     char scratchBuffer[22];
     const char* contextId = Uint32ToString(scratchBuffer,
@@ -259,14 +259,14 @@ EnumerationContext* EnumerationContextTable::createContext(
     if(!_enumContextTable.insert(contextId, en))
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "Error Creating Enumeration Context %s. System Failed",
+            "Error Creating Enumeration Context ContextId=%s. System Failed",
             contextId ));
         PEGASUS_ASSERT(false);  // This is a system failure
     }
 
     _enumerationContextsOpened++;
 
-    // set new highwater mark for max contexts if necessary
+    // set new highwater mark for maxOpenContexts if necessary
     if (_enumContextTable.size() >_maxOpenContexts )
     {
         _maxOpenContexts = _enumContextTable.size();
@@ -278,7 +278,7 @@ EnumerationContext* EnumerationContextTable::createContext(
 
 void EnumerationContextTable::displayStatistics(bool clearStats)
 {
-    // Show shutdown statistics for EnumerationContextTable
+    // Show statistics for EnumerationContextTable
     // Should add avg size of requests.  Maybe some other info.
         cout << buildStatistics(clearStats) << endl;
 }
@@ -339,8 +339,8 @@ void EnumerationContextTable::removeContextTable()
         EnumerationContext* en = i.value();
 
         PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
-            "EnumerationTable Close. Entry Found "
-                " name %s, started %llu milliseconds before,",
+            "EnumerationTable Delete. "
+                " ContextId=%s. Existed for %llu milliseconds",
              (const char *)en->getContextId().getCString(),
              ((TimeValue::getCurrentTime().toMilliseconds()
                - en->_startTimeUsec)/1000) ));
@@ -450,7 +450,8 @@ EnumerationContext* EnumerationContextTable::find(const String& contextId)
     return en;
 }
 
-/** Test all table entries and remove the ones timed out.
+/* Test all table entries and remove the ones timed out.
+   Returns true if the enumeration table is empty
 
 */
 bool EnumerationContextTable::processExpiredContexts()
@@ -465,7 +466,7 @@ bool EnumerationContextTable::processExpiredContexts()
 
     if (size() == 0)
     {
-        return false;
+        return true;
     }
 
     Array<String> removeList;
@@ -495,7 +496,6 @@ bool EnumerationContextTable::processExpiredContexts()
                         if (en->isTimedOut(currentTimeUsec))
                         {
                             en->stopTimer();
-                            _enumerationsTimedOut++;
 
                             // If providers are complete we can remove the
                             // context. Otherwise depend on provider completion
@@ -531,6 +531,7 @@ bool EnumerationContextTable::processExpiredContexts()
             // unlock before removing the context
             EnumerationContext* en = find(removeList[i]);
             PEGASUS_DEBUG_ASSERT(en->valid());
+            _enumerationsTimedOut++;
             en->setClientClosed();
             en->unlockContext();
             _removeContext(en);
@@ -545,6 +546,7 @@ bool EnumerationContextTable::processExpiredContexts()
     //  PEGASUS_MAX_CONSECUTIVE_WAITS_BEFORE_ERR will results in setting
     // the providers closed and issuing message.
     // After 4 of these messages sent, just close the enumeration.
+    // All contexts in this list remain locked from the previous code
     for (Uint32 i = 0; i < issueSavedResponseList.size(); i++)
     {
         // recheck by finding, validating and checking state again
@@ -567,6 +569,8 @@ bool EnumerationContextTable::processExpiredContexts()
             // Set an error. NOTE: Just guessing if this is the correct error
             CIMException e = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                              "Provider Responses Failed");
+            // KS_TODO we should also set continueOnError to false since we
+            // really do want to close the client
             en->setErrorState(e);
         }
         // Issue an empty response to the dispatcher.
@@ -575,7 +579,7 @@ bool EnumerationContextTable::processExpiredContexts()
         en->_savedOperationMaxObjectCount = 0;
         CIMOperationRequestDispatcher::issueSavedResponse(en);
 
-        // If we have tried the clean up several times and it did not work, just
+        // If we have tried the clean up several times and it did not work,
         // discard the enumeration context. Just picked the number 4
         // as the number of retries for the cleanup before we just close the
         // whole thing.
@@ -583,10 +587,10 @@ bool EnumerationContextTable::processExpiredContexts()
         {
             PEGASUS_DEBUG_ASSERT(en->valid());
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                  "Enumeration Context %s removed after providers did not"
-                  "respond for at least %u min",
-                  (const char*)en->getContextId().getCString(),
-                  ((finalTargetCount * PEGASUS_PULL_MAX_OPERATION_WAIT_SEC)/60)
+                  "Enumeration Context removed after providers did not"
+                      "respond for at least %u min. ContextId=%s",
+                  ((finalTargetCount * PEGASUS_PULL_MAX_OPERATION_WAIT_SEC)/60),
+                  (const char*)en->getContextId().getCString()
                   ));
 
             // Close the provider side, generate response to client, and
@@ -598,10 +602,11 @@ bool EnumerationContextTable::processExpiredContexts()
         }
         // The initial test and cleanup.  Started at targetCount and
         // repeated at least 3 times before we discard the provider
+        // This time call the providerManager cleanup.
         else if (ctr >= targetCount)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "%u Consecutive 0 len responses issued for ContextId=%s",
+                "%u Consecutive 0 length responses issued for ContextId=%s",
                 ctr,
                 CSTRING(en->getContextId()) ));
             // send cleanup message to provider manager.  Need pointer to
@@ -618,10 +623,10 @@ bool EnumerationContextTable::processExpiredContexts()
         }
 
     }
-
     PEG_METHOD_EXIT();
 
-    return (size() == 0)? true : false;
+    // Return true or false depending whether table is empty.
+    return (size() == 0);
 }
 
 // Validate every entry in the table.This is a diagnostic that should only

@@ -458,8 +458,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleEnumerateInstancesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s MessageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -516,8 +517,9 @@ CIMResponseMessage*
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleEnumerateInstanceNamesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s messageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString() ));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -739,8 +741,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleExecQueryRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s MessageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString()));
 
     QueryExpression qx(request->queryLanguage,request->query);
 
@@ -798,8 +801,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleAssociatorsRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s MessageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString()));
 
     CIMObjectPath assocPath(
         System::getHostName(),
@@ -866,8 +870,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleAssociationNamesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s MessageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString()));
 
     CIMObjectPath assocPath(
         System::getHostName(),
@@ -931,8 +936,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleReferencesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s MessageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString()));
 
     CIMObjectPath resultPath(
         System::getHostName(),
@@ -997,8 +1003,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL3,
         "ProviderMessageHandler::_handleReferenceNamesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: %s MessageId=%s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*)message->messageId.getCString()));
 
     // KS_TODO Confirm that the following is cruft and not needed.
 //    CIMObjectPath resultPath(

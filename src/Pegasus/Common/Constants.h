@@ -231,8 +231,10 @@
 // Constants that are NOT part of runtime configuration
 //
 // Maximum time server will wait in seconds after receiving a pull before
-// returning zero objects.
-#define PEGASUS_PULL_MAX_OPERATION_WAIT_SEC 15
+// returning zero objects response. This should be significantly less that
+// the client timeout to assure that some response gets back to client
+// before client times out.
+#define PEGASUS_PULL_MAX_OPERATION_WAIT_SEC 9
 // Number of times dispatcher will send the zero length keep alive
 // response (because providers not responding) before it concludes
 // there was an error and tries to send msg to provider manager to clean up
@@ -240,7 +242,7 @@
 
 // Number of times dispatcher will send the zero length keep alive
 // response (because providers not responding) before it concludes
-// there was an error closes the enumerationContext
+// there was an error and closes the enumerationContext
 // This should be greater than PEGASUS_MAX_CONSECUTIVE_WAITS_BEFORE_ERR
 // to allow an attempt at cleanup before the enumeration is failed.
 #define PEGASUS_MAX_CONSECUTIVE_WAITS_BEFORE_FAIL 16

@@ -46,6 +46,9 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+// defines conversion between sec and usec
+#define PEG_MICROSEC 1000000
+
 #define MAX_ZERO_PULL_OPERATIONS 1000
 
 // When set enables the diagnostic traces in this class
@@ -131,7 +134,7 @@ void EnumerationContext::startTimer()
     // Request operation timeout = 0 means do not start timer
     if (_operationTimeoutSec != 0)
     {
-        startTimer(_operationTimeoutSec * 1000000);
+        startTimer(_operationTimeoutSec * PEG_MICROSEC);
     }
     PEG_METHOD_EXIT();
 }
@@ -154,9 +157,9 @@ void EnumerationContext::startTimer(Uint64 timeoutUsec)
            " OperationTimeout=%u sec,"
            " next timeout in %ld sec,",
        (const char*)getContextId().getCString(),
-       (timeoutUsec / 1000000),
+       (timeoutUsec / PEG_MICROSEC),
        _operationTimeoutSec,
-       (long signed int)(_operationTimerUsec - currentTime)/1000000 ));
+       (long signed int)(_operationTimerUsec - currentTime)/PEG_MICROSEC ));
 #endif
     PEG_METHOD_EXIT();
 }
@@ -175,7 +178,7 @@ void EnumerationContext::stopTimer()
        (const char*)getContextId().getCString(),
        _operationTimeoutSec,
        (long signed int)(_operationTimerUsec -
-           System::getCurrentTimeUsec())/1000000 ));
+           System::getCurrentTimeUsec())/PEG_MICROSEC ));
 #endif
     _operationTimerUsec = 0;
     PEG_METHOD_EXIT();
@@ -196,16 +199,16 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
             return false;
     }
 
-    bool timedOut = (_operationTimerUsec <= currentTime)? true : false;
+    bool timedOut = _operationTimerUsec <= currentTime;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "isTimedOut Timer. ContextId=%s timer(sec)=%lu"
-           " current(sec)=%lu time to timeout(sec)=%ld isTimedOut=%s",
+           " current(sec)=%lu time to timeout(usec)=%ld isTimedOut=%s",
         (const char*)_contextId.getCString(),
-        (long unsigned int)(_operationTimerUsec / 1000000),
-        (long unsigned int)(currentTime / 1000000),
-        (long signed int)((_operationTimerUsec - currentTime) / 1000000),
+        (long unsigned int)(_operationTimerUsec / PEG_MICROSEC),
+        (long unsigned int)(currentTime / PEG_MICROSEC),
+        (long signed int)((_operationTimerUsec - currentTime)),
         boolToString(timedOut) ));
 #endif
     // If it is timed out, set timer inactive.
@@ -323,8 +326,8 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
     CIMResponseData & from = localResponse->getResponseData();
 
     // If there is any binary data, reformat it to SCMO.  There are no
-    // size counters for the binary data so we reformat to generate
-    // counters.
+    // size counters for the binary data so reformat to generate
+    // counters and make it compatible with the cache access mechanisms
     if (from.hasBinaryData())
     {
         from.resolveBinaryToSCMO();
@@ -332,7 +335,7 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-        "putCache, ContextId=%s  isComplete=%s ResponseDataType=%u "
+        "putCache, ContextId=%s isComplete=%s ResponseDataType=%u "
             " cache size=%u put size=%u clientClosed=%s",
         (const char*)getContextId().getCString(),
         boolToString(providersComplete),
@@ -460,12 +463,13 @@ bool EnumerationContext::testCacheForResponses(
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-       "testCacheForResponse returns %s", boolToString(rtn) ));
+       "testCacheForResponse returns %s for ContextId=",
+               boolToString(rtn), (const char*)getContextId().getCString() ));
 #endif
     return rtn;
 }
 
-void EnumerationContext::saveNextResponse(
+void EnumerationContext::setupDelayedResponse(
     CIMOperationRequestMessage* request,
     CIMOpenOrPullResponseDataMessage* response,
     Uint32 operationMaxObjectCount)
@@ -477,6 +481,10 @@ void EnumerationContext::saveNextResponse(
     _savedOperationMaxObjectCount = operationMaxObjectCount;
     _savedResponse = response;
     _savedRequest = request;
+
+    // Start the waiting timeout for this delayed response.
+    // At end of this timer, it will send empty response.
+    startTimer(PEGASUS_PULL_MAX_OPERATION_WAIT_SEC * PEG_MICROSEC);
 }
 /*
     Move the number of objects defined by count from the CIMResponseData

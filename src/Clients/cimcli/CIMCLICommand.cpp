@@ -1393,10 +1393,12 @@ int main(int argc, char** argv)
         {
             // KS_TODO did not internationalize this one since it is
             // and abnormal termination
-            cout << "Exception" << endl;
-            cout << "Prev Time " << opts.saveElapsedTime << " Sec" << endl;
+            cout << "Exception in cimcli " << endl;
+            cout << "Prev Elapsed Time " << opts.saveElapsedTime << " Sec"
+                 << endl;
             opts.saveElapsedTime = opts.elapsedTime.getElapsed();
-            cout << "Last Time " << opts.saveElapsedTime << " Sec" << endl;
+            cout << "Last Elaposed Time " << opts.saveElapsedTime << " Sec"
+                 << endl;
             cout << "Total Time " << totalTime << " for "
                 << repeatCount << " operations. Avg.= "
                 << totalTime/repeatCount

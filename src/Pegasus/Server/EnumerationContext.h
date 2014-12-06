@@ -300,10 +300,12 @@ public:
     bool testCacheForResponses(Uint32 operationMaxObjectCount,
                                   Boolean requiresAll);
 
-    /** Setup the request and response information for a response to
+    /* Setup the request and response information for a response to
         be issued later as part of putting provider info into the
         cache. This saves the request, response, and count
-        information.
+        information and starts the timer so that the delayed
+        response will be issued after a defined time if there are no
+        provider events
 
         @param request - The CIMOperationRequestMessage for the
         response that will be issued later. This could be either a
@@ -316,7 +318,7 @@ public:
         @param operationMaxObjecCount Uint32 that defines the
         maximum number of objects to be returned.
     */
-    void saveNextResponse(CIMOperationRequestMessage* request,
+    void setupDelayedResponse(CIMOperationRequestMessage* request,
          CIMOpenOrPullResponseDataMessage* response,
          Uint32 operationMaxObjectCount);
 
@@ -530,7 +532,6 @@ private:
     // OOPProviderAgent to close out the defined enumerationContext and
     // eventually the enumeration Context is just closed as a error.
     Uint32 _consecutiveZeroLenObjectResponseCounter;
-
 
     // Maximum number of objects that can be placed in the response Cache
     // before blocking providers.

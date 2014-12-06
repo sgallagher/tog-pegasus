@@ -161,8 +161,8 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     msg->internalOperation = internalOperation;
 
     PEG_TRACE((TRC_DISPATCHER,  Tracer::LEVEL4,
-        "Serialize Message id %s type %s binary req %s"
-                       " binary resp %s iscomplete %s internal %s",
+        "Deserialize MessageId=%s type=%s binaryReq=%s"
+                       " binaryResp=%s iscomplete=%s internal=%s",
         (const char*)msg->messageId.getCString(),
         MessageTypeToString(msg->getType()),
         boolToString(msg->binaryRequest),

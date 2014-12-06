@@ -3570,8 +3570,8 @@ bool CIMOperationRequestDispatcher::processPullRequest(
     if (en->incAndTestPullCounters((request->maxObjectCount == 0)))
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "%s Exceeded maxObjectCount consecutive zero limit",
-            requestName ));
+            "%s Exceeded maxObjectCount consecutive zero limit. ContextId=%s",
+            requestName , (const char*)en->getContextId().getCString()));
 
         // Force continueOnError to false.
         en->setContinueOnError(false);
@@ -3587,8 +3587,10 @@ bool CIMOperationRequestDispatcher::processPullRequest(
     }
     // KS_TODO determine if this is worthwhile trace
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // EXP_PULL_TEMP
-        "%s get from cache. isComplete=%s cacheSize:=%u errorState=%s",
-       requestName,
+        "%s get from cache. ContextId=%s isComplete=%s cacheSize:=%u "
+            "errorState=%s",
+        requestName,
+        (const char *)en->getContextId().getCString(),
         boolToString(en->providersComplete()),
         en->responseCacheSize(),
         boolToString(en->isErrorState())  ));
@@ -3665,14 +3667,11 @@ bool CIMOperationRequestDispatcher::issueOpenOrPullResponseMessage(
         PEGASUS_DEBUG_ASSERT(en->isProcessing());
         // Set up to issue upon provider response or timeout. Request passed
         // to the delay variable so mark to not release.
-        en->saveNextResponse(
+        en->setupDelayedResponse(
             openRequest,
             openResponse,
             operationMaxObjectCount);
 
-        // Start the waiting timeout for this delayed response
-        // at end of this timer, it will send empty response.
-        en->startTimer(PEGASUS_PULL_MAX_OPERATION_WAIT_SEC * 1000);
 
         PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
             "EnumerationContextLock unlock %s",  // KS_TODO DELETE
@@ -5869,6 +5868,20 @@ bool CIMOperationRequestDispatcher::handleOpenEnumerateInstancesRequest(
     // Set properties from request into the context
     enumerationContext->setRequestProperties(
         request->includeClassOrigin, request->propertyList);
+
+    // This trace connects the request parameters to the
+    // ContextId which can be used to connect traces together.
+    // This adds ContextId
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "OpenEnumerateInstances request started "
+            "ContextId=%s namespace=%s class=%s "
+            "operationTimeout=%s "
+            "maxObjectCount=%u",
+        CSTRING(enumerationContext->getContextId()),
+        CSTRING(request->nameSpace.getString()),
+        CSTRING(request->className.getString()),
+        CSTRING(request->operationTimeout.toString()),
+        request->maxObjectCount));
 
     // Build a corresponding EnumerateInstancesRequest to send to
     // providers. Do not pass the Pull operations request

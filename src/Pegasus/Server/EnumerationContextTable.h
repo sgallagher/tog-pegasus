@@ -130,8 +130,15 @@ public:
     */
     Uint32 size();
 
-    /** Process any contexts that have expired operation timers
-     *  @return returns false if the table is empty.
+    /* Process contexts that have expired operation timer.
+       This processes both interoperation timeout and delayed
+       response return timeouts.
+       For interoperation timeouts it tries to close the
+       enumeration
+       For delayed response timeouts it tries to send an empty
+       response to the client.
+       @return returns true if the table is empty; otherwise rtn
+               false
     */
     bool processExpiredContexts();
 

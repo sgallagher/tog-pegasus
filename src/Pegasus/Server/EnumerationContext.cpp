@@ -247,21 +247,21 @@ void EnumerationContext::trace()
     PEGASUS_DEBUG_ASSERT(valid());
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "EnumerationContextTrace ContextId=%s "
-        "requestOperationTimeOut= %u "
+        "requestOperationTimeOut=%u "
         "operationTimer=%lu sec "
         "continueOnError=%s "
         "pullMsgType=%s "
-        "processingState=%s"
+        "processingState=%s "
         "providersComplete=%s "
         "closed=%s "
-        "timeOpen=%lu millisec "
+        "timeOpen=%lu ms "
         "totalPullCount=%u "
         "cacheHighWaterMark=%u "
         "Request count=%u "
         "ResponseObjectCount=%u "
-        "totalWaitTimeUsec=%llu"
-        "maxWaitTimeUsec=%llu"
-        "RequestedResponseObjectCount=%u"
+        "totalWaitTimeUsec=%llu "
+        "maxWaitTimeUsec=%llu "
+        "RequestedResponseObjectCount=%u "
         "totalZeroLenObjectResponseCounter=%u",
         (const char *)_contextId.getCString(),
         _operationTimeoutSec,
@@ -298,6 +298,7 @@ EnumerationContext::~EnumerationContext()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "EnumerationContext::~EnumerationContext()");
+
     PEG_METHOD_EXIT();
 }
 
@@ -463,7 +464,7 @@ bool EnumerationContext::testCacheForResponses(
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-       "testCacheForResponse returns %s for ContextId=",
+       "testCacheForResponse returns %s for ContextId=%s",
                boolToString(rtn), (const char*)getContextId().getCString() ));
 #endif
     return rtn;

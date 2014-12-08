@@ -398,6 +398,8 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId=%s",
             (const char *)en->getContextId().getCString() ));
+        //// KS_TODO Remove this trace output.
+        en->trace();
 
         // test/set the highwater mark for the table
         // KS_TODO confirm that statistics below always get accumulated

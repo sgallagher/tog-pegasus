@@ -28,6 +28,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+
+##
+##	Notes on using and modifying this script
+##  1. Using the ResponseStressCxx provider
+##      This script heavily uses the ResponseStressCxx provider which can be
+##      modified for varying behavior  the set methodincluding:
+##          - Number and size of responses
+##          - Delay between responses
+##          - Returning error codes
+##      However, when changed this behavior affects all subsequent operations
+##      Therefore to keep some sense of control, please reset the behavior
+##      after each test that sets the behavior of this provider using the
+##      reset invoke method.
+##
+
 ROOT = ../../../../..
 DIR = Pegasus/Client/tests/pullop
 include $(ROOT)/mak/config.mak
@@ -75,14 +90,16 @@ tests:
 	$(PROGRAM) --help
 
 poststarttests:
+        ## reset the Stress provider behavior to the default
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
+
 	@$(ECHO) Enumerate and EnumerateNames tests that go to Completion
 	make simpleTests
 
 	@$(ECHO) Test close in process of delivery
-	make testenumclose
-	make testenumpathsclose
+	make testclose
 
-	@$(ECHO) Execute stresstests
+	@$(ECHO) Execute stresstests. NOTE Modifies ResponseStressCxx
 	make stresstests
 
 	@$(ECHO) Test timeout in process of delivery
@@ -278,6 +295,8 @@ stresstests:
 	make stressEnumpei
 	make stressEnumei
 	make stressEnum1
+	make stressEnumName1
+	make stressEnumName2
 	make stressEnum2
 ##      KS_FUTURE Test 3 disabled because there are
 ##      client limits on size of responses in some test environments.  There
@@ -285,8 +304,6 @@ stresstests:
 ##      objects in the response. Please run that test to determine your system 
 ##      limits on operation response size.
 ##	make stressEnum3
-	make stressEnumName1
-	make stressEnumName2
 ##	make stressEnumName3
 	make stressVariation
 	@$(ECHO) +++++ pullop stresstests Passed.
@@ -294,68 +311,77 @@ stresstests:
 ## test with 10,000 instances of 10,000 bytes each.
 ## cimcli stress tests pull and non-pull
 stressEnumpei:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
-	cimcli pei $(CStressCxx) -n $(NStressCxx) -pl Id,Pattern,s1,SequenceNumber --sum
+	cimcli pei $(STRESSCXX_CLASS_ID) -pl Id,Pattern,s1,SequenceNumber --sum
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 stressEnumei:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
-	cimcli ei $(CStressCxx) -n $(NStressCxx) -pl Id,Pattern,s1,SequenceNumber --sum
+	cimcli ei $(STRESSCXX_CLASS_ID) -pl Id,Pattern,s1,SequenceNumber --sum
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## pullop stress tests
 stressEnum1:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C \
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -C \
 	    -y 120 \
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## test with 100,000 returned instances of 1000 bytes each
 stressEnum2:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=30000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 120\
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -C -y 120\
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## test with 100,000 returned instances of 1000 bytes each
 stressEnum3:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=100000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -C -y 120\
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID)  -C -y 120\
 	    -P Pattern -P s1 -P Id -P SequenceNumber \
 	    -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## get 10,000 object paths. Size does not count since we are returning
 ## object paths only
 stressEnumName1:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T $(DSP) $(HOSTID)
+	$(PROGRAM) en -c $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## get 30,000 object paths, Size does not count since we are returning
 ## object paths only
 stressEnumName2:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=30000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T $(DSP) $(HOSTID)
+	$(PROGRAM) en -c $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## get 100,000 object paths, Size does not count since we are returning
 ## object paths only
 stressEnumName3:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set  Size=1000 \
 	    ResponseCount=100000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -C -y 120 -T $(DSP) $(HOSTID)
+	$(PROGRAM) en -c $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## test of variation of response  max size form very small to large
 ## test run with provider that returns 10,000 instances of size ~1000 bytes
 stressVariation:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 10 -N 10 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T $(DSP) $(HOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 100 -N 100 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T $(DSP) $(HOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1000 -N 1000 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) set  Size=1000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 10 -N 10 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T $(DSP) $(HOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 100 -N 100 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T $(DSP) $(HOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 1000 -N 1000 -C -T -P Pattern -P s1 -P Id -P SequenceNumber -T $(DSP) $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ########################################################################
 ### Error Tests
@@ -370,7 +396,7 @@ pullClassParamError:
 ## Generates an error because reqested object count too large. Currently
 ## maximum is fixed at 10000
 maxPullObjectCountError:
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 99999 -N 99999 -C -R -T $(DSP) $(HOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 99999 -N 99999 -C -R -T $(DSP) $(HOSTID)
 
 # Test for invalid filter query language definitions
 filterParamError:
@@ -408,23 +434,24 @@ invalidAssocObjectPath:
 #########################################################################
 #### timeout test. Set interoptime to 2 sec and sleep to 10 sec. This
 #### test should timeout after the first pull. (-s defines time to sleep
-#### between operations)
+#### between operations for the provider)
 testtimeout:
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID)  -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
 
-## corresponding test but whit large response size. Not part of poststart
+## corresponding test but with large response size. Not part of poststart
 ## tests because it changes the parameters of the stress test provider
 testBigTimeout:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=100 ResponseCount=1000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=100 ResponseCount=1000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 1 -N 1 -t 2 -T -t 5 -s 10 -R $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset  $(CIMCLIHOSTID)
 
 #################################
 #### zeroRequest test. Set count on maxObjectCount for pull operations to zero
 #### Should get exception after about 1000 pull requests.
 testexceedMaxObjectCountLimit:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 1 -N 0 -T -R $(HOSTID)
-
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 ResponseCount=10000 $(CIMCLIHOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 1 -N 0 -T -R $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset  $(CIMCLIHOSTID)
 ##################################
 ## CMPI Provider tests
 pcmpia1:
@@ -438,15 +465,19 @@ pcmpian1:
 ### Set the the size and value of responses to get large number of
 ### responses. Then call pullop to get small set of objects and then
 ### close (the -X option which issues a close after 4 pull operations)
+
+testclose: testenumclose testenumpathsclose
 testenumclose:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 9 -N 10 -X 4 $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 testenumpathsclose:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set -n $(NStressCxx) Size=10000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
-	$(PROGRAM) en -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 10 -X 4 $(HOSTID)
+	$(PROGRAM) en -c $(STRESSCXX_CLASS_ID) -M 9 -N 10 -X 4 $(HOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ####################################################
 ##
@@ -525,7 +556,7 @@ checkinvalidroleparam:
 ## see at what point something fails.
 testSizeLimits:
 	$(ECHO) +++test with size 1,000, responseCount 1
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set  Size=1000 \
 	    ResponseCount=1 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -533,7 +564,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 1,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=1000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -541,7 +572,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 10,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=10000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -549,7 +580,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 25,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=25000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -557,7 +588,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 50,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=50000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -565,7 +596,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 75,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=75000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -573,7 +604,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 100,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=100000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t
@@ -581,7 +612,7 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 120 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 300,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set  Size=1000 \
 	    ResponseCount=300000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t --timeout 240
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t --timeout 240
@@ -589,48 +620,49 @@ testSizeLimits:
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 240 -T $(DSP) $(HOSTID)
 
 	$(ECHO) +++test with size 1,000, responseCount 600,000
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=1000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=1000 \
 	    ResponseCount=600000 $(CIMCLIHOSTID)
 	cimcli ei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t --timeout 300
 	cimcli pei $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID) --sum --t --timeout 300
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -y 300 -T $(DSP) $(HOSTID)
 	$(PROGRAM) e $(STRESSCXX_CLASS_ID) -C -y 300 -T $(DSP) $(HOSTID)
 
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 	$(ECHO) +++pullop test target testSizeLimits passed successfully
 
 ################################
 ## Manual cimcli tests used during development
 
 rsgc:
-	cimcli gc $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli gc $(STRESSCXX_CLASS_ID) $(CIMCLIHOSTID)
 
 rsget:
-	cimcli im $(CStressCxx) get -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) get $(CIMCLIHOSTID)
 
 rsset:
-	cimcli im $(CStressCxx) set -n $(NStressCxx) Size=10000 \
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=10000 \
 	     ResponseCount=10000 $(CIMCLIHOSTID)
 
 rsset1:
-	cimcli im set $(CStressCxx) -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli im set $(STRESSCXX_CLASS_ID) -n $(NStressCxx) $(CIMCLIHOSTID)
 
 ## force the provider to reset to its default parameters
 resetStressTestProvider:
-	cimcli im $(CStressCxx) reset  -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## cimcli enumerateInstances
 rsei: rsset
-	cimcli ei $(CStressCxx) get -n $(NStressCxx) --sum --t $(CIMCLIHOSTID)
+	cimcli ei $(STRESSCXX_CLASS_ID) get -n $(NStressCxx) --sum --t $(CIMCLIHOSTID)
 
 rseip:
-	cimcli pei $(CStressCxx) get -n $(NStressCxx) --sum --t $(CIMCLIHOSTID)
+	cimcli pei $(STRESSCXX_CLASS_ID) get --sum --t $(CIMCLIHOSTID)
 
 ## pull the number of objects defined by rsset with Timing and comparison
 rseip1: rsset
-	$(PROGRAM) e -c $(CStressCxx) -n $(NStressCxx) -M 9 -N 100 -T -C $(HOSTID)
+	$(PROGRAM) e -c $(STRESSCXX_CLASS_ID) -M 9 -N 100 -T -C $(HOSTID)
 
 rseipn:
-	cimcli ni $(CStressCxx) get -n $(NStressCxx) --sum $(CIMCLIHOSTID)
+	cimcli ni $(STRESSCXX_CLASS_ID) get --sum $(CIMCLIHOSTID)
 
 ###################################################################
 ##	Tests of delaying responses from the Providers
@@ -641,35 +673,34 @@ rseipn:
 poststarttests_testDelayedResponses: testNoDelay testSmallDelayedResponse \
                                     testDelayedResponse
 testNoDelay:
-	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
-	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -count 500 \
+	cimcli im $(STRESSCXX_CLASS_ID) set ResponseCount=500 Delay=0 \
+           $(CIMCLIHOSTID)
+	cimcli pei $(STRESSCXX_CLASS_ID) --sum -count 500 \
 	   --t $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## test for responses that are delayed but not so long that
 ## zero length responses are sent
 testSmallDelayedResponse:
 	$(ECHO) This test should take about 5 seconds total
-	cimcli im $(CStressCxx) set ResponseCount=500 Delay=5 \
-           -n $(NStressCxx) $(CIMCLIHOSTID) 
-	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 500  \
+	cimcli im $(STRESSCXX_CLASS_ID) set ResponseCount=500 Delay=5 \
+           $(CIMCLIHOSTID) 
+	cimcli pei $(STRESSCXX_CLASS_ID) --sum -v -count 500  \
 	   --t $(CIMCLIHOSTID)
-	# Restore zero delay
-	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
+        ## reset to restore zero delay
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## special test for responses that are delayed so that some zero length
 ## responses are sent This should take about 45 seconds to complete
 ## and return multiple zero-object responses
 testDelayedResponse:
 	$(ECHO) This test should take about 45 seconds.
-	cimcli im $(CStressCxx) set ResponseCount=295 Delay=45 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
-	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 295 \
+	cimcli im $(STRESSCXX_CLASS_ID) set ResponseCount=295 Delay=45 \
+           $(CIMCLIHOSTID)
+	cimcli pei $(STRESSCXX_CLASS_ID) --sum -v -count 295 \
 	   --t $(CIMCLIHOSTID)
 	# Restore zero delay
-	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## Manual test only for now
 ## special test for responses that are delayed so that some zero length
@@ -677,32 +708,29 @@ testDelayedResponse:
 ## and return multiple zero-object responses
 testMediumDelayedResponse:
 	$(ECHO) This test should take about 135 seconds.
-	cimcli im $(CStressCxx) set ResponseCount=595 Delay=45 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
-	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 595 \
+	cimcli im $(STRESSCXX_CLASS_ID) set ResponseCount=595 Delay=45 \
+           $(CIMCLIHOSTID)
+	cimcli pei $(STRESSCXX_CLASS_ID) --sum -v -count 595 \
 	   --t $(CIMCLIHOSTID)
 	# Restore zero delay
-	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
 
 ## special test for responses that are delayed so that some zero length
 ## responses are sent This should many minutes (ex. 11) and end in an error
 testMassiveDelayedResponse:
 	$(ECHO) This test should take many minutes.
-	cimcli im $(CStressCxx) set ResponseCount=595 Delay=700 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
-	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 295 \
+	cimcli im $(STRESSCXX_CLASS_ID) set ResponseCount=595 Delay=700 \
+           $(CIMCLIHOSTID)
+	cimcli pei $(STRESSCXX_CLASS_ID) --sum -v -count 295 \
 	   --t $(CIMCLIHOSTID)
 	# Restore zero delay
-	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
-           -n $(NStressCxx) $(CIMCLIHOSTID)
-
+	cimcli im $(STRESSCXX_CLASS_ID) reset  $(CIMCLIHOSTID)
 
 ##################################################
 ## Test with pull operations in cimcli
 cimclipei:
-	cimcli pei $(CStressCxx) -n $(NStressCxx) -mo 1 --sum $(CIMCLIHOSTID)
-	cimcli pni $(CStressCxx) -n $(NStressCxx) -mo 1 --sum  $(CIMCLIHOSTID)
+	cimcli pei $(STRESSCXX_CLASS_ID) -mo 1 --sum $(CIMCLIHOSTID)
+	cimcli pni $(STRESSCXX_CLASS_ID) -mo 1 --sum  $(CIMCLIHOSTID)
 
 cmpigc:
 	cimcli gc $(CMPICL) -n root/SampleProvider $(CIMCLIHOSTID)
@@ -737,3 +765,13 @@ clicmpiprn1:
 
 clicmpir2:
 	cimcli r CMPI_TEST_Person.name=\"Melvin\" -rc CMPI_TEST_Racing -n test/TestProvider $(CIMCLIHOSTID)
+
+## Manual test to assure that the reset works as it should
+testSetReset:
+
+	cimcli im $(STRESSCXX_CLASS_ID) get $(CIMCLIHOSTID)	
+	cimcli im $(STRESSCXX_CLASS_ID) set Size=100 ResponseCount=1000 $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) get $(CIMCLIHOSTID)	
+	cimcli im $(STRESSCXX_CLASS_ID) reset $(CIMCLIHOSTID)
+	cimcli im $(STRESSCXX_CLASS_ID) get $(CIMCLIHOSTID)	
+

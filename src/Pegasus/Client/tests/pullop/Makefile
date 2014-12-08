@@ -641,29 +641,35 @@ rseipn:
 poststarttests_testDelayedResponses: testNoDelay testSmallDelayedResponse \
                                     testDelayedResponse
 testNoDelay:
-	cimcli im $(CStressCxx) set ResponseCount=500 \
+	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
            -n $(NStressCxx) $(CIMCLIHOSTID)
 	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -count 500 \
-	--t $(CIMCLIHOSTID)
+	   --t $(CIMCLIHOSTID)
 
 ## test for responses that are delayed but not so long that
 ## zero length responses are sent
 testSmallDelayedResponse:
 	$(ECHO) This test should take about 5 seconds total
-	cimcli im $(CStressCxx) set ResponseCount=500   Delay=5 \
+	cimcli im $(CStressCxx) set ResponseCount=500 Delay=5 \
            -n $(NStressCxx) $(CIMCLIHOSTID) 
 	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 500  \
-	--t $(CIMCLIHOSTID)
+	   --t $(CIMCLIHOSTID)
+	# Restore zero delay
+	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
 
 ## special test for responses that are delayed so that some zero length
 ## responses are sent This should take about 45 seconds to complete
 ## and return multiple zero-object responses
 testDelayedResponse:
 	$(ECHO) This test should take about 45 seconds.
-	cimcli im $(CStressCxx) set ResponseCount=295  Delay=45 \
+	cimcli im $(CStressCxx) set ResponseCount=295 Delay=45 \
            -n $(NStressCxx) $(CIMCLIHOSTID)
 	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 295 \
-	--t $(CIMCLIHOSTID)
+	   --t $(CIMCLIHOSTID)
+	# Restore zero delay
+	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
 
 ## Manual test only for now
 ## special test for responses that are delayed so that some zero length
@@ -674,16 +680,22 @@ testMediumDelayedResponse:
 	cimcli im $(CStressCxx) set ResponseCount=595 Delay=45 \
            -n $(NStressCxx) $(CIMCLIHOSTID)
 	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 595 \
-	--t $(CIMCLIHOSTID)
+	   --t $(CIMCLIHOSTID)
+	# Restore zero delay
+	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
 
 ## special test for responses that are delayed so that some zero length
 ## responses are sent This should many minutes (ex. 11) and end in an error
 testMassiveDelayedResponse:
 	$(ECHO) This test should take many minutes.
-	cimcli im $(CStressCxx) set ResponseCount=595  Delay=700 \
+	cimcli im $(CStressCxx) set ResponseCount=595 Delay=700 \
            -n $(NStressCxx) $(CIMCLIHOSTID)
 	cimcli pei $(CStressCxx) -n $(NStressCxx) --sum -v -count 295 \
-	--t $(CIMCLIHOSTID)
+	   --t $(CIMCLIHOSTID)
+	# Restore zero delay
+	cimcli im $(CStressCxx) set ResponseCount=500 Delay=0 \
+           -n $(NStressCxx) $(CIMCLIHOSTID)
 
 
 ##################################################

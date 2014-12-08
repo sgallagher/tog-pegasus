@@ -268,7 +268,7 @@ String filterQueryLanguage_opt = "";
     issue before executing a close.  This is a means to force the close
     operation in testing with this client.
 */
-Uint32Arg maxOperationsBeforeCloseCount_opt;
+Uint32Arg requestsBeforeCloseCount_opt;
 
 Uint32 pullCounter = 0;
 Uint32 exitCode = 0;
@@ -450,9 +450,9 @@ OPTIONS:\n\
                     times out the connection or NULL to allow server to\n\
                     set the timeout. Default sends NULL toso server sets\n\
                     timeout.\n\
-    -X MAXOPERATIONS Integer. Maximum operations in enumeration sequence\n\
+    -X count        Execute <count> requests in enumeration sequence\n\
                     before close executed. Default is not used. If set\n\
-                    close will be executed after that number of operations.\n\
+                    close will be executed after <count> operations.\n\
                     Zero(0) Not allowed since has no meaning. One(1) means\n\
                     execute only open operation. This is not the same\n\
                     as the MAXOBJECTS parameters.\n\
@@ -1483,12 +1483,12 @@ bool pullInstancePaths(CIMClient& client,
     const String& openOpName,
     Array<CIMObjectPath>& resultArray,
     Uint32 maxObjectCount,
-    uint32Counter& maxOperationsBeforeCloseCounter,
+    uint32Counter& requestsBeforeCloseCounter,
     CIMEnumerationContext& enumerationContext,
     Stopwatch& timer)
 {
     Boolean endOfSequence = false;
-    while (!endOfSequence  && maxOperationsBeforeCloseCounter.ok())
+    while (!endOfSequence  && requestsBeforeCloseCounter.ok())
     {
         pullCounter++;
         VCOUT4 << "Issue pullInstancePaths for " << openOpName
@@ -1534,12 +1534,12 @@ bool pullInstancesWithPath(CIMClient& client,
     const String& openOpName,
     Array<CIMInstance>& resultArray,
     Uint32 maxObjectCount,
-    uint32Counter& maxOperationsBeforeCloseCounter,
+    uint32Counter& requestsBeforeCloseCounter,
     CIMEnumerationContext& enumerationContext,
     Stopwatch& timer)
 {
     Boolean endOfSequence = false;
-    while (!endOfSequence  && maxOperationsBeforeCloseCounter.ok())
+    while (!endOfSequence  && requestsBeforeCloseCounter.ok())
     {
         pullCounter++;
         VCOUT4 << "Issue pullInstancesWithPath for " << openOpName
@@ -1614,8 +1614,8 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String ClassName )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsBeforeCloseCounter(
-        maxOperationsBeforeCloseCount_opt);
+    uint32Counter requestsBeforeCloseCounter(
+        requestsBeforeCloseCount_opt);
 
     try
     {
@@ -1640,7 +1640,7 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
                << " continueOnError=" << boolToString(continueOnError_opt)
                << " maxObjectsOnOpen=" << maxObjectsOnOpen_opt
                << " maxCountBeforeClose for Operation "
-                   << maxOperationsBeforeCloseCounter.toString()
+                   << requestsBeforeCloseCounter.toString()
                << endl;
 
         Stopwatch pullTime;
@@ -1672,13 +1672,13 @@ void testPullEnumerateInstances(CIMClient& client, CIMNamespaceName nameSpace,
         doSleep(sleep_opt);
 
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsBeforeCloseCounter
+        // early depending on the requestsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
                 pulledInstances,
                 maxObjectsOnPull_opt,
-                maxOperationsBeforeCloseCounter,
+                requestsBeforeCloseCounter,
                 enumerationContext,
                 pullTime);
         }
@@ -1761,8 +1761,8 @@ void testPullEnumerationInstancePaths(CIMClient& client,
     String ClassName )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsBeforeCloseCounter(
-        maxOperationsBeforeCloseCount_opt);
+    uint32Counter requestsBeforeCloseCounter(
+        requestsBeforeCloseCount_opt);
     String operationName = "openEnumerateInstancePaths";
     try
     {
@@ -1777,7 +1777,7 @@ void testPullEnumerationInstancePaths(CIMClient& client,
             << maxObjectCount
             << " operationTimeout = " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
-                << maxOperationsBeforeCloseCounter.toString()
+                << requestsBeforeCloseCounter.toString()
             << endl;
 
         Stopwatch pullTime;
@@ -1806,13 +1806,13 @@ void testPullEnumerationInstancePaths(CIMClient& client,
         doSleep(sleep_opt);
 
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsBeforeCloseCounter
+        // early depending on the requestsBeforeCloseCounter
 
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
                 cimObjectPaths, maxObjectsOnPull_opt,
-                maxOperationsBeforeCloseCounter,
+                requestsBeforeCloseCounter,
                 enumerationContext,
                 pullTime);
         }
@@ -1865,8 +1865,8 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsBeforeCloseCounter(
-        maxOperationsBeforeCloseCount_opt);
+    uint32Counter requestsBeforeCloseCounter(
+        requestsBeforeCloseCount_opt);
     String operationName = "openReferenceInstances";
     try
     {
@@ -1886,7 +1886,7 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
             << " Instances."
             << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
-                << maxOperationsBeforeCloseCounter.toString()
+                << requestsBeforeCloseCounter.toString()
         << endl;
 
         Stopwatch pullTime;
@@ -1920,13 +1920,13 @@ void testPullReferenceInstances(CIMClient& client, CIMNamespaceName nameSpace,
         doSleep(sleep_opt);
 
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsBeforeCloseCounter
+        // early depending on the requestsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
                                               pulledInstances,
                                               maxObjectsOnPull_opt,
-                                              maxOperationsBeforeCloseCounter,
+                                              requestsBeforeCloseCounter,
                                               enumerationContext,
                                               pullTime);
         }
@@ -1984,8 +1984,8 @@ void testPullReferenceInstancePaths(CIMClient& client,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsBeforeCloseCounter(
-        maxOperationsBeforeCloseCount_opt);
+    uint32Counter requestsBeforeCloseCounter(
+        requestsBeforeCloseCount_opt);
     String operationName = "openReferencePaths";
     try
     {
@@ -2001,7 +2001,7 @@ void testPullReferenceInstancePaths(CIMClient& client,
             << " maxObjectCount = " << maxObjectsOnOpen_opt
             << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
-                << maxOperationsBeforeCloseCounter.toString()
+                << requestsBeforeCloseCounter.toString()
             << endl;
 
         Stopwatch pullTime;
@@ -2033,12 +2033,12 @@ void testPullReferenceInstancePaths(CIMClient& client,
 
         Uint32 maxObjectCount = maxObjectsOnPull_opt;
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsBeforeCloseCounter
+        // early depending on the requestsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
                                               cimObjectPaths, maxObjectCount,
-                                              maxOperationsBeforeCloseCounter,
+                                              requestsBeforeCloseCounter,
                                               enumerationContext,
                                               pullTime);
         }
@@ -2091,8 +2091,8 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsBeforeCloseCounter(
-        maxOperationsBeforeCloseCount_opt);
+    uint32Counter requestsBeforeCloseCounter(
+        requestsBeforeCloseCount_opt);
 
     String operationName = "openAssociatorInstances";
     try
@@ -2115,7 +2115,7 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
             << maxObjectCount << " Instances."
             << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
-                << maxOperationsBeforeCloseCounter.toString()
+                << requestsBeforeCloseCounter.toString()
             << endl;
 
         Stopwatch pullTime;
@@ -2150,13 +2150,13 @@ void testPullAssociatorInstances(CIMClient& client, CIMNamespaceName nameSpace,
         doSleep(sleep_opt);
 
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsBeforeCloseCounter
+        // early depending on the requestsBeforeCloseCounter
 
         if (!endOfSequence)
         {
             endOfSequence = pullInstancesWithPath(client, operationName,
                               cimInstances, maxObjectCount,
-                              maxOperationsBeforeCloseCounter,
+                              requestsBeforeCloseCounter,
                               enumerationContext,
                               pullTime);
         }
@@ -2217,8 +2217,8 @@ void testPullAssociatorInstancePaths(CIMClient& client,
     String objectPath )
 {
     // initialize deliveryCounter.
-    uint32Counter maxOperationsBeforeCloseCounter(
-        maxOperationsBeforeCloseCount_opt);
+    uint32Counter requestsBeforeCloseCounter(
+        requestsBeforeCloseCount_opt);
 
     String operationName = "openAssociatorInstancePaths";
     try
@@ -2238,7 +2238,7 @@ void testPullAssociatorInstancePaths(CIMClient& client,
             << " maxObjectCount = " << maxObjectsOnOpen_opt
             << " operationTimeout " << interOperationTimeout_opt.toString()
             << " maxCountBeforeClose for Operation "
-                << maxOperationsBeforeCloseCounter.toString()
+                << requestsBeforeCloseCounter.toString()
             << endl;
 
         Stopwatch pullTime;
@@ -2271,13 +2271,13 @@ void testPullAssociatorInstancePaths(CIMClient& client,
         doSleep(sleep_opt);
 
         // issue pulls to get remaning objects. Note that we may close
-        // early depending on the maxOperationsBeforeCloseCounter
+        // early depending on the requestsBeforeCloseCounter
         if (!endOfSequence)
         {
             endOfSequence = pullInstancePaths(client, operationName,
                                               cimObjectPaths,
                                               maxObjectsOnPull_opt,
-                                              maxOperationsBeforeCloseCounter,
+                                              requestsBeforeCloseCounter,
                                               enumerationContext,
                                               pullTime);
         }
@@ -2758,7 +2758,7 @@ void parseCommandLine (int argc, char* argv [])
                 {
                     if (String::equalNoCase(getOpts [i].Value(),"null"))
                     {
-                        maxOperationsBeforeCloseCount_opt.setNullValue();
+                        requestsBeforeCloseCount_opt.setNullValue();
                     }
                     else
                     {
@@ -2766,7 +2766,7 @@ void parseCommandLine (int argc, char* argv [])
                         {
                             Uint32 x;
                             getOpts [i].Value (x);
-                            maxOperationsBeforeCloseCount_opt.setValue(x);
+                            requestsBeforeCloseCount_opt.setValue(x);
                         }
                         catch (const TypeMismatchException&)
                         {
@@ -2999,7 +2999,7 @@ int main(int argc, char** argv)
             }
             if (repeat_opt > 0)
             {
-                VCOUT1 << "Repeating test time number " << i << endl;
+                VCOUT3 << "Repeating test # " << i << endl;
             }
         }
     }

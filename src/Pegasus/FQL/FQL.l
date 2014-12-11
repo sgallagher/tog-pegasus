@@ -46,11 +46,11 @@ extern int FQL_error(const char*);
 #include <cassert>
 #include "FQLYACC.h"
 
-//#ifdef FQL_DOTRACE
+#ifdef FQL_DOTRACE
 # define FQL_TRACE(X) printf X
-//#else
+#else
 # define FQL_TRACE(X)
-//#endif
+#endif
 
 // Define the globalParserState update for each new token as a single
 // macro so that we can use this or not.
@@ -68,6 +68,7 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 
 %}
+
 /* TODO issues with unsignedInt, etc and the 0 one.*/
 /* TODO sort out what this one is.*/
 IDENT_CHAR [A-Za-z_]

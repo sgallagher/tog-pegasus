@@ -34,8 +34,9 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_FQL_INTERNAL -DPEGASUS_INTERNALONLY
 
-## Bison/yacc  and FQL disgnostic displays
-## Enable by uncommenting the following
+## Bison/yacc  and FQL diagnostic displays
+## Enable by uncommenting the following. They mpact the both the
+## grammar compile and diagnostics in the code.
 ##LOCAL_DEFINES += -DFQL_YYDEBUG
 ##LOCAL_DEFINES += -DFQL_DOTRACE
 
@@ -48,8 +49,7 @@ endif
 STATIC=1
 LIBRARY = pegfql
 
-#### TODO NOTE THAT THIS USES QUERY COMMON.
-#### Need to figure out whether to use common or isolated one
+#### TODO: NOTE THAT THIS USES QUERY COMMON.
 LIBRARIES = \
    pegcommon \
    pegquerycommon

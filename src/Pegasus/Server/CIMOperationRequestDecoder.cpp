@@ -653,7 +653,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     updateExpiredPassword = false;
 
     String pragmaValue;
-    if(HTTPMessage::lookupHeader(headers,"Pragma",pragmaValue))
+    if(HTTPMessage::lookupHeader(headers,"Pragma",pragmaValue, true))
     {
         updateExpiredPassword =
             (PEG_NOT_FOUND != pragmaValue.find("UpdateExpiredPassword"));

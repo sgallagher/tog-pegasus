@@ -38,6 +38,10 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Mutex.h>
 
 #include "ResponseStressTestCxxProvider.h"
 
@@ -47,16 +51,211 @@ PEGASUS_NAMESPACE_BEGIN
 // String pattern used to build up size in response instances
 String pattern = "abcdefghighjklmnopqrstuvwxyz01234567890";
 
-// Name of class used by this provider
-CIMName TestClass = "TST_ResponseStressTestCxx";
+// Name of superClass used for all classes supported by this provider.
+// Any class supported by this provider must be a trivial subclass of
+// the class defined by TestClass below.
+// TODO add test to be sure any operation is for class that is
+// direct subclass of this class.
+//// CIMName superClass = "TST_ResponseStressTest";
 
 // Count of instances to be delivered before executing a delay defined by
 // the _delay parameter. Ignored if _delay = 0.
 #define INSTANCE_FOR_DELAY_COUNT 150
+
+///////////////////////////////////////////////////////////////////
+//
+//      Config variable controller
+//   Defines a table where the config Parameters are kept by
+//   ObjectPath of the request.  Therefore, we can have different
+//   behavior for different classes or the same class in different
+//   namespaces.
+//   Note that this provider does NOT check to see if the class in the
+//   request has is the same as TST_ResponseStressTest.
+//   It will build responses based on the properties in
+//   TST_ResponseStessTest in any case.
+//   The reason for the multiple class support is to be able to conduct
+//   tests with different behavior simultaneously so that the
+//   behavior changes (ex. setting delay) for one test does not impact
+//   other tests.
+//
+////////////////////////////////////////////////////////////////////
+
+// The set of configuration variables for this provider
+// Structure of behavior controlling parameters. These are set
+// by invoke methods and used by the provider to create responses//
+//
+// The providerParms structure defines the provider behavior parameters that
+// are controllable and define a set of default values for these
+// parameters
+//
+typedef struct providerParms
+{
+    Uint64 _instanceSize;
+    Uint64 _responseCount;
+    Uint64 _countToFail;
+    Uint32 _failureStatusCode;
+    Uint32 _delay;
+    Boolean _continue;
+
+    // Set the default values
+    void defaultValues()
+    {
+        _responseCount = 5;
+        _instanceSize = 100;
+        _continue = true;
+        _countToFail = 0;
+        _failureStatusCode = 0;
+        _delay = 0;
+    }
+    // Diagnostic to display the values of the parameters grouped in
+    // this structure.
+    String toString()
+    {
+        String rtn;
+        rtn.appendPrintf("instSize %llu respCnt %llu delay %u continue %s"
+                         " failStatusCode %u",
+                   _instanceSize,
+                   _responseCount,
+                   _delay,
+                   boolToString(_continue),
+                   _failureStatusCode);
+        return rtn;
+    }
+} providerParms;
+
+//
+//  Structure to link the CIMObjectPath to a particular set of
+//  providerParms.  For simplicity we save just the classname
+//  and namespace out of the objectPath.
+//  Assignment and copy use the default mechanisms
+typedef struct providerParmSet
+{
+    CIMName cl;
+    CIMNamespaceName ns;
+    providerParms thisProviderParms;
+
+    // Constructor for a providerParmSet that creates a new one based on
+    // a provided path
+    providerParmSet(const CIMObjectPath& path)
+    {
+        cl = path.getClassName();
+        ns = path.getNameSpace();
+        thisProviderParms.defaultValues();
+    }
+    // Return true if path argument matches this providerParmSet
+    Boolean matches(const CIMObjectPath& path)
+    {
+        return((cl == path.getClassName()) && (ns == path.getNameSpace()));
+    }
+private:
+    // Private constructor
+    providerParmSet();
+
+} providerParmSet;
+
+class ConfigVariables
+{
+public:
+
+    // Array of struct that maps className and namespace
+    // to a particular set of configuration variables and
+    // possibly a class
+    Array<providerParmSet> configVariablesArray;
+    // The default value for parameters for constructor and when the
+    // provider invoke method resets.
+    // KS_TODO this is unnecessary.
+    providerParms localDefaultParams;
+
+    // Construct with default values. There is nothing in path at
+    // this point
+    ConfigVariables()
+    {
+        localDefaultParams.defaultValues();
+    }
+
+    // set Default values and keep current path
+    void setDefault()
+    {
+        localDefaultParams.defaultValues();
+    }
+
+    void resetParams(const CIMObjectPath& path)
+    {
+        AutoMutex autoMut(_mutex);
+        int i = find(path);
+        PEGASUS_ASSERT(i != -1);
+        configVariablesArray[i].thisProviderParms.defaultValues();
+    }
+
+    // get an entry that matches or create a new one and return
+    // the providerParms from that entry
+    providerParms get(const CIMObjectPath& path)
+    {
+        int i;
+        if ((i = find(path)) != -1)
+        {
+            return configVariablesArray[(Uint32)i].thisProviderParms;
+        }
+        return append(path);
+    }
+
+    // Entry must exist. set the providerParms argument into that entry
+    void set(const CIMObjectPath& path, providerParms p)
+    {
+        AutoMutex autoMut(_mutex);
+        int i = find(path);
+        PEGASUS_ASSERT(i != -1);
+        configVariablesArray[i].thisProviderParms = p;
+    }
+    void print()
+    {
+        AutoMutex autoMut(_mutex);
+        for (Uint32 i = 0; i < configVariablesArray.size(); i++)
+        {
+            cout << "Item " << i
+                 << " class " <<  configVariablesArray[i].cl.getString()
+                 << "ns " << configVariablesArray[i].ns.getString()
+                 << " " << configVariablesArray[i].thisProviderParms.toString()
+                 << endl;
+        }
+    }
+
+private:
+    providerParms append(const CIMObjectPath& path)
+    {
+        AutoMutex autoMut(_mutex);
+        providerParmSet m(path);
+        configVariablesArray.append(m);
+
+        Uint32 pos = configVariablesArray.size() -1;
+        return configVariablesArray[pos].thisProviderParms;
+    }
+
+    // Mutex the callers to this funciton
+    int find(const CIMObjectPath& path)
+    {
+        for (Uint32 i = 0; i < configVariablesArray.size(); i++)
+        {
+            if (configVariablesArray[i].matches(path))
+            {
+                return (int)i;
+            }
+        }
+        return -1;
+    }
+    // Mutex selected operations to protect against concurrent modification
+    // of the array.
+    Mutex _mutex;
+};
+
+// Static instantiation of the configVariables class
+ConfigVariables myConfigVariables;
+
+////////////////////////////////////////////////////////////////////
 //
 //  Local Methods
 //
-
+////////////////////////////////////////////////////////////////////
 // Build a String of size defined by size parameter * size of pattern
 // parameter
 String _buildString(Uint64 size, const String& pattern)
@@ -79,7 +278,7 @@ String _buildString(Uint64 size, const String& pattern)
 /*
     Builds a single path of the TST_ResponseTest class
 */
-CIMObjectPath _buildPath(Uint64 sequenceNumber)
+CIMObjectPath _buildPath(Uint64 sequenceNumber, CIMName className)
 {
     Array<CIMKeyBinding> keyBindings;
 
@@ -89,7 +288,7 @@ CIMObjectPath _buildPath(Uint64 sequenceNumber)
     keyBindings.append(CIMKeyBinding("Id",
         namebuf, CIMKeyBinding::STRING));
     CIMObjectPath path("", CIMNamespaceName(),
-        TestClass, keyBindings);
+        className, keyBindings);
     return(path);
 }
 
@@ -97,7 +296,7 @@ CIMObjectPath _buildPath(Uint64 sequenceNumber)
     Builds a single instance with the defined sequence number, instanceSize,
     and timeDiff parameters.
 */
-void _buildInstance(CIMInstance instance,
+void _buildInstance(CIMName className, CIMInstance instance,
     Uint64 sequenceNumber,
     Uint64 timeDiff,
     const CIMPropertyList& propertyList,
@@ -112,7 +311,7 @@ void _buildInstance(CIMInstance instance,
     instance.addProperty(CIMProperty("interval", timeDiff));
     instance.addProperty(CIMProperty("S1", s1));
 
-    instance.setPath(_buildPath(sequenceNumber));
+    instance.setPath(_buildPath(sequenceNumber,className));
 
     // filter out unwanted properties. It would be cheaper to not add
     // the unwanted properties. Note that this function is not really
@@ -143,20 +342,13 @@ ResponseStressTestCxxProvider::~ResponseStressTestCxxProvider()
 // Reset all of the behavior parameters to a defined default.
 void ResponseStressTestCxxProvider::resetParameters()
 {
-    // set default  configuration parameters.  These may be reset by
-    // the set method
-    _responseCount = 5;
-    _instanceSize = 100;
-    _continue = true;
-    _countToFail = 0;
-    _failureStatusCode = 0;
-    _delay = 0;
+    myConfigVariables.setDefault();
+
 }
 void ResponseStressTestCxxProvider::initialize(CIMOMHandle& cimom)
 {
     // save cimom handle
     _cimom = cimom;
-
     resetParameters();
 }
 
@@ -178,14 +370,16 @@ void ResponseStressTestCxxProvider::getInstance(
     InstanceResponseHandler& handler)
 {
     handler.processing();
+    providerParms myParams = myConfigVariables.get(instanceReference);
+    CIMName thisClass = instanceReference.getClassName();
 
     // Build the big string that sets the instance size
-    String s1 = _buildString(_instanceSize, pattern);
+    String s1 = _buildString(myParams._instanceSize, pattern);
 
     // NOTE: For getInstance ignore the timeDiff property
     // and set to zero.
-    CIMInstance instance(TestClass);
-    _buildInstance(instance,
+    CIMInstance instance(thisClass);
+    _buildInstance(thisClass,instance,
         0,
         0,
         propertyList,
@@ -211,16 +405,21 @@ void ResponseStressTestCxxProvider::enumerateInstances(
 {
     handler.processing();
 
+    // get the parameter set for this objectPath
+    providerParms myParams = myConfigVariables.get(ref);
+
+    CIMName thisClass = ref.getClassName();
+
     // Build the big string that sets the instance size
-    String s1 = _buildString(_instanceSize, pattern);
+    String s1 = _buildString(myParams._instanceSize, pattern);
 
     // if _countToFail != 0 count number of objects to deliver before
     // we issue the defined CIMException status code
-    Uint32 countToFail = (_countToFail == 0)? 0 : _countToFail;
+    Uint32 countToFail = myParams._countToFail;
 
     Uint64 prevTime = TimeValue::getCurrentTime().toMicroseconds();
 
-    for (Uint32 i = 0, n = _responseCount ; i < n; i++)
+    for (Uint32 i = 0, n = myParams._responseCount ; i < n; i++)
     {
         // Each instance reflects time difference from previous instance
         // creation.
@@ -228,8 +427,8 @@ void ResponseStressTestCxxProvider::enumerateInstances(
 
         try
         {
-            CIMInstance instance(TestClass);
-            _buildInstance(instance,
+            CIMInstance instance(thisClass);
+            _buildInstance(thisClass,instance,
                 i,
                 (newTime - prevTime),
                 propertyList,
@@ -243,21 +442,21 @@ void ResponseStressTestCxxProvider::enumerateInstances(
             // suppress error
         }
 
-        if (_countToFail != 0)
+        if (myParams._countToFail != 0)
         {
             if ((--countToFail) == 0)
             {
-                throw CIMException((CIMStatusCode)_failureStatusCode,
+                throw CIMException((CIMStatusCode)myParams._failureStatusCode,
                     "Reached failure count");
             }
         }
         // If _delay parameter not equal zero, execute a delay at regular
         // interval defined by INSTANCE_FOR_DELAY_COUNT
-        if (_delay != 0 && i > 0)
+        if (myParams._delay != 0 && i > 0)
         {
             if ((i % INSTANCE_FOR_DELAY_COUNT) == 0)
             {
-                System::sleep(_delay);
+                System::sleep(myParams._delay);
             }
         }
     }
@@ -272,35 +471,37 @@ void ResponseStressTestCxxProvider::enumerateInstanceNames(
 {
     handler.processing();
 
-    Uint32 countToFail = (_countToFail == 0)? 0: _countToFail;
+    providerParms myParams = myConfigVariables.get(classReference);
+    CIMName thisClass = classReference.getClassName();
 
-    for (Uint32 i = 0, n = _responseCount ; i < n; i++)
+    Uint32 countToFail = myParams._countToFail;
+
+    for (Uint32 i = 0, n = myParams._responseCount ; i < n; i++)
     {
-
         try
         {
-            CIMObjectPath path = _buildPath(i);
+            CIMObjectPath path = _buildPath(i, thisClass);
             handler.deliver(path);
         }
         catch (CIMException&)
         {
             // suppress error
         }
-        if (_countToFail != 0)
+        if (myParams._countToFail != 0)
         {
             if ((--countToFail) == 0)
             {
-                throw CIMException((CIMStatusCode)_failureStatusCode,
+                throw CIMException((CIMStatusCode)myParams._failureStatusCode,
                     "Reached failure count Limit");
             }
         }
         // If _delay parameter not equal zero, execute a delay at regular
         // interval defined by INSTANCE_FOR_DELAY_COUNT
-        if ((_delay != 0) && (i > 0))
+        if ((myParams._delay != 0) && (i > 0))
         {
             if ((i % INSTANCE_FOR_DELAY_COUNT) == 0)
             {
-                System::sleep(_delay);
+                System::sleep(myParams._delay);
             }
         }
     }
@@ -343,6 +544,12 @@ void ResponseStressTestCxxProvider::invokeMethod(
     const Array<CIMParamValue> & inParameters,
     MethodResultResponseHandler & handler)
 {
+    // get the config Variables for this objectPath and
+    // possibly build new entry in table
+    providerParms myParams = myConfigVariables.get(objectReference);
+
+    CIMName thisClass = objectReference.getClassName();
+
     // convert a fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -353,7 +560,9 @@ void ResponseStressTestCxxProvider::invokeMethod(
 
     handler.processing();
     Uint32 rtnCode = 0;
-    if (objectReference.getClassName().equal(TestClass))
+
+    // NOTE: Following test pretty worthless
+    if (objectReference.getClassName().equal(thisClass))
     {
         // set method sets the _responseCount and instanceSize based on
         // input parameters.
@@ -373,60 +582,64 @@ void ResponseStressTestCxxProvider::invokeMethod(
                 {
                     Uint64 responseCount;
                     v.get(responseCount);
-                    _responseCount = responseCount;
+                    myParams._responseCount = responseCount;
                 }
                 else if(paramName =="Size")
                 {
                     Uint64 instanceSize;
                     v.get(instanceSize);
-                    _instanceSize = instanceSize;
+                    myParams._instanceSize = instanceSize;
                 }
                 else if(paramName =="CountToFail")
                 {
                     Uint64 countToFail;
                     v.get(countToFail);
-                    _countToFail = countToFail;
+                    myParams._countToFail = countToFail;
                 }
                 else if(paramName =="FailureStatusCode")
                 {
                     Uint32 failureStatusCode;
                     v.get(failureStatusCode);
-                    _failureStatusCode = failureStatusCode;
+                    myParams._failureStatusCode = failureStatusCode;
                 }
                 else if(paramName =="Delay")
                 {
                     Uint32 delay;
                     v.get(delay);
-                    _delay = delay;
+                    myParams._delay = delay;
                 }
                 else
                 {
                     rtnCode = 1;
                 }
             }
+
+            // set new parameters back into the configVariables
+            myConfigVariables.set(objectReference, myParams);
         }
 
         // get method returns current _responseCount and instanceSize
         // parameters.
         else if (methodName.equal("get"))
         {
-
             Array<CIMParamValue> OutParams;
 
-            OutParams.append(CIMParamValue("ResponseCount", _responseCount));
-            OutParams.append(CIMParamValue("Size", (Uint64)_instanceSize));
+            OutParams.append(CIMParamValue("ResponseCount",
+                myParams._responseCount));
+            OutParams.append(CIMParamValue("Size",
+                (Uint64)myParams._instanceSize));
             OutParams.append(CIMParamValue("CountToFail",
-                                           (Uint64)_countToFail));
+                (Uint64)myParams._countToFail));
             OutParams.append(CIMParamValue("FailureStatusCode",
-                                           (Uint32)_failureStatusCode));
-            OutParams.append(CIMParamValue("Delay", _delay));
+                (Uint32)myParams._failureStatusCode));
+            OutParams.append(CIMParamValue("Delay", myParams._delay));
             handler.deliverParamValue(OutParams);
             handler.deliver(Uint32(0));
         }
         // Resets all of the method behavior parameters and returns OK
         else if (methodName.equal("reset"))
         {
-            resetParameters();
+            myConfigVariables.resetParams(objectReference);
             handler.deliver(Uint32(0));
         }
 

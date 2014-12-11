@@ -69,7 +69,7 @@ CMPIASSOCOBJ_INST_ID = CMPI_TEST_Person.name=\"Melvin\" -n test/TestProvider
 ## ResponseStressTest provider class and namespace
 NStressCxx = test/testProvider
 CStressCxx = TST_ResponseStressTestCxx
-STRESSCXX_CLASS_ID = TST_ResponseStressTestCxx -n test/testProvider
+STRESSCXX_CLASS_ID = $(CStressCxx) -n test/testProvider
 
 ## Simple C++ Provider classes and namespaces
 CxxSE_CLASS_ID = Sample_InstanceProviderClass -n root/SampleProvider

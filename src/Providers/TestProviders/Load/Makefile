@@ -432,6 +432,7 @@ unregisterproviders:
 	cimprovider -r -m CLITestProviderModule
 	cimprovider -r -m TestCIM_ErrorProviderModule
 	cimprovider -r -m TestLocalizedProviderModule
+	cimprovider -r -m ResponseStressTestProviderModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIIndicationProviderModule
 	cimprovider -r -m TestCMPIMethodProviderModule
@@ -442,7 +443,6 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m cmpiPerf_TestClassProviderModule
 	cimprovider -r -m cmpiPerf_TestClassAProviderModule
 	cimprovider -r -m cmpiPerf_TestAssocClassProviderModule
-	cimprovider -r -m ResponseStressTestProviderModule
 
 ifdef PEGASUS_ENABLE_EXECQUERY
 	cimprovider -r -m TestCMPIInstanceProviderModule

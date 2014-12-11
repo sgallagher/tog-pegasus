@@ -52,7 +52,12 @@ PEGASUS_USING_STD;
 
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
 
-static const CIMName TEST_CLASS = CIMName("TST_ResponseStressTestCxx");
+// test with two different classes.  Note that they are actually registered
+// to the same provider but each has its own private area for the
+// behavior parameters that are changed with the invokeMethod for
+// the superclass
+static const CIMName TEST_CLASS1 = CIMName("TST_ResponseStressTestCxx");
+static const CIMName TEST_CLASS2 = CIMName("TST_ResponseStressTestCxx2");
 
 static Boolean verbose;
 
@@ -60,30 +65,60 @@ static Boolean verbose;
     This structure encapsulates all of the parameters for the get and
     set methods for the ResponseStressTest Class with functions for
     setting, getting, displaying  and comparing them.
+    ClassName is part of definition to allow for the capability to
+    operation on multiple classes. The ResponseStressTestCxx provider
+    is capable of maintaining separate sets of parameters for different
+    request classNames and namespaces.
 */
-typedef struct MethodParameters{
-    MethodParameters() :  _responseCount(0),_instanceSize(0),
-        _countToFail(0), _failureStatusCode(CIM_ERR_SUCCESS), _delay(0)
+typedef struct MethodParameters
+{
+    MethodParameters(const CIMName& cl) :  _responseCount(0),_instanceSize(0),
+        _countToFail(0), _failureStatusCode(CIM_ERR_SUCCESS), _delay(0),
+        _className(cl)
     {}
 
     // Test with responseCount and instanceSize required parameters
     // and others optional
-    MethodParameters(Uint64 responseCount, Uint64 instanceSize,
-        Uint64 countToFail = 0, Uint32 failureStatusCode = 0, Uint32 delay = 0)
-       :  _responseCount(responseCount),
+    MethodParameters(const CIMName& cl, Uint64 responseCount,
+        Uint64 instanceSize,
+        Uint64 countToFail = 0,
+        Uint32 failureStatusCode = 0,
+        Uint32 delay = 0)
+        :
+        _responseCount(responseCount),
         _instanceSize(instanceSize),
         _countToFail(countToFail),
         _failureStatusCode((CIMStatusCode)failureStatusCode),
-        _delay(delay) {}
+        _delay(delay),
+        _className(cl)
+    {}
 
-    MethodParameters(Uint64 responseCount, Uint64 instanceSize,
-        Uint64 countToFail, CIMStatusCode failureStatusCode, Uint32 delay = 0)
-       :  _responseCount(responseCount),
+    MethodParameters(const CIMName& cl, Uint64 responseCount,
+        Uint64 instanceSize,
+        Uint64 countToFail,
+        CIMStatusCode failureStatusCode,
+        Uint32 delay = 0)
+        :
+        _responseCount(responseCount),
         _instanceSize(instanceSize),
         _countToFail(countToFail),
         _failureStatusCode(failureStatusCode),
-        _delay(delay) {}
+        _delay(delay),
+        _className(cl) {}
 
+    // Sets the parameters back to what the provider original compile
+    // setting should be.  If these are changed in the provider build
+    // they should be changed here also.
+    void setOrigParamValues()
+    {
+        _responseCount = 5;
+        _instanceSize = 100;
+        _countToFail = 0;
+        _failureStatusCode = CIM_ERR_SUCCESS;
+        _delay = 0;
+    }
+
+    // Tests values for equality, not the classname
     bool equal(const MethodParameters& mp)
     {
         if (_responseCount != mp._responseCount)
@@ -138,8 +173,9 @@ typedef struct MethodParameters{
     String toString()
     {
         String rtn;
-        rtn.appendPrintf("responseCount=%llu instanceSize=%llu "
+        rtn.appendPrintf("ClassName=%s responseCount=%llu instanceSize=%llu "
             "countToFail=%llu _failureStatusCond=%u (%s) _delay=%u",
+            (const char*)_className.getString().getCString(),
             _responseCount, _instanceSize, _countToFail,
             (Uint32)_failureStatusCode,
             cimStatusCodeToString(_failureStatusCode),
@@ -152,6 +188,7 @@ typedef struct MethodParameters{
     Uint64 _countToFail;
     CIMStatusCode _failureStatusCode;
     Uint32 _delay;
+    CIMName _className;
 
 } methodParameters;
 
@@ -235,7 +272,7 @@ void _displayTimes( Uint32 objCount, Uint32 objSize, Uint64 elapsed,
            (long unsigned int) perfData.responseSize,
            objSize, objCount);
 }
-// Enumerate the instance names
+// Enumerate the instances and confirm results
 void enumerateInstances(CIMClient& client, const methodParameters& mp,
                         CIMPropertyList& pl)
 {
@@ -243,7 +280,7 @@ void enumerateInstances(CIMClient& client, const methodParameters& mp,
     sw.start();
 
     Array<CIMInstance> instances =
-        client.enumerateInstances(NAMESPACE, TEST_CLASS,
+        client.enumerateInstances(NAMESPACE, mp._className,
                                   true, true, false, false, pl);
 
     sw.stop();
@@ -284,7 +321,7 @@ void enumerateInstances(CIMClient& client, const methodParameters& mp,
 void enumerateInstanceNames(CIMClient& client, const methodParameters& mp)
 {
     Array<CIMObjectPath> paths =
-        client.enumerateInstanceNames(NAMESPACE, TEST_CLASS);
+        client.enumerateInstanceNames(NAMESPACE, mp._className);
 
     VCOUT << "count = " << paths.size() << endl;
     if (verbose)
@@ -317,7 +354,7 @@ void set(CIMClient& client, const methodParameters& mp)
         NAMESPACE,
         CIMObjectPath(String::EMPTY,
                       CIMNamespaceName(),
-                      CIMName(TEST_CLASS)),
+                      CIMName(mp._className)),
         CIMName("set"),
         InParams,
         outParams);
@@ -331,7 +368,8 @@ void set(CIMClient& client, const methodParameters& mp)
 }
 
 // Issue the reset invoke method operation and wait for good response.
-void reset(CIMClient& client)
+// for a single Class.  The mp parameter defines the class
+void reset(CIMClient& client,  const methodParameters& mp)
 {
     Array<CIMParamValue> InParams;
     Array<CIMParamValue> outParams;
@@ -340,7 +378,7 @@ void reset(CIMClient& client)
         NAMESPACE,
         CIMObjectPath(String::EMPTY,
             CIMNamespaceName(),
-            CIMName(TEST_CLASS)),
+            CIMName(mp._className)),
         CIMName("reset"),
         InParams,
         outParams);
@@ -355,14 +393,11 @@ void get(CIMClient& client, methodParameters& mp)
     Array<CIMParamValue> InParams;
     Array<CIMParamValue> outParams;
 
-//  InParams.append(CIMParamValue("Size", instanceSize));
-//  InParams.append(CIMParamValue("ResponseCount", responseCount));
-
     CIMValue returnValue = client.invokeMethod(
         NAMESPACE,
         CIMObjectPath(String::EMPTY,
             CIMNamespaceName(),
-            CIMName(TEST_CLASS)),
+            CIMName(mp._className)),
         CIMName("get"),
         InParams,
         outParams);
@@ -406,15 +441,24 @@ void get(CIMClient& client, methodParameters& mp)
     }
 }
 
-// fixed test for the get and set methods that restores the provider
-// parameters to their original condition.
-void testSetAndGetMethods(CIMClient& client)
+// Confirms that the provider parameters are set to the original values
+// for a single className.
+// This is the only place in the test client that the original parameter
+// values should appear
+// If they are incorrect, it sets them to orig value but still returns
+// false since we are really using this to confirm that they are set
+// right.
+
+bool confirmOriginalValues(CIMClient& client, const CIMName& className)
 {
-    // This should match the definition in the provider as compiled
-    methodParameters orig(5, 100, 0, 0, 0);
+    // This object which should be set to the original parameters defined
+    // for the provider
+    methodParameters orig(className);
+    orig.setOrigParamValues();
+
     VCOUT << "orig = " << orig.toString() << endl;
 
-    methodParameters rtn;
+    methodParameters rtn(className);
     get(client, rtn);
     VCOUT << "getRtn = " << rtn.toString() << endl;
 
@@ -422,13 +466,28 @@ void testSetAndGetMethods(CIMClient& client)
     if (!rtn.equal(orig))
     {
         cerr << "Error in test of default method parameters"
-            << " expected " << orig.toString()
-            << " received " << rtn.toString()
-            << ". Difference Ignored" << endl;
+            << " for class " << className.getString()
+            << ". Expected " << orig.toString()
+            << ". Received " << rtn.toString() << endl;
+
+        set(client, orig);
+        return false;
     }
+    return true;
+}
+// fTest for the set, get, and reset methods for a single className.
+void testSetAndGetMethods(CIMClient& client, const CIMName& className)
+{
+    // Normally this tests and if wrong, sets them. Therefore no
+    // assert. This covers case were for some reason, they were set
+    // wrong by previous test, etc.
+    confirmOriginalValues(client, className);
+
+    // They have just been set to default. They  MUST be right now
+    PEGASUS_TEST_ASSERT(confirmOriginalValues(client, className));
 
     // Test changes to count and size
-    methodParameters test1(1500, 2000);
+    methodParameters test1(className,1500, 2000);
     set(client, test1);
 
     methodParameters test1Rtn = test1;
@@ -436,11 +495,23 @@ void testSetAndGetMethods(CIMClient& client)
     PEGASUS_TEST_ASSERT(test1.equal(test1Rtn));
 
     // set back to origin
+    methodParameters orig(className);
+    orig.setOrigParamValues();
     set(client, orig);
 
-    methodParameters test2Rtn;
+    methodParameters test2Rtn(className);
     get(client, test2Rtn);
     PEGASUS_TEST_ASSERT(test2Rtn.equal(orig));
+
+    // Test to confirm that the reset works.
+    // First set all parameters
+    methodParameters x1(className, 2000, 3000, CIM_ERR_FAILED, 4, 900);
+    set(client, x1);
+    // Reset
+    reset(client, x1);
+    // get and compare with the orig definition.
+    get(client, x1);
+    PEGASUS_TEST_ASSERT(x1.equal(orig));
 
     // assumes provider set to orig.
     methodParameters testFailureParams = orig;
@@ -455,6 +526,7 @@ void testSetAndGetMethods(CIMClient& client)
     // reset to the original parameters.
     set(client, orig);
 
+    methodParameters rtn = orig;
     get(client, rtn);
     VCOUT << "getRtn = " << rtn.toString() << endl;
 
@@ -492,6 +564,58 @@ void testSetAndGetMethods(CIMClient& client)
     VCOUT << "Passed testSetAndGetMethods." << endl;
 }
 
+// reset all of the parameters for both classes to the original values
+void resetAllParameters(CIMClient& client)
+{
+    methodParameters mpreset1(TEST_CLASS1);
+    reset(client, mpreset1);
+    confirmOriginalValues(client, TEST_CLASS1);
+
+    methodParameters mpreset2(TEST_CLASS2);
+    reset(client, mpreset2);
+    confirmOriginalValues(client, TEST_CLASS2);
+}
+void testSetAndGetMethodIndependence(CIMClient& client,
+                                     const CIMName& cl1,
+                                     const CIMName& cl2 )
+{
+    methodParameters orig(cl1);
+    orig.setOrigParamValues();
+    resetAllParameters(client);
+    methodParameters mp1(cl1, 2000, 3000, CIM_ERR_FAILED, 4, 900);
+    methodParameters mp2(cl2);
+    set(client, mp1);
+    get(client, mp2);
+
+    // confirm that the other class parameters has not changed.
+    PEGASUS_TEST_ASSERT(!mp1.equal(mp2));
+    PEGASUS_TEST_ASSERT(mp2.equal(orig));
+    reset(client, mp1);
+
+    // Set for both classes and test that correct values are returned for
+    // each
+
+    methodParameters mp3(cl1, 2222, 33333, CIM_ERR_SUCCESS, 3, 9999);
+
+    methodParameters mp4(cl2, 9000, 4000, CIM_ERR_FAILED, 5, 1100);
+    set(client, mp3);
+    set(client, mp4);
+    methodParameters rtnmp3(cl1);
+    methodParameters rtnmp4(cl2);
+    get(client, rtnmp3);
+    get(client, rtnmp4);
+    PEGASUS_TEST_ASSERT(mp3.equal(rtnmp3));
+    PEGASUS_TEST_ASSERT(mp4.equal(rtnmp4));
+
+    resetAllParameters(client);
+
+    get(client, rtnmp3);
+    get(client, rtnmp4);
+
+    PEGASUS_TEST_ASSERT(rtnmp3.equal(rtnmp4));
+    PEGASUS_TEST_ASSERT(rtnmp3.equal(orig));
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -519,12 +643,16 @@ int main(int argc, char** argv)
         // operation of the provider.
         if (argc <=1)
         {
-            //CIMClient client = connectServer();
+            // test the invoke methods for the two defined classes
+            testSetAndGetMethods(client, TEST_CLASS1);
+            testSetAndGetMethods(client, TEST_CLASS2);
 
-            testSetAndGetMethods(client);
+            // test that they are independently settable.
+            testSetAndGetMethodIndependence(client, TEST_CLASS1, TEST_CLASS2);
 
+            // Execute Enumerate and confirm results
             // set test parameters to 150 = size, 20 = response count
-            methodParameters mp(20,150);
+            methodParameters mp(TEST_CLASS1,20,150);
 
             set(client, mp);
 
@@ -563,7 +691,8 @@ int main(int argc, char** argv)
             {
                 for(Uint32 y = 0; y < objCount.size(); y++)
                 {
-                    methodParameters mp(objSize[x], objCount[y]);
+                    methodParameters mp(TEST_CLASS1,
+                                        objSize[x], objCount[y]);
                     set(client, mp);
                     CIMPropertyList pl1;
                     enumerateInstances(client, mp, pl1);
@@ -589,7 +718,8 @@ int main(int argc, char** argv)
     VCOUT << "Start Error reponse Tests. " << endl;
     // test to confirm that the countToFailure and failureStatusCode
     // work. This definition should fail after 30 objects returned.
-    methodParameters mpFail(20,150,10, CIM_ERR_FAILED);
+    methodParameters mpFail(TEST_CLASS1,
+                            20,150,10, CIM_ERR_FAILED);
 
     set(client, mpFail);
     try
@@ -638,7 +768,9 @@ int main(int argc, char** argv)
     }
 
     // reset provider to default in case another test.
-    reset(client);
+
+    resetAllParameters(client);
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

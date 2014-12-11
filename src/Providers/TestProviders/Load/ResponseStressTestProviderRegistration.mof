@@ -63,4 +63,15 @@ instance of PG_ProviderCapabilities
     SupportedMethods = NULL;
 };
 
-
+// instance defines the provider for a second class for the same provider
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "ResponseStressTestCxxProviderModule";
+    ProviderName = "ResponseStressTestCxxProvider";
+    CapabilityID = "ResponseStressTestCxxProvider002";
+    ClassName = "TST_ResponseStressTestCxx2";
+    Namespaces = { "test/TestProvider"};
+    ProviderType = { 2, 5 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

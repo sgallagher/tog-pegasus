@@ -100,15 +100,8 @@ public:
         MethodResultResponseHandler& handler);
 
 protected:
-    Array<CIMInstance> _instances;
 
 private:
-    Uint64 _instanceSize;
-    Uint64 _responseCount;
-    Uint64 _countToFail;
-    Uint32 _failureStatusCode;
-    Uint32 _delay;
-
     CIMOMHandle _cimom;
     Boolean _continue;
 

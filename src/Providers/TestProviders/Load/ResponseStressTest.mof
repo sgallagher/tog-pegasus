@@ -120,6 +120,11 @@ class TST_ResponseStress
 class TST_ResponseStressTestCxx : TST_ResponseStress
 {
 };
+// Stress test subclass for  C++ Provider.
+// Second class to allow multiple parallel tests.
+class TST_ResponseStressTestCxx2 : TST_ResponseStress
+{
+};
 
 // Corresponding CMPI subclass for CMPI provider
 class TST_ResponseStressTestCMPI : TST_ResponseStress

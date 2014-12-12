@@ -122,12 +122,17 @@ ifeq ($(PEGASUS_ENABLE_CQL),true)
       libCIMQueryCapabilitiesProvider
 endif
 
+ifeq ($(PEGASUS_ENABLE_FQL),true)
+   PEGASUS_LIBRARIES += libpegfql
+endif
+
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 PEGASUS_LIBRARIES += \
    libcmpiCppImpl
 PEGASUS_PROVIDER_MANAGERS += \
    libCMPIProviderManager
 endif
+
 
 PEGASUS_JARS =
 JAR_SUFFIX = .jar

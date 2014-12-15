@@ -96,7 +96,8 @@ enum TraceComponentId
 #endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
     TRC_LOGMSG,
     TRC_WMI_MAPPER_CONSUMER,
-    TRC_INTERNALPROVIDER
+    TRC_INTERNALPROVIDER,
+    TRC_ENUMCONTEXT
 };
 
 /** Token used for tracing functions.

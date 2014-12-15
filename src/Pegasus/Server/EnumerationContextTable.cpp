@@ -100,7 +100,7 @@ EnumerationContextTable* EnumerationContextTable::pInstance = NULL;
 
 ThreadReturnType PEGASUS_THREAD_CDECL operationContextTimeoutThread(void* parm)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContextTable::operationContextTimerThread");
 
     Thread *myself = reinterpret_cast<Thread *>(parm);
@@ -183,7 +183,7 @@ EnumerationContextTable* EnumerationContextTable::getInstance()
 */
 EnumerationContextTable::~EnumerationContextTable()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContextTable::~EnumerationContextTable");
 
     _stopTimeoutThread();
@@ -212,14 +212,14 @@ EnumerationContext* EnumerationContextTable::createContext(
     MessageType pullRequestType,
     CIMResponseData::ResponseDataContent contentType)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::createContext");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,"EnumerationContextTable::createContext");
 
     AutoMutex autoMut(_tableLock);
 
     // Test for Max Number of simultaneous contexts.
     if (_enumContextTable.size() > _maxOpenContextsLimit)
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL1,
             "Error EnumerationContext Table exceeded Max limit of %u",
              _responseCacheMaximumSize));
         return NULL;
@@ -258,7 +258,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     // system failure
     if(!_enumContextTable.insert(contextId, en))
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL1,
             "Error Creating Enumeration Context ContextId=%s. System Failed",
             contextId ));
         PEGASUS_ASSERT(false);  // This is a system failure
@@ -329,7 +329,7 @@ String EnumerationContextTable::buildStatistics(bool clearStats)
 
 void EnumerationContextTable::removeContextTable()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContextTable::removeContextTable");
 
     AutoMutex autoMut(_tableLock);
@@ -338,7 +338,7 @@ void EnumerationContextTable::removeContextTable()
     {
         EnumerationContext* en = i.value();
 
-        PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE(( TRC_ENUMCONTEXT, Tracer::LEVEL4,
             "EnumerationTable Delete. "
                 " ContextId=%s. Existed for %llu milliseconds",
              (const char *)en->getContextId().getCString(),
@@ -352,7 +352,7 @@ void EnumerationContextTable::removeContextTable()
 
 bool EnumerationContextTable::releaseContext(EnumerationContext* en)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::releaseContext");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,"EnumerationContextTable::releaseContext");
 
     AutoMutex autoMut(_tableLock);
 
@@ -380,7 +380,7 @@ bool EnumerationContextTable::releaseContext(EnumerationContext* en)
 // removes the context from the context table.
 bool EnumerationContextTable::_removeContext(EnumerationContext* en)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContextTable::_removeContext");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,"EnumerationContextTable::_removeContext");
 
     PEGASUS_DEBUG_ASSERT(en->valid());
 
@@ -395,7 +395,7 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
     // must insure that they block until finished with context.
     if (en->_clientClosed && en->_providersComplete)
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,  // KS_TEMP
+        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,  // KS_TEMP
             "EnumerationContext Remove. ContextId=%s",
             (const char *)en->getContextId().getCString() ));
         //// KS_TODO Remove this trace output.
@@ -437,7 +437,7 @@ Uint32 EnumerationContextTable::size()
 // return 0
 EnumerationContext* EnumerationContextTable::find(const String& contextId)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContextTable::find");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT, "EnumerationContextTable::find");
 
     AutoMutex autoMut(_tableLock);
 
@@ -458,7 +458,7 @@ EnumerationContext* EnumerationContextTable::find(const String& contextId)
 */
 bool EnumerationContextTable::processExpiredContexts()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContextTable::processExpiredContexts");
 
     PEGASUS_DEBUG_ASSERT(valid());
@@ -607,7 +607,7 @@ bool EnumerationContextTable::processExpiredContexts()
         // This time call the providerManager cleanup.
         else if (ctr >= targetCount)
         {
-            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
                 "%u Consecutive 0 length responses issued for ContextId=%s",
                 ctr,
                 CSTRING(en->getContextId()) ));
@@ -655,7 +655,7 @@ void EnumerationContextTable::tableValidate()
 // to scan for timeouts.
 void EnumerationContextTable::dispatchTimerThread()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
                      "EnumerationContextTable::dispatchTimerThread");
 
     PEGASUS_DEBUG_ASSERT(valid());
@@ -694,7 +694,7 @@ void EnumerationContextTable::dispatchTimerThread()
 
 void EnumerationContextTable::_stopTimeoutThread()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContextTable::_stopTimeoutThread");
 
     PEGASUS_DEBUG_ASSERT(valid());
@@ -710,7 +710,7 @@ void EnumerationContextTable::_stopTimeoutThread()
             Threads::sleep(PEGASUS_PULL_MAX_OPERATION_WAIT_SEC);
         }
     }
-    PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "EnumerationContextTable timeout thread stopped");
     PEG_METHOD_EXIT();
 }
@@ -727,14 +727,14 @@ void EnumerationContextTable::setDefaultOperationTimeoutSec(Uint32 seconds)
 
 void EnumerationContextTable::trace()
 {
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "EnumerationContextTable Trace. size=%u", _enumContextTable.size()));
 
     AutoMutex autoMut(_tableLock);
 
     for (EnumContextTableType::Iterator i = _enumContextTable.start(); i; i++)
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
             "ContextTable Entry: key [%s]",
                    (const char*)i.key().getCString() ));
         EnumerationContext* enumeration = i.value();

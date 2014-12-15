@@ -97,7 +97,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _startTimeUsec = System::getCurrentTimeUsec();
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "Create EnumerationContext ContextId=%s operationTimeoutSec %u"
         " responseCacheDataType %u StartTime %lu",
         (const char *)getContextId().getCString(),
@@ -128,7 +128,7 @@ void EnumerationContext::setRequestProperties(
 */
 void EnumerationContext::startTimer()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::startTimer");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,"EnumerationContext::startTimer");
     PEGASUS_DEBUG_ASSERT(valid());
 
     // Request operation timeout = 0 means do not start timer
@@ -141,7 +141,7 @@ void EnumerationContext::startTimer()
 
 void EnumerationContext::startTimer(Uint64 timeoutUsec)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::startTimer");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,"EnumerationContext::startTimer");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
@@ -152,7 +152,7 @@ void EnumerationContext::startTimer(Uint64 timeoutUsec)
     _enumerationContextTable->dispatchTimerThread();
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "StartTimer, ContextId=%s, This timeoutTime(sec)=%llu"
            " OperationTimeout=%u sec,"
            " next timeout in %ld sec,",
@@ -166,12 +166,12 @@ void EnumerationContext::startTimer(Uint64 timeoutUsec)
 
 void EnumerationContext::stopTimer()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"EnumerationContext::stopTimer");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,"EnumerationContext::stopTimer");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "StopTimer, ContextId=%s,"
            " OperationTimeout=%u sec,"
            " opttime - curtime=%ld sec,",
@@ -202,7 +202,7 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
     bool timedOut = _operationTimerUsec <= currentTime;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "isTimedOut Timer. ContextId=%s timer(sec)=%lu"
            " current(sec)=%lu time to timeout(usec)=%ld isTimedOut=%s",
         (const char*)_contextId.getCString(),
@@ -245,7 +245,7 @@ void EnumerationContext::setErrorState(CIMException x)
 void EnumerationContext::trace()
 {
     PEGASUS_DEBUG_ASSERT(valid());
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "EnumerationContextTrace ContextId=%s "
         "requestOperationTimeOut=%u "
         "operationTimer=%lu sec "
@@ -296,7 +296,7 @@ bool EnumerationContext::valid() const
 
 EnumerationContext::~EnumerationContext()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContext::~EnumerationContext()");
 
     PEG_METHOD_EXIT();
@@ -315,7 +315,7 @@ EnumerationContext::~EnumerationContext()
 bool EnumerationContext::putCache(CIMResponseMessage*& response,
     bool providersComplete)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::putCache");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT, "EnumerationContext::putCache");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
@@ -335,7 +335,7 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
     }
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "putCache, ContextId=%s isComplete=%s ResponseDataType=%u "
             " cache size=%u put size=%u clientClosed=%s",
         (const char*)getContextId().getCString(),
@@ -380,7 +380,7 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
 // waitProviderLimitCondition condition variable.
 void EnumerationContext::waitCacheSize()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::waitCacheSize()");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT, "EnumerationContext::waitCacheSize()");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
@@ -399,7 +399,7 @@ void EnumerationContext::waitCacheSize()
     Uint64 interval = System::getCurrentTimeUsec() - startTime;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "waitCacheSize  ContextId=%s Wait %lu usec",
        (const char *)_contextId.getCString(),
        (unsigned long int)interval ));
@@ -463,7 +463,7 @@ bool EnumerationContext::testCacheForResponses(
     }
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
        "testCacheForResponse returns %s for ContextId=%s",
                boolToString(rtn), (const char*)getContextId().getCString() ));
 #endif
@@ -497,7 +497,7 @@ void EnumerationContext::setupDelayedResponse(
 */
 bool EnumerationContext::getCache(Uint32 count, CIMResponseData& rtnData)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER, "EnumerationContext::getCache");
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT, "EnumerationContext::getCache");
 
     PEGASUS_DEBUG_ASSERT(valid());
 
@@ -521,7 +521,7 @@ bool EnumerationContext::getCache(Uint32 count, CIMResponseData& rtnData)
     _requestedResponseObjectsCount += count;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
       "EnumerationContext::getCache ContextId=%s moveObjects expected=%u"
           " actual %u", (const char *)getContextId().getCString(),
           count, rtnData.size()));
@@ -537,7 +537,7 @@ bool EnumerationContext::getCache(Uint32 count, CIMResponseData& rtnData)
 
 void EnumerationContext::signalProviderWaitCondition()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContext::signalProviderLimitCondition");
 
     PEGASUS_DEBUG_ASSERT(valid());
@@ -574,7 +574,7 @@ bool EnumerationContext::incAndTestPullCounters(bool isZeroLength)
 // This could awaken any wait at the cacheWait.
 void EnumerationContext::setProvidersComplete()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContext::setProvidersComplete");
 
     PEGASUS_DEBUG_ASSERT(valid());
@@ -594,7 +594,7 @@ void EnumerationContext::setProvidersComplete()
 
 bool EnumerationContext::setNextEnumerationState(bool errorFound)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_ENUMCONTEXT,
         "EnumerationContext::setNextEnumerationState");
 
     PEGASUS_DEBUG_ASSERT(valid());
@@ -623,7 +623,7 @@ void EnumerationContext::setClientClosed()
     _clientClosed = true;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "setClientClosed. ContextId=%s ",
         (const char*)getContextId().getCString() ));
 #endif
@@ -658,7 +658,7 @@ void EnumerationContext::setProcessingState(bool state)
     PEGASUS_DEBUG_ASSERT(_processing != state); // not setting to same state
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "setProcessingState. ContextId=%s nextProcessingStat=%s",
         (const char*)getContextId().getCString(),
         (state? "active" : "inactive") ));

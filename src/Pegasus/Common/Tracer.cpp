@@ -108,7 +108,8 @@ char const* Tracer::TRACE_COMPONENT_LIST[] =
 #endif
     "LogMessages",
     "WMIMapperConsumer",
-    "InternalProvider"
+    "InternalProvider",
+    "EnumContext"
 };
 
 // Set the number of defined components

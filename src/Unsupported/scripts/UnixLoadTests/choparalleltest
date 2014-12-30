@@ -87,8 +87,6 @@ control_c()
 # trap keyboard interrupt (control-c)
 trap control_c SIGINT
 
-declare -i addTime
-
 ######################################################################
 ## Test to be sure PEGASUS_ROOT exists and get input parameters
 ##
@@ -151,6 +149,9 @@ do
          ;;
      esac 
 done
+
+NOW=$(date +"%m-%d-%Y:%H-%M")
+echo ++++++ $(basename $0) Start +++++++ 2>&1 | tee $(basename $0).txt
 
 ## If verbose, display results of command line options
 if [ -n $VERBOSE ]; then
@@ -319,22 +320,20 @@ fi
 ## provider and uses the results. Thus, the size of the response
 ## from the provider will change over the test. This test takes
 ## minutes to execute so execute once in each cycle. Note
+## that this test uses Cxx2, the second class that uses the ResponseStress
+## provider but which has an independent set of config options.
 run_loop "10_make_pull_poststarttests" make  \
     -C $PEGASUS_ROOT/src/Pegasus/Client/tests/pullop poststarttests \
     CStressCxx=TST_ResponseStressTestCxx2 &
 
 ## The remainder of these tests run against TST_ResponseStressTestCxx
+## Note that only tests that DO NOT modify the ResponseStress Client should
+## be run in this test.  We set it once for Cxx and leave it at that for
+## the life of the tests.
 cimcli im $CStressCxx set -n $NStressCxx Size=10000 \
         ResponseCount=10000 $CIMCLIHOSTID
-run_loop "31_Make_PullSimpleTests" make -C $PEGASUS_ROOT/src/Pegasus/Client/tests/pullop simpleTests &
-run_loop "32_Make_Pulltestclose" make -C $PEGASUS_ROOT/src/Pegasus/Client/tests/pullop testclose &
-## execute some stress tests
-run_loop "33_Make_PullStress" pullop en -c $CStressCxx -n $NStressCxx -M 1000 -N 1000 $(HOSTID)
-#### execute test of client timeout
-run_loop "34_Make_Pulltimeout1" make -C $PEGASUS_ROOT/src/Pegasus/Client/tests/pullop testtimeout &
 
-#### execute the standard error tests
-##run_loop "36_Make_error" make -C $PEGASUS_ROOT/src/Pegasus/Client/tests/pullop errortests &
+run_loop "31_Make_PullSimpleTests" make -C $PEGASUS_ROOT/src/Pegasus/Client/tests/pullop simpleTests &
 
 ## pull operations direct. Use only cimcli here because we cannot
 ## trust the size of the return from the StressCxx provider since we are
@@ -348,7 +347,9 @@ run_loop "15_cimcli_pr" cimcli pr $CXXASSOC_INST_ID -n $NStressCxx --sum --t --r
 run_loop "16_cimcli_pa" cimcli pa $CXXASSOC_INST_ID  -n $NStressCxx --sum --t --r $REPEAT $CIMCLIHOSTID &
 run_loop "17_cimcli_pan" cimcli pan $CXXASSOC_INST_ID  -n $NStressCxx --sum --t --r $REPEAT $CIMCLIHOSTID &
 run_loop "18_cimcli_pa" cimcli pa $CMPIASSOCOBJ_INST_ID  -n $NStressCxx --sum --t --r $REPEAT $CIMCLIHOSTID &
-## and enumerates and compares results. This is just a subset
+
+## The following is just a subset of the tests and
+## does not modify the provider runtime characteristics
 ## since we also run the complete poststarttest for pullop
 run_loop "19_pullop_r" pullop r $CXXASSOC_INST_ID -C $HOSTID -v 1  -r $REPEAT &
 run_loop "20_pullop_a" pullop a $CXXASSOC_INST_ID -C $HOSTID -v 1 -r $REPEAT &

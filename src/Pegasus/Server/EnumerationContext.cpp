@@ -172,9 +172,9 @@ void EnumerationContext::stopTimer()
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
-        "StopTimer, ContextId=%s,"
+        "StopTimer ContextId=%s,"
            " OperationTimeout=%u sec,"
-           " opttime - curtime=%ld sec,",
+           " (timerTime - curtime)=%ld sec,",
        (const char*)getContextId().getCString(),
        _operationTimeoutSec,
        (long signed int)(_operationTimerUsec -
@@ -337,7 +337,7 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "putCache, ContextId=%s isComplete=%s ResponseDataType=%u "
-            " cache size=%u put size=%u clientClosed=%s",
+            " cacheSize=%u putSize=%u clientClosed=%s",
         (const char*)getContextId().getCString(),
         boolToString(providersComplete),
         _responseCache.getResponseDataContent(),
@@ -400,7 +400,7 @@ void EnumerationContext::waitCacheSize()
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
-        "waitCacheSize  ContextId=%s Wait %lu usec",
+        "waitCacheSize  ContextId=%s Wait=%lu usec",
        (const char *)_contextId.getCString(),
        (unsigned long int)interval ));
 #endif
@@ -523,7 +523,7 @@ bool EnumerationContext::getCache(Uint32 count, CIMResponseData& rtnData)
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
       "EnumerationContext::getCache ContextId=%s moveObjects expected=%u"
-          " actual %u", (const char *)getContextId().getCString(),
+          " actual=%u", (const char *)getContextId().getCString(),
           count, rtnData.size()));
 #endif
 

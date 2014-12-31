@@ -228,11 +228,12 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
         // trace the error including the provider name
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
-            "Response has error.  Namespace: %s, Class name: %s, "
-                "Response Sequence: %u",
+            "Provider Response has errorCode=%u.  Namespace=%s, ClassName=%s, "
+                "ResponseSequence=%u messageId=%s",
+            (Uint32)error,
             CSTRING(_nameSpace.getString()),
             CSTRING(_className.getString()),
-            _totalReceived ));
+            _totalReceived, CSTRING(response.messageId) ));
     }
 
     Boolean isComplete = response.isComplete();
@@ -265,19 +266,25 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         if (_totalReceivedExpected == _totalReceived)
         {
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-                "Message is complete.  Total responses: %u, "
-                    "total chunks: %u, total errors: %u",
+                "Responses Completed. messageid=%s is complete. "
+                    "TotalResponses=%u, totalChunks=%u, totalErrors=%u",
+                CSTRING(response.messageId),
                 _totalReceivedComplete,
                 _totalReceived,
                 _totalReceivedErrors));
         }
         else
         {
+            // KS_TODO this is actually reporting an error but gets found
+            // only if trace is enabled. Same issue exists for lots of things
+            // that get reported as DISCARDED_DATA
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "All completed responses (%u) for current request "
+                "All completed responses (%u) for current request"
+                    " messageId=%s "
                     "have been accounted for but expected count (%u) does "
                     "not match the received count (%u). error count (%u).",
                 _totalReceivedComplete,
+                CSTRING(response.messageId),
                 _totalReceivedExpected,
                 _totalReceived,
                 _totalReceivedErrors));
@@ -365,36 +372,36 @@ void _buildPropertyListWithTags(CIMConstClass& thisClass,
 **
 ***************************************************************************/
 Boolean ProviderInfoList::hasMore(Boolean isProvider)
+{
+    ConstArrayIterator<ProviderInfo> iterator(_array);
+    while (_index < iterator.size())
     {
-        ConstArrayIterator<ProviderInfo> iterator(_array);
-        while (_index < iterator.size())
+        if (iterator[_index].hasProvider == isProvider)
         {
-            if (iterator[_index].hasProvider == isProvider)
-            {
-                return true;
-            }
-            else
-            {
-                _index++;
-            }
+            return true;
         }
-        // Reset index when complete. This is so the hasMore can be used
-        // multiple times to cycle through the list.
-        _index = 0;
-        return false;
+        else
+        {
+            _index++;
+        }
     }
+    // Reset index when complete. This is so the hasMore can be used
+    // multiple times to cycle through the list.
+    _index = 0;
+    return false;
+}
 
 // Commmon function to display routing info for a providerInfo element.
 void ProviderInfoList::pegRoutingTrace(ProviderInfo& providerInfo,
-                         const char * reqMsgName,
-                         String& messageId)
+    const char * reqMsgName,
+    String& messageId)
 {
     if (providerInfo.controlProviderName.size() != 0)
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "%s Routing request for class %s to "
                 "service \"%s\" for control provider \"%s\".  "
-                "Class # %u of %u, messageId %s",
+                "Class # %u of %u, messageId=%s",
             reqMsgName,
             CSTRING(providerInfo.className.getString()),
             _getServiceName(providerInfo.serviceId),
@@ -406,7 +413,7 @@ void ProviderInfoList::pegRoutingTrace(ProviderInfo& providerInfo,
     {
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
             "%s Routing request for class %s to "
-                "service \"%s\".  Class # %u of %u, messageId %s",
+                "service \"%s\".  Class # %u of %u, messageId=%s",
             reqMsgName,
             CSTRING(providerInfo.className.getString()),
             _getServiceName(providerInfo.serviceId),
@@ -943,8 +950,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
                     // Did not find one means that the enumcontext cleaned up
                     // before provider responded. Just issue discard trace
                     PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                        "Provider Response for non-Existent EnumerationContext"
-                        " %s providers. Response Discarded",
+                        "Provider Response for non-Existent ContextId=%s"
+                        " providers. Response Discarded",
                         (const char *)poA->_contextId.getCString() ));
                     // KS_TODO should we discard the response here and what
                     // about the poA. Not really sure but it is a very rare
@@ -4558,7 +4565,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest - "
-            "Namespace: %s  Class name: %s MessageId: %s",
+            "Namespace=%s  ClassName=%s messageId=%s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->className.getString()),
         CSTRING(request->messageId)));
@@ -4744,7 +4751,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociators - "
-            "Namespace: %s  Class name: %s MessageId: %s",
+            "Namespace=%s  ClassName=%s messageId=%s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString()),
         CSTRING(request->messageId)));
@@ -7589,7 +7596,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
         // Stop interoperation timer thread from reviewing this context.
         en->stopTimer();
 
-        // Set the EnumerationnCoontext Closed. No more requests will be
+        // Set the EnumerationContext Closed. No more requests will be
         // accepted for this enumerationContext
         en->setClientClosed();
 
@@ -7605,7 +7612,7 @@ void CIMOperationRequestDispatcher::handleCloseEnumeration(
     if (providersComplete)
     {
         // Unlock and destroy the context.
-        _enumerationContextTable->releaseContext(en);
+        PEGASUS_ASSERT(_enumerationContextTable->releaseContext(en));
     }
 
 
@@ -7653,8 +7660,8 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         (CIMResponseDataMessage*) poA->getResponse(0);
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL3,
         "CIMOperationRequestDispatcher - "
-            "RequestType=%s ResponseType=%s"
-            "Namespace=%s Class name=%s Response Count=%u "
+            "RequestType=%s ResponseType=%s "
+            "Namespace=%s ClassName=%s ResponseCount=%u "
             "messageId=%s",
         MessageTypeToString(poA->_msgRequestType),
         MessageTypeToString(toResponse->getType()),
@@ -7666,10 +7673,10 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 //// KS_TODO temporary while we finish pull testing
     PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
         "CIMOperationRequestDispatcher::handleOperationResponseAggregation"
-        " - Type %s requiresHostnameCompletion : %s _hasPropList: %s",
+        " - Type=%s requiresHostnameCompletion=%s _hasPropList=%s",
         MessageTypeToString(poA->_msgRequestType),
-        (poA->_requiresHostnameCompletion == true ? "true" : "false"),
-        (poA->_hasPropList == true ? "true" : "false")));
+        boolToString(poA->_requiresHostnameCompletion),
+        boolToString(poA->_hasPropList) ));
 
     CIMResponseData & to = toResponse->getResponseData();
 
@@ -7706,12 +7713,11 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
                 PEG_TRACE(( TRC_DISPATCHER, Tracer::LEVEL4,
                     "CIMOperationRequestDispatcher::"
                     "handleOperationResponseAggregation "
-                    "ERRORNOTHANDLINGPROPERTYLIST -  Type %s"
-                    "requiresHostnameCompletion : %s _hasPropList: %s",
+                    "ERRORNOTHANDLINGPROPERTYLIST -  Type=%s"
+                    "requiresHostnameCompletion=%s _hasPropList=%s",
                     MessageTypeToString(poA->_msgRequestType),
-                    (poA->_requiresHostnameCompletion ==
-                      true ? "true" : "false"),
-                    (poA->_hasPropList == true ? "true" : "false")));
+                    boolToString(poA->_requiresHostnameCompletion),
+                    boolToString(poA->_hasPropList) ));
             }
         }
     }
@@ -7822,7 +7828,7 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
         "CIMOperationRequestDispatcher::ExecQuery Response - "
-            "Name Space: %s  Class name: %s Response Count: %u",
+            "NameSpace=%s  ClassName=%s ResponseCount=%u",
         CSTRING(poA->_nameSpace.getString()),
         CSTRING(poA->_className.getString()),
         numberResponses));
@@ -7913,7 +7919,7 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
                         // KS_TODO should this really be log???
                         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                             "query response, no path set in provider. "
-                                   "class %s",
+                                   "ClassName=%s",
                             CSTRING(cimClass.getClassName().getString()) ));
 
                         op = a[j].buildPath(cimClass);
@@ -8115,7 +8121,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                     "CIMOperationRequestDispatcher::"
                         "_fixInvokeMethodParameterTypes - "
-                        "Namespace: %s  Class Name: %s",
+                        "Namespace=%s  ClassName=%s",
                     CSTRING(request->nameSpace.getString()),
                     CSTRING(request->instanceName.getClassName().getString())));
 

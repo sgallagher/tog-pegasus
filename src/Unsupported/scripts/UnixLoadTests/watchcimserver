@@ -47,7 +47,12 @@ usage()
 cat << EOF
 Usage: $(basename $0) - Watch the cimserver and display statistics on a regular
        timed basis while it is running. Puts the statistics to the
-       console and also to a file defined by -f option
+       console and also to a file defined by -f option.
+       This script will try to detect a cimserver running under either
+       the cimserver process name or at least some of the names
+       used by the valgrind tool. See the variable PROCNAMEARRAY for
+       list of process names it currently knows. Please add new ones to the
+       script and check in the results
     
     watchcimserver [OPTIONS]
 
@@ -65,8 +70,6 @@ Usage: $(basename $0) - Watch the cimserver and display statistics on a regular
 	           hours or days. (i.e 3d will run the test for 3 days).
 	           m is same as pure numeric.  This is accumulative so that
 	               -t 1d -t30m would end in 1 day + 30 minutes.
-    -V         cimserver run under valgrind.  Looks for running
-               valgrind for cimserver pid. ((memcheck-amd64)
 EOF
 }
 
@@ -94,11 +97,16 @@ CUR_RSS=0
 STARTTIME=$(date +%s)
 
 RUNMINUTES=0                       ## accumulated runtime in minutes
-CIMSERVER_PROCNAME=cimserver       ## name for cimserver process
-## KS_TODO this assumes a certain valgrind process name
-VALGRIND_PROCNAME=memcheck-amd64-   
-RUN_VALGRIND=0                     ## boolean options to watch valgrind
+
 DATEFMT="+%m/%d/%y%n%H:%M:%S"
+
+## possible names for the cimserver process including names when
+## it run under valgrind. These are tested one by one to find a
+## running process. Script fails if:
+##   either the server is not started by this script or one of the
+##   process names in this list is not found.
+PROCNAMEARRAY=(cimserver memcheck-amd64- massif-amd64-li)
+
 ###############################################################
 ##  Capture if user ctrl-cs out of program and report current status
 ##
@@ -113,26 +121,31 @@ control_c()
 # trap keyboard interrupt (control-c)
 trap control_c SIGINT
 
-declare -i addTime
 ################################################################
 ##  Scan input options
 ##
 while getopts "hvw:sf:i:t:pV" OPTION
 do 
      case $OPTION in 
-         h)  usage 
-             exit 1 
-             ;; 
-         v)  VERBOSE=1
-             ;;
+     h)  usage 
+         exit 1 
+         ;;
+ 
+     v)  VERBOSE=1
+         ;;
+
 	 s)  STARTSERVER=1
 	     ;;
-         f)  OUTPUTFILENAME=$OPTARG
-             ;;
-         i)  INTERVAL=$OPTARG
-             ;;
+
+     f)  OUTPUTFILENAME=$OPTARG
+         ;;
+
+     i)  INTERVAL=$OPTARG
+         ;;
+
 	 p)  WATCHPROVAGT=s      ## set to watch subprocesses
 	     ;;
+
      t)  timeInput=$OPTARG
          case "$timeInput" in
              *m ) addTime=${timeInput%%"m"}
@@ -162,19 +175,8 @@ do
 	     ## set the time for the watchcimserver to stop in sec
              STOPTIME_SEC=$(date +%s --date="now + $STOPTIME_MIN min")
 
-	     ## extend the runtime by 5 minutes if the time is more
-	     ## than about an hour.  This just allows us to set the
-	     ## same time in both the test and watch and be sure that
-	     ## the test stops before the watch.
-	     ##if [[ $STOPTIME_MIN -ge 3600 ]]; then
-	     ##    STOPTIME_SEC=$(( $STOPTIME_SEC + 320 ))
-	     ##fi
              ;;
-         V)
-            RUN_VALGRIND=1
-            CIMSERVER_PROCNAME=$VALGRIND_PROCNAME
-            echo server process name set to $VALGRIND_PROCNAME
-            ;;
+
          ?) usage 
              exit 
              ;;
@@ -199,41 +201,40 @@ if [[ $VERBOSE -eq 1 ]]; then
       echo serverStart=true
    fi
    echo Outputfile=$OUTPUTFILENAME
-   if [[ $RUN_VALGRIND -eq 1 ]]; then
-       echo CIMServer procname=$CIMSERVER_PROCNAME
-       echo Assumes running under valgrind memcheck
-   fi
 fi
 
 ############################################################
 ##   Start server if requested or test if already running
 ##
 if [[ $STARTSERVER -eq 1 ]]; then
-   if [[ $RUN_VALGRIND -eq 1 ]]; then
-       echo Cannot start server under valgrind. Do it manually
-       exit 1
-   fi
    echo start server
    cimserver
 fi
 
 ############################################################
-## determine that cimserver is running and find its pid
-CIMSERVER_PID=$(ps -C $CIMSERVER_PROCNAME -o pid|grep -v PID | sed 's/^ *//')
+## determine that cimserver or controlling process is running and find its pid
+## Will find any process names in PROCNAMEARRAY above
 
-if [[ $VERBOSE = 1 ]]; then
-    echo CIMServer proc name $CIMSERVER_PROCNAME CIMSERVER_PID="\"$CIMSERVER_PID\""
-fi
+PROCESS_NAME=
 
+for Name in ${PROCNAMEARRAY[@]}
+do
+    echo testing for process name $Name
+    CIMSERVER_PID=$(ps -C $Name --no-headers -o pid | head -1)
+    echo Process $Name PID=$CIMSERVER_PID
+
+    if [[ -n "$CIMSERVER_PID" ]];then
+        echo Watch cimserver pid=$CIMSERVER_PID each $INTERVAL sec. \
+            start $(date $DATEFMT),
+        echo "    " duration $STOPTIME_MIN minutes, end at \
+            $(date $DATEFMT -d @$STOPTIME_SEC)
+        PROCESS_NAME=$Name
+        break
+    fi
+done
 if [[ -z "$CIMSERVER_PID" ]];then
     echo CIMServer proc $CIMSERVER_PROCNAME not found, exiting.
     exit 1
-else
-    echo Watch cimserver pid=$CIMSERVER_PID each $INTERVAL sec. \
-        start $(date $DATEFMT),
-    echo "    " duration $STOPTIME_MIN minutes, end at \
-        $(date $DATEFMT -d @$STOPTIME_SEC)
-    echo
 fi
 
 PROCFILE=/proc/$CIMSERVER_PID
@@ -249,12 +250,12 @@ fi
 FIRSTPASS=1
 
 ## ps command to get the current RSS variable
-CUR_RSS=0$(ps --no-headers -p $CIMSERVER_PID -o rss)
+CUR_RSS=0$(ps --no-headers -o rss -p $CIMSERVER_PID )
 
 ## While proc file exists, loop and report ps every INTERVAL seconds
 while true
 do
-    ## die if server no longer running
+    ## die if process no longer running
     if [[ ! -e $PROCFILE ]]; then
         echo cimserver $PROCFILE not running. Terminate watchcimserver
         echo cimserver not running. Terminating script.
@@ -267,11 +268,12 @@ do
     ## Display definition in PSOUTFMT String
     ## -F displays UID PID  PPID  C    SZ   RSS PSR STIME TTY      TIME CMD
     if [[ $FIRSTPASS -eq 1 ]]; then
-        ps -$WATCHPROVAGT $CIMSERVER_PID $PSOUTFMT | tee $OUTPUTFILENAME
+        echo
+        ps $PSOUTFMT -$WATCHPROVAGT $CIMSERVER_PID  | tee $OUTPUTFILENAME
 	    FIRSTPASS=0
     else
         ## after first pass, discard header line.
-        ps --no-headers -$WATCHPROVAGT $CIMSERVER_PID $PSOUTFMT| tee -a $OUTPUTFILENAME
+        ps --no-headers $PSOUTFMT -$WATCHPROVAGT  $CIMSERVER_PID | tee -a $OUTPUTFILENAME
     fi
 
     ## compute the highwater and lowwater marks for RSS

@@ -395,10 +395,10 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
     // must insure that they block until finished with context.
     if (en->_clientClosed && en->_providersComplete)
     {
-        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,  // KS_TEMP
+        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,  // KS_TEMP
             "EnumerationContext Remove. ContextId=%s",
             (const char *)en->getContextId().getCString() ));
-        //// KS_TODO Remove this trace output.
+        //// Temp Diagnostic KS_TODO Remove this trace output.
         en->trace();
 
         // test/set the highwater mark for the table

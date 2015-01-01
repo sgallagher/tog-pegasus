@@ -97,7 +97,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     _startTimeUsec = System::getCurrentTimeUsec();
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,
         "Create EnumerationContext ContextId=%s operationTimeoutSec %u"
         " responseCacheDataType %u StartTime %lu",
         (const char *)getContextId().getCString(),
@@ -245,7 +245,7 @@ void EnumerationContext::setErrorState(CIMException x)
 void EnumerationContext::trace()
 {
     PEGASUS_DEBUG_ASSERT(valid());
-    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,
         "EnumerationContextTrace ContextId=%s "
         "requestOperationTimeOut=%u "
         "operationTimer=%lu sec "
@@ -623,7 +623,7 @@ void EnumerationContext::setClientClosed()
     _clientClosed = true;
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
-    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,
         "setClientClosed. ContextId=%s ",
         (const char*)getContextId().getCString() ));
 #endif

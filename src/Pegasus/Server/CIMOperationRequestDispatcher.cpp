@@ -66,7 +66,30 @@ PEGASUS_USING_STD;
 
 #define XCOUT if (true) cout << __FILE__ << ":" << __LINE__ << " "
 
+// KS_TODO. Replace the CSTRING args with the Str class implementaiton
 #define CSTRING(ARG) (const char*) ARG.getCString()
+
+// General class to process various objects that are made up of Pegaus
+// Strings back to the String and more directly to the const char* ...
+// used for display. This can be used for
+// String, CIMName, CIMNamespaceName, Exception, CIMDateTime, CIMObjectPath
+// The same general class exists in several places in OpenPegasus.
+// TODO: make this a general part of Pegasus so it is not duplicated in
+// many different files.
+class Str
+{
+public:
+    Str(const String& s) : _cstr(s.getCString()) { }
+    Str(const CIMName& n) : _cstr(n.getString().getCString()) { }
+    Str(const CIMNamespaceName& n) : _cstr(n.getString().getCString()) { }
+    Str(const Exception& e) : _cstr(e.getMessage().getCString()) { }
+    Str(const CIMDateTime& x) : _cstr(x.toString().getCString()) { }
+    Str(const CIMObjectPath& x) : _cstr(x.toString().getCString()) { }
+    const char* operator*() const { return (const char*)_cstr; }
+    operator const char*() const { return (const char*)_cstr; }
+private:
+    CString _cstr;
+};
 
 // Set a define based on whether FQL was enabled for this build
 #ifdef PEGASUS_ENABLE_FQL

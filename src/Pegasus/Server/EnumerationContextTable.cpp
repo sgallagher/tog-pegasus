@@ -54,6 +54,28 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+// General class to process various objects that are made up of Pegaus
+// Strings back to the String and more directly to the const char* ...
+// used for display. This can be used for
+// String, CIMName, CIMNamespaceName, Exception, CIMDateTime, CIMObjectPath
+// The same general class exists in several places in OpenPegasus.
+// TODO: make this a general part of Pegasus so it is not duplicated in
+// many different files.
+class Str
+{
+public:
+    Str(const String& s) : _cstr(s.getCString()) { }
+    Str(const CIMName& n) : _cstr(n.getString().getCString()) { }
+    Str(const CIMNamespaceName& n) : _cstr(n.getString().getCString()) { }
+    Str(const Exception& e) : _cstr(e.getMessage().getCString()) { }
+    Str(const CIMDateTime& x) : _cstr(x.toString().getCString()) { }
+    Str(const CIMObjectPath& x) : _cstr(x.toString().getCString()) { }
+    const char* operator*() const { return (const char*)_cstr; }
+    operator const char*() const { return (const char*)_cstr; }
+private:
+    CString _cstr;
+};
+
 // Definition of static variable that can be set by  config manager
 Uint32 EnumerationContextTable::_defaultOperationTimeoutSec =
     PEGASUS_DEFAULT_PULL_OPERATION_TIMEOUT_SEC;
@@ -341,7 +363,7 @@ void EnumerationContextTable::removeContextTable()
         PEG_TRACE(( TRC_ENUMCONTEXT, Tracer::LEVEL4,
             "EnumerationTable Delete. "
                 " ContextId=%s. Existed for %llu milliseconds",
-             (const char *)en->getContextId().getCString(),
+             *Str(en->getContextId()),
              ((TimeValue::getCurrentTime().toMilliseconds()
                - en->_startTimeUsec)/1000) ));
         delete en;
@@ -395,10 +417,10 @@ bool EnumerationContextTable::_removeContext(EnumerationContext* en)
     // must insure that they block until finished with context.
     if (en->_clientClosed && en->_providersComplete)
     {
-        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,  // KS_TEMP
+        PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,
             "EnumerationContext Remove. ContextId=%s",
-            (const char *)en->getContextId().getCString() ));
-        //// Temp Diagnostic KS_TODO Remove this trace output.
+            *Str(en->getContextId()) ));
+        //// KS_TODO Remove this trace output.
         en->trace();
 
         // test/set the highwater mark for the table
@@ -592,8 +614,7 @@ bool EnumerationContextTable::processExpiredContexts()
                   "Enumeration Context removed after providers did not"
                       "respond for at least %u min. ContextId=%s",
                   ((finalTargetCount * PEGASUS_PULL_MAX_OPERATION_WAIT_SEC)/60),
-                  (const char*)en->getContextId().getCString()
-                  ));
+                  *Str(en->getContextId()) ));
 
             // Close the provider side, generate response to client, and
             // remove the context.
@@ -609,12 +630,12 @@ bool EnumerationContextTable::processExpiredContexts()
         {
             PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
                 "%u Consecutive 0 length responses issued for ContextId=%s",
-                ctr,
-                CSTRING(en->getContextId()) ));
+                ctr, *Str(en->getContextId()) ));
+
             // send cleanup message to provider manager.  Need pointer to
             // this service.
             CIMServer * cimserver = CIMServer::getInstance();
-            // What do we do if false return
+            // Ignore false return
             cimserver->_providerManager->enumerationContextCleanup(
                 en->getContextId());
             en->unlockContext();
@@ -623,7 +644,6 @@ bool EnumerationContextTable::processExpiredContexts()
         {
             en->unlockContext();
         }
-
     }
     PEG_METHOD_EXIT();
 

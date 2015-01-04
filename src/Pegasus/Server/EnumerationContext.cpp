@@ -46,6 +46,28 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+// General class to process various objects that are made up of Pegaus
+// Strings back to the String and more directly to the const char* ...
+// used for display. This can be used for
+// String, CIMName, CIMNamespaceName, Exception, CIMDateTime, CIMObjectPath
+// The same general class exists in several places in OpenPegasus.
+// TODO: make this a general part of Pegasus so it is not duplicated in
+// many different files.
+class Str
+{
+public:
+    Str(const String& s) : _cstr(s.getCString()) { }
+    Str(const CIMName& n) : _cstr(n.getString().getCString()) { }
+    Str(const CIMNamespaceName& n) : _cstr(n.getString().getCString()) { }
+    Str(const Exception& e) : _cstr(e.getMessage().getCString()) { }
+    Str(const CIMDateTime& x) : _cstr(x.toString().getCString()) { }
+    Str(const CIMObjectPath& x) : _cstr(x.toString().getCString()) { }
+    const char* operator*() const { return (const char*)_cstr; }
+    operator const char*() const { return (const char*)_cstr; }
+private:
+    CString _cstr;
+};
+
 // defines conversion between sec and usec
 #define PEG_MICROSEC 1000000
 
@@ -100,7 +122,7 @@ EnumerationContext::EnumerationContext(const String& contextId,
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,
         "Create EnumerationContext ContextId=%s operationTimeoutSec %u"
         " responseCacheDataType %u StartTime %lu",
-        (const char *)getContextId().getCString(),
+        *Str(getContextId()),
         _operationTimeoutSec,
         _responseCache.getResponseDataContent(),
         (unsigned long int)_startTimeUsec));
@@ -156,7 +178,7 @@ void EnumerationContext::startTimer(Uint64 timeoutUsec)
         "StartTimer, ContextId=%s, This timeoutTime(sec)=%llu"
            " OperationTimeout=%u sec,"
            " next timeout in %ld sec,",
-       (const char*)getContextId().getCString(),
+       *Str(getContextId()),
        (timeoutUsec / PEG_MICROSEC),
        _operationTimeoutSec,
        (long signed int)(_operationTimerUsec - currentTime)/PEG_MICROSEC ));
@@ -175,8 +197,7 @@ void EnumerationContext::stopTimer()
         "StopTimer ContextId=%s,"
            " OperationTimeout=%u sec,"
            " (timerTime - curtime)=%ld sec,",
-       (const char*)getContextId().getCString(),
-       _operationTimeoutSec,
+       *Str(getContextId()), _operationTimeoutSec,
        (long signed int)(_operationTimerUsec -
            System::getCurrentTimeUsec())/PEG_MICROSEC ));
 #endif
@@ -205,7 +226,7 @@ bool EnumerationContext::isTimedOut(Uint64 currentTime)
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "isTimedOut Timer. ContextId=%s timer(sec)=%lu"
            " current(sec)=%lu time to timeout(usec)=%ld isTimedOut=%s",
-        (const char*)_contextId.getCString(),
+        *Str(getContextId()),
         (long unsigned int)(_operationTimerUsec / PEG_MICROSEC),
         (long unsigned int)(currentTime / PEG_MICROSEC),
         (long signed int)((_operationTimerUsec - currentTime)),
@@ -263,7 +284,7 @@ void EnumerationContext::trace()
         "maxWaitTimeUsec=%llu "
         "RequestedResponseObjectCount=%u "
         "totalZeroLenObjectResponseCounter=%u",
-        (const char *)_contextId.getCString(),
+        *Str(getContextId()),
         _operationTimeoutSec,
         (long unsigned int)_operationTimerUsec,
         boolToString(_continueOnError),
@@ -338,7 +359,7 @@ bool EnumerationContext::putCache(CIMResponseMessage*& response,
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "putCache, ContextId=%s isComplete=%s ResponseDataType=%u "
             " cacheSize=%u putSize=%u clientClosed=%s",
-        (const char*)getContextId().getCString(),
+        *Str(getContextId()),
         boolToString(providersComplete),
         _responseCache.getResponseDataContent(),
         _responseCache.size(), from.size(),
@@ -401,8 +422,7 @@ void EnumerationContext::waitCacheSize()
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "waitCacheSize  ContextId=%s Wait=%lu usec",
-       (const char *)_contextId.getCString(),
-       (unsigned long int)interval ));
+       *Str(getContextId()), (unsigned long int)interval ));
 #endif
 
     _totalWaitTimeUsec += interval;
@@ -465,7 +485,7 @@ bool EnumerationContext::testCacheForResponses(
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
        "testCacheForResponse returns %s for ContextId=%s",
-               boolToString(rtn), (const char*)getContextId().getCString() ));
+               boolToString(rtn), *Str(getContextId()) ));
 #endif
     return rtn;
 }
@@ -523,8 +543,7 @@ bool EnumerationContext::getCache(Uint32 count, CIMResponseData& rtnData)
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
       "EnumerationContext::getCache ContextId=%s moveObjects expected=%u"
-          " actual=%u", (const char *)getContextId().getCString(),
-          count, rtnData.size()));
+          " actual=%u", *Str(getContextId()), count, rtnData.size()));
 #endif
 
     // Signal the ProviderLimitCondition that the cache size may
@@ -541,6 +560,10 @@ void EnumerationContext::signalProviderWaitCondition()
         "EnumerationContext::signalProviderLimitCondition");
 
     PEGASUS_DEBUG_ASSERT(valid());
+
+    PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
+      "EnumerationContext::signalProviderWait Condition ContextId=%s"
+          " cacheSize=%u", *Str(getContextId()), responseCacheSize() ));
 
     AutoMutex autoMut(_providerWaitConditionMutex);
 
@@ -624,8 +647,7 @@ void EnumerationContext::setClientClosed()
 
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL3,
-        "setClientClosed. ContextId=%s ",
-        (const char*)getContextId().getCString() ));
+        "setClientClosed. ContextId=%s ", *Str(getContextId()) ));
 #endif
 
     // Clear any existing responses out of the cache.  The will never
@@ -660,8 +682,7 @@ void EnumerationContext::setProcessingState(bool state)
 #ifdef ENUMERATION_CONTEXT_DIAGNOSTIC_TRACE
     PEG_TRACE((TRC_ENUMCONTEXT, Tracer::LEVEL4,
         "setProcessingState. ContextId=%s nextProcessingStat=%s",
-        (const char*)getContextId().getCString(),
-        (state? "active" : "inactive") ));
+        *Str(getContextId()), (state? "active" : "inactive") ));
 #endif
 
     _processing = state;

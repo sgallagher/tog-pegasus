@@ -180,6 +180,9 @@ EnumerationContextTable::EnumerationContextTable()
     _requestCount(0),
     _totalZeroLenDelayedResponses(0)
 {
+    // Set initial contextId numeric value. No special reason for the number
+    _nextContextIdCounter.set(500000);
+
     // Setup the default value for the operation timeout value if the value
     // received  in a request is NULL.  This is the server defined default.
     ConfigManager* configManager = ConfigManager::getInstance();
@@ -199,7 +202,6 @@ EnumerationContextTable* EnumerationContextTable::getInstance()
     }
     return pInstance;
 }
-
 
 /* Remove all contexts and delete them. Only used on system shutdown.
 */
@@ -226,8 +228,6 @@ EnumerationContextTable::~EnumerationContextTable()
     Returns pointer to the new context except if:
        - Size exceeds system limit.
 */
-
-static IDFactory _enumerationContextIDFactory(500000);
 
 EnumerationContext* EnumerationContextTable::createContext(
     const CIMOpenOperationRequestMessage* request,
@@ -257,7 +257,7 @@ EnumerationContext* EnumerationContextTable::createContext(
     Uint32 rtnSize;
     char scratchBuffer[22];
     const char* contextId = Uint32ToString(scratchBuffer,
-    _enumerationContextIDFactory.getID(), rtnSize);
+        getNextId(), rtnSize);
 
     // Create new context, Context name is monolithically increasing counter.
     EnumerationContext* en = new EnumerationContext(contextId,

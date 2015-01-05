@@ -212,6 +212,9 @@ private:
     // Not protected by mutex.
     bool _removeContext(EnumerationContext* en);
 
+    // Return the next Numeric counter value for ContextId
+    Uint32 getNextId();
+
     // Enumeration Context objects are maintained in the following
     // Pegasus hash table.
     typedef HashTable<String, EnumerationContext* , EqualFunc<String>,
@@ -278,9 +281,22 @@ private:
     // Total number of delayed responses generated
     Uint64 _totalZeroLenDelayedResponses;
 
+    // Numeric Counter for ContextId numeric values
+    AtomicInt _nextContextIdCounter;
+
     // magic number that acts as validator of enumerationContextTable
     Magic<0x57D11474> _magic;
 };
+
+/*****************************************************************
+  Inline Implementations for the EnumerationContextTable Class functions
+******************************************************************/
+
+inline Uint32 EnumerationContextTable::getNextId()
+{
+    _nextContextIdCounter++;
+    return _nextContextIdCounter.get();
+}
 
 //
 //  inline EnumerationContextTable functions

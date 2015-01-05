@@ -592,11 +592,11 @@ extern int FQL_error(const char*);
 #include <cassert>
 #include "FQLYACC.h"
 
-//#ifdef FQL_DOTRACE
+#ifdef FQL_DOTRACE
 # define FQL_TRACE(X) printf X
-//#else
+#else
 # define FQL_TRACE(X)
-//#endif
+#endif
 
 // Define the globalParserState update for each new token as a single
 // macro so that we can use this or not.

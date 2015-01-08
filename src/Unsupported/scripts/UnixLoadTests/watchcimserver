@@ -221,7 +221,8 @@ for Name in ${PROCNAMEARRAY[@]}
 do
     echo testing for process name $Name
     CIMSERVER_PID=$(ps -C $Name --no-headers -o pid | head -1)
-    echo Process $Name PID=$CIMSERVER_PID
+    CIMSERVER_PID="${CIMSERVER_PID## }"
+    echo Process=$Name PID=$CIMSERVER_PID
 
     if [[ -n "$CIMSERVER_PID" ]];then
         echo Watch cimserver pid=$CIMSERVER_PID each $INTERVAL sec. \
